@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.5</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.odontologiaintegralfm</groupId>
+	<artifactId>api</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>odontologia-integral-fm-api</name>
+	<description>API REST para la aplicación web de Odontología Integral FM</description>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+
+	<dependencies>
+		<!-- Dependencia para Spring Boot Web Starter -->
+		<!-- Proporciona lo necesario para construir aplicaciones web, incluyendo soporte para RESTFULL APIs, y servidor embebido (como Tomcat) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- Dependencia para Spring Boot Security Starter -->
+		<!-- Proporciona integraciones de seguridad en la aplicación, incluyendo autenticación, autorización, y manejo de roles y permisos -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- Dependencia para Auth0 Java JWT -->
+		<!-- Proporciona herramientas para crear y verificar JSON Web Tokens (JWT), referidos a la autenticación y autorización -->
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.4.0</version>
+		</dependency>
+
+		<!-- Dependencia para Spring Boot OAuth2 Client Starter -->
+		<!-- Proporciona soporte para clientes OAuth2 en aplicaciones Spring Boot -->
+		<!-- Facilita la integración con proveedores de identidad y servicios de autenticación como Google, Facebook, etc. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+
+		<!-- Dependencia para MySQL Connector/J -->
+		<!-- Proporciona el controlador JDBC necesario para conectar aplicaciones Java a bases de datos MySQL -->
+		<!-- Permite realizar operaciones de acceso a datos utilizando la API JDBC estándar -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version>
+		</dependency>
+
+		<!-- Dependencia para Spring Boot Data JPA Starter -->
+		<!-- Proporciona integraciones con Java Persistence API (JPA) para facilitar la persistencia de datos en bases de datos relacionales -->
+		<!-- Incluye soporte para repositorios de Spring Data, lo que simplifica las operaciones CRUD y consultas complejas -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- Dependencia para Project Lombok -->
+		<!-- Proporciona anotaciones que generan automáticamente código repetitivo en tiempo de compilación, como getters, setters, constructores, y más -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- Dependencia para Jakarta Validation API -->
+		<!-- Proporciona las anotaciones y la API necesarias para realizar validaciones -->
+		<!-- Permite definir reglas de validación para las clases y verificar que los datos cumplan con estas reglas -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+
+		<!-- Dependencia para Spring Boot Validation Starter -->
+		<!-- Proporciona integraciones de validación usando la API de validación de Jakarta -->
+		<!-- Permite realizar validaciones en las clases de tu aplicación, asegurando la integridad de los datos -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<!-- Dependencia para Spring Boot Mail Starter -->
+		<!-- Proporciona soporte para enviar correos electrónicos desde aplicaciones Spring Boot -->
+		<!-- Incluye configuraciones y utilidades para integrar servicios de correo, como SMTP -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<!-- Dependencia para Jakarta Mail -->
+		<!-- Proporciona la implementación de la API de correo de Jakarta, anteriormente conocida como JavaMail -->
+		<!-- Permite enviar y recibir correos electrónicos a través de protocolos estándar como SMTP, POP3 e IMAP -->
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>jakarta.mail</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
+		<!-- Dependencia para Spring Boot Logging Starter -->
+		<!-- Proporciona una configuración lista para usar para el registro (logging) en aplicaciones Spring Boot -->
+		<!-- Incluye soporte para frameworks de registro como Logback y SLF4J -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
+		</dependency>
+
+		<!-- Dependencia de Springdoc OpenAPI -->
+		<!-- Permite generar documentación de la API en una aplicación Spring Web MVC, incluye la interfaz de usuario Swagger UI -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+
+
+		<!-- Dependencia para Spring Boot Test Starter -->
+		<!-- Proporciona herramientas y bibliotecas necesarias para realizar pruebas unitarias y de integración en aplicaciones Spring Boot -->
+		<!-- Incluye frameworks como JUnit, Mockito, Spring Test, entre otros -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Dependencia para Spring Security Test -->
+		<!-- Proporciona herramientas y utilidades para realizar pruebas de seguridad en aplicaciones Spring Boot -->
+		<!-- Incluye clases y métodos para simular autenticación y autorización durante las pruebas -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+
+
+
+</project>
