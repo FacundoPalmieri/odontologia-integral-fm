@@ -1,7 +1,7 @@
-package com.odontologiaintegralfm.security.config;
+package com.odontologiaintegralfm.configuration.securityConfig;
 import com.odontologiaintegralfm.repository.IUserRepository;
-import com.odontologiaintegralfm.security.config.filter.JwtTokenValidator;
-import com.odontologiaintegralfm.security.config.filter.OAuth2UserFilter;
+import com.odontologiaintegralfm.configuration.securityConfig.filter.JwtTokenValidator;
+import com.odontologiaintegralfm.configuration.securityConfig.filter.OAuth2UserFilter;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;

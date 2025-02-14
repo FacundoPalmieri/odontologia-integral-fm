@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.security.config.filter;
+package com.odontologiaintegralfm.configuration.securityConfig.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;

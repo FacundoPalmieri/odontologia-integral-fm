@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.security.config.filter;
+package com.odontologiaintegralfm.configuration.securityConfig.filter;
 
 /**
  * Filtro para la autenticación y validación de usuarios OAuth2, y generación de tokens JWT.
