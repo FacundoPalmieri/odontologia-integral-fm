@@ -1,0 +1,55 @@
+<div class="background h-screen flex justify-center items-center">
+  <mat-card>
+    <div class="bg-white rounded-lg shadow-md p-8 w-120">
+      <div class="flex items-center">
+        <img src="img/logo-fondo-blanco.jpg" alt="FM Logo" class="" />
+      </div>
+
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold">Bienvenido/a, vamos a loguearte</h2>
+      </div>
+
+      <div class="mb-4">
+        <button mat-stroked-button class="w-full relative">
+          <i-tabler
+            name="brand-google"
+            class="absolute left-2 top-1/2 transform -translate-y-1/2"
+          ></i-tabler>
+          <span class="pl-10">Ingresar con Google</span>
+        </button>
+      </div>
+
+      <div class="text-center text-gray-500 mb-4">o Ingresar con</div>
+
+      <form [formGroup]="loginForm">
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Usuario</mat-label>
+          <input
+            matInput
+            placeholder="tu_mail@gmail.com"
+            formControlName="username"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Contraseña</mat-label>
+          <input matInput type="password" formControlName="password" />
+          @if(loginForm.get('username')?.hasError('email')){
+          <mat-error>El usuario debe ser un e-mail válido</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="flex justify-end items-center">
+          <a href="#" class="text-blue-500">¿Olvidaste la contraseña?</a>
+        </div>
+
+        <button mat-flat-button class="w-full mt-4">Ingresar</button>
+      </form>
+
+      <div class="text-center mt-6">
+        <span>¿No tienes usuario?</span>
+        <span class="text-blue-500 ml-1">Comunicate con un administrador</span>
+      </div>
+    </div></mat-card
+  >
+</div>

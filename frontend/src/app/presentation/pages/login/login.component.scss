@@ -1,0 +1,16 @@
+@use "@angular/material" as mat;
+
+.background {
+  background: rgb(248, 150, 127);
+  background: radial-gradient(
+    circle,
+    rgba(248, 150, 127, 1) 0%,
+    rgba(105, 56, 83, 1) 100%
+  );
+}
+
+@include mat.button-overrides(
+  (
+    filled-container-color: var(--mat-sys-secondary),
+  )
+);
