@@ -5,6 +5,7 @@
         <img src="img/logo-fondo-blanco.jpg" alt="FM Logo" class="" />
       </div>
 
+      @if(!isForgotPassword()){
       <div class="mb-4">
         <h2 class="text-2xl font-bold">Bienvenido/a, vamos a loguearte</h2>
       </div>
@@ -29,27 +30,85 @@
             placeholder="tu_mail@gmail.com"
             formControlName="username"
           />
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-label>Contraseña</mat-label>
-          <input matInput type="password" formControlName="password" />
           @if(loginForm.get('username')?.hasError('email')){
           <mat-error>El usuario debe ser un e-mail válido</mat-error>
           }
         </mat-form-field>
 
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="clickEvent($event)"
+            type="button"
+          >
+            <mat-icon>{{
+              hidePassword() ? "visibility_off" : "visibility"
+            }}</mat-icon>
+          </button>
+        </mat-form-field>
+
         <div class="flex justify-end items-center">
-          <a href="#" class="text-blue-500">¿Olvidaste la contraseña?</a>
+          <a
+            href=""
+            class="text-blue-500 clicky"
+            (click)="toggleForgotPassword(); $event.preventDefault()"
+            >¿Olvidaste la contraseña?</a
+          >
         </div>
 
-        <button mat-flat-button class="w-full mt-4">Ingresar</button>
+        <button
+          mat-flat-button
+          class="w-full mt-4"
+          [disabled]="!loginForm.valid"
+        >
+          Ingresar
+        </button>
       </form>
 
       <div class="text-center mt-6">
         <span>¿No tienes usuario?</span>
-        <span class="text-blue-500 ml-1">Comunicate con un administrador</span>
+        <span class="text-blue-500 ml-1">Comunicate con un administrador.</span>
       </div>
-    </div></mat-card
-  >
+
+      } @if(isForgotPassword()){
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold">Recuperar contraseña</h2>
+      </div>
+      <form [formGroup]="forgotPasswordForm">
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Correo electrónico</mat-label>
+          <input
+            matInput
+            placeholder="tu_mail@gmail.com"
+            formControlName="email"
+          />
+          @if(forgotPasswordForm.get('email')?.hasError('email')){
+          <mat-error>Ingresa un correo válido</mat-error>
+          }
+        </mat-form-field>
+
+        <button
+          mat-flat-button
+          class="w-full mt-4"
+          [disabled]="!forgotPasswordForm.valid"
+        >
+          Enviar mail de recuperación
+        </button>
+      </form>
+
+      <div class="text-center mt-6">
+        <a href="#" class="text-blue-500" (click)="toggleForgotPassword()"
+          >Volver al login</a
+        >
+      </div>
+      }
+    </div>
+  </mat-card>
 </div>

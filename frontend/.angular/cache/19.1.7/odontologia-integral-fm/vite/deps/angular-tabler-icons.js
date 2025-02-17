@@ -15,7 +15,8 @@ import {
   ɵɵdefineNgModule,
   ɵɵprojection,
   ɵɵprojectionDef
-} from "./chunk-RQZ5A4HW.js";
+} from "./chunk-JGVU4NVX.js";
+import "./chunk-ZSY7TSMJ.js";
 import {
   __spreadValues
 } from "./chunk-WDMUDEB6.js";

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -10,6 +10,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
+import { MatIconModule } from "@angular/material/icon";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 
 @Component({
@@ -24,12 +25,15 @@ import { IconsModule } from "../../../utils/tabler-icons.module";
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
+    MatIconModule,
     IconsModule,
   ],
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  hide = signal(true);
+  forgotPasswordForm: FormGroup;
+  hidePassword = signal(true);
+  isForgotPassword = signal(false);
 
   constructor() {
     this.loginForm = new FormGroup({
@@ -39,5 +43,21 @@ export class LoginComponent {
       ]),
       password: new FormControl<string>("", [Validators.required]),
     });
+
+    this.forgotPasswordForm = new FormGroup({
+      email: new FormControl<string>("", [
+        Validators.required,
+        Validators.email,
+      ]),
+    });
+  }
+
+  clickEvent(event: MouseEvent) {
+    this.hidePassword.set(!this.hidePassword());
+    event.stopPropagation();
+  }
+
+  toggleForgotPassword() {
+    this.isForgotPassword.set(!this.isForgotPassword());
   }
 }
