@@ -1,4 +1,4 @@
-import { Component, signal } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -12,6 +12,8 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatIconModule } from "@angular/material/icon";
 import { IconsModule } from "../../../utils/tabler-icons.module";
+import { AuthService } from "../../../services/auth.service";
+import { LoginInterface } from "../../../domain/interfaces/login.interface";
 
 @Component({
   selector: "app-login",
@@ -30,6 +32,7 @@ import { IconsModule } from "../../../utils/tabler-icons.module";
   ],
 })
 export class LoginComponent {
+  authService = inject(AuthService);
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   hidePassword = signal(true);
@@ -59,5 +62,20 @@ export class LoginComponent {
 
   toggleForgotPassword() {
     this.isForgotPassword.set(!this.isForgotPassword());
+  }
+
+  login() {
+    if (this.loginForm.invalid) return;
+
+    const loginData: LoginInterface = this.loginForm.value;
+
+    this.authService.logIn(loginData).subscribe({
+      next: (response) => {
+        console.log("Login exitoso:", response);
+      },
+      error: (error) => {
+        console.error("Error en el login:", error);
+      },
+    });
   }
 }
