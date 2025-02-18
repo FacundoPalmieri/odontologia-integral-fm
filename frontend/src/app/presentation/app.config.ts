@@ -7,7 +7,11 @@ import {
   withEventReplay,
 } from "@angular/platform-browser";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
-import { provideHttpClient, withInterceptors } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from "@angular/common/http";
 import { errorInterceptor } from "../utils/interceptors/error.interceptor";
 import { tokenInterceptor } from "../utils/interceptors/token.interceptor";
 import { authInterceptor } from "../utils/interceptors/auth.interceptor";
@@ -19,7 +23,8 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
     provideHttpClient(
-      withInterceptors([errorInterceptor, tokenInterceptor, authInterceptor])
+      withInterceptors([errorInterceptor, tokenInterceptor, authInterceptor]),
+      withFetch()
     ),
   ],
 };
