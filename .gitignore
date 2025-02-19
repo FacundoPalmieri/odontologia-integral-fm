@@ -19,7 +19,10 @@ target/
 *.iml
 *.ipr
 *.sql
-backend/logs/*.log
+*.log
+*.log.*
+backend/logs/
+
 
 ### Node.js/Angular
 node_modules/
