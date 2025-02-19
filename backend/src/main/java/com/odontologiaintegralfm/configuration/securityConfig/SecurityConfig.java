@@ -52,6 +52,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login", "/auth/reset-password",
+                                "/auth/request/reset-password").permitAll() // Permitir acceso sin autenticación
+                        .anyRequest().authenticated() // Todas las demás rutas requieren autenticación
+                )
                 .formLogin(form -> form
                         .defaultSuccessUrl("/holaseg",true)) //Redirección luego de autenticación.
                 //sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
