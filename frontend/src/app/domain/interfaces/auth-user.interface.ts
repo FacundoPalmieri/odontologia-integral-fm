@@ -1,4 +1,4 @@
-export interface UserInterface {
+export interface AuthUserInterface {
   username: string;
   message: string;
   jwt: string;

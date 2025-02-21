@@ -14,6 +14,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { AuthService } from "../../../services/auth.service";
 import { LoginInterface } from "../../../domain/interfaces/login.interface";
+import { AuthUserInterface } from "../../../domain/interfaces/auth-user.interface";
 
 @Component({
   selector: "app-login",
@@ -40,11 +41,13 @@ export class LoginComponent {
 
   constructor() {
     this.loginForm = new FormGroup({
-      username: new FormControl<string>("", [
+      username: new FormControl<string>(
+        "matiasnicolasiglesiasseliman@gmail.com",
+        [Validators.required, Validators.email]
+      ),
+      password: new FormControl<string>("$MatiasIglesias12345678", [
         Validators.required,
-        Validators.email,
       ]),
-      password: new FormControl<string>("", [Validators.required]),
     });
 
     this.forgotPasswordForm = new FormGroup({
@@ -70,8 +73,8 @@ export class LoginComponent {
     const loginData: LoginInterface = this.loginForm.value;
 
     this.authService.logIn(loginData).subscribe({
-      next: (response) => {
-        console.log("Login exitoso:", response);
+      next: (response: AuthUserInterface) => {
+        this.authService.doLogin(response);
       },
       error: (error) => {
         console.error("Error en el login:", error);
