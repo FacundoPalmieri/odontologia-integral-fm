@@ -1,7 +1,10 @@
 import { HttpInterceptorFn } from "@angular/common/http";
+import { inject } from "@angular/core";
+import { AuthService } from "../../services/auth.service";
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = ""; // Obtener del local o session storage
+  const authService = inject(AuthService);
+  const token = authService.getJwtToken();
 
   const excludedUrls = [
     "/auth/login",

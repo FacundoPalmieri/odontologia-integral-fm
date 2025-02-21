@@ -25,4 +25,12 @@ export class AuthService {
 
     localStorage.setItem("userData", JSON.stringify(userData));
   }
+
+  getJwtToken(): string | null {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      return JSON.parse(userData).jwt;
+    }
+    return null;
+  }
 }
