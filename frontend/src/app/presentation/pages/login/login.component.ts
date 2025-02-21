@@ -15,6 +15,7 @@ import { IconsModule } from "../../../utils/tabler-icons.module";
 import { AuthService } from "../../../services/auth.service";
 import { LoginInterface } from "../../../domain/interfaces/login.interface";
 import { AuthUserInterface } from "../../../domain/interfaces/auth-user.interface";
+import { ApiErrorInterface } from "../../../domain/interfaces/api-error.interface";
 
 @Component({
   selector: "app-login",
@@ -38,6 +39,8 @@ export class LoginComponent {
   forgotPasswordForm: FormGroup;
   hidePassword = signal(true);
   isForgotPassword = signal(false);
+  resetPasswordSent = signal(false);
+  resetPasswordMessage = signal("");
 
   constructor() {
     this.loginForm = new FormGroup({
@@ -51,7 +54,7 @@ export class LoginComponent {
     });
 
     this.forgotPasswordForm = new FormGroup({
-      email: new FormControl<string>("", [
+      email: new FormControl<string>("matiasnicolasiglesiasseliman@gmail.com", [
         Validators.required,
         Validators.email,
       ]),
@@ -78,6 +81,21 @@ export class LoginComponent {
       },
       error: (error) => {
         console.error("Error en el login:", error);
+      },
+    });
+  }
+
+  requestPasswordReset() {
+    if (this.forgotPasswordForm.invalid) return;
+
+    const email: string = this.forgotPasswordForm.value.email;
+    this.authService.resetPasswordRequest(email).subscribe({
+      next: (response: string) => {
+        this.resetPasswordSent.set(true);
+        this.resetPasswordMessage.set(response);
+      },
+      error: (error) => {
+        console.error("Error al enviar el correo de recuperación:", error);
       },
     });
   }

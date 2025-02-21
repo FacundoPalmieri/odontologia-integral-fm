@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { LoginInterface } from "../domain/interfaces/login.interface";
@@ -14,6 +14,16 @@ export class AuthService {
     return this.http.post<AuthUserInterface>(
       `${this.apiUrl}/auth/login`,
       login
+    );
+  }
+
+  resetPasswordRequest(email: string): Observable<string> {
+    const params = new HttpParams().set("email", email);
+
+    return this.http.post<string>(
+      `${this.apiUrl}/auth/request/reset-password`,
+      null,
+      { params, responseType: "text" as "json" }
     );
   }
 

@@ -6,7 +6,7 @@
       </div>
 
       @if(!isForgotPassword()){
-      <div class="mb-4">
+      <div class="mb-4 text-center">
         <h2 class="text-2xl font-bold">Bienvenido/a, vamos a loguearte</h2>
       </div>
 
@@ -78,7 +78,7 @@
         <span class="text-blue-500 ml-1">Comunicate con un administrador.</span>
       </div>
 
-      } @if(isForgotPassword()){
+      } @if(isForgotPassword() && !resetPasswordSent()){
       <div class="mb-4">
         <h2 class="text-2xl font-bold">Recuperar contraseña</h2>
       </div>
@@ -98,12 +98,24 @@
         <button
           mat-flat-button
           class="w-full mt-4"
+          (click)="requestPasswordReset()"
           [disabled]="!forgotPasswordForm.valid"
         >
           Enviar mail de recuperación
         </button>
       </form>
 
+      <div class="text-center mt-6">
+        <a href="#" class="text-blue-500" (click)="toggleForgotPassword()"
+          >Volver al login</a
+        >
+      </div>
+      } @if(resetPasswordSent()){
+      <div class="mb-4 text-center">
+        <h2 class="text-xl font-bold succesful-message-color">
+          {{ resetPasswordMessage() }}
+        </h2>
+      </div>
       <div class="text-center mt-6">
         <a href="#" class="text-blue-500" (click)="toggleForgotPassword()"
           >Volver al login</a
