@@ -1,0 +1,11 @@
+<div
+  [ngClass]="{
+    'snackbar-info': data.type === SnackbarType.Info,
+    'snackbar-success': data.type === SnackbarType.Success,
+    'snackbar-error': data.type === SnackbarType.Error,
+    'snackbar-warning': data.type === SnackbarType.Warning
+  }"
+  class="snackbar-content"
+>
+  <span>{{ data.message }}</span>
+</div>

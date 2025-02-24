@@ -15,8 +15,9 @@ import { IconsModule } from "../../../utils/tabler-icons.module";
 import { AuthService } from "../../../services/auth.service";
 import { LoginInterface } from "../../../domain/interfaces/login.interface";
 import { AuthUserInterface } from "../../../domain/interfaces/auth-user.interface";
-import { ApiErrorInterface } from "../../../domain/interfaces/api-error.interface";
 import { LoaderService } from "../../../services/loader.service";
+import { SnackbarService } from "../../../services/snackbar.service";
+import { SnackbarType } from "../../../utils/enums/snackbar-type.enum";
 
 @Component({
   selector: "app-login",
@@ -37,6 +38,7 @@ import { LoaderService } from "../../../services/loader.service";
 export class LoginComponent {
   authService = inject(AuthService);
   loaderService = inject(LoaderService);
+  snackbarService = inject(SnackbarService);
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   hidePassword = signal(true);
@@ -100,6 +102,13 @@ export class LoginComponent {
         this.resetPasswordSent.set(true);
         this.resetPasswordMessage.set(response);
         this.loaderService.hide();
+        this.snackbarService.openSnackbar(
+          response,
+          6000,
+          "center",
+          "top",
+          SnackbarType.Success
+        );
       },
       error: (error) => {
         console.error("Error al enviar el correo de recuperación:", error);

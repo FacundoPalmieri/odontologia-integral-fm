@@ -1,0 +1,30 @@
+ç// Estilo general del snackbar
+::ng-deep .mat-snack-bar-container {
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+// Tipo de snackbar "success"
+::ng-deep .snackbar-success {
+  background-color: #4caf50; // Verde
+  color: white; // Texto blanco
+}
+
+// Tipo de snackbar "error"
+::ng-deep .snackbar-error {
+  background-color: #f44336; // Rojo
+  color: white; // Texto blanco
+}
+
+// Tipo de snackbar "warning"
+::ng-deep .snackbar-warning {
+  background-color: #ff9800; // Naranja
+  color: white; // Texto blanco
+}
+
+// Tipo de snackbar "info"
+::ng-deep .snackbar-info {
+  background-color: #338c76; // Verde oscuro
+  color: white; // Texto blanco
+}
