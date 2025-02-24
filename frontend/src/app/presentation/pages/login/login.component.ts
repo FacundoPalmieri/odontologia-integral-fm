@@ -18,6 +18,7 @@ import { AuthUserInterface } from "../../../domain/interfaces/auth-user.interfac
 import { LoaderService } from "../../../services/loader.service";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarType } from "../../../utils/enums/snackbar-type.enum";
+import { ApiErrorInterface } from "../../../domain/interfaces/api-error.interface";
 
 @Component({
   selector: "app-login",
@@ -83,10 +84,17 @@ export class LoginComponent {
       next: (response: AuthUserInterface) => {
         this.authService.doLogin(response);
         this.loaderService.hide();
+        this.snackbarService.openSnackbar(
+          "Logueado con éxito",
+          6000,
+          "center",
+          "top",
+          SnackbarType.Success
+        );
       },
-      error: (error) => {
-        console.error("Error en el login:", error);
+      error: (error: ApiErrorInterface) => {
         this.loaderService.hide();
+        console.error(error.message);
       },
     });
   }

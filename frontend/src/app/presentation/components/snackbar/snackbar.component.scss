@@ -1,30 +1,50 @@
-ç// Estilo general del snackbar
-::ng-deep .mat-snack-bar-container {
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: 500;
-}
+@use "@angular/material" as mat;
 
-// Tipo de snackbar "success"
-::ng-deep .snackbar-success {
-  background-color: #4caf50; // Verde
-  color: white; // Texto blanco
-}
+body {
+  .snackbar-success {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: #4caf50,
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+  .snackbar-error {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: #f44336,
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
 
-// Tipo de snackbar "error"
-::ng-deep .snackbar-error {
-  background-color: #f44336; // Rojo
-  color: white; // Texto blanco
-}
+  .snackbar-warning {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: #ff9800,
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
 
-// Tipo de snackbar "warning"
-::ng-deep .snackbar-warning {
-  background-color: #ff9800; // Naranja
-  color: white; // Texto blanco
-}
-
-// Tipo de snackbar "info"
-::ng-deep .snackbar-info {
-  background-color: #338c76; // Verde oscuro
-  color: white; // Texto blanco
+  .snackbar-info {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: #338c76,
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
 }

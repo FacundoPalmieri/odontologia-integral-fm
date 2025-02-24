@@ -106,14 +106,18 @@
       </form>
 
       <div class="text-center mt-6">
-        <a href="#" class="text-blue-500" (click)="toggleForgotPassword()"
-          >Volver al login</a
+        <span
+          class="text-blue-500 cursor-pointer"
+          (click)="toggleForgotPassword()"
+          >Volver al login</span
         >
       </div>
       } @if(resetPasswordSent()){
       <div class="text-center mt-6">
-        <a href="#" class="text-blue-500" (click)="toggleForgotPassword()"
-          >Volver al login</a
+        <span
+          class="text-blue-500 cursor-pointer"
+          (click)="toggleForgotPassword()"
+          >Volver al login</span
         >
       </div>
       }

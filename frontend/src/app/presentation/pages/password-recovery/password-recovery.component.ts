@@ -1,4 +1,4 @@
-import { Component, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import {
   AbstractControl,
   FormControl,
@@ -13,6 +13,14 @@ import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatIconModule } from "@angular/material/icon";
+import { Subscription } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { AuthService } from "../../../services/auth.service";
+import { ResetPasswordInterface } from "../../../domain/interfaces/reset-password.interface";
+import { SnackbarType } from "../../../utils/enums/snackbar-type.enum";
+import { ApiErrorInterface } from "../../../domain/interfaces/api-error.interface";
+import { SnackbarService } from "../../../services/snackbar.service";
+import { LoaderService } from "../../../services/loader.service";
 
 @Component({
   selector: "app-password-recovery",
@@ -28,9 +36,17 @@ import { MatIconModule } from "@angular/material/icon";
     MatIconModule,
   ],
 })
-export class PasswordRecoveryComponent {
-  passwordRecoveryForm: FormGroup;
+export class PasswordRecoveryComponent implements OnInit {
+  private routeSub: Subscription | undefined;
+
+  route = inject(ActivatedRoute);
+  authService = inject(AuthService);
+  snackbarService = inject(SnackbarService);
+  loaderService = inject(LoaderService);
   hidePassword = signal(true);
+  passwordRecoveryForm: FormGroup;
+  token: string | null = null;
+  hideResetPasswordForm = signal(false);
 
   constructor() {
     this.passwordRecoveryForm = new FormGroup(
@@ -40,6 +56,18 @@ export class PasswordRecoveryComponent {
       },
       { validators: this.passwordsMatchValidator }
     );
+  }
+
+  ngOnInit(): void {
+    this.routeSub = this.route.queryParams.subscribe((params) => {
+      this.token = params["token"];
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routeSub) {
+      this.routeSub.unsubscribe();
+    }
   }
 
   togglePasswordVisibility(): void {
@@ -55,6 +83,36 @@ export class PasswordRecoveryComponent {
 
     return password === confirmPassword ? null : { passwordsMismatch: true };
   };
+
+  resetPassword() {
+    if (this.passwordRecoveryForm.invalid || !this.token) return;
+
+    const { password, confirmPassword } = this.passwordRecoveryForm.value;
+    const resetData: ResetPasswordInterface = {
+      token: this.token,
+      newPassword1: password,
+      newPassword2: confirmPassword,
+    };
+
+    this.loaderService.show();
+    this.authService.resetPassword(resetData).subscribe({
+      next: (response: string) => {
+        this.loaderService.hide();
+        this.snackbarService.openSnackbar(
+          response,
+          6000,
+          "center",
+          "top",
+          SnackbarType.Success
+        );
+        this.hideResetPasswordForm.set(true);
+      },
+      error: (error: ApiErrorInterface) => {
+        this.loaderService.hide();
+        console.error(error.message);
+      },
+    });
+  }
 
   get isFormValid(): boolean {
     return this.passwordRecoveryForm.valid;
