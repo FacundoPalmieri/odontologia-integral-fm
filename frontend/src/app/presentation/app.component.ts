@@ -1,12 +1,16 @@
 import { Component, inject } from "@angular/core";
 import { ThemeService } from "../services/theme.service";
 import { RouterModule } from "@angular/router";
+import { LoaderComponent } from "./components/loader/loader.component";
 
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [RouterModule],
-  template: ` <router-outlet></router-outlet> `,
+  imports: [RouterModule, LoaderComponent],
+  template: `
+    <app-loader></app-loader>
+    <router-outlet></router-outlet>
+  `,
   styles: `
     // @use '@angular/material' as mat;
 

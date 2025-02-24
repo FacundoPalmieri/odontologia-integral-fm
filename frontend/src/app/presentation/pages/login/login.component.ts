@@ -16,6 +16,7 @@ import { AuthService } from "../../../services/auth.service";
 import { LoginInterface } from "../../../domain/interfaces/login.interface";
 import { AuthUserInterface } from "../../../domain/interfaces/auth-user.interface";
 import { ApiErrorInterface } from "../../../domain/interfaces/api-error.interface";
+import { LoaderService } from "../../../services/loader.service";
 
 @Component({
   selector: "app-login",
@@ -35,6 +36,7 @@ import { ApiErrorInterface } from "../../../domain/interfaces/api-error.interfac
 })
 export class LoginComponent {
   authService = inject(AuthService);
+  loaderService = inject(LoaderService);
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   hidePassword = signal(true);
@@ -74,13 +76,15 @@ export class LoginComponent {
     if (this.loginForm.invalid) return;
 
     const loginData: LoginInterface = this.loginForm.value;
-
+    this.loaderService.show();
     this.authService.logIn(loginData).subscribe({
       next: (response: AuthUserInterface) => {
         this.authService.doLogin(response);
+        this.loaderService.hide();
       },
       error: (error) => {
         console.error("Error en el login:", error);
+        this.loaderService.hide();
       },
     });
   }
@@ -89,13 +93,17 @@ export class LoginComponent {
     if (this.forgotPasswordForm.invalid) return;
 
     const email: string = this.forgotPasswordForm.value.email;
+    this.loaderService.show();
+
     this.authService.resetPasswordRequest(email).subscribe({
       next: (response: string) => {
         this.resetPasswordSent.set(true);
         this.resetPasswordMessage.set(response);
+        this.loaderService.hide();
       },
       error: (error) => {
         console.error("Error al enviar el correo de recuperación:", error);
+        this.loaderService.hide();
       },
     });
   }
