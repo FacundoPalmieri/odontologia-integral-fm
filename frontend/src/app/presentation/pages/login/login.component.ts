@@ -17,8 +17,7 @@ import { LoginInterface } from "../../../domain/interfaces/login.interface";
 import { AuthUserInterface } from "../../../domain/interfaces/auth-user.interface";
 import { LoaderService } from "../../../services/loader.service";
 import { SnackbarService } from "../../../services/snackbar.service";
-import { SnackbarType } from "../../../utils/enums/snackbar-type.enum";
-import { ApiErrorInterface } from "../../../domain/interfaces/api-error.interface";
+import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 
 @Component({
   selector: "app-login",
@@ -90,7 +89,7 @@ export class LoginComponent {
           3000,
           "center",
           "top",
-          SnackbarType.Success
+          SnackbarTypeEnum.Success
         );
       },
       error: () => {
@@ -115,7 +114,7 @@ export class LoginComponent {
           3000,
           "center",
           "top",
-          SnackbarType.Success
+          SnackbarTypeEnum.Success
         );
       },
       error: () => {

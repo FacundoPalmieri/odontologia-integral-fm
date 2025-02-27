@@ -8,6 +8,10 @@ import {
   IconHeartFilled,
   IconBrandGithub,
   IconBrandGoogle,
+  IconAlertTriangle,
+  IconAlertCircle,
+  IconCircleCheck,
+  IconXboxX,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -17,6 +21,10 @@ const ICONS = {
   IconHeartFilled,
   IconBrandGithub,
   IconBrandGoogle,
+  IconAlertTriangle,
+  IconAlertCircle,
+  IconCircleCheck,
+  IconXboxX,
 } as const;
 
 @NgModule({

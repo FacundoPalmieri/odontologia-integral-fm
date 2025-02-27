@@ -1,11 +1,4 @@
-<div
-  [ngClass]="{
-    'snackbar-info': data.type === SnackbarType.Info,
-    'snackbar-success': data.type === SnackbarType.Success,
-    'snackbar-error': data.type === SnackbarType.Error,
-    'snackbar-warning': data.type === SnackbarType.Warning
-  }"
-  class="snackbar-content"
->
+<div class="flex items-center gap-2">
+  <i-tabler [name]="iconName"></i-tabler>
   <span>{{ data.message }}</span>
 </div>

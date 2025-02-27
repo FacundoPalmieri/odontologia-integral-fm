@@ -17,8 +17,7 @@ import { Subscription } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
 import { AuthService } from "../../../services/auth.service";
 import { ResetPasswordInterface } from "../../../domain/interfaces/reset-password.interface";
-import { SnackbarType } from "../../../utils/enums/snackbar-type.enum";
-import { ApiErrorInterface } from "../../../domain/interfaces/api-error.interface";
+import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { LoaderService } from "../../../services/loader.service";
 
@@ -103,7 +102,7 @@ export class PasswordRecoveryComponent implements OnInit {
           3000,
           "center",
           "top",
-          SnackbarType.Success
+          SnackbarTypeEnum.Success
         );
         this.hideResetPasswordForm.set(true);
       },

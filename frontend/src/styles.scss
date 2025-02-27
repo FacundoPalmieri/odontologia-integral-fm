@@ -16,3 +16,53 @@ body {
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
 }
+
+// Estilos snackbar (ver de sacar de acá)
+body {
+  .snackbar-success {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: #4caf50,
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+  .snackbar-error {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: #f44336,
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+
+  .snackbar-warning {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: #ff9800,
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+
+  .snackbar-info {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: #338c76,
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+}
