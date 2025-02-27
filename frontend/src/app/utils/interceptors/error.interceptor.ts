@@ -1,16 +1,22 @@
 import { HttpErrorResponse, HttpInterceptorFn } from "@angular/common/http";
+import { inject } from "@angular/core";
 import { catchError, throwError } from "rxjs";
+import { SnackbarService } from "../../services/snackbar.service";
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  const snackbarService = inject(SnackbarService);
+
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 400) {
-        console.error("Bad request"); // Cambiar console.log por snackbar o toasts
-      } else if (error.status === 500) {
-        console.error("Internal error");
+      let errorMessage = "Ocurrió un error inesperado.";
+
+      if (error.error?.message) {
+        errorMessage = error.error.message;
       }
 
-      return throwError(() => error.error.message);
+      snackbarService.openSnackbar(errorMessage, 3000, "center", "bottom");
+
+      return throwError(() => errorMessage);
     })
   );
 };

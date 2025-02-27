@@ -73,6 +73,7 @@ export class LoginComponent {
 
   toggleForgotPassword() {
     this.isForgotPassword.set(!this.isForgotPassword());
+    this.resetPasswordSent.set(false);
   }
 
   login() {
@@ -85,16 +86,15 @@ export class LoginComponent {
         this.authService.doLogin(response);
         this.loaderService.hide();
         this.snackbarService.openSnackbar(
-          "Logueado con éxito",
-          6000,
+          response.message,
+          3000,
           "center",
           "top",
           SnackbarType.Success
         );
       },
-      error: (error: ApiErrorInterface) => {
+      error: () => {
         this.loaderService.hide();
-        console.error(error.message);
       },
     });
   }
@@ -112,14 +112,13 @@ export class LoginComponent {
         this.loaderService.hide();
         this.snackbarService.openSnackbar(
           response,
-          6000,
+          3000,
           "center",
           "top",
           SnackbarType.Success
         );
       },
-      error: (error) => {
-        console.error("Error al enviar el correo de recuperación:", error);
+      error: () => {
         this.loaderService.hide();
       },
     });

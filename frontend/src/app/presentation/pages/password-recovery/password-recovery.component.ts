@@ -100,16 +100,15 @@ export class PasswordRecoveryComponent implements OnInit {
         this.loaderService.hide();
         this.snackbarService.openSnackbar(
           response,
-          6000,
+          3000,
           "center",
           "top",
           SnackbarType.Success
         );
         this.hideResetPasswordForm.set(true);
       },
-      error: (error: ApiErrorInterface) => {
+      error: () => {
         this.loaderService.hide();
-        console.error(error.message);
       },
     });
   }
