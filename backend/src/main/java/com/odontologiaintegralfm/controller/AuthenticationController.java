@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.controller;
 import com.odontologiaintegralfm.dto.AuthLoginRequestDTO;
 import com.odontologiaintegralfm.dto.AuthResponseDTO;
 import com.odontologiaintegralfm.dto.ResetPasswordDTO;
+import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import com.odontologiaintegralfm.service.UserDetailsServiceImp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +33,7 @@ import jakarta.validation.Valid;
  */
 
 @RestController
-@PreAuthorize("true")
+@PreAuthorize("permitAll()")
 @RequestMapping("/auth")
 public class AuthenticationController {
 
@@ -80,9 +81,9 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "Correo enviado exitosamente.")
     })
     @PostMapping("/request/reset-password")
-    public ResponseEntity<String> requestResetPassword(@RequestParam String email) {
-        String message = userService.createTokenResetPasswordForUser(email);
-        return new ResponseEntity<>(message, HttpStatus.OK);
+    public ResponseEntity<Response<String>> requestResetPassword(@RequestParam String email) {
+        Response<String> response = userService.createTokenResetPasswordForUser(email);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
@@ -102,9 +103,9 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "Restablecimiento de contraseña exitoso.")
     })
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO, HttpServletRequest request) {
-        String message = userService.updatePassword(resetPasswordDTO, request);
-        return new ResponseEntity<>(message, HttpStatus.OK);
+    public ResponseEntity<Response<String>> resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO, HttpServletRequest request) {
+        Response<String> response = userService.updatePassword(resetPasswordDTO, request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

@@ -44,7 +44,7 @@ public interface IUserService {
       * @param email El correo electrónico del usuario para el cual generar el token.
       * @return El token de restablecimiento de contraseña generado.
       */
-     String createTokenResetPasswordForUser(String email);
+     Response<String> createTokenResetPasswordForUser(String email);
 
 
 
@@ -54,7 +54,7 @@ public interface IUserService {
       * @param request La solicitud HTTP, necesaria para generar el contexto de la actualización.
       * @return El mensaje de éxito o error tras la actualización de la contraseña.
       */
-     String updatePassword(ResetPasswordDTO resetPasswordDTO, HttpServletRequest request);
+     Response<String> updatePassword(ResetPasswordDTO resetPasswordDTO, HttpServletRequest request);
 
 
      Response<UserSecResponseDTO> update(UserSecUpdateDTO userSecUpdateDTO);
