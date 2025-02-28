@@ -54,4 +54,36 @@ export class AuthService {
     }
     return null;
   }
+
+  isLoggedIn(): boolean {
+    const token = this.getJwtToken();
+
+    if (!token) return false;
+
+    const payload = this.getJWTokenPayload(token);
+    if (!payload) return false;
+
+    return !this.isTokenExpired(payload.exp);
+  }
+
+  private getJWTokenPayload(token: string) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  private isTokenExpired(expiration: number): boolean {
+    if (!expiration) {
+      return true;
+    }
+    const now = Math.floor(Date.now() / 1000);
+    return expiration < now;
+  }
+
+  logout(): void {
+    localStorage.removeItem("userData");
+  }
 }

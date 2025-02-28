@@ -19,6 +19,7 @@ import { LoaderService } from "../../../services/loader.service";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-error.interface";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-login",
@@ -40,6 +41,7 @@ export class LoginComponent {
   authService = inject(AuthService);
   loaderService = inject(LoaderService);
   snackbarService = inject(SnackbarService);
+  router = inject(Router);
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   hidePassword = signal(true);
@@ -91,6 +93,7 @@ export class LoginComponent {
           "top",
           SnackbarTypeEnum.Success
         );
+        this.router.navigate(["/"]);
       },
       error: () => {
         this.loaderService.hide();
