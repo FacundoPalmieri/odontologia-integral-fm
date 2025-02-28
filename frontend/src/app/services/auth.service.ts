@@ -5,6 +5,7 @@ import { LoginInterface } from "../domain/interfaces/login.interface";
 import { Observable } from "rxjs";
 import { AuthUserInterface } from "../domain/interfaces/auth-user.interface";
 import { ResetPasswordInterface } from "../domain/interfaces/reset-password.interface";
+import { ApiResponseInterface } from "../domain/interfaces/api-error.interface";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
@@ -18,21 +19,22 @@ export class AuthService {
     );
   }
 
-  resetPasswordRequest(email: string): Observable<string> {
+  resetPasswordRequest(email: string): Observable<ApiResponseInterface> {
     const params = new HttpParams().set("email", email);
 
-    return this.http.post<string>(
+    return this.http.post<ApiResponseInterface>(
       `${this.apiUrl}/auth/request/reset-password`,
       null,
-      { params, responseType: "text" as "json" }
+      { params }
     );
   }
 
-  resetPassword(resetData: ResetPasswordInterface): Observable<string> {
-    return this.http.post<string>(
+  resetPassword(
+    resetData: ResetPasswordInterface
+  ): Observable<ApiResponseInterface> {
+    return this.http.post<ApiResponseInterface>(
       `${this.apiUrl}/auth/reset-password`,
-      resetData,
-      { responseType: "text" as "json" }
+      resetData
     );
   }
 
