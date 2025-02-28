@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -29,7 +30,9 @@ import jakarta.validation.Valid;
  * El controlador depende de los servicios {@link UserDetailsServiceImp} para la autenticación de usuario y
  * {@link IUserService} para la gestión de las contraseñas y el envío de correos electrónicos de restablecimiento.
  */
+
 @RestController
+@PreAuthorize("true")
 @RequestMapping("/auth")
 public class AuthenticationController {
 

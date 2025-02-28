@@ -1,0 +1,18 @@
+@use "@angular/material" as mat;
+
+:host {
+  @include mat.progress-bar-overrides(
+    (
+      active-indicator-color: #339c76,
+      track-color: #cccccc,
+    )
+  );
+}
+
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
