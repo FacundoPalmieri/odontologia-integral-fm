@@ -6,6 +6,7 @@ import { Observable } from "rxjs";
 import { AuthUserInterface } from "../domain/interfaces/auth-user.interface";
 import { ResetPasswordInterface } from "../domain/interfaces/reset-password.interface";
 import { ApiResponseInterface } from "../domain/interfaces/api-error.interface";
+import { UserDataInterface } from "../domain/interfaces/user-data.interface";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
@@ -39,7 +40,7 @@ export class AuthService {
   }
 
   doLogin(authUserData: AuthUserInterface) {
-    const userData = {
+    const userData: UserDataInterface = {
       username: authUserData.username,
       jwt: authUserData.jwt,
     };
@@ -55,6 +56,14 @@ export class AuthService {
     return null;
   }
 
+  getUserData(): UserDataInterface | null {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      return JSON.parse(userData);
+    }
+    return null;
+  }
+
   isLoggedIn(): boolean {
     const token = this.getJwtToken();
 
@@ -64,6 +73,10 @@ export class AuthService {
     if (!payload) return false;
 
     return !this.isTokenExpired(payload.exp);
+  }
+
+  logout(): void {
+    localStorage.removeItem("userData");
   }
 
   private getJWTokenPayload(token: string) {
@@ -81,9 +94,5 @@ export class AuthService {
     }
     const now = Math.floor(Date.now() / 1000);
     return expiration < now;
-  }
-
-  logout(): void {
-    localStorage.removeItem("userData");
   }
 }

@@ -1,0 +1,50 @@
+.drawer-container {
+  height: 100vh;
+}
+
+.sidenav {
+  background: rgb(204, 204, 204, 0.3);
+  width: 80px;
+}
+
+.sidenav-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.content-background {
+  background: rgb(204, 204, 204, 0.3);
+  height: 100%;
+  border-radius: 20px;
+}
+
+.sidenav-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.avatar-icon {
+  background: rgb(204, 204, 204, 0.3);
+  border-radius: 50%;
+  height: 34px;
+  width: 34px;
+}
+
+.avatar-icon-menu {
+  background: rgb(204, 204, 204, 0.3);
+  border-radius: 50%;
+  height: 52px;
+  width: 52px;
+}
+
+.custom-divider {
+  border-color: rgb(204, 204, 204, 0.6);
+  margin-left: 16px;
+  margin-right: 16px;
+}

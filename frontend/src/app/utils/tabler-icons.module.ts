@@ -12,6 +12,17 @@ import {
   IconAlertCircle,
   IconCircleCheck,
   IconXboxX,
+  IconSettings,
+  IconCalendarWeek,
+  IconDashboard,
+  IconUserHeart,
+  IconFileDollar,
+  IconSun,
+  IconMoon,
+  IconSearch,
+  IconChevronDown,
+  IconUserCircle,
+  IconLogout2,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -25,6 +36,17 @@ const ICONS = {
   IconAlertCircle,
   IconCircleCheck,
   IconXboxX,
+  IconSettings,
+  IconCalendarWeek,
+  IconDashboard,
+  IconUserHeart,
+  IconFileDollar,
+  IconSun,
+  IconMoon,
+  IconSearch,
+  IconChevronDown,
+  IconUserCircle,
+  IconLogout2,
 } as const;
 
 @NgModule({

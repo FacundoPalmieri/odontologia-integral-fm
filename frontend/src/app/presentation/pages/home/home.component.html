@@ -1,1 +1,75 @@
-<h1>HomeComponent</h1>
+<mat-drawer-container class="drawer-container" autosize>
+  <mat-drawer #drawer class="sidenav" mode="side" opened>
+    <div class="flex justify-center pt-2">
+      <img src="img/login-logo.jpg" alt="Logo" class="sidenav-logo" />
+    </div>
+
+    <mat-nav-list>
+      <div class="space-y-4 mt-4 p-3">
+        @for(menu of menuItems; track menu.label){
+        <mat-list-item
+          class="list-item-menu"
+          [matTooltip]="menu.label"
+          matTooltipPosition="right"
+          [routerLink]="menu.route"
+          routerLinkActive="active-link"
+        >
+          <i-tabler class="mt-1" [name]="menu.icon"></i-tabler>
+        </mat-list-item>
+        }
+      </div>
+    </mat-nav-list>
+  </mat-drawer>
+
+  <div class="sidenav-content">
+    <mat-toolbar>
+      <h1>Odontología Integral FM</h1>
+      <span class="spacer"></span>
+      <button mat-icon-button>
+        <i-tabler name="search"></i-tabler>
+      </button>
+      <button mat-icon-button (click)="toggleTheme()">
+        <i-tabler
+          [name]="currentTheme().id === 'dark' ? 'moon' : 'sun'"
+        ></i-tabler>
+      </button>
+
+      <button mat-button class="user-menu" [matMenuTriggerFor]="menu">
+        <div class="flex items-center gap-1">
+          <img src="img/doctor-avatar.svg" alt="Avatar" class="avatar-icon" />
+          <i-tabler name="chevron-down"></i-tabler>
+        </div>
+      </button>
+
+      <mat-menu #menu="matMenu">
+        <div class="flex items-center p-4">
+          <img
+            src="img/doctor-avatar.svg"
+            alt="Avatar"
+            class="avatar-icon-menu"
+          />
+          <div class="ml-1 gap-3 overflow-hidden text-ellipsis">
+            <span>Nombre y Apellido</span>
+            <span> {{ userData?.username }} </span>
+          </div>
+        </div>
+        <mat-divider class="custom-divider"></mat-divider>
+        <button mat-menu-item>
+          <div class="flex items-center">
+            <i-tabler name="user-circle"></i-tabler>
+            <span class="ml-1">Mis datos</span>
+          </div>
+        </button>
+        <button mat-menu-item (click)="logout()">
+          <div class="flex items-center">
+            <i-tabler name="logout-2"></i-tabler>
+            <span class="ml-1">Cerrar sesión</span>
+          </div>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+    <div class="content-background m-4 p-4">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</mat-drawer-container>

@@ -17,7 +17,7 @@ body {
   color: var(--mat-sys-on-background);
 }
 
-// Estilos snackbar (ver de sacar de acá)
+// Estilos custom angular material (ver de sacar de acá)
 body {
   .snackbar-success {
     @include mat.snack-bar-overrides(
@@ -62,6 +62,36 @@ body {
         button-color: #ffffff,
         supporting-text-size: 16px,
         supporting-text-weight: 500,
+      )
+    );
+  }
+
+  .list-item-menu {
+    text-align: center;
+
+    @include mat.list-overrides(
+      (
+        active-indicator-shape: 14px,
+      )
+    );
+  }
+
+  .active-link {
+    @include mat.list-overrides(
+      (
+        list-item-container-color: var(--mat-sys-secondary),
+      )
+    );
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .user-menu {
+    @include mat.button-overrides(
+      (
+        filled-container-shape: 10px,
+        outlined-container-shape: 10px,
+        protected-container-shape: 10px,
+        text-container-shape: 10px,
       )
     );
   }
