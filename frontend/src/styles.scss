@@ -93,4 +93,12 @@ body {
       text-container-shape: 10px,
     )
   );
+
+  @include mat.tooltip-overrides(
+    (
+      container-color: var(--mat-sys-secondary),
+      supporting-text-color: var(--mat-sys-on-secondary-container),
+      container-shape: 12px,
+    )
+  );
 }
