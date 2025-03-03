@@ -42,11 +42,13 @@ export class HomeComponent {
   userData: UserDataInterface | null = this.authService.getUserData();
 
   menuItems = [
-    { label: "Dashboard", icon: "dashboard", route: "/dashboard" },
+    { label: "Dashboard", icon: "chart-bar", route: "/dashboard" },
     { label: "Pacientes", icon: "user-heart", route: "/patients" },
-    { label: "Finanzas", icon: "file-dollar", route: "/finances" },
     { label: "Citas", icon: "calendar-week", route: "/appointments" },
+    { label: "Insumos", icon: "packages", route: "/inventory" },
+    { label: "Finanzas", icon: "file-dollar", route: "/finances" },
     { label: "Configuración", icon: "settings", route: "/configuration" },
+    { label: "Sistema", icon: "device-desktop-cog", route: "/system" },
   ];
   constructor() {}
 

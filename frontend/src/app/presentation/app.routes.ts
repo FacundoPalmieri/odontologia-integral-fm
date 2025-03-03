@@ -9,6 +9,8 @@ import { ConfigurationComponent } from "./pages/configuration/configuration.comp
 import { PatientsComponent } from "./pages/patients/patients.component";
 import { AppointmentsComponent } from "./pages/appointments/appointments.component";
 import { FinanceComponent } from "./pages/finance/finance.component";
+import { SystemComponent } from "./pages/system/system.component";
+import { InventoryComponent } from "./pages/inventory/inventory.component";
 
 export const routes: Routes = [
   {
@@ -29,12 +31,20 @@ export const routes: Routes = [
         component: FinanceComponent,
       },
       {
+        path: "inventory",
+        component: InventoryComponent,
+      },
+      {
         path: "appointments",
         component: AppointmentsComponent,
       },
       {
         path: "configuration",
         component: ConfigurationComponent,
+      },
+      {
+        path: "system",
+        component: SystemComponent,
       },
     ],
   },

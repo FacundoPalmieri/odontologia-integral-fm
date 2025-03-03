@@ -22,7 +22,10 @@
   </mat-drawer>
 
   <div class="sidenav-content">
-    <mat-toolbar>
+    <mat-toolbar class="gap-3">
+      <button mat-icon-button (click)="drawer.toggle()">
+        <i-tabler name="menu"></i-tabler>
+      </button>
       <h1>Odontología Integral FM</h1>
       <span class="spacer"></span>
       <button mat-icon-button>
@@ -34,7 +37,7 @@
         ></i-tabler>
       </button>
 
-      <button mat-button class="user-menu" [matMenuTriggerFor]="menu">
+      <button mat-button [matMenuTriggerFor]="menu">
         <div class="flex items-center gap-1">
           <img src="img/doctor-avatar.svg" alt="Avatar" class="avatar-icon" />
           <i-tabler name="chevron-down"></i-tabler>

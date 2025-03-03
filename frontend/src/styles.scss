@@ -85,14 +85,12 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 
-  .user-menu {
-    @include mat.button-overrides(
-      (
-        filled-container-shape: 10px,
-        outlined-container-shape: 10px,
-        protected-container-shape: 10px,
-        text-container-shape: 10px,
-      )
-    );
-  }
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 10px,
+      outlined-container-shape: 10px,
+      protected-container-shape: 10px,
+      text-container-shape: 10px,
+    )
+  );
 }

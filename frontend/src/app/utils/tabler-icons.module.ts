@@ -2,11 +2,6 @@ import { NgModule } from "@angular/core";
 
 import { TablerIconsModule } from "angular-tabler-icons";
 import {
-  IconCamera,
-  IconCameraFilled,
-  IconHeart,
-  IconHeartFilled,
-  IconBrandGithub,
   IconBrandGoogle,
   IconAlertTriangle,
   IconAlertCircle,
@@ -14,7 +9,6 @@ import {
   IconXboxX,
   IconSettings,
   IconCalendarWeek,
-  IconDashboard,
   IconUserHeart,
   IconFileDollar,
   IconSun,
@@ -23,14 +17,13 @@ import {
   IconChevronDown,
   IconUserCircle,
   IconLogout2,
+  IconDeviceDesktopCog,
+  IconPackages,
+  IconMenu,
+  IconChartBar,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
-  IconCamera,
-  IconCameraFilled,
-  IconHeart,
-  IconHeartFilled,
-  IconBrandGithub,
   IconBrandGoogle,
   IconAlertTriangle,
   IconAlertCircle,
@@ -38,7 +31,6 @@ const ICONS = {
   IconXboxX,
   IconSettings,
   IconCalendarWeek,
-  IconDashboard,
   IconUserHeart,
   IconFileDollar,
   IconSun,
@@ -47,6 +39,10 @@ const ICONS = {
   IconChevronDown,
   IconUserCircle,
   IconLogout2,
+  IconDeviceDesktopCog,
+  IconPackages,
+  IconMenu,
+  IconChartBar,
 } as const;
 
 @NgModule({
