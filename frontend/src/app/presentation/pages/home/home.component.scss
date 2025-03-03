@@ -3,7 +3,7 @@
 }
 
 .sidenav {
-  background: rgb(204, 204, 204, 0.3);
+  background: var(--mat-sys-home-sidenav-background);
   width: 80px;
 }
 
@@ -14,7 +14,7 @@
 }
 
 .content-background {
-  background: rgb(204, 204, 204, 0.3);
+  background: var(--mat-sys-home-content-background);
   height: 100%;
   border-radius: 20px;
 }

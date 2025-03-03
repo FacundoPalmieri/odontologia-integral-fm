@@ -295,5 +295,13 @@
   --mat-sys-pressed-state-layer-opacity: 0.12;
 
   /* CUSTOMS VARIABLES */
-  --mat-sys-succesful-message-color: #339c76;
+  --mat-toolbar-standard-height: 70px;
+  --mat-sys-home-sidenav-background: light-dark(
+    rgb(204, 204, 204, 0.3),
+    transparent
+  );
+  --mat-sys-home-content-background: light-dark(
+    rgb(204, 204, 204, 0.3),
+    rgb(204, 204, 204, 0.3)
+  );
 }
