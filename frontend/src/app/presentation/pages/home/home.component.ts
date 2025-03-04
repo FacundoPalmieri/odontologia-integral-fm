@@ -43,10 +43,24 @@ export class HomeComponent {
 
   menuItems = [
     { label: "Dashboard", icon: "chart-bar", route: "/dashboard" },
-    { label: "Pacientes", icon: "user-heart", route: "/patients" },
-    { label: "Citas", icon: "calendar-week", route: "/appointments" },
+    {
+      label: "Registro de Consultas",
+      icon: "folder-plus",
+      route: "/consultation",
+    },
+    {
+      label: "Gestión de Turnos",
+      icon: "calendar-plus",
+      route: "/appointments",
+    },
+    {
+      label: "Historia Clínica",
+      icon: "folder-search",
+      route: "/medical-record",
+    },
     { label: "Insumos", icon: "packages", route: "/inventory" },
     { label: "Finanzas", icon: "file-dollar", route: "/finances" },
+    { label: "Reportes", icon: "chart-histogram", route: "/reports" },
     { label: "Configuración", icon: "settings", route: "/configuration" },
     { label: "Sistema", icon: "device-desktop-cog", route: "/system" },
   ];

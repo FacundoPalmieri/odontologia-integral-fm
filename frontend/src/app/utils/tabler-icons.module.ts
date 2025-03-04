@@ -8,8 +8,6 @@ import {
   IconCircleCheck,
   IconXboxX,
   IconSettings,
-  IconCalendarWeek,
-  IconUserHeart,
   IconFileDollar,
   IconSun,
   IconMoon,
@@ -22,6 +20,10 @@ import {
   IconMenu,
   IconChartBar,
   IconEdit,
+  IconCalendarPlus,
+  IconFolderPlus,
+  IconFolderSearch,
+  IconChartHistogram,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -31,8 +33,6 @@ const ICONS = {
   IconCircleCheck,
   IconXboxX,
   IconSettings,
-  IconCalendarWeek,
-  IconUserHeart,
   IconFileDollar,
   IconSun,
   IconMoon,
@@ -45,6 +45,10 @@ const ICONS = {
   IconMenu,
   IconChartBar,
   IconEdit,
+  IconCalendarPlus,
+  IconFolderPlus,
+  IconFolderSearch,
+  IconChartHistogram,
 } as const;
 
 @NgModule({
