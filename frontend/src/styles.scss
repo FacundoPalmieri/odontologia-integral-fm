@@ -101,4 +101,20 @@ body {
       container-shape: 12px,
     )
   );
+
+  @include mat.card-overrides(
+    (
+      outlined-outline-width: 0,
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      container-height: 50px,
+      container-vertical-padding: 14px,
+      // filled-with-label-container-padding-top: 12px,
+      // filled-with-label-container-padding-bottom: 8px,
+      container-text-size: 16px,
+    )
+  );
 }

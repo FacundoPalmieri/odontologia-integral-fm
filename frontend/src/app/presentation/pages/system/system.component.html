@@ -1,1 +1,20 @@
 <app-page-toolbar [title]="'Sistema'"></app-page-toolbar>
+<div class="mt-4">
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <form [formGroup]="tokenForm">
+        <div class="flex gap-4 items-center justify-center">
+          <mat-form-field appearance="outline">
+            <mat-label>Expiración del Token (minutos)</mat-label>
+            <input matInput type="number" formControlName="expiration" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Intentos fallidos de logueo</mat-label>
+            <input matInput type="number" formControlName="failedAttempts" />
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
