@@ -5,7 +5,7 @@ import { LoginInterface } from "../domain/interfaces/login.interface";
 import { Observable } from "rxjs";
 import { AuthUserInterface } from "../domain/interfaces/auth-user.interface";
 import { ResetPasswordInterface } from "../domain/interfaces/reset-password.interface";
-import { ApiResponseInterface } from "../domain/interfaces/api-error.interface";
+import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { UserDataInterface } from "../domain/interfaces/user-data.interface";
 
 @Injectable({ providedIn: "root" })
@@ -20,10 +20,12 @@ export class AuthService {
     );
   }
 
-  resetPasswordRequest(email: string): Observable<ApiResponseInterface> {
+  resetPasswordRequest(
+    email: string
+  ): Observable<ApiResponseInterface<string>> {
     const params = new HttpParams().set("email", email);
 
-    return this.http.post<ApiResponseInterface>(
+    return this.http.post<ApiResponseInterface<string>>(
       `${this.apiUrl}/auth/request/reset-password`,
       null,
       { params }
@@ -32,8 +34,8 @@ export class AuthService {
 
   resetPassword(
     resetData: ResetPasswordInterface
-  ): Observable<ApiResponseInterface> {
-    return this.http.post<ApiResponseInterface>(
+  ): Observable<ApiResponseInterface<string>> {
+    return this.http.post<ApiResponseInterface<string>>(
       `${this.apiUrl}/auth/reset-password`,
       resetData
     );

@@ -18,7 +18,7 @@ import { AuthUserInterface } from "../../../domain/interfaces/auth-user.interfac
 import { LoaderService } from "../../../services/loader.service";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
-import { ApiResponseInterface } from "../../../domain/interfaces/api-error.interface";
+import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { Router } from "@angular/router";
 
 @Component({
@@ -50,17 +50,17 @@ export class LoginComponent {
 
   constructor() {
     this.loginForm = new FormGroup({
-      username: new FormControl<string>(
-        "matiasnicolasiglesiasseliman@gmail.com",
-        [Validators.required, Validators.email]
-      ),
-      password: new FormControl<string>("$MatiasIglesias12345678", [
+      username: new FormControl<string>("palmierifacundo@gmail.com", [
+        Validators.required,
+        Validators.email,
+      ]),
+      password: new FormControl<string>("$Facundo12345678", [
         Validators.required,
       ]),
     });
 
     this.forgotPasswordForm = new FormGroup({
-      email: new FormControl<string>("matiasnicolasiglesiasseliman@gmail.com", [
+      email: new FormControl<string>("palmierifacundo@gmail.com", [
         Validators.required,
         Validators.email,
       ]),
@@ -108,7 +108,7 @@ export class LoginComponent {
     this.loaderService.show();
 
     this.authService.resetPasswordRequest(email).subscribe({
-      next: (response: ApiResponseInterface) => {
+      next: (response: ApiResponseInterface<string>) => {
         this.resetPasswordSent.set(true);
         this.loaderService.hide();
         this.snackbarService.openSnackbar(

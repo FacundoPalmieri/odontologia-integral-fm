@@ -20,7 +20,7 @@ import { ResetPasswordInterface } from "../../../domain/interfaces/reset-passwor
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { LoaderService } from "../../../services/loader.service";
-import { ApiResponseInterface } from "../../../domain/interfaces/api-error.interface";
+import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 
 @Component({
   selector: "app-password-recovery",
@@ -96,7 +96,7 @@ export class PasswordRecoveryComponent implements OnInit {
 
     this.loaderService.show();
     this.authService.resetPassword(resetData).subscribe({
-      next: (response: ApiResponseInterface) => {
+      next: (response: ApiResponseInterface<string>) => {
         this.loaderService.hide();
         this.snackbarService.openSnackbar(
           response.message,
