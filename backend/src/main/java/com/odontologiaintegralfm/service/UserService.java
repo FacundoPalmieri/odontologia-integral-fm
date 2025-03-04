@@ -347,9 +347,9 @@ public class UserService implements IUserService {
             emailService.sendEmail(user.getUsername(), asunto, message);
 
             //Elaborar respuesta para el controller.
-            String messageController =  messageService.getMessage("userService.requestResetPassword.success", null, LocaleContextHolder.getLocale());
+            String messageUser =  messageService.getMessage("userService.requestResetPassword.success", null, LocaleContextHolder.getLocale());
 
-            return new Response <>(true, messageController, user.getUsername());
+            return new Response <>(true, messageUser, user.getUsername());
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "createPasswordReset");
@@ -406,9 +406,9 @@ public class UserService implements IUserService {
             log.atInfo().log("[Mensaje: {}] - [USUARIO: {}] -[IP {}]", message,usuario.getUsername(), ipAddress);
 
             //Elabora Response a controller.
-            String messageController = messageService.getMessage("userService.resetPassword.success", null, LocaleContextHolder.getLocale());
+            String messageUser = messageService.getMessage("userService.resetPassword.success", null, LocaleContextHolder.getLocale());
 
-            return new Response <>(true, messageController, usuario.getUsername());
+            return new Response <>(true, messageUser, usuario.getUsername());
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "updatePassword");

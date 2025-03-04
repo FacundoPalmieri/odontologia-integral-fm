@@ -8,7 +8,7 @@ public record MessageDTO(
         Long id,
 
         @NotNull
-        String key
+        String value
 
 ) {
 }
