@@ -122,4 +122,13 @@ body {
       container-text-size: 16px,
     )
   );
+
+  @include mat.table-overrides(
+    (
+      header-headline-size: 16px,
+      header-headline-weight: 600,
+      row-item-outline-color: rgba(0, 0, 0, 0.1),
+      row-item-outline-width: 1px,
+    )
+  );
 }

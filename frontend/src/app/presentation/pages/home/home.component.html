@@ -22,7 +22,7 @@
   </mat-drawer>
 
   <div class="sidenav-content">
-    <mat-toolbar class="gap-3 top-0 sticky">
+    <mat-toolbar class="gap-3 main-toolbar">
       <button mat-icon-button (click)="drawer.toggle()">
         <i-tabler name="menu"></i-tabler>
       </button>
@@ -71,7 +71,7 @@
         </button>
       </mat-menu>
     </mat-toolbar>
-    <div class="content-background m-4 mt-0 p-4">
+    <div class="content-background flex-grow overflow-y-auto m-4 mt-0 p-4">
       <router-outlet></router-outlet>
     </div>
   </div>

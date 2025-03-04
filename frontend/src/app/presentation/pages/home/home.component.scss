@@ -15,7 +15,6 @@
 
 .content-background {
   background: var(--mat-sys-home-content-background);
-  height: 100%;
   border-radius: 20px;
 }
 
@@ -47,4 +46,10 @@
   border-color: rgb(204, 204, 204, 0.6);
   margin-left: 16px;
   margin-right: 16px;
+}
+
+.main-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }

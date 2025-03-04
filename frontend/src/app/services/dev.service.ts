@@ -16,7 +16,7 @@ export class DevService {
     );
   }
 
-  setTokenExpirationTime(
+  updateTokenExpirationTime(
     time: number
   ): Observable<ApiResponseInterface<number>> {
     return this.http.patch<ApiResponseInterface<number>>(
@@ -33,7 +33,7 @@ export class DevService {
     );
   }
 
-  setFailedAttempts(
+  updateFailedAttempts(
     attemtps: number
   ): Observable<ApiResponseInterface<number>> {
     return this.http.patch<ApiResponseInterface<number>>(
@@ -44,9 +44,18 @@ export class DevService {
     );
   }
 
-  getMessages(): Observable<ApiResponseInterface<MessageInterface>> {
-    return this.http.get<ApiResponseInterface<MessageInterface>>(
+  getMessages(): Observable<ApiResponseInterface<MessageInterface[]>> {
+    return this.http.get<ApiResponseInterface<MessageInterface[]>>(
       `${this.apiUrl}/dev/message/get`
+    );
+  }
+
+  updateMessage(
+    message: MessageInterface
+  ): Observable<ApiResponseInterface<MessageInterface>> {
+    return this.http.patch<ApiResponseInterface<MessageInterface>>(
+      `${this.apiUrl}/dev/message/update`,
+      message
     );
   }
 }

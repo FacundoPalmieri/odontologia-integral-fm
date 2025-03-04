@@ -21,6 +21,7 @@ import {
   IconPackages,
   IconMenu,
   IconChartBar,
+  IconEdit,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -43,6 +44,7 @@ const ICONS = {
   IconPackages,
   IconMenu,
   IconChartBar,
+  IconEdit,
 } as const;
 
 @NgModule({
