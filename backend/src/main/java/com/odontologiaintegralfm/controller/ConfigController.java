@@ -82,7 +82,7 @@ public class ConfigController {
     @GetMapping("/message/get")
     public ResponseEntity<Response<List<MessageConfig>>> getMessage() {
         Response<List<MessageConfig>> response = configService.getMessage();
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

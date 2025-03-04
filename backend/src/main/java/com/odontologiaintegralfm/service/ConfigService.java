@@ -86,7 +86,9 @@ public class ConfigService implements IConfigService {
             MessageConfig message = messageService.getById(messageDto.id());
 
             //Actualiza campo
-            message = messageService.updateMessage(message);
+            message.setValue(messageDto.value());
+
+            message  = messageService.updateMessage(message);
 
             //Prepara y envía respuesta.
             String userMessage = messageService.getMessage("config.updateMessage.ok",null,LocaleContextHolder.getLocale());
