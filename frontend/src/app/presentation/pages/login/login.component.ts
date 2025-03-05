@@ -113,9 +113,9 @@ export class LoginComponent {
         this.loaderService.hide();
         this.snackbarService.openSnackbar(
           response.message,
-          3000,
+          6000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Success
         );
       },
