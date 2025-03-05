@@ -1,8 +1,19 @@
 <app-page-toolbar [title]="'Configuración'"></app-page-toolbar>
 
 <mat-card appearance="outlined" class="mt-4">
+  <mat-card-header>
+    <mat-card-title>Usuarios</mat-card-title>
+    <div class="flex w-full justify-end">
+      <button
+        mat-flat-button
+        matTooltip="Agregar usuario"
+        matTooltipPosition="left"
+      >
+        <i-tabler class="mt-1" name="plus"></i-tabler>
+      </button>
+    </div>
+  </mat-card-header>
   <mat-card-content>
-    <h1 class="text-xl text-bold">Usuarios</h1>
     <table mat-table [dataSource]="users" matSort>
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
@@ -69,8 +80,19 @@
 </mat-card>
 
 <mat-card appearance="outlined" class="mt-4">
+  <mat-card-header>
+    <mat-card-title>Roles</mat-card-title>
+    <div class="flex w-full justify-end">
+      <button
+        mat-flat-button
+        matTooltip="Agregar rol"
+        matTooltipPosition="left"
+      >
+        <i-tabler class="mt-1" name="plus"></i-tabler>
+      </button>
+    </div>
+  </mat-card-header>
   <mat-card-content>
-    <h1 class="text-xl text-bold">Roles</h1>
     <table mat-table [dataSource]="roles" matSort>
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
@@ -122,8 +144,19 @@
 </mat-card>
 
 <mat-card appearance="outlined" class="mt-4">
+  <mat-card-header>
+    <mat-card-title>Permisos</mat-card-title>
+    <div class="flex w-full justify-end">
+      <button
+        mat-flat-button
+        matTooltip="Agregar permiso"
+        matTooltipPosition="left"
+      >
+        <i-tabler class="mt-1" name="plus"></i-tabler>
+      </button>
+    </div>
+  </mat-card-header>
   <mat-card-content>
-    <h1 class="text-xl text-bold">Permisos</h1>
     <table mat-table [dataSource]="permissions" matSort>
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>

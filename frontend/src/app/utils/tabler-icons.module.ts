@@ -24,6 +24,7 @@ import {
   IconFolderPlus,
   IconFolderSearch,
   IconChartHistogram,
+  IconPlus,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -49,6 +50,7 @@ const ICONS = {
   IconFolderPlus,
   IconFolderSearch,
   IconChartHistogram,
+  IconPlus,
 } as const;
 
 @NgModule({
