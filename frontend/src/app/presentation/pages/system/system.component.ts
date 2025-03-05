@@ -68,32 +68,9 @@ export class SystemComponent {
   }
 
   loadInitialData() {
-    this.devService
-      .getTokenExpirationTime()
-      .subscribe((response: ApiResponseInterface<number>) => {
-        if (response.success) {
-          this.tokenForm.patchValue({
-            expiration: response.data,
-          });
-        }
-      });
-    this.devService
-      .getFailedAttempts()
-      .subscribe((response: ApiResponseInterface<number>) => {
-        if (response.success) {
-          this.tokenForm.patchValue({
-            attempts: response.data,
-          });
-        }
-      });
-
-    this.devService
-      .getMessages()
-      .subscribe((response: ApiResponseInterface<MessageInterface[]>) => {
-        this.messages = new MatTableDataSource(response.data);
-        this.messages.paginator = this.paginator;
-        this.messages.sort = this.sort;
-      });
+    this._getFailedAttempts();
+    this._getMessages();
+    this._getTokenExpirationTime();
   }
 
   updateTokenExpirationTime() {
@@ -109,6 +86,7 @@ export class SystemComponent {
           "top",
           SnackbarTypeEnum.Success
         );
+        this._getTokenExpirationTime();
       });
   }
 
@@ -125,6 +103,7 @@ export class SystemComponent {
           "top",
           SnackbarTypeEnum.Success
         );
+        this._getFailedAttempts();
       });
   }
 
@@ -145,6 +124,7 @@ export class SystemComponent {
                 "top",
                 SnackbarTypeEnum.Success
               );
+              this._getMessages();
             });
       });
     } else
@@ -155,5 +135,39 @@ export class SystemComponent {
         "bottom",
         SnackbarTypeEnum.Error
       );
+  }
+
+  private _getTokenExpirationTime() {
+    this.devService
+      .getTokenExpirationTime()
+      .subscribe((response: ApiResponseInterface<number>) => {
+        if (response.success) {
+          this.tokenForm.patchValue({
+            expiration: response.data,
+          });
+        }
+      });
+  }
+
+  private _getFailedAttempts() {
+    this.devService
+      .getFailedAttempts()
+      .subscribe((response: ApiResponseInterface<number>) => {
+        if (response.success) {
+          this.tokenForm.patchValue({
+            attempts: response.data,
+          });
+        }
+      });
+  }
+
+  private _getMessages() {
+    this.devService
+      .getMessages()
+      .subscribe((response: ApiResponseInterface<MessageInterface[]>) => {
+        this.messages = new MatTableDataSource(response.data);
+        this.messages.paginator = this.paginator;
+        this.messages.sort = this.sort;
+      });
   }
 }
