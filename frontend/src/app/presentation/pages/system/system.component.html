@@ -37,7 +37,7 @@
 <mat-card appearance="outlined" class="mt-4">
   <mat-card-content>
     <h1 class="text-xl text-bold">Mensajes del Sistema</h1>
-    <table mat-table [dataSource]="messages" matSort>
+    <table mat-table [dataSource]="messagesDataSource" matSort>
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
         <td mat-cell *matCellDef="let element">{{ element.id }}</td>

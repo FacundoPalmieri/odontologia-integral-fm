@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from "@angular/core";
+import { Component, effect, inject, signal, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -52,7 +52,9 @@ export class SystemComponent {
   readonly dialog = inject(MatDialog);
   tokenForm: FormGroup;
   displayedColumns: string[] = ["id", "key", "value", "locale", "action"];
-  messages: MatTableDataSource<MessageInterface> = new MatTableDataSource();
+  messages = signal<MessageInterface[]>([]);
+  messagesDataSource: MatTableDataSource<MessageInterface> =
+    new MatTableDataSource();
 
   @ViewChild(MatPaginator)
   paginator!: MatPaginator;
@@ -65,6 +67,14 @@ export class SystemComponent {
       attempts: new FormControl<number>(0, [Validators.required]),
     });
     this.loadInitialData();
+
+    effect(() => {
+      if (this.messages()) {
+        this.messagesDataSource.data = this.messages();
+        this.messagesDataSource.paginator = this.paginator;
+        this.messagesDataSource.sort = this.sort;
+      }
+    });
   }
 
   loadInitialData() {
@@ -165,9 +175,7 @@ export class SystemComponent {
     this.devService
       .getMessages()
       .subscribe((response: ApiResponseInterface<MessageInterface[]>) => {
-        this.messages = new MatTableDataSource(response.data);
-        this.messages.paginator = this.paginator;
-        this.messages.sort = this.sort;
+        this.messages.set(response.data);
       });
   }
 }
