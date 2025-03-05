@@ -24,7 +24,7 @@
       </ng-container>
 
       <ng-container matColumnDef="enabled">
-        <th mat-header-cell *matHeaderCellDef>Enabled</th>
+        <th mat-header-cell *matHeaderCellDef>Habilitado</th>
         <td mat-cell *matCellDef="let element">
           @if(element.enabled){
           <i-tabler
@@ -78,15 +78,21 @@
       </ng-container>
 
       <ng-container matColumnDef="role">
-        <th mat-header-cell *matHeaderCellDef>Role</th>
+        <th mat-header-cell *matHeaderCellDef>Rol</th>
         <td mat-cell *matCellDef="let element">{{ element.role }}</td>
       </ng-container>
 
       <ng-container matColumnDef="permissionList">
-        <th mat-header-cell *matHeaderCellDef>Permissions</th>
+        <th mat-header-cell *matHeaderCellDef>Permisos</th>
         <td mat-cell *matCellDef="let element">
-          @for (permission of element.permissionList; track $index) {
-          <span>{{ permission.permissionName }}</span>
+          @if (element.permissionsList && element.permissionsList.length > 0) {
+          <mat-chip-set>
+            @for (permission of element.permissionsList; track $index) {
+            <mat-chip>{{ permission.permissionName }}</mat-chip>
+            }
+          </mat-chip-set>
+          } @else {
+          <p>Sin permisos asignados</p>
           }
         </td>
       </ng-container>
@@ -125,7 +131,7 @@
       </ng-container>
 
       <ng-container matColumnDef="permissionName">
-        <th mat-header-cell *matHeaderCellDef>Role</th>
+        <th mat-header-cell *matHeaderCellDef>Permiso</th>
         <td mat-cell *matCellDef="let element">{{ element.permissionName }}</td>
       </ng-container>
 

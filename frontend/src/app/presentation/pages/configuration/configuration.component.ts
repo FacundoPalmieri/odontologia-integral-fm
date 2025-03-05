@@ -16,6 +16,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatButtonModule } from "@angular/material/button";
+import { MatChipsModule } from "@angular/material/chips";
 
 @Component({
   selector: "app-configuration",
@@ -31,6 +32,7 @@ import { MatButtonModule } from "@angular/material/button";
     MatPaginator,
     MatTooltipModule,
     MatButtonModule,
+    MatChipsModule,
   ],
 })
 export class ConfigurationComponent {
