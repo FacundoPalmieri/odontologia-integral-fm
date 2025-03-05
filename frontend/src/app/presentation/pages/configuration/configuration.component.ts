@@ -1,4 +1,11 @@
-import { Component, inject, QueryList, ViewChildren } from "@angular/core";
+import {
+  Component,
+  inject,
+  QueryList,
+  ViewChildren,
+  signal,
+  effect,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -12,8 +19,8 @@ import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { RoleInterface } from "../../../domain/interfaces/rol.interface";
 import { PermissionInterface } from "../../../domain/interfaces/permission.interface";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
-import { MatPaginator } from "@angular/material/paginator";
-import { MatSort } from "@angular/material/sort";
+import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
@@ -29,20 +36,25 @@ import { MatChipsModule } from "@angular/material/chips";
     PageToolbarComponent,
     MatCardModule,
     MatTableModule,
-    MatPaginator,
     MatTooltipModule,
     MatButtonModule,
     MatChipsModule,
+    MatPaginatorModule,
+    MatSortModule,
   ],
 })
 export class ConfigurationComponent {
   userService = inject(UserService);
   roleService = inject(RoleService);
   permissionService = inject(PermissionService);
-  users: MatTableDataSource<UserInterface> = new MatTableDataSource();
-  roles: MatTableDataSource<RoleInterface> = new MatTableDataSource();
-  permissions: MatTableDataSource<PermissionInterface> =
-    new MatTableDataSource();
+
+  users = signal<UserInterface[]>([]);
+  roles = signal<RoleInterface[]>([]);
+  permissions = signal<PermissionInterface[]>([]);
+
+  usersDataSource = new MatTableDataSource<UserInterface>([]);
+  rolesDataSource = new MatTableDataSource<RoleInterface>([]);
+  permissionsDataSource = new MatTableDataSource<PermissionInterface>([]);
 
   @ViewChildren(MatPaginator) paginators!: QueryList<MatPaginator>;
   @ViewChildren(MatSort) sorts!: QueryList<MatSort>;
@@ -59,29 +71,53 @@ export class ConfigurationComponent {
 
   constructor() {
     this.loadInitialData();
+
+    effect(() => {
+      if (this.users()) {
+        this.usersDataSource.data = this.users();
+        if (this.paginators && this.sorts) {
+          this.usersDataSource.paginator = this.paginators.toArray()[0];
+          this.usersDataSource.sort = this.sorts.toArray()[0];
+        }
+      }
+    });
+
+    effect(() => {
+      if (this.roles()) {
+        this.rolesDataSource.data = this.roles();
+        if (this.paginators && this.sorts) {
+          this.rolesDataSource.paginator = this.paginators.toArray()[1];
+          this.rolesDataSource.sort = this.sorts.toArray()[1];
+        }
+      }
+    });
+
+    effect(() => {
+      if (this.permissions()) {
+        this.permissionsDataSource.data = this.permissions();
+        if (this.paginators && this.sorts) {
+          this.permissionsDataSource.paginator = this.paginators.toArray()[2];
+          this.permissionsDataSource.sort = this.sorts.toArray()[2];
+        }
+      }
+    });
   }
 
   loadInitialData() {
     this.userService
       .getAll()
       .subscribe((response: ApiResponseInterface<UserInterface[]>) => {
-        this.users = new MatTableDataSource(response.data);
-        this.users.paginator = this.paginators.toArray()[0];
-        this.users.sort = this.sorts.toArray()[0];
+        this.users.set(response.data);
       });
     this.roleService
       .getAll()
       .subscribe((response: ApiResponseInterface<RoleInterface[]>) => {
-        this.roles = new MatTableDataSource(response.data);
-        this.roles.paginator = this.paginators.toArray()[1];
-        this.roles.sort = this.sorts.toArray()[1];
+        this.roles.set(response.data);
       });
     this.permissionService
       .getAll()
       .subscribe((response: ApiResponseInterface<PermissionInterface[]>) => {
-        this.permissions = new MatTableDataSource(response.data);
-        this.permissions.paginator = this.paginators.toArray()[2];
-        this.permissions.sort = this.sorts.toArray()[2];
+        this.permissions.set(response.data);
       });
   }
 }
