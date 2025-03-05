@@ -1,1 +1,157 @@
 <app-page-toolbar [title]="'Configuración'"></app-page-toolbar>
+
+<mat-card appearance="outlined" class="mt-4">
+  <mat-card-content>
+    <h1 class="text-xl text-bold">Usuarios</h1>
+    <table mat-table [dataSource]="users" matSort>
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
+        <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="username">
+        <th mat-header-cell *matHeaderCellDef>Username</th>
+        <td mat-cell *matCellDef="let element">{{ element.username }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="rolesList">
+        <th mat-header-cell *matHeaderCellDef>Roles</th>
+        <td mat-cell *matCellDef="let element">
+          @for (role of element.rolesList; track $index) {
+          <span>{{ role.role }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="enabled">
+        <th mat-header-cell *matHeaderCellDef>Enabled</th>
+        <td mat-cell *matCellDef="let element">
+          @if(element.enabled){
+          <i-tabler
+            name="circle-check"
+            class="text-green-500"
+            matTooltip="Habilitado"
+            matTooltipPosition="right"
+          ></i-tabler>
+          } @else {
+          <i-tabler
+            name="xbox-x"
+            class="text-red-500"
+            matTooltip="Habilitado"
+            matTooltipPosition="right"
+          ></i-tabler>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Acción</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-icon-button
+            matTooltip="Editar"
+            matTooltipPosition="right"
+          >
+            <i-tabler name="edit"></i-tabler>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="userDisplayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: userDisplayedColumns"></tr>
+    </table>
+    <mat-paginator
+      [pageSizeOptions]="[5, 10]"
+      showFirstLastButtons="true"
+      aria-label="Seleccionar página de usuarios"
+    ></mat-paginator>
+  </mat-card-content>
+</mat-card>
+
+<mat-card appearance="outlined" class="mt-4">
+  <mat-card-content>
+    <h1 class="text-xl text-bold">Roles</h1>
+    <table mat-table [dataSource]="roles" matSort>
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
+        <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef>Role</th>
+        <td mat-cell *matCellDef="let element">{{ element.role }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="permissionList">
+        <th mat-header-cell *matHeaderCellDef>Permissions</th>
+        <td mat-cell *matCellDef="let element">
+          @for (permission of element.permissionList; track $index) {
+          <span>{{ permission.permissionName }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Acción</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-icon-button
+            matTooltip="Editar"
+            matTooltipPosition="right"
+          >
+            <i-tabler name="edit"></i-tabler>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="roleDisplayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: roleDisplayedColumns"></tr>
+    </table>
+    <mat-paginator
+      [pageSizeOptions]="[5, 10]"
+      showFirstLastButtons="true"
+      aria-label="Seleccionar página de usuarios"
+    ></mat-paginator>
+  </mat-card-content>
+</mat-card>
+
+<mat-card appearance="outlined" class="mt-4">
+  <mat-card-content>
+    <h1 class="text-xl text-bold">Permisos</h1>
+    <table mat-table [dataSource]="permissions" matSort>
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
+        <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="permissionName">
+        <th mat-header-cell *matHeaderCellDef>Role</th>
+        <td mat-cell *matCellDef="let element">{{ element.permissionName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Acción</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-icon-button
+            matTooltip="Editar"
+            matTooltipPosition="right"
+          >
+            <i-tabler name="edit"></i-tabler>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="permissionDisplayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: permissionDisplayedColumns"
+      ></tr>
+    </table>
+    <mat-paginator
+      [pageSizeOptions]="[5, 10]"
+      showFirstLastButtons="true"
+      aria-label="Seleccionar página de usuarios"
+    ></mat-paginator>
+  </mat-card-content>
+</mat-card>
