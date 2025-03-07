@@ -60,7 +60,7 @@ export class LoginComponent {
     });
 
     this.forgotPasswordForm = new FormGroup({
-      email: new FormControl<string>("palmierifacundo@gmail.com", [
+      email: new FormControl<string>("matiasnicolasiglesiasseliman@gmail.com", [
         Validators.required,
         Validators.email,
       ]),

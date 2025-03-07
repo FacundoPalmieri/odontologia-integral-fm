@@ -24,6 +24,13 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { EditUserDialogComponent } from "./edit-user-dialog/edit-user-dialog.component";
+import { SnackbarService } from "../../../services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
+import { UserUpdateDto } from "../../../domain/dto/user-update.dto";
+import { CreateUserDialogComponent } from "./create-user-dialog/create-user-dialog.component";
+import { UserCreateDto } from "../../../domain/dto/user-create.dto";
 
 @Component({
   selector: "app-configuration",
@@ -41,12 +48,15 @@ import { MatChipsModule } from "@angular/material/chips";
     MatChipsModule,
     MatPaginatorModule,
     MatSortModule,
+    MatDialogModule,
   ],
 })
 export class ConfigurationComponent {
+  readonly dialog = inject(MatDialog);
   userService = inject(UserService);
   roleService = inject(RoleService);
   permissionService = inject(PermissionService);
+  snackbarService = inject(SnackbarService);
 
   users = signal<UserInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
@@ -70,7 +80,7 @@ export class ConfigurationComponent {
   permissionDisplayedColumns: string[] = ["id", "permissionName", "action"];
 
   constructor() {
-    this.loadInitialData();
+    this._loadInitialData();
 
     effect(() => {
       if (this.users()) {
@@ -103,21 +113,81 @@ export class ConfigurationComponent {
     });
   }
 
-  loadInitialData() {
+  createUser() {
+    const dialogRef = this.dialog.open(CreateUserDialogComponent);
+    dialogRef.afterClosed().subscribe((user: UserCreateDto) => {
+      if (user) {
+        this.userService
+          .createUser(user)
+          .subscribe((response: ApiResponseInterface<UserInterface>) => {
+            this.snackbarService.openSnackbar(
+              response.message,
+              3000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Success
+            );
+            this._loadUsers();
+          });
+      }
+    });
+  }
+
+  editUser(user: UserInterface) {
+    if (user != null) {
+      const dialogRef = this.dialog.open(EditUserDialogComponent, {
+        data: { user: user },
+      });
+      dialogRef.afterClosed().subscribe((user: UserInterface) => {
+        if (user) {
+          const userDto: UserUpdateDto = {
+            id: user.id,
+            enabled: user.enabled,
+            rolesList: user.rolesList.map((role) => role.id),
+          };
+          this.userService
+            .updateUser(userDto)
+            .subscribe((response: ApiResponseInterface<UserInterface>) => {
+              this.snackbarService.openSnackbar(
+                response.message,
+                6000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Success
+              );
+              this._loadUsers();
+            });
+        }
+      });
+    } else {
+      this.snackbarService.openSnackbar(
+        "Ocurrió un error el editar el elemento",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+    }
+  }
+
+  private _loadInitialData() {
+    this._loadUsers();
+    this._loadRoles();
+  }
+
+  private _loadUsers() {
     this.userService
       .getAll()
       .subscribe((response: ApiResponseInterface<UserInterface[]>) => {
         this.users.set(response.data);
       });
+  }
+
+  private _loadRoles() {
     this.roleService
       .getAll()
       .subscribe((response: ApiResponseInterface<RoleInterface[]>) => {
         this.roles.set(response.data);
-      });
-    this.permissionService
-      .getAll()
-      .subscribe((response: ApiResponseInterface<PermissionInterface[]>) => {
-        this.permissions.set(response.data);
       });
   }
 }

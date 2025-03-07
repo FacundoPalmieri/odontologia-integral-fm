@@ -4,6 +4,7 @@ import { environment } from "../environments/environment";
 import { Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { MessageInterface } from "../domain/interfaces/message.interface";
+import { MessageDto } from "../domain/dto/message-update.dto";
 
 @Injectable({ providedIn: "root" })
 export class DevService {
@@ -51,7 +52,7 @@ export class DevService {
   }
 
   updateMessage(
-    message: MessageInterface
+    message: MessageDto
   ): Observable<ApiResponseInterface<MessageInterface>> {
     return this.http.patch<ApiResponseInterface<MessageInterface>>(
       `${this.apiUrl}/dev/message/update`,

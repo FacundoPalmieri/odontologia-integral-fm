@@ -4,6 +4,8 @@ import { environment } from "../environments/environment";
 import { Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { UserInterface } from "../domain/interfaces/user.interface";
+import { UserUpdateDto } from "../domain/dto/user-update.dto";
+import { UserCreateDto } from "../domain/dto/user-create.dto";
 
 @Injectable({ providedIn: "root" })
 export class UserService {
@@ -19,6 +21,28 @@ export class UserService {
   getById(id: number): Observable<ApiResponseInterface<UserInterface>> {
     return this.http.get<ApiResponseInterface<UserInterface>>(
       `${this.apiUrl}/api/users/${id}`
+    );
+  }
+
+  createUser(
+    user: UserCreateDto
+  ): Observable<ApiResponseInterface<UserInterface>> {
+    return this.http.post<ApiResponseInterface<UserInterface>>(
+      `${this.apiUrl}/api/users/create`,
+      {
+        user,
+      }
+    );
+  }
+
+  updateUser(
+    user: UserUpdateDto
+  ): Observable<ApiResponseInterface<UserInterface>> {
+    return this.http.patch<ApiResponseInterface<UserInterface>>(
+      `${this.apiUrl}/api/users/update`,
+      {
+        user,
+      }
     );
   }
 }

@@ -24,6 +24,7 @@ import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { EditMessageDialogComponent } from "./edit-message-dialog/edit-message-dialog.component";
+import { MessageDto } from "../../../domain/dto/message-update.dto";
 
 @Component({
   selector: "app-system",
@@ -47,9 +48,9 @@ import { EditMessageDialogComponent } from "./edit-message-dialog/edit-message-d
   ],
 })
 export class SystemComponent {
+  readonly dialog = inject(MatDialog);
   devService = inject(DevService);
   snackbarService = inject(SnackbarService);
-  readonly dialog = inject(MatDialog);
   tokenForm: FormGroup;
   displayedColumns: string[] = ["id", "key", "value", "locale", "action"];
   messages = signal<MessageInterface[]>([]);
@@ -122,10 +123,14 @@ export class SystemComponent {
       const dialogRef = this.dialog.open(EditMessageDialogComponent, {
         data: { message: message },
       });
-      dialogRef.afterClosed().subscribe((message) => {
-        if (message)
+      dialogRef.afterClosed().subscribe((message: MessageInterface) => {
+        if (message) {
+          const messageDto: MessageDto = {
+            id: message.id,
+            value: message.value,
+          };
           this.devService
-            .updateMessage(message)
+            .updateMessage(messageDto)
             .subscribe((response: ApiResponseInterface<MessageInterface>) => {
               this.snackbarService.openSnackbar(
                 response.message,
@@ -136,6 +141,7 @@ export class SystemComponent {
               );
               this._getMessages();
             });
+        }
       });
     } else
       this.snackbarService.openSnackbar(
