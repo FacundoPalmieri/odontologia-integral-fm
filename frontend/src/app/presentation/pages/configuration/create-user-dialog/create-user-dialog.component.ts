@@ -74,7 +74,7 @@ export class CreateUserDialogComponent {
         ]),
         password1: new FormControl<string>("", [Validators.required]),
         password2: new FormControl<string>("", [Validators.required]),
-        rolesList: new FormControl<RoleInterface[]>([], [Validators.required]),
+        rolesList: new FormControl<number[]>([], [Validators.required]),
       },
       { validators: this.passwordsMatchValidator }
     );

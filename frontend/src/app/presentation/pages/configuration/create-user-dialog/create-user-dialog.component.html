@@ -57,7 +57,7 @@
           [compareWith]="compareRoles"
         >
           @for(role of roles; track $index){
-          <mat-option [value]="role">{{ role.role }}</mat-option>
+          <mat-option [value]="role.id">{{ role.role }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
