@@ -29,20 +29,17 @@ export class UserService {
   ): Observable<ApiResponseInterface<UserInterface>> {
     return this.http.post<ApiResponseInterface<UserInterface>>(
       `${this.apiUrl}/api/users/create`,
-      {
-        user,
-      }
+      user
     );
   }
 
   updateUser(
     user: UserUpdateDto
   ): Observable<ApiResponseInterface<UserInterface>> {
+    console.log(user);
     return this.http.patch<ApiResponseInterface<UserInterface>>(
       `${this.apiUrl}/api/users/update`,
-      {
-        user,
-      }
+      user
     );
   }
 }
