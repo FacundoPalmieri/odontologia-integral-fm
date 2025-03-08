@@ -50,11 +50,11 @@ export class LoginComponent {
 
   constructor() {
     this.loginForm = new FormGroup({
-      username: new FormControl<string>("palmierifacundo@gmail.com", [
-        Validators.required,
-        Validators.email,
-      ]),
-      password: new FormControl<string>("$Facundo12345678", [
+      username: new FormControl<string>(
+        "matiasnicolasiglesiasseliman@gmail.com",
+        [Validators.required, Validators.email]
+      ),
+      password: new FormControl<string>("$MatiasIglesias12345678", [
         Validators.required,
       ]),
     });

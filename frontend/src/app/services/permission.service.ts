@@ -11,38 +11,14 @@ export class PermissionService {
   apiUrl = environment.apiUrl;
 
   getAll(): Observable<ApiResponseInterface<PermissionInterface[]>> {
-    return this.http
-      .get<ApiResponseInterface<any[]>>(
-        `${this.apiUrl}/api/permissions/get/all`
-      )
-      .pipe(
-        map((response: ApiResponseInterface<any[]>) => {
-          if (response && response.data) {
-            const convertedData = response.data.map((item) => ({
-              id: item.id,
-              permissionName: item.permission,
-            }));
-            return { ...response, data: convertedData };
-          }
-          return response;
-        })
-      );
+    return this.http.get<ApiResponseInterface<any[]>>(
+      `${this.apiUrl}/api/permissions/get/all`
+    );
   }
 
   getById(id: number): Observable<ApiResponseInterface<PermissionInterface>> {
-    return this.http
-      .get<ApiResponseInterface<any>>(`${this.apiUrl}/api/permissions/${id}`)
-      .pipe(
-        map((response: ApiResponseInterface<any>) => {
-          if (response && response.data) {
-            const convertedData = {
-              id: response.data.id,
-              permissionName: response.data.permission,
-            };
-            return { ...response, data: convertedData };
-          }
-          return response;
-        })
-      );
+    return this.http.get<ApiResponseInterface<any>>(
+      `${this.apiUrl}/api/permissions/${id}`
+    );
   }
 }
