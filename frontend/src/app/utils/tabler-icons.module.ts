@@ -26,6 +26,7 @@ import {
   IconChartHistogram,
   IconPlus,
   IconArrowNarrowLeft,
+  IconUserSquareRounded,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -53,6 +54,7 @@ const ICONS = {
   IconChartHistogram,
   IconPlus,
   IconArrowNarrowLeft,
+  IconUserSquareRounded,
 } as const;
 
 @NgModule({
