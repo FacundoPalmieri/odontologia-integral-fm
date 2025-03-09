@@ -7,4 +7,5 @@ import lombok.Data;
 public class PermissionResponseDTO {
     private Long id;
     private String permission;
+    private String name;
 }

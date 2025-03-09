@@ -59,7 +59,7 @@ public class PermissionController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("get/all")
-    @PreAuthorize("hasAnyRole('DEV')")
+    @PreAuthorize("hasAnyRole('Developer')")
     public ResponseEntity<Response<List<PermissionResponseDTO>>> getAllPermissions() {
         Response<List<PermissionResponseDTO>> response = permissionService.findAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -89,7 +89,7 @@ public class PermissionController {
             @ApiResponse(responseCode = "404", description = "Permiso no encontrado.")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DEV')")
+    @PreAuthorize("hasAnyRole('Developer')")
     public ResponseEntity<Response<PermissionResponseDTO>> getPermissionById(@PathVariable Long id) {
         Response<PermissionResponseDTO> response = permissionService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

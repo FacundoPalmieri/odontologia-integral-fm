@@ -54,7 +54,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/dev")
-@PreAuthorize("hasRole('DEV')")
+@PreAuthorize("hasRole('Developer')")
 public class ConfigController {
     @Autowired
     private ConfigService configService;

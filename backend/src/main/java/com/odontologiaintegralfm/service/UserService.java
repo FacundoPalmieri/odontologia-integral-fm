@@ -248,11 +248,13 @@ public class UserService implements IUserService {
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
             validateNotDevRole(userSec, userSecUpdateDto);
 
+            validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
+
             //Valída cambio de estado de cuenta
-            validateUpdateAccount(userSec, userSecUpdateDto);
+            //validateUpdateAccount(userSec, userSecUpdateDto);
 
             //Valída cambio de rol
-            validateUpdateRole(userSecUpdateDto, userSec.getRolesList());
+            //validateUpdateRole(userSecUpdateDto, userSec.getRolesList());
 
             //Actualiza datos en el UserSec
             UserSec userSecAux = updateUserSec(userSec, userSecUpdateDto);
@@ -690,6 +692,54 @@ public class UserService implements IUserService {
         }
     }
 
+
+    /**
+     * Valída que no se intente realizar una actualización que no cambie el estado de la cuenta del usuario y la lista de roles.
+     * <p>
+     * Este método compara el estado de la cuenta actual del usuario (habilitado o deshabilitado) con el estado que se quiere
+     * asignar en el DTO de actualización. A su vez, compara la lista de roles actuales con la que recibe mediante el DTO. Si no hay modificaciones, se lanza una excepción {@link UserUpdateException}.
+     * </p>
+     *
+     * @param userSec Objeto que representa al usuario con su estado actual de cuenta.
+     * @param userSecUpdateDto DTO que contiene el nuevo estado de la cuenta.
+     * @param roleList Lista de roles del usuario obtenida desde la base de datos.
+     * @throws UserUpdateException Si el estado de la cuenta no cambia (es igual al actual).
+     */
+    private void validateUpdate (UserSec userSec, UserSecUpdateDTO userSecUpdateDto,Set<Role>roleList){
+        boolean validateAccount = false;
+        boolean validateRole = false;
+
+        if (userSecUpdateDto.getEnabled() == null) {
+            return;
+        }
+
+
+        if (userSec.isEnabled() == userSecUpdateDto.getEnabled()) {
+            validateAccount = true;
+        }
+
+        if(userSecUpdateDto.getRolesList() == null){
+            return;
+        }
+
+        //Se extraen los IDs de tipo Long del Set<Role>roleList
+        Set<Long> roleListId = new HashSet<>();
+        for(Role role : roleList){
+            roleListId.add(role.getId());
+        }
+
+        //Se compara los IDs en los set <Long>
+        if(userSecUpdateDto.getRolesList().equals(roleListId)){
+            validateRole = true;
+        }
+
+        if(validateAccount && validateRole){
+            throw new UserUpdateException("", "UserService", "validateUpdate", userSec.getId());
+        }
+
+
+    }
+
     /**
      * Valída que no se intente realizar una actualización que no cambie el estado de la cuenta del usuario.
      * <p>
@@ -701,6 +751,7 @@ public class UserService implements IUserService {
      * @param userSecUpdateDto DTO que contiene el nuevo estado de la cuenta.
      * @throws UserUpdateException Si el estado de la cuenta no cambia (es igual al actual).
      */
+
     private void validateUpdateAccount(UserSec userSec, UserSecUpdateDTO userSecUpdateDto) {
         if (userSecUpdateDto.getEnabled() == null) {
             return;
@@ -767,6 +818,7 @@ public class UserService implements IUserService {
         }
 
         if(!userSecUpdateDTO.getRolesList().isEmpty()){
+            userSec.getRolesList().clear();
             userSec.getRolesList().addAll(roleList);
         }
         return userSec;
