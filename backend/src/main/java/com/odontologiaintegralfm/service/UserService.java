@@ -248,13 +248,8 @@ public class UserService implements IUserService {
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
             validateNotDevRole(userSec, userSecUpdateDto);
 
+            //Valída cambio que haya al menos una actualización de datos.
             validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
-
-            //Valída cambio de estado de cuenta
-            //validateUpdateAccount(userSec, userSecUpdateDto);
-
-            //Valída cambio de rol
-            //validateUpdateRole(userSecUpdateDto, userSec.getRolesList());
 
             //Actualiza datos en el UserSec
             UserSec userSecAux = updateUserSec(userSec, userSecUpdateDto);
@@ -740,55 +735,9 @@ public class UserService implements IUserService {
 
     }
 
-    /**
-     * Valída que no se intente realizar una actualización que no cambie el estado de la cuenta del usuario.
-     * <p>
-     * Este método compara el estado de la cuenta actual del usuario (habilitado o deshabilitado) con el estado que se quiere
-     * asignar en el DTO de actualización. Si el estado es el mismo, se lanza una excepción {@link UserUpdateException}.
-     * </p>
-     *
-     * @param userSec Objeto que representa al usuario con su estado actual de cuenta.
-     * @param userSecUpdateDto DTO que contiene el nuevo estado de la cuenta.
-     * @throws UserUpdateException Si el estado de la cuenta no cambia (es igual al actual).
-     */
 
-    private void validateUpdateAccount(UserSec userSec, UserSecUpdateDTO userSecUpdateDto) {
-        if (userSecUpdateDto.getEnabled() == null) {
-            return;
-        }
 
-        if (userSec.isEnabled() == userSecUpdateDto.getEnabled()) {
-            throw new UserUpdateException("", "UserService", "validateAccount", userSec.getId());
-        }
-    }
 
-    /**
-     * Valída que los roles proporcionados en el DTO de actualización sean diferentes de los roles actuales del usuario.
-     * <p>
-     * Este método compara los roles actuales del usuario con los roles que se quieren asignar desde el DTO. Si los roles son iguales,
-     * se lanza una excepción {@link UserUpdateException}.
-     * </p>
-     *
-     * @param userSecUpdateDto DTO que contiene la lista de roles que se quieren asignar al usuario.
-     * @param roleList Conjunto de roles actuales del usuario.
-     * @throws UserUpdateException Si los roles del usuario no cambian (son iguales a los actuales).
-     */
-    private void validateUpdateRole(UserSecUpdateDTO userSecUpdateDto, Set<Role>roleList) {
-        if(userSecUpdateDto.getRolesList() == null){
-            return;
-        }
-
-        //Se extraen los IDs de tipo Long del Set<Role>roleList
-        Set<Long> roleListId = new HashSet<>();
-        for(Role role : roleList){
-            roleListId.add(role.getId());
-        }
-
-        //Se compara los IDs en los set <Long>
-        if(userSecUpdateDto.getRolesList().equals(roleListId)){
-            throw new UserUpdateException("","UserService", "validateUpdateRole", userSecUpdateDto.getId());
-        }
-    }
 
 
     /**
