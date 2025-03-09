@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Editar Rol</h2>
+<mat-dialog-content>
+  <div class="mt-1">
+    <form [formGroup]="roleForm" class="mt-1">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>ID</mat-label>
+        <input matInput formControlName="id" readonly />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Rol</mat-label>
+        <input matInput formControlName="role" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Permisos</mat-label>
+        <mat-select
+          name="permissionsSelect"
+          formControlName="permissionsList"
+          multiple
+          [compareWith]="comparePermissions"
+        >
+          @for(permission of permissions; track $index){
+          <mat-option [value]="permission">{{
+            permission.permission
+          }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button
+    mat-flat-button
+    [mat-dialog-close]="roleForm.value"
+    [disabled]="!roleForm.valid"
+    cdkFocusInitial
+  >
+    Guardar
+  </button>
+</mat-dialog-actions>

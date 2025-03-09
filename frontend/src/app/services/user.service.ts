@@ -24,19 +24,14 @@ export class UserService {
     );
   }
 
-  createUser(
-    user: UserCreateDto
-  ): Observable<ApiResponseInterface<UserInterface>> {
+  create(user: UserCreateDto): Observable<ApiResponseInterface<UserInterface>> {
     return this.http.post<ApiResponseInterface<UserInterface>>(
       `${this.apiUrl}/api/users/create`,
       user
     );
   }
 
-  updateUser(
-    user: UserUpdateDto
-  ): Observable<ApiResponseInterface<UserInterface>> {
-    console.log(user);
+  update(user: UserUpdateDto): Observable<ApiResponseInterface<UserInterface>> {
     return this.http.patch<ApiResponseInterface<UserInterface>>(
       `${this.apiUrl}/api/users/update`,
       user

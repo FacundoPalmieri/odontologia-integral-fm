@@ -15,7 +15,7 @@ import {
 import { MatInputModule } from "@angular/material/input";
 import { UserInterface } from "../../../../domain/interfaces/user.interface";
 import { MatSelectModule } from "@angular/material/select";
-import { RoleInterface } from "../../../../domain/interfaces/rol.interface";
+import { RoleInterface } from "../../../../domain/interfaces/role.interface";
 import { RoleService } from "../../../../services/role.service";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 

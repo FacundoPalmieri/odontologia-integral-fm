@@ -17,7 +17,7 @@ import {
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { RoleInterface } from "../../../../domain/interfaces/rol.interface";
+import { RoleInterface } from "../../../../domain/interfaces/role.interface";
 import { RoleService } from "../../../../services/role.service";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { MatIconModule } from "@angular/material/icon";

@@ -16,8 +16,7 @@ import { RoleService } from "../../../services/role.service";
 import { PermissionService } from "../../../services/permission.service";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
-import { RoleInterface } from "../../../domain/interfaces/rol.interface";
-import { PermissionInterface } from "../../../domain/interfaces/permission.interface";
+import { RoleInterface } from "../../../domain/interfaces/role.interface";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
@@ -31,6 +30,10 @@ import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { UserUpdateDto } from "../../../domain/dto/user-update.dto";
 import { CreateUserDialogComponent } from "./create-user-dialog/create-user-dialog.component";
 import { UserCreateDto } from "../../../domain/dto/user-create.dto";
+import { EditRoleDialogComponent } from "./edit-role-dialog/edit-role-dialog.component";
+import { RoleUpdateDto } from "../../../domain/dto/role-update.dto";
+import { CreateRoleDialogComponent } from "./create-role-dialog/create-role-dialog.component";
+import { RoleCreateDto } from "../../../domain/dto/role-create.dto";
 
 @Component({
   selector: "app-configuration",
@@ -60,11 +63,9 @@ export class ConfigurationComponent {
 
   users = signal<UserInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
-  permissions = signal<PermissionInterface[]>([]);
 
   usersDataSource = new MatTableDataSource<UserInterface>([]);
   rolesDataSource = new MatTableDataSource<RoleInterface>([]);
-  permissionsDataSource = new MatTableDataSource<PermissionInterface>([]);
 
   @ViewChildren(MatPaginator) paginators!: QueryList<MatPaginator>;
   @ViewChildren(MatSort) sorts!: QueryList<MatSort>;
@@ -76,8 +77,7 @@ export class ConfigurationComponent {
     "enabled",
     "action",
   ];
-  roleDisplayedColumns: string[] = ["id", "role", "permissionList", "action"];
-  permissionDisplayedColumns: string[] = ["id", "permissionName", "action"];
+  roleDisplayedColumns: string[] = ["id", "role", "permissionsList", "action"];
 
   constructor() {
     this._loadInitialData();
@@ -101,16 +101,6 @@ export class ConfigurationComponent {
         }
       }
     });
-
-    effect(() => {
-      if (this.permissions()) {
-        this.permissionsDataSource.data = this.permissions();
-        if (this.paginators && this.sorts) {
-          this.permissionsDataSource.paginator = this.paginators.toArray()[2];
-          this.permissionsDataSource.sort = this.sorts.toArray()[2];
-        }
-      }
-    });
   }
 
   createUser() {
@@ -118,7 +108,7 @@ export class ConfigurationComponent {
     dialogRef.afterClosed().subscribe((user: UserCreateDto) => {
       if (user) {
         this.userService
-          .createUser(user)
+          .create(user)
           .subscribe((response: ApiResponseInterface<UserInterface>) => {
             this.snackbarService.openSnackbar(
               response.message,
@@ -146,7 +136,7 @@ export class ConfigurationComponent {
             rolesList: user.rolesList.map((role) => role.id),
           };
           this.userService
-            .updateUser(userDto)
+            .update(userDto)
             .subscribe((response: ApiResponseInterface<UserInterface>) => {
               this.snackbarService.openSnackbar(
                 response.message,
@@ -156,6 +146,65 @@ export class ConfigurationComponent {
                 SnackbarTypeEnum.Success
               );
               this._loadUsers();
+            });
+        }
+      });
+    } else {
+      this.snackbarService.openSnackbar(
+        "Ocurrió un error el editar el elemento",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+    }
+  }
+
+  createRole() {
+    const dialogRef = this.dialog.open(CreateRoleDialogComponent);
+    dialogRef.afterClosed().subscribe((role: RoleCreateDto) => {
+      if (role) {
+        this.roleService
+          .create(role)
+          .subscribe((response: ApiResponseInterface<RoleInterface>) => {
+            this.snackbarService.openSnackbar(
+              response.message,
+              3000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Success
+            );
+            this._loadRoles();
+          });
+      }
+    });
+  }
+
+  editRole(role: RoleInterface) {
+    if (role != null) {
+      const dialogRef = this.dialog.open(EditRoleDialogComponent, {
+        data: { role: role },
+      });
+      dialogRef.afterClosed().subscribe((role: RoleInterface) => {
+        if (role) {
+          const roleDto: RoleUpdateDto = {
+            id: role.id,
+            role: role.role,
+            permissionsList: role.permissionsList.map(
+              (permission) => permission.id
+            ),
+          };
+          this.roleService
+            .update(roleDto)
+            .subscribe((response: ApiResponseInterface<RoleInterface>) => {
+              this.snackbarService.openSnackbar(
+                response.message,
+                6000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Success
+              );
+              this._loadRoles();
             });
         }
       });
