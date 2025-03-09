@@ -115,7 +115,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         //Se obtiene los permisos y los agregamos a la lista.
         userSec.getRolesList().stream()
                 .flatMap(role -> role.getPermissionsList().stream()) //acá recorro los permisos de los roles
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermissionName())));
+                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermission())));
 
         //Se retorna el usuario en formato Spring Security con los datos del userSec
         return new User(userSec.getUsername(),

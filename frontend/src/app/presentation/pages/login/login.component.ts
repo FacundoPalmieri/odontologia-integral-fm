@@ -18,6 +18,8 @@ import { AuthUserInterface } from "../../../domain/interfaces/auth-user.interfac
 import { LoaderService } from "../../../services/loader.service";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
+import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-login",
@@ -39,12 +41,12 @@ export class LoginComponent {
   authService = inject(AuthService);
   loaderService = inject(LoaderService);
   snackbarService = inject(SnackbarService);
+  router = inject(Router);
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   hidePassword = signal(true);
   isForgotPassword = signal(false);
   resetPasswordSent = signal(false);
-  resetPasswordMessage = signal("");
 
   constructor() {
     this.loginForm = new FormGroup({
@@ -91,6 +93,7 @@ export class LoginComponent {
           "top",
           SnackbarTypeEnum.Success
         );
+        this.router.navigate(["/"]);
       },
       error: () => {
         this.loaderService.hide();
@@ -105,15 +108,14 @@ export class LoginComponent {
     this.loaderService.show();
 
     this.authService.resetPasswordRequest(email).subscribe({
-      next: (response: string) => {
+      next: (response: ApiResponseInterface<string>) => {
         this.resetPasswordSent.set(true);
-        this.resetPasswordMessage.set(response);
         this.loaderService.hide();
         this.snackbarService.openSnackbar(
-          response,
-          3000,
+          response.message,
+          6000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Success
         );
       },

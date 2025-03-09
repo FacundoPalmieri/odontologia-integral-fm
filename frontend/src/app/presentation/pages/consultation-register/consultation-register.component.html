@@ -1,0 +1,136 @@
+<app-page-toolbar [title]="'Registro de Consultas'"></app-page-toolbar>
+<mat-card appearance="outlined" class="mt-4">
+  <mat-stepper #stepper class="p-2 rounded-full">
+    <mat-step
+      [stepControl]="patientForm"
+      errorMessage="La información no está correcta."
+    >
+      <form [formGroup]="patientForm">
+        <ng-template matStepLabel>Información del Paciente</ng-template>
+        <div class="pt-2">
+          <div class="flex justify-center gap-4">
+            <div class="w-full">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Buscar paciente</mat-label>
+                <input
+                  type="text"
+                  placeholder="Buscar paciente"
+                  aria-label="Buscar paciente"
+                  matInput
+                  [formControl]="patientSearchControl"
+                  [matAutocomplete]="auto"
+                />
+                <mat-autocomplete
+                  autoActiveFirstOption
+                  #auto="matAutocomplete"
+                  [displayWith]="displayFn"
+                  (optionSelected)="onPatientSelected($event.option.value)"
+                >
+                  @for(patient of filteredPatients | async; track $index){
+                  <mat-option [value]="patient">
+                    <div class="flex">
+                      <div class="items-center justify-center">
+                        <i-tabler
+                          name="user-square-rounded"
+                          class="mr-2"
+                        ></i-tabler>
+                      </div>
+                      <div class="flex flex-col">
+                        <b class="mb-1">{{ patient.name }}</b>
+                        <small class="text-gray-500">{{ patient.dni }}</small>
+                      </div>
+                    </div>
+                  </mat-option>
+                  }
+                </mat-autocomplete>
+              </mat-form-field>
+            </div>
+            <div class="mt-1">
+              <button
+                mat-icon-button
+                matTooltip="Crear paciente"
+                matTooltipPosition="above"
+              >
+                <i-tabler class="mb-1" name="plus"></i-tabler>
+              </button>
+            </div>
+          </div>
+
+          @if(selectedPatient){
+          <div class="w-full flex gap-4">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Nombre y Apellido</mat-label>
+              <input
+                matInput
+                placeholder="Nombre y Apellido"
+                [value]="selectedPatient.name"
+                readonly
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>DNI</mat-label>
+              <input
+                matInput
+                placeholder="DNI"
+                [value]="selectedPatient.dni"
+                readonly
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Celular</mat-label>
+              <input
+                matInput
+                placeholder="Celular"
+                [value]="selectedPatient.phone"
+                readonly
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Mail</mat-label>
+              <input
+                matInput
+                placeholder="Mail"
+                [value]="selectedPatient.mail"
+                readonly
+              />
+            </mat-form-field>
+          </div>
+          <div class="w-full flex justify-center">
+            <button mat-flat-button>Historia Clínica</button>
+          </div>
+
+          }
+          <button mat-button matStepperNext>Siguiente</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step
+      [stepControl]="patientForm"
+      errorMessage="La información no está correcta."
+    >
+      <form [formGroup]="patientForm">
+        <ng-template matStepLabel>Odontograma</ng-template>
+        <div>
+          <button mat-button matStepperPrevious>Atrás</button>
+          <button mat-button matStepperNext>Siguiente</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step
+      [stepControl]="patientForm"
+      errorMessage="La información no está correcta."
+    >
+      <form [formGroup]="patientForm">
+        <ng-template matStepLabel>Finalizar consulta</ng-template>
+        <div>
+          <button mat-button matStepperPrevious>Atrás</button>
+          <button mat-button (click)="finalizeConsultation()">
+            Finalizar consulta
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</mat-card>

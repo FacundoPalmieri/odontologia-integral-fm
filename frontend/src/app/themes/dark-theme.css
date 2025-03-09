@@ -15,7 +15,7 @@
   --mat-sys-on-primary-fixed-variant: light-dark(#683752, #683752);
 
   /* Secondary palette variables */
-  --mat-sys-secondary: light-dark(#954735, #ffb4a3);
+  --mat-sys-secondary: light-dark(#ffb4a3, #954735);
   --mat-sys-on-secondary: light-dark(#ffffff, #5a1b0c);
   --mat-sys-secondary-container: light-dark(#ffdad2, #783120);
   --mat-sys-on-secondary-container: light-dark(#3d0600, #ffdad2);
@@ -295,5 +295,13 @@
   --mat-sys-pressed-state-layer-opacity: 0.12;
 
   /* CUSTOMS VARIABLES */
-  --mat-sys-succesful-message-color: #339c76;
+  --mat-toolbar-standard-height: 70px;
+  --mat-sys-home-sidenav-background: light-dark(
+    rgb(204, 204, 204, 0.3),
+    transparent
+  );
+  --mat-sys-home-content-background: light-dark(
+    rgb(204, 204, 204, 0.3),
+    rgb(204, 204, 204, 0.3)
+  );
 }

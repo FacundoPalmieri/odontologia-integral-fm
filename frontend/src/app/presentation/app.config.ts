@@ -15,6 +15,8 @@ import {
 import { errorInterceptor } from "../utils/interceptors/error.interceptor";
 import { tokenInterceptor } from "../utils/interceptors/token.interceptor";
 import { authInterceptor } from "../utils/interceptors/auth.interceptor";
+import { CustomPaginatorIntl } from "../utils/custom-paginator.initializer";
+import { MatPaginatorIntl } from "@angular/material/paginator";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,5 +28,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([errorInterceptor, tokenInterceptor, authInterceptor]),
       withFetch()
     ),
+    { provide: MatPaginatorIntl, useClass: CustomPaginatorIntl },
   ],
 };

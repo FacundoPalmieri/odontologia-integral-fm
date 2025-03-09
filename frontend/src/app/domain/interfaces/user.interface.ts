@@ -1,0 +1,8 @@
+import { RoleInterface } from "./role.interface";
+
+export interface UserInterface {
+  id: number;
+  username: string;
+  rolesList: RoleInterface[];
+  enabled: boolean;
+}

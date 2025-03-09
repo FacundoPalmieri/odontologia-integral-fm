@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { BehaviorSubject } from "rxjs";
 import { SnackbarTypeEnum } from "../utils/enums/snackbar-type.enum";
 import { SnackbarComponent } from "../presentation/components/snackbar/snackbar.component";
 
@@ -8,9 +7,6 @@ import { SnackbarComponent } from "../presentation/components/snackbar/snackbar.
   providedIn: "root",
 })
 export class SnackbarService {
-  private isSnackbarVisibleSubject = new BehaviorSubject<boolean>(false);
-  isSnackbarVisible$ = this.isSnackbarVisibleSubject.asObservable();
-
   constructor(private snackBar: MatSnackBar) {}
 
   openSnackbar(
@@ -20,30 +16,20 @@ export class SnackbarService {
     verticalPosition: "top" | "bottom" = "bottom",
     type: SnackbarTypeEnum = SnackbarTypeEnum.Info
   ): void {
-    if (!this.isSnackbarVisibleSubject.value) {
-      this.isSnackbarVisibleSubject.next(true);
-
-      let panelClass = "snackbar-info";
-      if (type === SnackbarTypeEnum.Success) panelClass = "snackbar-success";
-      if (type === SnackbarTypeEnum.Error) panelClass = "snackbar-error";
-      if (type === SnackbarTypeEnum.Warning) panelClass = "snackbar-warning";
-      this.snackBar
-        .openFromComponent(SnackbarComponent, {
-          data: { message, type },
-          duration: duration,
-          horizontalPosition: horizontalPosition,
-          verticalPosition: verticalPosition,
-          panelClass: panelClass,
-        })
-        .afterDismissed()
-        .subscribe(() => {
-          this.isSnackbarVisibleSubject.next(false);
-        });
-    }
+    let panelClass = "snackbar-info";
+    if (type === SnackbarTypeEnum.Success) panelClass = "snackbar-success";
+    if (type === SnackbarTypeEnum.Error) panelClass = "snackbar-error";
+    if (type === SnackbarTypeEnum.Warning) panelClass = "snackbar-warning";
+    this.snackBar.openFromComponent(SnackbarComponent, {
+      data: { message, type },
+      duration: duration,
+      horizontalPosition: horizontalPosition,
+      verticalPosition: verticalPosition,
+      panelClass: panelClass,
+    });
   }
 
   closeSnackbar(): void {
     this.snackBar.dismiss();
-    this.isSnackbarVisibleSubject.next(false);
   }
 }

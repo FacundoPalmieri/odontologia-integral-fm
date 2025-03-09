@@ -2,12 +2,8 @@
 // For more information: https://material.angular.io/guide/theming
 @use "@angular/material" as mat;
 
-@import "tailwindcss";
+@use "tailwindcss";
 @import "./app/themes/themes.css";
-
-html {
-  height: 100%;
-}
 
 body {
   height: 100%;
@@ -17,8 +13,17 @@ body {
   color: var(--mat-sys-on-background);
 }
 
-// Estilos snackbar (ver de sacar de acá)
+// Estilos custom angular material (ver de sacar de acá)
 body {
+  //Revisar el motivo (barra en label) por el que es necesario agregar esta línea
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border: none;
+  }
+
   .snackbar-success {
     @include mat.snack-bar-overrides(
       (
@@ -65,4 +70,65 @@ body {
       )
     );
   }
+
+  .list-item-menu {
+    text-align: center;
+
+    @include mat.list-overrides(
+      (
+        active-indicator-shape: 14px,
+      )
+    );
+  }
+
+  .active-link {
+    @include mat.list-overrides(
+      (
+        list-item-container-color: var(--mat-sys-secondary),
+      )
+    );
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 10px,
+      outlined-container-shape: 10px,
+      protected-container-shape: 10px,
+      text-container-shape: 10px,
+    )
+  );
+
+  @include mat.tooltip-overrides(
+    (
+      container-color: var(--mat-sys-secondary),
+      supporting-text-color: var(--mat-sys-on-secondary-container),
+      container-shape: 12px,
+    )
+  );
+
+  @include mat.card-overrides(
+    (
+      outlined-outline-width: 0,
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      container-height: 50px,
+      container-vertical-padding: 14px,
+      // filled-with-label-container-padding-top: 12px,
+      // filled-with-label-container-padding-bottom: 8px,
+      container-text-size: 16px,
+    )
+  );
+
+  @include mat.table-overrides(
+    (
+      header-headline-size: 16px,
+      header-headline-weight: 600,
+      row-item-outline-color: rgba(0, 0, 0, 0.1),
+      row-item-outline-width: 1px,
+    )
+  );
 }

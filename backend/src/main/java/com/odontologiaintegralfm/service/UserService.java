@@ -306,7 +306,7 @@ public class UserService implements IUserService {
      */
     @Override
     @Transactional
-    public String createTokenResetPasswordForUser(String email) {
+    public Response<String> createTokenResetPasswordForUser(String email) {
         try {
             Optional<UserSec> userOptional = userRepository.findUserEntityByUsername(email);
             if (userOptional.isEmpty()) {
@@ -347,8 +347,9 @@ public class UserService implements IUserService {
             emailService.sendEmail(user.getUsername(), asunto, message);
 
             //Elaborar respuesta para el controller.
-            return messageService.getMessage("userService.requestResetPassword.success", null, LocaleContextHolder.getLocale());
+            String messageUser =  messageService.getMessage("userService.requestResetPassword.success", null, LocaleContextHolder.getLocale());
 
+            return new Response <>(true, messageUser, user.getUsername());
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "createPasswordReset");
@@ -373,7 +374,7 @@ public class UserService implements IUserService {
      */
     @Override
     @Transactional
-    public String updatePassword(ResetPasswordDTO resetPasswordDTO, HttpServletRequest request) {
+    public Response<String> updatePassword(ResetPasswordDTO resetPasswordDTO, HttpServletRequest request) {
         try {
             //Valída Token de restablecimiento.
             validateTokenResetPassword(resetPasswordDTO.token());
@@ -405,8 +406,9 @@ public class UserService implements IUserService {
             log.atInfo().log("[Mensaje: {}] - [USUARIO: {}] -[IP {}]", message,usuario.getUsername(), ipAddress);
 
             //Elabora Response a controller.
-            return messageService.getMessage("userService.resetPassword.success", null, LocaleContextHolder.getLocale());
+            String messageUser = messageService.getMessage("userService.resetPassword.success", null, LocaleContextHolder.getLocale());
 
+            return new Response <>(true, messageUser, usuario.getUsername());
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "updatePassword");

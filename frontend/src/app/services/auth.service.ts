@@ -5,6 +5,8 @@ import { LoginInterface } from "../domain/interfaces/login.interface";
 import { Observable } from "rxjs";
 import { AuthUserInterface } from "../domain/interfaces/auth-user.interface";
 import { ResetPasswordInterface } from "../domain/interfaces/reset-password.interface";
+import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
+import { UserDataInterface } from "../domain/interfaces/user-data.interface";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
@@ -18,26 +20,29 @@ export class AuthService {
     );
   }
 
-  resetPasswordRequest(email: string): Observable<string> {
+  resetPasswordRequest(
+    email: string
+  ): Observable<ApiResponseInterface<string>> {
     const params = new HttpParams().set("email", email);
 
-    return this.http.post<string>(
+    return this.http.post<ApiResponseInterface<string>>(
       `${this.apiUrl}/auth/request/reset-password`,
       null,
-      { params, responseType: "text" as "json" }
+      { params }
     );
   }
 
-  resetPassword(resetData: ResetPasswordInterface): Observable<string> {
-    return this.http.post<string>(
+  resetPassword(
+    resetData: ResetPasswordInterface
+  ): Observable<ApiResponseInterface<string>> {
+    return this.http.post<ApiResponseInterface<string>>(
       `${this.apiUrl}/auth/reset-password`,
-      resetData,
-      { responseType: "text" as "json" }
+      resetData
     );
   }
 
   doLogin(authUserData: AuthUserInterface) {
-    const userData = {
+    const userData: UserDataInterface = {
       username: authUserData.username,
       jwt: authUserData.jwt,
     };
@@ -51,5 +56,45 @@ export class AuthService {
       return JSON.parse(userData).jwt;
     }
     return null;
+  }
+
+  getUserData(): UserDataInterface | null {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      return JSON.parse(userData);
+    }
+    return null;
+  }
+
+  isLoggedIn(): boolean {
+    const token = this.getJwtToken();
+
+    if (!token) return false;
+
+    const payload = this.getJWTokenPayload(token);
+    if (!payload) return false;
+
+    return !this.isTokenExpired(payload.exp);
+  }
+
+  logout(): void {
+    localStorage.removeItem("userData");
+  }
+
+  private getJWTokenPayload(token: string) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  private isTokenExpired(expiration: number): boolean {
+    if (!expiration) {
+      return true;
+    }
+    const now = Math.floor(Date.now() / 1000);
+    return expiration < now;
   }
 }

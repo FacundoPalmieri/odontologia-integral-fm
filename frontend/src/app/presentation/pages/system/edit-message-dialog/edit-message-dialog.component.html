@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>Editar Mensaje</h2>
+<mat-dialog-content>
+  <div class="mt-1">
+    <form [formGroup]="messageForm" class="mt-1">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>ID</mat-label>
+        <input matInput formControlName="id" readonly />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Key</mat-label>
+        <input matInput formControlName="key" readonly />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Locale</mat-label>
+        <input matInput formControlName="locale" readonly />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Mensaje</mat-label>
+        <textarea matInput formControlName="value"></textarea>
+      </mat-form-field>
+    </form>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button
+    mat-flat-button
+    [mat-dialog-close]="messageForm.value"
+    [disabled]="!messageForm.valid"
+    cdkFocusInitial
+  >
+    Guardar
+  </button>
+</mat-dialog-actions>
