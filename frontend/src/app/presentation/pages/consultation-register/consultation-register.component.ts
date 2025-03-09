@@ -14,13 +14,10 @@ import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatInputModule } from "@angular/material/input";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatTooltipModule } from "@angular/material/tooltip";
-
-interface PatientInterface {
-  name: string;
-  dni: string;
-  phone: number;
-  mail: string;
-}
+import { OdontogramComponent } from "../../components/odontogram/odontogram.component";
+import { PatientInterface } from "../../../domain/interfaces/patient.interface";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatNativeDateModule } from "@angular/material/core";
 
 @Component({
   selector: "app-consultation-register",
@@ -47,6 +44,9 @@ interface PatientInterface {
     AsyncPipe,
     MatExpansionModule,
     MatTooltipModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    OdontogramComponent,
   ],
 })
 export class ConsultationRegisterComponent implements OnInit {
@@ -58,15 +58,29 @@ export class ConsultationRegisterComponent implements OnInit {
   patients: PatientInterface[] = [
     {
       name: "Matías Iglesias",
-      dni: "12341234",
+      age: 26,
+      birthday: new Date(1998, 2, 11),
+      dni: 12341234,
       phone: 1112312312,
       mail: "matias@iglesias.com",
+      address: "Tucuman 752",
+      locality: "CABA",
+      occupation: "Software Engineer",
+      medicare: "Swiss Medical",
+      affiliate_number: 123456787654321,
     },
     {
       name: "Facundo Palmieri",
-      dni: "56785678",
-      phone: 1145645666,
-      mail: "facundo@pamieri.com",
+      age: 31,
+      birthday: new Date(1993, 4, 17),
+      dni: 12341234,
+      phone: 1112312312,
+      mail: "facundo@palmieri.com",
+      address: "Tucuman 752",
+      locality: "CABA",
+      occupation: "Software Engineer",
+      medicare: "Galeno",
+      affiliate_number: 123456787654321,
     },
   ];
 
@@ -85,7 +99,7 @@ export class ConsultationRegisterComponent implements OnInit {
     return this.patients.filter(
       (patient) =>
         patient.name.toLowerCase().includes(filterValue) ||
-        patient.dni.includes(filterValue)
+        patient.dni.toString().includes(filterValue)
     );
   }
 
