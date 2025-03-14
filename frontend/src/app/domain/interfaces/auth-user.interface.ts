@@ -3,4 +3,5 @@ export interface AuthUserInterface {
   message: string;
   jwt: string;
   status: boolean;
+  roleAndPermission: string[];
 }

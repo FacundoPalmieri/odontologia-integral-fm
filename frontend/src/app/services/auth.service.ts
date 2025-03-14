@@ -45,6 +45,7 @@ export class AuthService {
     const userData: UserDataInterface = {
       username: authUserData.username,
       jwt: authUserData.jwt,
+      roleAndPermission: authUserData.roleAndPermission,
     };
 
     localStorage.setItem("userData", JSON.stringify(userData));

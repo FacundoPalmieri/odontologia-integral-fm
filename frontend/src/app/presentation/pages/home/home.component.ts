@@ -71,6 +71,10 @@ export class HomeComponent {
     this.router.navigate(["/login"]);
   }
 
+  obtenerRole(): string | undefined {
+    return this.userData?.roleAndPermission[0].split("_")[1];
+  }
+
   toggleTheme() {
     const newTheme = this.currentTheme().id === "light" ? "dark" : "light";
     this.themeService.setTheme(newTheme);
