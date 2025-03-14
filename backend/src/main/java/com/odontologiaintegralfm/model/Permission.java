@@ -24,8 +24,12 @@ public class Permission {
     private Long id;
 
 
-    /**Nombre único del permiso.*/
+    /**Descripción del permiso.*/
     @Column(name = "permission", unique = true, nullable = false)
     private String permission;
+
+    /**Nombre del permiso.*/
+    @Column(name = "name", unique = true, nullable = false)
+    private String name;
 
 }

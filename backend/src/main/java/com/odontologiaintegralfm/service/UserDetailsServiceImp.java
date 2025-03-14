@@ -14,6 +14,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -25,7 +26,9 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -155,8 +158,18 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
             //si es autenticado correctamente se almacena la información SecurityContextHolder y se crea el token.
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            //Crea el JWT
             String accessToken = jwtUtils.createToken(authentication);
-            AuthResponseDTO authResponseDTO = new AuthResponseDTO(username, "Login OK", accessToken, true);
+
+            // Obtener los roles desde la autenticación
+            List<String> roleAndPermission = authentication.getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority) // Convierte Authority en String
+                    .sorted(Comparator.comparing(authority -> authority.startsWith("ROLE_") ? 0 : 1)) // Ordena primero roles, luego permisos
+                    .collect(Collectors.toList());
+
+            AuthResponseDTO authResponseDTO = new AuthResponseDTO(username, "Login OK", accessToken, roleAndPermission, true);
             return authResponseDTO;
         }catch (BadCredentialsException ex) {
             throw new CredentialsException(authLoginRequest.username());
