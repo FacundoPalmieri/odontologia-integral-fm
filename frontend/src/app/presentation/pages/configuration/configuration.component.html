@@ -123,7 +123,7 @@
             {
             <mat-chip-set>
               @for (permission of element.permissionsList; track $index) {
-              <mat-chip>{{ permission.permission }}</mat-chip>
+              <mat-chip>{{ permission.name }}</mat-chip>
               }
             </mat-chip-set>
             } @else {
