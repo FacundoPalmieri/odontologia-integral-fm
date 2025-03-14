@@ -86,13 +86,6 @@ export class LoginComponent {
       next: (response: AuthUserInterface) => {
         this.authService.doLogin(response);
         this.loaderService.hide();
-        this.snackbarService.openSnackbar(
-          response.message,
-          3000,
-          "center",
-          "top",
-          SnackbarTypeEnum.Success
-        );
         this.router.navigate(["/"]);
       },
       error: () => {
