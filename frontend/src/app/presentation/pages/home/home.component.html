@@ -6,7 +6,7 @@
 
     <mat-nav-list>
       <div class="space-y-4 mt-4 p-3">
-        @for(menu of menuItems; track menu.label){
+        @for(menu of filteredMenuItems; track menu.label){
         <mat-list-item
           class="list-item-menu"
           [matTooltip]="menu.label"

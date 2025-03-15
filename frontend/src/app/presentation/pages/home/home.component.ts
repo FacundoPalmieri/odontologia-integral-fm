@@ -1,4 +1,4 @@
-import { Component, computed, inject } from "@angular/core";
+import { Component, computed, inject, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Router, RouterModule } from "@angular/router";
 import { MatIconModule } from "@angular/material/icon";
@@ -13,6 +13,8 @@ import { ThemeService } from "../../../services/theme.service";
 import { AuthService } from "../../../services/auth.service";
 import { UserDataInterface } from "../../../domain/interfaces/user-data.interface";
 import { MatDividerModule } from "@angular/material/divider";
+import { PermissionFactory } from "../../../utils/factories/permission.factory";
+import { MenuItemInterface } from "../../../domain/interfaces/menu-item.interface";
 
 @Component({
   selector: "app-home",
@@ -33,38 +35,31 @@ import { MatDividerModule } from "@angular/material/divider";
     IconsModule,
   ],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   themeService = inject(ThemeService);
   authService = inject(AuthService);
   router = inject(Router);
   showFiller = false;
   currentTheme = computed(() => this.themeService.currentTheme());
   userData: UserDataInterface | null = this.authService.getUserData();
+  permissions: string[] = [];
+  private menuItems = PermissionFactory.createPermissions();
+  filteredMenuItems: MenuItemInterface[] = [];
 
-  menuItems = [
-    { label: "Dashboard", icon: "chart-bar", route: "/dashboard" },
-    {
-      label: "Registro de Consultas",
-      icon: "folder-plus",
-      route: "/consultation",
-    },
-    {
-      label: "Gestión de Turnos",
-      icon: "calendar-plus",
-      route: "/appointments",
-    },
-    {
-      label: "Historia Clínica",
-      icon: "folder-search",
-      route: "/medical-record",
-    },
-    { label: "Insumos", icon: "packages", route: "/inventory" },
-    { label: "Finanzas", icon: "file-dollar", route: "/finances" },
-    { label: "Reportes", icon: "chart-histogram", route: "/reports" },
-    { label: "Configuración", icon: "settings", route: "/configuration" },
-    { label: "Sistema", icon: "device-desktop-cog", route: "/system" },
-  ];
   constructor() {}
+
+  ngOnInit() {
+    if (this.userData?.roleAndPermission) {
+      this.permissions = this.userData.roleAndPermission.slice(1);
+      this.filteredMenuItems = this.filterMenuItems();
+    }
+  }
+
+  private filterMenuItems(): MenuItemInterface[] {
+    return this.menuItems.filter((item) =>
+      this.permissions.includes(item.permissionEnum)
+    );
+  }
 
   logout() {
     this.authService.logout();
