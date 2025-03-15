@@ -53,8 +53,7 @@ import java.util.stream.Collectors;
  *   <li>{@link #validateNotDevRole(UserSecCreateDTO)}</li>
  *   <li>{@link #validateSelfUpdate(Long)}</li>
  *   <li>{@link #validateNotDevRole(UserSec, UserSecUpdateDTO)}</li>
- *   <li>{@link #validateUpdateAccount(UserSec, UserSecUpdateDTO)}</li>
- *   <li>{@link #validateUpdateRole(UserSecUpdateDTO, Set<Role>)}</li>
+ *   <li>{@link #validateUpdate(UserSec, UserSecUpdateDTO, Set)}</li>
  *   <li>{@link #updateUserSec(UserSec, UserSecUpdateDTO)}</li>
  * </ul>
  *
@@ -153,6 +152,16 @@ public class UserService implements IUserService {
              }
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", id, "", "findById");
+        }
+    }
+
+    @Override
+    public UserSec findByUsername(String username) {
+        try {
+            return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UserNotFoundException("", "UserService", "findByUsername", 0L));
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "userService", 0L, "", "findByUsername");
         }
     }
 

@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.*;
+import com.odontologiaintegralfm.model.UserSec;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -23,6 +24,16 @@ public interface IUserService {
       * @return Una respuesta que contiene el objeto {@link UserSecResponseDTO} correspondiente al usuario.
       */
      Response<UserSecResponseDTO> findById(Long id);
+
+
+
+     /**
+      * Obtiene un usuario por su username.
+      * @param username El username del usuario a recuperar.
+      * @return el objeto {@link UserSec} correspondiente al usuario.
+      */
+     UserSec findByUsername(String username);
+
 
      /**
       * Guarda un nuevo usuario.

@@ -1,9 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.dto.AuthLoginRequestDTO;
-import com.odontologiaintegralfm.dto.AuthResponseDTO;
-import com.odontologiaintegralfm.dto.ResetPasswordDTO;
-import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import com.odontologiaintegralfm.service.UserDetailsServiceImp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,6 +60,17 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
         return new ResponseEntity<>(this.userDetailsService.loginUser(userRequest), HttpStatus.OK);
+    }
+
+
+
+
+    @PostMapping("/refresh-token")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Response<String>> refreshToken(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
+        Response<String>response = userDetailsService.refreshToken(refreshTokenDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
 

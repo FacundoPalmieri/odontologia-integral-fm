@@ -1,12 +1,16 @@
 package com.odontologiaintegralfm.service;
 import com.odontologiaintegralfm.dto.AuthLoginRequestDTO;
 import com.odontologiaintegralfm.dto.AuthResponseDTO;
+import com.odontologiaintegralfm.dto.RefreshTokenDTO;
+import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.BlockAccountException;
 import com.odontologiaintegralfm.exception.CredentialsException;
 import com.odontologiaintegralfm.exception.UserNameNotFoundException;
+import com.odontologiaintegralfm.model.RefreshToken;
 import com.odontologiaintegralfm.model.UserSec;
 import com.odontologiaintegralfm.repository.IUserRepository;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
+import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
 import com.odontologiaintegralfm.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +85,9 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private IRefreshTokenService refreshTokenService;
 
 
     /**
@@ -162,6 +169,15 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Crea el JWT
             String accessToken = jwtUtils.createToken(authentication);
 
+            //Crea el RefreshToken
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
+
+            //Convierte el RefreshToken a DTO
+            RefreshTokenDTO refreshTokenDTO = new RefreshTokenDTO();
+            refreshTokenDTO.setUser(refreshToken.getUser().getUsername());
+            refreshTokenDTO.setToken(refreshToken.getRefreshToken());
+            refreshTokenDTO.setRefreshToken(refreshToken.getRefreshToken());
+
             // Obtener los roles desde la autenticación
             List<String> roleAndPermission = authentication.getAuthorities()
                     .stream()
@@ -169,7 +185,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
                     .sorted(Comparator.comparing(authority -> authority.startsWith("ROLE_") ? 0 : 1)) // Ordena primero roles, luego permisos
                     .collect(Collectors.toList());
 
-            AuthResponseDTO authResponseDTO = new AuthResponseDTO(username, "Login OK", accessToken, roleAndPermission, true);
+            AuthResponseDTO authResponseDTO = new AuthResponseDTO(username, "Login OK", accessToken,refreshTokenDTO.getRefreshToken(), roleAndPermission, true);
             return authResponseDTO;
         }catch (BadCredentialsException ex) {
             throw new CredentialsException(authLoginRequest.username());
@@ -227,6 +243,22 @@ public class UserDetailsServiceImp implements UserDetailsService {
         //Resetea intentos fallidos a 0.
         userService.resetFailedAttempts(username);
         return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
+    }
+
+    /*
+  1. Verificar el refresh token: El primer paso es asegurarse de que el refresh token recibido es válido. -- DTO OK
+  2. Verificar si el refresh token está activo: Esto incluye verificar que el refresh token no haya expirado.
+  3. Generar un nuevo JWT: Si el refresh token es válido, generas un nuevo JWT.
+  4. Generar un nuevo refresh token: El refresh token también debe renovarse en cada solicitud exitosa.
+  5. Devolver los tokens: Finalmente, se devuelven el nuevo JWT y el refresh token al cliente.
+*/
+    public Response<String> refreshToken(RefreshTokenDTO refreshTokenDTO) {
+
+        //Verifica si el refresh token existe y es válido
+        RefreshToken refreshToken = refreshTokenService.getRefreshToken(refreshTokenDTO.getRefreshToken(), refreshTokenDTO.getUser());
+
+        return  new Response<>(true, "", null);
+
     }
 
 
