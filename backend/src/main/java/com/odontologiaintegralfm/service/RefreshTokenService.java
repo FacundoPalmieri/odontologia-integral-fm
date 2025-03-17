@@ -64,7 +64,7 @@ public class RefreshTokenService implements IRefreshTokenService {
 
 
     @Override
-    public RefreshToken getRefreshToken(String token, String username) {
+    public RefreshToken getRefreshTokenByUsername(String token, String username) {
         try{
             return refreshTokenRepository.findByRefreshToken(token).orElseThrow(() -> new TokenInvalidException("[Método: getRefreshToken]",username));
         }catch (DataAccessException | CannotCreateTransactionException e) {

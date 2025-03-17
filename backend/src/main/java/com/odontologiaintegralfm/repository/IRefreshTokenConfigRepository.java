@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.repository;
 
-import com.odontologiaintegralfm.model.TokenConfig;
+import com.odontologiaintegralfm.model.RefreshTokenConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,12 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-public interface ITokenRepository extends JpaRepository<TokenConfig, Long> {
+public interface IRefreshTokenConfigRepository extends JpaRepository<RefreshTokenConfig, Long> {
 
-    Optional<TokenConfig> findFirstByOrderByIdAsc();
+    Optional<RefreshTokenConfig> findFirstByOrderByIdAsc();
 
     @Transactional
     @Modifying
-    @Query("UPDATE TokenConfig t SET t.expiration = :expiration")
+    @Query("UPDATE RefreshTokenConfig t SET t.expiration =:expiration")
     int update(@Param("expiration") Long expiration);
+
 }

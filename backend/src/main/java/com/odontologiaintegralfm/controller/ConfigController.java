@@ -1,9 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.dto.FailedLoginAttemptsDTO;
-import com.odontologiaintegralfm.dto.MessageDTO;
-import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.TokenConfigDTO;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.model.MessageConfig;
 import com.odontologiaintegralfm.service.ConfigService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +51,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/dev")
-@PreAuthorize("hasRole('Developer')")
+@PreAuthorize("hasRole('Desarrollador')")
 public class ConfigController {
     @Autowired
     private ConfigService configService;
@@ -63,7 +60,7 @@ public class ConfigController {
     /**
      * Obtiene la configuración de mensajes.
      * <p>
-     * Requiere rol <b>DEV</b> para acceder.
+     * Requiere rol <b>Desarrollador</b> para acceder.
      * </p>
      *
      * @return ResponseEntity con:
@@ -89,7 +86,7 @@ public class ConfigController {
     /**
      * Actualiza la configuración de un mensaje.
      * <p>
-     * Requiere rol <b>DEV</b> para acceder.
+     * Requiere rol <b>Desarrollador</b> para acceder.
      * </p>
      *
      * @param messageDTO Objeto con los datos del mensaje a actualizar.
@@ -120,7 +117,7 @@ public class ConfigController {
     /**
      * Obtiene la cantidad de intentos fallidos de sesión.
      * <p>
-     * Requiere el rol <b>DEV</b> para acceder.
+     * Requiere el rol <b>Desarrollador</b> para acceder.
      * </p>
      *
      * @return ResponseEntity con:
@@ -146,7 +143,7 @@ public class ConfigController {
     /**
      * Actualiza la cantidad de intentos fallidos de sesión.
      * <p>
-     * Requiere el rol <b>DEV</b> para acceder.
+     * Requiere el rol <b>Desarrollador</b> para acceder.
      * </p>
      *
      * @param failedLoginAttemptsDTO Datos para actualizar los intentos fallidos de sesión.
@@ -175,7 +172,7 @@ public class ConfigController {
     /**
      * Obtiene la expiración del token.
      * <p>
-     * Requiere el rol <b>DEV</b> para acceder.
+     * Requiere el rol <b>Desarrollador</b> para acceder.
      * </p>
      *
      * @return ResponseEntity con:
@@ -200,7 +197,7 @@ public class ConfigController {
     /**
      * Actualiza la expiración del token.
      * <p>
-     * Requiere el rol <b>DEV</b> para acceder.
+     * Requiere el rol <b>Desarrollador</b> para acceder.
      * </p>
      *
      * @param tokenConfigDTO Datos para actualizar la expiración del token.
@@ -223,6 +220,62 @@ public class ConfigController {
     public ResponseEntity<Response<Long>> updateTokenExpiration(@Valid @RequestBody TokenConfigDTO tokenConfigDTO) {
          Response<Long> response = configService.updateTokenExpiration(tokenConfigDTO);
          return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /**
+     * Obtiene la expiración del Refresh token.
+     * <p>
+     * Requiere el rol <b>Desarrollador</b> para acceder.
+     * </p>
+     *
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 OK</b>: Expiración del Refresh token recuperada exitosamente.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         </ul>
+     */
+    @Operation(summary = "Obtener expiración del Refresh token", description = "Obtiene la expiración del Refresh token.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Expiración del Refresh token recuperada exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
+    })
+    @GetMapping ("Refresh-token/get")
+    public ResponseEntity<Response<Long>> getRefreshTokenExpiration() {
+        Response<Long> response = configService.getRefreshTokenExpiration();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /**
+     * Actualiza la expiración del Refresh Token.
+     * <p>
+     * Requiere el rol <b>DEV</b> para acceder.
+     * </p>
+     *
+     * @param refreshTokenConfigDTO con el tiempo de expiración en días
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 OK</b>: Expiración del Refresh token actualizada exitosamente.</li>
+     *         <li><b>400 Bad Request</b>: Datos inválidos para actualizar la expiración del RefreshToken.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         </ul>
+     */
+    @Operation(summary = "Actualizar expiración del Refresh Token", description = "Actualiza la expiración del Refresh Token.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Expiración del Refresh token actualizada exitosamente."),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos para actualizar la expiración del Refresh Token."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
+    })
+    @PatchMapping("refresh-token/update")
+    public ResponseEntity<Response<Long>> updateRefreshTokenExpiration(@Valid @RequestBody RefreshTokenConfigDTO refreshTokenConfigDTO) {
+        Response<Long> response = configService.updateRefreshTokenExpiration(refreshTokenConfigDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
 }

@@ -4,7 +4,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.odontologiaintegralfm.service.interfaces.ITokenService;
+import com.odontologiaintegralfm.service.interfaces.ITokenConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * Componente encargado de generar, validar y extraer información de tokens JWT (JSON Web Tokens).
+ * No tiene lógica de negocio ni interactúa con la base de datos.
  * <p>
  * Esta clase proporciona métodos para:
  * <ul>
@@ -43,7 +44,7 @@ public class JwtUtils {
     private String userGenerator;
 
     @Autowired
-    private ITokenService tokenService;
+    private ITokenConfigService tokenService;
 
     public JwtUtils(@Qualifier("messageSource") MessageSource messageSource) {
         this.messageSource = messageSource;

@@ -255,7 +255,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
     public Response<String> refreshToken(RefreshTokenDTO refreshTokenDTO) {
 
         //Verifica si el refresh token existe y es válido
-        RefreshToken refreshToken = refreshTokenService.getRefreshToken(refreshTokenDTO.getRefreshToken(), refreshTokenDTO.getUser());
+        RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUsername(refreshTokenDTO.getRefreshToken(), refreshTokenDTO.getUser());
 
         return  new Response<>(true, "", null);
 

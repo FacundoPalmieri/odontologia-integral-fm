@@ -28,6 +28,8 @@ import java.util.Map;
  * </p>
  *
  * Las excepciones manejadas incluyen:
+ * - {@link RefreshTokenConfigNotFoundException}: Excepciones relacionadas con la configuración de refresh token.
+ * - {@link TokenConfigNotFoundException}: Excepciones relacionadas con la configuración del token.
  * - {@link TokenInvalidException}: Excepciones relacionadas con tokens de autenticación inválidos.
  * - {@link BlockAccountException}: Excepciones cuando una cuenta de usuario está bloqueada.
  * - {@link ResourceNotFoundException}: Excepciones cuando un recurso no se encuentra.
@@ -61,6 +63,60 @@ public class GlobalExceptionHandler {
     @Autowired
     private IMessageService messageService;
 
+    /**
+     *Maneja las excepciones del tipo {@link RefreshTokenConfigNotFoundException} que ocurre cuando no se encuentra el tiempo de expiración del token.
+     *<p>
+     * Este manejador de excepciones captura los casos en los que no se encuentra en la base de datos el tiempo de expiración del token, registrando la excepeción
+     * para el análisis y proporcionando una respuesta adecuada al cliente.
+     *</p>
+     */
+    @ExceptionHandler({RefreshTokenConfigNotFoundException.class})
+    public ResponseEntity<Response<Void>> handleRefreshTokenConfigNotFoundException(RefreshTokenConfigNotFoundException e) {
+        //Cargar mensaje para el log.
+        String logMessage = messageService.getMessage("exception.refreshTokenConfigNotFoundException.log",new Object[]{e.getEntityType(), e.getOperation()}, LocaleContextHolder.getLocale());
+
+        log.error(logMessage, e);
+
+        //Cargar mensaje para el usuario
+        String userMessage = messageService.getMessage("exception.refreshTokenConfigNotFoundException.user", null, LocaleContextHolder.getLocale());
+
+        //Construir respuesta y enviar.
+        Response <Void> response = new Response<>(false,userMessage,null);
+
+        // Retornar la respuesta con el código de estado 401 (Unauthorized).
+        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+    }
+
+
+
+
+
+
+    /**
+     * Meneja las excepciones del tipo {@link TokenConfigNotFoundException} que ocurre cuando no se encuentra el tiempo de expiración del token.
+     * <p>
+     *  Este manejador de excepciones captura los casos en los que no se encuentra en la base de datos el tiempo de expiración del token, registrando la excepeción
+     *  para el análisis y proporcionando una respuesta adecuada al cliente.
+     * </p>
+     */
+    @ExceptionHandler({TokenConfigNotFoundException.class})
+    public ResponseEntity<Response<Void>> handleTokenConfigNotFoundException(TokenConfigNotFoundException e) {
+        //Cargar mensaje para el log.
+        String logMessage = messageService.getMessage("exception.tokenConfigNotFoundException.log",new Object[]{e.getEntityType(), e.getOperation()}, LocaleContextHolder.getLocale());
+
+        log.error(logMessage, e);
+
+        //Cargar mensaje para el usuario
+        String userMessage = messageService.getMessage("exception.tokenConfigNotFoundException.user", null, LocaleContextHolder.getLocale());
+
+        //Construir respuesta y enviar.
+        Response<Void> response = new Response<>(false,userMessage,null);
+
+        // Retornar la respuesta con el código de estado 401 (Unauthorized).
+        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+    }
+
+
 
     /**
      * Maneja las excepciones de tipo {@link TokenInvalidException} que ocurren cuando un token es inválido.
@@ -74,7 +130,7 @@ public class GlobalExceptionHandler {
      * @return Una respuesta con un mensaje de error para el usuario, indicando que el token es inválido.
      */
     @ExceptionHandler({TokenInvalidException.class})
-    public ResponseEntity<Response> handleTokenInvalidException(TokenInvalidException ex, HttpServletRequest request) {
+    public ResponseEntity<Response<Void>> handleTokenInvalidException(TokenInvalidException ex, HttpServletRequest request) {
         //Obtener IP
         String ip = request.getRemoteAddr();
 
@@ -87,7 +143,7 @@ public class GlobalExceptionHandler {
         String userMessage = messageService.getMessage("exception.validateToken.user", null, LocaleContextHolder.getLocale());
 
         //Construir respuesta y enviar.
-        Response<String> response = new Response<>(false,userMessage,null);
+        Response<Void> response = new Response<>(false,userMessage,null);
 
         // Retornar la respuesta con el código de estado 401 (Unauthorized).
         return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
@@ -106,7 +162,7 @@ public class GlobalExceptionHandler {
      * @return Una respuesta con un mensaje de error para el usuario, indicando que la cuenta está bloqueada.
      */
     @ExceptionHandler(BlockAccountException.class)
-    public ResponseEntity<Response> handleBlockAccountException(BlockAccountException ex) {
+    public ResponseEntity<Response<String>> handleBlockAccountException(BlockAccountException ex) {
 
         // Cargar el mensaje de error para el log.
         String logMessege = messageService.getMessage(
@@ -144,7 +200,7 @@ public class GlobalExceptionHandler {
      * @return Una respuesta con un mensaje de error para el usuario, indicando que el recurso no fue encontrado.
      */
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Response> handleResourceNotFoundException(ResourceNotFoundException ex) {
+    public ResponseEntity<Response<Void>> handleResourceNotFoundException(ResourceNotFoundException ex) {
 
         // Cargar el mensaje de error desde Base de datos
         String userMessage = messageService.getMessage(
@@ -154,7 +210,7 @@ public class GlobalExceptionHandler {
         );
 
         // Crear la respuesta con el mensaje personalizado
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
 
         // Retornar la respuesta con el código de estado 404 (Not Found), indicando que el recurso no fue encontrado.
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -174,14 +230,14 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserNameExistingException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Response> handleUsernameExistingException(UserNameExistingException ex) {
+    public ResponseEntity<Response<Void>> handleUsernameExistingException(UserNameExistingException ex) {
         //Construir mensaje para el log
         String logMessage = messageService.getMessage("exception.usernameExisting.log", new Object[]{ex.getEntityType(), ex.getOperation(), ex.getUsername()}, LocaleContextHolder.getLocale());
         log.error(logMessage);
 
         // Crear la respuesta con el mensaje para el usuario y un estado HTTP 409 (Conflict).
         String userMessage = messageService.getMessage("exception.usernameExisting.user", new Object[]{ex.getUsername()}, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
@@ -203,7 +259,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserNameNotFoundException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<Response<String>> handleUsernameNotFoundException(UserNameNotFoundException ex, HttpServletRequest request) {
+    public ResponseEntity<Response<Void>> handleUsernameNotFoundException(UserNameNotFoundException ex, HttpServletRequest request) {
 
         // Cargar el mensaje de error desde BD
         String logMessage = messageService.getMessage("exception.usernameNotFound.log", new Object[]{ex.getUsername()}, LocaleContextHolder.getLocale());
@@ -218,7 +274,7 @@ public class GlobalExceptionHandler {
         );
 
         // Crear la respuesta con el mensaje personalizado
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
 
         // Enviar la respuesta con el código de estado 401.
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
@@ -240,7 +296,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Response> handleUserNotFoundException(UserNotFoundException ex) {
+    public ResponseEntity<Response<Void>> handleUserNotFoundException(UserNotFoundException ex) {
 
         //Construye mensaje para el log
         String logMessage = messageService.getMessage("userService.findById.error.log", new Object[]{ex.getEntityType(), ex.getOperation(), ex.getId()}, LocaleContextHolder.getLocale());
@@ -248,7 +304,7 @@ public class GlobalExceptionHandler {
 
         //Cargar mensaje para usuario.
         String userMessage = messageService.getMessage("userService.findById.error.user", null, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
 
         // Devolver la respuesta con un código de estado HTTP NOT_FOUND (404).
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -309,7 +365,7 @@ public class GlobalExceptionHandler {
      * @return Una respuesta con un mensaje genérico de error para el usuario y un código de estado HTTP {@code 500 Internal Server Error}.
      */
     @ExceptionHandler(DataBaseException.class)
-    public ResponseEntity<Response<String>> handleDataBaseException(DataBaseException ex) {
+    public ResponseEntity<Response<Void>> handleDataBaseException(DataBaseException ex) {
 
         //Se construye en el mensaje para el usuario.
         String userMessage = messageService.getMessage("exception.database.user", null, LocaleContextHolder.getLocale());
@@ -324,7 +380,7 @@ public class GlobalExceptionHandler {
         log.error(logMessage);
 
         // Respuesta a usuario.
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -343,7 +399,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({RoleNotFoundUserCreationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Response<String>> handleRoleNotFoundUserCreationException(RoleNotFoundUserCreationException ex) {
+    public ResponseEntity<Response<Void>> handleRoleNotFoundUserCreationException(RoleNotFoundUserCreationException ex) {
 
         //Se construye mensaje para el log
         String messageLog = messageService.getMessage("exception.roleNotFoundUserCreationException.log", new Object[]{ex.getId(), ex.getRole()}, LocaleContextHolder.getLocale());
@@ -351,7 +407,7 @@ public class GlobalExceptionHandler {
 
         //Se construye mensaje para el usuario.
         String messageUser = messageService.getMessage("exception.roleNotFoundUserCreationException.user", null, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, messageUser, null);
+        Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -371,7 +427,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({RoleNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Response<String>> handleRoleNotFoundException(RoleNotFoundException ex) {
+    public ResponseEntity<Response<Void>> handleRoleNotFoundException(RoleNotFoundException ex) {
 
         //Se construye mensaje para el log
         String messageLog = messageService.getMessage("exception.roleNotFound.log", new Object[]{ex.getId(), ex.getRole()}, LocaleContextHolder.getLocale());
@@ -379,7 +435,7 @@ public class GlobalExceptionHandler {
 
         //Se construye mensaje para el usuario.
         String messageUser = messageService.getMessage("exception.roleNotFound.user", null, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, messageUser, null);
+        Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -398,7 +454,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({RoleExistingException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Response<String>> handleRoleExistingException(RoleExistingException ex) {
+    public ResponseEntity<Response<Void>> handleRoleExistingException(RoleExistingException ex) {
 
         //Se construye mensaje para el log.
         String messageLog = messageService.getMessage("exception.roleExisting.log", new Object[]{ex.getEntityType(), ex.getOperation(), ex.getRole()}, LocaleContextHolder.getLocale());
@@ -406,7 +462,7 @@ public class GlobalExceptionHandler {
 
         //Se construye mensaje para el usuario.
         String messageUser = messageService.getMessage("exception.roleExisting.user", new Object[]{ex.getRole()}, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, messageUser, null);
+        Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
@@ -425,14 +481,14 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({PermissionNotFoundRoleCreationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Response<String>> handlePermissionNotFoundRoleCreationException(PermissionNotFoundRoleCreationException ex) {
+    public ResponseEntity<Response<Void>> handlePermissionNotFoundRoleCreationException(PermissionNotFoundRoleCreationException ex) {
         //Se construye mensaje para el log
         String messageLog = messageService.getMessage("exception.permissionNotFoundRoleCreationException.log", new Object[]{ex.getEntityType(),ex.getOperation(), ex.getId()}, LocaleContextHolder.getLocale());
         log.error(messageLog);
 
         //Se construye mensaje para el usuario.
         String messageUser = messageService.getMessage("exception.permissionNotFoundRoleCreationException.user", null, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, messageUser, null);
+        Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -452,14 +508,14 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({PermissionNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Response<String>> handlePermissionNotFoundException(PermissionNotFoundException ex) {
+    public ResponseEntity<Response<Void>> handlePermissionNotFoundException(PermissionNotFoundException ex) {
         //Se construye mensaje para el log
         String messageLog = messageService.getMessage("exception.permissionNotFound.log", new Object[]{ex.getEntityType(),ex.getOperation(), ex.getId()}, LocaleContextHolder.getLocale());
         log.error(messageLog);
 
         //Se construye mensaje para el usuario.
         String messageUser = messageService.getMessage("exception.permissionNotFound.user", null, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, messageUser, null);
+        Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -481,9 +537,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Response<String>> handleNotFound(Exception ex) {
+    public ResponseEntity<Response<Void>> handleNotFound(Exception ex) {
         String messageUser = messageService.getMessage("exception.notFound", null, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, messageUser, null);
+        Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -504,7 +560,7 @@ public class GlobalExceptionHandler {
      * @return Una {@link ResponseEntity} con un objeto {@link Response} que contiene el mensaje de error y el código HTTP correspondiente.
      */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Response<String>> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+    public ResponseEntity<Response<Void>> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
 
         // Obtener información del usuario autenticado, si existe
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -522,7 +578,7 @@ public class GlobalExceptionHandler {
 
             // Mensaje para el usuario final
             String messageUser = messageService.getMessage("exception.authenticationRequired.user", null, LocaleContextHolder.getLocale());
-            Response<String> response = new Response<>(false, messageUser, null);
+            Response<Void> response = new Response<>(false, messageUser, null);
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }else{
             // Obtener el mensaje desde el archivo de propiedades y asignar datos
@@ -533,7 +589,7 @@ public class GlobalExceptionHandler {
 
             // Mensaje para el usuario final
             String messageUser = messageService.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale());
-            Response<String> response = new Response<>(false, messageUser, null);
+            Response<Void> response = new Response<>(false, messageUser, null);
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
@@ -555,7 +611,7 @@ public class GlobalExceptionHandler {
      * @return Una respuesta con un mensaje personalizado para el usuario y un código de estado HTTP {@code 401 Unauthorized}.
      */
     @ExceptionHandler({CredentialsException.class})
-    public ResponseEntity<Response<String>> handleCredentialsException(CredentialsException ex, HttpServletRequest request) {
+    public ResponseEntity<Response<Void>> handleCredentialsException(CredentialsException ex, HttpServletRequest request) {
         //Obtener IP
         String ip = request.getRemoteAddr();
 
@@ -575,7 +631,7 @@ public class GlobalExceptionHandler {
                 LocaleContextHolder.getLocale());
 
         // Crear la respuesta con el mensaje personalizado
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
@@ -594,7 +650,7 @@ public class GlobalExceptionHandler {
      * @return Una respuesta con un mensaje personalizado para el usuario y un código de estado HTTP {@code 409 Conflict}.
      */
     @ExceptionHandler (PasswordMismatchException.class)
-    public ResponseEntity<Response<String>> handlePasswordMismatchException(PasswordMismatchException ex) {
+    public ResponseEntity<Response<Void>> handlePasswordMismatchException(PasswordMismatchException ex) {
 
         //Se recupera usuario autenticado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -612,7 +668,7 @@ public class GlobalExceptionHandler {
         //Se construye mensaje para usuario.
         String userMessage = messageService.getMessage("userService.save.passwordNotEquals.user", null, LocaleContextHolder.getLocale());
 
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
         return new ResponseEntity<>(response,HttpStatus.CONFLICT);
 
     }
@@ -632,7 +688,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserUpdateSelfUpdateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Response<String>> handleUserUpdateException(UserUpdateSelfUpdateException ex) {
+    public ResponseEntity<Response<Void>> handleUserUpdateException(UserUpdateSelfUpdateException ex) {
         //Carga el mensaje para el log.
         String logMessage = messageService.getMessage("exception.validateSelfUpdate.log",new Object[]{ex.getEntityType(), ex.getOperation(), ex.getId()}, LocaleContextHolder.getLocale());
         log.error(logMessage);
@@ -640,7 +696,7 @@ public class GlobalExceptionHandler {
         //Se construye mensaje para usuario.
         String userMessage = messageService.getMessage("exception.validateSelfUpdate.user", null, LocaleContextHolder.getLocale());
 
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
         return new ResponseEntity<>(response,HttpStatus.CONFLICT);
     }
 
@@ -661,7 +717,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserSaveNotDevRoleException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Response<String>> handleUserSaveNotDevRoleException(UserSaveNotDevRoleException ex) {
+    public ResponseEntity<Response<Void>> handleUserSaveNotDevRoleException(UserSaveNotDevRoleException ex) {
         //Carga el mensaje para el log.
         String logMessage = messageService.getMessage("exception.save.validateNotDevRole.log",new Object[]{ex.getEntityType(), ex.getOperation(), ex.getId()}, LocaleContextHolder.getLocale());
         log.error(logMessage);
@@ -669,7 +725,7 @@ public class GlobalExceptionHandler {
         //Se construye mensaje para usuario.
         String userMessage = messageService.getMessage("exception.save.validateNotDevRole.user", null, LocaleContextHolder.getLocale());
 
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
         return new ResponseEntity<>(response,HttpStatus.CONFLICT);
     }
 
@@ -687,7 +743,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserUpdateNotDevRoleException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Response<String>> handleUserUpdateNotDevRoleException(UserUpdateNotDevRoleException ex) {
+    public ResponseEntity<Response<Void>> handleUserUpdateNotDevRoleException(UserUpdateNotDevRoleException ex) {
         //Carga el mensaje para el log.
         String logMessage = messageService.getMessage("exception.update.validateNotDevRole.log",new Object[]{ex.getEntityType(), ex.getOperation(), ex.getId()}, LocaleContextHolder.getLocale());
         log.error(logMessage);
@@ -695,7 +751,7 @@ public class GlobalExceptionHandler {
         //Se construye mensaje para usuario.
         String userMessage = messageService.getMessage("exception.update.validateNotDevRole.user", null, LocaleContextHolder.getLocale());
 
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
         return new ResponseEntity<>(response,HttpStatus.CONFLICT);
     }
 
@@ -711,7 +767,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserUpdateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Response<String>> handleUserUpdateException(UserUpdateException ex){
+    public ResponseEntity<Response<Void>> handleUserUpdateException(UserUpdateException ex){
         //Carga el mensaje para el log.
         String logMessage = messageService.getMessage("exception.validateUpdateUser.log", new Object[]{ex.getEntityType(), ex.getOperation(), ex.getId()}, LocaleContextHolder.getLocale());
         log.error(logMessage);
@@ -719,7 +775,7 @@ public class GlobalExceptionHandler {
         //Se construye mensaje para usuario.
         String userMessage = messageService.getMessage("exception.validateUpdateUser.user", null, LocaleContextHolder.getLocale());
 
-        Response<String> response = new Response<>(false, userMessage, null);
+        Response<Void> response = new Response<>(false, userMessage, null);
         return new ResponseEntity<>(response,HttpStatus.CONFLICT);
     }
 
@@ -739,14 +795,14 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({MessageNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Response<String>> handleMessageNotFoundException(MessageNotFoundException ex) {
+    public ResponseEntity<Response<Void>> handleMessageNotFoundException(MessageNotFoundException ex) {
         //Se construye mensaje para el log
         String messageLog = messageService.getMessage("exception.messageNotFound.log", new Object[]{ex.getEntityType(),ex.getOperation(), ex.getId()}, LocaleContextHolder.getLocale());
         log.error(messageLog);
 
         //Se construye mensaje para el usuario.
         String messageUser = messageService.getMessage("exception.messageNotFound.user", null, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, messageUser, null);
+        Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -766,13 +822,13 @@ public class GlobalExceptionHandler {
      * @return Una respuesta con un mensaje genérico para el usuario y un código de estado HTTP {@code 500 Internal Server Error}.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Response<String>> handleGeneralException(Exception e) {
+    public ResponseEntity<Response<Void>> handleGeneralException(Exception e) {
         // Loguear la excepción para detalles de diagnóstico
         log.error("Error inesperado: " + e.getMessage(), e);
 
         // Respuesta genérica para cualquier excepción no capturada
         String messageUser = messageService.getMessage("exception.generic", null, LocaleContextHolder.getLocale());
-        Response<String> response = new Response<>(false, messageUser, null);
+        Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
