@@ -1,50 +1,31 @@
 import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ToothInterface } from "../../../domain/interfaces/tooth.interface";
+import { IconsModule } from "../../../utils/tabler-icons.module";
+import { MatMenuModule } from "@angular/material/menu";
+import { ToothComponent } from "../tooth/tooth.component";
+import { MatDividerModule } from "@angular/material/divider";
 
 @Component({
   selector: "app-odontogram",
   templateUrl: "./odontogram.component.html",
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    IconsModule,
+    MatMenuModule,
+    ToothComponent,
+    MatDividerModule,
+  ],
 })
 export class OdontogramComponent {
-  upperTeeth: ToothInterface[] = [
-    { number: 18 },
-    { number: 17 },
-    { number: 16 },
-    { number: 15 },
-    { number: 14 },
-    { number: 13 },
-    { number: 12 },
-    { number: 11 },
-    { number: 21 },
-    { number: 22 },
-    { number: 23 },
-    { number: 24 },
-    { number: 25 },
-    { number: 26 },
-    { number: 27 },
-    { number: 28 },
-  ];
+  upperTeethLeft = [18, 17, 16, 15, 14, 13, 12, 11];
+  upperTeethRight = [21, 22, 23, 24, 25, 26, 27, 28];
+  lowerTeethLeft = [48, 47, 46, 45, 44, 43, 42, 41];
+  lowerTeethRight = [31, 32, 33, 34, 35, 36, 37, 38];
 
-  lowerTeeth: ToothInterface[] = [
-    { number: 48 },
-    { number: 47 },
-    { number: 46 },
-    { number: 45 },
-    { number: 44 },
-    { number: 43 },
-    { number: 42 },
-    { number: 41 },
-    { number: 31 },
-    { number: 32 },
-    { number: 33 },
-    { number: 34 },
-    { number: 35 },
-    { number: 36 },
-    { number: 37 },
-    { number: 38 },
-  ];
+  temporaryUpperLeft = [55, 54, 53, 52, 51];
+  temporaryUpperRight = [61, 62, 63, 64, 65];
+  temporaryLowerLeft = [85, 84, 83, 82, 81];
+  temporaryLowerRight = [71, 72, 73, 74, 75];
   constructor() {}
 }

@@ -131,4 +131,10 @@ body {
       row-item-outline-width: 1px,
     )
   );
+
+  @include mat.divider-overrides(
+    (
+      width: 3px,
+    )
+  );
 }

@@ -1,1 +1,123 @@
+<div class="flex flex-col">
+  <span class="text-xl font-bold text-center mb-4">Estado Actual</span>
+  <div class="flex">
+    <div class="flex mb-2 mr-2">
+      @for(toothNumber of upperTeethLeft; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+    <mat-divider vertical="true"></mat-divider>
+    <div class="flex ml-2">
+      @for(toothNumber of upperTeethRight; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="flex">
+    <div class="flex mr-2">
+      @for(toothNumber of lowerTeethLeft; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+    <mat-divider vertical="true"></mat-divider>
+    <div class="flex ml-2">
+      @for(toothNumber of lowerTeethRight; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+  </div>
+</div>
 
+<div class="flex flex-col mt-4">
+  <div class="flex justify-center">
+    <div class="flex mb-2 mr-2">
+      @for(toothNumber of temporaryUpperLeft; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+    <mat-divider vertical="true"></mat-divider>
+    <div class="flex ml-2">
+      @for(toothNumber of temporaryUpperRight; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="flex justify-center">
+    <div class="flex mr-2">
+      @for(toothNumber of temporaryLowerLeft; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+    <mat-divider vertical="true"></mat-divider>
+    <div class="flex ml-2">
+      @for(toothNumber of temporaryLowerRight; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="flex flex-col mt-12">
+  <span class="text-xl font-bold text-center mb-4"
+    >Tratamientos Realizados</span
+  >
+  <div class="flex">
+    <div class="flex mb-2 mr-2">
+      @for(toothNumber of upperTeethLeft; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+    <mat-divider vertical="true"></mat-divider>
+    <div class="flex ml-2">
+      @for(toothNumber of upperTeethRight; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="flex">
+    <div class="flex mr-2">
+      @for(toothNumber of lowerTeethLeft; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+    <mat-divider vertical="true"></mat-divider>
+    <div class="flex ml-2">
+      @for(toothNumber of lowerTeethRight; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="flex flex-col mt-4">
+  <div class="flex justify-center">
+    <div class="flex mb-2 mr-2">
+      @for(toothNumber of temporaryUpperLeft; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+    <mat-divider vertical="true"></mat-divider>
+    <div class="flex ml-2">
+      @for(toothNumber of temporaryUpperRight; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="flex justify-center">
+    <div class="flex mr-2">
+      @for(toothNumber of temporaryLowerLeft; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+    <mat-divider vertical="true"></mat-divider>
+    <div class="flex ml-2">
+      @for(toothNumber of temporaryLowerRight; track $index){
+      <app-tooth [toothNumber]="toothNumber"></app-tooth>
+      }
+    </div>
+  </div>
+</div>

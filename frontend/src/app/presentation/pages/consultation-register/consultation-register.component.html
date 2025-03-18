@@ -182,8 +182,9 @@
     >
       <form [formGroup]="patientForm">
         <ng-template matStepLabel>Odontograma</ng-template>
-        <app-odontogram></app-odontogram>
-
+        <div class="flex items-center justify-center">
+          <app-odontogram></app-odontogram>
+        </div>
         <div>
           <button mat-button matStepperPrevious>Atrás</button>
           <button mat-button matStepperNext>Siguiente</button>

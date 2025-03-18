@@ -1,0 +1,59 @@
+<div class="relative mt-10">
+  <div class="flex justify-center items-center h-16 w-16 relative">
+    <div
+      class="absolute top-0 left-1/2 transform -translate-x-1/2 text-lg font-bold text-gray-700 -mt-6"
+    >
+      {{ toothNumber }}
+    </div>
+    <i-tabler
+      name="rectangle-rounded-top"
+      class="absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
+      [matMenuTriggerFor]="menuTop"
+    ></i-tabler>
+    <i-tabler
+      name="rectangle-rounded-bottom"
+      class="absolute bottom-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
+      [matMenuTriggerFor]="menuBottom"
+    ></i-tabler>
+    <i-tabler
+      name="rectangle-rounded-bottom"
+      class="absolute left-0 top-1/2 transform -translate-y-1/2 rotate-90 transition-transform hover:scale-110 cursor-pointer"
+      [matMenuTriggerFor]="menuLeft"
+    ></i-tabler>
+    <i-tabler
+      name="rectangle-rounded-bottom"
+      class="absolute right-0 top-1/2 transform -translate-y-1/2 -rotate-90 transition-transform hover:scale-110 cursor-pointer"
+      [matMenuTriggerFor]="menuRight"
+    ></i-tabler>
+    <i-tabler
+      name="square"
+      class="z-10 transition-transform hover:scale-110 cursor-pointer"
+      [matMenuTriggerFor]="menuCenter"
+    ></i-tabler>
+  </div>
+
+  <mat-menu #menuCenter="matMenu">
+    <button mat-menu-item>Opción 1</button>
+    <button mat-menu-item>Opción 2</button>
+  </mat-menu>
+
+  <mat-menu #menuTop="matMenu">
+    <button mat-menu-item>Opción 1</button>
+    <button mat-menu-item>Opción 2</button>
+  </mat-menu>
+
+  <mat-menu #menuBottom="matMenu">
+    <button mat-menu-item>Opción A</button>
+    <button mat-menu-item>Opción B</button>
+  </mat-menu>
+
+  <mat-menu #menuRight="matMenu">
+    <button mat-menu-item>Opción 1</button>
+    <button mat-menu-item>Opción 2</button>
+  </mat-menu>
+
+  <mat-menu #menuLeft="matMenu">
+    <button mat-menu-item>Opción A</button>
+    <button mat-menu-item>Opción B</button>
+  </mat-menu>
+</div>
