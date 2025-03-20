@@ -32,6 +32,7 @@ import {
   IconRectangleRoundedTop,
   IconRectangleVertical,
   IconSquare,
+  IconExclamationCircle,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -63,6 +64,7 @@ const ICONS = {
   IconSquare,
   IconRectangleRoundedBottom,
   IconRectangleRoundedTop,
+  IconExclamationCircle,
 } as const;
 
 @NgModule({

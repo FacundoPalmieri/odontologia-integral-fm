@@ -27,7 +27,7 @@ body {
   .snackbar-success {
     @include mat.snack-bar-overrides(
       (
-        container-color: #4caf50,
+        container-color: #22c55e,
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -38,7 +38,7 @@ body {
   .snackbar-error {
     @include mat.snack-bar-overrides(
       (
-        container-color: #f44336,
+        container-color: #ef4444,
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -50,7 +50,7 @@ body {
   .snackbar-warning {
     @include mat.snack-bar-overrides(
       (
-        container-color: #ff9800,
+        container-color: #f97315,
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -62,7 +62,7 @@ body {
   .snackbar-info {
     @include mat.snack-bar-overrides(
       (
-        container-color: #338c76,
+        container-color: #0ca5e9,
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
