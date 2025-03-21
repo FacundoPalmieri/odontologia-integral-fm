@@ -54,6 +54,7 @@ export class ConsultationRegisterComponent implements OnInit {
   filteredPatients: Observable<PatientInterface[]> = of([]);
 
   patientForm: FormGroup = new FormGroup({});
+  icons = ["letter-t-small", "letter-c-small"];
 
   patients: PatientInterface[] = [
     {

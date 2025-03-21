@@ -1,59 +1,190 @@
 <div class="relative mt-10">
-  <div class="flex justify-center items-center h-16 w-16 relative">
+  <div class="flex justify-center items-center h-18 w-18 relative">
     <div
       class="absolute top-0 left-1/2 transform -translate-x-1/2 text-lg font-bold text-gray-700 -mt-6"
     >
       {{ toothNumber }}
     </div>
-    <i-tabler
-      name="rectangle-rounded-top"
-      class="absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
+    @if(topIcons && topIcons.length > 0){
+    <div
+      class="flex items-center justify-center absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuTop"
-    ></i-tabler>
-    <i-tabler
-      name="rectangle-rounded-bottom"
-      class="absolute bottom-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
+    >
+      @for(icon of topIcons; track $index){
+      <i-tabler
+        [name]="icon"
+        [ngClass]="calculateMargin($index, topIcons.length)"
+      ></i-tabler>
+      }
+    </div>
+    } @if(bottomIcons && bottomIcons.length > 0){
+    <div
+      class="flex items-center justify-center absolute bottom-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuBottom"
-    ></i-tabler>
-    <i-tabler
-      name="rectangle-rounded-bottom"
-      class="absolute left-0 top-1/2 transform -translate-y-1/2 rotate-90 transition-transform hover:scale-110 cursor-pointer"
+    >
+      @for(icon of bottomIcons; track $index){
+      <i-tabler
+        [name]="icon"
+        [ngClass]="calculateMargin($index, bottomIcons.length)"
+      ></i-tabler>
+      }
+    </div>
+    } @if(leftIcons && leftIcons.length > 0){
+    <div
+      class="flex items-center justify-center absolute left-0 top-1/2 transform -translate-y-1/2 rotate-90 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuLeft"
-    ></i-tabler>
-    <i-tabler
-      name="rectangle-rounded-bottom"
-      class="absolute right-0 top-1/2 transform -translate-y-1/2 -rotate-90 transition-transform hover:scale-110 cursor-pointer"
+    >
+      @for(icon of leftIcons; track $index){
+      <i-tabler
+        [name]="icon"
+        [ngClass]="calculateMargin($index, leftIcons.length)"
+      ></i-tabler>
+      }
+    </div>
+    } @if(rightIcons && rightIcons.length > 0){
+    <div
+      class="flex items-center justify-center absolute right-0 top-1/2 transform -translate-y-1/2 -rotate-90 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuRight"
-    ></i-tabler>
-    <i-tabler
-      name="square"
-      class="z-10 transition-transform hover:scale-110 cursor-pointer"
+    >
+      @for(icon of rightIcons; track $index){
+      <i-tabler
+        [name]="icon"
+        [ngClass]="calculateMargin($index, rightIcons.length)"
+      ></i-tabler>
+      }
+    </div>
+    } @if(centerIcons && centerIcons.length > 0){
+    <div
+      class="flex items-center justify-center z-10 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuCenter"
-    ></i-tabler>
+    >
+      @for(icon of centerIcons; track $index){
+      <i-tabler
+        [name]="icon"
+        [ngClass]="calculateMargin($index, centerIcons.length)"
+      ></i-tabler>
+      }
+    </div>
+    }
   </div>
 
   <mat-menu #menuCenter="matMenu">
-    <button mat-menu-item>Opción 1</button>
-    <button mat-menu-item>Opción 2</button>
+    <mat-list>
+      <div class="grid grid-cols-2 gap-2 p-2">
+        @for(treatment of treatments; track $index){
+        <button
+          mat-button
+          (click)="updateCenterIcon(treatment)"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            @for(icon of treatment.icons; track $index){
+            <i-tabler
+              [name]="icon"
+              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+            ></i-tabler>
+            }
+          </div>
+          <span class="text-[0.6rem]">{{ treatment.name }}</span>
+        </button>
+        }
+      </div>
+    </mat-list>
   </mat-menu>
 
   <mat-menu #menuTop="matMenu">
-    <button mat-menu-item>Opción 1</button>
-    <button mat-menu-item>Opción 2</button>
+    <mat-list>
+      <div class="grid grid-cols-2 gap-2 p-2">
+        @for(treatment of treatments; track $index){
+        <button
+          mat-button
+          (click)="updateTopIcon(treatment)"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            @for(icon of treatment.icons; track $index){
+            <i-tabler
+              [name]="icon"
+              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+            ></i-tabler>
+            }
+          </div>
+          <span class="text-[0.6rem]">{{ treatment.name }}</span>
+        </button>
+        }
+      </div>
+    </mat-list>
   </mat-menu>
 
   <mat-menu #menuBottom="matMenu">
-    <button mat-menu-item>Opción A</button>
-    <button mat-menu-item>Opción B</button>
+    <mat-list>
+      <div class="grid grid-cols-2 gap-2 p-2">
+        @for(treatment of treatments; track $index){
+        <button
+          mat-button
+          (click)="updateBottomIcon(treatment)"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            @for(icon of treatment.icons; track $index){
+            <i-tabler
+              [name]="icon"
+              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+            ></i-tabler>
+            }
+          </div>
+          <span class="text-[0.6rem]">{{ treatment.name }}</span>
+        </button>
+        }
+      </div>
+    </mat-list>
   </mat-menu>
 
   <mat-menu #menuRight="matMenu">
-    <button mat-menu-item>Opción 1</button>
-    <button mat-menu-item>Opción 2</button>
+    <mat-list>
+      <div class="grid grid-cols-2 gap-2 p-2">
+        @for(treatment of treatments; track $index){
+        <button
+          mat-button
+          (click)="updateRightIcon(treatment)"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            @for(icon of treatment.icons; track $index){
+            <i-tabler
+              [name]="icon"
+              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+            ></i-tabler>
+            }
+          </div>
+          <span class="text-[0.6rem]">{{ treatment.name }}</span>
+        </button>
+        }
+      </div>
+    </mat-list>
   </mat-menu>
 
   <mat-menu #menuLeft="matMenu">
-    <button mat-menu-item>Opción A</button>
-    <button mat-menu-item>Opción B</button>
+    <mat-list>
+      <div class="grid grid-cols-2 gap-2 p-2">
+        @for(treatment of treatments; track $index){
+        <button
+          mat-button
+          (click)="updateLeftIcon(treatment)"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            @for(icon of treatment.icons; track $index){
+            <i-tabler
+              [name]="icon"
+              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+            ></i-tabler>
+            }
+          </div>
+          <span class="text-[0.6rem]">{{ treatment.name }}</span>
+        </button>
+        }
+      </div>
+    </mat-list>
   </mat-menu>
 </div>
