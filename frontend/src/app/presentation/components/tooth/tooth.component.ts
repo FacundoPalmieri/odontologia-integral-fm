@@ -33,10 +33,20 @@ export class ToothComponent {
   @Output() leftTreatmentChange = new EventEmitter<TreatmentInterface>();
   @Output() rightTreatmentChange = new EventEmitter<TreatmentInterface>();
   @Output() centerTreatmentChange = new EventEmitter<TreatmentInterface>();
+  @Output() fullToothTreatmentChange = new EventEmitter<TreatmentInterface>();
 
   treatments: TreatmentInterface[] = TreatmentFactory.createTreatments();
 
   constructor() {}
+
+  updateFullTooth(treatment: TreatmentInterface) {
+    this.topTreatment = treatment;
+    this.bottomTreatment = treatment;
+    this.leftTreatment = treatment;
+    this.rightTreatment = treatment;
+    this.centerTreatment = treatment;
+    this.fullToothTreatmentChange.emit(treatment);
+  }
 
   updateTopIcon(treatment: TreatmentInterface) {
     this.topTreatment = treatment;

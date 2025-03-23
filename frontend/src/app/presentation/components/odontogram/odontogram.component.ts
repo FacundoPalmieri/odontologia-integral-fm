@@ -26,6 +26,20 @@ export class OdontogramComponent {
 
   constructor() {}
 
+  onFullToothTreatmentChange(
+    toothNumber: number,
+    treatment: TreatmentInterface
+  ) {
+    const tooth = this.findTooth(toothNumber);
+    if (tooth) {
+      tooth.topTreatment = treatment;
+      tooth.bottomTreatment = treatment;
+      tooth.leftTreatment = treatment;
+      tooth.rightTreatment = treatment;
+      tooth.centerTreatment = treatment;
+    }
+  }
+
   onTopTreatmentChange(toothNumber: number, treatment: TreatmentInterface) {
     this.updateToothTreatment(toothNumber, "topTreatment", treatment);
   }
