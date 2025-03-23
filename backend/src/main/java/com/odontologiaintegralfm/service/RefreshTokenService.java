@@ -1,6 +1,8 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.dto.RefreshTokenDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
+import com.odontologiaintegralfm.exception.RefreshTokenException;
 import com.odontologiaintegralfm.exception.TokenInvalidException;
 import com.odontologiaintegralfm.model.RefreshToken;
 import com.odontologiaintegralfm.repository.IRefreshTokenRepository;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,6 +25,18 @@ public class RefreshTokenService implements IRefreshTokenService {
     @Autowired
     IUserService userService;
 
+
+    /**
+     * Crea un nuevo Refresh Token para el usuario especificado por su nombre de usuario.
+     * <p>
+     * Este método genera un Refresh Token único utilizando un UUID, lo asocia con el usuario
+     * que se obtiene mediante el nombre de usuario, y establece las fechas de creación y expiración.
+     * Finalmente, guarda el Refresh Token en la base de datos.
+     * </p>
+     *
+     * @param username El nombre de usuario para el cual se genera el Refresh Token.
+     * @return El Refresh Token recién creado y guardado en la base de datos.
+     */
     @Override
     public RefreshToken createRefreshToken(String username) {
 
@@ -36,39 +49,80 @@ public class RefreshTokenService implements IRefreshTokenService {
     }
 
 
+
+
+    /**
+     * Valída el Refresh Token recibido en el DTO comparándolo con el Refresh Token almacenado en la base de datos.
+     * También verifica si el Refresh Token ha expirado.
+     *
+     * @param refreshToken El objeto RefreshToken almacenado en la base de datos que se va a validar.
+     * @param refreshTokenDTO El objeto RefreshTokenDTO que contiene el Refresh Token enviado por el cliente.
+     * @throws RefreshTokenException Si el código del Refresh Token no coincide con el almacenado o si el Refresh Token ha expirado.
+     * <p>
+     * La excepción {@link RefreshTokenException} se lanza con los siguientes códigos de error:
+     * <ul>
+     *   <li><b>userDetailServiceImpl.refreshToken.invalidCode</b>: Si el código del Refresh Token es inválido.</li>
+     *   <li><b>userDetailServiceImpl.refreshToken.refreshTokenExpired</b>: Si el Refresh Token ha expirado.</li>
+     * </ul>
+     * </p>
+     */
     @Override
-    public boolean validateRefreshToken(String refreshToken, String username) {
-        try{
-            RefreshToken refreshTokenEntity = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new TokenInvalidException("[Método: validateRefreshToken]", username));
-            return true;
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService",0L, username, "blockAccount");
+    public void validateRefreshToken(RefreshToken refreshToken, RefreshTokenDTO refreshTokenDTO) {
+        //Valída el código
+        if(!refreshTokenDTO.getRefreshToken().equals(refreshToken.getRefreshToken())){
+            throw new RefreshTokenException(refreshTokenDTO.getUser_id(),"UserDetailServiceImpl", "validateRefreshToken", "userDetailServiceImpl.refreshToken.invalidCode");
+        }
+
+        //Valida la vigencia
+        if(refreshToken.getExpirationDate().isBefore(LocalDateTime.now())){
+            throw new RefreshTokenException(refreshToken.getUser().getId(), "UserDetailServiceImpl","validateRefreshToken","userDetailServiceImpl.refreshToken.refreshTokenExpired");
         }
 
     }
 
+
+
+    /**
+     * Elimina el Refresh Token correspondiente al usuario y token proporcionado.
+     *
+     * Este método busca el Refresh Token en la base de datos usando el token proporcionado.
+     * Si el Refresh Token existe, lo elimina; en caso contrario, lanza una excepción {@link TokenInvalidException}.
+     * En caso de un error de acceso a la base de datos o problemas de transacción, lanza una {@link DataBaseException}.
+     *
+     * @param refreshToken El Refresh Token que se va a eliminar.
+     * @throws TokenInvalidException Si el Refresh Token no se encuentra en la base de datos.
+     * @throws DataBaseException Si ocurre un error en la base de datos o en la transacción.
+     */
     @Override
-    public void deleteRefreshTokenByUsername(String token, String username) {
+    public void deleteRefreshToken(String refreshToken) {
         try{
-            Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByRefreshToken(token);
-            if(optionalRefreshToken.isPresent()){
-                refreshTokenRepository.delete(optionalRefreshToken.get());
-            }else{
-                throw new TokenInvalidException("deleteRefreshTokenByUsername",username);
-            }
+            RefreshToken refreshTokenDB = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(()-> new RefreshTokenException(0L,"Refresh Token Service", "deleteRefreshToken", "refreshTokenService.deleteRefreshToken"));
+            refreshTokenRepository.delete(refreshTokenDB);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService",0L, username, "blockAccount");
+            throw new DataBaseException(e, "userService",0L, "", "deleteRefreshTokenByUsername");
         }
     }
 
 
-    @Override
-    public RefreshToken getRefreshTokenByUsername(String token, String username) {
+
+    /**
+     * Obtiene el Refresh Token correspondiente al ID proporcionado.
+     *
+     * Este método busca un Refresh Token en la base de datos utilizando el ID del usuario.
+     * Si el refresh token existe, lo retorna, en caso contrario, lanza una excpeción {@link RefreshTokenException}.
+     * En caso de un error de acceso a la base de datos o problemas de transacción, lanza una {@link DataBaseException}.
+     *
+     * @param id El ID del usuario.
+     * @return El refresh token encontrado.
+     * @throws RefreshTokenException Si el Refresh Token no se encuentra en la base de datos.
+     * @throws DataBaseException Si ocurre un error en la base de datos o en la transacción.
+     */
+    public RefreshToken getRefreshTokenByUserId(Long id) {
         try{
-            return refreshTokenRepository.findByRefreshToken(token).orElseThrow(() -> new TokenInvalidException("[Método: getRefreshToken]",username));
+            return refreshTokenRepository.findByUser_Id(id).orElseThrow(()-> new RefreshTokenException(id, "Refresh Token Service", "getRefreshTokenByUserId", "No se encontró refreshToken asociado al usuario."));
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService",0L, username, "blockAccount");
+            throw new DataBaseException(e, "userService",0L, "", "getRefreshTokenByUserId");
         }
     }
 }

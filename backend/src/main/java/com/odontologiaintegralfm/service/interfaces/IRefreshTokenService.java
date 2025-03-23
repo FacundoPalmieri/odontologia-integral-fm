@@ -1,15 +1,41 @@
 package com.odontologiaintegralfm.service.interfaces;
 
+import com.odontologiaintegralfm.dto.RefreshTokenDTO;
 import com.odontologiaintegralfm.model.RefreshToken;
 
 public interface IRefreshTokenService {
 
+    /**
+     * Crea un nuevo Refresh Token para el usuario especificado por su nombre de usuario.
+     * @param username El nombre de usuario para el cual se genera el Refresh Token.
+     * @return El Refresh Token recién creado y guardado en la base de datos.
+     */
     RefreshToken createRefreshToken(String username);
 
-    boolean validateRefreshToken(String refreshToken, String username);
 
-    void deleteRefreshTokenByUsername(String token,String username);
 
-    RefreshToken getRefreshTokenByUsername(String token, String username);
+
+    /**
+     * Valída el Refresh Token recibido en el DTO comparándolo con el Refresh Token almacenado en la base de datos.
+     * También verifica si el Refresh Token ha expirado.
+     *
+     * @param refreshToken El objeto RefreshToken almacenado en la base de datos que se va a validar.
+     * @param refreshTokenDTO El objeto RefreshTokenDTO que contiene el Refresh Token enviado por el cliente.
+     */
+    void validateRefreshToken(RefreshToken refreshToken, RefreshTokenDTO refreshTokenDTO);
+
+    /**
+     *  Elimina el Refresh Token correspondiente al usuario y token proporcionado.
+     * @param refreshToken El Refresh Token que se va a eliminar.
+     */
+    void deleteRefreshToken(String refreshToken);
+
+
+    /**
+     * Obtiene el Refresh Token correspondiente al ID proporcionado.
+     * @param id El ID del usuario.
+     * @return El refresh token encontrado.
+     */
+    RefreshToken getRefreshTokenByUserId(Long id);
 
 }

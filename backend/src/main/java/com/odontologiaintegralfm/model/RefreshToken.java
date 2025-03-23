@@ -20,7 +20,7 @@ public class RefreshToken {
     private String refreshToken;
 
 
-    @ManyToOne(targetEntity = UserSec.class)
+    @OneToOne(targetEntity = UserSec.class)
     @JoinColumn(name = "id_user", nullable = false)
     private UserSec user;
 

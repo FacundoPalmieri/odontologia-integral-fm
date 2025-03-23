@@ -63,12 +63,38 @@ public class AuthenticationController {
     }
 
 
-
-
+    /**
+     * Endpoint para actualizar el refresh token de un usuario.
+     *
+     * <p>Este método valída el refresh token. Si el mismo es valido, lo actualiza y crear un nuevo jwt. El resultado se devuelve en una
+     *  respuesta HTTP con el nuevo refresh token y el JWT. Se recibe en el cuerpo de la solicitud:
+     *  <ul>
+     *      <li>jwt</li>
+     *      <li>refresh token.</li>
+     *      <li>ID del usuario</li>
+     *      <li>mail del usuario</li>
+     *      </ul>
+     *</p>
+     * @param refreshTokenDTO El objeto de transferencia de datos que contiene el ID del usuario,
+     *                        el nombre de usuario y el token de refresco a actualizar. El objeto
+     *                        debe ser válido y será validado automáticamente.
+     * @return ResponseEntity con:
+     *      <ul>
+     *          <li><b>200 OK</b>: Actualización del refresh token y nuevo jwt.</li>
+     *          <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *          <li><b>403 Forbidden</b>: Cuenta bloqueada o sin permisos de acceso.</li>
+     *      </ul>
+     */
+    @Operation(summary = "refrescar el token de autenticación de un usuario", description = "Recibe el jwt, refresh token, ID del usuario y el email en el cuerpo de la solicitud, valida el token y genera uno nuevo junto con un nuevo JWT (JSON Web Token)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Actualización del refresh token y nuevo jwt"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "Cuenta bloqueada o sin permisos de acceso.")
+    })
     @PostMapping("/refresh-token")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Response<String>> refreshToken(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
-        Response<String>response = userDetailsService.refreshToken(refreshTokenDTO);
+    public ResponseEntity<Response<RefreshTokenDTO>> refreshToken(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
+        Response<RefreshTokenDTO>response = userDetailsService.refreshToken(refreshTokenDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }

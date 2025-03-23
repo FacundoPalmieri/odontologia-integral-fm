@@ -174,8 +174,9 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
             //Convierte el RefreshToken a DTO
             RefreshTokenDTO refreshTokenDTO = new RefreshTokenDTO();
-            refreshTokenDTO.setUser(refreshToken.getUser().getUsername());
-            refreshTokenDTO.setToken(refreshToken.getRefreshToken());
+            refreshTokenDTO.setUsername(refreshToken.getUser().getUsername());
+            refreshTokenDTO.setUser_id(refreshToken.getUser().getId());
+            refreshTokenDTO.setJwt(refreshToken.getRefreshToken());
             refreshTokenDTO.setRefreshToken(refreshToken.getRefreshToken());
 
             // Obtener los roles desde la autenticación
@@ -245,20 +246,49 @@ public class UserDetailsServiceImp implements UserDetailsService {
         return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
     }
 
-    /*
-  1. Verificar el refresh token: El primer paso es asegurarse de que el refresh token recibido es válido. -- DTO OK
-  2. Verificar si el refresh token está activo: Esto incluye verificar que el refresh token no haya expirado.
-  3. Generar un nuevo JWT: Si el refresh token es válido, generas un nuevo JWT.
-  4. Generar un nuevo refresh token: El refresh token también debe renovarse en cada solicitud exitosa.
-  5. Devolver los tokens: Finalmente, se devuelven el nuevo JWT y el refresh token al cliente.
-*/
-    public Response<String> refreshToken(RefreshTokenDTO refreshTokenDTO) {
+    /**
+     * Actualiza el refresh token y emite un nuevo JWT.
+     *
+     * <p>Este método obtiene el token de refresco actual de la base de datos por el ID de usuario,
+     * lo valida, elimina el refresh token antiguo, genera uno nuevo y actualiza el JWT
+     * utilizado para la autenticación. Finalmente, devuelve una respuesta que contiene el
+     * nuevo token de refresco y el JWT junto con los detalles del usuario.</p>
+     *
+     * @param refreshTokenDTO El objeto de transferencia de datos que contiene el ID del usuario,
+     *                        el nombre de usuario y el token de refresco a actualizar.
+     *
+     * @return Un objeto {@link Response} que contiene el estado de éxito, un mensaje,
+     *         y un objeto {@link RefreshTokenDTO} con el nuevo token de refresco y el JWT.
+     */
+    public Response<RefreshTokenDTO> refreshToken(RefreshTokenDTO refreshTokenDTO) {
+        //Obtiene el refresh token desde la base de datos por Id usuario.
+        RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUserId(refreshTokenDTO.getUser_id());
 
-        //Verifica si el refresh token existe y es válido
-        RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUsername(refreshTokenDTO.getRefreshToken(), refreshTokenDTO.getUser());
+        // Valída el código y la expiración.
+        refreshTokenService.validateRefreshToken(refreshToken,refreshTokenDTO);
 
-        return  new Response<>(true, "", null);
+        //Elimina el refresh Token actual.
+        refreshTokenService.deleteRefreshToken(refreshTokenDTO.getRefreshToken());
 
+        //Generar un nuevo refresh Token y guarda en la base.
+        RefreshToken refreshTokenNew =  refreshTokenService.createRefreshToken(refreshTokenDTO.getUsername());
+
+        // Obtener la autenticación actual desde el contexto de seguridad de Spring
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //Genera un nuevo JWT.
+        String jwt = jwtUtils.createToken(authentication);
+
+        //Actualiza valores en el objeto respuesta.
+        RefreshTokenDTO refreshTokenResponse = new RefreshTokenDTO();
+        refreshTokenResponse.setRefreshToken(refreshTokenNew.getRefreshToken());
+        refreshTokenResponse.setJwt(jwt);
+        refreshTokenResponse.setUser_id(refreshTokenDTO.getUser_id());
+        refreshTokenResponse.setUsername(refreshTokenDTO.getUsername());
+
+        //Descifra la clave del mensaje.
+        String message = messageService.getMessage("userDetailServiceImpl.refreshToken.ok", null, LocaleContextHolder.getLocale());
+        return  new Response<>(true,message ,refreshTokenResponse);
     }
 
 

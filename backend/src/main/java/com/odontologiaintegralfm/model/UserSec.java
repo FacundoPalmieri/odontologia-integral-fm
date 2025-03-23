@@ -80,7 +80,4 @@ public class UserSec {
     /**Token para restablecimiento de contraseña.*/
     @Column(name="Token_Rest",length = 500)
     private String resetPasswordToken;
-
-
-
 }

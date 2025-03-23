@@ -6,11 +6,14 @@ import lombok.Data;
 @Data
 public class RefreshTokenDTO {
 
-    private String token;
+    private String jwt;
 
     @NotNull(message = "refreshTokenDTO.refreshEmpty")
     private String refreshToken;
 
+    @NotNull(message = "refreshTokenDTO.userIdEmpty")
+    private Long user_id;
+
     @NotNull(message = "refreshTokenDTO.userEmpty")
-    private String user;
+    private String username;
 }
