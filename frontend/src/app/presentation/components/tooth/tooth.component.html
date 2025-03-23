@@ -1,71 +1,90 @@
 <div class="relative mt-10">
   <div class="flex justify-center items-center h-18 w-18 relative">
     <div
-      class="absolute top-0 left-1/2 transform -translate-x-1/2 text-lg font-bold text-gray-700 -mt-6"
+      class="absolute top-0 left-1/2 transform -translate-x-1/2 text-lg font-bold -mt-6"
     >
       {{ toothNumber }}
     </div>
-    @if(topIcons && topIcons.length > 0){
     <div
       class="flex items-center justify-center absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuTop"
     >
-      @for(icon of topIcons; track $index){
+      @if(topTreatment){ @for(icon of topTreatment.icons; track $index){
       <i-tabler
         [name]="icon"
-        [ngClass]="calculateMargin($index, topIcons.length)"
+        [ngClass]="[
+          calculateMargin($index, topTreatment.icons!.length),
+          topTreatment.color ? topTreatment.color : ''
+        ]"
       ></i-tabler>
+      } } @else {
+      <i-tabler name="rectangle-rounded-top"></i-tabler>
       }
     </div>
-    } @if(bottomIcons && bottomIcons.length > 0){
     <div
       class="flex items-center justify-center absolute bottom-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuBottom"
     >
-      @for(icon of bottomIcons; track $index){
+      @if(bottomTreatment){ @for(icon of bottomTreatment.icons; track $index){
       <i-tabler
         [name]="icon"
-        [ngClass]="calculateMargin($index, bottomIcons.length)"
+        [ngClass]="[
+          calculateMargin($index, bottomTreatment.icons!.length),
+          bottomTreatment.color ? bottomTreatment.color : ''
+        ]"
       ></i-tabler>
+      } } @else {
+      <i-tabler name="rectangle-rounded-bottom"></i-tabler>
       }
     </div>
-    } @if(leftIcons && leftIcons.length > 0){
     <div
       class="flex items-center justify-center absolute left-0 top-1/2 transform -translate-y-1/2 rotate-90 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuLeft"
     >
-      @for(icon of leftIcons; track $index){
+      @if(leftTreatment){ @for(icon of leftTreatment.icons; track $index){
       <i-tabler
         [name]="icon"
-        [ngClass]="calculateMargin($index, leftIcons.length)"
+        [ngClass]="[
+          calculateMargin($index, leftTreatment.icons!.length),
+          leftTreatment.color ? leftTreatment.color : ''
+        ]"
       ></i-tabler>
+      } } @else {
+      <i-tabler name="rectangle-rounded-bottom"></i-tabler>
       }
     </div>
-    } @if(rightIcons && rightIcons.length > 0){
     <div
-      class="flex items-center justify-center absolute right-0 top-1/2 transform -translate-y-1/2 -rotate-90 transition-transform hover:scale-110 cursor-pointer"
+      class="flex items-center justify-center absolute right-0 top-1/2 transform -translate-y-1/2 -rotate-270 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuRight"
     >
-      @for(icon of rightIcons; track $index){
+      @if(rightTreatment){ @for(icon of rightTreatment.icons; track $index){
       <i-tabler
         [name]="icon"
-        [ngClass]="calculateMargin($index, rightIcons.length)"
+        [ngClass]="[
+          calculateMargin($index, rightTreatment.icons!.length),
+          rightTreatment.color ? rightTreatment.color : ''
+        ]"
       ></i-tabler>
+      } } @else {
+      <i-tabler name="rectangle-rounded-top"></i-tabler>
       }
     </div>
-    } @if(centerIcons && centerIcons.length > 0){
     <div
       class="flex items-center justify-center z-10 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuCenter"
     >
-      @for(icon of centerIcons; track $index){
+      @if(centerTreatment){ @for(icon of centerTreatment.icons; track $index){
       <i-tabler
         [name]="icon"
-        [ngClass]="calculateMargin($index, centerIcons.length)"
+        [ngClass]="[
+          calculateMargin($index, centerTreatment.icons!.length),
+          centerTreatment.color ? centerTreatment.color : ''
+        ]"
       ></i-tabler>
+      } } @else {
+      <i-tabler name="square"></i-tabler>
       }
     </div>
-    }
   </div>
 
   <mat-menu #menuCenter="matMenu">
@@ -81,7 +100,10 @@
             @for(icon of treatment.icons; track $index){
             <i-tabler
               [name]="icon"
-              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+              [ngClass]="[
+                calculateMargin($index, treatment.icons!.length),
+                treatment.color ? treatment.color : ''
+              ]"
             ></i-tabler>
             }
           </div>
@@ -105,7 +127,10 @@
             @for(icon of treatment.icons; track $index){
             <i-tabler
               [name]="icon"
-              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+              [ngClass]="[
+                calculateMargin($index, treatment.icons!.length),
+                treatment.color ? treatment.color : ''
+              ]"
             ></i-tabler>
             }
           </div>
@@ -129,7 +154,10 @@
             @for(icon of treatment.icons; track $index){
             <i-tabler
               [name]="icon"
-              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+              [ngClass]="[
+                calculateMargin($index, treatment.icons!.length),
+                treatment.color ? treatment.color : ''
+              ]"
             ></i-tabler>
             }
           </div>
@@ -153,7 +181,10 @@
             @for(icon of treatment.icons; track $index){
             <i-tabler
               [name]="icon"
-              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+              [ngClass]="[
+                calculateMargin($index, treatment.icons!.length),
+                treatment.color ? treatment.color : ''
+              ]"
             ></i-tabler>
             }
           </div>
@@ -177,7 +208,10 @@
             @for(icon of treatment.icons; track $index){
             <i-tabler
               [name]="icon"
-              [ngClass]="calculateMargin($index, treatment.icons!.length)"
+              [ngClass]="[
+                calculateMargin($index, treatment.icons!.length),
+                treatment.color ? treatment.color : ''
+              ]"
             ></i-tabler>
             }
           </div>

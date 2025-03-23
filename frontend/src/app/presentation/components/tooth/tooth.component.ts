@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatMenuModule } from "@angular/material/menu";
@@ -23,34 +23,44 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 })
 export class ToothComponent {
   @Input() toothNumber: number = 0;
+  @Input() topTreatment?: TreatmentInterface;
+  @Input() bottomTreatment?: TreatmentInterface;
+  @Input() leftTreatment?: TreatmentInterface;
+  @Input() rightTreatment?: TreatmentInterface;
+  @Input() centerTreatment?: TreatmentInterface;
+  @Output() topTreatmentChange = new EventEmitter<TreatmentInterface>();
+  @Output() bottomTreatmentChange = new EventEmitter<TreatmentInterface>();
+  @Output() leftTreatmentChange = new EventEmitter<TreatmentInterface>();
+  @Output() rightTreatmentChange = new EventEmitter<TreatmentInterface>();
+  @Output() centerTreatmentChange = new EventEmitter<TreatmentInterface>();
 
-  topIcons: string[] = ["rectangle-rounded-top"];
-  bottomIcons: string[] = ["rectangle-rounded-bottom"];
-  leftIcons: string[] = ["rectangle-rounded-bottom"];
-  rightIcons: string[] = ["rectangle-rounded-bottom"];
-  centerIcons: string[] = ["square"];
   treatments: TreatmentInterface[] = TreatmentFactory.createTreatments();
 
   constructor() {}
 
   updateTopIcon(treatment: TreatmentInterface) {
-    this.topIcons = treatment.icons!;
+    this.topTreatment = treatment;
+    this.topTreatmentChange.emit(treatment);
   }
 
   updateBottomIcon(treatment: TreatmentInterface) {
-    this.bottomIcons = treatment.icons!;
+    this.bottomTreatment = treatment;
+    this.bottomTreatmentChange.emit(treatment);
   }
 
   updateLeftIcon(treatment: TreatmentInterface) {
-    this.leftIcons = treatment.icons!;
+    this.leftTreatment = treatment;
+    this.leftTreatmentChange.emit(treatment);
   }
 
   updateRightIcon(treatment: TreatmentInterface) {
-    this.rightIcons = treatment.icons!;
+    this.rightTreatment = treatment;
+    this.rightTreatmentChange.emit(treatment);
   }
 
   updateCenterIcon(treatment: TreatmentInterface) {
-    this.centerIcons = treatment.icons!;
+    this.centerTreatment = treatment;
+    this.centerTreatmentChange.emit(treatment);
   }
 
   calculateMargin(index: number, totalIcons: number): string {

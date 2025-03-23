@@ -69,11 +69,13 @@ export class TreatmentFactory {
       },
       {
         name: "Prest. Existente",
-        color: "red",
+        icons: ["rectangle-filled"],
+        color: "text-[#ef4444]",
       },
       {
         name: "Prest. Requerida",
-        color: "blue",
+        icons: ["rectangle-filled"],
+        color: "text-[#2b7fff]",
       },
     ];
   }
