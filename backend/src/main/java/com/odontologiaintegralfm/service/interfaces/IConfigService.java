@@ -1,9 +1,6 @@
 package com.odontologiaintegralfm.service.interfaces;
 
-import com.odontologiaintegralfm.dto.FailedLoginAttemptsDTO;
-import com.odontologiaintegralfm.dto.MessageDTO;
-import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.TokenConfigDTO;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.model.MessageConfig;
 
 import java.util.List;
@@ -56,5 +53,20 @@ public interface IConfigService {
      */
     Response<Long> updateTokenExpiration(TokenConfigDTO tokenConfigDTO);
 
+
+
+    /**
+     * Obtiene la duración en días del tiempo de expiración del Refresh Token
+     * @return Una respuesta que contiene la duración del token en días
+     */
+    Response<Long> getRefreshTokenExpiration();
+
+
+    /**
+     * Actualiza la duración de expiración del Refresh Token
+     * @param refreshTokenConfigDTO
+     * @return Una respuesta que contiene el nuevo valor de expiración del token en días.
+     */
+    Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigDTO refreshTokenConfigDTO);
 
 }

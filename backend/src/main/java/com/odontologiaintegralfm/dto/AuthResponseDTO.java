@@ -8,7 +8,7 @@ import java.util.List;
 ciertos métodos como el constructor, los métodos equals(), hashCode() y toString(),
 basados en los componentes de datos declarados en la clase.*/
 @JsonPropertyOrder({"username", "message", "jwt", "status"})
-public record AuthResponseDTO (String username, String message, String jwt, List<String> roleAndPermission, boolean status) {
+public record AuthResponseDTO (String username, String message, String jwt,String refreshToken, List<String> roleAndPermission, boolean status) {
 
 
 }
