@@ -76,7 +76,7 @@ body {
 
     @include mat.list-overrides(
       (
-        active-indicator-shape: 14px,
+        active-indicator-shape: 10px,
       )
     );
   }
@@ -117,9 +117,9 @@ body {
     (
       container-height: 50px,
       container-vertical-padding: 14px,
-      // filled-with-label-container-padding-top: 12px,
-      // filled-with-label-container-padding-bottom: 8px,
       container-text-size: 16px,
+      outlined-container-shape: 10px,
+      filled-container-shape: 10px,
     )
   );
 
