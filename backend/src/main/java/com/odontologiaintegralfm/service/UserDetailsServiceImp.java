@@ -293,4 +293,34 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
 
 
+    /**
+     * Cierra la sesión del usuario eliminando el refresh token.
+     *
+     * Este método elimina el refresh token asociado al usuario, invalidando cualquier futuro intento de
+     * renovación del token. Después de la eliminación, se genera un mensaje de éxito que es enviado
+     * en la respuesta.
+     *
+     * @param refreshTokenDTO El objeto que contiene el refresh token a eliminar. Debe incluir
+     *                        el refresh token para identificar al usuario.
+     *
+     * @return Un objeto {@link Response} con el siguiente contenido:
+     *         <ul>
+     *             <li><b>success</b>: Indica si la operación fue exitosa (true).</li>
+     *             <li><b>message</b>: Un mensaje que indica el éxito de la operación.</li>
+     *             <li><b>data</b>: null (ya que no se devuelve ningún dato adicional).</li>
+     *         </ul>
+     */
+    public Response<String> logout(RefreshTokenDTO refreshTokenDTO){
+
+        //Elimina el refresh token del usuario
+        refreshTokenService.deleteRefreshToken(refreshTokenDTO.getRefreshToken());
+
+        //Descifra la clave del mensaje
+        String message = messageService.getMessage("userDetailServiceImpl.logout.ok", null, LocaleContextHolder.getLocale());
+
+        return new Response<>(true,message ,null);
+    }
+
+
+
 }

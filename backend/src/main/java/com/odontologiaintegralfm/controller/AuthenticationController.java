@@ -101,6 +101,34 @@ public class AuthenticationController {
 
 
     /**
+     * Cierra la sesión del usuario invalidando el refresh token.
+     * Este método elimina el refresh token del usuario y lo invalida, lo que evita que pueda ser utilizado para obtener nuevos JWTs.
+
+     * @param refreshTokenDTO El objeto que contiene el refresh token, el JWT, el ID del usuario y el email.
+     * @return ResponseEntity con:
+     *     <ul>
+     *      ><b>200 OK</b>: Cierre de sesión correcto.</li>
+     *      <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *      <li><b>403 Forbidden</b>: Cuenta bloqueada o sin permisos de acceso.</li>
+     *    </ul>
+     */
+    @Operation(summary = "Elimina el refresh token", description = "elimina el refresh token del usuario actual para invalidar futuras solicitudes de actualización del token.Recibe un objeto `refreshTokenDTO` que contiene el JWT, el código del refresh token, el ID del usuario y el email.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "cierre de sesión exitoso"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "Cuenta bloqueada o sin permisos de acceso.")
+    })
+    @DeleteMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Response<String>> logout(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
+        Response<String> response = userDetailsService.logout(refreshTokenDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+
+
+    /**
      *  Solicita el restablecimiento de la contraseña enviando un correo con una URL de redireccionamiento.
      *
      * @param email  Correo electrónico del usuario al cual se enviará el enlace para restablecer la contraseña.
