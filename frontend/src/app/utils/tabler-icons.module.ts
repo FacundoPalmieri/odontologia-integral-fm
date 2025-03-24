@@ -50,6 +50,8 @@ import {
   IconNotebook,
   IconMaximize,
   IconMaximizeOff,
+  IconRefresh,
+  IconArrowsMaximize,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -101,6 +103,8 @@ const ICONS = {
   IconNotebook,
   IconMaximize,
   IconMaximizeOff,
+  IconRefresh,
+  IconArrowsMaximize,
 } as const;
 
 @NgModule({

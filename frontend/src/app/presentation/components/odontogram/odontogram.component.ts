@@ -102,4 +102,25 @@ export class OdontogramComponent {
     }
     return undefined;
   }
+
+  clearOdontogram(): void {
+    const resetTeeth = (teeth: ToothInterface[]) => {
+      teeth.forEach((tooth: ToothInterface) => {
+        tooth.topTreatment = undefined;
+        tooth.bottomTreatment = undefined;
+        tooth.leftTreatment = undefined;
+        tooth.rightTreatment = undefined;
+        tooth.centerTreatment = undefined;
+      });
+    };
+
+    resetTeeth(this.odontogram.upperTeethLeft);
+    resetTeeth(this.odontogram.upperTeethRight);
+    resetTeeth(this.odontogram.lowerTeethLeft);
+    resetTeeth(this.odontogram.lowerTeethRight);
+    resetTeeth(this.odontogram.temporaryUpperLeft);
+    resetTeeth(this.odontogram.temporaryUpperRight);
+    resetTeeth(this.odontogram.temporaryLowerLeft);
+    resetTeeth(this.odontogram.temporaryLowerRight);
+  }
 }
