@@ -13,6 +13,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
+import { ConfirmDialogComponent } from "../confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: "app-odontogram",
@@ -104,23 +105,32 @@ export class OdontogramComponent {
   }
 
   clearOdontogram(): void {
-    const resetTeeth = (teeth: ToothInterface[]) => {
-      teeth.forEach((tooth: ToothInterface) => {
-        tooth.topTreatment = undefined;
-        tooth.bottomTreatment = undefined;
-        tooth.leftTreatment = undefined;
-        tooth.rightTreatment = undefined;
-        tooth.centerTreatment = undefined;
-      });
-    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: "400px",
+      data: { message: "¿Estás seguro de que quieres limpiar el odontograma?" },
+    });
 
-    resetTeeth(this.odontogram.upperTeethLeft);
-    resetTeeth(this.odontogram.upperTeethRight);
-    resetTeeth(this.odontogram.lowerTeethLeft);
-    resetTeeth(this.odontogram.lowerTeethRight);
-    resetTeeth(this.odontogram.temporaryUpperLeft);
-    resetTeeth(this.odontogram.temporaryUpperRight);
-    resetTeeth(this.odontogram.temporaryLowerLeft);
-    resetTeeth(this.odontogram.temporaryLowerRight);
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const resetTeeth = (teeth: ToothInterface[]) => {
+          teeth.forEach((tooth) => {
+            tooth.topTreatment = undefined;
+            tooth.bottomTreatment = undefined;
+            tooth.leftTreatment = undefined;
+            tooth.rightTreatment = undefined;
+            tooth.centerTreatment = undefined;
+          });
+        };
+
+        resetTeeth(this.odontogram.upperTeethLeft);
+        resetTeeth(this.odontogram.upperTeethRight);
+        resetTeeth(this.odontogram.lowerTeethLeft);
+        resetTeeth(this.odontogram.lowerTeethRight);
+        resetTeeth(this.odontogram.temporaryUpperLeft);
+        resetTeeth(this.odontogram.temporaryUpperRight);
+        resetTeeth(this.odontogram.temporaryLowerLeft);
+        resetTeeth(this.odontogram.temporaryLowerRight);
+      }
+    });
   }
 }
