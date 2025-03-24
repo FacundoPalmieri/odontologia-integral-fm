@@ -59,7 +59,7 @@ public class PermissionController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("get/all")
-    @PreAuthorize("hasAnyRole('Developer')")
+    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
     public ResponseEntity<Response<List<PermissionResponseDTO>>> getAllPermissions() {
         Response<List<PermissionResponseDTO>> response = permissionService.findAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -89,23 +89,10 @@ public class PermissionController {
             @ApiResponse(responseCode = "404", description = "Permiso no encontrado.")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('Developer')")
+    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
     public ResponseEntity<Response<PermissionResponseDTO>> getPermissionById(@PathVariable Long id) {
         Response<PermissionResponseDTO> response = permissionService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    /*
-
-    // Endpoint para crear permisos.
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Permission> createPermission(@RequestBody Permission permission) {
-        Permission newPermission = permissionService.save(permission);
-        return ResponseEntity.ok(newPermission);
-    }
-
-     */
-
 
 }
