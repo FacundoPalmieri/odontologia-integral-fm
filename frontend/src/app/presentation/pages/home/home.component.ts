@@ -16,6 +16,8 @@ import { MatDividerModule } from "@angular/material/divider";
 import { PermissionFactory } from "../../../utils/factories/permission.factory";
 import { MenuItemInterface } from "../../../domain/interfaces/menu-item.interface";
 import { FullscreenService } from "../../../services/fullscreen.service";
+import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
+import { TreatmentReferencesComponent } from "../../components/treatment-references/treatment-references.component";
 
 @Component({
   selector: "app-home",
@@ -34,6 +36,7 @@ import { FullscreenService } from "../../../services/fullscreen.service";
     MatDividerModule,
     RouterModule,
     IconsModule,
+    TreatmentReferencesComponent,
   ],
 })
 export class HomeComponent implements OnInit {
@@ -41,6 +44,7 @@ export class HomeComponent implements OnInit {
   authService = inject(AuthService);
   router = inject(Router);
   fullScreenService = inject(FullscreenService);
+  treatmentReferencesService = inject(TreatmentReferencesSidenavService);
   showFiller = false;
   currentTheme = computed(() => this.themeService.currentTheme());
   userData: UserDataInterface | null = this.authService.getUserData();

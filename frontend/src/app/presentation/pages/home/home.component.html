@@ -21,6 +21,16 @@
     </mat-nav-list>
   </mat-drawer>
 
+  <mat-drawer
+    #referencesDrawer
+    mode="side"
+    position="end"
+    [opened]="treatmentReferencesService.sidenavOpen()"
+    class="references-sidenav"
+  >
+    <app-treatment-references></app-treatment-references>
+  </mat-drawer>
+
   <div class="sidenav-content">
     <mat-toolbar class="gap-3 main-toolbar">
       <button mat-icon-button (click)="drawer.toggle()">

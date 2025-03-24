@@ -8,10 +8,11 @@ import { OdontogramInterface } from "../../../domain/interfaces/odontogram.inter
 import { mockOdontogram } from "../../../utils/mocks/odontogram.mock";
 import { TreatmentInterface } from "../../../domain/interfaces/treatment.interface";
 import { ToothInterface } from "../../../domain/interfaces/tooth.interface";
-import { TreatmentReferenceDialogComponent } from "./treatment-reference-dialog/treatment-reference-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatSidenavModule } from "@angular/material/sidenav";
+import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
 
 @Component({
   selector: "app-odontogram",
@@ -26,10 +27,12 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     MatDividerModule,
     MatButtonModule,
     MatTooltipModule,
+    MatSidenavModule,
   ],
 })
 export class OdontogramComponent {
   dialog = inject(MatDialog);
+  treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
   odontogram: OdontogramInterface = mockOdontogram;
 
   constructor() {}
@@ -98,11 +101,5 @@ export class OdontogramComponent {
       }
     }
     return undefined;
-  }
-
-  openTreatmentReferences() {
-    this.dialog.open(TreatmentReferenceDialogComponent, {
-      width: "400px",
-    });
   }
 }

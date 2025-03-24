@@ -7,6 +7,11 @@
   width: 80px;
 }
 
+.references-sidenav {
+  background: var(--mat-sys-home-sidenav-background);
+  width: 180px;
+}
+
 .sidenav-content {
   display: flex;
   flex-direction: column;
