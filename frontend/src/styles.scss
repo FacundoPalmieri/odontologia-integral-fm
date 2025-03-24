@@ -137,4 +137,10 @@ body {
       width: 3px,
     )
   );
+
+  @include mat.chips-overrides(
+    (
+      container-shape-radius: 100px,
+    )
+  );
 }
