@@ -12,6 +12,7 @@ import { ToothInterface } from "../../../domain/interfaces/tooth.interface";
 @Component({
   selector: "app-odontogram",
   templateUrl: "./odontogram.component.html",
+  styleUrl: "./odontogram.component.scss",
   standalone: true,
   imports: [
     CommonModule,
