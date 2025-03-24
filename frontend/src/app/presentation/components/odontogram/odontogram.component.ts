@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatMenuModule } from "@angular/material/menu";
@@ -8,6 +8,10 @@ import { OdontogramInterface } from "../../../domain/interfaces/odontogram.inter
 import { mockOdontogram } from "../../../utils/mocks/odontogram.mock";
 import { TreatmentInterface } from "../../../domain/interfaces/treatment.interface";
 import { ToothInterface } from "../../../domain/interfaces/tooth.interface";
+import { TreatmentReferenceDialogComponent } from "./treatment-reference-dialog/treatment-reference-dialog.component";
+import { MatDialog } from "@angular/material/dialog";
+import { MatButtonModule } from "@angular/material/button";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
   selector: "app-odontogram",
@@ -20,9 +24,12 @@ import { ToothInterface } from "../../../domain/interfaces/tooth.interface";
     MatMenuModule,
     ToothComponent,
     MatDividerModule,
+    MatButtonModule,
+    MatTooltipModule,
   ],
 })
 export class OdontogramComponent {
+  dialog = inject(MatDialog);
   odontogram: OdontogramInterface = mockOdontogram;
 
   constructor() {}
@@ -91,5 +98,11 @@ export class OdontogramComponent {
       }
     }
     return undefined;
+  }
+
+  openTreatmentReferences() {
+    this.dialog.open(TreatmentReferenceDialogComponent, {
+      width: "400px",
+    });
   }
 }

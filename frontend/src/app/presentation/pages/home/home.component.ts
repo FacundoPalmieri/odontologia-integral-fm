@@ -15,6 +15,7 @@ import { UserDataInterface } from "../../../domain/interfaces/user-data.interfac
 import { MatDividerModule } from "@angular/material/divider";
 import { PermissionFactory } from "../../../utils/factories/permission.factory";
 import { MenuItemInterface } from "../../../domain/interfaces/menu-item.interface";
+import { FullscreenService } from "../../../services/fullscreen.service";
 
 @Component({
   selector: "app-home",
@@ -39,12 +40,14 @@ export class HomeComponent implements OnInit {
   themeService = inject(ThemeService);
   authService = inject(AuthService);
   router = inject(Router);
+  fullScreenService = inject(FullscreenService);
   showFiller = false;
   currentTheme = computed(() => this.themeService.currentTheme());
   userData: UserDataInterface | null = this.authService.getUserData();
   permissions: string[] = [];
   private menuItems = PermissionFactory.createPermissions();
   filteredMenuItems: MenuItemInterface[] = [];
+  isFullscreen = false;
 
   constructor() {}
 

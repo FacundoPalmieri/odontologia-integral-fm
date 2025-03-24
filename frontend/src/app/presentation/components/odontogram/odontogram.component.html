@@ -1,4 +1,15 @@
-<div class="odontogram-background">
+<div class="odontogram-background p-8">
+  <div class="flex justify-end my-[-20px]">
+    <button
+      mat-icon-button
+      (click)="openTreatmentReferences()"
+      matTooltip="Referencias"
+      matTooltipPosition="above"
+    >
+      <i-tabler class="mb-1" name="notebook"></i-tabler>
+    </button>
+  </div>
+
   <div class="flex flex-col">
     <span class="text-xl font-bold text-center mb-4">Estado Actual</span>
     <div class="flex">
