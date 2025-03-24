@@ -55,6 +55,15 @@ public interface IRoleService {
 
 
 
-  //  void deleteById(Long id);
+
+    /**
+     * Actualiza la lista de permisos para el rol.
+     *
+     * @param roleDto {@link RoleDTO} que contiene la lista de permisos.
+     * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleResponseDTO}
+     */
+    Response<RoleResponseDTO> update (RoleDTO roleDto);
+
+
 
 }

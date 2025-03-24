@@ -186,7 +186,7 @@ public class RoleService implements IRoleService {
     public Response<RoleResponseDTO> save(RoleDTO roleDto) {
 
         //Valída que el rol no exista en la base de datos.
-        validateRol(roleDto.getRole());
+        validateRoleNotExist(roleDto.getRole());
 
         //Asigna permisos al rol
         roleDto.setPermissionsList(getPermissionForRole(roleDto.getPermissionsList()));
@@ -211,6 +211,45 @@ public class RoleService implements IRoleService {
     }
 
 
+    /**
+     * Actualiza la lista de permisos para el rol.
+     *
+     * @param roleDto {@link RoleDTO} que contiene la lista de permisos.
+     * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleResponseDTO}
+     */
+    @Override
+    public Response<RoleResponseDTO> update(RoleDTO roleDto) {
+
+        //Valída que el rol exista en la base de datos.
+        Role role = validateRoleExist(roleDto.getRole());
+
+        //Se limpia la lista de permisos
+        role.getPermissionsList().clear();
+
+        //Actualiza la lista de base de datos con la lista que poseé el DTO.
+        role.setPermissionsList(roleDto.getPermissionsList());
+
+        try{
+            //Guarda el objeto en la base de datos.
+            Role savedRole = roleRepository.save(role);
+
+            //Conviente la entidad a un DTO
+            RoleResponseDTO savedRoleDto = convertToDTOResponse(savedRole);
+
+            String messageUser = messageService.getMessage("roleService.update.ok", null, LocaleContextHolder.getLocale());
+            return new Response<>(true, messageUser, savedRoleDto);
+
+        }catch(DataAccessException | CannotCreateTransactionException e){
+            throw new DataBaseException(e,"roleService", 0L, roleDto.getRole(), "update");
+
+        }
+    }
+
+
+
+
+
+
 
     /**
      * Valída que el rol especificado no exista ya en la base de datos.
@@ -222,15 +261,32 @@ public class RoleService implements IRoleService {
      * @param roleNew El nombre del rol a validar.
      * @throws RoleExistingException Si el rol ya existe en la base de datos.
      */
-    private void validateRol(String roleNew){
-        Optional<Role>roleOptional = roleRepository.findRoleEntityByRole(roleNew);
-        if(roleOptional.isPresent()){
-            Role role = roleOptional.get();
-            if(role.getRole().equals(roleNew)) {
-                throw new RoleExistingException("","RoleService", "Save", roleNew);
-            }
+    private void validateRoleNotExist(String roleNew){
+        Role role = findbyRole(roleNew);
+        if(role.getRole().equals(roleNew)) {
+            throw new RoleExistingException("","RoleService", "Save", roleNew);
         }
     }
+
+
+    /**
+     * Valída que el rol especificado exista en la base de datos.
+     * <p>
+     * Este método consulta el repositorio para verificar si el rol proporcionado ya existe para poder modificarlo.
+     * Si el rol no fue encontrando,lanza una excepción {@link RoleNotFoundException }
+     * </p>
+     *
+     * @param roleUpdate El nombre del rol a validar.
+     * @throws RoleNotFoundException  Si el rol no fue encontrando en la base de datos.
+     */
+    private Role validateRoleExist(String roleUpdate){
+        Role role = findbyRole(roleUpdate);
+        if(!role.getRole().equals(roleUpdate)) {
+            throw new RoleNotFoundException("",0L, roleUpdate,"RoleService", "validateRoleExist");
+        }
+        return role;
+    }
+
 
     /**
      * Busca y devuelve un objeto Role de acuerdo al String recibido.
