@@ -56,8 +56,7 @@ export class EditRoleDialogComponent {
       id: new FormControl<number>(this.data.role.id, [Validators.required]),
       role: new FormControl<string>(this.data.role.role, [Validators.required]),
       permissionsList: new FormControl<PermissionInterface[]>(
-        this.data.role.permissionsList,
-        [Validators.required]
+        this.data.role.permissionsList
       ),
     });
   }

@@ -48,14 +48,8 @@ export class CreateRoleDialogComponent {
 
   private _loadForm() {
     this.roleForm = new FormGroup({
-      role: new FormControl<string>("", [
-        Validators.required,
-        Validators.email,
-      ]),
-      permissionsList: new FormControl<PermissionInterface[]>(
-        [],
-        [Validators.required]
-      ),
+      role: new FormControl<string>("", [Validators.required]),
+      permissionsList: new FormControl<PermissionInterface[]>([]),
     });
   }
 
