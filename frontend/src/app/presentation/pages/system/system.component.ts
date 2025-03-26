@@ -64,8 +64,9 @@ export class SystemComponent {
 
   constructor() {
     this.tokenForm = new FormGroup({
-      expiration: new FormControl<number>(0, [Validators.required]),
+      jwtExpiration: new FormControl<number>(0, [Validators.required]),
       attempts: new FormControl<number>(0, [Validators.required]),
+      refreshTokenExpiration: new FormControl<number>(0, [Validators.required]),
     });
     this.loadInitialData();
 
@@ -82,10 +83,11 @@ export class SystemComponent {
     this._getFailedAttempts();
     this._getMessages();
     this._getTokenExpirationTime();
+    this._getRefreshTokenExpirationTime();
   }
 
   updateTokenExpirationTime() {
-    const time = this.tokenForm.value.expiration;
+    const time = this.tokenForm.value.jwtExpiration;
 
     this.devService
       .updateTokenExpirationTime(time)
@@ -115,6 +117,23 @@ export class SystemComponent {
           SnackbarTypeEnum.Success
         );
         this._getFailedAttempts();
+      });
+  }
+
+  updateRefreshTokenExpirationTime() {
+    const refreshTokenExpiration = this.tokenForm.value.refreshTokenExpiration;
+
+    this.devService
+      .updateRefreshTokenExpirationTime(refreshTokenExpiration)
+      .subscribe((response: ApiResponseInterface<number>) => {
+        this.snackbarService.openSnackbar(
+          response.message,
+          3000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Success
+        );
+        this._getRefreshTokenExpirationTime();
       });
   }
 
@@ -159,7 +178,19 @@ export class SystemComponent {
       .subscribe((response: ApiResponseInterface<number>) => {
         if (response.success) {
           this.tokenForm.patchValue({
-            expiration: response.data,
+            jwtExpiration: response.data,
+          });
+        }
+      });
+  }
+
+  private _getRefreshTokenExpirationTime() {
+    this.devService
+      .getRefreshTokenExpirationTime()
+      .subscribe((response: ApiResponseInterface<number>) => {
+        if (response.success) {
+          this.tokenForm.patchValue({
+            refreshTokenExpiration: response.data,
           });
         }
       });

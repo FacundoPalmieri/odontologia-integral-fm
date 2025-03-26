@@ -28,6 +28,23 @@ export class DevService {
     );
   }
 
+  getRefreshTokenExpirationTime(): Observable<ApiResponseInterface<number>> {
+    return this.http.get<ApiResponseInterface<number>>(
+      `${this.apiUrl}/dev/refresh-token/get`
+    );
+  }
+
+  updateRefreshTokenExpirationTime(
+    time: number
+  ): Observable<ApiResponseInterface<number>> {
+    return this.http.patch<ApiResponseInterface<number>>(
+      `${this.apiUrl}/dev/refresh-token/update`,
+      {
+        expiration: time,
+      }
+    );
+  }
+
   getFailedAttempts(): Observable<ApiResponseInterface<number>> {
     return this.http.get<ApiResponseInterface<number>>(
       `${this.apiUrl}/dev/session/get`
