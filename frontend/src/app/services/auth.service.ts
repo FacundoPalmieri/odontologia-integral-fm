@@ -7,16 +7,26 @@ import { AuthUserInterface } from "../domain/interfaces/auth-user.interface";
 import { ResetPasswordInterface } from "../domain/interfaces/reset-password.interface";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { UserDataInterface } from "../domain/interfaces/user-data.interface";
+import { LogoutInterface } from "../domain/interfaces/logout.interface";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
-  logIn(login: LoginInterface): Observable<AuthUserInterface> {
+  login(login: LoginInterface): Observable<AuthUserInterface> {
     return this.http.post<AuthUserInterface>(
       `${this.apiUrl}/auth/login`,
       login
+    );
+  }
+
+  logout(logout: LogoutInterface): Observable<ApiResponseInterface<string>> {
+    return this.http.delete<ApiResponseInterface<string>>(
+      `${this.apiUrl}/auth/logout`,
+      {
+        body: logout,
+      }
     );
   }
 
@@ -45,6 +55,7 @@ export class AuthService {
     const userData: UserDataInterface = {
       username: authUserData.username,
       jwt: authUserData.jwt,
+      refreshToken: authUserData.refreshToken,
       roleAndPermission: authUserData.roleAndPermission,
     };
 
@@ -78,7 +89,22 @@ export class AuthService {
     return !this.isTokenExpired(payload.exp);
   }
 
-  logout(): void {
+  getLogoutData(): LogoutInterface | null {
+    const userData = this.getUserData();
+    if (userData != null) {
+      const logoutData: LogoutInterface = {
+        jwt: userData?.jwt,
+        refreshToken: userData.refreshToken,
+        user_id: 2, // TODO -> no tengo el id en el login
+        username: userData.username,
+      };
+      return logoutData;
+    } else {
+      return null;
+    }
+  }
+
+  dologout(): void {
     localStorage.removeItem("userData");
   }
 

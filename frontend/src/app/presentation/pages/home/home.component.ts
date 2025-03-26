@@ -18,6 +18,7 @@ import { MenuItemInterface } from "../../../domain/interfaces/menu-item.interfac
 import { FullscreenService } from "../../../services/fullscreen.service";
 import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
 import { TreatmentReferencesComponent } from "../../components/treatment-references/treatment-references.component";
+import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 
 @Component({
   selector: "app-home",
@@ -69,8 +70,15 @@ export class HomeComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(["/login"]);
+    const logoutData = this.authService.getLogoutData();
+    this.authService
+      .logout(logoutData!)
+      .subscribe((response: ApiResponseInterface<string>) => {
+        if (response.success) {
+          this.authService.dologout();
+          this.router.navigate(["/login"]);
+        }
+      });
   }
 
   obtenerRole(): string | undefined {

@@ -82,7 +82,7 @@ export class LoginComponent {
 
     const loginData: LoginInterface = this.loginForm.value;
     this.loaderService.show();
-    this.authService.logIn(loginData).subscribe({
+    this.authService.login(loginData).subscribe({
       next: (response: AuthUserInterface) => {
         this.authService.doLogin(response);
         this.loaderService.hide();
