@@ -26,9 +26,10 @@ import java.util.List;
  * <p>
  * Los métodos disponibles son:
  * <ul>
- *   <li><b>GET /api/users/get/all</b>: Obtiene el listado completo de usuarios.</li>
- *   <li><b>GET /api/users/{id}</b>: Obtiene un usuario específico por su ID.</li>
- *   <li><b>POST /api/users/create</b>: Crea un nuevo usuario en el sistema.</li>
+ *   <li><b>GET /api/user/all</b>: Obtiene el listado completo de usuarios.</li>
+ *   <li><b>GET /api/user/{id}</b>: Obtiene un usuario específico por su ID.</li>
+ *   <li><b>POST /api/user/</b>: Crea un nuevo usuario en el sistema.</li>
+ *   <li><b>PATCH /api/user/</b>: Actualiza un usuario en el sistema.</li>
  * </ul>
  * </p>
  * <p>
@@ -36,7 +37,7 @@ import java.util.List;
  * </p>
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 public class UserController {
     @Autowired
     private UserRolesConfig userRolesConfig;
@@ -64,20 +65,12 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("/get/all")
+    @GetMapping("/all")
     @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole,@userRolesConfig.administradorRole)")
     public ResponseEntity<Response<List<UserSecResponseDTO>>> getAllUsers() {
         Response<List<UserSecResponseDTO>> response = userService.findAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -148,7 +141,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Roles y/o permisos requeridos no encontrados."),
             @ApiResponse(responseCode = "409", description = "Usuario existente en el sistema.")
     })
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole,@userRolesConfig.administradorRole)")
     public  ResponseEntity<Response<UserSecResponseDTO>> createUser(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
         Response<UserSecResponseDTO>response = userService.save(userSecCreateDto);
@@ -185,7 +178,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Roles y/o permisos requeridos no encontrados."),
             @ApiResponse(responseCode = "409", description = "Usuario existente en el sistema o se intenta actualizar a un rol DEV.")
     })
-    @PatchMapping("/update")
+    @PatchMapping
     @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole,@userRolesConfig.administradorRole)")
     public ResponseEntity<Response<UserSecResponseDTO>> updateUser(@Valid @RequestBody UserSecUpdateDTO userSecUpdateDto) {
        Response<UserSecResponseDTO> response =  userService.update(userSecUpdateDto);
