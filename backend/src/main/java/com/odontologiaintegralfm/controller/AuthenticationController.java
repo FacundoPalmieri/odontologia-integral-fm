@@ -61,10 +61,10 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "403", description = "Cuenta bloqueada o sin permisos de acceso.")
     })
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
-        return new ResponseEntity<>(this.userDetailsService.loginUser(userRequest), HttpStatus.OK);
+    public ResponseEntity<Response<AuthResponseDTO>> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
+        Response<AuthResponseDTO> response = this.userDetailsService.loginUser(userRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
     /**
      * Endpoint para actualizar el refresh token de un usuario.
@@ -99,7 +99,6 @@ public class AuthenticationController {
     public ResponseEntity<Response<RefreshTokenDTO>> refreshToken(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
         Response<RefreshTokenDTO>response = userDetailsService.refreshToken(refreshTokenDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
 
