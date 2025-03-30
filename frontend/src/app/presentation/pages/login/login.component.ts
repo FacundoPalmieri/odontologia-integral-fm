@@ -83,8 +83,8 @@ export class LoginComponent {
     const loginData: LoginInterface = this.loginForm.value;
     this.loaderService.show();
     this.authService.login(loginData).subscribe({
-      next: (response: AuthUserInterface) => {
-        this.authService.doLogin(response);
+      next: (response: ApiResponseInterface<AuthUserInterface>) => {
+        this.authService.doLogin(response.data);
         this.loaderService.hide();
         this.router.navigate(["/"]);
       },

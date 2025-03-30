@@ -19,6 +19,7 @@ import { FullscreenService } from "../../../services/fullscreen.service";
 import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
 import { TreatmentReferencesComponent } from "../../components/treatment-references/treatment-references.component";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
+import { PermissionInterface } from "../../../domain/interfaces/permission.interface";
 
 @Component({
   selector: "app-home",
@@ -57,8 +58,10 @@ export class HomeComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    if (this.userData?.roleAndPermission) {
-      this.permissions = this.userData.roleAndPermission.slice(1);
+    if (this.userData?.roles && this.userData?.roles.length > 0) {
+      this.permissions = this.userData.roles[0].permissionsList.map(
+        (permission) => permission.permission
+      );
       this.filteredMenuItems = this.filterMenuItems();
     }
   }
@@ -82,7 +85,7 @@ export class HomeComponent implements OnInit {
   }
 
   obtenerRole(): string | undefined {
-    return this.userData?.roleAndPermission[0].split("_")[1];
+    return this.userData?.roles[0].role;
   }
 
   toggleTheme() {

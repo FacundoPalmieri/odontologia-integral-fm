@@ -14,8 +14,10 @@ export class AuthService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
-  login(login: LoginInterface): Observable<AuthUserInterface> {
-    return this.http.post<AuthUserInterface>(
+  login(
+    login: LoginInterface
+  ): Observable<ApiResponseInterface<AuthUserInterface>> {
+    return this.http.post<ApiResponseInterface<AuthUserInterface>>(
       `${this.apiUrl}/auth/login`,
       login
     );
@@ -53,10 +55,11 @@ export class AuthService {
 
   doLogin(authUserData: AuthUserInterface) {
     const userData: UserDataInterface = {
-      username: authUserData.username,
+      idUser: authUserData.idUser,
       jwt: authUserData.jwt,
       refreshToken: authUserData.refreshToken,
-      roleAndPermission: authUserData.roleAndPermission,
+      roles: authUserData.roles,
+      username: authUserData.username,
     };
 
     localStorage.setItem("userData", JSON.stringify(userData));
@@ -95,7 +98,7 @@ export class AuthService {
       const logoutData: LogoutInterface = {
         jwt: userData?.jwt,
         refreshToken: userData.refreshToken,
-        user_id: 2, // TODO -> no tengo el id en el login
+        user_id: userData.idUser,
         username: userData.username,
       };
       return logoutData;

@@ -1,6 +1,9 @@
+import { RoleInterface } from "./role.interface";
+
 export interface UserDataInterface {
+  idUser: number;
   jwt: string;
-  username: string;
   refreshToken: string;
-  roleAndPermission: string[];
+  roles: RoleInterface[];
+  username: string;
 }
