@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, Input, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatMenuModule } from "@angular/material/menu";
@@ -31,12 +31,18 @@ import { ConfirmDialogComponent } from "../confirm-dialog/confirm-dialog.compone
     MatSidenavModule,
   ],
 })
-export class OdontogramComponent {
+export class OdontogramComponent implements OnInit {
+  @Input() inputOdontogram?: OdontogramInterface;
+
   dialog = inject(MatDialog);
   treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
-  odontogram: OdontogramInterface = mockOdontogram;
+  odontogram!: OdontogramInterface;
 
   constructor() {}
+
+  ngOnInit(): void {
+    this.odontogram = this.inputOdontogram || mockOdontogram;
+  }
 
   onFullToothTreatmentChange(
     toothNumber: number,

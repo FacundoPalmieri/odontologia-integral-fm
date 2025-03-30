@@ -22,6 +22,7 @@ import { ApiResponseInterface } from "../../../../domain/interfaces/api-response
 @Component({
   selector: "app-edit-user-dialog",
   templateUrl: "./edit-user-dialog.component.html",
+  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,

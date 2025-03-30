@@ -18,6 +18,7 @@ import { PermissionInterface } from "../../../../domain/interfaces/permission.in
 @Component({
   selector: "app-create-role-dialog",
   templateUrl: "./create-role-dialog.component.html",
+  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,

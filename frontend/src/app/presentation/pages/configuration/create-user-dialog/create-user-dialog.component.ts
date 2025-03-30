@@ -21,6 +21,7 @@ import { MatIconModule } from "@angular/material/icon";
 @Component({
   selector: "app-create-user-dialog",
   templateUrl: "./create-user-dialog.component.html",
+  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,
