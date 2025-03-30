@@ -30,6 +30,12 @@ public interface IRefreshTokenService {
      */
     void deleteRefreshToken(String refreshToken);
 
+    /**
+     * Elimina el Refresh Token correspondiente al ID del usuario proporcionado.
+     * @param idUser el ID del usuario.
+     */
+    void deleteRefreshToken(Long idUser);
+
 
     /**
      * Obtiene el Refresh Token correspondiente al ID proporcionado.

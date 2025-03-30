@@ -8,6 +8,7 @@ import lombok.Data;
  */
 @Entity
 @Data
+@Table(name = "refresh_token_config")
 public class RefreshTokenConfig {
 
     /**Identificador único*/
@@ -16,6 +17,6 @@ public class RefreshTokenConfig {
     private Long id;
 
     /**Tiempo de expiración del Refresh Token.*/
-    @Column(name="Expiracion",  nullable = false)
+    @Column(nullable = false)
     private Long expiration;
 }
