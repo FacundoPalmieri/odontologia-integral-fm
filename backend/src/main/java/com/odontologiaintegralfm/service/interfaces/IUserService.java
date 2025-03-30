@@ -32,7 +32,7 @@ public interface IUserService {
       * @param username El username del usuario a recuperar.
       * @return el objeto {@link UserSec} correspondiente al usuario.
       */
-     UserSec findByUsername(String username);
+     UserSec getByUsername(String username);
 
 
      /**

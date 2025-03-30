@@ -19,7 +19,7 @@ public interface IPermissionService {
      * @return Un objeto {@link Response} que contiene una lista de objetos {@link PermissionResponseDTO}
      *         con todos los permisos disponibles.
      */
-    Response<List<PermissionResponseDTO>> findAll();
+    Response<List<PermissionResponseDTO>> getAll();
 
     /**
      * Obtiene un permiso por su ID.
@@ -36,7 +36,7 @@ public interface IPermissionService {
      * @param id El ID del permiso que se desea buscar.
      * @return Un {@link Optional} que contiene el permiso si se encuentra, o está vacío si no.
      */
-    Optional<Permission> findById(Long id);
+    Permission getByIdInternal(Long id);
  // Permission save(Permission permission);
  // void deleteById(Long id);
  // Permission update(Permission permission);

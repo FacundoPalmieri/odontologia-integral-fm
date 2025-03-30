@@ -42,7 +42,7 @@ public class RefreshTokenService implements IRefreshTokenService {
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setRefreshToken(UUID.randomUUID().toString());
-        refreshToken.setUser(userService.findByUsername(username));
+        refreshToken.setUser(userService.getByUsername(username));
         refreshToken.setCreatedDate(LocalDateTime.now());
         refreshToken.setExpirationDate(LocalDateTime.now().plusDays(15));
         return refreshTokenRepository.save(refreshToken);

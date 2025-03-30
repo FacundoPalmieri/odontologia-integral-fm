@@ -19,7 +19,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -174,7 +172,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
 
             //Obtiene Datos del usuario desde la base de datos.
-            UserSec userSec = userService.findByUsername(username);
+            UserSec userSec = userService.getByUsername(username);
 
             //Construye el DTO para respuesta
             AuthResponseDTO authResponseDTO = AuthResponseDTO.builder()
