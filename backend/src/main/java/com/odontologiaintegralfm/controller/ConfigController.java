@@ -38,12 +38,14 @@ import java.util.List;
  <p>
  * Este controlador utiliza las siguientes operaciones:
  * <ul>
- *   <li><b>GET /dev/message/get</b>: Obtiene la configuración de mensajes.</li>
- *   <li><b>PATCH /dev/message/update</b>: Actualiza la configuración de un mensaje.</li>
- *   <li><b>GET /dev/session/get</b>: Obtiene la cantidad de intentos fallidos de sesión.</li>
- *   <li><b>PATCH /dev/session/update</b>: Actualiza la cantidad de intentos fallidos de sesión.</li>
- *   <li><b>GET /dev/token/get</b>: Obtiene la expiración del token.</li>
- *   <li><b>PATCH /dev/token/update</b>: Actualiza la expiración del token.</li>
+ *   <li><b>GET /api/config/message</b>: Obtiene la configuración de mensajes.</li>
+ *   <li><b>PATCH /api/config/message</b>: Actualiza la configuración de un mensaje.</li>
+ *   <li><b>GET /api/config/session</b>: Obtiene la cantidad de intentos fallidos de sesión.</li>
+ *   <li><b>PATCH /api/config/session</b>: Actualiza la cantidad de intentos fallidos de sesión.</li>
+ *   <li><b>GET /api/config/token</b>: Obtiene la expiración del token.</li>
+ *   <li><b>PATCH /api/config/token</b>: Actualiza la expiración del token.</li>
+ *   <li><b>GET /api/config/token/refresh</b>: Obtiene la expiración del refresh token.</li>
+ *   <li><b>PATCH /api/config/token/refresh</b>: Actualiza la expiración del refresh token.</li>
  * </ul>
  * </p>
  * <p>
@@ -51,7 +53,7 @@ import java.util.List;
  * </p>
  */
 @RestController
-@RequestMapping("/dev")
+@RequestMapping("/api/config")
 @PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
 public class ConfigController {
     @Autowired
@@ -80,7 +82,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("/message/get")
+    @GetMapping("/message")
     public ResponseEntity<Response<List<MessageConfig>>> getMessage() {
         Response<List<MessageConfig>> response = configService.getMessage();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -109,7 +111,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "Mensaje no encontrado para actualizar.")
     })
-    @PatchMapping("/message/update")
+    @PatchMapping("/message")
     public ResponseEntity<Response<MessageConfig>> updateMessage(@Valid @RequestBody MessageDTO messageDTO) {
         Response<MessageConfig> response =  configService.updateMessage(messageDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -137,7 +139,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @GetMapping("/session/get")
+    @GetMapping("/session")
     public ResponseEntity<Response<Integer>> getAttempts() {
         Response<Integer> response =  configService.getAttempts();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -166,7 +168,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @PatchMapping("/session/update")
+    @PatchMapping("/session")
     public ResponseEntity<Response<Integer>> updateAttempts(@Valid @RequestBody FailedLoginAttemptsDTO failedLoginAttemptsDTO) {
         Response<Integer> response = configService.updateAttempts(failedLoginAttemptsDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -192,7 +194,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @GetMapping ("token/get")
+    @GetMapping ("/token")
     public ResponseEntity<Response<Long>> getTokenExpiration() {
         Response<Long> response = configService.getTokenExpiration();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -220,7 +222,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @PatchMapping("token/update")
+    @PatchMapping("/token")
     public ResponseEntity<Response<Long>> updateTokenExpiration(@Valid @RequestBody TokenConfigDTO tokenConfigDTO) {
          Response<Long> response = configService.updateTokenExpiration(tokenConfigDTO);
          return new ResponseEntity<>(response, HttpStatus.OK);
@@ -246,7 +248,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @GetMapping ("Refresh-token/get")
+    @GetMapping ("/token/refresh")
     public ResponseEntity<Response<Long>> getRefreshTokenExpiration() {
         Response<Long> response = configService.getRefreshTokenExpiration();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -275,7 +277,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @PatchMapping("refresh-token/update")
+    @PatchMapping("/token/refresh")
     public ResponseEntity<Response<Long>> updateRefreshTokenExpiration(@Valid @RequestBody RefreshTokenConfigDTO refreshTokenConfigDTO) {
         Response<Long> response = configService.updateRefreshTokenExpiration(refreshTokenConfigDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);

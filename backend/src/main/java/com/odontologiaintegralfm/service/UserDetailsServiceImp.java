@@ -7,6 +7,7 @@ import com.odontologiaintegralfm.exception.BlockAccountException;
 import com.odontologiaintegralfm.exception.CredentialsException;
 import com.odontologiaintegralfm.exception.UserNameNotFoundException;
 import com.odontologiaintegralfm.model.RefreshToken;
+import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.model.UserSec;
 import com.odontologiaintegralfm.repository.IUserRepository;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
@@ -154,7 +155,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * @return Un objeto {@link AuthResponseDTO} con el nombre de usuario, un mensaje de éxito, el token JWT y un estado de autenticación exitoso.
      * @throws CredentialsException Si las credenciales son incorrectas, se lanza una excepción de tipo {@link CredentialsException}.
      */
-    public AuthResponseDTO loginUser (AuthLoginRequestDTO authLoginRequest){
+    public Response<AuthResponseDTO> loginUser (AuthLoginRequestDTO authLoginRequest){
         try {
             //Se recupera nombre de usuario y contraseña
             String username = authLoginRequest.username();
@@ -163,7 +164,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
             // Se invoca al método authenticate.
             Authentication authentication = this.authenticate(username, password);
 
-            //si es autenticado correctamente se almacena la información SecurityContextHolder y se crea el token.
+            //si es autenticado correctamente se almacena la información SecurityContextHolder.
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             //Crea el JWT
@@ -172,22 +173,22 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Crea el RefreshToken
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
 
-            //Convierte el RefreshToken a DTO
-            RefreshTokenDTO refreshTokenDTO = new RefreshTokenDTO();
-            refreshTokenDTO.setUsername(refreshToken.getUser().getUsername());
-            refreshTokenDTO.setUser_id(refreshToken.getUser().getId());
-            refreshTokenDTO.setJwt(refreshToken.getRefreshToken());
-            refreshTokenDTO.setRefreshToken(refreshToken.getRefreshToken());
+            //Obtiene Datos del usuario desde la base de datos.
+            UserSec userSec = userService.findByUsername(username);
 
-            // Obtener los roles desde la autenticación
-            List<String> roleAndPermission = authentication.getAuthorities()
-                    .stream()
-                    .map(GrantedAuthority::getAuthority) // Convierte Authority en String
-                    .sorted(Comparator.comparing(authority -> authority.startsWith("ROLE_") ? 0 : 1)) // Ordena primero roles, luego permisos
-                    .collect(Collectors.toList());
+            //Construye el DTO para respuesta
+            AuthResponseDTO authResponseDTO = AuthResponseDTO.builder()
+                    .idUser(userSec.getId())
+                    .username(userSec.getUsername())
+                    .roles(userSec.getRolesList().stream()
+                            .map(role -> new Role(role.getId(), role.getRole(), role.getPermissionsList()))
+                            .collect(Collectors.toSet())
+                    )
+                    .jwt(accessToken)
+                    .refreshToken(refreshToken.getRefreshToken())
+                    .build();
 
-            AuthResponseDTO authResponseDTO = new AuthResponseDTO(username, "Login OK", accessToken,refreshTokenDTO.getRefreshToken(), roleAndPermission, true);
-            return authResponseDTO;
+            return new Response<> (true,"", authResponseDTO);
         }catch (BadCredentialsException ex) {
             throw new CredentialsException(authLoginRequest.username());
         }

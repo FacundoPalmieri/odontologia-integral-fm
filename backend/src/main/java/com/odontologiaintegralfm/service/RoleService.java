@@ -262,9 +262,11 @@ public class RoleService implements IRoleService {
      * @throws RoleExistingException Si el rol ya existe en la base de datos.
      */
     private void validateRoleNotExist(String roleNew){
-        Role role = findbyRole(roleNew);
-        if(role.getRole().equals(roleNew)) {
-            throw new RoleExistingException("","RoleService", "Save", roleNew);
+        Optional<Role> role = roleRepository.findRoleEntityByRole(roleNew);
+        if(role.isPresent()) {
+            if (role.get().getRole().equals(roleNew)) {
+                throw new RoleExistingException("", "RoleService", "Save", roleNew);
+            }
         }
     }
 
@@ -280,33 +282,8 @@ public class RoleService implements IRoleService {
      * @throws RoleNotFoundException  Si el rol no fue encontrando en la base de datos.
      */
     private Role validateRoleExist(String roleUpdate){
-        Role role = findbyRole(roleUpdate);
-        if(!role.getRole().equals(roleUpdate)) {
-            throw new RoleNotFoundException("",0L, roleUpdate,"RoleService", "validateRoleExist");
-        }
-        return role;
+        return roleRepository.findRoleEntityByRole(roleUpdate).orElseThrow(()-> new RoleNotFoundException("",0L, roleUpdate,"RoleService", "validateRoleExist"));
     }
-
-
-    /**
-     * Busca y devuelve un objeto Role de acuerdo al String recibido.
-     * <p>
-     * Este método consulta el repositorio para buscar y devolver el rol recibido por parametro.
-     * Si el rol no existe, lanza una excepción {@link RoleNotFoundException}.
-     * </p>
-     *
-     * @param role El nombre del rol a validar.
-     * @throws RoleNotFoundException Si el rol no existe en la base de datos
-     */
-    protected Role findbyRole(String role){
-        Optional<Role>roleOptional = roleRepository.findRoleEntityByRole(role);
-        if(roleOptional.isPresent()){
-            return roleOptional.get();
-        }else {
-            throw new RoleNotFoundException("", 0L, role, "RoleService", "findbyRole");
-        }
-    }
-
 
 
 

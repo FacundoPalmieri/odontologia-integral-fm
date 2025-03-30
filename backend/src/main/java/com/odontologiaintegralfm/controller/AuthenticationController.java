@@ -20,9 +20,12 @@ import jakarta.validation.Valid;
  *
  * Este controlador expone las siguientes operaciones:
  * <ul>
- *     <li><b>/login</b>: Inicia sesión autenticando las credenciales del usuario y devuelve un token en caso de autenticación exitosa.</li>
- *     <li><b>/request/reset-password</b>: Solicita el restablecimiento de la contraseña enviando un correo electrónico con un enlace de redireccionamiento.</li>
- *     <li><b>/reset-password</b>: Restablece la contraseña del usuario utilizando el token recibido en el correo electrónico.</li>
+ *     <li><b>/api/auth/login</b>: Inicia sesión autenticando las credenciales del usuario y devuelve un token en caso de autenticación exitosa.</li>
+ *     <li><b>/api/auth/token/refresh</b>: Actualiza el refresh token de un usuario.</li>
+ *     <li><b>/api/auth/logout</b>: cierra la sesión del usuario eliminado el refresh token.</li>
+ *     <li><b>/api/auth/password/reset-request</b>: Solicita el restablecimiento de la contraseña enviando un correo con una URL de redireccionamiento.</li>
+ *     <li><b>/api/auth/password/reset-request</b>: Solicita el restablecimiento de la contraseña enviando un correo con una URL de redireccionamiento.</li>
+ *     <li><b>/api/auth/password/reset</b>: Restablece la contraseña del usuario utilizando el token recibido en el correo electrónico.</li>
  * </ul>
  *
  * El controlador depende de los servicios {@link UserDetailsServiceImp} para la autenticación de usuario y
@@ -31,7 +34,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @PreAuthorize("permitAll()")
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthenticationController {
 
     @Autowired
@@ -59,10 +62,10 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "403", description = "Cuenta bloqueada o sin permisos de acceso.")
     })
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
-        return new ResponseEntity<>(this.userDetailsService.loginUser(userRequest), HttpStatus.OK);
+    public ResponseEntity<Response<AuthResponseDTO>> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
+        Response<AuthResponseDTO> response = this.userDetailsService.loginUser(userRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
     /**
      * Endpoint para actualizar el refresh token de un usuario.
@@ -92,12 +95,11 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "Cuenta bloqueada o sin permisos de acceso.")
     })
-    @PostMapping("/refresh-token")
+    @PostMapping("/token/refresh")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Response<RefreshTokenDTO>> refreshToken(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
         Response<RefreshTokenDTO>response = userDetailsService.refreshToken(refreshTokenDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
 
@@ -142,7 +144,7 @@ public class AuthenticationController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Correo enviado exitosamente.")
     })
-    @PostMapping("/request/reset-password")
+    @PostMapping("/password/reset-request")
     public ResponseEntity<Response<String>> requestResetPassword(@RequestParam String email) {
         Response<String> response = userService.createTokenResetPasswordForUser(email);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -164,14 +166,11 @@ public class AuthenticationController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Restablecimiento de contraseña exitoso.")
     })
-    @PostMapping("/reset-password")
+    @PostMapping("/password/reset")
     public ResponseEntity<Response<String>> resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO, HttpServletRequest request) {
         Response<String> response = userService.updatePassword(resetPasswordDTO, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
-
 }
 
 
