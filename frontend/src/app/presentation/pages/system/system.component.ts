@@ -12,7 +12,7 @@ import {
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { MatCardModule } from "@angular/material/card";
-import { DevService } from "../../../services/dev.service";
+import { ConfigService } from "../../../services/config.service";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
@@ -49,7 +49,7 @@ import { MessageDto } from "../../../domain/dto/message-update.dto";
 })
 export class SystemComponent {
   readonly dialog = inject(MatDialog);
-  devService = inject(DevService);
+  configService = inject(ConfigService);
   snackbarService = inject(SnackbarService);
   tokenForm: FormGroup;
   displayedColumns: string[] = ["id", "key", "value", "locale", "action"];
@@ -89,7 +89,7 @@ export class SystemComponent {
   updateTokenExpirationTime() {
     const time = this.tokenForm.value.jwtExpiration;
 
-    this.devService
+    this.configService
       .updateTokenExpirationTime(time)
       .subscribe((response: ApiResponseInterface<number>) => {
         this.snackbarService.openSnackbar(
@@ -106,7 +106,7 @@ export class SystemComponent {
   updateFailedAttempts() {
     const attempts = this.tokenForm.value.attempts;
 
-    this.devService
+    this.configService
       .updateFailedAttempts(attempts)
       .subscribe((response: ApiResponseInterface<number>) => {
         this.snackbarService.openSnackbar(
@@ -123,7 +123,7 @@ export class SystemComponent {
   updateRefreshTokenExpirationTime() {
     const refreshTokenExpiration = this.tokenForm.value.refreshTokenExpiration;
 
-    this.devService
+    this.configService
       .updateRefreshTokenExpirationTime(refreshTokenExpiration)
       .subscribe((response: ApiResponseInterface<number>) => {
         this.snackbarService.openSnackbar(
@@ -148,7 +148,7 @@ export class SystemComponent {
             id: message.id,
             value: message.value,
           };
-          this.devService
+          this.configService
             .updateMessage(messageDto)
             .subscribe((response: ApiResponseInterface<MessageInterface>) => {
               this.snackbarService.openSnackbar(
@@ -173,7 +173,7 @@ export class SystemComponent {
   }
 
   private _getTokenExpirationTime() {
-    this.devService
+    this.configService
       .getTokenExpirationTime()
       .subscribe((response: ApiResponseInterface<number>) => {
         if (response.success) {
@@ -185,7 +185,7 @@ export class SystemComponent {
   }
 
   private _getRefreshTokenExpirationTime() {
-    this.devService
+    this.configService
       .getRefreshTokenExpirationTime()
       .subscribe((response: ApiResponseInterface<number>) => {
         if (response.success) {
@@ -197,7 +197,7 @@ export class SystemComponent {
   }
 
   private _getFailedAttempts() {
-    this.devService
+    this.configService
       .getFailedAttempts()
       .subscribe((response: ApiResponseInterface<number>) => {
         if (response.success) {
@@ -209,7 +209,7 @@ export class SystemComponent {
   }
 
   private _getMessages() {
-    this.devService
+    this.configService
       .getMessages()
       .subscribe((response: ApiResponseInterface<MessageInterface[]>) => {
         this.messages.set(response.data);

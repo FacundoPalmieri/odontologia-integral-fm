@@ -14,26 +14,26 @@ export class UserService {
 
   getAll(): Observable<ApiResponseInterface<UserInterface[]>> {
     return this.http.get<ApiResponseInterface<UserInterface[]>>(
-      `${this.apiUrl}/api/users/get/all`
+      `${this.apiUrl}/user/all`
     );
   }
 
   getById(id: number): Observable<ApiResponseInterface<UserInterface>> {
     return this.http.get<ApiResponseInterface<UserInterface>>(
-      `${this.apiUrl}/api/users/${id}`
+      `${this.apiUrl}/user/${id}`
     );
   }
 
   create(user: UserCreateDto): Observable<ApiResponseInterface<UserInterface>> {
     return this.http.post<ApiResponseInterface<UserInterface>>(
-      `${this.apiUrl}/api/users/create`,
+      `${this.apiUrl}/user`,
       user
     );
   }
 
   update(user: UserUpdateDto): Observable<ApiResponseInterface<UserInterface>> {
     return this.http.patch<ApiResponseInterface<UserInterface>>(
-      `${this.apiUrl}/api/users/update`,
+      `${this.apiUrl}/user`,
       user
     );
   }

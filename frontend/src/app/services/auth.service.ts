@@ -36,7 +36,7 @@ export class AuthService {
     const params = new HttpParams().set("email", email);
 
     return this.http.post<ApiResponseInterface<string>>(
-      `${this.apiUrl}/auth/request/reset-password`,
+      `${this.apiUrl}/auth/password/reset`,
       null,
       { params }
     );
@@ -46,7 +46,7 @@ export class AuthService {
     resetData: ResetPasswordInterface
   ): Observable<ApiResponseInterface<string>> {
     return this.http.post<ApiResponseInterface<string>>(
-      `${this.apiUrl}/auth/reset-password`,
+      `${this.apiUrl}/auth/password/reset-request`,
       resetData
     );
   }
