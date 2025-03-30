@@ -8,8 +8,8 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
 
   const excludedUrls = [
     "/auth/login",
-    "/auth/request/reset-password",
-    "/auth/reset-password",
+    "/auth/password/reset-request",
+    "/auth/password/reset",
   ];
 
   if (excludedUrls.some((url) => req.url.includes(url))) {

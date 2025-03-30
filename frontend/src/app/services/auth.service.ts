@@ -38,7 +38,7 @@ export class AuthService {
     const params = new HttpParams().set("email", email);
 
     return this.http.post<ApiResponseInterface<string>>(
-      `${this.apiUrl}/auth/password/reset`,
+      `${this.apiUrl}/auth/password/reset-request`,
       null,
       { params }
     );
@@ -48,7 +48,7 @@ export class AuthService {
     resetData: ResetPasswordInterface
   ): Observable<ApiResponseInterface<string>> {
     return this.http.post<ApiResponseInterface<string>>(
-      `${this.apiUrl}/auth/password/reset-request`,
+      `${this.apiUrl}/auth/password/reset`,
       resetData
     );
   }
@@ -63,6 +63,10 @@ export class AuthService {
     };
 
     localStorage.setItem("userData", JSON.stringify(userData));
+  }
+
+  dologout(): void {
+    localStorage.removeItem("userData");
   }
 
   getJwtToken(): string | null {
@@ -105,10 +109,6 @@ export class AuthService {
     } else {
       return null;
     }
-  }
-
-  dologout(): void {
-    localStorage.removeItem("userData");
   }
 
   private getJWTokenPayload(token: string) {
