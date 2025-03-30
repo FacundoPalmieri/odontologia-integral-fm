@@ -109,6 +109,7 @@ body {
 
   @include mat.card-overrides(
     (
+      container-color: var(--mat-sys-content-container-color),
       outlined-outline-width: 0,
     )
   );
@@ -125,6 +126,9 @@ body {
 
   @include mat.table-overrides(
     (
+      background-color: (
+        --mat-sys-content-container-color,
+      ),
       header-headline-size: 16px,
       header-headline-weight: 600,
       row-item-outline-color: rgba(0, 0, 0, 0.1),
@@ -141,6 +145,18 @@ body {
   @include mat.chips-overrides(
     (
       container-shape-radius: 100px,
+    )
+  );
+
+  @include mat.paginator-overrides(
+    (
+      container-background-color: var(--mat-sys-content-container-color),
+    )
+  );
+
+  @include mat.stepper-overrides(
+    (
+      container-color: var(--mat-sys-content-toolbar-container-color),
     )
   );
 }

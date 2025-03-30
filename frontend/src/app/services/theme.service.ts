@@ -2,7 +2,6 @@ import { effect, Injectable, signal } from "@angular/core";
 
 export interface Theme {
   id: string;
-  primary: string;
   displayName: string;
 }
 
@@ -13,10 +12,9 @@ export class ThemeService {
   private readonly themes: Theme[] = [
     {
       id: "light",
-      primary: "#1976D2",
       displayName: "Light",
     },
-    { id: "dark", primary: "#00796B", displayName: "Dark" },
+    { id: "dark", displayName: "Dark" },
   ];
 
   currentTheme = signal<Theme>(this.themes[0]);

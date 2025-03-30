@@ -1,4 +1,9 @@
-.background-odontogram-utilities {
-  background: var(--mat-sys-home-sidenav-background);
+.background-odontogram-container {
   border-radius: 18px;
+  background: var(--mat-sys-home-sidenav-content-background);
+}
+
+.background-odontogram-utilities {
+  border-radius: 18px;
+  background: var(--mat-sys-odontogram-container-background);
 }

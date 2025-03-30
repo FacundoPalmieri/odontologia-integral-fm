@@ -35,10 +35,10 @@
   --mat-sys-on-tertiary-fixed-variant: light-dark(#004f56, #004f56);
 
   /* Neutral palette variables */
-  --mat-sys-background: light-dark(#fff8f8, #171214);
+  --mat-sys-background: light-dark(#fff8f8, #1e161c);
   --mat-sys-on-background: light-dark(#1f1a1c, #ebe0e2);
-  --mat-sys-surface: light-dark(#fff8f8, #171214);
-  --mat-sys-surface-dim: light-dark(#e2d7da, #171214);
+  --mat-sys-surface: light-dark(#fff8f8, #1e161c);
+  --mat-sys-surface-dim: light-dark(#e2d7da, #1e161c);
   --mat-sys-surface-bright: light-dark(#fff8f8, #3e383a);
   --mat-sys-surface-container-lowest: light-dark(#ffffff, #110d0f);
   --mat-sys-surface-container: light-dark(#f6ebee, #231e20);
@@ -296,12 +296,21 @@
 
   /* CUSTOMS VARIABLES */
   --mat-toolbar-standard-height: 70px;
-  --mat-sys-home-sidenav-background: light-dark(
+  --mat-sys-home-sidenav-content-background: light-dark(
     rgb(204, 204, 204, 0.3),
-    transparent
+    rgb(40, 32, 36, 1)
   );
-  --mat-sys-home-content-background: light-dark(
-    rgb(204, 204, 204, 0.3),
-    rgb(204, 204, 204, 0.3)
+  --mat-sys-content-container-color: light-dark(
+    transparent,
+    rgb(55, 47, 52, 1)
+  );
+  --mat-sys-content-toolbar-container-color: light-dark(
+    transparent,
+    rgb(55, 47, 52, 1)
+  );
+
+  --mat-sys-odontogram-container-background: light-dark(
+    transparent,
+    rgb(55, 47, 52, 1)
   );
 }
