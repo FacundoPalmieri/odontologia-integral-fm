@@ -19,7 +19,6 @@ import { FullscreenService } from "../../../services/fullscreen.service";
 import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
 import { TreatmentReferencesComponent } from "../../components/treatment-references/treatment-references.component";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
-import { PermissionInterface } from "../../../domain/interfaces/permission.interface";
 
 @Component({
   selector: "app-home",
