@@ -22,6 +22,7 @@ import { MatNativeDateModule } from "@angular/material/core";
 @Component({
   selector: "app-consultation-register",
   templateUrl: "./consultation-register.component.html",
+  styleUrl: "./consultation-register.component.scss",
   standalone: true,
   providers: [
     {

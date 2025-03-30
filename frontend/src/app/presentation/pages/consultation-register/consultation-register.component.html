@@ -180,22 +180,22 @@
       [stepControl]="patientForm"
       errorMessage="La información no está correcta."
     >
-      <form [formGroup]="patientForm">
-        <ng-template matStepLabel>Odontograma</ng-template>
-        <div class="my-2 w-full flex justify-center">
+      <ng-template matStepLabel>Odontograma</ng-template>
+      <div class="my-2 w-full odontogram-container">
+        <div class="odontogram-wrapper">
           <app-odontogram></app-odontogram>
         </div>
-        <div class="mt-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Observaciones</mat-label>
-            <textarea matInput></textarea>
-          </mat-form-field>
-        </div>
-        <div>
-          <button mat-button matStepperPrevious>Atrás</button>
-          <button mat-button matStepperNext>Siguiente</button>
-        </div>
-      </form>
+      </div>
+      <div class="mt-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Observaciones</mat-label>
+          <textarea matInput></textarea>
+        </mat-form-field>
+      </div>
+      <div>
+        <button mat-button matStepperPrevious>Atrás</button>
+        <button mat-button matStepperNext>Siguiente</button>
+      </div>
     </mat-step>
 
     <mat-step
