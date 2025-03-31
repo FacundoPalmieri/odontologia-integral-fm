@@ -61,7 +61,7 @@ public class PermissionController {
     @GetMapping("all")
     @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
     public ResponseEntity<Response<List<PermissionResponseDTO>>> getAllPermissions() {
-        Response<List<PermissionResponseDTO>> response = permissionService.findAll();
+        Response<List<PermissionResponseDTO>> response = permissionService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

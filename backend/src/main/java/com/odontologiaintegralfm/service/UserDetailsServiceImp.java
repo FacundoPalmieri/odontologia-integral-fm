@@ -19,7 +19,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -129,13 +127,15 @@ public class UserDetailsServiceImp implements UserDetailsService {
                 .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermission())));
 
         //Se retorna el usuario en formato Spring Security con los datos del userSec
-        return new User(userSec.getUsername(),
+        return new User(
+                userSec.getUsername(),
                 userSec.getPassword(),
                 userSec.isEnabled(),
                 userSec.isAccountNotExpired(),
                 userSec.isCredentialNotExpired(),
                 userSec.isAccountNotLocked(),
-                authorityList);
+                authorityList
+        );
     }
 
 
@@ -167,14 +167,19 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //si es autenticado correctamente se almacena la información SecurityContextHolder.
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            //Obtiene Datos del usuario desde la base de datos.
+            UserSec userSec = userService.getByUsername(username);
+
+            // Elimina el RefreshToken anterior.
+            refreshTokenService.deleteRefreshToken(userSec.getId());
+
+
             //Crea el JWT
             String accessToken = jwtUtils.createToken(authentication);
 
             //Crea el RefreshToken
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
 
-            //Obtiene Datos del usuario desde la base de datos.
-            UserSec userSec = userService.findByUsername(username);
 
             //Construye el DTO para respuesta
             AuthResponseDTO authResponseDTO = AuthResponseDTO.builder()

@@ -74,7 +74,7 @@ public class RoleController {
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
     public ResponseEntity<Response<List<Role>>> getAllRoles() {
-        Response<List<Role>> response = roleService.findAll();
+        Response<List<Role>> response = roleService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

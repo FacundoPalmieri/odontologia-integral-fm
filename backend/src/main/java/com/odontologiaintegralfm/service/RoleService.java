@@ -79,15 +79,15 @@ public class RoleService implements IRoleService {
      */
 
     @Override
-    public Response<List<Role>> findAll() {
+    public Response<List<Role>> getAll() {
        try{
            List<Role> roleList =  roleRepository.findAll();
 
-           String messageUser = messageService.getMessage("roleDTO.findAll.user.ok", null, LocaleContextHolder.getLocale());
+           String messageUser = messageService.getMessage("roleService.getAll.user.ok", null, LocaleContextHolder.getLocale());
            return new Response<>(true, messageUser, roleList);
 
        }catch(DataAccessException | CannotCreateTransactionException e){
-           throw new DataBaseException(e,"roleService", 0L, "", "findAll");
+           throw new DataBaseException(e,"roleService", 0L, "", "getAll");
 
        }
     }
@@ -119,14 +119,14 @@ public class RoleService implements IRoleService {
               if(role.isPresent()){
                   RoleResponseDTO dto = convertToDTOResponse(role.get());
 
-                  String messageUser = messageService.getMessage("roleDTO.findById.user.ok", null, LocaleContextHolder.getLocale());
+                  String messageUser = messageService.getMessage("roleService.getById.user.ok", null, LocaleContextHolder.getLocale());
                   return new Response<>(true, messageUser, dto);
               }else{
                   throw new RoleNotFoundException("",id, "","RoleService", "getById");
               }
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", id, "", "findById");
+            throw new DataBaseException(e,"roleService", id, "", "getById");
 
         }
     }
@@ -149,13 +149,14 @@ public class RoleService implements IRoleService {
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
-    public Optional<Role> findById(Long id) {
+    public Role getByIdInternal(Long id) {
 
         try{
-            return roleRepository.findById(id);
+            return roleRepository.findById(id).orElseThrow(()->
+                    new RoleNotFoundException("",id,"","RoleService", "getByIdInternal"));
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", id, "", "findById");
+            throw new DataBaseException(e,"roleService", id, "", "getById");
 
         }
     }
@@ -226,8 +227,14 @@ public class RoleService implements IRoleService {
         //Se limpia la lista de permisos
         role.getPermissionsList().clear();
 
-        //Actualiza la lista de base de datos con la lista que poseé el DTO.
+        //Actualiza en el objeto role la lista obtenida de base de datos con la lista que poseé el DTO.
         role.setPermissionsList(roleDto.getPermissionsList());
+
+        //Valída que existan todos los permisos del DTO en la base de datos.
+        roleDto.getPermissionsList()
+                .forEach(permissionId -> {
+                    permissionService.getByIdInternal(permissionId.getId());
+                });
 
         try{
             //Guarda el objeto en la base de datos.
@@ -323,9 +330,7 @@ public class RoleService implements IRoleService {
     private Set<Permission> getPermissionForRole(Set<Permission> permissions) {
         Set<Permission> validPermission = new HashSet<>();
         for (Permission permission : permissions) {
-            Permission foundPermission = permissionService.findById(permission.getId()).orElseThrow(()->
-                    new PermissionNotFoundRoleCreationException("",permission.getId(),"RoleService", "Save")
-            );
+            Permission foundPermission = permissionService.getByIdInternal(permission.getId());
             validPermission.add(foundPermission);
         }
         return validPermission;

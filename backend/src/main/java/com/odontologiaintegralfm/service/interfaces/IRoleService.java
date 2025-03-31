@@ -17,7 +17,7 @@ public interface IRoleService {
      * @return Un objeto {@link Response} que contiene una lista de objetos {@link Role}
      *         con todos los roles disponibles en el sistema.
      */
-    Response<List<Role>> findAll();
+    Response<List<Role>> getAll();
 
 
 
@@ -40,7 +40,7 @@ public interface IRoleService {
      * @param id El ID del rol que se desea buscar.
      * @return Un {@link Optional} que contiene el rol si se encuentra, o está vacío si no.
      */
-    Optional<Role> findById(Long id);
+    Role getByIdInternal(Long id);
 
 
 

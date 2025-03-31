@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class RefreshTokenService implements IRefreshTokenService {
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setRefreshToken(UUID.randomUUID().toString());
-        refreshToken.setUser(userService.findByUsername(username));
+        refreshToken.setUser(userService.getByUsername(username));
         refreshToken.setCreatedDate(LocalDateTime.now());
         refreshToken.setExpirationDate(LocalDateTime.now().plusDays(15));
         return refreshTokenRepository.save(refreshToken);
@@ -70,12 +71,12 @@ public class RefreshTokenService implements IRefreshTokenService {
     public void validateRefreshToken(RefreshToken refreshToken, RefreshTokenDTO refreshTokenDTO) {
         //Valída el código
         if(!refreshTokenDTO.getRefreshToken().equals(refreshToken.getRefreshToken())){
-            throw new RefreshTokenException(refreshTokenDTO.getUser_id(),"UserDetailServiceImpl", "validateRefreshToken", "userDetailServiceImpl.refreshToken.invalidCode");
+            throw new RefreshTokenException(refreshTokenDTO.getUser_id(),"RefreshTokenService", "validateRefreshToken", "userDetailServiceImpl.refreshToken.invalidCode");
         }
 
         //Valida la vigencia
         if(refreshToken.getExpirationDate().isBefore(LocalDateTime.now())){
-            throw new RefreshTokenException(refreshToken.getUser().getId(), "UserDetailServiceImpl","validateRefreshToken","userDetailServiceImpl.refreshToken.refreshTokenExpired");
+            throw new RefreshTokenException(refreshToken.getUser().getId(), "RefreshTokenService","validateRefreshToken","userDetailServiceImpl.refreshToken.refreshTokenExpired");
         }
 
     }
@@ -100,7 +101,22 @@ public class RefreshTokenService implements IRefreshTokenService {
             refreshTokenRepository.delete(refreshTokenDB);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService",0L, "", "deleteRefreshTokenByUsername");
+            throw new DataBaseException(e, "RefreshTokenService",0L, "", "deleteRefreshTokenByUsername");
+        }
+    }
+
+    /**
+     * Elimina el Refresh Token correspondiente al ID del usuario proporcionado.
+     *
+     * @param userId el ID del usuario.
+     */
+    @Transactional
+    @Override
+    public void deleteRefreshToken(Long userId) {
+        try{
+            refreshTokenRepository.deleteByUserId(userId);
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "RefreshTokenService",userId, "", "deleteRefreshToken");
         }
     }
 
@@ -122,7 +138,7 @@ public class RefreshTokenService implements IRefreshTokenService {
         try{
             return refreshTokenRepository.findByUser_Id(id).orElseThrow(()-> new RefreshTokenException(id, "Refresh Token Service", "getRefreshTokenByUserId", "No se encontró refreshToken asociado al usuario."));
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService",0L, "", "getRefreshTokenByUserId");
+            throw new DataBaseException(e, "RefreshTokenService",0L, "", "getRefreshTokenByUserId");
         }
     }
 }

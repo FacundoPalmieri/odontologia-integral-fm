@@ -22,9 +22,11 @@ package com.odontologiaintegralfm.configuration.securityConfig.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
+import com.odontologiaintegralfm.model.RefreshToken;
 import com.odontologiaintegralfm.model.UserSec;
 import com.odontologiaintegralfm.repository.IUserRepository;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
+import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
 import com.odontologiaintegralfm.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -45,11 +47,13 @@ public class OAuth2UserFilter extends OncePerRequestFilter {
         private JwtUtils jwtUtils;
         private IMessageService messageService;
         private IUserRepository userRepository;
+    private IRefreshTokenService refreshTokenService;
 
-        public OAuth2UserFilter(JwtUtils jwtUtils,IUserRepository userRepository, IMessageService messageService) {
+        public OAuth2UserFilter(JwtUtils jwtUtils,IUserRepository userRepository, IMessageService messageService, IRefreshTokenService refreshTokenService) {
             this.jwtUtils = jwtUtils;
             this.userRepository = userRepository;
             this.messageService = messageService;
+            this.refreshTokenService = refreshTokenService;
         }
 
     /**
@@ -112,6 +116,12 @@ public class OAuth2UserFilter extends OncePerRequestFilter {
 
                     // Se incluye el token en el encabezado de la respuesta con el formato "Bearer [token]".
                      response.addHeader("Authorization", "Bearer " + jwt);
+
+                    // Elimina el RefreshToken anterior.
+                    refreshTokenService.deleteRefreshToken(user.getId());
+
+                    //Crea el RefreshToken
+                    RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
                 }
 
                 // Pasa la solicitud al siguiente filtro en la cadena de filtros.

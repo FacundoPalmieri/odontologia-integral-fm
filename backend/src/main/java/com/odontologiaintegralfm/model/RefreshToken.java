@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Data
+@Table(name = "refresh_tokens")
 public class RefreshToken {
 
     @Id

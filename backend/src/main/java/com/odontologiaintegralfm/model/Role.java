@@ -16,7 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name="roles")
+@Table(name = "roles")
 public class Role {
 
     /**Identificador único del rol.*/

@@ -14,11 +14,11 @@ import java.util.Set;
  * Entidad que representar el Usuario securizado
  */
 @Entity
-@Table(name="users")
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name="users")
 public class UserSec {
 
     /**Identificador único del usuario.*/
@@ -38,35 +38,31 @@ public class UserSec {
     private String password;
 
     /**Número de intentos de inicio de sesión fallido.*/
-    @Column(name = "Intentos_Fallidos")
     private int failedLoginAttempts;
 
     /**Fecha y hora de bloqueo de usuario.*/
-    @Column(name = "Fecha_Bloqueo")
     private LocalDateTime locktime;
 
     /**Fecha y hora de creación del usuario.*/
-    @Column(name= "Fecha_Creacion")
     private LocalDateTime creationDateTime;
 
     /**Fecha y hora de la última actualización del usuario.*/
-    @Column(name = "ultima_Actualizacion")
     private LocalDateTime lastUpdateDateTime;
 
     /**Indica si la cuenta está activada.*/
-    @Column(name = "Activa",nullable = false, columnDefinition = "boolean default true")
+    @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean enabled;
 
     /**Indica si la cuenta no está expirada.*/
-    @Column(name = "No_Expirada", nullable = false, columnDefinition = "boolean default true")
+    @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean accountNotExpired;
 
     /**Indica si la cuenta no está bloqueada.*/
-    @Column(name = "No_Bloqueada",nullable = false, columnDefinition = "boolean default true")
+    @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean accountNotLocked;
 
     /**Indica si las credenciales no están expiradas.*/
-    @Column(name = "Credenciales_NoExpiradas", nullable = false, columnDefinition = "boolean default true")
+    @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean credentialNotExpired;
 
     /**Lista de roles asociados al usuario.
@@ -78,6 +74,6 @@ public class UserSec {
     private Set<Role> rolesList = new HashSet<>();
 
     /**Token para restablecimiento de contraseña.*/
-    @Column(name="Token_Rest",length = 500)
+    @Column(length = 500)
     private String resetPasswordToken;
 }

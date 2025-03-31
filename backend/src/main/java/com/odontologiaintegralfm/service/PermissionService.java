@@ -4,6 +4,7 @@ import com.odontologiaintegralfm.dto.PermissionResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.exception.PermissionNotFoundException;
+import com.odontologiaintegralfm.exception.PermissionNotFoundRoleCreationException;
 import com.odontologiaintegralfm.model.Permission;
 import com.odontologiaintegralfm.repository.IPermissionRepository;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
@@ -60,7 +61,7 @@ public class PermissionService implements IPermissionService {
      */
 
     @Override
-    public Response<List<PermissionResponseDTO>> findAll() {
+    public Response<List<PermissionResponseDTO>> getAll() {
         try{
 
             List<Permission> permissionList = permissionRepository.findAll();
@@ -70,11 +71,11 @@ public class PermissionService implements IPermissionService {
                 permissionResponseDTOList.add(convertToDTO(permission));
             }
 
-            String messageUser = messageService.getMessage("permissionService.findAll.ok", null, LocaleContextHolder.getLocale());
+            String messageUser = messageService.getMessage("permissionService.getAll.ok", null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser, permissionResponseDTOList);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e,"PermissionService", 0L,"","findAll");
+            throw new DataBaseException(e,"PermissionService", 0L,"","getAll");
 
         }
     }
@@ -107,7 +108,7 @@ public class PermissionService implements IPermissionService {
                 Permission permission = permissionOptional.get();
                 PermissionResponseDTO permissionResponseDTO = convertToDTO(permission);
 
-                String messageUser = messageService.getMessage("permissionService.findById.ok", null, LocaleContextHolder.getLocale());
+                String messageUser = messageService.getMessage("permissionService.getById.ok", null, LocaleContextHolder.getLocale());
                 return new Response<>(true, messageUser, permissionResponseDTO);
             }else{
                 throw new PermissionNotFoundException("",id,"PermissionService", "getById");
@@ -138,11 +139,12 @@ public class PermissionService implements IPermissionService {
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
-    public Optional<Permission> findById(Long id) {
+    public Permission getByIdInternal(Long id) {
         try{
-            return permissionRepository.findById(id);
+            return permissionRepository.findById(id).orElseThrow(()->
+                    new PermissionNotFoundRoleCreationException("",id,"PermissionService", "getByIdInternal"));
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"PermissionService", id, "","findById");
+            throw new DataBaseException(e,"PermissionService", id, "","getByIdInternal");
 
         }
     }
