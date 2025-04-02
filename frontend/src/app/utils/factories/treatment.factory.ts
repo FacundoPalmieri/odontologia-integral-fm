@@ -53,7 +53,7 @@ export class TreatmentFactory {
       },
       {
         name: "Ortodoncia",
-        icons: ["equal"],
+        icons: ["circuit-resistor"],
       },
       {
         name: "Caries Curable",
