@@ -6,7 +6,12 @@ import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar
 import { MatStepperModule } from "@angular/material/stepper";
 import { STEPPER_GLOBAL_OPTIONS } from "@angular/cdk/stepper";
 import { MatFormFieldModule } from "@angular/material/form-field";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { map, Observable, of, startWith } from "rxjs";
@@ -18,6 +23,8 @@ import { OdontogramComponent } from "../../components/odontogram/odontogram.comp
 import { PatientInterface } from "../../../domain/interfaces/patient.interface";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
+import { MatSelectModule } from "@angular/material/select";
+import { PaymentMethodEnum } from "../../../utils/enums/payment-method.enum";
 
 @Component({
   selector: "app-consultation-register",
@@ -48,13 +55,22 @@ import { MatNativeDateModule } from "@angular/material/core";
     MatDatepickerModule,
     MatNativeDateModule,
     OdontogramComponent,
+    MatSelectModule,
   ],
 })
 export class ConsultationRegisterComponent implements OnInit {
+  paymentMethodEnum = PaymentMethodEnum;
   patientSearchControl = new FormControl("");
   filteredPatients: Observable<PatientInterface[]> = of([]);
 
-  patientForm: FormGroup = new FormGroup({});
+  patientForm: FormGroup = new FormGroup({
+    observations: new FormControl(""),
+  });
+  paymentForm: FormGroup = new FormGroup({
+    paymentMethod: new FormControl("", Validators.required),
+    totalAmount: new FormControl(null, Validators.required),
+    installments: new FormControl(1),
+  });
   icons = ["letter-t-small", "letter-c-small"];
 
   patients: PatientInterface[] = [
@@ -67,7 +83,6 @@ export class ConsultationRegisterComponent implements OnInit {
       mail: "matias@iglesias.com",
       address: "Tucuman 752",
       locality: "CABA",
-      occupation: "Software Engineer",
       medicare: "Swiss Medical",
       affiliate_number: 123456787654321,
     },
@@ -80,19 +95,70 @@ export class ConsultationRegisterComponent implements OnInit {
       mail: "facundo@palmieri.com",
       address: "Tucuman 752",
       locality: "CABA",
-      occupation: "Software Engineer",
       medicare: "Galeno",
       affiliate_number: 123456787654321,
     },
+    {
+      name: "Ana García",
+      age: 42,
+      birthday: new Date(1982, 8, 22),
+      dni: 56785678,
+      phone: 1198798798,
+      mail: "ana@garcia.com",
+      address: "Corrientes 123",
+      locality: "CABA",
+      medicare: "OSDE",
+      affiliate_number: 987654321234567,
+    },
+    {
+      name: "Matías Rodríguez",
+      age: 35,
+      birthday: new Date(1989, 11, 5),
+      dni: 90129012,
+      phone: 1145645645,
+      mail: "matias@rodriguez.com",
+      address: "Santa Fe 456",
+      locality: "CABA",
+      medicare: "Medifé",
+      affiliate_number: 543212349876543,
+    },
+    {
+      name: "Facundo López",
+      age: 29,
+      birthday: new Date(1995, 6, 10),
+      dni: 34563456,
+      phone: 1178978978,
+      mail: "facundo@lopez.com",
+      address: "Maipú 789",
+      locality: "CABA",
+      medicare: "Swiss Medical",
+      affiliate_number: 789123456543219,
+    },
+  ];
+
+  treatmentsExample: { diente: string; tratamiento: string }[] = [
+    { diente: "12", tratamiento: "Puente" },
+    { diente: "24", tratamiento: "Extracción" },
+    { diente: "36", tratamiento: "Implante" },
+    { diente: "48", tratamiento: "Implante" },
+    { diente: "15", tratamiento: "Extracción" },
   ];
 
   selectedPatient: PatientInterface | null = null;
+  todayDate: Date = new Date();
+  observations: string = "";
 
   ngOnInit() {
     this.filteredPatients = this.patientSearchControl.valueChanges.pipe(
       startWith(""),
-      map((value) => this._filterPatients(value || ""))
+      map((value) => {
+        return this._filterPatients(value || "");
+      })
     );
+
+    this.patientForm.get("observations")?.valueChanges.subscribe((value) => {
+      this.observations = value || "";
+    });
   }
 
   private _filterPatients(value: string): PatientInterface[] {
@@ -112,6 +178,22 @@ export class ConsultationRegisterComponent implements OnInit {
   onPatientSelected(patient: PatientInterface): void {
     this.selectedPatient = patient;
     this.patientSearchControl.setValue("");
+  }
+
+  calculateInstallmentAmount(installments: number): string {
+    const totalAmount = this.paymentForm.get("totalAmount")?.value;
+
+    if (totalAmount && installments && installments !== 0) {
+      const numericTotalAmount = parseFloat(totalAmount);
+      if (!isNaN(numericTotalAmount)) {
+        return (numericTotalAmount / installments).toLocaleString("es-AR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
+    }
+
+    return "0.00";
   }
 
   finalizeConsultation() {}
