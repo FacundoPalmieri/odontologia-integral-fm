@@ -25,13 +25,16 @@ public class Role {
     private Long id;
 
     /**Nombre del rol.*/
+    @Column(length = 50, unique = true)
     private String role;
 
     /**Lista de permisos asociados al rol.
      * Se utiliza Set porque no permite repetidos.
      */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable (name = "roles_permissions", joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns=@JoinColumn(name = "permission_id"))
+    @JoinTable (name = "roles_permissions",
+                joinColumns = @JoinColumn(name = "role_id"),
+                inverseJoinColumns=@JoinColumn(name = "permission_id")
+    )
     private Set<Permission> permissionsList = new HashSet<>();
 }
