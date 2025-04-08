@@ -61,11 +61,11 @@ public interface IUserService {
 
      /**
       * Actualiza la contraseña de un usuario.
-      * @param resetPasswordDTO El DTO con los datos para actualizar la contraseña.
+      * @param resetPasswordRequestDTO El DTO con los datos para actualizar la contraseña.
       * @param request La solicitud HTTP, necesaria para generar el contexto de la actualización.
       * @return El mensaje de éxito o error tras la actualización de la contraseña.
       */
-     Response<String> updatePassword(ResetPasswordDTO resetPasswordDTO, HttpServletRequest request);
+     Response<String> updatePassword(ResetPasswordRequestDTO resetPasswordRequestDTO, HttpServletRequest request);
 
 
      Response<UserSecResponseDTO> update(UserSecUpdateDTO userSecUpdateDTO);

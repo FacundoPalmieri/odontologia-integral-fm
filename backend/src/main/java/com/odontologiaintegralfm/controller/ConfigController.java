@@ -95,7 +95,7 @@ public class ConfigController {
      * Requiere rol <b>Desarrollador</b> para acceder.
      * </p>
      *
-     * @param messageDTO Objeto con los datos del mensaje a actualizar.
+     * @param messageRequestDTO Objeto con los datos del mensaje a actualizar.
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Mensaje actualizado exitosamente.</li>
@@ -112,8 +112,8 @@ public class ConfigController {
             @ApiResponse(responseCode = "404", description = "Mensaje no encontrado para actualizar.")
     })
     @PatchMapping("/message")
-    public ResponseEntity<Response<MessageConfig>> updateMessage(@Valid @RequestBody MessageDTO messageDTO) {
-        Response<MessageConfig> response =  configService.updateMessage(messageDTO);
+    public ResponseEntity<Response<MessageConfig>> updateMessage(@Valid @RequestBody MessageRequestDTO messageRequestDTO) {
+        Response<MessageConfig> response =  configService.updateMessage(messageRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -206,7 +206,7 @@ public class ConfigController {
      * Requiere el rol <b>Desarrollador</b> para acceder.
      * </p>
      *
-     * @param tokenConfigDTO Datos para actualizar la expiración del token.
+     * @param tokenConfigRequestDTO Datos para actualizar la expiración del token.
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Expiración del token actualizada exitosamente.</li>
@@ -223,8 +223,8 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/token")
-    public ResponseEntity<Response<Long>> updateTokenExpiration(@Valid @RequestBody TokenConfigDTO tokenConfigDTO) {
-         Response<Long> response = configService.updateTokenExpiration(tokenConfigDTO);
+    public ResponseEntity<Response<Long>> updateTokenExpiration(@Valid @RequestBody TokenConfigRequestDTO tokenConfigRequestDTO) {
+         Response<Long> response = configService.updateTokenExpiration(tokenConfigRequestDTO);
          return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

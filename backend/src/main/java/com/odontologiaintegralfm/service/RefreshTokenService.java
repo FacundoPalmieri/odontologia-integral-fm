@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.service;
 
-import com.odontologiaintegralfm.dto.RefreshTokenDTO;
+import com.odontologiaintegralfm.dto.RefreshTokenRequestDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.exception.RefreshTokenException;
 import com.odontologiaintegralfm.exception.TokenInvalidException;
@@ -57,7 +57,7 @@ public class RefreshTokenService implements IRefreshTokenService {
      * También verifica si el Refresh Token ha expirado.
      *
      * @param refreshToken El objeto RefreshToken almacenado en la base de datos que se va a validar.
-     * @param refreshTokenDTO El objeto RefreshTokenDTO que contiene el Refresh Token enviado por el cliente.
+     * @param refreshTokenRequestDTO El objeto RefreshTokenRequestDTO que contiene el Refresh Token enviado por el cliente.
      * @throws RefreshTokenException Si el código del Refresh Token no coincide con el almacenado o si el Refresh Token ha expirado.
      * <p>
      * La excepción {@link RefreshTokenException} se lanza con los siguientes códigos de error:
@@ -68,10 +68,10 @@ public class RefreshTokenService implements IRefreshTokenService {
      * </p>
      */
     @Override
-    public void validateRefreshToken(RefreshToken refreshToken, RefreshTokenDTO refreshTokenDTO) {
+    public void validateRefreshToken(RefreshToken refreshToken, RefreshTokenRequestDTO refreshTokenRequestDTO) {
         //Valída el código
-        if(!refreshTokenDTO.getRefreshToken().equals(refreshToken.getRefreshToken())){
-            throw new RefreshTokenException(refreshTokenDTO.getUser_id(),"RefreshTokenService", "validateRefreshToken", "userDetailServiceImpl.refreshToken.invalidCode");
+        if(!refreshTokenRequestDTO.getRefreshToken().equals(refreshToken.getRefreshToken())){
+            throw new RefreshTokenException(refreshTokenRequestDTO.getUser_id(),"RefreshTokenService", "validateRefreshToken", "userDetailServiceImpl.refreshToken.invalidCode");
         }
 
         //Valida la vigencia

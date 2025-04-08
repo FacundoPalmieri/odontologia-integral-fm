@@ -12,7 +12,7 @@ import java.util.Set;
  */
 @Data
 @Builder
-public class AuthResponseDTO {
+public class AuthLoginResponseDTO {
 
     private Long idUser;
     private String username;

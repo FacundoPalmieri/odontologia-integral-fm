@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.service.interfaces;
 
-import com.odontologiaintegralfm.dto.RefreshTokenDTO;
+import com.odontologiaintegralfm.dto.RefreshTokenRequestDTO;
 import com.odontologiaintegralfm.model.RefreshToken;
 
 public interface IRefreshTokenService {
@@ -20,9 +20,9 @@ public interface IRefreshTokenService {
      * También verifica si el Refresh Token ha expirado.
      *
      * @param refreshToken El objeto RefreshToken almacenado en la base de datos que se va a validar.
-     * @param refreshTokenDTO El objeto RefreshTokenDTO que contiene el Refresh Token enviado por el cliente.
+     * @param refreshTokenRequestDTO El objeto RefreshTokenRequestDTO que contiene el Refresh Token enviado por el cliente.
      */
-    void validateRefreshToken(RefreshToken refreshToken, RefreshTokenDTO refreshTokenDTO);
+    void validateRefreshToken(RefreshToken refreshToken, RefreshTokenRequestDTO refreshTokenRequestDTO);
 
     /**
      *  Elimina el Refresh Token correspondiente al usuario y token proporcionado.

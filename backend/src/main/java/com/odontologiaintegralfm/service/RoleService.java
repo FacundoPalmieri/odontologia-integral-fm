@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.RoleDTO;
+import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.exception.PermissionNotFoundRoleCreationException;
@@ -179,21 +179,21 @@ public class RoleService implements IRoleService {
      * se lanza una excepción {@link DataBaseException}.
      * </p>
      *
-     * @param roleDto El objeto DTO que contiene los datos del rol a guardar.
+     * @param roleRequestDto El objeto DTO que contiene los datos del rol a guardar.
      * @return Un objeto {@link Response} que contiene el rol guardado en formato {@link RoleResponseDTO}.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
-    public Response<RoleResponseDTO> save(RoleDTO roleDto) {
+    public Response<RoleResponseDTO> save(RoleRequestDTO roleRequestDto) {
 
         //Valída que el rol no exista en la base de datos.
-        validateRoleNotExist(roleDto.getRole());
+        validateRoleNotExist(roleRequestDto.getRole());
 
         //Asigna permisos al rol
-        roleDto.setPermissionsList(getPermissionForRole(roleDto.getPermissionsList()));
+        roleRequestDto.setPermissionsList(getPermissionForRole(roleRequestDto.getPermissionsList()));
 
         //Se construye el Objeto model
-        Role role = buildRole(roleDto);
+        Role role = buildRole(roleRequestDto);
 
         try{
             //Guarda el objeto en la base de datos.
@@ -206,7 +206,7 @@ public class RoleService implements IRoleService {
             return new Response<>(true, messageUser, savedRoleDto);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", 0L, roleDto.getRole(), "save");
+            throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "save");
 
         }
     }
@@ -215,23 +215,23 @@ public class RoleService implements IRoleService {
     /**
      * Actualiza la lista de permisos para el rol.
      *
-     * @param roleDto {@link RoleDTO} que contiene la lista de permisos.
+     * @param roleRequestDto {@link RoleRequestDTO} que contiene la lista de permisos.
      * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleResponseDTO}
      */
     @Override
-    public Response<RoleResponseDTO> update(RoleDTO roleDto) {
+    public Response<RoleResponseDTO> update(RoleRequestDTO roleRequestDto) {
 
         //Valída que el rol exista en la base de datos.
-        Role role = validateRoleExist(roleDto.getRole());
+        Role role = validateRoleExist(roleRequestDto.getRole());
 
         //Se limpia la lista de permisos
         role.getPermissionsList().clear();
 
         //Actualiza en el objeto role la lista obtenida de base de datos con la lista que poseé el DTO.
-        role.setPermissionsList(roleDto.getPermissionsList());
+        role.setPermissionsList(roleRequestDto.getPermissionsList());
 
         //Valída que existan todos los permisos del DTO en la base de datos.
-        roleDto.getPermissionsList()
+        roleRequestDto.getPermissionsList()
                 .forEach(permissionId -> {
                     permissionService.getByIdInternal(permissionId.getId());
                 });
@@ -247,7 +247,7 @@ public class RoleService implements IRoleService {
             return new Response<>(true, messageUser, savedRoleDto);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", 0L, roleDto.getRole(), "update");
+            throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "update");
 
         }
     }
@@ -339,19 +339,19 @@ public class RoleService implements IRoleService {
 
 
     /**
-     * Construye una entidad {@link Role} a partir de un objeto {@link RoleDTO}.
+     * Construye una entidad {@link Role} a partir de un objeto {@link RoleRequestDTO}.
      * <p>
      * Este método utiliza el patrón de diseño builder para crear una nueva instancia de {@link Role}.
-     * Los valores del rol y la lista de permisos se toman del objeto {@link RoleDTO}.
+     * Los valores del rol y la lista de permisos se toman del objeto {@link RoleRequestDTO}.
      * </p>
      *
-     * @param roleDto El objeto {@link RoleDTO} que contiene los datos necesarios para crear la entidad {@link Role}.
-     * @return Una nueva instancia de {@link Role} con los valores proporcionados en {@link RoleDTO}.
+     * @param roleRequestDto El objeto {@link RoleRequestDTO} que contiene los datos necesarios para crear la entidad {@link Role}.
+     * @return Una nueva instancia de {@link Role} con los valores proporcionados en {@link RoleRequestDTO}.
      */
-    private Role buildRole(RoleDTO roleDto) {
+    private Role buildRole(RoleRequestDTO roleRequestDto) {
         return Role.builder()
-                .role(roleDto.getRole())
-                .permissionsList(roleDto.getPermissionsList())
+                .role(roleRequestDto.getRole())
+                .permissionsList(roleRequestDto.getPermissionsList())
                 .build();
     }
 

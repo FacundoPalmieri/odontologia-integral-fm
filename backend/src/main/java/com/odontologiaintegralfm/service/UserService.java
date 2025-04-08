@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  *   <li>{@link UserService#update(UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
  *   <li>{@link UserService#encriptPassword(String)}: Encripta una contraseña utilizando el algoritmo BCrypt.</li>
  *   <li>{@link UserService#createTokenResetPasswordForUser(String)}: Crea un token de restablecimiento de contraseña y envía un correo electrónico.</li>
- *   <li>{@link UserService#updatePassword(ResetPasswordDTO, HttpServletRequest)}: Actualiza la contraseña de un usuario utilizando un token de restablecimiento válido.</li>
+ *   <li>{@link UserService#updatePassword(ResetPasswordRequestDTO, HttpServletRequest)}: Actualiza la contraseña de un usuario utilizando un token de restablecimiento válido.</li>
  *   <li>{@link #unlockAccount(UserSec)}</li>
  *   <li>{@link #incrementFailedAttempts(String)}</li>
  *   <li>{@link #resetFailedAttempts(String)}</li>
@@ -373,29 +373,29 @@ public class UserService implements IUserService {
      * y notifica al usuario mediante un correo electrónico. También registra la acción en los logs del sistema.
      * </p>
      *
-     * @param resetPasswordDTO Objeto que contiene el token de restablecimiento, la nueva contraseña y su confirmación.
+     * @param resetPasswordRequestDTO Objeto que contiene el token de restablecimiento, la nueva contraseña y su confirmación.
      * @param request Objeto {@link HttpServletRequest} para obtener la dirección IP del usuario que realiza la solicitud.
      * @return Un mensaje indicando si el restablecimiento de la contraseña fue exitoso.
      * @throws DataBaseException Si ocurre un error en la base de datos durante el proceso.
      */
     @Override
     @Transactional
-    public Response<String> updatePassword(ResetPasswordDTO resetPasswordDTO, HttpServletRequest request) {
+    public Response<String> updatePassword(ResetPasswordRequestDTO resetPasswordRequestDTO, HttpServletRequest request) {
         try {
             //Valída Token de restablecimiento.
-            validateTokenResetPassword(resetPasswordDTO.token());
+            validateTokenResetPassword(resetPasswordRequestDTO.token());
 
             //Obtiene información del usuario.
-            UserSec usuario = userRepository.findByResetPasswordToken(resetPasswordDTO.token());
+            UserSec usuario = userRepository.findByResetPasswordToken(resetPasswordRequestDTO.token());
 
             //Valída que coincidan las passwords.
-            validatePasswords(resetPasswordDTO.newPassword1(), resetPasswordDTO.newPassword2(),usuario.getUsername());
+            validatePasswords(resetPasswordRequestDTO.newPassword1(), resetPasswordRequestDTO.newPassword2(),usuario.getUsername());
 
             //Desbloquea la cuenta.
             unlockAccount(usuario);
 
             //Encripa la password
-            String passwordEncrypted = encriptPassword(resetPasswordDTO.newPassword1());
+            String passwordEncrypted = encriptPassword(resetPasswordRequestDTO.newPassword1());
             usuario.setPassword(passwordEncrypted);
             usuario.setResetPasswordToken(null);
             userRepository.save(usuario);

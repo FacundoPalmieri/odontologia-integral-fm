@@ -4,9 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class RefreshTokenDTO {
-
-    private String jwt;
+public class RefreshTokenRequestDTO {
 
     @NotNull(message = "refreshTokenDTO.refreshEmpty")
     private String refreshToken;

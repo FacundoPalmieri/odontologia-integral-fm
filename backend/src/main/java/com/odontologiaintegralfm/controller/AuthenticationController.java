@@ -61,8 +61,8 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "403", description = "Cuenta bloqueada o sin permisos de acceso.")
     })
     @PostMapping("/login")
-    public ResponseEntity<Response<AuthResponseDTO>> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
-        Response<AuthResponseDTO> response = this.userDetailsService.loginUser(userRequest);
+    public ResponseEntity<Response<AuthLoginResponseDTO>> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
+        Response<AuthLoginResponseDTO> response = this.userDetailsService.loginUser(userRequest);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -78,7 +78,7 @@ public class AuthenticationController {
      *      <li>mail del usuario</li>
      *      </ul>
      *</p>
-     * @param refreshTokenDTO El objeto de transferencia de datos que contiene el ID del usuario,
+     * @param refreshTokenRequestDTO El objeto de transferencia de datos que contiene el ID del usuario,
      *                        el nombre de usuario y el token de refresco a actualizar. El objeto
      *                        debe ser válido y será validado automáticamente.
      * @return ResponseEntity con:
@@ -95,9 +95,8 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "403", description = "Cuenta bloqueada o sin permisos de acceso.")
     })
     @PostMapping("/token/refresh")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Response<RefreshTokenDTO>> refreshToken(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
-        Response<RefreshTokenDTO>response = userDetailsService.refreshToken(refreshTokenDTO);
+    public ResponseEntity<Response<RefreshTokenResponseDTO>> refreshToken(@RequestBody @Valid RefreshTokenRequestDTO refreshTokenRequestDTO) {
+        Response<RefreshTokenResponseDTO>response = userDetailsService.refreshToken(refreshTokenRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -106,7 +105,7 @@ public class AuthenticationController {
      * Cierra la sesión del usuario invalidando el refresh token.
      * Este método elimina el refresh token del usuario y lo invalida, lo que evita que pueda ser utilizado para obtener nuevos JWTs.
 
-     * @param refreshTokenDTO El objeto que contiene el refresh token, el JWT, el ID del usuario y el email.
+     * @param refreshTokenRequestDTO El objeto que contiene el refresh token, el JWT, el ID del usuario y el email.
      * @return ResponseEntity con:
      *     <ul>
      *      ><b>200 OK</b>: Cierre de sesión correcto.</li>
@@ -114,7 +113,7 @@ public class AuthenticationController {
      *      <li><b>403 Forbidden</b>: Cuenta bloqueada o sin permisos de acceso.</li>
      *    </ul>
      */
-    @Operation(summary = "Elimina el refresh token", description = "elimina el refresh token del usuario actual para invalidar futuras solicitudes de actualización del token.Recibe un objeto `refreshTokenDTO` que contiene el JWT, el código del refresh token, el ID del usuario y el email.")
+    @Operation(summary = "Elimina el refresh token", description = "elimina el refresh token del usuario actual para invalidar futuras solicitudes de actualización del token.Recibe un objeto `refreshTokenRequestDTO` que contiene el JWT, el código del refresh token, el ID del usuario y el email.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "cierre de sesión exitoso"),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
@@ -122,8 +121,8 @@ public class AuthenticationController {
     })
     @DeleteMapping("/logout")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Response<String>> logout(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
-        Response<String> response = userDetailsService.logout(refreshTokenDTO);
+    public ResponseEntity<Response<String>> logout(@RequestBody @Valid RefreshTokenRequestDTO refreshTokenRequestDTO) {
+        Response<String> response = userDetailsService.logout(refreshTokenRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
@@ -154,7 +153,7 @@ public class AuthenticationController {
     /**
      * Restablece la contraseña del usuario utilizando el token recibido en el correo electrónico.
      *
-     * @param resetPasswordDTO Objeto que contiene el nuevo password del usuario y el token recibido por correo electrónico.
+     * @param resetPasswordRequestDTO Objeto que contiene el nuevo password del usuario y el token recibido por correo electrónico.
      * @param request Solicitud HTTP que contiene detalles de la petición
      * @return ResponseEntity con:
      *      <ul>
@@ -166,8 +165,8 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "Restablecimiento de contraseña exitoso.")
     })
     @PostMapping("/password/reset")
-    public ResponseEntity<Response<String>> resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO, HttpServletRequest request) {
-        Response<String> response = userService.updatePassword(resetPasswordDTO, request);
+    public ResponseEntity<Response<String>> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO, HttpServletRequest request) {
+        Response<String> response = userService.updatePassword(resetPasswordRequestDTO, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

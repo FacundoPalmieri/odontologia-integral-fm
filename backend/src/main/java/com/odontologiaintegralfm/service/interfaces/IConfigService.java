@@ -19,10 +19,10 @@ public interface IConfigService {
 
     /**
      * Actualiza la configuración de un mensaje.
-     * @param messageDto El objeto {@link MessageDTO} que contiene los detalles del mensaje a actualizar.
+     * @param messageRequestDto El objeto {@link MessageRequestDTO} que contiene los detalles del mensaje a actualizar.
      * @return Una respuesta que contiene el objeto {@link MessageConfig} actualizado.
      */
-    Response<MessageConfig> updateMessage(MessageDTO messageDto);
+    Response<MessageConfig> updateMessage(MessageRequestDTO messageRequestDto);
 
 
     /**
@@ -48,10 +48,10 @@ public interface IConfigService {
     /**
      * Actualiza la duración de expiración del token de autenticación.
      *
-     * @param tokenConfigDTO El objeto {@link TokenConfigDTO} que contiene la nueva configuración de expiración del token.
+     * @param tokenConfigRequestDTO El objeto {@link TokenConfigRequestDTO} que contiene la nueva configuración de expiración del token.
      * @return Una respuesta que contiene el nuevo valor de expiración del token en minutos.
      */
-    Response<Long> updateTokenExpiration(TokenConfigDTO tokenConfigDTO);
+    Response<Long> updateTokenExpiration(TokenConfigRequestDTO tokenConfigRequestDTO);
 
 
 
