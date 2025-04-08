@@ -25,11 +25,11 @@ public class Permission {
 
 
     /**Descripción del permiso.*/
-    @Column(unique = true, nullable = false)
+    @Column(length = 50, unique = true, nullable = false)
     private String permission;
 
     /**Nombre del permiso.*/
-    @Column( unique = true, nullable = false)
+    @Column(length = 50, unique = true, nullable = false)
     private String name;
 
 }

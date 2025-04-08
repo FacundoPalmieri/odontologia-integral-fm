@@ -24,6 +24,7 @@ public class MessageConfig {
     private  String value;
 
     /**Configuración de la región.*/
+    @Column(length = 50)
     private String locale;
 
 }
