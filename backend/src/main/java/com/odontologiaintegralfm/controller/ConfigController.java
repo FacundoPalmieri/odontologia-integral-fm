@@ -152,7 +152,7 @@ public class ConfigController {
      * Requiere el rol <b>Desarrollador</b> para acceder.
      * </p>
      *
-     * @param failedLoginAttemptsDTO Datos para actualizar los intentos fallidos de sesión.
+     * @param failedLoginAttemptsRequestDTO Datos para actualizar los intentos fallidos de sesión.
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Cantidad de intentos fallidos actualizada exitosamente.</li>
@@ -169,8 +169,8 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/session")
-    public ResponseEntity<Response<Integer>> updateAttempts(@Valid @RequestBody FailedLoginAttemptsDTO failedLoginAttemptsDTO) {
-        Response<Integer> response = configService.updateAttempts(failedLoginAttemptsDTO);
+    public ResponseEntity<Response<Integer>> updateAttempts(@Valid @RequestBody FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO) {
+        Response<Integer> response = configService.updateAttempts(failedLoginAttemptsRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -261,7 +261,7 @@ public class ConfigController {
      * Requiere el rol <b>DEV</b> para acceder.
      * </p>
      *
-     * @param refreshTokenConfigDTO con el tiempo de expiración en días
+     * @param refreshTokenConfigRequestDTO con el tiempo de expiración en días
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Expiración del Refresh token actualizada exitosamente.</li>
@@ -278,8 +278,8 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/token/refresh")
-    public ResponseEntity<Response<Long>> updateRefreshTokenExpiration(@Valid @RequestBody RefreshTokenConfigDTO refreshTokenConfigDTO) {
-        Response<Long> response = configService.updateRefreshTokenExpiration(refreshTokenConfigDTO);
+    public ResponseEntity<Response<Long>> updateRefreshTokenExpiration(@Valid @RequestBody RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO) {
+        Response<Long> response = configService.updateRefreshTokenExpiration(refreshTokenConfigRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }

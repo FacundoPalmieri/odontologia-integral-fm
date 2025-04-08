@@ -131,14 +131,14 @@ public class ConfigService implements IConfigService {
      * y luego recupera el valor actualizado. Posteriormente, se construye un mensaje para el usuario
      * y se retorna una respuesta con el valor actualizado y el mensaje correspondiente.
      *</p>
-     * @param failedLoginAttemptsDTO El DTO que contiene el nuevo valor de intentos fallidos a actualizar.
+     * @param failedLoginAttemptsRequestDTO El DTO que contiene el nuevo valor de intentos fallidos a actualizar.
      * @return Una respuesta que contiene el número actualizado de intentos fallidos y un mensaje de éxito para el usuario.
      */
     @Override
-    public Response<Integer> updateAttempts(FailedLoginAttemptsDTO failedLoginAttemptsDTO) {
+    public Response<Integer> updateAttempts(FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO) {
 
         //Actualiza valor
-        failedLoginAttemptsService.update(failedLoginAttemptsDTO.value());
+        failedLoginAttemptsService.update(failedLoginAttemptsRequestDTO.value());
 
         //Recupera valor actualizado.
         Integer attempts = failedLoginAttemptsService.get();
@@ -239,19 +239,19 @@ public class ConfigService implements IConfigService {
      * un mensaje para el usuario. Luego retorna una respuesta con el valor actualizado
      * de la expiración en días y el mensaje correspondiente.
      *</p>
-     * @param refreshTokenConfigDTO Objeto que contiene el valor de la expiración en días a actualizar.
+     * @param refreshTokenConfigRequestDTO Objeto que contiene el valor de la expiración en días a actualizar.
      * @return Una respuesta que contiene el valor actualizado de la expiración del token en días y un mensaje de éxito para el usuario.
      */
     @Override
-    public Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigDTO refreshTokenConfigDTO) {
+    public Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO) {
 
         // Llama al servicio de refresh Token y actualiza el valor
-        int filasAfectadas = refreshTokenConfigService.updateExpiration(refreshTokenConfigDTO);
+        int filasAfectadas = refreshTokenConfigService.updateExpiration(refreshTokenConfigRequestDTO);
 
         if(filasAfectadas > 0){
             // Construye respuesta
-            String userMessage = messageService.getMessage("config.updateExpirationRefreshToken.ok", new Object[]{refreshTokenConfigDTO.expiration()}, LocaleContextHolder.getLocale());
-            return new Response<>(true, userMessage,refreshTokenConfigDTO.expiration());
+            String userMessage = messageService.getMessage("config.updateExpirationRefreshToken.ok", new Object[]{refreshTokenConfigRequestDTO.expiration()}, LocaleContextHolder.getLocale());
+            return new Response<>(true, userMessage, refreshTokenConfigRequestDTO.expiration());
         }
 
         throw new RefreshTokenConfigNotFoundException(0L,"ConfigService","updateRefreshTokenExpiration");

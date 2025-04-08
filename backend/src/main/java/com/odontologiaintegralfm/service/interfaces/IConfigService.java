@@ -34,10 +34,10 @@ public interface IConfigService {
     /**
      * Actualiza el número de intentos fallidos de inicio de sesión permitidos.
      *
-     * @param failedLoginAttemptsDTO El objeto {@link FailedLoginAttemptsDTO} que contiene la nueva configuración de intentos fallidos.
+     * @param failedLoginAttemptsRequestDTO El objeto {@link FailedLoginAttemptsRequestDTO} que contiene la nueva configuración de intentos fallidos.
      * @return Una respuesta que contiene el número actualizado de intentos permitidos.
      */
-    Response<Integer> updateAttempts(FailedLoginAttemptsDTO failedLoginAttemptsDTO);
+    Response<Integer> updateAttempts(FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO);
 
     /**
      * Obtiene la duración en minutos del tiempo de expiración del token de autenticación.
@@ -64,9 +64,9 @@ public interface IConfigService {
 
     /**
      * Actualiza la duración de expiración del Refresh Token
-     * @param refreshTokenConfigDTO
+     * @param refreshTokenConfigRequestDTO
      * @return Una respuesta que contiene el nuevo valor de expiración del token en días.
      */
-    Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigDTO refreshTokenConfigDTO);
+    Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO);
 
 }
