@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.service;
 
-import com.odontologiaintegralfm.dto.RefreshTokenConfigDTO;
+import com.odontologiaintegralfm.dto.RefreshTokenConfigRequestDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.exception.RefreshTokenConfigNotFoundException;
 import com.odontologiaintegralfm.model.RefreshTokenConfig;
@@ -59,13 +59,13 @@ public class RefreshTokenConfigService implements IRefreshTokenConfigService {
     /**
      * Actualiza la expiración del Refresh Token en días
      *
-     * @param refreshTokenConfigDTO El nuevo valor de la duración de expiración del token en días.
+     * @param refreshTokenConfigRequestDTO El nuevo valor de la duración de expiración del token en días.
      * @return El tiempo de expiración actualizado.
      */
     @Override
-    public int updateExpiration(RefreshTokenConfigDTO refreshTokenConfigDTO) {
+    public int updateExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO) {
         try {
-           return refreshTokenConfigRepository.update(refreshTokenConfigDTO.expiration());
+           return refreshTokenConfigRepository.update(refreshTokenConfigRequestDTO.expiration());
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "RefreshTokenConfigService", 1L, "RefreshToken", "getExpiration");

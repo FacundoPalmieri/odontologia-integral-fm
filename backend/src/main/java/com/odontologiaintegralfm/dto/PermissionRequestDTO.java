@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class PermissionDTO {
+public class PermissionRequestDTO {
 
     @NotNull(message = "permissionDTO.name.empty")
     private String permissionName;

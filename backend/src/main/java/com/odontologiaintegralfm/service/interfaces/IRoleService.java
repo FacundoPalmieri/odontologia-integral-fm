@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.RoleDTO;
+import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
 import com.odontologiaintegralfm.model.Role;
 
@@ -47,11 +47,11 @@ public interface IRoleService {
     /**
      * Guarda un nuevo rol o actualiza uno existente en el sistema.
      *
-     * @param roleDto El objeto {@link RoleDTO} que contiene los datos del rol a guardar.
+     * @param roleRequestDto El objeto {@link RoleRequestDTO} que contiene los datos del rol a guardar.
      * @return Un objeto {@link Response} que contiene el rol guardado o actualizado como un
      *         {@link RoleResponseDTO}.
      */
-    Response<RoleResponseDTO> save(RoleDTO roleDto);
+    Response<RoleResponseDTO> save(RoleRequestDTO roleRequestDto);
 
 
 
@@ -59,10 +59,10 @@ public interface IRoleService {
     /**
      * Actualiza la lista de permisos para el rol.
      *
-     * @param roleDto {@link RoleDTO} que contiene la lista de permisos.
+     * @param roleRequestDto {@link RoleRequestDTO} que contiene la lista de permisos.
      * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleResponseDTO}
      */
-    Response<RoleResponseDTO> update (RoleDTO roleDto);
+    Response<RoleResponseDTO> update (RoleRequestDTO roleRequestDto);
 
 
 

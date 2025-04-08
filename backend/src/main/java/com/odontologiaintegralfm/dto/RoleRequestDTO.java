@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class RoleDTO {
+public class RoleRequestDTO {
 
     @NotBlank(message = "roleDTO.role.empty")
     private String role;

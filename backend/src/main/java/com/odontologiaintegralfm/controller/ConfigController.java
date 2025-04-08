@@ -95,7 +95,7 @@ public class ConfigController {
      * Requiere rol <b>Desarrollador</b> para acceder.
      * </p>
      *
-     * @param messageDTO Objeto con los datos del mensaje a actualizar.
+     * @param messageRequestDTO Objeto con los datos del mensaje a actualizar.
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Mensaje actualizado exitosamente.</li>
@@ -112,8 +112,8 @@ public class ConfigController {
             @ApiResponse(responseCode = "404", description = "Mensaje no encontrado para actualizar.")
     })
     @PatchMapping("/message")
-    public ResponseEntity<Response<MessageConfig>> updateMessage(@Valid @RequestBody MessageDTO messageDTO) {
-        Response<MessageConfig> response =  configService.updateMessage(messageDTO);
+    public ResponseEntity<Response<MessageConfig>> updateMessage(@Valid @RequestBody MessageRequestDTO messageRequestDTO) {
+        Response<MessageConfig> response =  configService.updateMessage(messageRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -152,7 +152,7 @@ public class ConfigController {
      * Requiere el rol <b>Desarrollador</b> para acceder.
      * </p>
      *
-     * @param failedLoginAttemptsDTO Datos para actualizar los intentos fallidos de sesión.
+     * @param failedLoginAttemptsRequestDTO Datos para actualizar los intentos fallidos de sesión.
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Cantidad de intentos fallidos actualizada exitosamente.</li>
@@ -169,8 +169,8 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/session")
-    public ResponseEntity<Response<Integer>> updateAttempts(@Valid @RequestBody FailedLoginAttemptsDTO failedLoginAttemptsDTO) {
-        Response<Integer> response = configService.updateAttempts(failedLoginAttemptsDTO);
+    public ResponseEntity<Response<Integer>> updateAttempts(@Valid @RequestBody FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO) {
+        Response<Integer> response = configService.updateAttempts(failedLoginAttemptsRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -206,7 +206,7 @@ public class ConfigController {
      * Requiere el rol <b>Desarrollador</b> para acceder.
      * </p>
      *
-     * @param tokenConfigDTO Datos para actualizar la expiración del token.
+     * @param tokenConfigRequestDTO Datos para actualizar la expiración del token.
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Expiración del token actualizada exitosamente.</li>
@@ -223,8 +223,8 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/token")
-    public ResponseEntity<Response<Long>> updateTokenExpiration(@Valid @RequestBody TokenConfigDTO tokenConfigDTO) {
-         Response<Long> response = configService.updateTokenExpiration(tokenConfigDTO);
+    public ResponseEntity<Response<Long>> updateTokenExpiration(@Valid @RequestBody TokenConfigRequestDTO tokenConfigRequestDTO) {
+         Response<Long> response = configService.updateTokenExpiration(tokenConfigRequestDTO);
          return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -261,7 +261,7 @@ public class ConfigController {
      * Requiere el rol <b>DEV</b> para acceder.
      * </p>
      *
-     * @param refreshTokenConfigDTO con el tiempo de expiración en días
+     * @param refreshTokenConfigRequestDTO con el tiempo de expiración en días
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Expiración del Refresh token actualizada exitosamente.</li>
@@ -278,8 +278,8 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/token/refresh")
-    public ResponseEntity<Response<Long>> updateRefreshTokenExpiration(@Valid @RequestBody RefreshTokenConfigDTO refreshTokenConfigDTO) {
-        Response<Long> response = configService.updateRefreshTokenExpiration(refreshTokenConfigDTO);
+    public ResponseEntity<Response<Long>> updateRefreshTokenExpiration(@Valid @RequestBody RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO) {
+        Response<Long> response = configService.updateRefreshTokenExpiration(refreshTokenConfigRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }

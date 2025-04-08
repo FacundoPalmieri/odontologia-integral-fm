@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.service.interfaces;
 
-import com.odontologiaintegralfm.dto.RefreshTokenConfigDTO;
+import com.odontologiaintegralfm.dto.RefreshTokenConfigRequestDTO;
 
 /**
  * Interfaz que define los métodos para el servicio de gestión de expiración de Refresh tokens.
@@ -16,8 +16,8 @@ public interface IRefreshTokenConfigService {
 
     /**
      * Actualiza la expiración del Refresh Token en días
-     * @param refreshTokenConfigDTO El nuevo valor de la duración de expiración del token en días.
+     * @param refreshTokenConfigRequestDTO El nuevo valor de la duración de expiración del token en días.
      * @return El tiempo de expiración actualizado.
      */
-    int updateExpiration (RefreshTokenConfigDTO refreshTokenConfigDTO);
+    int updateExpiration (RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO);
 }
