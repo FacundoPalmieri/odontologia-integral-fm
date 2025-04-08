@@ -71,7 +71,7 @@ public class RefreshTokenService implements IRefreshTokenService {
     public void validateRefreshToken(RefreshToken refreshToken, RefreshTokenRequestDTO refreshTokenRequestDTO) {
         //Valída el código
         if(!refreshTokenRequestDTO.getRefreshToken().equals(refreshToken.getRefreshToken())){
-            throw new RefreshTokenException(refreshTokenRequestDTO.getUser_id(),"RefreshTokenService", "validateRefreshToken", "userDetailServiceImpl.refreshToken.invalidCode");
+            throw new RefreshTokenException(refreshTokenRequestDTO.getIdUser(),"RefreshTokenService", "validateRefreshToken", "userDetailServiceImpl.refreshToken.invalidCode");
         }
 
         //Valida la vigencia

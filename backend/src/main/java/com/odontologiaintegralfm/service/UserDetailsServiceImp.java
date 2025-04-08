@@ -265,7 +265,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
      */
     public Response<RefreshTokenResponseDTO> refreshToken(RefreshTokenRequestDTO refreshTokenRequestDTO) {
         //Obtiene el refresh token desde la base de datos por Id usuario.
-        RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUserId(refreshTokenRequestDTO.getUser_id());
+        RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUserId(refreshTokenRequestDTO.getIdUser());
 
         // Valída el código y la expiración.
         refreshTokenService.validateRefreshToken(refreshToken, refreshTokenRequestDTO);
@@ -289,7 +289,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         RefreshTokenResponseDTO refreshTokenResponse = new RefreshTokenResponseDTO();
         refreshTokenResponse.setRefreshToken(refreshTokenNew.getRefreshToken());
         refreshTokenResponse.setJwt(jwt);
-        refreshTokenResponse.setUser_id(refreshTokenRequestDTO.getUser_id());
+        refreshTokenResponse.setIdUser(refreshTokenRequestDTO.getIdUser());
         refreshTokenResponse.setUsername(refreshTokenRequestDTO.getUsername());
 
         //Descifra la clave del mensaje.

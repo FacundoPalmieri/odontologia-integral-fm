@@ -9,7 +9,7 @@ public class RefreshTokenResponseDTO {
 
     private String refreshToken;
 
-    private Long user_id;
+    private Long idUser;
 
     private String username;
 }
