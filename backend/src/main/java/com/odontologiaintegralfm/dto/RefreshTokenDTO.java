@@ -12,7 +12,7 @@ public class RefreshTokenDTO {
     private String refreshToken;
 
     @NotNull(message = "refreshTokenDTO.userIdEmpty")
-    private Long user_id;
+    private Long idUser;
 
     @NotNull(message = "refreshTokenDTO.userEmpty")
     private String username;

@@ -1,4 +1,4 @@
-export interface LogoutInterface {
+export interface RefreshTokenDataDto {
   jwt: string;
   refreshToken: string;
   idUser: number;

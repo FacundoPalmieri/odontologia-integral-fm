@@ -96,7 +96,6 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "403", description = "Cuenta bloqueada o sin permisos de acceso.")
     })
     @PostMapping("/token/refresh")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Response<RefreshTokenDTO>> refreshToken(@RequestBody @Valid RefreshTokenDTO refreshTokenDTO) {
         Response<RefreshTokenDTO>response = userDetailsService.refreshToken(refreshTokenDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);

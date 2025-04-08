@@ -32,7 +32,7 @@ export class PermissionFactory {
         permissionEnum: PermissionsEnum.HistoriaClinica,
         route: "/medical-record",
         icon: "folder-search",
-        label: "Hisotria Clínica",
+        label: "Historia Clínica",
       },
       {
         permissionEnum: PermissionsEnum.Insumos,

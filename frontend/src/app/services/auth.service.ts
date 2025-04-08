@@ -2,17 +2,25 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { LoginInterface } from "../domain/interfaces/login.interface";
-import { Observable } from "rxjs";
+import { BehaviorSubject, catchError, Observable, tap, throwError } from "rxjs";
 import { AuthUserInterface } from "../domain/interfaces/auth-user.interface";
 import { ResetPasswordInterface } from "../domain/interfaces/reset-password.interface";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { UserDataInterface } from "../domain/interfaces/user-data.interface";
 import { LogoutInterface } from "../domain/interfaces/logout.interface";
+import { RefreshTokenDataDto } from "../domain/dto/refresh-token-data.dto";
+import { Router } from "@angular/router";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
   http = inject(HttpClient);
+  router = inject(Router);
   apiUrl = environment.apiUrl;
+
+  refreshTokenInProgress = false;
+  refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<
+    string | null
+  >(null);
 
   login(
     login: LoginInterface
@@ -30,6 +38,33 @@ export class AuthService {
         body: logout,
       }
     );
+  }
+
+  refreshToken(
+    refreshTokenData: RefreshTokenDataDto
+  ): Observable<ApiResponseInterface<AuthUserInterface>> {
+    this.refreshTokenInProgress = true;
+    this.refreshTokenSubject.next(null);
+
+    return this.http
+      .post<ApiResponseInterface<AuthUserInterface>>(
+        `${this.apiUrl}/auth/token/refresh`,
+        refreshTokenData
+      )
+      .pipe(
+        tap((response) => {
+          this.doLogin(response.data);
+          this.refreshTokenSubject.next(response.data.jwt);
+          this.refreshTokenInProgress = false;
+        }),
+        catchError((error) => {
+          this.refreshTokenInProgress = false;
+          this.dologout();
+          this.router.navigateByUrl("/login");
+          this.refreshTokenSubject.next(null);
+          return throwError(() => error);
+        })
+      );
   }
 
   resetPasswordRequest(
@@ -102,7 +137,7 @@ export class AuthService {
       const logoutData: LogoutInterface = {
         jwt: userData?.jwt,
         refreshToken: userData.refreshToken,
-        user_id: userData.idUser,
+        idUser: userData.idUser,
         username: userData.username,
       };
       return logoutData;
