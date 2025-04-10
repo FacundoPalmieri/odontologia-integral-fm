@@ -3,8 +3,13 @@
 }
 
 .sidenav {
-  background: var(--mat-sys-home-sidenav-background);
+  background: var(--mat-sys-home-sidenav-content-background);
   width: 80px;
+}
+
+.references-sidenav {
+  background: var(--mat-sys-home-sidenav-content-background);
+  width: 180px;
 }
 
 .sidenav-content {
@@ -14,7 +19,7 @@
 }
 
 .content-background {
-  background: var(--mat-sys-home-content-background);
+  background: var(--mat-sys-home-sidenav-content-background);
   border-radius: 20px;
 }
 

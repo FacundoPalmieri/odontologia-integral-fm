@@ -2,22 +2,69 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { LoginInterface } from "../domain/interfaces/login.interface";
-import { Observable } from "rxjs";
+import { BehaviorSubject, catchError, Observable, tap, throwError } from "rxjs";
 import { AuthUserInterface } from "../domain/interfaces/auth-user.interface";
 import { ResetPasswordInterface } from "../domain/interfaces/reset-password.interface";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { UserDataInterface } from "../domain/interfaces/user-data.interface";
+import { LogoutInterface } from "../domain/interfaces/logout.interface";
+import { RefreshTokenDataDto } from "../domain/dto/refresh-token-data.dto";
+import { Router } from "@angular/router";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
   http = inject(HttpClient);
+  router = inject(Router);
   apiUrl = environment.apiUrl;
 
-  logIn(login: LoginInterface): Observable<AuthUserInterface> {
-    return this.http.post<AuthUserInterface>(
+  refreshTokenInProgress = false;
+  refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<
+    string | null
+  >(null);
+
+  login(
+    login: LoginInterface
+  ): Observable<ApiResponseInterface<AuthUserInterface>> {
+    return this.http.post<ApiResponseInterface<AuthUserInterface>>(
       `${this.apiUrl}/auth/login`,
       login
     );
+  }
+
+  logout(logout: LogoutInterface): Observable<ApiResponseInterface<string>> {
+    return this.http.delete<ApiResponseInterface<string>>(
+      `${this.apiUrl}/auth/logout`,
+      {
+        body: logout,
+      }
+    );
+  }
+
+  refreshToken(
+    refreshTokenData: RefreshTokenDataDto
+  ): Observable<ApiResponseInterface<AuthUserInterface>> {
+    this.refreshTokenInProgress = true;
+    this.refreshTokenSubject.next(null);
+
+    return this.http
+      .post<ApiResponseInterface<AuthUserInterface>>(
+        `${this.apiUrl}/auth/token/refresh`,
+        refreshTokenData
+      )
+      .pipe(
+        tap((response) => {
+          this.doLogin(response.data);
+          this.refreshTokenSubject.next(response.data.jwt);
+          this.refreshTokenInProgress = false;
+        }),
+        catchError((error) => {
+          this.refreshTokenInProgress = false;
+          this.dologout();
+          this.router.navigateByUrl("/login");
+          this.refreshTokenSubject.next(null);
+          return throwError(() => error);
+        })
+      );
   }
 
   resetPasswordRequest(
@@ -26,7 +73,7 @@ export class AuthService {
     const params = new HttpParams().set("email", email);
 
     return this.http.post<ApiResponseInterface<string>>(
-      `${this.apiUrl}/auth/request/reset-password`,
+      `${this.apiUrl}/auth/password/reset-request`,
       null,
       { params }
     );
@@ -36,18 +83,25 @@ export class AuthService {
     resetData: ResetPasswordInterface
   ): Observable<ApiResponseInterface<string>> {
     return this.http.post<ApiResponseInterface<string>>(
-      `${this.apiUrl}/auth/reset-password`,
+      `${this.apiUrl}/auth/password/reset`,
       resetData
     );
   }
 
   doLogin(authUserData: AuthUserInterface) {
     const userData: UserDataInterface = {
-      username: authUserData.username,
+      idUser: authUserData.idUser,
       jwt: authUserData.jwt,
+      refreshToken: authUserData.refreshToken,
+      roles: authUserData.roles,
+      username: authUserData.username,
     };
 
     localStorage.setItem("userData", JSON.stringify(userData));
+  }
+
+  dologout(): void {
+    localStorage.removeItem("userData");
   }
 
   getJwtToken(): string | null {
@@ -77,8 +131,19 @@ export class AuthService {
     return !this.isTokenExpired(payload.exp);
   }
 
-  logout(): void {
-    localStorage.removeItem("userData");
+  getLogoutData(): LogoutInterface | null {
+    const userData = this.getUserData();
+    if (userData != null) {
+      const logoutData: LogoutInterface = {
+        jwt: userData?.jwt,
+        refreshToken: userData.refreshToken,
+        idUser: userData.idUser,
+        username: userData.username,
+      };
+      return logoutData;
+    } else {
+      return null;
+    }
   }
 
   private getJWTokenPayload(token: string) {

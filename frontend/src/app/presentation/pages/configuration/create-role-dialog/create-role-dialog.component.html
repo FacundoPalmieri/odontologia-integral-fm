@@ -16,9 +16,7 @@
           [compareWith]="comparePermissions"
         >
           @for(permission of permissions; track $index){
-          <mat-option [value]="permission">{{
-            permission.permission
-          }}</mat-option>
+          <mat-option [value]="permission">{{ permission.name }}</mat-option>
           }
         </mat-select>
       </mat-form-field>

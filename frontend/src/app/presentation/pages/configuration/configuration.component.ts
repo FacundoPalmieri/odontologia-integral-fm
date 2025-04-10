@@ -190,9 +190,7 @@ export class ConfigurationComponent {
           const roleDto: RoleUpdateDto = {
             id: role.id,
             role: role.role,
-            permissionsList: role.permissionsList.map(
-              (permission) => permission.id
-            ),
+            permissionsList: role.permissionsList,
           };
           this.roleService
             .update(roleDto)

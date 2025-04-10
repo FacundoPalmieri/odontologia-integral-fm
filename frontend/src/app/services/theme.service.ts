@@ -2,7 +2,6 @@ import { effect, Injectable, signal } from "@angular/core";
 
 export interface Theme {
   id: string;
-  primary: string;
   displayName: string;
 }
 
@@ -13,13 +12,28 @@ export class ThemeService {
   private readonly themes: Theme[] = [
     {
       id: "light",
-      primary: "#1976D2",
       displayName: "Light",
     },
-    { id: "dark", primary: "#00796B", displayName: "Dark" },
+    { id: "dark", displayName: "Dark" },
   ];
 
-  currentTheme = signal<Theme>(this.themes[0]);
+  currentTheme = signal<Theme>(this.getStoredTheme() || this.themes[0]);
+
+  constructor() {}
+
+  private getStoredTheme(): Theme | undefined {
+    if (typeof localStorage !== "undefined") {
+      const storedThemeId = localStorage.getItem("theme");
+      return this.themes.find((t) => t.id === storedThemeId);
+    }
+    return undefined;
+  }
+
+  private storeTheme(themeId: string): void {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("theme", themeId);
+    }
+  }
 
   getThemes(): Theme[] {
     return this.themes;
@@ -29,6 +43,7 @@ export class ThemeService {
     const theme = this.themes.find((t) => t.id === themeId);
     if (theme) {
       this.currentTheme.set(theme);
+      this.storeTheme(themeId);
     }
   }
 
@@ -43,12 +58,7 @@ export class ThemeService {
   });
 
   toggleTheme(isDark: boolean) {
-    if (isDark) {
-      document.body.classList.add("dark-theme");
-      document.body.classList.remove("light-theme");
-    } else {
-      document.body.classList.add("light-theme");
-      document.body.classList.remove("dark-theme");
-    }
+    const themeId = isDark ? "dark" : "light";
+    this.setTheme(themeId);
   }
 }

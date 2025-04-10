@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.controller;
 import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.RoleDTO;
+import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
 import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.service.interfaces.IPermissionService;
@@ -28,9 +28,10 @@ import java.util.List;
  * <p>
  * Los métodos disponibles son:
  * <ul>
- *   <li><b>GET /api/roles/get/all</b>: Obtiene el listado completo de roles.</li>
- *   <li><b>GET /api/roles/{id}</b>: Obtiene un rol específico por su ID.</li>
- *   <li><b>POST /api/roles/create</b>: Crea un nuevo rol en el sistema.</li>
+ *   <li><b>GET /api/role/all</b>: Obtiene el listado completo de roles.</li>
+ *   <li><b>GET /api/role/{id}</b>: Obtiene un rol específico por su ID.</li>
+ *   <li><b>POST/api/roles</b>: Crea un nuevo rol en el sistema.</li>
+ *   <li><b>PATCH/api/roles</b>: Actualiza un rol en el sistema..</li>
  * </ul>
  * </p>
  * <p>
@@ -40,7 +41,7 @@ import java.util.List;
 
 @RestController
 @PreAuthorize("denyAll()")
-@RequestMapping("/api/roles")
+@RequestMapping("/api/role")
 public class RoleController {
 
     @Autowired
@@ -70,10 +71,10 @@ public class RoleController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("/get/all")
-    @PreAuthorize("hasAnyRole('DEV')")
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
     public ResponseEntity<Response<List<Role>>> getAllRoles() {
-        Response<List<Role>> response = roleService.findAll();
+        Response<List<Role>> response = roleService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -102,7 +103,7 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Rol no encontrado."),
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DEV')")
+    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
     public ResponseEntity<Response<RoleResponseDTO>> getRoleById(@Valid @PathVariable Long id) {
         Response<RoleResponseDTO> response = roleService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -115,7 +116,7 @@ public class RoleController {
      * Requiere el rol <b>DEV</b> para acceder.
      * </p>
      *
-     * @param roleDto Datos del rol a crear.
+     * @param roleRequestDto Datos del rol a crear.
      * @return ResponseEntity con:
      *         <ul>
      *         <li><b>200 OK</b>: Rol creado exitosamente.</li>
@@ -134,14 +135,46 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Permisos requeridos no encontrados."),
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('DEV')")
-    public ResponseEntity<Response<RoleResponseDTO>>createRole(@Valid @RequestBody RoleDTO roleDto) {
-        Response<RoleResponseDTO> response = roleService.save(roleDto);
+    @PostMapping
+    @PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
+    public ResponseEntity<Response<RoleResponseDTO>>createRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
+        Response<RoleResponseDTO> response = roleService.save(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 
 
+
+    /**
+     * Actualiza un rol en el sistema.
+     * <p>
+     * Requiere el rol <b>DEV</b> para acceder.
+     * </p>
+     *
+     * @param roleRequestDto Datos del rol a crear.
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 OK</b>: Rol actualizado exitosamente.</li>
+     *         <li><b>400 Bad Request</b>: No se encuentran los permisos asociados.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         <li><b>409 Conflict</b>: Rol existente en el sistema.</li>
+     *         </ul>
+     */
+
+    @Operation(summary = "Actualizar Rol", description = "Actualiza un nuevo rol en el sistema.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "rol actualizado exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Permisos requeridos no encontrados."),
+            @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
+    })
+    @PatchMapping
+    @PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
+    public ResponseEntity<Response<RoleResponseDTO>> updateRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
+        Response<RoleResponseDTO> response = roleService.update(roleRequestDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 }

@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  *   <li>{@link UserService#update(UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
  *   <li>{@link UserService#encriptPassword(String)}: Encripta una contraseña utilizando el algoritmo BCrypt.</li>
  *   <li>{@link UserService#createTokenResetPasswordForUser(String)}: Crea un token de restablecimiento de contraseña y envía un correo electrónico.</li>
- *   <li>{@link UserService#updatePassword(ResetPasswordDTO, HttpServletRequest)}: Actualiza la contraseña de un usuario utilizando un token de restablecimiento válido.</li>
+ *   <li>{@link UserService#updatePassword(ResetPasswordRequestDTO, HttpServletRequest)}: Actualiza la contraseña de un usuario utilizando un token de restablecimiento válido.</li>
  *   <li>{@link #unlockAccount(UserSec)}</li>
  *   <li>{@link #incrementFailedAttempts(String)}</li>
  *   <li>{@link #resetFailedAttempts(String)}</li>
@@ -53,8 +53,7 @@ import java.util.stream.Collectors;
  *   <li>{@link #validateNotDevRole(UserSecCreateDTO)}</li>
  *   <li>{@link #validateSelfUpdate(Long)}</li>
  *   <li>{@link #validateNotDevRole(UserSec, UserSecUpdateDTO)}</li>
- *   <li>{@link #validateUpdateAccount(UserSec, UserSecUpdateDTO)}</li>
- *   <li>{@link #validateUpdateRole(UserSecUpdateDTO, Set<Role>)}</li>
+ *   <li>{@link #validateUpdate(UserSec, UserSecUpdateDTO, Set)}</li>
  *   <li>{@link #updateUserSec(UserSec, UserSecUpdateDTO)}</li>
  * </ul>
  *
@@ -156,6 +155,16 @@ public class UserService implements IUserService {
         }
     }
 
+    @Override
+    public UserSec getByUsername(String username) {
+        try {
+            return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UserNotFoundException("", "UserService", "findByUsername", 0L));
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "userService", 0L, "", "findByUsername");
+        }
+    }
+
 
 
 
@@ -248,11 +257,8 @@ public class UserService implements IUserService {
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
             validateNotDevRole(userSec, userSecUpdateDto);
 
-            //Valída cambio de estado de cuenta
-            validateUpdateAccount(userSec, userSecUpdateDto);
-
-            //Valída cambio de rol
-            validateUpdateRole(userSecUpdateDto, userSec.getRolesList());
+            //Valída cambio que haya al menos una actualización de datos.
+            validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
 
             //Actualiza datos en el UserSec
             UserSec userSecAux = updateUserSec(userSec, userSecUpdateDto);
@@ -367,29 +373,29 @@ public class UserService implements IUserService {
      * y notifica al usuario mediante un correo electrónico. También registra la acción en los logs del sistema.
      * </p>
      *
-     * @param resetPasswordDTO Objeto que contiene el token de restablecimiento, la nueva contraseña y su confirmación.
+     * @param resetPasswordRequestDTO Objeto que contiene el token de restablecimiento, la nueva contraseña y su confirmación.
      * @param request Objeto {@link HttpServletRequest} para obtener la dirección IP del usuario que realiza la solicitud.
      * @return Un mensaje indicando si el restablecimiento de la contraseña fue exitoso.
      * @throws DataBaseException Si ocurre un error en la base de datos durante el proceso.
      */
     @Override
     @Transactional
-    public Response<String> updatePassword(ResetPasswordDTO resetPasswordDTO, HttpServletRequest request) {
+    public Response<String> updatePassword(ResetPasswordRequestDTO resetPasswordRequestDTO, HttpServletRequest request) {
         try {
             //Valída Token de restablecimiento.
-            validateTokenResetPassword(resetPasswordDTO.token());
+            validateTokenResetPassword(resetPasswordRequestDTO.token());
 
             //Obtiene información del usuario.
-            UserSec usuario = userRepository.findByResetPasswordToken(resetPasswordDTO.token());
+            UserSec usuario = userRepository.findByResetPasswordToken(resetPasswordRequestDTO.token());
 
             //Valída que coincidan las passwords.
-            validatePasswords(resetPasswordDTO.newPassword1(), resetPasswordDTO.newPassword2(),usuario.getUsername());
+            validatePasswords(resetPasswordRequestDTO.newPassword1(), resetPasswordRequestDTO.newPassword2(),usuario.getUsername());
 
             //Desbloquea la cuenta.
             unlockAccount(usuario);
 
             //Encripa la password
-            String passwordEncrypted = encriptPassword(resetPasswordDTO.newPassword1());
+            String passwordEncrypted = encriptPassword(resetPasswordRequestDTO.newPassword1());
             usuario.setPassword(passwordEncrypted);
             usuario.setResetPasswordToken(null);
             userRepository.save(usuario);
@@ -604,8 +610,7 @@ public class UserService implements IUserService {
     private void validateNotDevRole(UserSecCreateDTO userSecCreateDto) {
         //Obtener los roles mediante el ID del DTO
         for (Long id : userSecCreateDto.getRolesList()) {
-            Role role = roleService.findById(id)
-                    .orElseThrow(() -> new RoleNotFoundException("", id, "Rol no encontrado", "UserService", "validateNotDevRole"));
+            Role role = roleService.getByIdInternal(id);
 
             //Valída que la creación no sea a un rol DEV
             if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
@@ -680,8 +685,7 @@ public class UserService implements IUserService {
 
         //Obtener los roles mediante el ID del DTO
         for (Long id : userSecUpdateDto.getRolesList()) {
-            Role role = roleService.findById(id)
-                    .orElseThrow(() -> new RoleNotFoundException("", id, "Rol no encontrado", "UserService", "validateNotDevRole"));
+            Role role = roleService.getByIdInternal(id);
 
             //Valída que la actualización no sea a un rol DEV
             if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
@@ -690,39 +694,32 @@ public class UserService implements IUserService {
         }
     }
 
+
     /**
-     * Valída que no se intente realizar una actualización que no cambie el estado de la cuenta del usuario.
+     * Valída que no se intente realizar una actualización que no cambie el estado de la cuenta del usuario y la lista de roles.
      * <p>
      * Este método compara el estado de la cuenta actual del usuario (habilitado o deshabilitado) con el estado que se quiere
-     * asignar en el DTO de actualización. Si el estado es el mismo, se lanza una excepción {@link UserUpdateException}.
+     * asignar en el DTO de actualización. A su vez, compara la lista de roles actuales con la que recibe mediante el DTO. Si no hay modificaciones, se lanza una excepción {@link UserUpdateException}.
      * </p>
      *
      * @param userSec Objeto que representa al usuario con su estado actual de cuenta.
      * @param userSecUpdateDto DTO que contiene el nuevo estado de la cuenta.
+     * @param roleList Lista de roles del usuario obtenida desde la base de datos.
      * @throws UserUpdateException Si el estado de la cuenta no cambia (es igual al actual).
      */
-    private void validateUpdateAccount(UserSec userSec, UserSecUpdateDTO userSecUpdateDto) {
+    private void validateUpdate (UserSec userSec, UserSecUpdateDTO userSecUpdateDto,Set<Role>roleList){
+        boolean validateAccount = false;
+        boolean validateRole = false;
+
         if (userSecUpdateDto.getEnabled() == null) {
             return;
         }
 
-        if (userSec.isEnabled() == userSecUpdateDto.getEnabled()) {
-            throw new UserUpdateException("", "UserService", "validateAccount", userSec.getId());
-        }
-    }
 
-    /**
-     * Valída que los roles proporcionados en el DTO de actualización sean diferentes de los roles actuales del usuario.
-     * <p>
-     * Este método compara los roles actuales del usuario con los roles que se quieren asignar desde el DTO. Si los roles son iguales,
-     * se lanza una excepción {@link UserUpdateException}.
-     * </p>
-     *
-     * @param userSecUpdateDto DTO que contiene la lista de roles que se quieren asignar al usuario.
-     * @param roleList Conjunto de roles actuales del usuario.
-     * @throws UserUpdateException Si los roles del usuario no cambian (son iguales a los actuales).
-     */
-    private void validateUpdateRole(UserSecUpdateDTO userSecUpdateDto, Set<Role>roleList) {
+        if (userSec.isEnabled() == userSecUpdateDto.getEnabled()) {
+            validateAccount = true;
+        }
+
         if(userSecUpdateDto.getRolesList() == null){
             return;
         }
@@ -735,9 +732,19 @@ public class UserService implements IUserService {
 
         //Se compara los IDs en los set <Long>
         if(userSecUpdateDto.getRolesList().equals(roleListId)){
-            throw new UserUpdateException("","UserService", "validateUpdateRole", userSecUpdateDto.getId());
+            validateRole = true;
         }
+
+        if(validateAccount && validateRole){
+            throw new UserUpdateException("", "UserService", "validateUpdate", userSec.getId());
+        }
+
+
     }
+
+
+
+
 
 
     /**
@@ -761,12 +768,12 @@ public class UserService implements IUserService {
         //Obtener los roles mediante el ID del DTO
         Set<Role> roleList = new HashSet<>();
         for(Long id : userSecUpdateDTO.getRolesList()) {
-            Role role = roleService.findById(id)
-                    .orElseThrow(() -> new RoleNotFoundException("",id,"Rol no encontrado","UserService", "validateNotDevRole"));
+            Role role = roleService.getByIdInternal(id);
             roleList.add(role);
         }
 
         if(!userSecUpdateDTO.getRolesList().isEmpty()){
+            userSec.getRolesList().clear();
             userSec.getRolesList().addAll(roleList);
         }
         return userSec;
@@ -882,9 +889,7 @@ public class UserService implements IUserService {
     private Set<Role> getRolesForUser(Set<Long> rolesList) {
         Set<Role> validRoles = new HashSet<>();
         for (Long id : rolesList) {
-            Role foundRole = roleService.findById(id).orElseThrow(() ->
-                    new RoleNotFoundUserCreationException("",id, "Rol no encontrado", "UserService", "getRolesForUser")
-            );
+            Role foundRole = roleService.getByIdInternal(id);
             validRoles.add(foundRole);
         }
         return validRoles;

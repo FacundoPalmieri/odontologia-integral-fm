@@ -1,12 +1,14 @@
 package com.odontologiaintegralfm.service;
-import com.odontologiaintegralfm.dto.AuthLoginRequestDTO;
-import com.odontologiaintegralfm.dto.AuthResponseDTO;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.exception.BlockAccountException;
 import com.odontologiaintegralfm.exception.CredentialsException;
 import com.odontologiaintegralfm.exception.UserNameNotFoundException;
+import com.odontologiaintegralfm.model.RefreshToken;
+import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.model.UserSec;
 import com.odontologiaintegralfm.repository.IUserRepository;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
+import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
 import com.odontologiaintegralfm.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -79,6 +82,9 @@ public class UserDetailsServiceImp implements UserDetailsService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private IRefreshTokenService refreshTokenService;
+
 
     /**
      * Carga un usuario por su nombre de usuario y lo convierte en un objeto {@link UserDetails} de Spring Security.
@@ -118,13 +124,15 @@ public class UserDetailsServiceImp implements UserDetailsService {
                 .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermission())));
 
         //Se retorna el usuario en formato Spring Security con los datos del userSec
-        return new User(userSec.getUsername(),
+        return new User(
+                userSec.getUsername(),
                 userSec.getPassword(),
                 userSec.isEnabled(),
                 userSec.isAccountNotExpired(),
                 userSec.isCredentialNotExpired(),
                 userSec.isAccountNotLocked(),
-                authorityList);
+                authorityList
+        );
     }
 
 
@@ -141,10 +149,10 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * </p>
      *
      * @param authLoginRequest Un objeto {@link AuthLoginRequestDTO} que contiene las credenciales del usuario.
-     * @return Un objeto {@link AuthResponseDTO} con el nombre de usuario, un mensaje de éxito, el token JWT y un estado de autenticación exitoso.
+     * @return Un objeto {@link AuthLoginResponseDTO} con el nombre de usuario, un mensaje de éxito, el token JWT y un estado de autenticación exitoso.
      * @throws CredentialsException Si las credenciales son incorrectas, se lanza una excepción de tipo {@link CredentialsException}.
      */
-    public AuthResponseDTO loginUser (AuthLoginRequestDTO authLoginRequest){
+    public Response<AuthLoginResponseDTO> loginUser (AuthLoginRequestDTO authLoginRequest){
         try {
             //Se recupera nombre de usuario y contraseña
             String username = authLoginRequest.username();
@@ -153,11 +161,36 @@ public class UserDetailsServiceImp implements UserDetailsService {
             // Se invoca al método authenticate.
             Authentication authentication = this.authenticate(username, password);
 
-            //si es autenticado correctamente se almacena la información SecurityContextHolder y se crea el token.
+            //si es autenticado correctamente se almacena la información SecurityContextHolder.
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            //Obtiene Datos del usuario desde la base de datos.
+            UserSec userSec = userService.getByUsername(username);
+
+            // Elimina el RefreshToken anterior.
+            refreshTokenService.deleteRefreshToken(userSec.getId());
+
+
+            //Crea el JWT
             String accessToken = jwtUtils.createToken(authentication);
-            AuthResponseDTO authResponseDTO = new AuthResponseDTO(username, "Login OK", accessToken, true);
-            return authResponseDTO;
+
+            //Crea el RefreshToken
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
+
+
+            //Construye el DTO para respuesta
+            AuthLoginResponseDTO authLoginResponseDTO = AuthLoginResponseDTO.builder()
+                    .idUser(userSec.getId())
+                    .username(userSec.getUsername())
+                    .roles(userSec.getRolesList().stream()
+                            .map(role -> new Role(role.getId(), role.getRole(), role.getPermissionsList()))
+                            .collect(Collectors.toSet())
+                    )
+                    .jwt(accessToken)
+                    .refreshToken(refreshToken.getRefreshToken())
+                    .build();
+
+            return new Response<> (true,"", authLoginResponseDTO);
         }catch (BadCredentialsException ex) {
             throw new CredentialsException(authLoginRequest.username());
         }
@@ -214,6 +247,84 @@ public class UserDetailsServiceImp implements UserDetailsService {
         //Resetea intentos fallidos a 0.
         userService.resetFailedAttempts(username);
         return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
+    }
+
+    /**
+     * Actualiza el refresh token y emite un nuevo JWT.
+     *
+     * <p>Este método obtiene el token de refresco actual de la base de datos por el ID de usuario,
+     * lo valida, elimina el refresh token antiguo, genera uno nuevo y actualiza el JWT
+     * utilizado para la autenticación. Finalmente, devuelve una respuesta que contiene el
+     * nuevo token de refresco y el JWT junto con los detalles del usuario.</p>
+     *
+     * @param refreshTokenRequestDTO El objeto de transferencia de datos que contiene el ID del usuario,
+     *                        el nombre de usuario y el token de refresco a actualizar.
+     *
+     * @return Un objeto {@link Response} que contiene el estado de éxito, un mensaje,
+     *         y un objeto {@link RefreshTokenRequestDTO} con el nuevo token de refresco y el JWT.
+     */
+    public Response<RefreshTokenResponseDTO> refreshToken(RefreshTokenRequestDTO refreshTokenRequestDTO) {
+        //Obtiene el refresh token desde la base de datos por Id usuario.
+        RefreshToken refreshToken = refreshTokenService.getRefreshTokenByUserId(refreshTokenRequestDTO.getIdUser());
+
+        // Valída el código y la expiración.
+        refreshTokenService.validateRefreshToken(refreshToken, refreshTokenRequestDTO);
+
+        //Elimina el refresh Token actual.
+        refreshTokenService.deleteRefreshToken(refreshTokenRequestDTO.getRefreshToken());
+
+        //Generar un nuevo refresh Token y guarda en la base.
+        RefreshToken refreshTokenNew =  refreshTokenService.createRefreshToken(refreshTokenRequestDTO.getUsername());
+
+        // Obtiene datos del usuario para generar el objeto userDetails.
+        UserDetails userDetails = this.loadUserByUsername(refreshTokenRequestDTO.getUsername());
+
+        // Crea un objeto authentication.
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        //Genera un nuevo JWT.
+        String jwt = jwtUtils.createToken(authentication);
+
+        //Actualiza valores en el objeto respuesta.
+        RefreshTokenResponseDTO refreshTokenResponse = new RefreshTokenResponseDTO();
+        refreshTokenResponse.setRefreshToken(refreshTokenNew.getRefreshToken());
+        refreshTokenResponse.setJwt(jwt);
+        refreshTokenResponse.setIdUser(refreshTokenRequestDTO.getIdUser());
+        refreshTokenResponse.setUsername(refreshTokenRequestDTO.getUsername());
+
+        //Descifra la clave del mensaje.
+        String message = messageService.getMessage("userDetailServiceImpl.refreshToken.ok", null, LocaleContextHolder.getLocale());
+        return  new Response<>(true,message ,refreshTokenResponse);
+    }
+
+
+
+    /**
+     * Cierra la sesión del usuario eliminando el refresh token.
+     *
+     * Este método elimina el refresh token asociado al usuario, invalidando cualquier futuro intento de
+     * renovación del token. Después de la eliminación, se genera un mensaje de éxito que es enviado
+     * en la respuesta.
+     *
+     * @param refreshTokenRequestDTO El objeto que contiene el refresh token a eliminar. Debe incluir
+     *                        el refresh token para identificar al usuario.
+     *
+     * @return Un objeto {@link Response} con el siguiente contenido:
+     *         <ul>
+     *             <li><b>success</b>: Indica si la operación fue exitosa (true).</li>
+     *             <li><b>message</b>: Un mensaje que indica el éxito de la operación.</li>
+     *             <li><b>data</b>: null (ya que no se devuelve ningún dato adicional).</li>
+     *         </ul>
+     */
+    public Response<String> logout(RefreshTokenRequestDTO refreshTokenRequestDTO){
+
+        //Elimina el refresh token del usuario
+        refreshTokenService.deleteRefreshToken(refreshTokenRequestDTO.getRefreshToken());
+
+        //Descifra la clave del mensaje
+        String message = messageService.getMessage("userDetailServiceImpl.logout.ok", null, LocaleContextHolder.getLocale());
+
+        return new Response<>(true,message ,null);
     }
 
 

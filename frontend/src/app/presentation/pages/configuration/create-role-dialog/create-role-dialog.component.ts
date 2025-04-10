@@ -1,24 +1,15 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from "@angular/material/dialog";
+import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import {
-  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { RoleInterface } from "../../../../domain/interfaces/role.interface";
-import { RoleService } from "../../../../services/role.service";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { MatIconModule } from "@angular/material/icon";
 import { PermissionService } from "../../../../services/permission.service";
@@ -27,6 +18,7 @@ import { PermissionInterface } from "../../../../domain/interfaces/permission.in
 @Component({
   selector: "app-create-role-dialog",
   templateUrl: "./create-role-dialog.component.html",
+  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,
@@ -57,14 +49,8 @@ export class CreateRoleDialogComponent {
 
   private _loadForm() {
     this.roleForm = new FormGroup({
-      role: new FormControl<string>("", [
-        Validators.required,
-        Validators.email,
-      ]),
-      permissionsList: new FormControl<PermissionInterface[]>(
-        [],
-        [Validators.required]
-      ),
+      role: new FormControl<string>("", [Validators.required]),
+      permissionsList: new FormControl<PermissionInterface[]>([]),
     });
   }
 

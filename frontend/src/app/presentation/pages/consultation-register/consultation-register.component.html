@@ -3,207 +3,361 @@
   <mat-stepper #stepper class="p-2 rounded-full">
     <mat-step
       [stepControl]="patientForm"
-      errorMessage="La información no está correcta."
+      errorMessage="Debe seleccionar un paciente."
     >
-      <form [formGroup]="patientForm">
-        <ng-template matStepLabel>Información del Paciente</ng-template>
-        <div class="pt-2">
-          <div class="flex justify-center gap-4">
-            <div class="w-full">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Buscar paciente</mat-label>
-                <input
-                  type="text"
-                  placeholder="Buscar paciente"
-                  aria-label="Buscar paciente"
-                  matInput
-                  [formControl]="patientSearchControl"
-                  [matAutocomplete]="auto"
-                />
-                <mat-autocomplete
-                  autoActiveFirstOption
-                  #auto="matAutocomplete"
-                  [displayWith]="displayFn"
-                  (optionSelected)="onPatientSelected($event.option.value)"
+      <ng-template matStepLabel>Información del Paciente</ng-template>
+      <ng-template matStepContent>
+        <form [formGroup]="patientForm">
+          <div class="my-2">
+            <div class="flex justify-center gap-4">
+              <div class="w-full">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Buscar paciente</mat-label>
+                  <input
+                    type="text"
+                    placeholder="Buscar paciente"
+                    aria-label="Buscar paciente"
+                    matInput
+                    [formControl]="patientSearchControl"
+                    [matAutocomplete]="auto"
+                  />
+                  <mat-autocomplete
+                    autoActiveFirstOption
+                    #auto="matAutocomplete"
+                    [displayWith]="displayFn"
+                    (optionSelected)="onPatientSelected($event.option.value)"
+                  >
+                    @for(patient of filteredPatients | async; track $index){
+                    <mat-option [value]="patient">
+                      <div class="flex">
+                        <div class="items-center justify-center">
+                          <i-tabler
+                            name="user-square-rounded"
+                            class="mr-2"
+                          ></i-tabler>
+                        </div>
+                        <div class="flex flex-col">
+                          <b class="mb-1">{{ patient.name }}</b>
+                          <small class="text-gray-500">{{ patient.dni }}</small>
+                        </div>
+                      </div>
+                    </mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
+              <div class="mt-1">
+                <button
+                  mat-icon-button
+                  matTooltip="Crear paciente"
+                  matTooltipPosition="above"
                 >
-                  @for(patient of filteredPatients | async; track $index){
-                  <mat-option [value]="patient">
-                    <div class="flex">
-                      <div class="items-center justify-center">
-                        <i-tabler
-                          name="user-square-rounded"
-                          class="mr-2"
-                        ></i-tabler>
-                      </div>
-                      <div class="flex flex-col">
-                        <b class="mb-1">{{ patient.name }}</b>
-                        <small class="text-gray-500">{{ patient.dni }}</small>
-                      </div>
-                    </div>
-                  </mat-option>
-                  }
-                </mat-autocomplete>
+                  <i-tabler class="mb-1" name="plus"></i-tabler>
+                </button>
+              </div>
+            </div>
+
+            @if(selectedPatient){
+            <div
+              class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            >
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Nombre y Apellido</mat-label>
+                <input
+                  matInput
+                  placeholder="Nombre y Apellido"
+                  [value]="selectedPatient.name"
+                  readonly
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>DNI</mat-label>
+                <input
+                  matInput
+                  placeholder="DNI"
+                  [value]="selectedPatient.dni"
+                  readonly
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Edad</mat-label>
+                <input
+                  matInput
+                  placeholder="Edad"
+                  [value]="selectedPatient.age"
+                  readonly
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Fecha de nacimiento</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  placeholder="Fecha de nacimiento"
+                  [value]="selectedPatient.birthday"
+                  readonly
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker #picker disabled></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Celular</mat-label>
+                <input
+                  matInput
+                  placeholder="Celular"
+                  [value]="selectedPatient.phone"
+                  readonly
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Mail</mat-label>
+                <input
+                  matInput
+                  placeholder="Mail"
+                  [value]="selectedPatient.mail"
+                  readonly
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Domicilio</mat-label>
+                <input
+                  matInput
+                  placeholder="Domicilio"
+                  [value]="selectedPatient.address"
+                  readonly
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Localidad</mat-label>
+                <input
+                  matInput
+                  placeholder="Localidad"
+                  [value]="selectedPatient.locality"
+                  readonly
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Obra Social</mat-label>
+                <input
+                  matInput
+                  placeholder="Obra Social"
+                  [value]="selectedPatient.medicare"
+                  readonly
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Número de Afiliado</mat-label>
+                <input
+                  matInput
+                  placeholder="Número de Afiliado"
+                  [value]="selectedPatient.affiliate_number"
+                  readonly
+                />
               </mat-form-field>
             </div>
-            <div class="mt-1">
-              <button
-                mat-icon-button
-                matTooltip="Crear paciente"
-                matTooltipPosition="above"
-              >
-                <i-tabler class="mb-1" name="plus"></i-tabler>
-              </button>
+            <div class="w-full flex justify-center">
+              <button mat-flat-button>Historia Clínica</button>
             </div>
-          </div>
 
-          @if(selectedPatient){
-          <div
-            class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-          >
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Nombre y Apellido</mat-label>
-              <input
-                matInput
-                placeholder="Nombre y Apellido"
-                [value]="selectedPatient.name"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>DNI</mat-label>
-              <input
-                matInput
-                placeholder="DNI"
-                [value]="selectedPatient.dni"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Edad</mat-label>
-              <input
-                matInput
-                placeholder="Edad"
-                [value]="selectedPatient.age"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Fecha de nacimiento</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                placeholder="Fecha de nacimiento"
-                [value]="selectedPatient.birthday"
-                readonly
-              />
-              <mat-datepicker-toggle
-                matSuffix
-                [for]="picker"
-              ></mat-datepicker-toggle>
-              <mat-datepicker #picker disabled></mat-datepicker>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Celular</mat-label>
-              <input
-                matInput
-                placeholder="Celular"
-                [value]="selectedPatient.phone"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Mail</mat-label>
-              <input
-                matInput
-                placeholder="Mail"
-                [value]="selectedPatient.mail"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Domicilio</mat-label>
-              <input
-                matInput
-                placeholder="Domicilio"
-                [value]="selectedPatient.address"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Localidad</mat-label>
-              <input
-                matInput
-                placeholder="Localidad"
-                [value]="selectedPatient.locality"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Ocupación</mat-label>
-              <input
-                matInput
-                placeholder="Ocupación"
-                [value]="selectedPatient.occupation"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Obra Social</mat-label>
-              <input
-                matInput
-                placeholder="Obra Social"
-                [value]="selectedPatient.medicare"
-                readonly
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Número de Afiliado</mat-label>
-              <input
-                matInput
-                placeholder="Número de Afiliado"
-                [value]="selectedPatient.affiliate_number"
-                readonly
-              />
-            </mat-form-field>
+            }
+            <button mat-button matStepperNext>Siguiente</button>
           </div>
-          <div class="w-full flex justify-center">
-            <button mat-flat-button>Historia Clínica</button>
-          </div>
-
-          }
-          <button mat-button matStepperNext>Siguiente</button>
-        </div>
-      </form>
+        </form></ng-template
+      >
     </mat-step>
 
     <mat-step
       [stepControl]="patientForm"
       errorMessage="La información no está correcta."
     >
-      <form [formGroup]="patientForm">
-        <ng-template matStepLabel>Odontograma</ng-template>
-        <app-odontogram></app-odontogram>
-
+      <ng-template matStepLabel>Odontograma</ng-template>
+      <ng-template matStepContent>
+        <div class="my-2 w-full odontogram-container">
+          <div class="odontogram-wrapper">
+            <app-odontogram></app-odontogram>
+          </div>
+        </div>
+        <div class="mt-4">
+          <form [formGroup]="patientForm">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Observaciones</mat-label>
+              <textarea matInput formControlName="observations"></textarea>
+            </mat-form-field>
+          </form>
+        </div>
         <div>
           <button mat-button matStepperPrevious>Atrás</button>
           <button mat-button matStepperNext>Siguiente</button>
-        </div>
-      </form>
+        </div></ng-template
+      >
+    </mat-step>
+
+    <mat-step
+      [stepControl]="paymentForm"
+      errorMessage="Debe seleccionar la forma de cobro."
+    >
+      <ng-template matStepLabel>Pago</ng-template>
+      <ng-template matStepContent>
+        <form [formGroup]="paymentForm">
+          <div class="my-2 grid grid-cols-2 gap-4">
+            <div class="col-span-1">
+              <mat-form-field
+                appearance="outline"
+                floatLabel="always"
+                class="w-full"
+              >
+                <mat-label>Valor</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="totalAmount"
+                  placeholder="0"
+                  class="text-end"
+                />
+                <span matTextPrefix>$&nbsp;</span>
+              </mat-form-field>
+            </div>
+
+            <div class="col-span-1">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Forma de Pago</mat-label>
+                <mat-select formControlName="paymentMethod">
+                  <mat-option [value]="paymentMethodEnum.Cash"
+                    >Efectivo</mat-option
+                  >
+                  <mat-option [value]="paymentMethodEnum.Transfer"
+                    >Transferencia</mat-option
+                  >
+                  <mat-option [value]="paymentMethodEnum.DebitCard"
+                    >Tarjeta de Débito</mat-option
+                  >
+                  <mat-option [value]="paymentMethodEnum.CreditCard"
+                    >Tarjeta de Crédito</mat-option
+                  >
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            @if(paymentForm.get('paymentMethod')?.value ===
+            paymentMethodEnum.CreditCard){
+            <div class="col-span-1">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Cuotas</mat-label>
+                <mat-select formControlName="installments">
+                  <mat-option value="1"
+                    >1 cuota ($ {{ calculateInstallmentAmount(1) }})</mat-option
+                  >
+                  <mat-option value="3"
+                    >3 cuotas ($
+                    {{ calculateInstallmentAmount(3) }})</mat-option
+                  >
+                  <mat-option value="6"
+                    >6 cuotas ($
+                    {{ calculateInstallmentAmount(6) }})</mat-option
+                  >
+                  <mat-option value="9"
+                    >9 cuotas ($
+                    {{ calculateInstallmentAmount(9) }})</mat-option
+                  >
+                  <mat-option value="12"
+                    >12 cuotas ($
+                    {{ calculateInstallmentAmount(12) }})</mat-option
+                  >
+                  <mat-option value="18"
+                    >18 cuotas ($
+                    {{ calculateInstallmentAmount(18) }})</mat-option
+                  >
+                </mat-select>
+              </mat-form-field>
+            </div>
+            }
+          </div>
+          <div>
+            <button mat-button matStepperPrevious>Atrás</button>
+            <button mat-button matStepperNext>Siguiente</button>
+          </div>
+        </form>
+      </ng-template>
     </mat-step>
 
     <mat-step
       [stepControl]="patientForm"
       errorMessage="La información no está correcta."
     >
-      <form [formGroup]="patientForm">
-        <ng-template matStepLabel>Finalizar consulta</ng-template>
-        <div>
-          <button mat-button matStepperPrevious>Atrás</button>
-          <button mat-button (click)="finalizeConsultation()">
-            Finalizar consulta
-          </button>
-        </div>
-      </form>
+      <ng-template matStepLabel>Finalizar consulta</ng-template>
+      <ng-template matStepContent>
+        <form [formGroup]="patientForm">
+          <div class="flex flex-col items-center">
+            <h2 class="text-lg font-semibold mb-4">Resumen de la Consulta</h2>
+            @if (selectedPatient) {
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-4"
+            >
+              <div class="flex flex-col gap-4">
+                <p><strong>Paciente:</strong> {{ selectedPatient.name }}</p>
+                <p><strong>DNI:</strong> {{ selectedPatient.dni }}</p>
+                <p><strong>Edad:</strong> {{ selectedPatient.age }}</p>
+                <p>
+                  <strong>Fecha de Nacimiento:</strong>
+                  {{ selectedPatient.birthday | date : "dd/MM/yyyy" }}
+                </p>
+              </div>
+              <div class="flex flex-col gap-4">
+                <p><strong>Celular:</strong> {{ selectedPatient.phone }}</p>
+                <p><strong>Mail:</strong> {{ selectedPatient.mail }}</p>
+                <p><strong>Domicilio:</strong> {{ selectedPatient.address }}</p>
+                <p>
+                  <strong>Localidad:</strong> {{ selectedPatient.locality }}
+                </p>
+              </div>
+              <div class="flex flex-col gap-4">
+                <p>
+                  <strong>Obra Social:</strong> {{ selectedPatient.medicare }}
+                </p>
+                <p>
+                  <strong>Número de Afiliado:</strong>
+                  {{ selectedPatient.affiliate_number }}
+                </p>
+                <p>
+                  <strong>Fecha de la consulta:</strong>
+                  {{ todayDate | date : "dd/MM/yyyy" }}
+                </p>
+              </div>
+            </div>
+            <div class="mt-4 flex w-full flex-col gap-4">
+              <p class="text-lg">
+                <strong>Tratamientos Realizados:</strong>
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5">
+                @for (treatment of treatmentsExample; track treatment) {
+                <p>
+                  <strong>Diente {{ treatment.diente }}:</strong>
+                  {{ treatment.tratamiento }}
+                </p>
+                }
+              </div>
+              @if(patientForm.get("observations")?.value) {
+              <p>
+                <strong class="text-lg">Observaciones: </strong
+                >{{ observations }}
+              </p>
+              }
+            </div>
+            } @else {
+            <p>No se ha seleccionado un paciente.</p>
+            }
+          </div>
+          <div>
+            <button mat-button matStepperPrevious>Atrás</button>
+            <button mat-button (click)="finalizeConsultation()">
+              Finalizar consulta
+            </button>
+          </div>
+        </form></ng-template
+      >
     </mat-step>
   </mat-stepper>
 </mat-card>

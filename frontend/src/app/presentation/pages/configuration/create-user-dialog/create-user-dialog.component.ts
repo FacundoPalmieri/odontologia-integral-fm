@@ -1,10 +1,6 @@
 import { Component, inject, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from "@angular/material/dialog";
+import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import {
   AbstractControl,
@@ -25,6 +21,7 @@ import { MatIconModule } from "@angular/material/icon";
 @Component({
   selector: "app-create-user-dialog",
   templateUrl: "./create-user-dialog.component.html",
+  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,

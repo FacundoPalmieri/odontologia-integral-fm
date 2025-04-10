@@ -27,7 +27,7 @@ body {
   .snackbar-success {
     @include mat.snack-bar-overrides(
       (
-        container-color: #4caf50,
+        container-color: #22c55e,
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -38,7 +38,7 @@ body {
   .snackbar-error {
     @include mat.snack-bar-overrides(
       (
-        container-color: #f44336,
+        container-color: #ef4444,
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -50,7 +50,7 @@ body {
   .snackbar-warning {
     @include mat.snack-bar-overrides(
       (
-        container-color: #ff9800,
+        container-color: #f97315,
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -62,7 +62,7 @@ body {
   .snackbar-info {
     @include mat.snack-bar-overrides(
       (
-        container-color: #338c76,
+        container-color: #0ca5e9,
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -76,7 +76,7 @@ body {
 
     @include mat.list-overrides(
       (
-        active-indicator-shape: 14px,
+        active-indicator-shape: 10px,
       )
     );
   }
@@ -109,6 +109,7 @@ body {
 
   @include mat.card-overrides(
     (
+      container-color: var(--mat-sys-content-container-color),
       outlined-outline-width: 0,
     )
   );
@@ -117,18 +118,45 @@ body {
     (
       container-height: 50px,
       container-vertical-padding: 14px,
-      // filled-with-label-container-padding-top: 12px,
-      // filled-with-label-container-padding-bottom: 8px,
       container-text-size: 16px,
+      outlined-container-shape: 10px,
+      filled-container-shape: 10px,
     )
   );
 
   @include mat.table-overrides(
     (
+      background-color: (
+        --mat-sys-content-container-color,
+      ),
       header-headline-size: 16px,
       header-headline-weight: 600,
       row-item-outline-color: rgba(0, 0, 0, 0.1),
       row-item-outline-width: 1px,
+    )
+  );
+
+  @include mat.divider-overrides(
+    (
+      width: 3px,
+    )
+  );
+
+  @include mat.chips-overrides(
+    (
+      container-shape-radius: 100px,
+    )
+  );
+
+  @include mat.paginator-overrides(
+    (
+      container-background-color: var(--mat-sys-content-container-color),
+    )
+  );
+
+  @include mat.stepper-overrides(
+    (
+      container-color: var(--mat-sys-content-toolbar-container-color),
     )
   );
 }

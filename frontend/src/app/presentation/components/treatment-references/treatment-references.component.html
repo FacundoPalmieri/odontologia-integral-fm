@@ -1,0 +1,30 @@
+<div class="p-2">
+  <div class="flex items-center justify-start mb-4">
+    <button
+      mat-icon-button
+      (click)="treatmentReferencesSidenavService.toggleSidenav()"
+      matTooltip="Cerrar"
+      matTooltipPosition="left"
+    >
+      <i-tabler name="xbox-x" class="mb-1"></i-tabler>
+    </button>
+    <span class="ml-2 text-lg font-semibold">Referencias</span>
+  </div>
+
+  @for(treatment of treatments; track $index){
+  <div class="flex items-center justify-start mb-4 space-x-2 ml-2">
+    <div class="flex">
+      @for(icon of treatment.icons; track $index){
+      <i-tabler
+        [name]="icon"
+        [ngClass]="[
+          calculateMargin($index, treatment.icons!.length),
+          treatment.color ? treatment.color : ''
+        ]"
+      ></i-tabler>
+      }
+    </div>
+    <span class="text-sm">{{ treatment.name }}</span>
+  </div>
+  }
+</div>

@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Entity
 @Data
-@Table(name = "Mensajes")
+@Table(name = "message_config")
 public class MessageConfig {
 
     /** Identificador único del mensaje.*/
@@ -17,15 +17,14 @@ public class MessageConfig {
     private Long id;
 
     /**Clave única del mensaje.*/
-    @Column(name="clave", unique = true, nullable = false)
+    @Column(name = "message_key", unique = true, nullable = false)
     private String key;
 
     /**Valor que representa el mensaje*/
-    @Column(name = "valor")
     private  String value;
 
     /**Configuración de la región.*/
-    @Column(name="locale")
+    @Column(length = 50)
     private String locale;
 
 }

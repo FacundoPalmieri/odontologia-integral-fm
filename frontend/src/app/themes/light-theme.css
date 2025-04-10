@@ -296,12 +296,16 @@
 
   /* CUSTOMS VARIABLES */
   --mat-toolbar-standard-height: 70px;
-  --mat-sys-home-sidenav-background: light-dark(
+  --mat-sys-home-sidenav-content-background: light-dark(
     rgb(204, 204, 204, 0.3),
-    transparent
+    rgb(40, 32, 36, 1)
   );
-  --mat-sys-home-content-background: light-dark(
+  --mat-sys-content-toolbar-container-color: light-dark(
+    var(--mat-sys-background),
+    rgb(55, 47, 52, 1)
+  );
+  --mat-sys-odontogram-container-background: light-dark(
     rgb(204, 204, 204, 0.3),
-    rgb(204, 204, 204, 0.3)
+    rgb(40, 32, 36, 1)
   );
 }

@@ -1,4 +1,4 @@
-import { Component, computed, inject } from "@angular/core";
+import { Component, computed, inject, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Router, RouterModule } from "@angular/router";
 import { MatIconModule } from "@angular/material/icon";
@@ -13,6 +13,12 @@ import { ThemeService } from "../../../services/theme.service";
 import { AuthService } from "../../../services/auth.service";
 import { UserDataInterface } from "../../../domain/interfaces/user-data.interface";
 import { MatDividerModule } from "@angular/material/divider";
+import { PermissionFactory } from "../../../utils/factories/permission.factory";
+import { MenuItemInterface } from "../../../domain/interfaces/menu-item.interface";
+import { FullscreenService } from "../../../services/fullscreen.service";
+import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
+import { TreatmentReferencesComponent } from "../../components/treatment-references/treatment-references.component";
+import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 
 @Component({
   selector: "app-home",
@@ -31,44 +37,54 @@ import { MatDividerModule } from "@angular/material/divider";
     MatDividerModule,
     RouterModule,
     IconsModule,
+    TreatmentReferencesComponent,
   ],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   themeService = inject(ThemeService);
   authService = inject(AuthService);
   router = inject(Router);
+  fullScreenService = inject(FullscreenService);
+  treatmentReferencesService = inject(TreatmentReferencesSidenavService);
   showFiller = false;
   currentTheme = computed(() => this.themeService.currentTheme());
   userData: UserDataInterface | null = this.authService.getUserData();
+  permissions: string[] = [];
+  private menuItems = PermissionFactory.createPermissions();
+  filteredMenuItems: MenuItemInterface[] = [];
+  isFullscreen = false;
 
-  menuItems = [
-    { label: "Dashboard", icon: "chart-bar", route: "/dashboard" },
-    {
-      label: "Registro de Consultas",
-      icon: "folder-plus",
-      route: "/consultation",
-    },
-    {
-      label: "Gestión de Turnos",
-      icon: "calendar-plus",
-      route: "/appointments",
-    },
-    {
-      label: "Historia Clínica",
-      icon: "folder-search",
-      route: "/medical-record",
-    },
-    { label: "Insumos", icon: "packages", route: "/inventory" },
-    { label: "Finanzas", icon: "file-dollar", route: "/finances" },
-    { label: "Reportes", icon: "chart-histogram", route: "/reports" },
-    { label: "Configuración", icon: "settings", route: "/configuration" },
-    { label: "Sistema", icon: "device-desktop-cog", route: "/system" },
-  ];
   constructor() {}
 
+  ngOnInit() {
+    if (this.userData?.roles && this.userData?.roles.length > 0) {
+      this.permissions = this.userData.roles[0].permissionsList.map(
+        (permission) => permission.permission
+      );
+      this.filteredMenuItems = this.filterMenuItems();
+    }
+  }
+
+  private filterMenuItems(): MenuItemInterface[] {
+    return this.menuItems.filter((item) =>
+      this.permissions.includes(item.permissionEnum)
+    );
+  }
+
   logout() {
-    this.authService.logout();
-    this.router.navigate(["/login"]);
+    const logoutData = this.authService.getLogoutData();
+    this.authService
+      .logout(logoutData!)
+      .subscribe((response: ApiResponseInterface<string>) => {
+        if (response.success) {
+          this.authService.dologout();
+          this.router.navigate(["/login"]);
+        }
+      });
+  }
+
+  obtenerRole(): string | undefined {
+    return this.userData?.roles[0].role;
   }
 
   toggleTheme() {

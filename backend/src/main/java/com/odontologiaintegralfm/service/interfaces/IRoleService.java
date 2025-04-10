@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.RoleDTO;
+import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
 import com.odontologiaintegralfm.model.Role;
 
@@ -17,7 +17,7 @@ public interface IRoleService {
      * @return Un objeto {@link Response} que contiene una lista de objetos {@link Role}
      *         con todos los roles disponibles en el sistema.
      */
-    Response<List<Role>> findAll();
+    Response<List<Role>> getAll();
 
 
 
@@ -40,21 +40,30 @@ public interface IRoleService {
      * @param id El ID del rol que se desea buscar.
      * @return Un {@link Optional} que contiene el rol si se encuentra, o está vacío si no.
      */
-    Optional<Role> findById(Long id);
+    Role getByIdInternal(Long id);
 
 
 
     /**
      * Guarda un nuevo rol o actualiza uno existente en el sistema.
      *
-     * @param roleDto El objeto {@link RoleDTO} que contiene los datos del rol a guardar.
+     * @param roleRequestDto El objeto {@link RoleRequestDTO} que contiene los datos del rol a guardar.
      * @return Un objeto {@link Response} que contiene el rol guardado o actualizado como un
      *         {@link RoleResponseDTO}.
      */
-    Response<RoleResponseDTO> save(RoleDTO roleDto);
+    Response<RoleResponseDTO> save(RoleRequestDTO roleRequestDto);
 
 
 
-  //  void deleteById(Long id);
+
+    /**
+     * Actualiza la lista de permisos para el rol.
+     *
+     * @param roleRequestDto {@link RoleRequestDTO} que contiene la lista de permisos.
+     * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleResponseDTO}
+     */
+    Response<RoleResponseDTO> update (RoleRequestDTO roleRequestDto);
+
+
 
 }

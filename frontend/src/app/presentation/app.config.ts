@@ -14,7 +14,6 @@ import {
 } from "@angular/common/http";
 import { errorInterceptor } from "../utils/interceptors/error.interceptor";
 import { tokenInterceptor } from "../utils/interceptors/token.interceptor";
-import { authInterceptor } from "../utils/interceptors/auth.interceptor";
 import { CustomPaginatorIntl } from "../utils/custom-paginator.initializer";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 
@@ -25,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
     provideHttpClient(
-      withInterceptors([errorInterceptor, tokenInterceptor, authInterceptor]),
+      withInterceptors([errorInterceptor, tokenInterceptor]),
       withFetch()
     ),
     { provide: MatPaginatorIntl, useClass: CustomPaginatorIntl },

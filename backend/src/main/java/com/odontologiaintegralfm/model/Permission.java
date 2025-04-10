@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="permisos")
+@Table(name = "permissions")
 public class Permission {
 
     /**Identificador único del permiso.*/
@@ -24,8 +24,12 @@ public class Permission {
     private Long id;
 
 
-    /**Nombre único del permiso.*/
-    @Column(name = "permission", unique = true, nullable = false)
+    /**Descripción del permiso.*/
+    @Column(length = 50, unique = true, nullable = false)
     private String permission;
+
+    /**Nombre del permiso.*/
+    @Column(length = 50, unique = true, nullable = false)
+    private String name;
 
 }

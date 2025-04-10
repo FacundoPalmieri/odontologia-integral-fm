@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.RoleDTO;
+import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.exception.PermissionNotFoundRoleCreationException;
@@ -79,15 +79,15 @@ public class RoleService implements IRoleService {
      */
 
     @Override
-    public Response<List<Role>> findAll() {
+    public Response<List<Role>> getAll() {
        try{
            List<Role> roleList =  roleRepository.findAll();
 
-           String messageUser = messageService.getMessage("roleDTO.findAll.user.ok", null, LocaleContextHolder.getLocale());
+           String messageUser = messageService.getMessage("roleService.getAll.user.ok", null, LocaleContextHolder.getLocale());
            return new Response<>(true, messageUser, roleList);
 
        }catch(DataAccessException | CannotCreateTransactionException e){
-           throw new DataBaseException(e,"roleService", 0L, "", "findAll");
+           throw new DataBaseException(e,"roleService", 0L, "", "getAll");
 
        }
     }
@@ -119,14 +119,14 @@ public class RoleService implements IRoleService {
               if(role.isPresent()){
                   RoleResponseDTO dto = convertToDTOResponse(role.get());
 
-                  String messageUser = messageService.getMessage("roleDTO.findById.user.ok", null, LocaleContextHolder.getLocale());
+                  String messageUser = messageService.getMessage("roleService.getById.user.ok", null, LocaleContextHolder.getLocale());
                   return new Response<>(true, messageUser, dto);
               }else{
                   throw new RoleNotFoundException("",id, "","RoleService", "getById");
               }
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", id, "", "findById");
+            throw new DataBaseException(e,"roleService", id, "", "getById");
 
         }
     }
@@ -149,13 +149,14 @@ public class RoleService implements IRoleService {
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
-    public Optional<Role> findById(Long id) {
+    public Role getByIdInternal(Long id) {
 
         try{
-            return roleRepository.findById(id);
+            return roleRepository.findById(id).orElseThrow(()->
+                    new RoleNotFoundException("",id,"","RoleService", "getByIdInternal"));
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", id, "", "findById");
+            throw new DataBaseException(e,"roleService", id, "", "getById");
 
         }
     }
@@ -178,21 +179,21 @@ public class RoleService implements IRoleService {
      * se lanza una excepción {@link DataBaseException}.
      * </p>
      *
-     * @param roleDto El objeto DTO que contiene los datos del rol a guardar.
+     * @param roleRequestDto El objeto DTO que contiene los datos del rol a guardar.
      * @return Un objeto {@link Response} que contiene el rol guardado en formato {@link RoleResponseDTO}.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
-    public Response<RoleResponseDTO> save(RoleDTO roleDto) {
+    public Response<RoleResponseDTO> save(RoleRequestDTO roleRequestDto) {
 
         //Valída que el rol no exista en la base de datos.
-        validateRol(roleDto.getRole());
+        validateRoleNotExist(roleRequestDto.getRole());
 
         //Asigna permisos al rol
-        roleDto.setPermissionsList(getPermissionForRole(roleDto.getPermissionsList()));
+        roleRequestDto.setPermissionsList(getPermissionForRole(roleRequestDto.getPermissionsList()));
 
         //Se construye el Objeto model
-        Role role = buildRole(roleDto);
+        Role role = buildRole(roleRequestDto);
 
         try{
             //Guarda el objeto en la base de datos.
@@ -205,10 +206,55 @@ public class RoleService implements IRoleService {
             return new Response<>(true, messageUser, savedRoleDto);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", 0L, roleDto.getRole(), "save");
+            throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "save");
 
         }
     }
+
+
+    /**
+     * Actualiza la lista de permisos para el rol.
+     *
+     * @param roleRequestDto {@link RoleRequestDTO} que contiene la lista de permisos.
+     * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleResponseDTO}
+     */
+    @Override
+    public Response<RoleResponseDTO> update(RoleRequestDTO roleRequestDto) {
+
+        //Valída que el rol exista en la base de datos.
+        Role role = validateRoleExist(roleRequestDto.getRole());
+
+        //Se limpia la lista de permisos
+        role.getPermissionsList().clear();
+
+        //Actualiza en el objeto role la lista obtenida de base de datos con la lista que poseé el DTO.
+        role.setPermissionsList(roleRequestDto.getPermissionsList());
+
+        //Valída que existan todos los permisos del DTO en la base de datos.
+        roleRequestDto.getPermissionsList()
+                .forEach(permissionId -> {
+                    permissionService.getByIdInternal(permissionId.getId());
+                });
+
+        try{
+            //Guarda el objeto en la base de datos.
+            Role savedRole = roleRepository.save(role);
+
+            //Conviente la entidad a un DTO
+            RoleResponseDTO savedRoleDto = convertToDTOResponse(savedRole);
+
+            String messageUser = messageService.getMessage("roleService.update.ok", null, LocaleContextHolder.getLocale());
+            return new Response<>(true, messageUser, savedRoleDto);
+
+        }catch(DataAccessException | CannotCreateTransactionException e){
+            throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "update");
+
+        }
+    }
+
+
+
+
 
 
 
@@ -222,35 +268,29 @@ public class RoleService implements IRoleService {
      * @param roleNew El nombre del rol a validar.
      * @throws RoleExistingException Si el rol ya existe en la base de datos.
      */
-    private void validateRol(String roleNew){
-        Optional<Role>roleOptional = roleRepository.findRoleEntityByRole(roleNew);
-        if(roleOptional.isPresent()){
-            Role role = roleOptional.get();
-            if(role.getRole().equals(roleNew)) {
-                throw new RoleExistingException("","RoleService", "Save", roleNew);
+    private void validateRoleNotExist(String roleNew){
+        Optional<Role> role = roleRepository.findRoleEntityByRole(roleNew);
+        if(role.isPresent()) {
+            if (role.get().getRole().equals(roleNew)) {
+                throw new RoleExistingException("", "RoleService", "Save", roleNew);
             }
         }
     }
 
+
     /**
-     * Busca y devuelve un objeto Role de acuerdo al String recibido.
+     * Valída que el rol especificado exista en la base de datos.
      * <p>
-     * Este método consulta el repositorio para buscar y devolver el rol recibido por parametro.
-     * Si el rol no existe, lanza una excepción {@link RoleNotFoundException}.
+     * Este método consulta el repositorio para verificar si el rol proporcionado ya existe para poder modificarlo.
+     * Si el rol no fue encontrando,lanza una excepción {@link RoleNotFoundException }
      * </p>
      *
-     * @param role El nombre del rol a validar.
-     * @throws RoleNotFoundException Si el rol no existe en la base de datos
+     * @param roleUpdate El nombre del rol a validar.
+     * @throws RoleNotFoundException  Si el rol no fue encontrando en la base de datos.
      */
-    protected Role findbyRole(String role){
-        Optional<Role>roleOptional = roleRepository.findRoleEntityByRole(role);
-        if(roleOptional.isPresent()){
-            return roleOptional.get();
-        }else {
-            throw new RoleNotFoundException("", 0L, role, "RoleService", "findbyRole");
-        }
+    private Role validateRoleExist(String roleUpdate){
+        return roleRepository.findRoleEntityByRole(roleUpdate).orElseThrow(()-> new RoleNotFoundException("",0L, roleUpdate,"RoleService", "validateRoleExist"));
     }
-
 
 
 
@@ -290,9 +330,7 @@ public class RoleService implements IRoleService {
     private Set<Permission> getPermissionForRole(Set<Permission> permissions) {
         Set<Permission> validPermission = new HashSet<>();
         for (Permission permission : permissions) {
-            Permission foundPermission = permissionService.findById(permission.getId()).orElseThrow(()->
-                    new PermissionNotFoundRoleCreationException("",permission.getId(),"RoleService", "Save")
-            );
+            Permission foundPermission = permissionService.getByIdInternal(permission.getId());
             validPermission.add(foundPermission);
         }
         return validPermission;
@@ -301,19 +339,19 @@ public class RoleService implements IRoleService {
 
 
     /**
-     * Construye una entidad {@link Role} a partir de un objeto {@link RoleDTO}.
+     * Construye una entidad {@link Role} a partir de un objeto {@link RoleRequestDTO}.
      * <p>
      * Este método utiliza el patrón de diseño builder para crear una nueva instancia de {@link Role}.
-     * Los valores del rol y la lista de permisos se toman del objeto {@link RoleDTO}.
+     * Los valores del rol y la lista de permisos se toman del objeto {@link RoleRequestDTO}.
      * </p>
      *
-     * @param roleDto El objeto {@link RoleDTO} que contiene los datos necesarios para crear la entidad {@link Role}.
-     * @return Una nueva instancia de {@link Role} con los valores proporcionados en {@link RoleDTO}.
+     * @param roleRequestDto El objeto {@link RoleRequestDTO} que contiene los datos necesarios para crear la entidad {@link Role}.
+     * @return Una nueva instancia de {@link Role} con los valores proporcionados en {@link RoleRequestDTO}.
      */
-    private Role buildRole(RoleDTO roleDto) {
+    private Role buildRole(RoleRequestDTO roleRequestDto) {
         return Role.builder()
-                .role(roleDto.getRole())
-                .permissionsList(roleDto.getPermissionsList())
+                .role(roleRequestDto.getRole())
+                .permissionsList(roleRequestDto.getPermissionsList())
                 .build();
     }
 

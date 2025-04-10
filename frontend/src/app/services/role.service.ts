@@ -14,26 +14,26 @@ export class RoleService {
 
   getAll(): Observable<ApiResponseInterface<RoleInterface[]>> {
     return this.http.get<ApiResponseInterface<RoleInterface[]>>(
-      `${this.apiUrl}/api/roles/get/all`
+      `${this.apiUrl}/role/all`
     );
   }
 
   getById(id: number): Observable<ApiResponseInterface<RoleInterface>> {
     return this.http.get<ApiResponseInterface<RoleInterface>>(
-      `${this.apiUrl}/api/roles/${id}`
+      `${this.apiUrl}/role/${id}`
     );
   }
 
   create(role: RoleCreateDto): Observable<ApiResponseInterface<RoleInterface>> {
     return this.http.post<ApiResponseInterface<RoleInterface>>(
-      `${this.apiUrl}/api/roles/create`,
+      `${this.apiUrl}/role`,
       role
     );
   }
 
   update(role: RoleUpdateDto): Observable<ApiResponseInterface<RoleInterface>> {
     return this.http.patch<ApiResponseInterface<RoleInterface>>(
-      `${this.apiUrl}/api/roles/update`,
+      `${this.apiUrl}/role`,
       role
     );
   }

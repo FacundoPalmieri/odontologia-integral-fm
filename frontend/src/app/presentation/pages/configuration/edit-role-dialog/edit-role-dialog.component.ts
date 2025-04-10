@@ -22,6 +22,7 @@ import { PermissionInterface } from "../../../../domain/interfaces/permission.in
 @Component({
   selector: "app-edit-role-dialog",
   templateUrl: "./edit-role-dialog.component.html",
+  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,
@@ -56,8 +57,7 @@ export class EditRoleDialogComponent {
       id: new FormControl<number>(this.data.role.id, [Validators.required]),
       role: new FormControl<string>(this.data.role.role, [Validators.required]),
       permissionsList: new FormControl<PermissionInterface[]>(
-        this.data.role.permissionsList,
-        [Validators.required]
+        this.data.role.permissionsList
       ),
     });
   }

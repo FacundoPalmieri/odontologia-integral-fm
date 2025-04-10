@@ -6,7 +6,7 @@
 
     <mat-nav-list>
       <div class="space-y-4 mt-4 p-3">
-        @for(menu of menuItems; track menu.label){
+        @for(menu of filteredMenuItems; track menu.label){
         <mat-list-item
           class="list-item-menu"
           [matTooltip]="menu.label"
@@ -21,6 +21,16 @@
     </mat-nav-list>
   </mat-drawer>
 
+  <mat-drawer
+    #referencesDrawer
+    mode="side"
+    position="end"
+    [opened]="treatmentReferencesService.sidenavOpen()"
+    class="references-sidenav"
+  >
+    <app-treatment-references></app-treatment-references>
+  </mat-drawer>
+
   <div class="sidenav-content">
     <mat-toolbar class="gap-3 main-toolbar">
       <button mat-icon-button (click)="drawer.toggle()">
@@ -29,7 +39,17 @@
       <h1>Odontología Integral FM</h1>
       <span class="spacer"></span>
       <button mat-icon-button>
-        <i-tabler name="search"></i-tabler>
+        <i-tabler name="search"></i-tabler></button
+      ><button
+        mat-icon-button
+        (click)="fullScreenService.toggleFullscreen()"
+        matTooltip="Pantalla completa"
+      >
+        <i-tabler
+          [name]="
+            fullScreenService.isFullscreen() ? 'maximize-off' : 'maximize'
+          "
+        ></i-tabler>
       </button>
       <button mat-icon-button (click)="toggleTheme()">
         <i-tabler
@@ -52,8 +72,9 @@
             class="avatar-icon-menu"
           />
           <div class="ml-1 gap-3 overflow-hidden text-ellipsis">
-            <span>Nombre y Apellido</span>
+            <span class="text-lg">Nombre y Apellido</span>
             <span> {{ userData?.username }} </span>
+            <span class="text-blue-500 uppercase"> {{ obtenerRole() }} </span>
           </div>
         </div>
         <mat-divider class="custom-divider"></mat-divider>

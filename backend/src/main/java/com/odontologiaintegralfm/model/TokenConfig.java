@@ -17,6 +17,6 @@ public class TokenConfig {
     private Long id;
 
     /**Tiempo de expiración del Token.*/
-    @Column(name="Expiracion",  nullable = false)
+    @Column(nullable = false)
     private Long expiration;
 }

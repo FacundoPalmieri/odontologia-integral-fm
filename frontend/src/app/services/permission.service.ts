@@ -12,13 +12,13 @@ export class PermissionService {
 
   getAll(): Observable<ApiResponseInterface<PermissionInterface[]>> {
     return this.http.get<ApiResponseInterface<any[]>>(
-      `${this.apiUrl}/api/permissions/get/all`
+      `${this.apiUrl}/permission/all`
     );
   }
 
   getById(id: number): Observable<ApiResponseInterface<PermissionInterface>> {
     return this.http.get<ApiResponseInterface<any>>(
-      `${this.apiUrl}/api/permissions/${id}`
+      `${this.apiUrl}/permission/${id}`
     );
   }
 }

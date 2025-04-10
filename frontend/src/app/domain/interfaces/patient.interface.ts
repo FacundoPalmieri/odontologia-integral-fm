@@ -7,7 +7,6 @@ export interface PatientInterface {
   mail: string;
   address: string;
   locality: string;
-  occupation: string;
-  medicare: string;
-  affiliate_number: number;
+  medicare?: string;
+  affiliate_number?: number;
 }

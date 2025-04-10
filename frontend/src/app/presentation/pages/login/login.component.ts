@@ -82,17 +82,10 @@ export class LoginComponent {
 
     const loginData: LoginInterface = this.loginForm.value;
     this.loaderService.show();
-    this.authService.logIn(loginData).subscribe({
-      next: (response: AuthUserInterface) => {
-        this.authService.doLogin(response);
+    this.authService.login(loginData).subscribe({
+      next: (response: ApiResponseInterface<AuthUserInterface>) => {
+        this.authService.doLogin(response.data);
         this.loaderService.hide();
-        this.snackbarService.openSnackbar(
-          response.message,
-          3000,
-          "center",
-          "top",
-          SnackbarTypeEnum.Success
-        );
         this.router.navigate(["/"]);
       },
       error: () => {

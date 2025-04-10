@@ -7,13 +7,13 @@ import { MessageInterface } from "../domain/interfaces/message.interface";
 import { MessageDto } from "../domain/dto/message-update.dto";
 
 @Injectable({ providedIn: "root" })
-export class DevService {
+export class ConfigService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
   getTokenExpirationTime(): Observable<ApiResponseInterface<number>> {
     return this.http.get<ApiResponseInterface<number>>(
-      `${this.apiUrl}/dev/token/get`
+      `${this.apiUrl}/config/token`
     );
   }
 
@@ -21,7 +21,24 @@ export class DevService {
     time: number
   ): Observable<ApiResponseInterface<number>> {
     return this.http.patch<ApiResponseInterface<number>>(
-      `${this.apiUrl}/dev/token/update`,
+      `${this.apiUrl}/config/token`,
+      {
+        expiration: time,
+      }
+    );
+  }
+
+  getRefreshTokenExpirationTime(): Observable<ApiResponseInterface<number>> {
+    return this.http.get<ApiResponseInterface<number>>(
+      `${this.apiUrl}/config/token/refresh`
+    );
+  }
+
+  updateRefreshTokenExpirationTime(
+    time: number
+  ): Observable<ApiResponseInterface<number>> {
+    return this.http.patch<ApiResponseInterface<number>>(
+      `${this.apiUrl}/config/token/refresh`,
       {
         expiration: time,
       }
@@ -30,7 +47,7 @@ export class DevService {
 
   getFailedAttempts(): Observable<ApiResponseInterface<number>> {
     return this.http.get<ApiResponseInterface<number>>(
-      `${this.apiUrl}/dev/session/get`
+      `${this.apiUrl}/config/session`
     );
   }
 
@@ -38,7 +55,7 @@ export class DevService {
     attemtps: number
   ): Observable<ApiResponseInterface<number>> {
     return this.http.patch<ApiResponseInterface<number>>(
-      `${this.apiUrl}/dev/session/update`,
+      `${this.apiUrl}/config/session`,
       {
         value: attemtps,
       }
@@ -47,7 +64,7 @@ export class DevService {
 
   getMessages(): Observable<ApiResponseInterface<MessageInterface[]>> {
     return this.http.get<ApiResponseInterface<MessageInterface[]>>(
-      `${this.apiUrl}/dev/message/get`
+      `${this.apiUrl}/config/message`
     );
   }
 
@@ -55,7 +72,7 @@ export class DevService {
     message: MessageDto
   ): Observable<ApiResponseInterface<MessageInterface>> {
     return this.http.patch<ApiResponseInterface<MessageInterface>>(
-      `${this.apiUrl}/dev/message/update`,
+      `${this.apiUrl}/config/message`,
       message
     );
   }

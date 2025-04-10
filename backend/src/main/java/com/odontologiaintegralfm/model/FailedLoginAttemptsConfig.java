@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Entity
 @Data
-@Table(name="intentos_fallidos")
+@Table(name = "failed_login_config")
 public class FailedLoginAttemptsConfig {
 
     /** Identificador único del mensaje.*/
@@ -22,6 +22,6 @@ public class FailedLoginAttemptsConfig {
      * Valor que indica el número máximo de intentos fallidos permitidos.
      */
     @NotBlank
-    @Column(name = "valor", nullable = false)
+    @Column(nullable = false)
     private int value;
 }

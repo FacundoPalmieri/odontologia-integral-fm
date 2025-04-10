@@ -1,9 +1,6 @@
 package com.odontologiaintegralfm.service.interfaces;
 
-import com.odontologiaintegralfm.dto.FailedLoginAttemptsDTO;
-import com.odontologiaintegralfm.dto.MessageDTO;
-import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.TokenConfigDTO;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.model.MessageConfig;
 
 import java.util.List;
@@ -22,10 +19,10 @@ public interface IConfigService {
 
     /**
      * Actualiza la configuración de un mensaje.
-     * @param messageDto El objeto {@link MessageDTO} que contiene los detalles del mensaje a actualizar.
+     * @param messageRequestDto El objeto {@link MessageRequestDTO} que contiene los detalles del mensaje a actualizar.
      * @return Una respuesta que contiene el objeto {@link MessageConfig} actualizado.
      */
-    Response<MessageConfig> updateMessage(MessageDTO messageDto);
+    Response<MessageConfig> updateMessage(MessageRequestDTO messageRequestDto);
 
 
     /**
@@ -37,10 +34,10 @@ public interface IConfigService {
     /**
      * Actualiza el número de intentos fallidos de inicio de sesión permitidos.
      *
-     * @param failedLoginAttemptsDTO El objeto {@link FailedLoginAttemptsDTO} que contiene la nueva configuración de intentos fallidos.
+     * @param failedLoginAttemptsRequestDTO El objeto {@link FailedLoginAttemptsRequestDTO} que contiene la nueva configuración de intentos fallidos.
      * @return Una respuesta que contiene el número actualizado de intentos permitidos.
      */
-    Response<Integer> updateAttempts(FailedLoginAttemptsDTO failedLoginAttemptsDTO);
+    Response<Integer> updateAttempts(FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO);
 
     /**
      * Obtiene la duración en minutos del tiempo de expiración del token de autenticación.
@@ -51,10 +48,25 @@ public interface IConfigService {
     /**
      * Actualiza la duración de expiración del token de autenticación.
      *
-     * @param tokenConfigDTO El objeto {@link TokenConfigDTO} que contiene la nueva configuración de expiración del token.
+     * @param tokenConfigRequestDTO El objeto {@link TokenConfigRequestDTO} que contiene la nueva configuración de expiración del token.
      * @return Una respuesta que contiene el nuevo valor de expiración del token en minutos.
      */
-    Response<Long> updateTokenExpiration(TokenConfigDTO tokenConfigDTO);
+    Response<Long> updateTokenExpiration(TokenConfigRequestDTO tokenConfigRequestDTO);
 
+
+
+    /**
+     * Obtiene la duración en días del tiempo de expiración del Refresh Token
+     * @return Una respuesta que contiene la duración del token en días
+     */
+    Response<Long> getRefreshTokenExpiration();
+
+
+    /**
+     * Actualiza la duración de expiración del Refresh Token
+     * @param refreshTokenConfigRequestDTO
+     * @return Una respuesta que contiene el nuevo valor de expiración del token en días.
+     */
+    Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO);
 
 }
