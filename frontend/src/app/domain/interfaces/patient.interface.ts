@@ -1,6 +1,5 @@
 export interface PatientInterface {
   name: string;
-  age: number;
   birthday: Date;
   dni: number;
   phone: number;
@@ -8,5 +7,6 @@ export interface PatientInterface {
   address: string;
   locality: string;
   medicare?: string;
-  affiliate_number?: number;
+  affiliateNumber?: number;
+  medicalHistory?: string[];
 }

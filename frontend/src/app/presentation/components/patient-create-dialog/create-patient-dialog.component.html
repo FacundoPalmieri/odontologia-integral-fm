@@ -1,0 +1,88 @@
+<h2 mat-dialog-title>Alta de Paciente</h2>
+<mat-dialog-content class="overflow-auto">
+  <div class="mt-1">
+    <form
+      [formGroup]="patientForm"
+      class="mt-1 grid gap-3 md:grid-cols-2 lg:grid-cols-3"
+    >
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Nombre y Apellido</mat-label>
+        <input type="text" matInput formControlName="name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>DNI</mat-label>
+        <input type="number" matInput formControlName="dni" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Fecha de nacimiento</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="birthday" />
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker touchUi #picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Teléfono</mat-label>
+        <input type="number" matInput formControlName="phone" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Email</mat-label>
+        <input type="string" matInput formControlName="mail" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Dirección</mat-label>
+        <input type="string" matInput formControlName="address" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Localidad</mat-label>
+        <input
+          type="text"
+          aria-label="Localidad"
+          matInput
+          formControlName="locality"
+          [matAutocomplete]="auto"
+        />
+        <mat-autocomplete
+          autoActiveFirstOption
+          #auto="matAutocomplete"
+          [displayWith]="displayFn"
+        >
+          @for (locality of filteredLocalities | async; track $index) {
+          <mat-option [value]="locality">
+            <b>{{ locality.district }}</b> - {{ locality.province }}</mat-option
+          >
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Obra social</mat-label>
+        <input type="string" matInput formControlName="medicare" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Número de afiliado</mat-label>
+        <input type="number" matInput formControlName="medicare" />
+      </mat-form-field>
+    </form>
+    <div class="text-lg mb-2"><b>Antecedentes clínicos</b></div>
+    <app-clinical-history></app-clinical-history>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button
+    mat-flat-button
+    [mat-dialog-close]="patientForm.value"
+    [disabled]="!patientForm.valid"
+  >
+    Crear
+  </button>
+</mat-dialog-actions>

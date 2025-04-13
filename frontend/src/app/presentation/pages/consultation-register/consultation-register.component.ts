@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { AsyncPipe, CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -25,6 +25,9 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatSelectModule } from "@angular/material/select";
 import { PaymentMethodEnum } from "../../../utils/enums/payment-method.enum";
+import { MatDialog } from "@angular/material/dialog";
+import { CreatePatientDialogComponent } from "../../components/patient-create-dialog/create-patient-dialog.component";
+import { ClincalHistoryComponent } from "../../components/clinical-history/clinical-history.component";
 
 @Component({
   selector: "app-consultation-register",
@@ -56,9 +59,12 @@ import { PaymentMethodEnum } from "../../../utils/enums/payment-method.enum";
     MatNativeDateModule,
     OdontogramComponent,
     MatSelectModule,
+    ClincalHistoryComponent,
   ],
 })
 export class ConsultationRegisterComponent implements OnInit {
+  readonly dialog = inject(MatDialog);
+
   paymentMethodEnum = PaymentMethodEnum;
   patientSearchControl = new FormControl("");
   filteredPatients: Observable<PatientInterface[]> = of([]);
@@ -76,7 +82,6 @@ export class ConsultationRegisterComponent implements OnInit {
   patients: PatientInterface[] = [
     {
       name: "Matías Iglesias",
-      age: 26,
       birthday: new Date(1998, 2, 11),
       dni: 12341234,
       phone: 1112312312,
@@ -84,11 +89,10 @@ export class ConsultationRegisterComponent implements OnInit {
       address: "Tucuman 752",
       locality: "CABA",
       medicare: "Swiss Medical",
-      affiliate_number: 123456787654321,
+      affiliateNumber: 123456787654321,
     },
     {
       name: "Facundo Palmieri",
-      age: 31,
       birthday: new Date(1993, 4, 17),
       dni: 12341234,
       phone: 1112312312,
@@ -96,11 +100,10 @@ export class ConsultationRegisterComponent implements OnInit {
       address: "Tucuman 752",
       locality: "CABA",
       medicare: "Galeno",
-      affiliate_number: 123456787654321,
+      affiliateNumber: 123456787654321,
     },
     {
       name: "Ana García",
-      age: 42,
       birthday: new Date(1982, 8, 22),
       dni: 56785678,
       phone: 1198798798,
@@ -108,11 +111,10 @@ export class ConsultationRegisterComponent implements OnInit {
       address: "Corrientes 123",
       locality: "CABA",
       medicare: "OSDE",
-      affiliate_number: 987654321234567,
+      affiliateNumber: 987654321234567,
     },
     {
       name: "Matías Rodríguez",
-      age: 35,
       birthday: new Date(1989, 11, 5),
       dni: 90129012,
       phone: 1145645645,
@@ -120,11 +122,10 @@ export class ConsultationRegisterComponent implements OnInit {
       address: "Santa Fe 456",
       locality: "CABA",
       medicare: "Medifé",
-      affiliate_number: 543212349876543,
+      affiliateNumber: 543212349876543,
     },
     {
       name: "Facundo López",
-      age: 29,
       birthday: new Date(1995, 6, 10),
       dni: 34563456,
       phone: 1178978978,
@@ -132,7 +133,7 @@ export class ConsultationRegisterComponent implements OnInit {
       address: "Maipú 789",
       locality: "CABA",
       medicare: "Swiss Medical",
-      affiliate_number: 789123456543219,
+      affiliateNumber: 789123456543219,
     },
   ];
 
@@ -161,14 +162,10 @@ export class ConsultationRegisterComponent implements OnInit {
     });
   }
 
-  private _filterPatients(value: string): PatientInterface[] {
-    const filterValue = value.toLowerCase();
-
-    return this.patients.filter(
-      (patient) =>
-        patient.name.toLowerCase().includes(filterValue) ||
-        patient.dni.toString().includes(filterValue)
-    );
+  openCreatePatientDialog() {
+    const dialogRef = this.dialog.open(CreatePatientDialogComponent, {
+      width: "1400px",
+    });
   }
 
   displayFn(patient: PatientInterface): string {
@@ -197,4 +194,14 @@ export class ConsultationRegisterComponent implements OnInit {
   }
 
   finalizeConsultation() {}
+
+  private _filterPatients(value: string): PatientInterface[] {
+    const filterValue = value.toLowerCase();
+
+    return this.patients.filter(
+      (patient) =>
+        patient.name.toLowerCase().includes(filterValue) ||
+        patient.dni.toString().includes(filterValue)
+    );
+  }
 }

@@ -1,0 +1,83 @@
+<div class="w-full">
+  <form [formGroup]="clinicalHistoryForm">
+    <div formArrayName="clinicHistories">
+      @for (antecedente of clinicHistories.controls; track $index) {
+      <div [formGroupName]="$index" class="mb-2">
+        <div class="w-full flex gap-4 items-start">
+          <mat-form-field appearance="outline">
+            <mat-label>Antecedente</mat-label>
+            <mat-select [formControl]="getDisseaseControl($index)">
+              @for (disseaseType of disseaseTypes; track disseaseType) {
+              <mat-option [value]="disseaseType">{{
+                disseaseType.name
+              }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (getDisseaseControl($index).value?.dissease ===
+          disseaseEnum.ALERGICO) {
+          <mat-form-field appearance="outline">
+            <mat-label>Medicamento</mat-label>
+            <input matInput [formControl]="getMedicamentControl($index)" />
+            @if (getMedicamentControl($index).hasError('required')) {
+            <mat-error>El medicamento es requerido</mat-error>
+            }
+          </mat-form-field>
+          } @if (getDisseaseControl($index).value?.dissease ===
+          disseaseEnum.CARDIACO) {
+          <mat-form-field appearance="outline">
+            <mat-label>Condición</mat-label>
+            <mat-select [formControl]="getConditionControl($index)" multiple>
+              @for ( disseaseCondition of disseaseConditions; track
+              disseaseCondition ) {
+              <mat-option [value]="disseaseCondition">{{
+                disseaseCondition.name
+              }}</mat-option>
+              }
+            </mat-select>
+            @if (getConditionControl($index).hasError('required')) {
+            <mat-error>La condición es requerida</mat-error>
+            }
+          </mat-form-field>
+          } @if (getDisseaseControl($index).value?.dissease ===
+          disseaseEnum.HEPATITIS) {
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo</mat-label>
+            <input matInput [formControl]="getTypeControl($index)" />
+            @if (getTypeControl($index).hasError('required')) {
+            <mat-error>El tipo es requerido</mat-error>
+            }
+          </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline" class="grow max-h-40">
+            <mat-label>Descripción</mat-label>
+            <textarea
+              matInput
+              [formControl]="getDescriptionControl($index)"
+            ></textarea>
+          </mat-form-field>
+
+          <button
+            mat-icon-button
+            aria-label="Eliminar antecedente"
+            (click)="removeClinicHistory($index)"
+            class="mt-1"
+            matTooltip="Eliminar"
+          >
+            <i-tabler class="text-[#ef4444] mb-1" name="xbox-x"></i-tabler>
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+
+    <button mat-button (click)="addClinicHistory()">
+      <div class="flex items-center gap-2">
+        <i-tabler name="plus"></i-tabler>
+        <span>Agregar antecedente</span>
+      </div>
+    </button>
+  </form>
+</div>

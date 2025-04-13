@@ -16,6 +16,10 @@ import { errorInterceptor } from "../utils/interceptors/error.interceptor";
 import { tokenInterceptor } from "../utils/interceptors/token.interceptor";
 import { CustomPaginatorIntl } from "../utils/custom-paginator.initializer";
 import { MatPaginatorIntl } from "@angular/material/paginator";
+import {
+  MatNativeDateModule,
+  provideNativeDateAdapter,
+} from "@angular/material/core";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,6 +31,8 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([errorInterceptor, tokenInterceptor]),
       withFetch()
     ),
+    provideNativeDateAdapter(),
+    MatNativeDateModule,
     { provide: MatPaginatorIntl, useClass: CustomPaginatorIntl },
   ],
 };
