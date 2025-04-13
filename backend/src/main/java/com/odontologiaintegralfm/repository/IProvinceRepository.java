@@ -12,5 +12,5 @@ import java.util.List;
 @Repository
 public interface IProvinceRepository extends JpaRepository<Province, Long> {
 
-    List<Province> findAllByCountryId(Long countryId);
+    List<Province> findAllByCountryIdAndEnabledTrue(Long countryId);
 }

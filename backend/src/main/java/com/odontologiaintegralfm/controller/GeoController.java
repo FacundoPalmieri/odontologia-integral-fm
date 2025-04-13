@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class GeoController {
 
 
     /**
-     * Obtiene la lista de Países de la aplicación.
+     * Obtiene la lista de Países habilitados de la aplicación.
      * <p>
      * Requiere rol <b>administrador y Secretaría</b> para acceder.
      * </p>
@@ -60,7 +61,7 @@ public class GeoController {
 
 
     /**
-     * Obtiene la lista de Provincias de acuerdo al ID de País recibido.
+     * Obtiene la lista de Provincias habilitadas de acuerdo al ID de País recibido.
      * <p>
      * Requiere rol <b>administrador y Secretaría</b> para acceder.
      * </p>
@@ -83,14 +84,14 @@ public class GeoController {
     @GetMapping("/provinces/{id}")
     @PreAuthorize("hasAnyRole(@userRolesConfig.administradorRole," +
             "                 @userRolesConfig.secretariaRole)")
-    public ResponseEntity<Response<List<ProvinceResponseDTO>>> getProvincesByIdCountry(@Valid @PathVariable("id") Long idCountry) {
+    public ResponseEntity<Response<List<ProvinceResponseDTO>>> getProvincesByIdCountry(@NotNull @PathVariable("id") Long idCountry) {
         Response<List<ProvinceResponseDTO>>response = geoService.getProvincesByIdCountry(idCountry);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
     /**
-     * Obtiene la lista de Localidades de acuerdo al ID de la provincia recibida.
+     * Obtiene la lista de Localidades habilitadas de acuerdo al ID de la provincia recibida.
      * <p>
      * Requiere rol <b>administrador y Secretaría</b> para acceder.
      * </p>
@@ -111,7 +112,7 @@ public class GeoController {
     @GetMapping("/localities/{id}")
     @PreAuthorize("hasAnyRole(@userRolesConfig.administradorRole," +
             "                 @userRolesConfig.secretariaRole)")
-    public ResponseEntity<Response<List<LocalityResponseDTO>>> getLocalitiesByIdProvinces(@Valid @PathVariable("id") Long idProvinces) {
+    public ResponseEntity<Response<List<LocalityResponseDTO>>> getLocalitiesByIdProvinces(@NotNull @PathVariable("id") Long idProvinces) {
         Response<List<LocalityResponseDTO>>response = geoService.getLocalitiesByIdProvinces(idProvinces);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

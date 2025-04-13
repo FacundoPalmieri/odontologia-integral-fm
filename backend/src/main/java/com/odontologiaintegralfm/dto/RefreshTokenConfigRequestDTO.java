@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record RefreshTokenConfigRequestDTO(
         @NotNull
-        @Min(value = 1, message = "refreshTokenConfigDTO.invalidExpiration")
+        @Min(value = 1, message = "refreshTokenConfigRequestDTO.invalidExpiration")
         Long expiration
 ){}

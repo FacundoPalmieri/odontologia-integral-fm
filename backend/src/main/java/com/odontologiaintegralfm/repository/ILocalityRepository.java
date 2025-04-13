@@ -12,5 +12,5 @@ import java.util.List;
 @Repository
 public interface ILocalityRepository extends JpaRepository<Locality, Long> {
 
-    List<Locality> findAllByProvinceId(Long provinceId);
+    List<Locality> findAllByProvinceIdAndEnabledTrue(Long provinceId);
 }

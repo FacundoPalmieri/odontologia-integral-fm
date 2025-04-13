@@ -35,7 +35,7 @@ public class GeoService implements IGeoService {
 
 
     /**
-     * Obtiene todos los países
+     * Obtiene todos los países habilitados.
      *
      * @return Una respuesta que contiene una lista de objetos {@link CountryResponseDTO} representando los países.
      */
@@ -43,7 +43,7 @@ public class GeoService implements IGeoService {
     public Response<List<CountryResponseDTO>> getAllCountries() {
         try{
             //Obtiene los países.
-            List<Country> countries = countryRepository.findAll();
+            List<Country> countries = countryRepository.findAllByEnabledTrue();
 
             //Convierte los países a un objeto DTO.
             List<CountryResponseDTO> countriesDTO = countries.stream()
@@ -59,7 +59,7 @@ public class GeoService implements IGeoService {
 
 
     /**
-     * Obtiene todas las provincias correspondientes al ID del País que recibe como parámetro.
+     * Obtiene todas las provincias habilitadas correspondientes al ID del País que recibe como parámetro.
      *
      * @param countryId id del país.
      * @return Una respuesta que contiene una lista de objetos {@link ProvinceResponseDTO} representando las provincias.
@@ -69,7 +69,7 @@ public class GeoService implements IGeoService {
         try{
 
             // Obtiene las provincias de acuerdo al ID del pais.
-            List<Province> provinces = provinceRepository.findAllByCountryId(countryId);
+            List<Province> provinces = provinceRepository.findAllByCountryIdAndEnabledTrue(countryId);
 
             //Convierte las provincias en un objeto DTO.
             List<ProvinceResponseDTO> provincesDTO = provinces.stream()
@@ -85,7 +85,7 @@ public class GeoService implements IGeoService {
     }
 
     /**
-     * * Obtiene todas las localidades correspondientes al ID de la provincia que recibe como parámetro.
+     * * Obtiene todas las localidades habilitadas correspondientes al ID de la provincia que recibe como parámetro.
      *
      * @param provinceId id de la provincia
      * @return Una respuesta que contiene una lista de objetos {@link LocalityResponseDTO} representando las localidades.
@@ -95,7 +95,7 @@ public class GeoService implements IGeoService {
         try{
 
             //Obtener todas las localidades por ID de provincia
-            List<Locality> localities = localityRepository.findAllByProvinceId(provinceId);
+            List<Locality> localities = localityRepository.findAllByProvinceIdAndEnabledTrue(provinceId);
 
             //Convierte las localidades a un objeto DTO
             List<LocalityResponseDTO> localitiesDTO = localities.stream()
