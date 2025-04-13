@@ -85,7 +85,7 @@ public class MessageService implements IMessageService {
         try {
             return messageRepository.findAll();
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configRepository", 0L, "", "findAll");
+            throw new DataBaseException(e, "MessageService", 0L, "", "listMessage");
         }
     }
 
@@ -110,7 +110,7 @@ public class MessageService implements IMessageService {
             return messageRepository.findById(id).orElseThrow(()->new MessageNotFoundException("", id, "MessageService", "getById"));
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configRepository", 0L, "", "findAll");
+            throw new DataBaseException(e, "MessageService", 0L, "", "getById");
         }
     }
 

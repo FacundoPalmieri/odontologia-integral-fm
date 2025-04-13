@@ -39,8 +39,8 @@ import java.util.stream.Collectors;
 
  * Métodos disponibles:
  * <ul>
- *   <li>{@link UserService#findAll()}: Recupera la lista de todos los usuarios del sistema.</li>
- *   <li>{@link UserService#findById(Long)}: Busca un usuario por su identificador único.</li>
+ *   <li>{@link IUserService#getAll()}: Recupera la lista de todos los usuarios del sistema.</li>
+ *   <li>{@link IUserService#getById(Long)}: Busca un usuario por su identificador único.</li>
  *   <li>{@link UserService#save(UserSecCreateDTO)}: Guarda un nuevo usuario en la base de datos.</li>
  *   <li>{@link UserService#update(UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
  *   <li>{@link UserService#encriptPassword(String)}: Encripta una contraseña utilizando el algoritmo BCrypt.</li>
@@ -102,7 +102,7 @@ public class UserService implements IUserService {
      * @throws DataBaseException Si ocurre un error en la consulta a la base de datos.
      */
     @Override
-    public Response<List<UserSecResponseDTO>>findAll() {
+    public Response<List<UserSecResponseDTO>> getAll() {
         try{
             List<UserSec> userList = userRepository.findAll();
 
@@ -110,11 +110,11 @@ public class UserService implements IUserService {
             for(UserSec userSec : userList) {
                 userSecResponseDTOList.add(convertToDTO(userSec));
             }
-            String messageUser = messageService.getMessage("userService.findAll.ok", null, LocaleContextHolder.getLocale());
+            String messageUser = messageService.getMessage("userService.getAll.ok", null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser, userSecResponseDTOList);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", 0L, "", "findAll");
+            throw new DataBaseException(e, "userService", 0L, "", "getAll");
         }
     }
 
@@ -138,30 +138,30 @@ public class UserService implements IUserService {
      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
      */
     @Override
-    public Response<UserSecResponseDTO> findById (Long id) {
+    public Response<UserSecResponseDTO> getById(Long id) {
         try{
              Optional<UserSec> user = userRepository.findById(id);
              if(user.isPresent()){
                  UserSecResponseDTO dto = convertToDTO(user.get());
 
-                 String messageUser = messageService.getMessage("userService.findById.ok.user", null, LocaleContextHolder.getLocale());
+                 String messageUser = messageService.getMessage("userService.getById.ok.user", null, LocaleContextHolder.getLocale());
 
                  return new Response<>(true, messageUser, dto);
              }else{
-                 throw new UserNotFoundException("","UserService", "FindById", id);
+                 throw new UserNotFoundException("","UserService", "getById", id);
              }
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", id, "", "findById");
+            throw new DataBaseException(e, "userService", id, "", "getById");
         }
     }
 
     @Override
     public UserSec getByUsername(String username) {
         try {
-            return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UserNotFoundException("", "UserService", "findByUsername", 0L));
+            return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UserNotFoundException("", "UserService", "getByUsername", 0L));
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", 0L, "", "findByUsername");
+            throw new DataBaseException(e, "userService", 0L, "", "getByUsername");
         }
     }
 
