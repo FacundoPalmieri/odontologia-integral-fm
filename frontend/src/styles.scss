@@ -159,4 +159,10 @@ body {
       container-color: var(--mat-sys-content-toolbar-container-color),
     )
   );
+
+  @include mat.dialog-overrides(
+    (
+      container-max-width: 1200px,
+    )
+  );
 }
