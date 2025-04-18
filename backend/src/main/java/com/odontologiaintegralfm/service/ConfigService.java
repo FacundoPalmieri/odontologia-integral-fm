@@ -3,8 +3,8 @@ package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.RefreshTokenConfigNotFoundException;
-import com.odontologiaintegralfm.exception.TokenConfigNotFoundException;
+import com.odontologiaintegralfm.exception.LogLevel;
+import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.MessageConfig;
 import com.odontologiaintegralfm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,7 +203,7 @@ public class ConfigService implements IConfigService {
             return new Response<>(true, userMessage, tokenConfigRequestDTO.expiration());
         }
 
-        throw new TokenConfigNotFoundException(0L,"ConfigService", "updateTokenExpiration");
+        throw new NotFoundException("","exception.tokenConfigNotFoundException.user",null,"exception.tokenConfigNotFoundException.log",null,"","ConfigService", "updateTokenExpiration", LogLevel.ERROR);
     }
 
 
@@ -254,7 +254,7 @@ public class ConfigService implements IConfigService {
             return new Response<>(true, userMessage, refreshTokenConfigRequestDTO.expiration());
         }
 
-        throw new RefreshTokenConfigNotFoundException(0L,"ConfigService","updateRefreshTokenExpiration");
+        throw new NotFoundException("","exception.refreshTokenConfigNotFoundException.user",null, "exception.refreshTokenConfigNotFoundException.log",0L,"","ConfigService","updateRefreshTokenExpiration",LogLevel.ERROR);
     }
 
 

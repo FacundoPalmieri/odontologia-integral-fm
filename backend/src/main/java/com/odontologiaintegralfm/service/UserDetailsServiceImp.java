@@ -1,8 +1,8 @@
 package com.odontologiaintegralfm.service;
 import com.odontologiaintegralfm.dto.*;
-import com.odontologiaintegralfm.exception.BlockAccountException;
-import com.odontologiaintegralfm.exception.CredentialsException;
-import com.odontologiaintegralfm.exception.UserNameNotFoundException;
+import com.odontologiaintegralfm.exception.ForbiddenException;
+import com.odontologiaintegralfm.exception.LogLevel;
+import com.odontologiaintegralfm.exception.UnauthorizedException;
 import com.odontologiaintegralfm.model.RefreshToken;
 import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.model.UserSec;
@@ -90,14 +90,14 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * Carga un usuario por su nombre de usuario y lo convierte en un objeto {@link UserDetails} de Spring Security.
      * <p>
      * Este método busca el usuario en la base de datos y, si no lo encuentra, lanza una excepción
-     * {@link UserNameNotFoundException}. Luego, obtiene los roles y permisos del usuario,
+     * {@link UnauthorizedException}. Luego, obtiene los roles y permisos del usuario,
      * los convierte en una lista de {@link SimpleGrantedAuthority} y devuelve un objeto {@link User}
      * con los datos del usuario y sus permisos.
      * </p>
      *
      * @param username El nombre de usuario del usuario a cargar.
      * @return Un objeto {@link UserDetails} con los datos del usuario y sus permisos.
-     * @throws UsernameNotFoundException Si el usuario no se encuentra en la base de datos.
+     * @throws UnauthorizedException Si el usuario no se encuentra en la base de datos.
      */
     @Override
     public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
@@ -106,7 +106,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         //Se cuenta con usuario de tipo Usersec y se necesita devolver un tipo UserDetails
         //Se recupera el usuario de la bd
         UserSec userSec = userRepo.findUserEntityByUsername(username)
-                .orElseThrow(()-> new UserNameNotFoundException(username));
+                .orElseThrow(()-> new UnauthorizedException("","exception.usernameNotFound.user", null,"exception.usernameNotFound.log",null,username,"UserDetailServiceImp", "loadUserByUsername", LogLevel.WARN));
 
         //Spring Security maneja permisos con GrantedAuthority
         //Se crea una lista de SimpleGrantedAuthority para almacenar los permisos
@@ -150,7 +150,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
      *
      * @param authLoginRequest Un objeto {@link AuthLoginRequestDTO} que contiene las credenciales del usuario.
      * @return Un objeto {@link AuthLoginResponseDTO} con el nombre de usuario, un mensaje de éxito, el token JWT y un estado de autenticación exitoso.
-     * @throws CredentialsException Si las credenciales son incorrectas, se lanza una excepción de tipo {@link CredentialsException}.
+     * @throws UnauthorizedException  Si las credenciales son incorrectas, se lanza una excepción de tipo {@link UnauthorizedException }.
      */
     public Response<AuthLoginResponseDTO> loginUser (AuthLoginRequestDTO authLoginRequest){
         try {
@@ -192,7 +192,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
             return new Response<> (true,"", authLoginResponseDTO);
         }catch (BadCredentialsException ex) {
-            throw new CredentialsException(authLoginRequest.username());
+            throw new UnauthorizedException("","exception.badCredentials.user",null, "exception.badCredentials.log", null, authLoginRequest.username(),"UserDetailServiceImp", "loginUser", LogLevel.WARN);
         }
     }
 
@@ -210,9 +210,8 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * @param username Nombre de usuario del usuario que intenta autenticarse.
      * @param password Contraseña proporcionada por el usuario.
      * @return Un objeto {@link Authentication} que representa la autenticación del usuario si las credenciales son correctas.
-     * @throws UserNameNotFoundException Si el usuario no es encontrado en la base de datos.
-     * @throws CredentialsException Si la contraseña es incorrecta.
-     * @throws BlockAccountException Si la cuenta ha sido bloqueada debido a intentos fallidos de inicio de sesión.
+     * @throws UnauthorizedException Si el usuario no es encontrado en la base de datos o Si la contraseña es incorrecta.
+     * @throws ForbiddenException Si la cuenta ha sido bloqueada debido a intentos fallidos de inicio de sesión.
      */
     public Authentication authenticate (String username, String password) {
         //Se recupera información del usuario por el username
@@ -221,7 +220,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         // En caso que sea nulo, se informa que no se pudo encontrar al usuario.
         if (userDetails == null) {
             String logMessage = messageService.getMessage("exception.UsernameNotFound.log", new Object[]{username}, LocaleContextHolder.getLocale());
-            throw new UserNameNotFoundException(username);
+            throw new UnauthorizedException("","exception.usernameNotFound.user", null,"exception.usernameNotFound.log",null,username,"UserDetailServiceImp", "authenticate", LogLevel.WARN);
         }
 
         //En caso que no coincidan las credenciales se informa que la password es incorrecta
@@ -236,9 +235,9 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Se bloquea en caso de igualar o exceder el limite.
             if(!status){
                 UserSec userSec = userService.blockAccount(username);
-                throw new BlockAccountException("",userSec.getId(), userSec.getUsername());
+                throw new ForbiddenException("","exception.blockAccount.user",null,"exception.blockAccount.log",userSec.getId(), userSec.getUsername(), "UserDetailServiceImp", "authenticate",LogLevel.WARN);
             }
-            throw new CredentialsException(username);
+            throw new UnauthorizedException("","exception.badCredentials.user",null, "exception.badCredentials.log", null, username,"UserDetailServiceImp", "authenticate", LogLevel.WARN);
         }
 
         //Verifica si está activa la cuenta.

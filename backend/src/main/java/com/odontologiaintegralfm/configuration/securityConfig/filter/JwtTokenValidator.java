@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.exception.UnauthorizedException;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
@@ -110,7 +111,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         }catch (TokenExpiredException ex){
             handleTokenExpiredException(ex, response);
-        }catch (JWTVerificationException ex) {
+        }catch (JWTVerificationException | UnauthorizedException ex) {
             handleTokenInvalidException(ex,response);
         }
     }
@@ -167,7 +168,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
      * @param response La respuesta HTTP que se enviará al cliente.
      * @throws IOException Si ocurre un error al escribir la respuesta JSON en el cuerpo de la respuesta HTTP.
      */
-    private void handleTokenInvalidException(JWTVerificationException ex, HttpServletResponse response) throws IOException {
+    private void handleTokenInvalidException(Exception ex, HttpServletResponse response) throws IOException {
 
         // Comprobar si hay una autenticación en el contexto
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
