@@ -1,10 +1,13 @@
 package com.odontologiaintegralfm.service;
 
+import com.mysql.cj.x.protobuf.MysqlxNotice;
 import com.odontologiaintegralfm.dto.CountryResponseDTO;
 import com.odontologiaintegralfm.dto.LocalityResponseDTO;
 import com.odontologiaintegralfm.dto.ProvinceResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
+import com.odontologiaintegralfm.exception.LogLevel;
+import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.Country;
 import com.odontologiaintegralfm.model.Locality;
 import com.odontologiaintegralfm.model.Province;
@@ -19,11 +22,10 @@ import org.springframework.transaction.CannotCreateTransactionException;
 
 import java.util.List;
 
-/**
- * @author [Facundo Palmieri]
- */
+
 @Service
 public class GeoService implements IGeoService {
+
     @Autowired
     private ICountryRepository countryRepository;
 
@@ -41,7 +43,7 @@ public class GeoService implements IGeoService {
      */
     @Override
     public Response<List<CountryResponseDTO>> getAllCountries() {
-        try{
+        try {
             //Obtiene los países.
             List<Country> countries = countryRepository.findAllByEnabledTrue();
 
@@ -51,14 +53,15 @@ public class GeoService implements IGeoService {
                     .toList();
 
             // Retorna respuesta.
-            return new Response<>(true,"",countriesDTO);
-        }catch (DataAccessException | CannotCreateTransactionException e) {
+            return new Response<>(true, "", countriesDTO);
+        } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "GeoService", 0L, "", "getAllCountries");
         }
     }
 
 
     /**
+     * Valída el ID de país recibido.
      * Obtiene todas las provincias habilitadas correspondientes al ID del País que recibe como parámetro.
      *
      * @param countryId id del país.
@@ -66,9 +69,11 @@ public class GeoService implements IGeoService {
      */
     @Override
     public Response<List<ProvinceResponseDTO>> getProvincesByIdCountry(Long countryId) {
-        try{
+        try {
+            //Valída que el País exista o esté habilitado.
+            validateCountry(countryId);
 
-            // Obtiene las provincias de acuerdo al ID del pais.
+            // Recupera provincias relacionadas que estén habilitadas.
             List<Province> provinces = provinceRepository.findAllByCountryIdAndEnabledTrue(countryId);
 
             //Convierte las provincias en un objeto DTO.
@@ -77,12 +82,13 @@ public class GeoService implements IGeoService {
                     ).toList();
 
             // Retorna respuesta.
-            return new Response<>(true,"",provincesDTO);
-
+            return new Response<>(true, "", provincesDTO);
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "GeoService", 0L, "", "getProvincesByIdCountry");
         }
     }
+
+
 
     /**
      * * Obtiene todas las localidades habilitadas correspondientes al ID de la provincia que recibe como parámetro.
@@ -92,7 +98,10 @@ public class GeoService implements IGeoService {
      */
     @Override
     public Response<List<LocalityResponseDTO>> getLocalitiesByIdProvinces(Long provinceId) {
-        try{
+        try {
+
+            //Valída que la Provincia exista o esté habilitado.
+            validateProvince(provinceId);
 
             //Obtener todas las localidades por ID de provincia
             List<Locality> localities = localityRepository.findAllByProvinceIdAndEnabledTrue(provinceId);
@@ -103,14 +112,35 @@ public class GeoService implements IGeoService {
                     .toList();
 
             //Retorna respuesta
-            return new Response<>(true,"",localitiesDTO);
+            return new Response<>(true, "", localitiesDTO);
 
-        }catch (DataAccessException | CannotCreateTransactionException e) {
+        } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "GeoService", 0L, "", "getLocalitiesByIdProvinces");
         }
     }
 
 
+    /**
+     * Valída que el País recibido por parámetro exista y este habilitado.
+     * @param countryId
+
+     */
+    private void validateCountry(Long countryId) {
+        countryRepository.findByIdAndEnabledTrue(countryId)
+                .orElseThrow(() -> new NotFoundException("","geoService.validateCountry.notFound.user", null,"geoService.validateCountry.notFound.log", countryId, "","GeoService","validateCountry",LogLevel.ERROR));
+    }
+
+    /**
+     * Valída que la Provincia recida por parámetros exista y esté habilitada.
+     * @param provinceId
+     * @throws NotFoundException en caso de no encontrar la provincia.
+     */
+    private void validateProvince(Long provinceId) {
+        provinceRepository.findByIdAndEnabledTrue(provinceId)
+                .orElseThrow(() -> new NotFoundException("","geoService.validateProvince.notFound.user", null,"geoService.validateProvince.notFound.log", provinceId, "","GeoService","validateProvince",LogLevel.ERROR));
+    }
+
 }
+
 
 

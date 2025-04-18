@@ -76,7 +76,7 @@ public class RefreshTokenService implements IRefreshTokenService {
 
         //Valida la vigencia
         if(refreshToken.getExpirationDate().isBefore(LocalDateTime.now())){
-            throw new UnauthorizedException("userDetailServiceImpl.refreshToken.invalidCode","",null,"exception.refreshToken.log",refreshTokenRequestDTO.getIdUser(),"","RefreshTokenService", "validateRefreshToken", LogLevel.ERROR);
+            throw new UnauthorizedException("userDetailServiceImpl.refreshToken.refreshTokenExpired","",null,"exception.refreshToken.log",refreshTokenRequestDTO.getIdUser(),"","RefreshTokenService", "validateRefreshToken", LogLevel.ERROR);
         }
 
     }

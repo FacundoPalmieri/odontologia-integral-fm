@@ -12,6 +12,6 @@ public class RefreshTokenRequestDTO {
     @NotNull(message = "refreshTokenRequestDTO.userIdEmpty")
     private Long idUser;
 
-    @NotNull(message = "refreshTokenRequestDTO.userEmpty")
+    @NotNull(message = "refreshTokenRequestDTO.usernameEmpty")
     private String username;
 }
