@@ -46,13 +46,11 @@ export class HomeComponent implements OnInit {
   router = inject(Router);
   fullScreenService = inject(FullscreenService);
   treatmentReferencesService = inject(TreatmentReferencesSidenavService);
-  showFiller = false;
   currentTheme = computed(() => this.themeService.currentTheme());
   userData: UserDataInterface | null = this.authService.getUserData();
   permissions: string[] = [];
   private menuItems = PermissionFactory.createPermissions();
   filteredMenuItems: MenuItemInterface[] = [];
-  isFullscreen = false;
 
   constructor() {}
 
