@@ -15,6 +15,13 @@
     </div>
   </mat-card-header>
   <mat-card-content>
+    <div class="w-1/2 flex mt-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Buscar usuario</mat-label>
+        <input type="text" matInput [formControl]="userFilter" />
+        <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+      </mat-form-field>
+    </div>
     <div class="overflow-x-auto">
       <table mat-table [dataSource]="usersDataSource" matSort>
         <ng-container matColumnDef="id">
@@ -104,6 +111,13 @@
     </div>
   </mat-card-header>
   <mat-card-content>
+    <div class="w-1/2 flex mt-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Buscar rol</mat-label>
+        <input type="text" matInput [formControl]="roleFilter" />
+        <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+      </mat-form-field>
+    </div>
     <div class="overflow-x-auto">
       <table mat-table [dataSource]="rolesDataSource" matSort>
         <ng-container matColumnDef="id">

@@ -34,6 +34,9 @@ import { EditRoleDialogComponent } from "./edit-role-dialog/edit-role-dialog.com
 import { RoleUpdateDto } from "../../../domain/dto/role-update.dto";
 import { CreateRoleDialogComponent } from "./create-role-dialog/create-role-dialog.component";
 import { RoleCreateDto } from "../../../domain/dto/role-create.dto";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatInputModule } from "@angular/material/input";
 
 @Component({
   selector: "app-configuration",
@@ -52,6 +55,9 @@ import { RoleCreateDto } from "../../../domain/dto/role-create.dto";
     MatPaginatorModule,
     MatSortModule,
     MatDialogModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
   ],
 })
 export class ConfigurationComponent {
@@ -64,7 +70,9 @@ export class ConfigurationComponent {
   users = signal<UserInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
 
+  userFilter = new FormControl("");
   usersDataSource = new MatTableDataSource<UserInterface>([]);
+  roleFilter = new FormControl("");
   rolesDataSource = new MatTableDataSource<RoleInterface>([]);
 
   @ViewChildren(MatPaginator) paginators!: QueryList<MatPaginator>;
@@ -81,6 +89,7 @@ export class ConfigurationComponent {
 
   constructor() {
     this._loadInitialData();
+    this._setupFilters();
 
     effect(() => {
       if (this.users()) {
@@ -236,5 +245,23 @@ export class ConfigurationComponent {
       .subscribe((response: ApiResponseInterface<RoleInterface[]>) => {
         this.roles.set(response.data);
       });
+  }
+
+  private _setupFilters() {
+    this.userFilter.valueChanges.subscribe((filterValue) => {
+      this.usersDataSource.filter = filterValue?.trim().toLowerCase()!;
+
+      if (this.usersDataSource.paginator) {
+        this.usersDataSource.paginator.firstPage();
+      }
+    });
+
+    this.roleFilter.valueChanges.subscribe((filterValue) => {
+      this.rolesDataSource.filter = filterValue?.trim().toLowerCase()!;
+
+      if (this.usersDataSource.paginator) {
+        this.usersDataSource.paginator.firstPage();
+      }
+    });
   }
 }

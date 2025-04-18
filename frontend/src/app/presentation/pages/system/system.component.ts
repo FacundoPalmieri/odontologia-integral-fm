@@ -54,6 +54,7 @@ export class SystemComponent {
   tokenForm: FormGroup;
   displayedColumns: string[] = ["id", "key", "value", "locale", "action"];
   messages = signal<MessageInterface[]>([]);
+  messagesFilter = new FormControl("");
   messagesDataSource: MatTableDataSource<MessageInterface> =
     new MatTableDataSource();
 
@@ -84,6 +85,7 @@ export class SystemComponent {
     this._getMessages();
     this._getTokenExpirationTime();
     this._getRefreshTokenExpirationTime();
+    this._setupFilters();
   }
 
   updateTokenExpirationTime() {
@@ -214,5 +216,15 @@ export class SystemComponent {
       .subscribe((response: ApiResponseInterface<MessageInterface[]>) => {
         this.messages.set(response.data);
       });
+  }
+
+  private _setupFilters() {
+    this.messagesFilter.valueChanges.subscribe((filterValue) => {
+      this.messagesDataSource.filter = filterValue?.trim().toLowerCase()!;
+
+      if (this.messagesDataSource.paginator) {
+        this.messagesDataSource.paginator.firstPage();
+      }
+    });
   }
 }
