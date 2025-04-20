@@ -133,10 +133,11 @@ public class GlobalExceptionHandler {
             String errorMessage = messageService.getMessage(error.getDefaultMessage(), null, LocaleContextHolder.getLocale());   // Guardamos el nombre del campo (error.getField()) y el mensaje de error correspondiente (error.getDefaultMessage()) en el mapa
             errors.put(error.getField(), errorMessage);
 
-            //Se guarda Log
+            //Obtiene el usuario autenticado.
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = (authentication != null) ? authentication.getName() : "Anónimo";
 
+            //Guarda el log
             String logMessage = messageService.getMessage("exception.validation.log",new Object[]{error.getField(),errorMessage,username}, LocaleContextHolder.getLocale());
             log.error(logMessage);
         });

@@ -4,20 +4,19 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 /**
- * Entidad que representa un país
+ * Entidad que representa la especialidad de los Odontólogos.
  */
 @Entity
 @Data
-@Table(name= "countries")
-public class Country {
+@Table(name = "dental_specialties")
+public class DentistSpecialty {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 15, unique = true, nullable = false)
+    @Column(length = 30, unique = true,nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private boolean enabled;
+    private Boolean enabled;
 }

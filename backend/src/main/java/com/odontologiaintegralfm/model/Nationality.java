@@ -4,20 +4,18 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 /**
- * Entidad que representa un país
+ * Entidad que representa las nacionalidades de las Personas.
  */
 @Entity
 @Data
-@Table(name= "countries")
-public class Country {
-
+@Table(name = "nationalities")
+public class Nationality {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 15, unique = true, nullable = false)
+    @Column(length = 50, nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private boolean enabled;
+    private Boolean enabled;
 }

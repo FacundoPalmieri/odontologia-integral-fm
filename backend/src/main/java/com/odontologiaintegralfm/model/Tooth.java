@@ -4,20 +4,23 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 /**
- * Entidad que representa un país
+ * Entidad que representa a los Dientes
  */
+
 @Entity
 @Data
-@Table(name= "countries")
-public class Country {
-
+@Table (name ="teeth")
+public class Tooth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 15, unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
+    private int number;
+
+    @Column(length =20, unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private boolean enabled;
+    private Boolean enabled;
+
 }
