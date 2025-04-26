@@ -4,21 +4,20 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 /**
- * Entidad que representa a los tratamientos de los Odontólogos.
+ * Entidad para representar los riesgos médicos
  */
+
 @Entity
 @Data
-@Table(name = "Treatment")
-public class Treatment {
+@Table(name = "medical_risk")
+public class MedicalRisk {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 50, nullable = false, unique = true)
-    private String name;
+    private String description;
 
-    @Column(nullable = false)
     private Boolean enabled;
-
 }

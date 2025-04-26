@@ -25,7 +25,7 @@ public class ContactEmail {
     @Column(length = 50, nullable = false)
     private String email;
 
-    @ManyToMany(targetEntity = Person.class)
+    @ManyToMany(fetch = FetchType.LAZY, targetEntity = Person.class)
     @JoinTable(
             name = "contact_email_people",
             joinColumns = @JoinColumn(name = "contact_email"),

@@ -26,7 +26,7 @@ public class Address {
     @Column(length = 2)
     private String apartment;
 
-    @ManyToOne(targetEntity = Locality.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Locality.class)
     @JoinColumn(name = "locality_id")
     private Locality locality;
 

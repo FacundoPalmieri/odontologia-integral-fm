@@ -18,7 +18,7 @@ public class Locality {
     @Column(length = 30, unique = true,nullable = false)
     private String name;
 
-    @ManyToOne(targetEntity = Province.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Province.class)
     @JoinColumn(name ="province_id")
     private Province province;
 

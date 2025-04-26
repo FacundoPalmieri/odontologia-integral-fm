@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @Table(name="patients")
 public class Patient extends Person {
 
-    @ManyToOne(targetEntity = HealthPlans.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = HealthPlans.class)
     @JoinColumn(name = "health_plans_id")
     private HealthPlans healthPlans;
 

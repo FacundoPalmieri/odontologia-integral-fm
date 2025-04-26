@@ -14,11 +14,11 @@ public class Dentist extends Person {
     @Column(length = 30, unique = true, nullable = false)
     private String licenseNumber;
 
-    @ManyToOne(targetEntity = DentistSpecialty.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DentistSpecialty.class)
     @JoinColumn(name = "dentist_specialty_id")
     private DentistSpecialty dentistSpecialty;
 
-    @OneToOne(targetEntity = UserSec.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
     @JoinColumn(name = "user_id")
     private UserSec user;
 

@@ -24,7 +24,7 @@ public abstract class Person {
     @Column(length = 30, nullable = false)
     private String lastName;
 
-    @ManyToOne(targetEntity = DniType.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DniType.class)
     @JoinColumn(name = "dni_type_id")
     private DniType dniType;
 
@@ -37,15 +37,15 @@ public abstract class Person {
     @Transient
     private int age;
 
-    @ManyToOne(targetEntity = Gender.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Gender.class)
     @JoinColumn(name = "gender_id")
     private Gender gender;
 
-    @ManyToOne(targetEntity = Nationality.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Nationality.class)
     @JoinColumn(name = "nationality_id")
     private Nationality nationality;
 
-    @ManyToOne(targetEntity = Address.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Address.class)
     @JoinColumn(name = "address_id")
     private Address address;
 
