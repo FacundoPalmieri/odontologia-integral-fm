@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.service;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
+import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.Permission;
 import com.odontologiaintegralfm.model.Role;
@@ -305,7 +306,6 @@ public class RoleService implements IRoleService {
     private RoleResponseDTO convertToDTOResponse(Role role) {
         RoleResponseDTO roleDTO = new RoleResponseDTO();
         roleDTO.setId(role.getId());
-        roleDTO.setRole(role.getRole());
         roleDTO.setPermissionsList(role.getPermissionsList());
         return roleDTO;
     }

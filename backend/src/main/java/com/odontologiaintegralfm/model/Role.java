@@ -28,6 +28,7 @@ public class Role {
     @Column(length = 50, unique = true)
     private String role;
 
+
     /**Lista de permisos asociados al rol.
      * Se utiliza Set porque no permite repetidos.
      */

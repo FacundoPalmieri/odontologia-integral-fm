@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.appConfig.UserRolesConfig;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.model.MessageConfig;
 import com.odontologiaintegralfm.service.ConfigService;
@@ -54,14 +53,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/config")
-@PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
+@PreAuthorize("hasRole(T(com.odontologiaintegralfm.enums.UserRole).Desarrollador.name())")
 public class ConfigController {
-    @Autowired
-    private UserRolesConfig userRolesConfig;
 
     @Autowired
     private ConfigService configService;
-
 
     /**
      * Obtiene la configuración de mensajes.

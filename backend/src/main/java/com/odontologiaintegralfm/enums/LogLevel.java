@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.exception;
+package com.odontologiaintegralfm.enums;
 
 
 public enum LogLevel {

@@ -21,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/geo")
+@PreAuthorize("denyAll()")
 public class GeoController {
     @Autowired
     private GeoService geoService;
@@ -47,8 +48,8 @@ public class GeoController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping ("/countries/all")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.administradorRole," +
-            "                 @userRolesConfig.secretariaRole)")
+    @PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Administrador.name()," +
+                             "T(com.odontologiaintegralfm.enums.UserRole).Secretaria.name())")
     public ResponseEntity<Response<List<CountryResponseDTO>>> getAllCountries() {
       Response<List<CountryResponseDTO>>response = geoService.getAllCountries();
       return new ResponseEntity<>(response, HttpStatus.OK);
@@ -82,8 +83,7 @@ public class GeoController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/provinces/{id}")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.administradorRole," +
-            "                 @userRolesConfig.secretariaRole)")
+    @PreAuthorize("hasAnyRole('Administrador', 'Secretaria')")
     public ResponseEntity<Response<List<ProvinceResponseDTO>>> getProvincesByIdCountry(@NotNull @PathVariable("id") Long idCountry) {
         Response<List<ProvinceResponseDTO>>response = geoService.getProvincesByIdCountry(idCountry);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -110,8 +110,8 @@ public class GeoController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/localities/{id}")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.administradorRole," +
-            "                 @userRolesConfig.secretariaRole)")
+    @PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Administrador.name()," +
+                             "T(com.odontologiaintegralfm.enums.UserRole).Secretaria.name())")
     public ResponseEntity<Response<List<LocalityResponseDTO>>> getLocalitiesByIdProvinces(@NotNull @PathVariable("id") Long idProvinces) {
         Response<List<LocalityResponseDTO>>response = geoService.getLocalitiesByIdProvinces(idProvinces);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -1,4 +1,5 @@
 package com.odontologiaintegralfm.exception;
+import com.odontologiaintegralfm.enums.LogLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;

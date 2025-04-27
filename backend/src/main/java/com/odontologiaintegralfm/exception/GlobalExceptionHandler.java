@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.exception;
 
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 

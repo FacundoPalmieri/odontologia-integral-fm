@@ -1,12 +1,11 @@
 package com.odontologiaintegralfm.service;
 
-import com.mysql.cj.x.protobuf.MysqlxNotice;
 import com.odontologiaintegralfm.dto.CountryResponseDTO;
 import com.odontologiaintegralfm.dto.LocalityResponseDTO;
 import com.odontologiaintegralfm.dto.ProvinceResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.LogLevel;
+import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.Country;
 import com.odontologiaintegralfm.model.Locality;

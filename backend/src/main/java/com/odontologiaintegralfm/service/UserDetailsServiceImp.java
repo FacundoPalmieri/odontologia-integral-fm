@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.service;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.exception.ForbiddenException;
-import com.odontologiaintegralfm.exception.LogLevel;
+import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.UnauthorizedException;
 import com.odontologiaintegralfm.model.RefreshToken;
 import com.odontologiaintegralfm.model.Role;

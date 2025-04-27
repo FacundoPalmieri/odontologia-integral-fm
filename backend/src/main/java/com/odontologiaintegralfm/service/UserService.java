@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.service;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.odontologiaintegralfm.dto.*;
+import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.model.UserSec;

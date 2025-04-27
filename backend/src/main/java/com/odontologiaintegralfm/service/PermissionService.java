@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.service;
 import com.odontologiaintegralfm.dto.PermissionResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.LogLevel;
+import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.Permission;
 import com.odontologiaintegralfm.repository.IPermissionRepository;
