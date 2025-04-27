@@ -28,22 +28,25 @@ export class ToothComponent {
   @Input() leftTreatment?: TreatmentInterface;
   @Input() rightTreatment?: TreatmentInterface;
   @Input() centerTreatment?: TreatmentInterface;
+  @Input() fullToothTreatment?: TreatmentInterface;
   @Output() topTreatmentChange = new EventEmitter<TreatmentInterface>();
   @Output() bottomTreatmentChange = new EventEmitter<TreatmentInterface>();
   @Output() leftTreatmentChange = new EventEmitter<TreatmentInterface>();
   @Output() rightTreatmentChange = new EventEmitter<TreatmentInterface>();
   @Output() centerTreatmentChange = new EventEmitter<TreatmentInterface>();
   @Output() fullToothTreatmentChange = new EventEmitter<TreatmentInterface>();
+  @Output() clearFullToothTreatment = new EventEmitter<void>();
 
   treatments: TreatmentInterface[] = TreatmentFactory.createTreatments();
 
   constructor() {}
 
   updateFullTooth(treatment: TreatmentInterface) {
-    this.topTreatment = treatment;
-    this.bottomTreatment = treatment;
-    this.leftTreatment = treatment;
-    this.rightTreatment = treatment;
+    this.fullToothTreatment = treatment;
+    this.topTreatment = undefined;
+    this.bottomTreatment = undefined;
+    this.leftTreatment = undefined;
+    this.rightTreatment = undefined;
     this.centerTreatment = treatment;
     this.fullToothTreatmentChange.emit(treatment);
   }
@@ -73,9 +76,45 @@ export class ToothComponent {
     this.centerTreatmentChange.emit(treatment);
   }
 
+  clearFullTooth() {
+    this.fullToothTreatment = undefined;
+    this.centerTreatment = undefined;
+    this.bottomTreatment = undefined;
+    this.leftTreatment = undefined;
+    this.rightTreatment = undefined;
+    this.topTreatment = undefined;
+    this.bottomTreatment = undefined;
+    this.clearFullToothTreatment.emit();
+  }
+
+  clearCenterTreatment() {
+    this.centerTreatment = undefined;
+    this.clearFullToothTreatment.emit();
+  }
+
+  clearTopTreatment() {
+    this.topTreatment = undefined;
+    this.clearFullToothTreatment.emit();
+  }
+
+  clearBottomTreatment() {
+    this.bottomTreatment = undefined;
+    this.clearFullToothTreatment.emit();
+  }
+
+  clearRightTreatment() {
+    this.rightTreatment = undefined;
+    this.clearFullToothTreatment.emit();
+  }
+
+  clearLeftTreatment() {
+    this.leftTreatment = undefined;
+    this.clearFullToothTreatment.emit();
+  }
+
   calculateMargin(index: number, totalIcons: number): string {
     if (totalIcons > 1 && index < totalIcons - 1) {
-      return "mr-[-16px]";
+      return "mr-[-14px]";
     }
     return "";
   }

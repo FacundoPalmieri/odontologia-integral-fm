@@ -7,4 +7,5 @@ export interface ToothInterface {
   leftTreatment?: TreatmentInterface;
   rightTreatment?: TreatmentInterface;
   centerTreatment?: TreatmentInterface;
+  fullTootTreatment?: TreatmentInterface;
 }

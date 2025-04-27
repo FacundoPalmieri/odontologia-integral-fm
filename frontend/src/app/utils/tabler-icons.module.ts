@@ -53,6 +53,7 @@ import {
   IconArrowsMaximize,
   IconCircuitResistor,
   IconCircle,
+  IconEraser,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -107,6 +108,7 @@ const ICONS = {
   IconArrowsMaximize,
   IconCircuitResistor,
   IconCircle,
+  IconEraser,
 } as const;
 
 @NgModule({

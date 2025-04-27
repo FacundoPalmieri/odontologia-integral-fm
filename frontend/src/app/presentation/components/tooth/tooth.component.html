@@ -6,6 +6,8 @@
     >
       <span>{{ toothNumber }}</span>
     </div>
+
+    @if (!fullToothTreatment) {
     <div
       class="flex items-center justify-center absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuTop"
@@ -70,11 +72,24 @@
       <i-tabler name="rectangle-rounded-top"></i-tabler>
       }
     </div>
+    }
+
     <div
       class="flex items-center justify-center z-10 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuCenter"
     >
-      @if(centerTreatment){ @for(icon of centerTreatment.icons; track $index){
+      @if (fullToothTreatment) { @for(icon of fullToothTreatment.icons; track
+      $index){
+      <i-tabler
+        [name]="icon"
+        [ngClass]="[
+          calculateMargin($index, fullToothTreatment.icons!.length),
+          fullToothTreatment.color ? fullToothTreatment.color : '',
+          'scale-150'
+        ]"
+      ></i-tabler>
+      } } @else if (centerTreatment) { @for(icon of centerTreatment.icons; track
+      $index){
       <i-tabler
         [name]="icon"
         [ngClass]="[
@@ -91,6 +106,16 @@
   <mat-menu #menuCenter="matMenu">
     <mat-list>
       <div class="grid grid-cols-2 gap-2 p-2">
+        <button
+          mat-button
+          (click)="clearCenterTreatment()"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            <i-tabler name="eraser"></i-tabler>
+          </div>
+          <span class="text-[0.6rem]">Limpiar</span>
+        </button>
         @for(treatment of treatments; track $index){
         <button
           mat-button
@@ -118,6 +143,16 @@
   <mat-menu #menuFullTooth="matMenu">
     <mat-list>
       <div class="grid grid-cols-2 gap-2 p-2">
+        <button
+          mat-button
+          (click)="clearFullTooth()"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            <i-tabler name="eraser"></i-tabler>
+          </div>
+          <span class="text-[0.6rem]">Limpiar</span>
+        </button>
         @for(treatment of treatments; track $index){
         <button
           mat-button
@@ -145,6 +180,16 @@
   <mat-menu #menuTop="matMenu">
     <mat-list>
       <div class="grid grid-cols-2 gap-2 p-2">
+        <button
+          mat-button
+          (click)="clearTopTreatment()"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            <i-tabler name="eraser"></i-tabler>
+          </div>
+          <span class="text-[0.6rem]">Limpiar</span>
+        </button>
         @for(treatment of treatments; track $index){
         <button
           mat-button
@@ -172,6 +217,16 @@
   <mat-menu #menuBottom="matMenu">
     <mat-list>
       <div class="grid grid-cols-2 gap-2 p-2">
+        <button
+          mat-button
+          (click)="clearBottomTreatment()"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            <i-tabler name="eraser"></i-tabler>
+          </div>
+          <span class="text-[0.6rem]">Limpiar</span>
+        </button>
         @for(treatment of treatments; track $index){
         <button
           mat-button
@@ -199,6 +254,16 @@
   <mat-menu #menuRight="matMenu">
     <mat-list>
       <div class="grid grid-cols-2 gap-2 p-2">
+        <button
+          mat-button
+          (click)="clearRightTreatment()"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            <i-tabler name="eraser"></i-tabler>
+          </div>
+          <span class="text-[0.6rem]">Limpiar</span>
+        </button>
         @for(treatment of treatments; track $index){
         <button
           mat-button
@@ -226,6 +291,16 @@
   <mat-menu #menuLeft="matMenu">
     <mat-list>
       <div class="grid grid-cols-2 gap-2 p-2">
+        <button
+          mat-button
+          (click)="clearLeftTreatment()"
+          class="flex flex-col items-center w-full h-full p-1"
+        >
+          <div class="flex justify-center items-center">
+            <i-tabler name="eraser"></i-tabler>
+          </div>
+          <span class="text-[0.6rem]">Limpiar</span>
+        </button>
         @for(treatment of treatments; track $index){
         <button
           mat-button
