@@ -175,7 +175,8 @@
       <ng-template matStepLabel>Odontograma</ng-template>
       <ng-template matStepContent>
         <div class="my-2 w-full odontogram-container">
-          <div class="odontogram-wrapper">
+          <div class="odontogram-wrapper gap-2">
+            <app-odontogram [odontogram]="odontogram"></app-odontogram>
             <app-odontogram></app-odontogram>
           </div>
         </div>

@@ -27,6 +27,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { PaymentMethodEnum } from "../../../utils/enums/payment-method.enum";
 import { MatDialog } from "@angular/material/dialog";
 import { CreatePatientDialogComponent } from "../../components/patient-create-dialog/create-patient-dialog.component";
+import { mockOdontogram } from "../../../utils/mocks/odontogram.mock";
 
 @Component({
   selector: "app-consultation-register",
@@ -146,6 +147,7 @@ export class ConsultationRegisterComponent implements OnInit {
   selectedPatient: PatientInterface | null = null;
   todayDate: Date = new Date();
   observations: string = "";
+  odontogram = mockOdontogram;
 
   ngOnInit() {
     this.filteredPatients = this.patientSearchControl.valueChanges.pipe(
