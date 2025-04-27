@@ -38,8 +38,14 @@
                           ></i-tabler>
                         </div>
                         <div class="flex flex-col">
-                          <b class="mb-1">{{ patient.name }}</b>
-                          <small class="text-gray-500">{{ patient.dni }}</small>
+                          <span>
+                            <b class="mb-1">{{ patient.name }}</b>
+                          </span>
+                          <span>
+                            <small class="text-gray-500">
+                              DNI {{ patient.dni }}</small
+                            >
+                          </span>
                         </div>
                       </div>
                     </mat-option>
