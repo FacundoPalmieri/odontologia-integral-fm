@@ -43,7 +43,6 @@ import {
   IconLetterXSmall,
   IconLetterPSmall,
   IconLetterDSmall,
-  IconLetterOSmall,
   IconLetterISmall,
   IconLetterMSmall,
   IconLetterSSmall,
@@ -53,6 +52,7 @@ import {
   IconRefresh,
   IconArrowsMaximize,
   IconCircuitResistor,
+  IconCircle,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -97,7 +97,6 @@ const ICONS = {
   IconLetterXSmall,
   IconLetterPSmall,
   IconLetterDSmall,
-  IconLetterOSmall,
   IconLetterISmall,
   IconLetterMSmall,
   IconLetterSSmall,
@@ -107,6 +106,7 @@ const ICONS = {
   IconRefresh,
   IconArrowsMaximize,
   IconCircuitResistor,
+  IconCircle,
 } as const;
 
 @NgModule({
