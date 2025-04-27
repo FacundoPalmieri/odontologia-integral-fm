@@ -176,8 +176,13 @@
       <ng-template matStepContent>
         <div class="my-2 w-full odontogram-container">
           <div class="odontogram-wrapper gap-2">
-            <app-odontogram [odontogram]="odontogram"></app-odontogram>
-            <app-odontogram></app-odontogram>
+            <app-odontogram
+              [title]="'Estado Inicial'"
+              [odontogram]="odontogram"
+            ></app-odontogram>
+            <app-odontogram
+              [title]="'Tratamientos a realizar'"
+            ></app-odontogram>
           </div>
         </div>
         <div class="mt-4">

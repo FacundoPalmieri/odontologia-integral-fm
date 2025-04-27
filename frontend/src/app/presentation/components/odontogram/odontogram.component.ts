@@ -205,6 +205,7 @@ export class OdontogramComponent {
       },
     ],
   };
+  @Input() title: string = "Odontograma";
   @Input() odontogram: OdontogramInterface = this.baseOdontogram;
   @Input() showTemporaries?: boolean = false;
 
