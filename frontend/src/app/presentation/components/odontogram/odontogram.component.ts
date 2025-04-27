@@ -33,6 +33,7 @@ import { ConfirmDialogComponent } from "../confirm-dialog/confirm-dialog.compone
 })
 export class OdontogramComponent implements OnInit {
   @Input() inputOdontogram?: OdontogramInterface;
+  @Input() showTemporaries?: boolean = false;
 
   dialog = inject(MatDialog);
   treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
@@ -100,7 +101,7 @@ export class OdontogramComponent implements OnInit {
       this.odontogram.temporaryLowerLeft,
       this.odontogram.temporaryLowerRight,
     ]) {
-      const foundTooth = teethArray.find(
+      const foundTooth = teethArray?.find(
         (tooth: ToothInterface) => tooth.number === toothNumber
       );
       if (foundTooth) {
@@ -132,10 +133,10 @@ export class OdontogramComponent implements OnInit {
         resetTeeth(this.odontogram.upperTeethRight);
         resetTeeth(this.odontogram.lowerTeethLeft);
         resetTeeth(this.odontogram.lowerTeethRight);
-        resetTeeth(this.odontogram.temporaryUpperLeft);
-        resetTeeth(this.odontogram.temporaryUpperRight);
-        resetTeeth(this.odontogram.temporaryLowerLeft);
-        resetTeeth(this.odontogram.temporaryLowerRight);
+        resetTeeth(this.odontogram.temporaryUpperLeft!);
+        resetTeeth(this.odontogram.temporaryUpperRight!);
+        resetTeeth(this.odontogram.temporaryLowerLeft!);
+        resetTeeth(this.odontogram.temporaryLowerRight!);
       }
     });
   }

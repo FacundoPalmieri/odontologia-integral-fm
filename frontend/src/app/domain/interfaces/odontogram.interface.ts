@@ -5,8 +5,8 @@ export interface OdontogramInterface {
   upperTeethRight: ToothInterface[];
   lowerTeethLeft: ToothInterface[];
   lowerTeethRight: ToothInterface[];
-  temporaryUpperLeft: ToothInterface[];
-  temporaryUpperRight: ToothInterface[];
-  temporaryLowerLeft: ToothInterface[];
-  temporaryLowerRight: ToothInterface[];
+  temporaryUpperLeft?: ToothInterface[];
+  temporaryUpperRight?: ToothInterface[];
+  temporaryLowerLeft?: ToothInterface[];
+  temporaryLowerRight?: ToothInterface[];
 }
