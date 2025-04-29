@@ -21,7 +21,7 @@ export class ToothFaceComponent {
 
   calculateMargin(index: number, totalIcons: number): string {
     if (totalIcons > 1 && index < totalIcons - 1) {
-      return "mr-[-14px]";
+      return "mr-[-18px]";
     }
     return "";
   }

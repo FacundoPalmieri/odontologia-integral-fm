@@ -26,7 +26,7 @@ import { ToothFaceTypeEnum } from "../../../utils/enums/tooth-face-type.enum";
 })
 export class ToothComponent {
   @Input() toothNumber: number = 0;
-  @Input() topTreatment?: TreatmentInterface;
+  @Input() topTreatments?: TreatmentInterface[];
   @Input() bottomTreatment?: TreatmentInterface;
   @Input() leftTreatment?: TreatmentInterface;
   @Input() rightTreatment?: TreatmentInterface;
@@ -48,7 +48,7 @@ export class ToothComponent {
 
   updateFullTooth(treatment: TreatmentInterface) {
     this.fullToothTreatment = treatment;
-    this.topTreatment = undefined;
+    this.topTreatments = undefined;
     this.bottomTreatment = undefined;
     this.leftTreatment = undefined;
     this.rightTreatment = undefined;
@@ -57,7 +57,7 @@ export class ToothComponent {
   }
 
   updateTopIcon(treatment: TreatmentInterface) {
-    this.topTreatment = treatment;
+    this.topTreatments?.push(treatment);
     this.topTreatmentChange.emit(treatment);
   }
 
@@ -87,7 +87,7 @@ export class ToothComponent {
     this.bottomTreatment = undefined;
     this.leftTreatment = undefined;
     this.rightTreatment = undefined;
-    this.topTreatment = undefined;
+    this.topTreatments = undefined;
     this.bottomTreatment = undefined;
     this.clearFullToothTreatment.emit();
   }
@@ -98,7 +98,7 @@ export class ToothComponent {
   }
 
   clearTopTreatment() {
-    this.topTreatment = undefined;
+    this.topTreatments = undefined;
     this.clearFullToothTreatment.emit();
   }
 
@@ -119,7 +119,7 @@ export class ToothComponent {
 
   calculateMargin(index: number, totalIcons: number): string {
     if (totalIcons > 1 && index < totalIcons - 1) {
-      return "mr-[-14px]";
+      return "mr-[-18px]";
     }
     return "";
   }

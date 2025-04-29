@@ -53,12 +53,20 @@
     ></app-tooth-face>
     } @else {
     <!-- TOP TOOTH FACE -->
+    @if(topTreatments === undefined){
+    <app-tooth-face
+      class="flex items-center justify-center absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
+      [matMenuTriggerFor]="menuTop"
+      [faceType]="toothFaceTypeEnum.TOP"
+    ></app-tooth-face
+    >} @else { @for(topTreatment of topTreatments; track $index){
     <app-tooth-face
       class="flex items-center justify-center absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
       [matMenuTriggerFor]="menuTop"
       [faceType]="toothFaceTypeEnum.TOP"
       [treatment]="topTreatment!"
     ></app-tooth-face>
+    }}
     <mat-menu #menuTop="matMenu">
       <mat-list>
         <div class="grid grid-cols-2 gap-2 p-2">

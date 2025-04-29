@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatMenuModule } from "@angular/material/menu";
@@ -220,7 +220,7 @@ export class OdontogramComponent {
   ) {
     const tooth = this.findTooth(toothNumber);
     if (tooth) {
-      tooth.topTreatment = treatment;
+      tooth.topTreatments?.push(treatment);
       tooth.bottomTreatment = treatment;
       tooth.leftTreatment = treatment;
       tooth.rightTreatment = treatment;
@@ -229,7 +229,7 @@ export class OdontogramComponent {
   }
 
   onTopTreatmentChange(toothNumber: number, treatment: TreatmentInterface) {
-    this.updateToothTreatment(toothNumber, "topTreatment", treatment);
+    this.updateToothTreatment(toothNumber, "topTreatments", treatment);
   }
 
   onBottomTreatmentChange(toothNumber: number, treatment: TreatmentInterface) {
@@ -253,10 +253,10 @@ export class OdontogramComponent {
     treatmentType: keyof Omit<ToothInterface, "number">,
     treatment: TreatmentInterface
   ) {
-    const tooth = this.findTooth(toothNumber);
-    if (tooth) {
-      tooth[treatmentType] = treatment;
-    }
+    // const tooth = this.findTooth(toothNumber);
+    // if (tooth) {
+    //   tooth[treatmentType] = treatment;
+    // }
   }
 
   findTooth(toothNumber: number): ToothInterface | undefined {
@@ -290,7 +290,7 @@ export class OdontogramComponent {
       if (result) {
         const resetTeeth = (teeth: ToothInterface[]) => {
           teeth.forEach((tooth) => {
-            tooth.topTreatment = undefined;
+            tooth.topTreatments = undefined;
             tooth.bottomTreatment = undefined;
             tooth.leftTreatment = undefined;
             tooth.rightTreatment = undefined;

@@ -9,12 +9,12 @@ export const mockOdontogram: OdontogramInterface = {
     {
       number: 18,
       centerTreatment: treatments[0],
-      topTreatment: treatments[1],
+      topTreatments: [treatments[1], treatments[4]],
       leftTreatment: treatments[2],
     },
     {
       number: 17,
-      topTreatment: treatments[3],
+      topTreatments: [treatments[3]],
       rightTreatment: treatments[4],
     },
     {
@@ -25,7 +25,7 @@ export const mockOdontogram: OdontogramInterface = {
     {
       number: 15,
       leftTreatment: treatments[5],
-      topTreatment: treatments[0],
+      topTreatments: [treatments[0]],
     },
     {
       number: 14,
@@ -39,7 +39,7 @@ export const mockOdontogram: OdontogramInterface = {
     },
     {
       number: 12,
-      topTreatment: treatments[1],
+      topTreatments: [treatments[1]],
       rightTreatment: treatments[5],
     },
     {
@@ -54,7 +54,7 @@ export const mockOdontogram: OdontogramInterface = {
     },
     {
       number: 22,
-      topTreatment: treatments[7],
+      topTreatments: [treatments[7]],
       bottomTreatment: treatments[7],
     },
     {
@@ -75,11 +75,11 @@ export const mockOdontogram: OdontogramInterface = {
     {
       number: 26,
       centerTreatment: treatments[7],
-      topTreatment: treatments[0],
+      topTreatments: [treatments[0]],
     },
     {
       number: 27,
-      topTreatment: treatments[1],
+      topTreatments: [treatments[1]],
       bottomTreatment: treatments[2],
     },
     {
@@ -94,12 +94,12 @@ export const mockOdontogram: OdontogramInterface = {
       centerTreatment: treatments[5],
       rightTreatment: treatments[6],
     },
-    { number: 47, topTreatment: treatments[7] },
+    { number: 47, topTreatments: [treatments[7]] },
     { number: 46, bottomTreatment: treatments[0] },
     { number: 45, leftTreatment: treatments[1] },
     { number: 44, rightTreatment: treatments[2] },
     { number: 43, centerTreatment: treatments[3] },
-    { number: 42, topTreatment: treatments[4] },
+    { number: 42, topTreatments: [treatments[4]] },
     { number: 41, bottomTreatment: treatments[5] },
   ],
   lowerTeethRight: [
@@ -108,16 +108,16 @@ export const mockOdontogram: OdontogramInterface = {
       centerTreatment: treatments[6],
       leftTreatment: treatments[7],
     },
-    { number: 32, topTreatment: treatments[0] },
+    { number: 32, topTreatments: [treatments[0]] },
     { number: 33, bottomTreatment: treatments[1] },
     { number: 34, leftTreatment: treatments[2] },
     { number: 35, rightTreatment: treatments[3] },
     { number: 36, centerTreatment: treatments[4] },
-    { number: 37, topTreatment: treatments[5] },
+    { number: 37, topTreatments: [treatments[5]] },
     { number: 38, bottomTreatment: treatments[6] },
   ],
   temporaryUpperLeft: [
-    { number: 55, topTreatment: treatments[7] },
+    { number: 55, topTreatments: [treatments[7]] },
     { number: 54, bottomTreatment: treatments[0] },
     { number: 53, leftTreatment: treatments[1] },
     { number: 52, rightTreatment: treatments[2] },
@@ -125,7 +125,7 @@ export const mockOdontogram: OdontogramInterface = {
   ],
   temporaryUpperRight: [
     { number: 61, centerTreatment: treatments[4] },
-    { number: 62, topTreatment: treatments[5] },
+    { number: 62, topTreatments: [treatments[5]] },
     { number: 63, bottomTreatment: treatments[6] },
     { number: 64, leftTreatment: treatments[7] },
     { number: 65, rightTreatment: treatments[0] },
@@ -133,7 +133,7 @@ export const mockOdontogram: OdontogramInterface = {
   temporaryLowerLeft: [
     { number: 85, rightTreatment: treatments[1] },
     { number: 84, centerTreatment: treatments[2] },
-    { number: 83, topTreatment: treatments[3] },
+    { number: 83, topTreatments: [treatments[3]] },
     { number: 82, bottomTreatment: treatments[4] },
     { number: 81, leftTreatment: treatments[5] },
   ],
@@ -141,7 +141,7 @@ export const mockOdontogram: OdontogramInterface = {
     { number: 71, leftTreatment: treatments[6] },
     { number: 72, rightTreatment: treatments[7] },
     { number: 73, centerTreatment: treatments[0] },
-    { number: 74, topTreatment: treatments[1] },
+    { number: 74, topTreatments: [treatments[1]] },
     { number: 75, bottomTreatment: treatments[2] },
   ],
 };
