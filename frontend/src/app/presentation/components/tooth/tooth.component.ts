@@ -7,6 +7,8 @@ import { TreatmentInterface } from "../../../domain/interfaces/treatment.interfa
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { ToothFaceComponent } from "../tooth-face/tooth-face.component";
+import { ToothFaceTypeEnum } from "../../../utils/enums/tooth-face-type.enum";
 
 @Component({
   selector: "app-tooth",
@@ -19,6 +21,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     MatButtonModule,
     MatTooltipModule,
     MatListModule,
+    ToothFaceComponent,
   ],
 })
 export class ToothComponent {
@@ -38,6 +41,8 @@ export class ToothComponent {
   @Output() clearFullToothTreatment = new EventEmitter<void>();
 
   treatments: TreatmentInterface[] = TreatmentFactory.createTreatments();
+
+  toothFaceTypeEnum = ToothFaceTypeEnum;
 
   constructor() {}
 
