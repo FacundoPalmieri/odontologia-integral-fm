@@ -15,7 +15,7 @@ export class TreatmentFactory {
       },
       {
         name: "Obt. Composite",
-        icons: ["slash", "letter-a-small", "letter-c-small"],
+        icons: ["rectangle-filled"],
         color: "text-[#ef4444]",
       },
       {

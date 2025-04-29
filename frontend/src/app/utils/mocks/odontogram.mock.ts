@@ -44,15 +44,13 @@ export const mockOdontogram: OdontogramInterface = {
     },
     {
       number: 11,
-      bottomTreatment: treatments[6],
-      centerTreatment: treatments[6],
+      fullToothTreatment: treatments[6],
     },
   ],
   upperTeethRight: [
     {
       number: 21,
-      centerTreatment: treatments[1],
-      topTreatment: treatments[0],
+      fullToothTreatment: treatments[6],
     },
     {
       number: 22,

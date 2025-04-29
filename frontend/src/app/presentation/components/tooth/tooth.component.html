@@ -45,6 +45,13 @@
   <!-- TOOTH NUMBER -->
 
   <div class="flex justify-center items-center h-18 w-18 relative">
+    @if(fullToothTreatment){
+    <app-tooth-face
+      class="flex items-center justify-center z-10 transition-transform hover:scale-180 scale-170 cursor-pointer"
+      [faceType]="toothFaceTypeEnum.FULL"
+      [treatment]="fullToothTreatment!"
+    ></app-tooth-face>
+    } @else {
     <!-- TOP TOOTH FACE -->
     <app-tooth-face
       class="flex items-center justify-center absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
@@ -269,5 +276,6 @@
       </mat-list>
     </mat-menu>
     <!-- CENTER TOOTH FACE -->
+    }
   </div>
 </div>

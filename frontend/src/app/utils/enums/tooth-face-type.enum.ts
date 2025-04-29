@@ -4,4 +4,5 @@ export enum ToothFaceTypeEnum {
   RIGHT = "right",
   LEFT = "left",
   CENTER = "center",
+  FULL = "full",
 }
