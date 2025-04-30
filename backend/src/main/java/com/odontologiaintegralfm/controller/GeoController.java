@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.controller;
 
 
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
 import com.odontologiaintegralfm.dto.CountryResponseDTO;
 import com.odontologiaintegralfm.dto.LocalityResponseDTO;
 import com.odontologiaintegralfm.dto.ProvinceResponseDTO;
@@ -48,8 +49,7 @@ public class GeoController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping ("/countries/all")
-    @PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Administrador.name()," +
-                             "T(com.odontologiaintegralfm.enums.UserRole).Secretaria.name())")
+    @OnlyAdmistratorAndSecretary
     public ResponseEntity<Response<List<CountryResponseDTO>>> getAllCountries() {
       Response<List<CountryResponseDTO>>response = geoService.getAllCountries();
       return new ResponseEntity<>(response, HttpStatus.OK);
@@ -83,7 +83,7 @@ public class GeoController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/provinces/{id}")
-    @PreAuthorize("hasAnyRole('Administrador', 'Secretaria')")
+    @OnlyAdmistratorAndSecretary
     public ResponseEntity<Response<List<ProvinceResponseDTO>>> getProvincesByIdCountry(@NotNull @PathVariable("id") Long idCountry) {
         Response<List<ProvinceResponseDTO>>response = geoService.getProvincesByIdCountry(idCountry);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -110,8 +110,7 @@ public class GeoController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/localities/{id}")
-    @PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Administrador.name()," +
-                             "T(com.odontologiaintegralfm.enums.UserRole).Secretaria.name())")
+    @OnlyAdmistratorAndSecretary
     public ResponseEntity<Response<List<LocalityResponseDTO>>> getLocalitiesByIdProvinces(@NotNull @PathVariable("id") Long idProvinces) {
         Response<List<LocalityResponseDTO>>response = geoService.getLocalitiesByIdProvinces(idProvinces);
         return new ResponseEntity<>(response, HttpStatus.OK);

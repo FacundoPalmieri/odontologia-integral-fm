@@ -17,7 +17,7 @@ public class MedicalRisk {
     private Long id;
 
     @Column(length = 50, nullable = false, unique = true)
-    private String description;
+    private String name;
 
     private Boolean enabled;
 }

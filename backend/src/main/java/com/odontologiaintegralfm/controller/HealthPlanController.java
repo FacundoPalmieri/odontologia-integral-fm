@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
 import com.odontologiaintegralfm.dto.HealthPlanResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IHealthPlanService;
@@ -26,7 +27,7 @@ public class HealthPlanController {
     private IHealthPlanService healthPlanService;
 
     /**
-     * Endpoint para obtener todos los planes de salud.
+     * Endpoint para obtener todos los planes de salud Habilitados.
      * <p>
      * Requiere el rol <b>Administrador y Secretaria</b> para acceder.
      * </p>
@@ -45,8 +46,7 @@ public class HealthPlanController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Secretaria.name()," +
-            "T(com.odontologiaintegralfm.enums.UserRole).Administrador.name())")
+    @OnlyAdmistratorAndSecretary
     public ResponseEntity<Response<List<HealthPlanResponseDTO>>> getAll(){
         Response<List<HealthPlanResponseDTO>> response = healthPlanService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

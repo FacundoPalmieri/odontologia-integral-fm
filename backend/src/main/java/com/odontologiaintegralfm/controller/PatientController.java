@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
 import com.odontologiaintegralfm.dto.PatientCreateRequestDTO;
 import com.odontologiaintegralfm.dto.PatientCreateResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
@@ -20,18 +21,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/patient")
 public class PatientController {
 
-    /*
+
     @Autowired
     private IPatientService patientService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Administrador.name()," +
-                             "T(com.odontologiaintegralfm.enums.UserRole).Secretaria.name())")
+    @OnlyAdmistratorAndSecretary
     public ResponseEntity<Response<PatientCreateResponseDTO>> createPatient (@Valid @RequestBody PatientCreateRequestDTO patientCreateRequestDTO) {
-        Response<PatientCreateResponseDTO> response = patientService.createPatient(patientCreateRequestDTO);
+        Response<PatientCreateResponseDTO> response = patientService.save(patientCreateRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 
- */
 }

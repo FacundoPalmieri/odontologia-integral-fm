@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDevelopers;
 import com.odontologiaintegralfm.dto.PermissionResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IPermissionService;
@@ -59,7 +60,7 @@ public class PermissionController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("all")
-    @PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Desarrollador.name())")
+    @OnlyDevelopers
     public ResponseEntity<Response<List<PermissionResponseDTO>>> getAllPermissions() {
         Response<List<PermissionResponseDTO>> response = permissionService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -89,7 +90,7 @@ public class PermissionController {
             @ApiResponse(responseCode = "404", description = "Permiso no encontrado.")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Desarrollador.name())")
+    @OnlyDevelopers
     public ResponseEntity<Response<PermissionResponseDTO>> getPermissionById(@PathVariable Long id) {
         Response<PermissionResponseDTO> response = permissionService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

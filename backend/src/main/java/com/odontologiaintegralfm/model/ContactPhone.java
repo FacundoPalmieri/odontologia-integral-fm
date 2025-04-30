@@ -2,8 +2,8 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entidad que representa los contactos telefónicos de las personas
@@ -31,7 +31,7 @@ public class ContactPhone {
             joinColumns = @JoinColumn(name = "contact_phone"),
             inverseJoinColumns = @JoinColumn (name = "people")
     )
-    private List<Person> person;
+    private Set<Person> person = new HashSet<>();
 
     private Boolean enabled;
 

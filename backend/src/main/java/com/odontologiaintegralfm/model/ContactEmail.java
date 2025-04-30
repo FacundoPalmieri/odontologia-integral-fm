@@ -5,7 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entidad que representa los emails de contactos de las personas.
@@ -31,7 +32,7 @@ public class ContactEmail {
             joinColumns = @JoinColumn(name = "contact_email"),
             inverseJoinColumns = @JoinColumn (name = "people")
     )
-    private List<Person> person;
+    private Set<Person> persons = new HashSet<>();
 
     private Boolean enabled;
 

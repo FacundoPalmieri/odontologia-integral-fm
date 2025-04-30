@@ -1,11 +1,10 @@
 package com.odontologiaintegralfm.repository;
 
-import com.odontologiaintegralfm.dto.HealthPlanResponseDTO;
-import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.model.HealthPlan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -14,5 +13,7 @@ import java.util.List;
 @Repository
 public interface IHealthPlanRepository extends JpaRepository<HealthPlan, Long> {
 
-    List<HealthPlan> findAll();
+    List<HealthPlan> findAllByEnabledTrue();
+
+    Optional<HealthPlan> findByIdAndEnabledTrue(Long id);
 }

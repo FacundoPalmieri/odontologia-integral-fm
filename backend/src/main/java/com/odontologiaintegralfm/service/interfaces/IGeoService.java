@@ -4,6 +4,9 @@ import com.odontologiaintegralfm.dto.CountryResponseDTO;
 import com.odontologiaintegralfm.dto.LocalityResponseDTO;
 import com.odontologiaintegralfm.dto.ProvinceResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.model.Gender;
+import com.odontologiaintegralfm.model.Locality;
+
 import java.util.List;
 
 /**
@@ -32,4 +35,11 @@ public interface IGeoService {
      */
     Response<List<LocalityResponseDTO>> getLocalitiesByIdProvinces(Long provinceId);
 
+
+    /**
+     * Método para obtener una "Localidad" de acuerdo al ID recibido como parámetro.
+     * @param localityId del tipo de Localidad.
+     * @return  {@link Locality} con el tipo de Género encontrado.
+     */
+    Locality getLocalityById(Long localityId);
 }

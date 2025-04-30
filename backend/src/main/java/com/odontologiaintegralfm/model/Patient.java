@@ -20,7 +20,4 @@ public class Patient extends Person {
 
     @Column(length = 20, unique = true, nullable = false)
     private String affiliateNumber;
-
-    private Boolean enabled;
-
 }

@@ -49,5 +49,10 @@ public abstract class Person {
     @JoinColumn(name = "address_id")
     private Address address;
 
+    private LocalDate createdAt;
+
     private Boolean enabled;
+
+    private LocalDate disabledAt;
+
 }

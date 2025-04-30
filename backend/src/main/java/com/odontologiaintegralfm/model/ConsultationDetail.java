@@ -3,6 +3,8 @@ package com.odontologiaintegralfm.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 /**
  * Entidad para representar los detalles de las consultas
  */
@@ -34,5 +36,7 @@ public class ConsultationDetail {
 
     @Column(nullable = false)
     private Boolean enabled;
+
+    private LocalDate disabledAt;
 
 }

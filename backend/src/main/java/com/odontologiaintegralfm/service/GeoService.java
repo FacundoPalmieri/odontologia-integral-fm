@@ -114,7 +114,22 @@ public class GeoService implements IGeoService {
             return new Response<>(true, "", localitiesDTO);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "GeoService", 0L, "", "getLocalitiesByIdProvinces");
+            throw new DataBaseException(e, "GeoService", null, null, "getLocalitiesByIdProvinces");
+        }
+    }
+
+    /**
+     * Método para obtener una "Localidad" de acuerdo al ID recibido como parámetro.
+     *
+     * @param localityId del tipo de Localidad.
+     * @return {@link Locality} con el tipo de Género encontrado.
+     */
+    @Override
+    public Locality getLocalityById(Long localityId) {
+        try{
+            return localityRepository.findByIdAndEnabledTrue(localityId).orElseThrow(()-> new NotFoundException(null,"exception.localityNotFound.user", null, "exception.localityNotFound.log", localityId,null,"GeoService","getLocalityById", LogLevel.ERROR));
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "GeoService", localityId, null, "getLocalityById");
         }
     }
 

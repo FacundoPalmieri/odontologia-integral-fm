@@ -3,7 +3,10 @@ package com.odontologiaintegralfm.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -18,16 +21,17 @@ public class Consultation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Patient.class)
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
-
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Dentist.class)
     @JoinColumn(name = "dentist_id")
     private Dentist dentist;
 
     @Column(nullable = false)
     private LocalDateTime dateTime;
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Patient.class)
+    @JoinColumn(name = "patient_id")
+    private Patient patient;
+
 
     @Lob
     @Column(nullable = false)
@@ -42,4 +46,6 @@ public class Consultation {
 
     @Column(nullable = false)
     private Boolean enabled;
+
+    private LocalDate disabledAt;
 }

@@ -14,6 +14,6 @@ public interface IPatientService {
      * @param patientCreateRequestDTO El objeto paciente a crear
      * @return Una respuesta que contiene el objeto {@link PatientCreateResponseDTO } del paciente recién creado
      */
-   // Response<PatientCreateResponseDTO> createPatient(PatientCreateRequestDTO patientCreateRequestDTO);
+    Response<PatientCreateResponseDTO> save(PatientCreateRequestDTO patientCreateRequestDTO);
 
 }

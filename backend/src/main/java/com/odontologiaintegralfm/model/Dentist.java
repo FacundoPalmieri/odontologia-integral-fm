@@ -22,5 +22,4 @@ public class Dentist extends Person {
     @JoinColumn(name = "user_id")
     private UserSec user;
 
-    private Boolean Enabled;
 }

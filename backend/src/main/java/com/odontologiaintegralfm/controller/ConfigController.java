@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDevelopers;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.model.MessageConfig;
 import com.odontologiaintegralfm.service.ConfigService;
@@ -53,7 +54,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/config")
-@PreAuthorize("hasRole(T(com.odontologiaintegralfm.enums.UserRole).Desarrollador.name())")
+@OnlyDevelopers
 public class ConfigController {
 
     @Autowired

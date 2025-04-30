@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * DTO que representa la creación de un paciente.
@@ -56,7 +57,14 @@ public record PatientCreateRequestDTO (
         @NotBlank(message = "PatientCreateRequestDTO.email.Empty")
         String email,
 
-        @NotBlank(message = "PatientCreateRequestDTO.phone.Empty")
-        String phone
+        @NotNull(message = "PatientCreateRequestDTO.phoneType.Empty")
+        Long phoneType,
 
+        @NotBlank(message = "PatientCreateRequestDTO.phone.Empty")
+        String phone,
+
+        //Historia Clínica.
+        Set<Long>medicalRiskId,
+
+        String medicalHistoryObservation
 ){}
