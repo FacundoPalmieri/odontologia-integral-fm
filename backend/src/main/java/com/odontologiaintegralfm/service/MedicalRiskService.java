@@ -11,7 +11,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,7 +28,7 @@ public class MedicalRiskService implements IMedicalRiskService {
     @Override
     public Response<Set<MedicalRiskResponseDTO>> getAll() {
         try{
-            Set<MedicalRisk> medicalRisks = medicalRiskRepository.findAllByAndEnabledTrue();
+            Set<MedicalRisk> medicalRisks = medicalRiskRepository.findAllByEnabledTrue();
             Set<MedicalRiskResponseDTO> medicalRiskResponseDTOs = medicalRisks.stream()
                     .map(medicalRisk -> new MedicalRiskResponseDTO(medicalRisk.getId(), medicalRisk.getName()))
                     .collect(Collectors.toSet());
@@ -50,7 +49,7 @@ public class MedicalRiskService implements IMedicalRiskService {
     @Override
     public Set<MedicalRisk> getByIds(Set<Long> ids) {
         try{
-            return medicalRiskRepository.findByIdAndEnabledTrue(ids);
+            return medicalRiskRepository.findByIdInAndEnabledTrue(ids);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "MedicalRiskService",null, null, "getByIds");

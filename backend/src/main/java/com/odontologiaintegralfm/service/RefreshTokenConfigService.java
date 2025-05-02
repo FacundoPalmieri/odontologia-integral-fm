@@ -50,7 +50,7 @@ public class RefreshTokenConfigService implements IRefreshTokenConfigService {
                 return optional.get().getExpiration();
             }
 
-            throw new NotFoundException("","exception.refreshTokenConfigNotFoundException.user",null,"exception.refreshTokenConfigNotFoundException.log", 0L, "","Refresh Token Config Service", "getExpiration", LogLevel.ERROR);
+            throw new NotFoundException("exception.refreshTokenConfigNotFoundException.user",null,"exception.refreshTokenConfigNotFoundException.log",new Object[]{"Refresh Token Config Service", "getExpiration"}, LogLevel.ERROR);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "RefreshTokenConfigService", 1L, "RefreshToken", "getExpiration");

@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.dto;
 
+import com.odontologiaintegralfm.model.MedicalRisk;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -29,7 +30,7 @@ public record PatientCreateResponseDTO(
         String affiliateNumber,
         String email,
         String phone,
-        Set<MedicalRiskResponseDTO> medicalRisk,
+        Set<MedicalRisk> medicalRisk,
         String medicalHistoryObservation
 
 ) {

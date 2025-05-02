@@ -8,5 +8,5 @@ import com.odontologiaintegralfm.model.Person;
  */
 public interface IContactEmailService {
 
-    void save(ContactEmail email);
+    ContactEmail save(ContactEmail email);
 }

@@ -111,7 +111,7 @@ public class PermissionService implements IPermissionService {
                 String messageUser = messageService.getMessage("permissionService.getById.ok", null, LocaleContextHolder.getLocale());
                 return new Response<>(true, messageUser, permissionResponseDTO);
             }else{
-                throw new NotFoundException("","exception.permissionNotFound.user",null,"exception.permissionNotFound.log",id," ", "PermissionService","getById", LogLevel.ERROR);            }
+                throw new NotFoundException("exception.permissionNotFound.user",null,"exception.permissionNotFound.log",new Object[]{id, "PermissionService","getById"}, LogLevel.ERROR);            }
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e,"PermissionService", id,"","getById");
 
@@ -141,7 +141,7 @@ public class PermissionService implements IPermissionService {
     public Permission getByIdInternal(Long id) {
         try{
             return permissionRepository.findById(id).orElseThrow(()->
-             new NotFoundException("","exception.refreshTokenConfigNotFoundException.user",null,"exception.refreshTokenConfigNotFoundException.log", 0L, "","Refresh Token Config Service", "getExpiration", LogLevel.ERROR));
+             new NotFoundException("exception.refreshTokenConfigNotFoundException.user",null,"exception.refreshTokenConfigNotFoundException.log",new Object[]{id,"Refresh Token Config Service", "getExpiration"}, LogLevel.ERROR));
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"PermissionService", id, "","getByIdInternal");
 

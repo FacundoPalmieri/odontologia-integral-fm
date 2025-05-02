@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 
 
 public class BadRequestException extends AppException {
-    public BadRequestException(String message, String userMessageKey, Object[] userArgs, String logMessageKey, Long id, String value, String clase, String method, LogLevel logLevel) {
-        super(message, userMessageKey,userArgs,logMessageKey, id, value, clase, method, logLevel);
+    public BadRequestException(String userMessageKey, Object[] userArgs, String logMessageKey,Object[] logArgs, LogLevel logLevel) {
+        super(userMessageKey,userArgs,logMessageKey,logArgs, logLevel);
     }
 
     @Override

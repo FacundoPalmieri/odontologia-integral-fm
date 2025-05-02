@@ -7,5 +7,5 @@ import com.odontologiaintegralfm.model.ContactPhone;
  */
 public interface IContactPhoneService {
 
-    void save(ContactPhone phone);
+    ContactPhone save(ContactPhone phone);
 }

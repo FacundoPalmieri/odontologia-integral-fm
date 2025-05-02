@@ -26,7 +26,7 @@ public class TelephoneTypeService implements ITelephoneTypeService {
     @Override
     public TelephoneType getById(Long id) {
         try{
-            return telephoneTypeRepository.findByIdAndEnabledTrue(id).orElseThrow(()-> new NotFoundException(null,"exception.telephoneTypeNotFound.user", null, "exception.telephoneTypeNotFound.log", id,null,"TelephoneTypeService","getById", LogLevel.ERROR));
+            return telephoneTypeRepository.findByIdAndEnabledTrue(id).orElseThrow(()-> new NotFoundException("exception.telephoneTypeNotFound.user", null, "exception.telephoneTypeNotFound.log",new Object[]{id,"TelephoneTypeService","getById"}, LogLevel.ERROR));
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "TelephoneTypeService", id, null, "getById");
         }

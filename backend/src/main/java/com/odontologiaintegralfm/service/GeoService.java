@@ -14,6 +14,7 @@ import com.odontologiaintegralfm.repository.ICountryRepository;
 import com.odontologiaintegralfm.repository.ILocalityRepository;
 import com.odontologiaintegralfm.repository.IProvinceRepository;
 import com.odontologiaintegralfm.service.interfaces.IGeoService;
+import com.zaxxer.hikari.util.ConcurrentBag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -127,7 +128,7 @@ public class GeoService implements IGeoService {
     @Override
     public Locality getLocalityById(Long localityId) {
         try{
-            return localityRepository.findByIdAndEnabledTrue(localityId).orElseThrow(()-> new NotFoundException(null,"exception.localityNotFound.user", null, "exception.localityNotFound.log", localityId,null,"GeoService","getLocalityById", LogLevel.ERROR));
+            return localityRepository.findByIdAndEnabledTrue(localityId).orElseThrow(()-> new NotFoundException("exception.localityNotFound.user", null, "exception.localityNotFound.log",new Object[]{ localityId,"GeoService","getLocalityById"}, LogLevel.ERROR));
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "GeoService", localityId, null, "getLocalityById");
         }
@@ -141,7 +142,7 @@ public class GeoService implements IGeoService {
      */
     private void validateCountry(Long countryId) {
         countryRepository.findByIdAndEnabledTrue(countryId)
-                .orElseThrow(() -> new NotFoundException("","geoService.validateCountry.notFound.user", null,"geoService.validateCountry.notFound.log", countryId, "","GeoService","validateCountry",LogLevel.ERROR));
+                .orElseThrow(() -> new NotFoundException("geoService.validateCountry.notFound.user", null,"geoService.validateCountry.notFound.log", new Object[]{ countryId,"GeoService","validateCountry"},LogLevel.ERROR));
     }
 
     /**
@@ -151,7 +152,7 @@ public class GeoService implements IGeoService {
      */
     private void validateProvince(Long provinceId) {
         provinceRepository.findByIdAndEnabledTrue(provinceId)
-                .orElseThrow(() -> new NotFoundException("","geoService.validateProvince.notFound.user", null,"geoService.validateProvince.notFound.log", provinceId, "","GeoService","validateProvince",LogLevel.ERROR));
+                .orElseThrow(() -> new NotFoundException("geoService.validateProvince.notFound.user", null,"geoService.validateProvince.notFound.log",new Object[]{ provinceId,"GeoService","validateProvince"},LogLevel.ERROR));
     }
 
 }

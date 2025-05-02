@@ -108,7 +108,7 @@ public class MessageService implements IMessageService {
     @Override
     public MessageConfig getById(Long id) {
         try{
-            return messageRepository.findById(id).orElseThrow(()->new NotFoundException("","exception.messageNotFound.user",null,"exception.messageNotFound.log", id,"-", "MessageService", "getById", LogLevel.INFO));
+            return messageRepository.findById(id).orElseThrow(()->new NotFoundException("exception.messageNotFound.user",null,"exception.messageNotFound.log",new Object[]{id,"MessageService", "getById"} , LogLevel.INFO));
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "MessageService", 0L, "", "getById");
         }

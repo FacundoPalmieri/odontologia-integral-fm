@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 /**
@@ -47,21 +46,6 @@ public class GlobalExceptionHandler {
     private IMessageService messageService;
 
     /**
-     * Construye un arreglo de objetos filtrando los elementos nulos o, en el caso de cadenas de texto,
-     * aquellas que estén en blanco.
-     *
-     * @param args Argumentos variables que pueden incluir cualquier tipo de objeto.
-     * @return Un arreglo con los argumentos no nulos y, si son cadenas, no vacíos ni en blanco.
-     */
-    private Object[] buildArgs(Object... args) {
-        return Arrays.stream(args)
-                .filter(arg -> arg != null && !(arg instanceof String s && s.isBlank()))
-                .toArray();
-    }
-
-
-
-    /**
      * Maneja excepciones personalizadas del tipo {@link AppException}.
      * <p>
      * Extrae los mensajes para el usuario desde el servicio de mensajes, construye el mensaje de log
@@ -77,23 +61,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Response<Void>> handleAppException(AppException e) {
 
         //Mensaje para el usuario.
-        Object[] userArgs = e.getUserArgs();
-        String userMessage = messageService.getMessage(e.getUserMessageKey(), userArgs, LocaleContextHolder.getLocale());
+        String userMessage = messageService.getMessage(e.getUserMessageKey(), e.getUserArgs(), LocaleContextHolder.getLocale());
 
         //Verifica si corresponde loguear.
         if (e.getLogLevel() != LogLevel.NONE) {
 
 
-            Object[] logArgs = buildArgs(
-                    e.getMessage(),
-                    e.getId(),
-                    e.getValue(),
-                    e.getClase(),
-                    e.getMethod()
-            );
-
             //Construye mensaje para el log
-            String logMessage = messageService.getMessage(e.getLogMessageKey(),logArgs, LocaleContextHolder.getLocale());
+            String logMessage = messageService.getMessage(e.getLogMessageKey(),e.getLogArgs(), LocaleContextHolder.getLocale());
 
             // Loguea de acurdo al nivel.
             switch (e.getLogLevel()) {
@@ -171,7 +146,7 @@ public class GlobalExceptionHandler {
         //Se construye en el mensaje para log.
         String logMessage = messageService.getMessage(
                 "exception.database.log",
-                new Object[]{ ex.getEntityType(),  ex.getEntityId(), ex.getEntityName(), ex.getOperation(), ex.getRootCause(), userMessage},
+                new Object[]{ ex.getClase(),  ex.getEntityId(), ex.getEntityName(), ex.getMethod(), ex.getRootCause(), userMessage},
                 LocaleContextHolder.getLocale()
                 );
 

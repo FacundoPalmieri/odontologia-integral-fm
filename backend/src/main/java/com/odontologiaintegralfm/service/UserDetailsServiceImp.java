@@ -106,7 +106,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         //Se cuenta con usuario de tipo Usersec y se necesita devolver un tipo UserDetails
         //Se recupera el usuario de la bd
         UserSec userSec = userRepo.findUserEntityByUsername(username)
-                .orElseThrow(()-> new UnauthorizedException("","exception.usernameNotFound.user", null,"exception.usernameNotFound.log",null,username,"UserDetailServiceImp", "loadUserByUsername", LogLevel.WARN));
+                .orElseThrow(()-> new UnauthorizedException("exception.usernameNotFound.user", null,"exception.usernameNotFound.log",new Object[]{username,"UserDetailServiceImp", "loadUserByUsername"},LogLevel.WARN));
 
         //Spring Security maneja permisos con GrantedAuthority
         //Se crea una lista de SimpleGrantedAuthority para almacenar los permisos
@@ -192,7 +192,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
             return new Response<> (true,"", authLoginResponseDTO);
         }catch (BadCredentialsException ex) {
-            throw new UnauthorizedException("","exception.badCredentials.user",null, "exception.badCredentials.log", null, authLoginRequest.username(),"UserDetailServiceImp", "loginUser", LogLevel.WARN);
+            throw new UnauthorizedException("exception.badCredentials.user",null, "exception.badCredentials.log",new Object[]{authLoginRequest.username(),"UserDetailServiceImp", "loginUser"}, LogLevel.WARN);
         }
     }
 
@@ -220,7 +220,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         // En caso que sea nulo, se informa que no se pudo encontrar al usuario.
         if (userDetails == null) {
             String logMessage = messageService.getMessage("exception.UsernameNotFound.log", new Object[]{username}, LocaleContextHolder.getLocale());
-            throw new UnauthorizedException("","exception.usernameNotFound.user", null,"exception.usernameNotFound.log",null,username,"UserDetailServiceImp", "authenticate", LogLevel.WARN);
+            throw new UnauthorizedException("exception.usernameNotFound.user", null,"exception.usernameNotFound.log",new Object[]{username,"UserDetailServiceImp", "authenticate"}, LogLevel.WARN);
         }
 
         //En caso que no coincidan las credenciales se informa que la password es incorrecta
@@ -235,9 +235,9 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Se bloquea en caso de igualar o exceder el limite.
             if(!status){
                 UserSec userSec = userService.blockAccount(username);
-                throw new ForbiddenException("","exception.blockAccount.user",null,"exception.blockAccount.log",userSec.getId(), userSec.getUsername(), "UserDetailServiceImp", "authenticate",LogLevel.WARN);
+                throw new ForbiddenException("exception.blockAccount.user",null,"exception.blockAccount.log",new Object[]{userSec.getId(), userSec.getUsername(), "UserDetailServiceImp", "authenticate"},LogLevel.WARN);
             }
-            throw new UnauthorizedException("","exception.badCredentials.user",null, "exception.badCredentials.log", null, username,"UserDetailServiceImp", "authenticate", LogLevel.WARN);
+            throw new UnauthorizedException("exception.badCredentials.user",null, "exception.badCredentials.log", new Object[]{username,"UserDetailServiceImp", "authenticate"},LogLevel.WARN);
         }
 
         //Verifica si está activa la cuenta.

@@ -6,6 +6,7 @@ import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.TokenConfig;
 import com.odontologiaintegralfm.repository.ITokenRepository;
 import com.odontologiaintegralfm.service.interfaces.ITokenConfigService;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public class TokenConfigService implements ITokenConfigService {
                 return optional.get().getExpiration();
             }
 
-            throw new NotFoundException("","exception.tokenConfigNotFoundException.user",null,"exception.tokenConfigNotFoundException.log",null,"","Token Config Service","getExpiration", LogLevel.ERROR);
+            throw new NotFoundException("exception.tokenConfigNotFoundException.user",null,"exception.tokenConfigNotFoundException.log",new Object[]{"Token Config Service","getExpiration"}, LogLevel.ERROR);
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "TokenConfigService", 1L, "", "getExpiration");
         }

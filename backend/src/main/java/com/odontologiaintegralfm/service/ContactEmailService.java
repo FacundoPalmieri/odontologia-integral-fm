@@ -16,9 +16,9 @@ public class ContactEmailService implements IContactEmailService {
     private IContactEmailRepository contactEmailRepository;
 
     @Transactional
-    public void save(ContactEmail contactEmail) {
+    public ContactEmail save(ContactEmail contactEmail) {
         try {
-            contactEmailRepository.save(contactEmail);
+           return  contactEmailRepository.save(contactEmail);
         }catch(DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "ContactEmailService", contactEmail.getId(), contactEmail.getEmail(), "save");
         }

@@ -51,7 +51,7 @@ public class GenderService implements IGenderService {
     @Override
     public Gender getById(Long id) {
         try{
-            return genderRepository.findByIdAndEnabledTrue(id).orElseThrow(() -> new NotFoundException(null,"exception.genderNotFound.user", null, "exception.genderNotFound.log", id,null,"GenderService","getById", LogLevel.ERROR));
+            return genderRepository.findByIdAndEnabledTrue(id).orElseThrow(() -> new NotFoundException("exception.genderNotFound.user", null, "exception.genderNotFound.log", new Object[]{ id,"GenderService","getById"}, LogLevel.ERROR));
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "GenderService", id, null, "getById");
         }

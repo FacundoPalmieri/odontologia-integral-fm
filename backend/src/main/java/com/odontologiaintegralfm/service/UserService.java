@@ -149,7 +149,7 @@ public class UserService implements IUserService {
 
                  return new Response<>(true, messageUser, dto);
              }else{
-                 throw new NotFoundException("", "userService.findById.error.user", null,"userService.findById.error.log", id, "","UserService", "getById", LogLevel.ERROR );
+                 throw new NotFoundException("userService.findById.error.user", null,"userService.findById.error.log",new Object[]{id,"UserService", "getById"}, LogLevel.ERROR );
              }
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", id, "", "getById");
@@ -159,7 +159,7 @@ public class UserService implements IUserService {
     @Override
     public UserSec getByUsername(String username) {
         try {
-            return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new NotFoundException("","userService.getByUsername.error.user", null, "userService.getByUsername.error.log", null, "","UserService", "getByUsername", LogLevel.ERROR ));
+            return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new NotFoundException("userService.getByUsername.error.user", null, "userService.getByUsername.error.log",new Object[]{username,"UserService", "getByUsername"}, LogLevel.ERROR ));
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "getByUsername");
         }
@@ -249,7 +249,7 @@ public class UserService implements IUserService {
         try {
             //Se obtiene el usuario desde la base de datos para realizar validaciones
             UserSec userSec = userRepository.findById(userSecUpdateDto.getId())
-                    .orElseThrow(() -> new NotFoundException("","userService.findById.error.user", null,"userService.findById.error.log",userSecUpdateDto.getId(),"", "UserService", "Update",LogLevel.ERROR));
+                    .orElseThrow(() -> new NotFoundException("userService.findById.error.user", null,"userService.findById.error.log",new Object[]{userSecUpdateDto.getId(), "UserService", "Update"},LogLevel.ERROR));
             //Valída que el ID del UserSecUpdate no sea el mismo de quien está autenticado y recibe el usuario de la BD.
             validateSelfUpdate(userSecUpdateDto.getId());
 
@@ -315,7 +315,7 @@ public class UserService implements IUserService {
         try {
             Optional<UserSec> userOptional = userRepository.findUserEntityByUsername(email);
             if (userOptional.isEmpty()) {
-                throw new UnauthorizedException("","exception.usernameNotFound.user",null,"exception.usernameNotFound.log",null, email,"UserService", "validateToken",LogLevel.ERROR);
+                throw new UnauthorizedException("exception.usernameNotFound.user",null,"exception.usernameNotFound.log",new Object[]{email,"UserService", "validateToken"},LogLevel.ERROR);
             }
 
             UserSec user = userOptional.get();
@@ -467,7 +467,7 @@ public class UserService implements IUserService {
         try{
             Optional<UserSec>userSec = userRepository.findUserEntityByUsername(username);
             if(userSec.isEmpty()){
-                throw new UnauthorizedException("","exception.usernameNotFound.user", null, "exception.usernameNotFound.log",null,username,"UserService", "blockAccount", LogLevel.ERROR);
+                throw new UnauthorizedException("exception.usernameNotFound.user", null, "exception.usernameNotFound.log",new Object[]{username,"UserService", "blockAccount"}, LogLevel.ERROR);
             }
 
             //Obtener id Usuario para exception
@@ -583,7 +583,7 @@ public class UserService implements IUserService {
                 UserSec userSecOK = userSec.get();
                 id = userSecOK.getId();
                 if(!userSecOK.isEnabled()) {
-                    throw new UnauthorizedException("","exception.usernameNotFound.user", null, "exception.usernameNotFound.log",null,username,"UserSevice", "enableAccount", LogLevel.ERROR);
+                    throw new UnauthorizedException("exception.usernameNotFound.user", null, "exception.usernameNotFound.log",new Object[]{username,"UserService", "enableAccount"}, LogLevel.ERROR);
                 }
             }
         }catch(DataAccessException | CannotCreateTransactionException e) {
@@ -612,7 +612,7 @@ public class UserService implements IUserService {
 
             //Valída que la creación no sea a un rol DEV
             if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
-                throw new ConflictException("", "exception.save.validateNotDevRole.user", null,"exception.save.validateNotDevRole.log",role.getId(),null,"UserService", "validateNotDevRole",LogLevel.ERROR);
+                throw new ConflictException("exception.save.validateNotDevRole.user", null,"exception.save.validateNotDevRole.log",new Object[]{role.getId(),"UserService", "validateNotDevRole"},LogLevel.ERROR);
             }
         }
     }
@@ -642,11 +642,11 @@ public class UserService implements IUserService {
            }
 
            //Obtener el ID del usuario autenticado.
-           UserSec userSec = userRepository.findUserEntityByUsername(authenticatedUsername).orElseThrow(() -> new NotFoundException("","userService.findById.error.user",null,"userService.findById.error.log",null,"","UserService", "validateSelfUpdate",LogLevel.ERROR));
+           UserSec userSec = userRepository.findUserEntityByUsername(authenticatedUsername).orElseThrow(() -> new NotFoundException("userService.findById.error.user",null,"userService.findById.error.log",new Object[]{authenticatedUsername,"UserService", "validateSelfUpdate"},LogLevel.ERROR));
 
            //Comparar el ID del usuario autenticado con el ID de la solicitud.
            if (userSec.getId().equals(id)) {
-               throw new ConflictException("","exception.validateSelfUpdate.user",null,"exception.validateSelfUpdate.log",id,"","UserService", "validateSelfUpdate",LogLevel.INFO);
+               throw new ConflictException("exception.validateSelfUpdate.user",null,"exception.validateSelfUpdate.log",new Object[]{id,"UserService", "validateSelfUpdate"},LogLevel.INFO);
            }
        } catch (DataAccessException | CannotCreateTransactionException e) {
            throw new DataBaseException(e, "userService", id, "", "validateSelfUpdate");
@@ -670,7 +670,7 @@ public class UserService implements IUserService {
         //Valída que no pueda realizar ningún tipo de actualización a un usuario de tipo DEV
         for (Role role : userSec.getRolesList()) {
             if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
-                throw new ConflictException("","exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",role.getId(),"","UserService", "validateNotDevRole",LogLevel.INFO);
+                throw new ConflictException("exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",new Object[]{ role.getId(),"UserService", "validateNotDevRole"},LogLevel.INFO);
             }
         }
 
@@ -686,7 +686,7 @@ public class UserService implements IUserService {
 
             //Valída que la actualización no sea a un rol DEV
             if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
-                throw new ConflictException("","exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",role.getId(),"","UserService", "validateNotDevRole",LogLevel.INFO);
+                throw new ConflictException("exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",new Object[]{ role.getId(),"UserService", "validateNotDevRole"},LogLevel.INFO);
             }
         }
     }
@@ -733,7 +733,7 @@ public class UserService implements IUserService {
         }
 
         if(validateAccount && validateRole){
-            throw new ConflictException("","exception.validateUpdateUser.user",null,"exception.validateUpdateUser.log",userSec.getId(),"","UserService","validateUpdate",LogLevel.ERROR);
+            throw new ConflictException("exception.validateUpdateUser.user",null,"exception.validateUpdateUser.log",new Object[]{userSec.getId(),"UserService","validateUpdate"},LogLevel.ERROR);
         }
 
 
@@ -794,7 +794,7 @@ public class UserService implements IUserService {
         if(user.isPresent()){
             UserSec userSec = user.get();
             if(userSec.getUsername().equals(username)) {
-                throw new ConflictException("", "exception.usernameExisting.user",new Object[]{username}, "exception.usernameExisting.log",null,username,"UserService", "Save",LogLevel.ERROR);
+                throw new ConflictException("exception.usernameExisting.user",new Object[]{username}, "exception.usernameExisting.log",new Object[]{username,"UserService", "Save"},LogLevel.ERROR);
             }
         }
     }
@@ -842,7 +842,7 @@ public class UserService implements IUserService {
             String username = jwtUtils.extractUsername(decodedJWT);
             UserSec usuario = userRepository.findByResetPasswordToken(token);
             if(usuario == null || !usuario.getUsername().equals(username)){
-                throw new UnauthorizedException("","exception.validateToken.user",null,"exception.validateToken.log",null, usuario.getUsername(),"UserService", "validateToken",LogLevel.ERROR);
+                throw new UnauthorizedException("exception.validateToken.user",null,"exception.validateToken.log",new Object[]{usuario.getUsername(),"UserService", "validateToken"},LogLevel.ERROR);
             }
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "validatePasswordReset");
@@ -867,7 +867,7 @@ public class UserService implements IUserService {
      */
     private void validatePasswords(String password1, String password2, String username) {
         if(!password1.equals(password2)){
-            throw new ConflictException("","userService.save.passwordNotEquals.user",null,"", 0L, username, "UserService","validatePasswords",LogLevel.NONE);
+            throw new ConflictException("exception.passwordNotEquals.user",null,"exception.passwordNotEquals.log", new Object[]{username, "UserService","validatePasswords"},LogLevel.NONE);
         }
     }
 

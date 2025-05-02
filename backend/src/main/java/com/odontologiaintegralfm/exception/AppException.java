@@ -10,24 +10,17 @@ import org.springframework.http.HttpStatus;
 public abstract class AppException extends RuntimeException {
 
   private final String userMessageKey;
-  private final String logMessageKey;
-  private final Long id;
-  private final String value;
-  private final String clase ;
-  private final String method;
-  private final LogLevel logLevel;
   private final Object[] userArgs;
+  private final String logMessageKey;
+  private final Object[] logArgs; // <-- Nuevo campo dinámico
+  private final LogLevel logLevel;
 
 
-  public AppException(String message, String userMessageKey, Object[] userArgs, String logMessageKey, Long id, String value, String clase, String method,LogLevel logLevel) {
-    super(message);
+  public AppException(String userMessageKey, Object[] userArgs, String logMessageKey, Object[] logArgs ,LogLevel logLevel) {
     this.userMessageKey = userMessageKey;
     this.userArgs = userArgs;
     this.logMessageKey = logMessageKey;
-    this.id = id;
-    this.value = value;
-    this.clase = clase;
-    this.method = method;
+    this.logArgs = logArgs;
     this.logLevel = logLevel;
   }
 

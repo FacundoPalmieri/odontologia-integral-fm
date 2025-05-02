@@ -34,9 +34,6 @@ public class MedicalHistory {
     )
     private Set<MedicalRisk> medicalRisks = new HashSet<>();
 
-    @Lob
-    private String observation;
-
     private Boolean enabled;
 
 }

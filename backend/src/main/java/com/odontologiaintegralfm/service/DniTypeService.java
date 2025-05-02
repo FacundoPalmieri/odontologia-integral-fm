@@ -56,7 +56,7 @@ public class DniTypeService implements IDniTypeService {
     @Override
     public DniType getById(Long id) {
         try{
-            return dniTypeRepository.findByIdAndEnabledTrue(id).orElseThrow(()-> new NotFoundException(null,"exception.dniTypeNotFound.user", null, "exception.dniTypeNotFound.log", id,null,"DniTypeService","getById", LogLevel.ERROR));
+            return dniTypeRepository.findByIdAndEnabledTrue(id).orElseThrow(()-> new NotFoundException("exception.dniTypeNotFound.user", null, "exception.dniTypeNotFound.log", new Object[]{id,"DniTypeService","getById"}, LogLevel.ERROR));
         }catch (DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "DniTypeService", id,null, "getById");
         }

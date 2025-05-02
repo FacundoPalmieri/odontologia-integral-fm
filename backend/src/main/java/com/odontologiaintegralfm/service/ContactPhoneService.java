@@ -21,9 +21,9 @@ public class ContactPhoneService implements IContactPhoneService {
      */
     @Override
     @Transactional
-    public void save(ContactPhone phone) {
+    public ContactPhone save(ContactPhone phone) {
         try{
-            contactPhoneRepository.save(phone);
+           return contactPhoneRepository.save(phone);
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "TelephoneTypeService", phone.getId(), phone.getNumber(), "getById");
         }

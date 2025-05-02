@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 
 
 public class UnauthorizedException extends AppException {
-  public UnauthorizedException(String message, String userMessageKey, Object[] userArgs, String logMessageKey, Long id, String value, String clase, String method, LogLevel logLevel) {
-    super(message, userMessageKey,userArgs,logMessageKey, id, value, clase, method, logLevel);
+  public UnauthorizedException(String userMessageKey, Object[] userArgs, String logMessageKey,Object[] logArgs, LogLevel logLevel) {
+    super(userMessageKey,userArgs,logMessageKey,logArgs, logLevel);
   }
 
   @Override

@@ -120,7 +120,7 @@ public class RoleService implements IRoleService {
                   String messageUser = messageService.getMessage("roleService.getById.user.ok", null, LocaleContextHolder.getLocale());
                   return new Response<>(true, messageUser, dto);
               }else{
-                  throw new NotFoundException("", "exception.roleNotFound.user",null,"exception.roleNotFound.log",id,"","RoleService", "getById", LogLevel.ERROR);
+                  throw new NotFoundException("exception.roleNotFound.user",null,"exception.roleNotFound.log", new Object[]{id,"RoleService", "getById" }, LogLevel.ERROR);
               }
 
         }catch(DataAccessException | CannotCreateTransactionException e){
@@ -151,7 +151,7 @@ public class RoleService implements IRoleService {
 
         try{
             return roleRepository.findById(id).orElseThrow(()->
-                    new BadRequestException("","exception.roleNotFoundUserCreationException.user",null,"exception.roleNotFoundUserCreationException.log",id,"","RoleService", "getByIdInternal",LogLevel.ERROR));
+                    new BadRequestException("exception.roleNotFoundUserCreationException.user",null,"exception.roleNotFoundUserCreationException.log",new Object[]{id,"RoleService", "getByIdInternal"},LogLevel.ERROR));
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"roleService", id, "", "getByIdInternal");
@@ -270,7 +270,7 @@ public class RoleService implements IRoleService {
         Optional<Role> role = roleRepository.findRoleEntityByRole(roleNew);
         if(role.isPresent()) {
             if (role.get().getRole().equals(roleNew)) {
-                throw new ConflictException("","exception.roleExisting.user",new Object[]{roleNew},"exception.roleExisting.log",0L,"","RoleService", "Save",LogLevel.ERROR);
+                throw new ConflictException("exception.roleExisting.user",new Object[]{roleNew},"exception.roleExisting.log",new Object[]{roleNew,"RoleService", "Save"},LogLevel.ERROR);
             }
         }
     }
@@ -287,7 +287,7 @@ public class RoleService implements IRoleService {
      * @throws NotFoundException   Si el rol no fue encontrando en la base de datos.
      */
     private Role validateRoleExist(String roleUpdate){
-        return roleRepository.findRoleEntityByRole(roleUpdate).orElseThrow(()-> new NotFoundException("","exception.roleNotFound.user",null,"exception.roleNotFound.log",null,roleUpdate,"RoleService", "validateRoleExist",LogLevel.ERROR ));
+        return roleRepository.findRoleEntityByRole(roleUpdate).orElseThrow(()-> new NotFoundException("exception.roleNotFound.user",null,"exception.roleNotFound.log",new Object[]{roleUpdate,"RoleService", "validateRoleExist"},LogLevel.ERROR ));
     }
 
 

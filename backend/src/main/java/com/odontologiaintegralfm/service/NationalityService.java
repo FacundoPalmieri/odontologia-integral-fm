@@ -47,7 +47,7 @@ public class NationalityService implements INationalityService {
     @Override
     public Nationality getById(Long id) {
         try{
-            return nationalityRepository.findByIdAndEnabledTrue(id).orElseThrow(()-> new NotFoundException(null,"exception.nationalityNotFound.user", null, "exception.nationalityNotFound.log", id,null,"NationalityService","getById", LogLevel.ERROR));
+            return nationalityRepository.findByIdAndEnabledTrue(id).orElseThrow(()-> new NotFoundException("exception.nationalityNotFound.user", null, "exception.nationalityNotFound.log",new Object[]{ id,"NationalityService","getById"}, LogLevel.ERROR));
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "NationalityService", id,null, "getById");
         }

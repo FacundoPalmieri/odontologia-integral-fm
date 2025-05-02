@@ -9,8 +9,7 @@ import java.util.Set;
 @Repository
 public interface IMedicalRiskRepository extends JpaRepository<MedicalRisk, Long> {
 
-    Set<MedicalRisk> findAllByAndEnabledTrue();
+    Set<MedicalRisk> findAllByEnabledTrue();
 
-    Set<MedicalRisk> findByIdAndEnabledTrue(Set<Long> ids);
-
+    Set<MedicalRisk> findByIdInAndEnabledTrue(Set<Long> ids);
 }

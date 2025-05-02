@@ -203,7 +203,7 @@ public class ConfigService implements IConfigService {
             return new Response<>(true, userMessage, tokenConfigRequestDTO.expiration());
         }
 
-        throw new NotFoundException("","exception.tokenConfigNotFoundException.user",null,"exception.tokenConfigNotFoundException.log",null,"","ConfigService", "updateTokenExpiration", LogLevel.ERROR);
+        throw new NotFoundException("exception.tokenConfigNotFoundException.user",null,"exception.tokenConfigNotFoundException.log",new Object[]{"ConfigService", "updateTokenExpiration"} , LogLevel.ERROR);
     }
 
 
@@ -254,7 +254,7 @@ public class ConfigService implements IConfigService {
             return new Response<>(true, userMessage, refreshTokenConfigRequestDTO.expiration());
         }
 
-        throw new NotFoundException("","exception.refreshTokenConfigNotFoundException.user",null, "exception.refreshTokenConfigNotFoundException.log",0L,"","ConfigService","updateRefreshTokenExpiration",LogLevel.ERROR);
+        throw new NotFoundException("exception.refreshTokenConfigNotFoundException.user",null, "exception.refreshTokenConfigNotFoundException.log",new Object[]{"ConfigService","updateRefreshTokenExpiration"},LogLevel.ERROR);
     }
 
 

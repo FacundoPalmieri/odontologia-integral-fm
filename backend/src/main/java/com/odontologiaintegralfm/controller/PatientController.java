@@ -28,7 +28,7 @@ public class PatientController {
     @PostMapping
     @OnlyAdmistratorAndSecretary
     public ResponseEntity<Response<PatientCreateResponseDTO>> createPatient (@Valid @RequestBody PatientCreateRequestDTO patientCreateRequestDTO) {
-        Response<PatientCreateResponseDTO> response = patientService.save(patientCreateRequestDTO);
+        Response<PatientCreateResponseDTO> response = patientService.create(patientCreateRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

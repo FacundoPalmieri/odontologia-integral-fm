@@ -51,6 +51,10 @@ public abstract class Person {
 
     private LocalDate createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id")
+    private UserSec createdBy;
+
     private Boolean enabled;
 
     private LocalDate disabledAt;

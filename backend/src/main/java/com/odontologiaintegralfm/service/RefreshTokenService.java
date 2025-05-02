@@ -71,12 +71,12 @@ public class RefreshTokenService implements IRefreshTokenService {
     public void validateRefreshToken(RefreshToken refreshToken, RefreshTokenRequestDTO refreshTokenRequestDTO) {
         //Valída el código
         if(!refreshTokenRequestDTO.getRefreshToken().equals(refreshToken.getRefreshToken())){
-            throw new UnauthorizedException("userDetailServiceImpl.refreshToken.invalidCode","",null,"exception.refreshToken.log",refreshTokenRequestDTO.getIdUser(),"","RefreshTokenService", "validateRefreshToken", LogLevel.ERROR);
+            throw new UnauthorizedException("userDetailServiceImpl.refreshToken.invalidCode",null,"exception.refreshToken.log", new Object[]{ refreshTokenRequestDTO.getIdUser(),"RefreshTokenService", "validateRefreshToken"},LogLevel.ERROR);
         }
 
         //Valida la vigencia
         if(refreshToken.getExpirationDate().isBefore(LocalDateTime.now())){
-            throw new UnauthorizedException("userDetailServiceImpl.refreshToken.refreshTokenExpired","",null,"exception.refreshToken.log",refreshTokenRequestDTO.getIdUser(),"","RefreshTokenService", "validateRefreshToken", LogLevel.ERROR);
+            throw new UnauthorizedException("userDetailServiceImpl.refreshToken.refreshTokenExpired",null,"exception.refreshToken.log",new Object[]{refreshTokenRequestDTO.getIdUser(),"","RefreshTokenService", "validateRefreshToken"}, LogLevel.ERROR);
         }
 
     }
@@ -97,7 +97,7 @@ public class RefreshTokenService implements IRefreshTokenService {
     @Override
     public void deleteRefreshToken(String refreshToken) {
         try{
-            RefreshToken refreshTokenDB = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(()-> new UnauthorizedException("refreshTokenService.deleteRefreshToken","",null,"exception.refreshToken.log", 0L,"","Refresh Token Service", "deleteRefreshToken", LogLevel.ERROR));
+            RefreshToken refreshTokenDB = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(()-> new UnauthorizedException("refreshTokenService.deleteRefreshToken",null,"exception.refreshToken.log",new Object[]{0L,"Refresh Token Service", "deleteRefreshToken"}, LogLevel.ERROR));
             refreshTokenRepository.delete(refreshTokenDB);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
@@ -136,7 +136,7 @@ public class RefreshTokenService implements IRefreshTokenService {
      */
     public RefreshToken getRefreshTokenByUserId(Long id) {
         try{
-           return refreshTokenRepository.findByUser_Id(id).orElseThrow(()-> new UnauthorizedException( "No se encontró refreshToken asociado al usuario.","",null,"exception.refreshToken.log", id,"","Refresh Token Service", "getRefreshTokenByUserId", LogLevel.ERROR));
+           return refreshTokenRepository.findByUser_Id(id).orElseThrow(()-> new UnauthorizedException(null,null,"exception.refreshToken.log", new Object[]{id,"Refresh Token Service", "getRefreshTokenByUserId"},LogLevel.ERROR));
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "RefreshTokenService",0L, "", "getRefreshTokenByUserId");
         }

@@ -124,7 +124,7 @@ public class JwtUtils {
             DecodedJWT decodedJWT = verifier.verify(token);
             return decodedJWT;
         }catch (Exception e){
-            throw new UnauthorizedException("","jwtUtils.validateToken.error", null, "jwtUtils.validateToken.error", null,"","JwtUtils","UserService", LogLevel.ERROR);
+            throw new UnauthorizedException("exception.jwtUtils.validateToken.error.user", null, "exception.jwtUtils.validateToken.error.log", new Object[]{"JwtUtils","UserService"}, LogLevel.ERROR);
         }
     }
 

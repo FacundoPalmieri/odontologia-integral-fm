@@ -9,26 +9,22 @@ import lombok.Getter;
  */
 @Getter
 public class DataBaseException extends RuntimeException {
-    /** Tipo de la entidad afectada (Ejemplo: "UsuarioService"). */
-    private final String entityType;
+    private final String clase;
 
-    /** ID de la entidad afectada. */
     private final Long entityId;
 
-    /** Nombre descriptivo de la entidad afectada. */
     private final String entityName;
 
-    /** Operación en la que ocurrió el error (Ejemplo: "Save", "Update"). */
-    private final String operation;
+    private final String method;
 
 
      /** Constructor que inicializa la excepción con detalles de la entidad y la causa raíz del error.*/
-    public DataBaseException(Throwable cause, String entityType, Long entityId, String entityName, String operation) {
+    public DataBaseException(Throwable cause, String clase, Long entityId, String entityName, String method) {
         super(cause);
-        this.entityType = entityType;
+        this.clase = clase;
         this.entityId = entityId;
         this.entityName = entityName;
-        this.operation = operation;
+        this.method = method;
     }
 
 

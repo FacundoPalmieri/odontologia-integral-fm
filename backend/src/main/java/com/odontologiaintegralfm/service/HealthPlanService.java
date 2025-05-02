@@ -53,7 +53,7 @@ public class HealthPlanService implements IHealthPlanService {
     @Override
     public HealthPlan getById(Long id) {
         try{
-            return healthPlanRepository.findByIdAndEnabledTrue(id).orElseThrow(()-> new NotFoundException(null,"exception.healthPlanNotFound.user", null, "exception.healthPlanNotFound.log", id,null,"HealthPlanService","getById", LogLevel.ERROR));
+            return healthPlanRepository.findByIdAndEnabledTrue(id).orElseThrow(()-> new NotFoundException("exception.healthPlanNotFound.user", null, "exception.healthPlanNotFound.log", new Object[]{ id,"HealthPlanService","getById"}, LogLevel.ERROR));
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "HealthPlanService", id, null, "getById");
         }
