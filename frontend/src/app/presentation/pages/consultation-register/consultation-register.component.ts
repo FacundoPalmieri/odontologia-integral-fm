@@ -76,7 +76,6 @@ export class ConsultationRegisterComponent implements OnInit {
     totalAmount: new FormControl(null, Validators.required),
     installments: new FormControl(1),
   });
-  icons = ["letter-t-small", "letter-c-small"];
 
   patients: PatientInterface[] = [
     {

@@ -55,6 +55,10 @@ import {
   IconCircle,
   IconEraser,
   IconBell,
+  IconCash,
+  IconCashRegister,
+  IconCreditCard,
+  IconCreditCardPay,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -111,6 +115,10 @@ const ICONS = {
   IconCircle,
   IconEraser,
   IconBell,
+  IconCash,
+  IconCashRegister,
+  IconCreditCard,
+  IconCreditCardPay,
 } as const;
 
 @NgModule({

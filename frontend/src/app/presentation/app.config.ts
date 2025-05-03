@@ -20,6 +20,7 @@ import {
   MatNativeDateModule,
   provideNativeDateAdapter,
 } from "@angular/material/core";
+import { provideCharts, withDefaultRegisterables } from "ng2-charts";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -32,6 +33,7 @@ export const appConfig: ApplicationConfig = {
       withFetch()
     ),
     provideNativeDateAdapter(),
+    provideCharts(withDefaultRegisterables()),
     MatNativeDateModule,
     { provide: MatPaginatorIntl, useClass: CustomPaginatorIntl },
   ],
