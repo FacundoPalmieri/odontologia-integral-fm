@@ -23,7 +23,7 @@ import java.util.Set;
  */
 @RestController
 @PreAuthorize("denyAll()")
-@RequestMapping("/api/type-dni")
+@RequestMapping("/api/dni-type")
 public class DniTypeController {
     @Autowired
     private IDniTypeService dniTypeService;

@@ -12,35 +12,35 @@ import java.util.Set;
 public record PatientCreateRequestDTO (
 
         //Persona
-        @NotBlank(message = "PatientCreateRequestDTO.firstName.Empty")
+        @NotBlank(message = "patientCreateRequestDTO.firstName.Empty")
         String firstName,
 
-        @NotBlank(message = "PatientCreateRequestDTO.lastName.Empty")
+        @NotBlank(message = "patientCreateRequestDTO.lastName.Empty")
         String lastName,
 
-        @NotNull(message = "PatientCreateRequestDTO.dniTypeId.Empty")
+        @NotNull(message = "patientCreateRequestDTO.dniTypeId.Empty")
         Long dniTypeId,
 
-        @NotBlank(message = "PatientCreateRequestDTO.dni.Empty")
+        @NotBlank(message = "patientCreateRequestDTO.dni.Empty")
         String dni,
 
-        @NotNull(message = "PatientCreateRequestDTO.birthDate.Empty")
+        @NotNull(message = "patientCreateRequestDTO.birthDate.Empty")
         LocalDate birthDate,
 
-        @NotNull(message = "PatientCreateRequestDTO.genderId.Empty")
+        @NotNull(message = "patientCreateRequestDTO.genderId.Empty")
         Long genderId,
 
-        @NotNull(message = "PatientCreateRequestDTO.nationalityId.Empty")
+        @NotNull(message = "patientCreateRequestDTO.nationalityId.Empty")
         Long nationalityId,
 
         //Geografía.
-        @NotNull(message = "PatientCreateRequestDTO.localityId.Empty")
+        @NotNull(message = "patientCreateRequestDTO.localityId.Empty")
         Long localityId,
 
-        @NotBlank(message = "PatientCreateRequestDTO.street.Empty")
+        @NotBlank(message = "patientCreateRequestDTO.street.Empty")
         String street,
 
-        @NotNull(message = "PatientCreateRequestDTO.number.Empty")
+        @NotNull(message = "patientCreateRequestDTO.number.Empty")
         Integer number,
 
         String floor,
@@ -53,14 +53,14 @@ public record PatientCreateRequestDTO (
         String affiliateNumber,
 
         //Contacto
-        @Email(message = "PatientCreateRequestDTO.email.Invalid")
-        @NotBlank(message = "PatientCreateRequestDTO.email.Empty")
+        @Email(message = "patientCreateRequestDTO.email.Invalid")
+        @NotBlank(message = "patientCreateRequestDTO.email.Empty")
         String email,
 
-        @NotNull(message = "PatientCreateRequestDTO.phoneType.Empty")
+        @NotNull(message = "patientCreateRequestDTO.phoneType.Empty")
         Long phoneType,
 
-        @NotBlank(message = "PatientCreateRequestDTO.phone.Empty")
+        @NotBlank(message = "patientCreateRequestDTO.phone.Empty")
         String phone,
 
         //Historia Clínica.

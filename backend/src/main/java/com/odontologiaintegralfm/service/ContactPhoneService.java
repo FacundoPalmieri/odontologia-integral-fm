@@ -25,7 +25,7 @@ public class ContactPhoneService implements IContactPhoneService {
         try{
            return contactPhoneRepository.save(phone);
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "TelephoneTypeService", phone.getId(), phone.getNumber(), "getById");
+            throw new DataBaseException(e, "PhoneTypeService", phone.getId(), phone.getNumber(), "getById");
         }
     }
 }

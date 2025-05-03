@@ -10,6 +10,7 @@ import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IPatientRepository;
 import com.odontologiaintegralfm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Optional;
 
 
@@ -29,6 +31,9 @@ import java.util.Optional;
 
 @Service
 public class PatientService implements IPatientService {
+    @Autowired
+    private IMessageService messageService;
+
     @Autowired
     private IPatientRepository patientRepository;
 
@@ -51,7 +56,7 @@ public class PatientService implements IPatientService {
     private IContactEmailService contactEmailService;
 
     @Autowired
-    private ITelephoneTypeService telephoneTypeService;
+    private IPhoneTypeService telephoneTypeService;
 
     @Autowired
     private IContactPhoneService contactPhoneService;
@@ -119,7 +124,11 @@ public class PatientService implements IPatientService {
             //Crear Objeto Respuesta
             PatientCreateResponseDTO patientCreateResponseDTO = createResponseDTO(patient,address,contactEmail,contactPhone,medicalHistory, medicalHistoryObservation);
 
-            return new Response<>(true, null, patientCreateResponseDTO);
+            //Crear mensaje para el usuario.
+            String messageUser = messageService.getMessage("patientService.save.ok.user",null, LocaleContextHolder.getLocale());
+
+
+            return new Response<>(true,messageUser, patientCreateResponseDTO);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "PatientService", null,patientCreateRequestDTO.dni(), "save");
@@ -171,7 +180,7 @@ public class PatientService implements IPatientService {
             patient.setHealthPlan(healthPlanService.getById(patientCreateRequestDTO.healthPlansId()));
             patient.setAffiliateNumber(patientCreateRequestDTO.affiliateNumber());
             patient.setAddress(address);
-            patient.setCreatedAt(LocalDate.now());
+            patient.setCreatedAt(LocalDateTime.now());
             patient.setCreatedBy(user);
             patient.setEnabled(true);
 
@@ -220,6 +229,7 @@ public class PatientService implements IPatientService {
         //Obtiene Usuario autenticado.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserSec user = userService.getByUsername(authentication.getName());
+
         MedicalHistoryObservation medicalHistoryObservation = new MedicalHistoryObservation();
         medicalHistoryObservation.setMedicalHistory(medicalHistory);
         medicalHistoryObservation.setObservation(patientCreateRequestDTO.medicalHistoryObservation());
@@ -258,7 +268,7 @@ public class PatientService implements IPatientService {
         ContactPhone contactPhone = new ContactPhone();
         contactPhone.setPerson(new HashSet<>());
         contactPhone.setNumber(patientCreateRequestDTO.phone());
-        contactPhone.setTelephoneType(telephoneTypeService.getById(patientCreateRequestDTO.phoneType()));
+        contactPhone.setPhoneType(telephoneTypeService.getById(patientCreateRequestDTO.phoneType()));
         contactPhone.setNumber(patientCreateRequestDTO.phone());
         contactPhone.getPerson().add(patient);
         contactPhone.setEnabled(true);

@@ -25,9 +25,7 @@ public class MedicalHistoryService implements IMedicalHistoryService {
     @Override
     public MedicalHistory create(MedicalHistory medicalHistory) {
         try{
-           return
-
-                   medicalHistoryRepository.save(medicalHistory);
+           return medicalHistoryRepository.save(medicalHistory);
         }catch (DataIntegrityViolationException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"MedicalHistoryService",null, medicalHistory.getPatient().getFirstName() + " " + medicalHistory.getPatient().getLastName(), "create");
         }

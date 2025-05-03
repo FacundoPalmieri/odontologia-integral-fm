@@ -5,11 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 
 /**
  * Entidad que representa un permiso de usuario.
  */
+@Audited
 @Entity
 @Getter
 @Setter

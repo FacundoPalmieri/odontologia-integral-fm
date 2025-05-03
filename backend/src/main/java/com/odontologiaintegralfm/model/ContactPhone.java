@@ -18,9 +18,9 @@ public class ContactPhone {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(targetEntity = TelephoneType.class)
+    @ManyToOne(targetEntity = PhoneType.class)
     @JoinColumn(name = "telephone_type_id")
-    private TelephoneType telephoneType;
+    private PhoneType phoneType;
 
     @Column(length = 20, nullable = false)
     private String number;

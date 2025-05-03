@@ -4,15 +4,22 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.envers.Audited;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
 /**
  * Entidad que representar el Usuario securizado
  */
+@Audited
 @Entity
 @Getter @Setter
 @AllArgsConstructor
@@ -76,4 +83,5 @@ public class UserSec {
     /**Token para restablecimiento de contraseña.*/
     @Column(length = 500)
     private String resetPasswordToken;
+
 }
