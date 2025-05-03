@@ -54,6 +54,7 @@ import {
   IconCircuitResistor,
   IconCircle,
   IconEraser,
+  IconBell,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -109,6 +110,7 @@ const ICONS = {
   IconCircuitResistor,
   IconCircle,
   IconEraser,
+  IconBell,
 } as const;
 
 @NgModule({

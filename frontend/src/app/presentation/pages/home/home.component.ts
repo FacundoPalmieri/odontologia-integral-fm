@@ -20,6 +20,7 @@ import { TreatmentReferencesSidenavService } from "../../../services/treatment-r
 import { TreatmentReferencesComponent } from "../../components/treatment-references/treatment-references.component";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { Subject, takeUntil } from "rxjs";
+import { MatBadgeModule } from "@angular/material/badge";
 
 @Component({
   selector: "app-home",
@@ -39,6 +40,7 @@ import { Subject, takeUntil } from "rxjs";
     RouterModule,
     IconsModule,
     TreatmentReferencesComponent,
+    MatBadgeModule,
   ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
