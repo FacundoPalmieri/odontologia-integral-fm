@@ -1,4 +1,11 @@
-import { Component, effect, inject, signal, ViewChild } from "@angular/core";
+import {
+  Component,
+  effect,
+  inject,
+  OnDestroy,
+  signal,
+  ViewChild,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -25,6 +32,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { EditMessageDialogComponent } from "./edit-message-dialog/edit-message-dialog.component";
 import { MessageDto } from "../../../domain/dto/message-update.dto";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
   selector: "app-system",
@@ -47,7 +55,8 @@ import { MessageDto } from "../../../domain/dto/message-update.dto";
     MatDialogModule,
   ],
 })
-export class SystemComponent {
+export class SystemComponent implements OnDestroy {
+  private readonly _destroy$ = new Subject<void>();
   readonly dialog = inject(MatDialog);
   configService = inject(ConfigService);
   snackbarService = inject(SnackbarService);
@@ -80,6 +89,11 @@ export class SystemComponent {
     });
   }
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
   loadInitialData() {
     this._getFailedAttempts();
     this._getMessages();
@@ -93,6 +107,7 @@ export class SystemComponent {
 
     this.configService
       .updateTokenExpirationTime(time)
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<number>) => {
         this.snackbarService.openSnackbar(
           response.message,
@@ -110,6 +125,7 @@ export class SystemComponent {
 
     this.configService
       .updateFailedAttempts(attempts)
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<number>) => {
         this.snackbarService.openSnackbar(
           response.message,
@@ -127,6 +143,7 @@ export class SystemComponent {
 
     this.configService
       .updateRefreshTokenExpirationTime(refreshTokenExpiration)
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<number>) => {
         this.snackbarService.openSnackbar(
           response.message,
@@ -152,6 +169,7 @@ export class SystemComponent {
           };
           this.configService
             .updateMessage(messageDto)
+            .pipe(takeUntil(this._destroy$))
             .subscribe((response: ApiResponseInterface<MessageInterface>) => {
               this.snackbarService.openSnackbar(
                 response.message,
@@ -177,6 +195,7 @@ export class SystemComponent {
   private _getTokenExpirationTime() {
     this.configService
       .getTokenExpirationTime()
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<number>) => {
         if (response.success) {
           this.tokenForm.patchValue({
@@ -189,6 +208,7 @@ export class SystemComponent {
   private _getRefreshTokenExpirationTime() {
     this.configService
       .getRefreshTokenExpirationTime()
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<number>) => {
         if (response.success) {
           this.tokenForm.patchValue({
@@ -201,6 +221,7 @@ export class SystemComponent {
   private _getFailedAttempts() {
     this.configService
       .getFailedAttempts()
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<number>) => {
         if (response.success) {
           this.tokenForm.patchValue({
@@ -213,6 +234,7 @@ export class SystemComponent {
   private _getMessages() {
     this.configService
       .getMessages()
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<MessageInterface[]>) => {
         this.messages.set(response.data);
       });

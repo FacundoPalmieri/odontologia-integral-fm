@@ -5,6 +5,7 @@ import {
   ViewChildren,
   signal,
   effect,
+  OnDestroy,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
@@ -37,6 +38,7 @@ import { RoleCreateDto } from "../../../domain/dto/role-create.dto";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
   selector: "app-configuration",
@@ -60,7 +62,8 @@ import { MatInputModule } from "@angular/material/input";
     MatInputModule,
   ],
 })
-export class ConfigurationComponent {
+export class ConfigurationComponent implements OnDestroy {
+  private readonly _destroy$ = new Subject<void>();
   readonly dialog = inject(MatDialog);
   userService = inject(UserService);
   roleService = inject(RoleService);
@@ -112,24 +115,32 @@ export class ConfigurationComponent {
     });
   }
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
   createUser() {
     const dialogRef = this.dialog.open(CreateUserDialogComponent);
-    dialogRef.afterClosed().subscribe((user: UserCreateDto) => {
-      if (user) {
-        this.userService
-          .create(user)
-          .subscribe((response: ApiResponseInterface<UserInterface>) => {
-            this.snackbarService.openSnackbar(
-              response.message,
-              3000,
-              "center",
-              "top",
-              SnackbarTypeEnum.Success
-            );
-            this._loadUsers();
-          });
-      }
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((user: UserCreateDto) => {
+        if (user) {
+          this.userService
+            .create(user)
+            .subscribe((response: ApiResponseInterface<UserInterface>) => {
+              this.snackbarService.openSnackbar(
+                response.message,
+                3000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Success
+              );
+              this._loadUsers();
+            });
+        }
+      });
   }
 
   editUser(user: UserInterface) {
@@ -146,6 +157,7 @@ export class ConfigurationComponent {
           };
           this.userService
             .update(userDto)
+            .pipe(takeUntil(this._destroy$))
             .subscribe((response: ApiResponseInterface<UserInterface>) => {
               this.snackbarService.openSnackbar(
                 response.message,
@@ -175,6 +187,7 @@ export class ConfigurationComponent {
       if (role) {
         this.roleService
           .create(role)
+          .pipe(takeUntil(this._destroy$))
           .subscribe((response: ApiResponseInterface<RoleInterface>) => {
             this.snackbarService.openSnackbar(
               response.message,
@@ -203,6 +216,7 @@ export class ConfigurationComponent {
           };
           this.roleService
             .update(roleDto)
+            .pipe(takeUntil(this._destroy$))
             .subscribe((response: ApiResponseInterface<RoleInterface>) => {
               this.snackbarService.openSnackbar(
                 response.message,
@@ -234,6 +248,7 @@ export class ConfigurationComponent {
   private _loadUsers() {
     this.userService
       .getAll()
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<UserInterface[]>) => {
         this.users.set(response.data);
       });
@@ -242,6 +257,7 @@ export class ConfigurationComponent {
   private _loadRoles() {
     this.roleService
       .getAll()
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<RoleInterface[]>) => {
         this.roles.set(response.data);
       });

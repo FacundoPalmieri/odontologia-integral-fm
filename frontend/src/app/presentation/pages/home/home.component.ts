@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from "@angular/core";
+import { Component, computed, inject, OnDestroy, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Router, RouterModule } from "@angular/router";
 import { MatIconModule } from "@angular/material/icon";
@@ -19,6 +19,7 @@ import { FullscreenService } from "../../../services/fullscreen.service";
 import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
 import { TreatmentReferencesComponent } from "../../components/treatment-references/treatment-references.component";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
   selector: "app-home",
@@ -40,7 +41,8 @@ import { ApiResponseInterface } from "../../../domain/interfaces/api-response.in
     TreatmentReferencesComponent,
   ],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  private readonly _destroy$ = new Subject<void>();
   themeService = inject(ThemeService);
   authService = inject(AuthService);
   router = inject(Router);
@@ -63,6 +65,11 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
   private filterMenuItems(): MenuItemInterface[] {
     return this.menuItems.filter((item) =>
       this.permissions.includes(item.permissionEnum)
@@ -73,6 +80,7 @@ export class HomeComponent implements OnInit {
     const logoutData = this.authService.getLogoutData();
     this.authService
       .logout(logoutData!)
+      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<string>) => {
         if (response.success) {
           this.authService.dologout();

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, OnDestroy, signal } from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -20,6 +20,7 @@ import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { Router } from "@angular/router";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
   selector: "app-login",
@@ -37,7 +38,8 @@ import { Router } from "@angular/router";
     IconsModule,
   ],
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
+  private readonly _destroy$ = new Subject<void>();
   authService = inject(AuthService);
   loaderService = inject(LoaderService);
   snackbarService = inject(SnackbarService);
@@ -67,6 +69,11 @@ export class LoginComponent {
     });
   }
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
   clickEvent(event: MouseEvent) {
     this.hidePassword.set(!this.hidePassword());
     event.stopPropagation();
@@ -82,16 +89,19 @@ export class LoginComponent {
 
     const loginData: LoginInterface = this.loginForm.value;
     this.loaderService.show();
-    this.authService.login(loginData).subscribe({
-      next: (response: ApiResponseInterface<AuthUserInterface>) => {
-        this.authService.doLogin(response.data);
-        this.loaderService.hide();
-        this.router.navigate(["/"]);
-      },
-      error: () => {
-        this.loaderService.hide();
-      },
-    });
+    this.authService
+      .login(loginData)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (response: ApiResponseInterface<AuthUserInterface>) => {
+          this.authService.doLogin(response.data);
+          this.loaderService.hide();
+          this.router.navigate(["/"]);
+        },
+        error: () => {
+          this.loaderService.hide();
+        },
+      });
   }
 
   requestPasswordReset() {
@@ -100,21 +110,24 @@ export class LoginComponent {
     const email: string = this.forgotPasswordForm.value.email;
     this.loaderService.show();
 
-    this.authService.resetPasswordRequest(email).subscribe({
-      next: (response: ApiResponseInterface<string>) => {
-        this.resetPasswordSent.set(true);
-        this.loaderService.hide();
-        this.snackbarService.openSnackbar(
-          response.message,
-          6000,
-          "center",
-          "bottom",
-          SnackbarTypeEnum.Success
-        );
-      },
-      error: () => {
-        this.loaderService.hide();
-      },
-    });
+    this.authService
+      .resetPasswordRequest(email)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (response: ApiResponseInterface<string>) => {
+          this.resetPasswordSent.set(true);
+          this.loaderService.hide();
+          this.snackbarService.openSnackbar(
+            response.message,
+            6000,
+            "center",
+            "bottom",
+            SnackbarTypeEnum.Success
+          );
+        },
+        error: () => {
+          this.loaderService.hide();
+        },
+      });
   }
 }
