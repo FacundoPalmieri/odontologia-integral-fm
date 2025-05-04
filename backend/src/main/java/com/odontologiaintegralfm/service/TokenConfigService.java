@@ -1,10 +1,12 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.TokenConfigNotFoundException;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.TokenConfig;
 import com.odontologiaintegralfm.repository.ITokenRepository;
 import com.odontologiaintegralfm.service.interfaces.ITokenConfigService;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,7 @@ public class TokenConfigService implements ITokenConfigService {
      *
      * @return Un {@link Long} que representa la fecha de expiración del token.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
+     * @throws NotFoundException Si no encuentra valor.
      */
     @Override
     public Long getExpiration() {
@@ -49,7 +52,7 @@ public class TokenConfigService implements ITokenConfigService {
                 return optional.get().getExpiration();
             }
 
-            throw new TokenConfigNotFoundException(0L, "Token Config Service","getExpiration");
+            throw new NotFoundException("exception.tokenConfigNotFoundException.user",null,"exception.tokenConfigNotFoundException.log",new Object[]{"Token Config Service","getExpiration"}, LogLevel.ERROR);
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "TokenConfigService", 1L, "", "getExpiration");
         }

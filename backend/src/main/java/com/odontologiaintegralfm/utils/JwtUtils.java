@@ -4,6 +4,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.exception.UnauthorizedException;
 import com.odontologiaintegralfm.service.interfaces.ITokenConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -109,18 +111,21 @@ public class JwtUtils {
      * @return El token decodificado como un objeto {@link DecodedJWT}, que contiene los detalles del token.
      */
     public DecodedJWT validateToken(String token) {
+        try {
+            // Algoritmo y clave secreta para la validación
+            Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
 
-        // Algoritmo y clave secreta para la validación
-        Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
+            // Configurar el verificador del token con el emisor esperado
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer(this.userGenerator)
+                    .build(); //usa patrón builder
 
-        // Configurar el verificador del token con el emisor esperado
-        JWTVerifier verifier = JWT.require(algorithm)
-                .withIssuer(this.userGenerator)
-                .build(); //usa patrón builder
-
-        // Si el token es válido, se decodifica y se devuelve el objeto DecodedJWT
-        DecodedJWT decodedJWT = verifier.verify(token);
-        return decodedJWT;
+            // Si el token es válido, se decodifica y se devuelve el objeto DecodedJWT
+            DecodedJWT decodedJWT = verifier.verify(token);
+            return decodedJWT;
+        }catch (Exception e){
+            throw new UnauthorizedException("exception.jwtUtils.validateToken.error.user", null, "exception.jwtUtils.validateToken.error.log", new Object[]{"JwtUtils","UserService"}, LogLevel.ERROR);
+        }
     }
 
 

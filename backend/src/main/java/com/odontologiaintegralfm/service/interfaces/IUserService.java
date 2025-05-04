@@ -16,14 +16,14 @@ public interface IUserService {
       * Obtiene todos los usuarios.
       * @return Una respuesta que contiene una lista de objetos {@link UserSecResponseDTO} representando los usuarios.
       */
-     Response<List<UserSecResponseDTO>> findAll();
+     Response<List<UserSecResponseDTO>> getAll();
 
      /**
       * Obtiene un usuario por su ID.
       * @param id El ID del usuario a recuperar.
       * @return Una respuesta que contiene el objeto {@link UserSecResponseDTO} correspondiente al usuario.
       */
-     Response<UserSecResponseDTO> findById(Long id);
+     Response<UserSecResponseDTO> getById(Long id);
 
 
 

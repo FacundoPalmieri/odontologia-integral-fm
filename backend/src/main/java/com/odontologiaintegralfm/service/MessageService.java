@@ -1,7 +1,8 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.MessageNotFoundException;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.MessageConfig;
 import com.odontologiaintegralfm.repository.IMessageRepository;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
@@ -23,7 +24,7 @@ import java.util.Locale;
  * <p>
  * Las operaciones incluyen la obtención de mensajes por clave e idioma, la recuperación de mensajes por ID,
  * la actualización de mensajes y la recuperación de todos los mensajes almacenados. En caso de errores de acceso
- * a la base de datos, se manejan excepciones específicas como {@link DataBaseException} y {@link MessageNotFoundException}.
+ * a la base de datos, se manejan excepciones específicas como {@link DataBaseException} y {@link NotFoundException}.
  * </p>
  */
 
@@ -85,7 +86,7 @@ public class MessageService implements IMessageService {
         try {
             return messageRepository.findAll();
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configRepository", 0L, "", "findAll");
+            throw new DataBaseException(e, "MessageService", 0L, "", "listMessage");
         }
     }
 
@@ -94,23 +95,22 @@ public class MessageService implements IMessageService {
      * Obtiene un mensaje por su identificador único.
      * <p>
      * Este método busca un mensaje en la base de datos mediante su ID. Si el mensaje no existe,
-     * lanza una excepción {@link MessageNotFoundException}. En caso de error de acceso a la base
+     * lanza una excepción {@link NotFoundException}. En caso de error de acceso a la base
      * de datos, lanza una excepción {@link DataBaseException}.
      * </p>
      *
      * @param id El identificador único del mensaje a buscar.
      * @return El mensaje encontrado como una instancia de {@link MessageConfig}.
-     * @throws MessageNotFoundException Si no se encuentra un mensaje con el ID especificado.
+     * @throws NotFoundException Si no se encuentra un mensaje con el ID especificado.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
 
     @Override
     public MessageConfig getById(Long id) {
         try{
-            return messageRepository.findById(id).orElseThrow(()->new MessageNotFoundException("", id, "MessageService", "getById"));
-
+            return messageRepository.findById(id).orElseThrow(()->new NotFoundException("exception.messageNotFound.user",null,"exception.messageNotFound.log",new Object[]{id,"MessageService", "getById"} , LogLevel.INFO));
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configRepository", 0L, "", "findAll");
+            throw new DataBaseException(e, "MessageService", 0L, "", "getById");
         }
     }
 

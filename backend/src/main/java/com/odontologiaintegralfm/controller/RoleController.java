@@ -1,4 +1,5 @@
 package com.odontologiaintegralfm.controller;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDevelopers;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
@@ -72,7 +73,7 @@ public class RoleController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
+    @OnlyDevelopers
     public ResponseEntity<Response<List<Role>>> getAllRoles() {
         Response<List<Role>> response = roleService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -103,7 +104,7 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Rol no encontrado."),
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
+    @OnlyDevelopers
     public ResponseEntity<Response<RoleResponseDTO>> getRoleById(@Valid @PathVariable Long id) {
         Response<RoleResponseDTO> response = roleService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -136,7 +137,7 @@ public class RoleController {
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
     @PostMapping
-    @PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
+    @OnlyDevelopers
     public ResponseEntity<Response<RoleResponseDTO>>createRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
         Response<RoleResponseDTO> response = roleService.save(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -171,7 +172,7 @@ public class RoleController {
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
     @PatchMapping
-    @PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
+    @OnlyDevelopers
     public ResponseEntity<Response<RoleResponseDTO>> updateRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
         Response<RoleResponseDTO> response = roleService.update(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);

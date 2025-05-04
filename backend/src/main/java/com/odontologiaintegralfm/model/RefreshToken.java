@@ -21,7 +21,7 @@ public class RefreshToken {
     private String refreshToken;
 
 
-    @OneToOne(targetEntity = UserSec.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
     @JoinColumn(name = "id_user", nullable = false)
     private UserSec user;
 

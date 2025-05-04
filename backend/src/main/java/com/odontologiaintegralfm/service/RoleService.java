@@ -3,10 +3,8 @@ package com.odontologiaintegralfm.service;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
-import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.PermissionNotFoundRoleCreationException;
-import com.odontologiaintegralfm.exception.RoleExistingException;
-import com.odontologiaintegralfm.exception.RoleNotFoundException;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.Permission;
 import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.repository.IRoleRepository;
@@ -102,13 +100,13 @@ public class RoleService implements IRoleService {
      * objeto {@link Response}, junto con un mensaje de éxito obtenido del servicio de mensajes.
      * </p>
      * <p>
-     * Si el rol no se encuentra, lanza una excepción {@link RoleNotFoundException}.
+     * Si el rol no se encuentra, lanza una excepción {@link NotFoundException}.
      * En caso de error de acceso a la base de datos o de transacción, lanza una excepción {@link DataBaseException}.
      * </p>
      *
      * @param id El identificador único del rol a buscar.
      * @return Un objeto {@link Response} que contiene el rol en formato {@link RoleResponseDTO}.
-     * @throws RoleNotFoundException Si no se encuentra un rol con el ID especificado.
+     * @throws NotFoundException Si no se encuentra un rol con el ID especificado.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
 
@@ -122,7 +120,7 @@ public class RoleService implements IRoleService {
                   String messageUser = messageService.getMessage("roleService.getById.user.ok", null, LocaleContextHolder.getLocale());
                   return new Response<>(true, messageUser, dto);
               }else{
-                  throw new RoleNotFoundException("",id, "","RoleService", "getById");
+                  throw new NotFoundException("exception.roleNotFound.user",null,"exception.roleNotFound.log", new Object[]{id,"RoleService", "getById" }, LogLevel.ERROR);
               }
 
         }catch(DataAccessException | CannotCreateTransactionException e){
@@ -153,10 +151,10 @@ public class RoleService implements IRoleService {
 
         try{
             return roleRepository.findById(id).orElseThrow(()->
-                    new RoleNotFoundException("",id,"","RoleService", "getByIdInternal"));
+                    new BadRequestException("exception.roleNotFoundUserCreationException.user",null,"exception.roleNotFoundUserCreationException.log",new Object[]{id,"RoleService", "getByIdInternal"},LogLevel.ERROR));
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", id, "", "getById");
+            throw new DataBaseException(e,"roleService", id, "", "getByIdInternal");
 
         }
     }
@@ -262,17 +260,17 @@ public class RoleService implements IRoleService {
      * Valída que el rol especificado no exista ya en la base de datos.
      * <p>
      * Este método consulta el repositorio para verificar si el rol proporcionado ya existe.
-     * Si el rol ya existe, lanza una excepción {@link RoleExistingException} para evitar duplicados.
+     * Si el rol ya existe, lanza una excepción {@link ConflictException} para evitar duplicados.
      * </p>
      *
      * @param roleNew El nombre del rol a validar.
-     * @throws RoleExistingException Si el rol ya existe en la base de datos.
+     * @throws ConflictException Si el rol ya existe en la base de datos.
      */
     private void validateRoleNotExist(String roleNew){
         Optional<Role> role = roleRepository.findRoleEntityByRole(roleNew);
         if(role.isPresent()) {
             if (role.get().getRole().equals(roleNew)) {
-                throw new RoleExistingException("", "RoleService", "Save", roleNew);
+                throw new ConflictException("exception.roleExisting.user",new Object[]{roleNew},"exception.roleExisting.log",new Object[]{roleNew,"RoleService", "Save"},LogLevel.ERROR);
             }
         }
     }
@@ -282,14 +280,14 @@ public class RoleService implements IRoleService {
      * Valída que el rol especificado exista en la base de datos.
      * <p>
      * Este método consulta el repositorio para verificar si el rol proporcionado ya existe para poder modificarlo.
-     * Si el rol no fue encontrando,lanza una excepción {@link RoleNotFoundException }
+     * Si el rol no fue encontrando,lanza una excepción {@link NotFoundException  }
      * </p>
      *
      * @param roleUpdate El nombre del rol a validar.
-     * @throws RoleNotFoundException  Si el rol no fue encontrando en la base de datos.
+     * @throws NotFoundException   Si el rol no fue encontrando en la base de datos.
      */
     private Role validateRoleExist(String roleUpdate){
-        return roleRepository.findRoleEntityByRole(roleUpdate).orElseThrow(()-> new RoleNotFoundException("",0L, roleUpdate,"RoleService", "validateRoleExist"));
+        return roleRepository.findRoleEntityByRole(roleUpdate).orElseThrow(()-> new NotFoundException("exception.roleNotFound.user",null,"exception.roleNotFound.log",new Object[]{roleUpdate,"RoleService", "validateRoleExist"},LogLevel.ERROR ));
     }
 
 
@@ -308,7 +306,6 @@ public class RoleService implements IRoleService {
     private RoleResponseDTO convertToDTOResponse(Role role) {
         RoleResponseDTO roleDTO = new RoleResponseDTO();
         roleDTO.setId(role.getId());
-        roleDTO.setRole(role.getRole());
         roleDTO.setPermissionsList(role.getPermissionsList());
         return roleDTO;
     }
@@ -320,12 +317,12 @@ public class RoleService implements IRoleService {
      * Recupera y valida un conjunto de permisos para un rol.
      * <p>
      * Este método toma un conjunto de permisos, busca cada uno en el sistema usando su ID, y los agrega a un conjunto de permisos válidos.
-     * Si un permiso no se encuentra, se lanza una excepción {@link PermissionNotFoundRoleCreationException}.
+     * Si un permiso no se encuentra, se lanza una excepción {@link BadRequestException}.
      * </p>
      *
      * @param permissions Un conjunto de permisos que se desea asignar al rol.
      * @return Un conjunto {@link Set} de permisos válidos que se han encontrado en el sistema.
-     * @throws PermissionNotFoundRoleCreationException Si no se encuentra un permiso con el ID proporcionado.
+     * @throws BadRequestException Si no se encuentra un permiso con el ID proporcionado.
      */
     private Set<Permission> getPermissionForRole(Set<Permission> permissions) {
         Set<Permission> validPermission = new HashSet<>();

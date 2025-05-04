@@ -2,7 +2,8 @@ package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.RefreshTokenConfigRequestDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.RefreshTokenConfigNotFoundException;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.RefreshTokenConfig;
 import com.odontologiaintegralfm.repository.IRefreshTokenConfigRepository;
 import com.odontologiaintegralfm.service.interfaces.IRefreshTokenConfigService;
@@ -21,7 +22,7 @@ import java.util.Optional;
  * lanzando excepciones específicas en caso de fallos.
  * </p>
  *
- * <p>Este servicio implementa la interfaz {@link com.securitysolution.spring.security.jwt.oauth2.service.interfaces.IRefreshTokenService}.</p>
+ * <p>Este servicio implementa la interfaz {@link IRefreshTokenConfigService}.</p>
  */
 
 @Service
@@ -49,7 +50,7 @@ public class RefreshTokenConfigService implements IRefreshTokenConfigService {
                 return optional.get().getExpiration();
             }
 
-            throw new RefreshTokenConfigNotFoundException(0L, "Refresh Token Config Service", "getExpiration");
+            throw new NotFoundException("exception.refreshTokenConfigNotFoundException.user",null,"exception.refreshTokenConfigNotFoundException.log",new Object[]{"Refresh Token Config Service", "getExpiration"}, LogLevel.ERROR);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "RefreshTokenConfigService", 1L, "RefreshToken", "getExpiration");

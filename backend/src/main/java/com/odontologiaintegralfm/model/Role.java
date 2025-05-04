@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.envers.Audited;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 /**
  * Entidad que representa un rol de usuario.
  */
+@Audited
 @Entity
 @Getter
 @Setter
@@ -27,6 +29,7 @@ public class Role {
     /**Nombre del rol.*/
     @Column(length = 50, unique = true)
     private String role;
+
 
     /**Lista de permisos asociados al rol.
      * Se utiliza Set porque no permite repetidos.
