@@ -39,7 +39,9 @@
                         </div>
                         <div class="flex flex-col">
                           <span>
-                            <b class="mb-1">{{ patient.name }}</b>
+                            <b class="mb-1"
+                              >{{ patient.firstName }} {{ patient.lastName }}</b
+                            >
                           </span>
                           <span>
                             <small class="text-gray-500">
@@ -65,7 +67,7 @@
               </div>
             </div>
 
-            @if(selectedPatient){
+            <!-- @if(selectedPatient){
             <div
               class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             >
@@ -161,7 +163,7 @@
               <button mat-flat-button>Historia Clínica</button>
             </div>
 
-            }
+            } -->
             <button mat-button matStepperNext>Siguiente</button>
           </div>
         </form></ng-template
@@ -296,7 +298,7 @@
         <form [formGroup]="patientForm">
           <div class="flex flex-col items-center">
             <h2 class="text-lg font-semibold mb-4">Resumen de la Consulta</h2>
-            @if (selectedPatient) {
+            <!-- @if (selectedPatient) {
             <div
               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-4"
             >
@@ -351,7 +353,7 @@
             </div>
             } @else {
             <p>No se ha seleccionado un paciente.</p>
-            }
+            } -->
           </div>
           <div>
             <button mat-button matStepperPrevious>Atrás</button>

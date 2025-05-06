@@ -96,7 +96,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  obtenerRoles(): string {
+  getRoles(): string {
     if (this.userData?.roles && this.userData.roles.length > 0) {
       return this.userData.roles.map((role) => role.role).join(", ");
     }

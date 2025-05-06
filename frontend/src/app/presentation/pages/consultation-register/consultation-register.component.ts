@@ -79,59 +79,82 @@ export class ConsultationRegisterComponent implements OnInit {
 
   patients: PatientInterface[] = [
     {
-      name: "Matías Iglesias",
-      birthday: new Date(1998, 2, 11),
-      dni: 12341234,
-      phone: 1112312312,
-      mail: "matias@iglesias.com",
-      address: "Tucuman 752",
-      locality: "CABA",
-      medicare: "Swiss Medical",
-      affiliateNumber: 123456787654321,
+      firstName: "María",
+      lastName: "Pérez",
+      dniType: {
+        id: 1,
+        dni: "DNI",
+      },
+      dni: "40999888",
+      birthDate: new Date(1998, 2, 11),
+      gender: {
+        id: 2,
+        alias: "Mujer",
+      },
+      nationality: {
+        id: 1,
+        name: "Argentina",
+      },
+      locality: {
+        id: 1,
+        name: "CABA",
+      },
+      street: "Av. Siempre Viva",
+      number: 742,
+      floor: "3",
+      apartment: "B",
+      healthPlan: {
+        id: 2,
+        name: "Swiss Medical",
+      },
+      affiliateNumber: "A123456789",
+      email: "maria.perez@example.com",
+      phoneType: {
+        id: 1,
+        name: "Celular",
+      },
+      phone: "1123456789",
+      // medicalRiskId: [2, 3, 4],
+      // medicalHistoryObservation:
+      //   "Paciente con antecedentes cardíacos, se le colocó marcapasos en 2020.",
     },
     {
-      name: "Facundo Palmieri",
-      birthday: new Date(1993, 4, 17),
-      dni: 12341234,
-      phone: 1112312312,
-      mail: "facundo@palmieri.com",
-      address: "Tucuman 752",
-      locality: "CABA",
-      medicare: "Galeno",
-      affiliateNumber: 123456787654321,
+      firstName: "Carlos",
+      lastName: "Rodríguez",
+      dniType: { id: 1, dni: "DNI" },
+      dni: "38765432",
+      birthDate: new Date(1985, 3, 8),
+      gender: { id: 1, alias: "Hombre" },
+      nationality: { id: 1, name: "Argentina" },
+      locality: { id: 1, name: "CABA" },
+      street: "Calle de la Luna",
+      number: 789,
+      floor: "4",
+      apartment: "D",
+      healthPlan: { id: 2, name: "Swiss Medical" },
+      affiliateNumber: "S789123456",
+      email: "carlos.rodriguez@example.com",
+      phoneType: { id: 2, name: "Fijo" },
+      phone: "1156789123",
     },
     {
-      name: "Ana García",
-      birthday: new Date(1982, 8, 22),
-      dni: 56785678,
-      phone: 1198798798,
-      mail: "ana@garcia.com",
-      address: "Corrientes 123",
-      locality: "CABA",
-      medicare: "OSDE",
-      affiliateNumber: 987654321234567,
-    },
-    {
-      name: "Matías Rodríguez",
-      birthday: new Date(1989, 11, 5),
-      dni: 90129012,
-      phone: 1145645645,
-      mail: "matias@rodriguez.com",
-      address: "Santa Fe 456",
-      locality: "CABA",
-      medicare: "Medifé",
-      affiliateNumber: 543212349876543,
-    },
-    {
-      name: "Facundo López",
-      birthday: new Date(1995, 6, 10),
-      dni: 34563456,
-      phone: 1178978978,
-      mail: "facundo@lopez.com",
-      address: "Maipú 789",
-      locality: "CABA",
-      medicare: "Swiss Medical",
-      affiliateNumber: 789123456543219,
+      firstName: "Laura",
+      lastName: "Martínez",
+      dniType: { id: 1, dni: "DNI" },
+      dni: "45678901",
+      birthDate: new Date(2002, 7, 12),
+      gender: { id: 2, alias: "Mujer" },
+      nationality: { id: 1, name: "Argentina" },
+      locality: { id: 4, name: "Mendoza" },
+      street: "Pasaje Estrella",
+      number: 246,
+      floor: "PB",
+      apartment: "N/A",
+      healthPlan: { id: 1, name: "OSDE" },
+      affiliateNumber: "O246813579",
+      email: "laura.martinez@example.com",
+      phoneType: { id: 1, name: "Celular" },
+      phone: "2611357924",
     },
   ];
 
@@ -168,7 +191,9 @@ export class ConsultationRegisterComponent implements OnInit {
   }
 
   displayFn(patient: PatientInterface): string {
-    return patient && patient.name ? patient.name : "";
+    return patient && patient.firstName && patient.lastName
+      ? patient.firstName + " " + patient.lastName
+      : "";
   }
 
   onPatientSelected(patient: PatientInterface): void {
@@ -203,10 +228,16 @@ export class ConsultationRegisterComponent implements OnInit {
   private _filterPatients(value: string): PatientInterface[] {
     const filterValue = value.toLowerCase();
 
-    return this.patients.filter(
-      (patient) =>
-        patient.name.toLowerCase().includes(filterValue) ||
-        patient.dni.toString().includes(filterValue)
-    );
+    return this.patients.filter((patient) => {
+      const firstName = patient.firstName.toLowerCase();
+      const lastName = patient.lastName.toLowerCase();
+      const dni = patient.dni.toString();
+
+      return (
+        firstName.includes(filterValue) ||
+        lastName.includes(filterValue) ||
+        dni.includes(filterValue)
+      );
+    });
   }
 }
