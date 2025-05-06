@@ -60,9 +60,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.userData?.roles && this.userData?.roles.length > 0) {
-      this.permissions = this.userData.roles[0].permissionsList.map(
-        (permission) => permission.permission
-      );
+      this.userData.roles.forEach((role) => {
+        if (role.permissionsList) {
+          role.permissionsList.forEach((permissionObject) => {
+            this.permissions.push(permissionObject.permission);
+          });
+        }
+      });
+      this.permissions = [...new Set(this.permissions)];
       this.filteredMenuItems = this.filterMenuItems();
     }
   }
@@ -91,8 +96,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  obtenerRole(): string | undefined {
-    return this.userData?.roles[0].role;
+  obtenerRoles(): string {
+    if (this.userData?.roles && this.userData.roles.length > 0) {
+      return this.userData.roles.map((role) => role.role).join(", ");
+    }
+    return "";
   }
 
   toggleTheme() {
