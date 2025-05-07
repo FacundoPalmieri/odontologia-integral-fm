@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   effect,
   inject,
@@ -46,7 +47,7 @@ import { CreatePatientDialogComponent } from "../../components/patient-create-di
     MatDialogModule,
   ],
 })
-export class PatientsComponent implements OnDestroy {
+export class PatientsComponent implements OnDestroy, AfterViewInit {
   private readonly _destroy$ = new Subject<void>();
   patientService = inject(PatientService);
   dialog = inject(MatDialog);
@@ -55,7 +56,14 @@ export class PatientsComponent implements OnDestroy {
   patientsFilter = new FormControl("");
   patientsDataSource: MatTableDataSource<PatientInterface> =
     new MatTableDataSource();
-  displayedColumns: string[] = ["name", "dni", "email", "phone", "action"];
+  displayedColumns: string[] = [
+    "firstName",
+    "lastName",
+    "dni",
+    "email",
+    "phone",
+    "action",
+  ];
 
   @ViewChild(MatPaginator)
   paginator!: MatPaginator;
@@ -68,10 +76,17 @@ export class PatientsComponent implements OnDestroy {
     effect(() => {
       if (this.patients()) {
         this.patientsDataSource.data = this.patients();
-        this.patientsDataSource.paginator = this.paginator;
-        this.patientsDataSource.sort = this.sort;
+        // Descomentar cuando exista el método en la API para recuperar todos los pacientes
+        // this.patientsDataSource.paginator = this.paginator;
+        // this.patientsDataSource.sort = this.sort;
       }
     });
+  }
+
+  // Quitar cuando exista el método en la API.
+  ngAfterViewInit(): void {
+    this.patientsDataSource.paginator = this.paginator;
+    this.patientsDataSource.sort = this.sort;
   }
 
   ngOnDestroy(): void {
@@ -91,6 +106,8 @@ export class PatientsComponent implements OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((response) => {
         this.patients.set(response.data);
+        this.patientsDataSource.paginator = this.paginator;
+        this.patientsDataSource.sort = this.sort;
       });
 
     this._setupFilters();
