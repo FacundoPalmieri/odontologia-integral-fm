@@ -11,7 +11,6 @@ import { AppointmentsComponent } from "./pages/appointments/appointments.compone
 import { FinanceComponent } from "./pages/finance/finance.component";
 import { SystemComponent } from "./pages/system/system.component";
 import { InventoryComponent } from "./pages/inventory/inventory.component";
-import { MedicalRecordComponent } from "./pages/medical-record/medical-record.component";
 import { ConsultationRegisterComponent } from "./pages/consultation-register/consultation-register.component";
 import { ReportsComponent } from "./pages/reports/reports.component";
 
@@ -34,8 +33,8 @@ export const routes: Routes = [
         component: AppointmentsComponent,
       },
       {
-        path: "medical-record",
-        component: MedicalRecordComponent,
+        path: "patients",
+        component: PatientsComponent,
       },
       {
         path: "inventory",

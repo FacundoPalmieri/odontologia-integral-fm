@@ -29,10 +29,10 @@ export class PermissionFactory {
         label: "Gestion de Turnos",
       },
       {
-        permissionEnum: PermissionsEnum.HistoriaClinica,
-        route: "/medical-record",
-        icon: "folder-search",
-        label: "Historia Clínica",
+        permissionEnum: PermissionsEnum.Pacientes,
+        route: "/patients",
+        icon: "friends",
+        label: "Pacientes",
       },
       {
         permissionEnum: PermissionsEnum.Insumos,

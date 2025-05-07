@@ -82,12 +82,13 @@ body {
   }
 
   .active-link {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
     @include mat.list-overrides(
       (
         list-item-container-color: var(--mat-sys-secondary),
       )
     );
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 
   @include mat.button-overrides(

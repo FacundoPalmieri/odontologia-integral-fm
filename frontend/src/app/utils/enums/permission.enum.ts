@@ -8,4 +8,5 @@ export enum PermissionsEnum {
   Reportes = "Reportes",
   Configuracion = "Configuración",
   Sistema = "Sistema",
+  Pacientes = "Pacientes",
 }

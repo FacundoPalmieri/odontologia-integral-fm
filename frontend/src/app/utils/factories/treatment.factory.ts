@@ -18,9 +18,14 @@ export class TreatmentFactory {
         icons: ["rectangle-filled"],
         color: "text-[#ef4444]",
       },
+      // {
+      //   name: "Diente Ausente",
+      //   icons: ["letter-x-small"],
+      //   color: "text-[#ef4444]",
+      // },
       {
         name: "Diente Ausente",
-        icons: ["letter-x-small"],
+        icons: ["dental-off"],
         color: "text-[#ef4444]",
       },
       {
