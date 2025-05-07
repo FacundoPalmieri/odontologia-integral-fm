@@ -1,7 +1,7 @@
 import {
   DisseaseConditionInterface,
   DisseaseTypeInterface,
-} from "../../domain/interfaces/clinical-history.interface";
+} from "../../domain/interfaces/patient.interface";
 import { DisseaseConditionEnum, DisseaseEnum } from "../enums/dissease.enum";
 
 export class DisseaseFactory {

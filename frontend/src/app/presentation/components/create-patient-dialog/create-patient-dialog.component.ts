@@ -14,7 +14,7 @@ import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { Observable, Subject, takeUntil } from "rxjs";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { ClincalHistoryComponent } from "../clinical-history/clinical-history.component";
+import { MedicalRisksComponent } from "../medical-risks/medical-risks.component";
 import { MatExpansionModule } from "@angular/material/expansion";
 import {
   CountryInterface,
@@ -45,7 +45,7 @@ import { MatIconModule } from "@angular/material/icon";
     MatAutocompleteModule,
     IconsModule,
     MatTooltipModule,
-    ClincalHistoryComponent,
+    MedicalRisksComponent,
     MatExpansionModule,
     MatSelectModule,
     MatExpansionModule,

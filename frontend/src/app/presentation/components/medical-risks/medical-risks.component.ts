@@ -14,17 +14,17 @@ import { MatSelectModule } from "@angular/material/select";
 import { MatInputModule } from "@angular/material/input";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
-import {
-  DisseaseConditionInterface,
-  DisseaseTypeInterface,
-} from "../../../domain/interfaces/clinical-history.interface";
 import { DisseaseFactory } from "../../../utils/factories/dissease.factory";
 import { DisseaseEnum } from "../../../utils/enums/dissease.enum";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import {
+  DisseaseConditionInterface,
+  DisseaseTypeInterface,
+} from "../../../domain/interfaces/patient.interface";
 
 @Component({
-  selector: "app-clinical-history",
-  templateUrl: "./clinical-history.component.html",
+  selector: "app-medical-risks",
+  templateUrl: "./medical-risks.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -39,8 +39,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     MatTooltipModule,
   ],
 })
-export class ClincalHistoryComponent implements OnInit {
-  clinicalHistoryForm: FormGroup = new FormGroup({});
+export class MedicalRisksComponent implements OnInit {
+  medicalRisksForm: FormGroup = new FormGroup({});
   disseaseTypes: DisseaseTypeInterface[] =
     DisseaseFactory.createDisseaseTypes();
   disseaseConditions: DisseaseConditionInterface[] =
@@ -54,12 +54,12 @@ export class ClincalHistoryComponent implements OnInit {
   }
 
   private _loadForm() {
-    this.clinicalHistoryForm = new FormGroup({
-      clinicHistories: new FormArray([]),
+    this.medicalRisksForm = new FormGroup({
+      medicalRisks: new FormArray([]),
     });
   }
 
-  private _createClinicHistoryFormGroup(): FormGroup {
+  private _createMedicalRiskFormGroup(): FormGroup {
     return new FormGroup({
       dissease: new FormControl<DisseaseTypeInterface | null>(null, [
         Validators.required,
@@ -71,48 +71,46 @@ export class ClincalHistoryComponent implements OnInit {
     });
   }
 
-  addClinicHistory(): void {
-    this.clinicHistories.push(this._createClinicHistoryFormGroup());
+  addMedicalRisk(): void {
+    this.medicalRisks.push(this._createMedicalRiskFormGroup());
   }
 
-  removeClinicHistory(index: number): void {
-    this.clinicHistories.removeAt(index);
+  removeMedicalRisk(index: number): void {
+    this.medicalRisks.removeAt(index);
   }
 
-  get clinicHistories(): FormArray {
-    return this.clinicalHistoryForm.get("clinicHistories") as FormArray;
+  get medicalRisks(): FormArray {
+    return this.medicalRisksForm.get("medicalRisks") as FormArray;
   }
 
-  getClinicHistoryFormGroup(index: number): FormGroup {
-    return this.clinicHistories.controls[index] as FormGroup;
+  getMedicalRisksFormGroup(index: number): FormGroup {
+    return this.medicalRisks.controls[index] as FormGroup;
   }
 
   getDisseaseControl(index: number): FormControl {
-    return this.getClinicHistoryFormGroup(index).controls[
+    return this.getMedicalRisksFormGroup(index).controls[
       "dissease"
     ] as FormControl;
   }
 
   getMedicamentControl(index: number): FormControl {
-    return this.getClinicHistoryFormGroup(index).controls[
+    return this.getMedicalRisksFormGroup(index).controls[
       "medicament"
     ] as FormControl;
   }
 
   getConditionControl(index: number): FormControl {
-    return this.getClinicHistoryFormGroup(index).controls[
+    return this.getMedicalRisksFormGroup(index).controls[
       "condition"
     ] as FormControl;
   }
 
   getTypeControl(index: number): FormControl {
-    return this.getClinicHistoryFormGroup(index).controls[
-      "type"
-    ] as FormControl;
+    return this.getMedicalRisksFormGroup(index).controls["type"] as FormControl;
   }
 
   getDescriptionControl(index: number): FormControl {
-    return this.getClinicHistoryFormGroup(index).controls[
+    return this.getMedicalRisksFormGroup(index).controls[
       "description"
     ] as FormControl;
   }

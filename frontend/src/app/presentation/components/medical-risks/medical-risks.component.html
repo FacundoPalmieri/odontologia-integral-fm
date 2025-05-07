@@ -1,7 +1,7 @@
 <div class="w-full">
-  <form [formGroup]="clinicalHistoryForm">
-    <div formArrayName="clinicHistories">
-      @for (antecedente of clinicHistories.controls; track $index) {
+  <form [formGroup]="medicalRisksForm">
+    <div formArrayName="medicalRisks">
+      @for (antecedente of medicalRisks.controls; track $index) {
       <div [formGroupName]="$index" class="mb-2">
         <div class="w-full flex gap-4 items-start">
           <mat-form-field appearance="outline">
@@ -62,7 +62,7 @@
           <button
             mat-icon-button
             aria-label="Eliminar antecedente"
-            (click)="removeClinicHistory($index)"
+            (click)="removeMedicalRisk($index)"
             class="mt-1"
             matTooltip="Eliminar"
           >
@@ -73,7 +73,7 @@
       }
     </div>
 
-    <button mat-button (click)="addClinicHistory()">
+    <button mat-button (click)="addMedicalRisk()">
       <div class="flex items-center gap-2">
         <i-tabler name="plus"></i-tabler>
         <span>Agregar antecedente</span>
