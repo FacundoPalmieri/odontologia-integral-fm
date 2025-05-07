@@ -38,8 +38,16 @@ export class PatientService {
         id: 1,
         name: "Argentina",
       },
-      locality: {
+      country: {
         id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 2,
+        name: "Buenos Aires",
+      },
+      locality: {
+        id: 24,
         name: "San Justo",
       },
       street: "Av. Siempre Viva",
@@ -66,6 +74,14 @@ export class PatientService {
       birthDate: new Date(1985, 3, 8),
       gender: { id: 1, alias: "Hombre" },
       nationality: { id: 1, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
       locality: { id: 1, name: "San Telmo" },
       street: "Calle de la Luna",
       number: 789,
@@ -85,6 +101,14 @@ export class PatientService {
       birthDate: new Date(2002, 7, 12),
       gender: { id: 2, alias: "Mujer" },
       nationality: { id: 1, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
       locality: { id: 4, name: "Villa Urquiza" },
       street: "Pasaje Estrella",
       number: 246,
@@ -104,6 +128,14 @@ export class PatientService {
       birthDate: new Date(1978, 11, 20),
       gender: { id: 2, alias: "Mujer" },
       nationality: { id: 1, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
       locality: { id: 3, name: "Palermo" },
       street: "Avenida Siempreviva",
       number: 1234,
@@ -123,6 +155,14 @@ export class PatientService {
       birthDate: new Date(1965, 11, 3),
       gender: { id: 1, alias: "Hombre" },
       nationality: { id: 2, name: "Uruguay" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
       locality: { id: 5, name: "Belgrano" },
       street: "Calle Falsa",
       number: 567,
@@ -142,6 +182,14 @@ export class PatientService {
       birthDate: new Date(1990, 9, 1),
       gender: { id: 2, alias: "Mujer" },
       nationality: { id: 1, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
       locality: { id: 2, name: "Recoleta" },
       street: "Pasaje Secreto",
       number: 234,
@@ -161,6 +209,14 @@ export class PatientService {
       birthDate: new Date(1970, 12, 25),
       gender: { id: 1, alias: "Hombre" },
       nationality: { id: 3, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 2,
+        name: "Buenos Aires",
+      },
       locality: { id: 4, name: "San Nicolás" },
       street: "Avenida Principal",
       number: 1010,
@@ -180,6 +236,14 @@ export class PatientService {
       birthDate: new Date(1995, 7, 10),
       gender: { id: 2, alias: "Mujer" },
       nationality: { id: 1, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
       locality: { id: 1, name: "San Telmo" },
       street: "Calle Antigua",
       number: 321,

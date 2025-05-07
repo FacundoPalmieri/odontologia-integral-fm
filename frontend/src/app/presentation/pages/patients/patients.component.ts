@@ -24,7 +24,8 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { Subject, takeUntil } from "rxjs";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { CreatePatientDialogComponent } from "../../components/patient-create-dialog/create-patient-dialog.component";
+import { CreatePatientDialogComponent } from "../../components/create-patient-dialog/create-patient-dialog.component";
+import { EditPatientDialogComponent } from "../../components/edit-patient-dialog/edit-patient-dialog.component";
 
 @Component({
   selector: "app-patients",
@@ -97,6 +98,13 @@ export class PatientsComponent implements OnDestroy, AfterViewInit {
   create() {
     const dialogRef = this.dialog.open(CreatePatientDialogComponent, {
       width: "1400px",
+    });
+  }
+
+  edit(patient: PatientInterface) {
+    const dialogRef = this.dialog.open(EditPatientDialogComponent, {
+      width: "1400px",
+      data: patient,
     });
   }
 

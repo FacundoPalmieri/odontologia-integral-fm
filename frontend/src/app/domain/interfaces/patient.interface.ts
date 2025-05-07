@@ -8,6 +8,8 @@ export interface PatientInterface {
   birthDate: Date;
   gender: GenderInterface;
   nationality: NationalityInterface;
+  country: CountryInterface;
+  province: ProvinceInterface;
   locality: LocalityInterface;
   street: string;
   number: number;

@@ -1,0 +1,237 @@
+<h2 mat-dialog-title>Edición de Paciente</h2>
+<mat-dialog-content class="overflow-auto">
+  <div class="py-2">
+    <form [formGroup]="patientForm">
+      <mat-accordion>
+        <mat-expansion-panel expanded>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Datos personales </mat-panel-title>
+            <mat-panel-description class="justify-end">
+              <mat-icon>account_circle</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="pt-2 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Nombre</mat-label>
+              <input type="text" matInput formControlName="firstName" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Apellido</mat-label>
+              <input type="text" matInput formControlName="lastName" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Fecha de nacimiento</mat-label>
+              <input
+                matInput
+                [matDatepicker]="picker"
+                formControlName="birthDate"
+              />
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker touchUi #picker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Tipo Doc.</mat-label>
+              <mat-select
+                name="dniTypeSelect"
+                formControlName="dniType"
+                [compareWith]="compare"
+              >
+                @for(dniType of dniTypes(); track $index){
+                <mat-option [value]="dniType">{{ dniType.dni }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>DNI</mat-label>
+              <input type="text" matInput formControlName="dni" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Género</mat-label>
+              <mat-select
+                name="genderSelect"
+                formControlName="gender"
+                [compareWith]="compare"
+              >
+                @for(gender of genders(); track $index){
+                <mat-option [value]="gender">{{ gender.alias }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Nacionalidad</mat-label>
+              <mat-select
+                name="genderSelect"
+                formControlName="nationality"
+                [compareWith]="compare"
+              >
+                @for(nationality of nationalities(); track $index){
+                <mat-option [value]="nationality">{{
+                  nationality.name
+                }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Información de contacto</mat-panel-title>
+            <mat-panel-description class="justify-end">
+              <mat-icon>phone</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="pt-2 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Email</mat-label>
+              <input type="mail" matInput formControlName="email" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Tipo de teléfono</mat-label>
+              <mat-select
+                name="genderSelect"
+                formControlName="phoneType"
+                [compareWith]="compare"
+              >
+                @for(phoneType of phoneTypes(); track $index){
+                <mat-option [value]="phoneType">{{
+                  phoneType.name
+                }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Nro. Teléfono</mat-label>
+              <input type="string" matInput formControlName="phone" />
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Dirección</mat-panel-title>
+            <mat-panel-description class="justify-end">
+              <mat-icon>location_on</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="pt-2 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>País</mat-label>
+              <mat-select
+                name="genderSelect"
+                formControlName="country"
+                [compareWith]="compare"
+              >
+                @for(country of countries(); track $index){
+                <mat-option [value]="country">{{ country.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Provincia</mat-label>
+              <mat-select
+                name="genderSelect"
+                formControlName="province"
+                [compareWith]="compare"
+              >
+                @for(province of provinces(); track $index){
+                <mat-option [value]="province">{{ province.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Localidad</mat-label>
+              <mat-select
+                name="genderSelect"
+                formControlName="locality"
+                [compareWith]="compare"
+              >
+                @for(locality of localities(); track $index){
+                <mat-option [value]="locality">{{ locality.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Calle</mat-label>
+              <input type="string" matInput formControlName="street" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Altura</mat-label>
+              <input type="number" matInput formControlName="number" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Piso</mat-label>
+              <input type="string" matInput formControlName="floor" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Departamento</mat-label>
+              <input type="string" matInput formControlName="apartment" />
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Datos Médicos</mat-panel-title>
+            <mat-panel-description class="justify-end">
+              <mat-icon>health_and_safety</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="pt-2 grid gap-3 md:grid-cols-2 lg:grid-cols-2">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Obra social</mat-label>
+              <mat-select
+                name="genderSelect"
+                formControlName="healthPlan"
+                [compareWith]="compare"
+              >
+                @for(healthPlan of healthPlans(); track $index){
+                <mat-option [value]="healthPlan">{{
+                  healthPlan.name
+                }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Nro. Afiliado</mat-label>
+              <input type="string" matInput formControlName="affiliateNumber" />
+            </mat-form-field>
+          </div>
+          <div class="flex flex-col gap-2">
+            <b>Antecedentes clínicos</b>
+            <app-clinical-history></app-clinical-history>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </form>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button
+    mat-flat-button
+    [mat-dialog-close]="patientForm.value"
+    [disabled]="!patientForm.valid"
+  >
+    Guardar
+  </button>
+</mat-dialog-actions>

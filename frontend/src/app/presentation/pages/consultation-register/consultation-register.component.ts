@@ -14,7 +14,7 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { map, Observable, of, startWith, tap } from "rxjs";
+import { map, Observable, of, startWith } from "rxjs";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatInputModule } from "@angular/material/input";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -26,7 +26,7 @@ import { MatNativeDateModule } from "@angular/material/core";
 import { MatSelectModule } from "@angular/material/select";
 import { PaymentMethodEnum } from "../../../utils/enums/payment-method.enum";
 import { MatDialog } from "@angular/material/dialog";
-import { CreatePatientDialogComponent } from "../../components/patient-create-dialog/create-patient-dialog.component";
+import { CreatePatientDialogComponent } from "../../components/create-patient-dialog/create-patient-dialog.component";
 import { mockOdontogram } from "../../../utils/mocks/odontogram.mock";
 
 @Component({
@@ -95,9 +95,17 @@ export class ConsultationRegisterComponent implements OnInit {
         id: 1,
         name: "Argentina",
       },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 2,
+        name: "Buenos Aires",
+      },
       locality: {
         id: 1,
-        name: "CABA",
+        name: "San Justo",
       },
       street: "Av. Siempre Viva",
       number: 742,
@@ -114,9 +122,6 @@ export class ConsultationRegisterComponent implements OnInit {
         name: "Celular",
       },
       phone: "1123456789",
-      // medicalRiskId: [2, 3, 4],
-      // medicalHistoryObservation:
-      //   "Paciente con antecedentes cardíacos, se le colocó marcapasos en 2020.",
     },
     {
       firstName: "Carlos",
@@ -126,7 +131,15 @@ export class ConsultationRegisterComponent implements OnInit {
       birthDate: new Date(1985, 3, 8),
       gender: { id: 1, alias: "Hombre" },
       nationality: { id: 1, name: "Argentina" },
-      locality: { id: 1, name: "CABA" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
+      locality: { id: 1, name: "San Telmo" },
       street: "Calle de la Luna",
       number: 789,
       floor: "4",
@@ -145,7 +158,15 @@ export class ConsultationRegisterComponent implements OnInit {
       birthDate: new Date(2002, 7, 12),
       gender: { id: 2, alias: "Mujer" },
       nationality: { id: 1, name: "Argentina" },
-      locality: { id: 4, name: "Mendoza" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
+      locality: { id: 4, name: "Villa Urquiza" },
       street: "Pasaje Estrella",
       number: 246,
       floor: "PB",
@@ -155,6 +176,141 @@ export class ConsultationRegisterComponent implements OnInit {
       email: "laura.martinez@example.com",
       phoneType: { id: 1, name: "Celular" },
       phone: "2611357924",
+    },
+    {
+      firstName: "Ana",
+      lastName: "Gómez",
+      dniType: { id: 1, dni: "DNI" },
+      dni: "25123456",
+      birthDate: new Date(1978, 11, 20),
+      gender: { id: 2, alias: "Mujer" },
+      nationality: { id: 1, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
+      locality: { id: 3, name: "Palermo" },
+      street: "Avenida Siempreviva",
+      number: 1234,
+      floor: "PB",
+      apartment: "A",
+      healthPlan: { id: 1, name: "OSDE" },
+      affiliateNumber: "O987654321",
+      email: "ana.gomez@example.com",
+      phoneType: { id: 1, name: "Celular" },
+      phone: "1511223344",
+    },
+    {
+      firstName: "Martín",
+      lastName: "Pérez",
+      dniType: { id: 2, dni: "LC" },
+      dni: "1234567",
+      birthDate: new Date(1965, 11, 3),
+      gender: { id: 1, alias: "Hombre" },
+      nationality: { id: 2, name: "Uruguay" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
+      locality: { id: 5, name: "Belgrano" },
+      street: "Calle Falsa",
+      number: 567,
+      floor: "1",
+      apartment: "B",
+      healthPlan: { id: 3, name: "Medifé" },
+      affiliateNumber: "M654321987",
+      email: "martin.perez@example.com",
+      phoneType: { id: 2, name: "Fijo" },
+      phone: "47778899",
+    },
+    {
+      firstName: "Laura",
+      lastName: "Fernández",
+      dniType: { id: 1, dni: "DNI" },
+      dni: "41987654",
+      birthDate: new Date(1990, 9, 1),
+      gender: { id: 2, alias: "Mujer" },
+      nationality: { id: 1, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
+      locality: { id: 2, name: "Recoleta" },
+      street: "Pasaje Secreto",
+      number: 234,
+      floor: "2",
+      apartment: "C",
+      healthPlan: { id: 2, name: "Swiss Medical" },
+      affiliateNumber: "S112233445",
+      email: "laura.fernandez@example.com",
+      phoneType: { id: 1, name: "Celular" },
+      phone: "1599887766",
+    },
+    {
+      firstName: "Javier",
+      lastName: "López",
+      dniType: { id: 1, dni: "DNI" },
+      dni: "30543210",
+      birthDate: new Date(1970, 12, 25),
+      gender: { id: 1, alias: "Hombre" },
+      nationality: { id: 3, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 2,
+        name: "Buenos Aires",
+      },
+      locality: { id: 4, name: "San Nicolás" },
+      street: "Avenida Principal",
+      number: 1010,
+      floor: "5",
+      apartment: "E",
+      healthPlan: { id: 1, name: "OSDE" },
+      affiliateNumber: "O556677889",
+      email: "javier.lopez@example.com",
+      phoneType: { id: 2, name: "Fijo" },
+      phone: "43332211",
+    },
+    {
+      firstName: "Sofía",
+      lastName: "Martínez",
+      dniType: { id: 1, dni: "DNI" },
+      dni: "45678901",
+      birthDate: new Date(1995, 7, 10),
+      gender: { id: 2, alias: "Mujer" },
+      nationality: { id: 1, name: "Argentina" },
+      country: {
+        id: 1,
+        name: "Argentina",
+      },
+      province: {
+        id: 1,
+        name: "CABA",
+      },
+      locality: { id: 1, name: "San Telmo" },
+      street: "Calle Antigua",
+      number: 321,
+      floor: "3",
+      apartment: "F",
+      healthPlan: { id: 3, name: "Medifé" },
+      affiliateNumber: "M998877665",
+      email: "sofia.martinez@example.com",
+      phoneType: { id: 1, name: "Celular" },
+      phone: "1544556677",
     },
   ];
 
