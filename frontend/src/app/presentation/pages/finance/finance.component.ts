@@ -6,18 +6,9 @@ import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar
 import { MatCardModule } from "@angular/material/card";
 import { BaseChartDirective } from "ng2-charts";
 import { ChartConfiguration } from "chart.js";
-import { MatSelectModule } from "@angular/material/select";
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from "@angular/forms";
-import { PaymentMethodEnum } from "../../../utils/enums/payment-method.enum";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
 import { MatListModule } from "@angular/material/list";
+import { PaymentRegisterComponent } from "../../components/payment-register/payment-register.component";
 
 @Component({
   selector: "app-finance",
@@ -30,22 +21,12 @@ import { MatListModule } from "@angular/material/list";
     PageToolbarComponent,
     MatCardModule,
     BaseChartDirective,
-    MatSelectModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    MatInputModule,
     MatButtonModule,
     MatListModule,
+    PaymentRegisterComponent,
   ],
 })
 export class FinanceComponent {
-  paymentMethodEnum = PaymentMethodEnum;
-  paymentForm: FormGroup = new FormGroup({
-    paymentMethod: new FormControl("", Validators.required),
-    totalAmount: new FormControl(null, Validators.required),
-    installments: new FormControl(1),
-  });
-
   summaryCards = [
     {
       title: "Total facturado (Mes)",
@@ -162,29 +143,4 @@ export class FinanceComponent {
     { patient: "Mariano Díaz", method: "Tarjeta", amount: 34000 },
   ];
   constructor() {}
-
-  calculateInstallmentAmount(installments: number): string {
-    const totalAmount = this.paymentForm.get("totalAmount")?.value;
-
-    if (totalAmount && installments && installments !== 0) {
-      const numericTotalAmount = parseFloat(totalAmount);
-      if (!isNaN(numericTotalAmount)) {
-        return (numericTotalAmount / installments).toLocaleString("es-AR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
-      }
-    }
-
-    return "0.00";
-  }
-
-  paymentRegister() {
-    // Registra el cobro en la base de datos y luego resetea el form
-    this.paymentForm.reset({
-      paymentMethod: "",
-      totalAmount: null,
-      installments: 1,
-    });
-  }
 }

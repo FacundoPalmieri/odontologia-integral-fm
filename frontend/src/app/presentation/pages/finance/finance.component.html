@@ -107,80 +107,10 @@
       </mat-card-title>
     </mat-card-header>
     <mat-card-content class="mt-4 flex flex-col">
-      <form [formGroup]="paymentForm">
-        <div class="my-2 grid grid-cols-2 gap-4">
-          <div class="col-span-1">
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Forma de Pago</mat-label>
-              <mat-select formControlName="paymentMethod">
-                <mat-option [value]="paymentMethodEnum.Cash"
-                  >Efectivo</mat-option
-                >
-                <mat-option [value]="paymentMethodEnum.Transfer"
-                  >Transferencia</mat-option
-                >
-                <mat-option [value]="paymentMethodEnum.DebitCard"
-                  >Tarjeta de Débito</mat-option
-                >
-                <mat-option [value]="paymentMethodEnum.CreditCard"
-                  >Tarjeta de Crédito</mat-option
-                >
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="col-span-1">
-            <mat-form-field
-              appearance="outline"
-              floatLabel="always"
-              class="w-full"
-            >
-              <mat-label>Valor</mat-label>
-              <input
-                matInput
-                type="number"
-                formControlName="totalAmount"
-                placeholder="0"
-                class="text-end"
-              />
-              <span matTextPrefix>$&nbsp;</span>
-            </mat-form-field>
-          </div>
-
-          @if(paymentForm.get('paymentMethod')?.value ===
-          paymentMethodEnum.CreditCard){
-          <div class="col-span-1">
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Cuotas</mat-label>
-              <mat-select formControlName="installments">
-                <mat-option value="1"
-                  >1 cuota ($ {{ calculateInstallmentAmount(1) }})</mat-option
-                >
-                <mat-option value="3"
-                  >3 cuotas ($ {{ calculateInstallmentAmount(3) }})</mat-option
-                >
-                <mat-option value="6"
-                  >6 cuotas ($ {{ calculateInstallmentAmount(6) }})</mat-option
-                >
-                <mat-option value="9"
-                  >9 cuotas ($ {{ calculateInstallmentAmount(9) }})</mat-option
-                >
-                <mat-option value="12"
-                  >12 cuotas ($
-                  {{ calculateInstallmentAmount(12) }})</mat-option
-                >
-                <mat-option value="18"
-                  >18 cuotas ($
-                  {{ calculateInstallmentAmount(18) }})</mat-option
-                >
-              </mat-select>
-            </mat-form-field>
-          </div>
-          }
-        </div>
-      </form>
+      <app-payment-register></app-payment-register>
     </mat-card-content>
     <mat-card-actions class="justify-end">
-      <button mat-flat-button (click)="paymentRegister()">Registrar</button>
+      <button mat-flat-button>Registrar</button>
     </mat-card-actions></mat-card
   >
 </div>
