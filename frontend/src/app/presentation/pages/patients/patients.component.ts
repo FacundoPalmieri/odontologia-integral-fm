@@ -26,6 +26,7 @@ import { Subject, takeUntil } from "rxjs";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { CreatePatientDialogComponent } from "../../components/create-patient-dialog/create-patient-dialog.component";
 import { EditPatientDialogComponent } from "../../components/edit-patient-dialog/edit-patient-dialog.component";
+import { PatientFileComponent } from "../../components/patient-file/patient-file.component";
 
 @Component({
   selector: "app-patients",
@@ -103,6 +104,13 @@ export class PatientsComponent implements OnDestroy, AfterViewInit {
 
   edit(patient: PatientInterface) {
     const dialogRef = this.dialog.open(EditPatientDialogComponent, {
+      width: "1400px",
+      data: patient,
+    });
+  }
+
+  viewFile(patient: PatientInterface) {
+    const dialogRef = this.dialog.open(PatientFileComponent, {
       width: "1400px",
       data: patient,
     });

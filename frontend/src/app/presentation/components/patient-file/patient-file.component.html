@@ -1,0 +1,144 @@
+<section class="header p-6 flex justify-between flex-wrap">
+  <div class="flex flex-col">
+    <span class="text-4xl mb-2">{{ data.firstName }} {{ data.lastName }}</span>
+
+    <div class="flex items-center gap-2">
+      <i-tabler name="id"></i-tabler>
+      <span class="text-xl"> {{ data.dniType.dni }} · {{ data.dni }}</span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <i-tabler name="mail"></i-tabler>
+      <span class="text-xl"> {{ data.email }}</span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <i-tabler name="phone"></i-tabler>
+      <span class="text-xl"> {{ data.phoneType.name }} {{ data.phone }}</span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <i-tabler name="calendar"></i-tabler>
+      <span class="text-xl">
+        Fecha Nac. {{ data.birthDate | date : "dd·MM·yyyy" }}</span
+      >
+    </div>
+
+    <div class="flex items-center gap-2">
+      <i-tabler name="user-pin"></i-tabler>
+      <span class="text-xl"> {{ data.nationality.name }}</span>
+      <i-tabler name="gender-bigender"></i-tabler>
+      <span class="text-xl"> {{ data.gender.alias }}</span>
+    </div>
+  </div>
+
+  <div class="flex flex-col">
+    <span class="text-4xl mb-2">&nbsp;</span>
+    <div class="flex items-center gap-2">
+      <i-tabler name="map-pin"></i-tabler>
+      <span class="text-xl">
+        {{ data.country.name }} · {{ data.province.name }} ·
+        {{ data.locality.name }}</span
+      >
+    </div>
+    <div class="flex items-center gap-2 ml-8">
+      <span class="text-xl">
+        {{ data.street }} · {{ data.number }} · {{ data.floor }} ·
+        {{ data.apartment }}</span
+      >
+    </div>
+    <div class="flex items-center gap-2">
+      <i-tabler name="medical-cross"></i-tabler>
+      <span class="text-xl"> {{ data.healthPlan.name }} </span>
+    </div>
+    <div class="flex items-center gap-2 ml-8">
+      <span class="text-xl"> Nro. Afiliado {{ data.affiliateNumber }}</span>
+    </div>
+  </div>
+</section>
+<section class="content flex flex-col p-4">
+  <span class="text-2xl">Antecedentes médicos</span>
+  <div class="my-1">
+    <div class="rounded-md p-2">
+      <span class="font-semibold">Alergia:</span> Rinitis alérgica estacional.
+    </div>
+    <div class="rounded-md p-2">
+      <span class="font-semibold">Condición crónica:</span> Hipertensión
+      arterial diagnosticada en 2023.
+    </div>
+  </div>
+  <span class="text-2xl mb-2">Consultas</span>
+  <div
+    class="p-2 rounded-2xl"
+    style="background: var(--mat-sys-content-container-color)"
+  >
+    <mat-vertical-stepper [linear]="false" #stepper>
+      <mat-step>
+        <ng-template matStepLabel> 15 de Mayo de 2025 </ng-template>
+        <div class="rounded-md mt-2 p-2 bg-yellow-100 text-yellow-700">
+          <span class="font-semibold">Observaciones:</span>
+          Se realizó anestesia local infiltrativa en la zona de la pieza 3.6. Se
+          eliminó tejido cariado con fresa de baja velocidad. Se preparó la
+          cavidad y se realizó restauración con resina compuesta color A2. Se
+          verificó oclusión y se realizaron ajustes necesarios. Paciente refiere
+          sensación confortable post-operatoria inmediata. Se dieron
+          indicaciones post-operatorias (evitar alimentos duros y pegajosos en
+          la zona tratada durante las próximas 24 horas).
+        </div>
+        <div class="my-2 w-full odontogram-container">
+          <div class="odontogram-wrapper">
+            <app-odontogram
+              [title]="'Estado'"
+              [odontogram]="odontogram"
+            ></app-odontogram>
+          </div>
+        </div>
+      </mat-step>
+
+      <mat-step>
+        <ng-template matStepLabel>22 de Noviembre de 2024</ng-template>
+        <div class="rounded-md mt-2 p-2 bg-yellow-100 text-yellow-700">
+          <span class="font-semibold">Observaciones:</span> Se realizó examen
+          clínico completo. Se observó ligera inflamación gingival en la zona de
+          los molares inferiores. Se detectó caries incipiente en la pieza 3.6.
+          Se recomienda radiografía periapical para evaluar extensión. Se
+          conversó con el paciente sobre la importancia de la higiene bucal y se
+          dieron instrucciones de cepillado y uso de hilo dental. Se programó
+          cita para la próxima semana para realizar profilaxis y posible
+          restauración de la pieza 3.6 según evaluación radiográfica.
+        </div>
+        <div class="my-2 w-full odontogram-container">
+          <div class="odontogram-wrapper">
+            <app-odontogram
+              [title]="'Estado'"
+              [odontogram]="odontogram"
+            ></app-odontogram>
+          </div>
+        </div>
+      </mat-step>
+
+      <mat-step>
+        <ng-template matStepLabel>14 de Junio de 2024</ng-template>
+        <div class="rounded-md mt-2 p-2 bg-yellow-100 text-yellow-700">
+          <span class="font-semibold">Observaciones:</span> Paciente acude a
+          control semestral. Se realizó examen clínico y se tomaron radiografías
+          bitewing. Se observa buen estado general de la higiene bucal. Se
+          detectó ligera abrasión en el cuello de la pieza 1.3, posiblemente
+          asociada a técnica de cepillado. Se recomienda modificar la técnica.
+          Se observa desgaste oclusal leve en piezas posteriores, sin
+          sintomatología actual. Se explica la importancia del control
+          periódico. Próxima cita programada en seis meses para control y
+          profilaxis.
+        </div>
+        <div class="my-2 w-full odontogram-container">
+          <div class="odontogram-wrapper">
+            <app-odontogram
+              [title]="'Estado'"
+              [odontogram]="odontogram"
+            ></app-odontogram>
+          </div>
+        </div>
+      </mat-step>
+    </mat-vertical-stepper>
+  </div>
+</section>

@@ -2,6 +2,7 @@
   <div
     class="inline-flex items-center justify-center background-odontogram-utilities -mt-4"
   >
+    @if(showToolbox){
     <button
       mat-icon-button
       (click)="clearOdontogram()"
@@ -18,6 +19,7 @@
     >
       <i-tabler class="mb-1" name="notebook"></i-tabler>
     </button>
+    }
   </div>
   <div class="flex flex-col">
     <span class="text-xl font-bold text-center mb-4"> {{ title }}</span>
