@@ -74,6 +74,8 @@ import {
   IconGenderBigender,
   IconUserPin,
   IconMedicalCross,
+  IconBuilding,
+  IconMap2,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -149,6 +151,8 @@ const ICONS = {
   IconGenderBigender,
   IconUserPin,
   IconMedicalCross,
+  IconBuilding,
+  IconMap2,
 } as const;
 
 @NgModule({
