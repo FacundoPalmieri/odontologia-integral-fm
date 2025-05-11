@@ -6,24 +6,17 @@ import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar
 import { MatStepperModule } from "@angular/material/stepper";
 import { STEPPER_GLOBAL_OPTIONS } from "@angular/cdk/stepper";
 import { MatFormFieldModule } from "@angular/material/form-field";
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatInputModule } from "@angular/material/input";
-import { MatTooltipModule } from "@angular/material/tooltip";
 import { OdontogramComponent } from "../../components/odontogram/odontogram.component";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
-import { MatSelectModule } from "@angular/material/select";
-import { PaymentMethodEnum } from "../../../utils/enums/payment-method.enum";
 import { MatDialog } from "@angular/material/dialog";
 import { mockOdontogram } from "../../../utils/mocks/odontogram.mock";
 import { PatientSearchComponent } from "../../components/patient-search/patient-search.component";
+import { PaymentRegisterComponent } from "../../components/payment-register/payment-register.component";
+import { MatInputModule } from "@angular/material/input";
 
 @Component({
   selector: "app-consultation-register",
@@ -43,28 +36,21 @@ import { PatientSearchComponent } from "../../components/patient-search/patient-
     PageToolbarComponent,
     MatStepperModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
     MatButtonModule,
-    MatCardModule,
-    MatInputModule,
-    MatTooltipModule,
     MatDatepickerModule,
     MatNativeDateModule,
     OdontogramComponent,
-    MatSelectModule,
     PatientSearchComponent,
+    PaymentRegisterComponent,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
 })
 export class ConsultationRegisterComponent implements OnInit {
   readonly dialog = inject(MatDialog);
-  paymentMethodEnum = PaymentMethodEnum;
   patientForm: FormGroup = new FormGroup({
     observations: new FormControl(""),
-  });
-  paymentForm: FormGroup = new FormGroup({
-    paymentMethod: new FormControl("", Validators.required),
-    totalAmount: new FormControl(null, Validators.required),
-    installments: new FormControl(1),
   });
 
   todayDate: Date = new Date();
@@ -75,22 +61,6 @@ export class ConsultationRegisterComponent implements OnInit {
     this.patientForm.get("observations")?.valueChanges.subscribe((value) => {
       this.observations = value || "";
     });
-  }
-
-  calculateInstallmentAmount(installments: number): string {
-    const totalAmount = this.paymentForm.get("totalAmount")?.value;
-
-    if (totalAmount && installments && installments !== 0) {
-      const numericTotalAmount = parseFloat(totalAmount);
-      if (!isNaN(numericTotalAmount)) {
-        return (numericTotalAmount / installments).toLocaleString("es-AR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
-      }
-    }
-
-    return "0.00";
   }
 
   finalizeConsultation() {}
