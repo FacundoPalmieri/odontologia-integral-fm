@@ -77,6 +77,8 @@ import {
   IconBuilding,
   IconMap2,
   IconAddressBook,
+  IconStethoscope,
+  IconBubbleText,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -155,6 +157,8 @@ const ICONS = {
   IconBuilding,
   IconMap2,
   IconAddressBook,
+  IconStethoscope,
+  IconBubbleText,
 } as const;
 
 @NgModule({
