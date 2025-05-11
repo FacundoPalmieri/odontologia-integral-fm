@@ -24,6 +24,10 @@ body {
     border: none;
   }
 
+  label {
+    display: inline-flex !important;
+  }
+
   .snackbar-success {
     @include mat.snack-bar-overrides(
       (

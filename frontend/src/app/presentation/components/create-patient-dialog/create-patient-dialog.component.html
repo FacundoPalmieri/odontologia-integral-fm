@@ -7,7 +7,7 @@
           <mat-expansion-panel-header>
             <mat-panel-title> Datos personales </mat-panel-title>
             <mat-panel-description class="justify-end">
-              <mat-icon>account_circle</mat-icon>
+              <i-tabler name="user-circle"></i-tabler>
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div class="pt-2 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -95,7 +95,7 @@
           <mat-expansion-panel-header>
             <mat-panel-title>Información de contacto</mat-panel-title>
             <mat-panel-description class="justify-end">
-              <mat-icon>phone</mat-icon>
+              <i-tabler name="address-book"></i-tabler>
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div class="pt-2 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -135,7 +135,7 @@
           <mat-expansion-panel-header>
             <mat-panel-title>Dirección</mat-panel-title>
             <mat-panel-description class="justify-end">
-              <mat-icon>location_on</mat-icon>
+              <i-tabler name="map-pin"></i-tabler>
             </mat-panel-description>
           </mat-expansion-panel-header>
 
@@ -214,12 +214,15 @@
           <mat-expansion-panel-header>
             <mat-panel-title>Datos Médicos</mat-panel-title>
             <mat-panel-description class="justify-end">
-              <mat-icon>health_and_safety</mat-icon>
+              <i-tabler name="medical-cross"></i-tabler>
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div class="pt-2 grid gap-3 md:grid-cols-2 lg:grid-cols-2">
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Obra social</mat-label>
+              <mat-label class="items-center flex gap-1">
+                <i-tabler name="medical-cross"></i-tabler>
+                <span class="font-bold">Obra social</span>
+              </mat-label>
               <mat-select name="genderSelect" formControlName="nationality">
                 @for(healthPlan of healthPlans(); track $index){
                 <mat-option [value]="healthPlan">{{
@@ -230,7 +233,10 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Nro. Afiliado</mat-label>
+              <mat-label class="items-center flex gap-1">
+                <i-tabler name="medical-cross"></i-tabler>
+                <span class="font-bold">Nro. Afiliado</span>
+              </mat-label>
               <input type="string" matInput formControlName="affiliateNumber" />
             </mat-form-field>
           </div>
