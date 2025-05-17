@@ -1,58 +1,62 @@
-<section class="header p-6 flex justify-between flex-wrap">
+<section class="sticky-header">
+  <div class="flex justify-between items-center p-6">
+    <span class="text-2xl">{{ data.firstName }} {{ data.lastName }}</span>
+    <div class="flex gap-4">
+      <div class="flex items-center gap-2">
+        <i-tabler name="id"></i-tabler>
+        <span class="text-lg">{{ data.dni }}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i-tabler name="mail"></i-tabler>
+        <span class="text-lg">{{ data.email }}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i-tabler name="phone"></i-tabler>
+        <span class="text-lg"> {{ data.phoneType.name }} {{ data.phone }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="full-header p-6 flex justify-between flex-wrap">
   <div class="flex flex-col">
-    <span class="text-4xl mb-2">{{ data.firstName }} {{ data.lastName }}</span>
-
-    <div class="flex items-center gap-2">
-      <i-tabler name="id"></i-tabler>
-      <span class="text-xl"> {{ data.dniType.dni }} · {{ data.dni }}</span>
-    </div>
-
-    <div class="flex items-center gap-2">
-      <i-tabler name="mail"></i-tabler>
-      <span class="text-xl"> {{ data.email }}</span>
-    </div>
-
-    <div class="flex items-center gap-2">
-      <i-tabler name="phone"></i-tabler>
-      <span class="text-xl"> {{ data.phoneType.name }} {{ data.phone }}</span>
-    </div>
-
     <div class="flex items-center gap-2">
       <i-tabler name="calendar"></i-tabler>
-      <span class="text-xl">
+      <span class="text-lg">
         Fecha Nac. {{ data.birthDate | date : "dd·MM·yyyy" }}</span
       >
     </div>
-
     <div class="flex items-center gap-2">
       <i-tabler name="user-pin"></i-tabler>
-      <span class="text-xl"> {{ data.nationality.name }}</span>
+      <span class="text-lg"> {{ data.nationality.name }}</span>
       <i-tabler name="gender-bigender"></i-tabler>
-      <span class="text-xl"> {{ data.gender.alias }}</span>
+      <span class="text-lg"> {{ data.gender.alias }}</span>
     </div>
   </div>
 
   <div class="flex flex-col">
-    <span class="text-4xl mb-2">&nbsp;</span>
     <div class="flex items-center gap-2">
       <i-tabler name="map-pin"></i-tabler>
-      <span class="text-xl">
+      <span class="text-lg">
         {{ data.country.name }} · {{ data.province.name }} ·
         {{ data.locality.name }}</span
       >
     </div>
     <div class="flex items-center gap-2 ml-8">
-      <span class="text-xl">
+      <span class="text-lg">
         {{ data.street }} · {{ data.number }} · {{ data.floor }} ·
         {{ data.apartment }}</span
       >
     </div>
+  </div>
+
+  <div class="flex flex-col">
     <div class="flex items-center gap-2">
       <i-tabler name="medical-cross"></i-tabler>
-      <span class="text-xl"> {{ data.healthPlan.name }} </span>
+        <span class="text-lg"> {{ data.healthPlan.name }} </span>
     </div>
     <div class="flex items-center gap-2 ml-8">
-      <span class="text-xl"> Nro. Afiliado {{ data.affiliateNumber }}</span>
+      <span class="text-lg"> Nro. Afiliado {{ data.affiliateNumber }}</span>
     </div>
   </div>
 </section>
