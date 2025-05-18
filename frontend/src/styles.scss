@@ -177,4 +177,8 @@ body {
       container-background-color: var(--mat-sys-content-container-color),
     )
   );
+
+  mat-expansion-panel {
+    box-shadow: var(--mat-sys-level1) !important;
+  }
 }

@@ -93,9 +93,7 @@ export class PatientSearchComponent {
   }
 
   create() {
-    const dialogRef = this.dialog.open(CreatePatientDialogComponent, {
-      width: "1400px",
-    });
+    this.dialog.open(CreatePatientDialogComponent);
   }
 
   private _getPatients() {

@@ -241,38 +241,37 @@
   --mat-sys-umbra-color: color-mix(
     in srgb,
     var(--mat-sys-shadow),
-    transparent 80%
+    transparent 95%
   );
   --mat-sys-penumbra-color: color-mix(
     in srgb,
     var(--mat-sys-shadow),
-    transparent 86%
+    transparent 96%
   );
   --mat-sys-ambient-color: color-mix(
     in srgb,
     var(--mat-sys-shadow),
-    transparent 88%
+    transparent 97%
   );
 
   /* Elevation level system variables. These are used as the value for box-shadow CSS property. */
-  --mat-sys-level0: 0px 0px 0px 0px var(--mat-sys-umbra-color),
-    0px 0px 0px 0px var(--mat-sys-penumbra-color),
-    0px 0px 0px 0px var(--mat-sys-ambient-color);
-  --mat-sys-level1: 0px 2px 1px -1px var(--mat-sys-umbra-color),
-    0px 1px 1px 0px var(--mat-sys-penumbra-color),
-    0px 1px 3px 0px var(--mat-sys-ambient-color);
-  --mat-sys-level2: 0px 3px 3px -2px var(--mat-sys-umbra-color),
-    0px 3px 4px 0px var(--mat-sys-penumbra-color),
-    0px 1px 8px 0px var(--mat-sys-ambient-color);
-  --mat-sys-level3: 0px 3px 5px -1px var(--mat-sys-umbra-color),
-    0px 6px 10px 0px var(--mat-sys-penumbra-color),
-    0px 1px 18px 0px var(--mat-sys-ambient-color);
-  --mat-sys-level4: 0px 5px 5px -3px var(--mat-sys-umbra-color),
-    0px 8px 10px 1px var(--mat-sys-penumbra-color),
-    0px 3px 14px 2px var(--mat-sys-ambient-color);
-  --mat-sys-level5: 0px 7px 8px -4px var(--mat-sys-umbra-color),
-    0px 12px 17px 2px var(--mat-sys-penumbra-color),
-    0px 5px 22px 4px var(--mat-sys-ambient-color);
+  --mat-sys-level0: none;
+  --mat-sys-level1: 0px 1px 4px -1px var(--mat-sys-umbra-color),
+    0px 1px 6px -1px var(--mat-sys-penumbra-color),
+    0px 1px 8px -2px var(--mat-sys-ambient-color);
+  --mat-sys-level2: 0px 2px 6px -1px var(--mat-sys-umbra-color),
+    0px 2px 8px -1px var(--mat-sys-penumbra-color),
+    0px 1px 10px -2px var(--mat-sys-ambient-color);
+  --mat-sys-level3: 0px 2px 8px -1px var(--mat-sys-umbra-color),
+    0px 2px 10px -1px var(--mat-sys-penumbra-color),
+    0px 1px 12px -2px var(--mat-sys-ambient-color);
+  --mat-sys-level4: 0px 2px 10px -1px var(--mat-sys-umbra-color),
+    0px 2px 12px -1px var(--mat-sys-penumbra-color),
+    0px 1px 14px -2px var(--mat-sys-ambient-color);
+  --mat-sys-level5: 0px 2px 12px -1px var(--mat-sys-umbra-color),
+    0px 2px 14px -1px var(--mat-sys-penumbra-color),
+    0px 1px 16px -2px var(--mat-sys-ambient-color);
+
 
   /* SHAPE SYSTEM VARIABLES */
   --mat-sys-corner-extra-large: 28px;

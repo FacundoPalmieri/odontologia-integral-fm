@@ -97,21 +97,17 @@ export class PatientsComponent implements OnDestroy, AfterViewInit {
   }
 
   create() {
-    const dialogRef = this.dialog.open(CreatePatientDialogComponent, {
-      width: "1400px",
-    });
+    const dialogRef = this.dialog.open(CreatePatientDialogComponent);
   }
 
   edit(patient: PatientInterface) {
     const dialogRef = this.dialog.open(EditPatientDialogComponent, {
-      width: "1400px",
       data: patient,
     });
   }
 
   viewFile(patient: PatientInterface) {
     const dialogRef = this.dialog.open(PatientFileComponent, {
-      width: "1400px",
       data: patient,
     });
   }
