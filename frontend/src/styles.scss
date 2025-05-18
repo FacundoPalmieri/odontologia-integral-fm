@@ -116,6 +116,7 @@ body {
     (
       container-color: var(--mat-sys-content-container-color),
       outlined-outline-width: 0,
+      outlined-container-elevation: var(--mat-sys-level1),
     )
   );
 
