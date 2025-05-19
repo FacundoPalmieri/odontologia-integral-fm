@@ -1,11 +1,12 @@
+import { ToothFaceEnum } from "../../utils/factories/tooth-face.factory";
 import { TreatmentInterface } from "./treatment.interface";
 
 export interface ToothInterface {
   number: number;
-  topTreatments?: TreatmentInterface[];
-  bottomTreatment?: TreatmentInterface;
-  leftTreatment?: TreatmentInterface;
-  rightTreatment?: TreatmentInterface;
-  centerTreatment?: TreatmentInterface;
-  fullToothTreatment?: TreatmentInterface;
+  treatments?: TreatmentInterface[];
+}
+
+export interface ToothFaceInterface {
+  face: ToothFaceEnum;
+  label: string;
 }

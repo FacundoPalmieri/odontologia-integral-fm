@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { IconsModule } from "../../../utils/tabler-icons.module";
-import { TreatmentInterface } from "../../../domain/interfaces/treatment.interface";
+import { ShowTreatmentInterface } from "../../../domain/interfaces/treatment.interface";
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
 import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
 import { MatSidenavModule } from "@angular/material/sidenav";
@@ -22,7 +22,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 })
 export class TreatmentReferencesComponent {
   treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
-  treatments: TreatmentInterface[] = TreatmentFactory.createTreatments();
+  treatments: ShowTreatmentInterface[] = TreatmentFactory.createTreatments();
 
   constructor() {}
 

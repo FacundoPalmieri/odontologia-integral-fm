@@ -1,147 +1,198 @@
 import { OdontogramInterface } from "../../domain/interfaces/odontogram.interface";
-import { TreatmentInterface } from "../../domain/interfaces/treatment.interface";
-import { TreatmentFactory } from "../factories/treatment.factory";
-
-const treatments: TreatmentInterface[] = TreatmentFactory.createTreatments();
+import {
+  TreatmentEnum,
+  TreatmentTypeEnum,
+} from "../../utils/enums/treatment.enum";
+import { ToothFaceEnum } from "../../utils/factories/tooth-face.factory";
 
 export const mockOdontogram: OdontogramInterface = {
   upperTeethLeft: [
     {
       number: 18,
-      centerTreatment: treatments[0],
-      topTreatments: [treatments[1], treatments[4]],
-      leftTreatment: treatments[2],
+      treatments: [
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.INCISAL, ToothFaceEnum.DISTAL],
+        },
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
     },
     {
       number: 17,
-      topTreatments: [treatments[3]],
-      rightTreatment: treatments[4],
+      treatments: [
+        {
+          name: TreatmentEnum.TRAT_DE_CONDUCTO,
+          label: "Tratamiento de Conducto",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
     },
     {
       number: 16,
-      bottomTreatment: treatments[2],
-      centerTreatment: treatments[0],
+      treatments: [
+        {
+          name: TreatmentEnum.CORONA,
+          label: "Corona",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
     },
     {
       number: 15,
-      leftTreatment: treatments[5],
-      topTreatments: [treatments[0]],
     },
     {
       number: 14,
-      rightTreatment: treatments[7],
-      bottomTreatment: treatments[2],
     },
     {
       number: 13,
-      centerTreatment: treatments[2],
-      leftTreatment: treatments[3],
     },
     {
       number: 12,
-      topTreatments: [treatments[1]],
-      rightTreatment: treatments[5],
     },
     {
       number: 11,
-      fullToothTreatment: treatments[6],
     },
   ],
   upperTeethRight: [
     {
       number: 21,
-      fullToothTreatment: treatments[6],
+      treatments: [
+        {
+          name: TreatmentEnum.IMPLANTES,
+          label: "Implanete",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+      ],
     },
     {
       number: 22,
-      topTreatments: [treatments[7]],
-      bottomTreatment: treatments[7],
+      treatments: [
+        {
+          name: TreatmentEnum.OBT_COMPOSITE,
+          label: "Diente Ausente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
     },
     {
       number: 23,
-      bottomTreatment: treatments[1],
-      leftTreatment: treatments[2],
+      treatments: [
+        {
+          name: TreatmentEnum.DIENTE_AUSENTE,
+          label: "Diente Ausente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+      ],
     },
     {
       number: 24,
-      leftTreatment: treatments[3],
-      rightTreatment: treatments[4],
     },
     {
       number: 25,
-      rightTreatment: treatments[5],
-      centerTreatment: treatments[6],
     },
     {
       number: 26,
-      centerTreatment: treatments[7],
-      topTreatments: [treatments[0]],
     },
     {
       number: 27,
-      topTreatments: [treatments[1]],
-      bottomTreatment: treatments[2],
     },
     {
       number: 28,
-      bottomTreatment: treatments[3],
-      leftTreatment: treatments[4],
     },
   ],
   lowerTeethLeft: [
     {
       number: 48,
-      centerTreatment: treatments[5],
-      rightTreatment: treatments[6],
     },
-    { number: 47, topTreatments: [treatments[7]] },
-    { number: 46, bottomTreatment: treatments[0] },
-    { number: 45, leftTreatment: treatments[1] },
-    { number: 44, rightTreatment: treatments[2] },
-    { number: 43, centerTreatment: treatments[3] },
-    { number: 42, topTreatments: [treatments[4]] },
-    { number: 41, bottomTreatment: treatments[5] },
+    { number: 47 },
+    { number: 46 },
+    { number: 45 },
+    { number: 44 },
+    { number: 43 },
+    { number: 42 },
+    { number: 41 },
   ],
   lowerTeethRight: [
     {
       number: 31,
-      centerTreatment: treatments[6],
-      leftTreatment: treatments[7],
     },
-    { number: 32, topTreatments: [treatments[0]] },
-    { number: 33, bottomTreatment: treatments[1] },
-    { number: 34, leftTreatment: treatments[2] },
-    { number: 35, rightTreatment: treatments[3] },
-    { number: 36, centerTreatment: treatments[4] },
-    { number: 37, topTreatments: [treatments[5]] },
-    { number: 38, bottomTreatment: treatments[6] },
+    {
+      number: 32,
+    },
+    {
+      number: 33,
+    },
+    {
+      number: 34,
+    },
+    {
+      number: 35,
+    },
+    {
+      number: 36,
+      treatments: [
+        {
+          name: TreatmentEnum.PUENTE,
+          label: "Puente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+          bridgeStart: 36,
+          bridgeEnd: 34,
+        },
+      ],
+    },
+    {
+      number: 37,
+    },
+    {
+      number: 38,
+    },
   ],
   temporaryUpperLeft: [
-    { number: 55, topTreatments: [treatments[7]] },
-    { number: 54, bottomTreatment: treatments[0] },
-    { number: 53, leftTreatment: treatments[1] },
-    { number: 52, rightTreatment: treatments[2] },
-    { number: 51, centerTreatment: treatments[3] },
+    { number: 55 },
+    { number: 54 },
+    { number: 53 },
+    { number: 52 },
+    { number: 51 },
   ],
   temporaryUpperRight: [
-    { number: 61, centerTreatment: treatments[4] },
-    { number: 62, topTreatments: [treatments[5]] },
-    { number: 63, bottomTreatment: treatments[6] },
-    { number: 64, leftTreatment: treatments[7] },
-    { number: 65, rightTreatment: treatments[0] },
+    { number: 61 },
+    { number: 62 },
+    { number: 63 },
+    { number: 64 },
+    { number: 65 },
   ],
   temporaryLowerLeft: [
-    { number: 85, rightTreatment: treatments[1] },
-    { number: 84, centerTreatment: treatments[2] },
-    { number: 83, topTreatments: [treatments[3]] },
-    { number: 82, bottomTreatment: treatments[4] },
-    { number: 81, leftTreatment: treatments[5] },
+    { number: 85 },
+    { number: 84 },
+    { number: 83 },
+    { number: 82 },
+    { number: 81 },
   ],
   temporaryLowerRight: [
-    { number: 71, leftTreatment: treatments[6] },
-    { number: 72, rightTreatment: treatments[7] },
-    { number: 73, centerTreatment: treatments[0] },
-    { number: 74, topTreatments: [treatments[1]] },
-    { number: 75, bottomTreatment: treatments[2] },
+    { number: 71 },
+    { number: 72 },
+    { number: 73 },
+    { number: 74 },
+    { number: 75 },
   ],
 };

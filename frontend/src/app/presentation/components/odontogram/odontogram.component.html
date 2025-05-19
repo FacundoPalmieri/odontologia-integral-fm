@@ -5,14 +5,6 @@
     @if(showToolbox){
     <button
       mat-icon-button
-      (click)="clearOdontogram()"
-      matTooltip="Limpiar"
-      matTooltipPosition="above"
-    >
-      <i-tabler class="mb-1" name="refresh"></i-tabler>
-    </button>
-    <button
-      mat-icon-button
       (click)="treatmentReferencesSidenavService.toggleSidenav()"
       matTooltip="Referencias"
       matTooltipPosition="above"
@@ -28,24 +20,8 @@
         @for(tooth of odontogram.upperTeethLeft; track $index){
         <app-tooth
           [toothNumber]="tooth.number"
-          [topTreatments]="tooth.topTreatments"
-          [bottomTreatment]="tooth.bottomTreatment"
-          [leftTreatment]="tooth.leftTreatment"
-          [rightTreatment]="tooth.rightTreatment"
-          [centerTreatment]="tooth.centerTreatment"
-          [fullToothTreatment]="tooth.fullToothTreatment"
-          (fullToothTreatmentChange)="
-            onFullToothTreatmentChange(tooth.number, $event)
-          "
-          (topTreatmentChange)="onTopTreatmentChange(tooth.number, $event)"
-          (bottomTreatmentChange)="
-            onBottomTreatmentChange(tooth.number, $event)
-          "
-          (leftTreatmentChange)="onLeftTreatmentChange(tooth.number, $event)"
-          (rightTreatmentChange)="onRightTreatmentChange(tooth.number, $event)"
-          (centerTreatmentChange)="
-            onCenterTreatmentChange(tooth.number, $event)
-          "
+          [treatments]="tooth.treatments!"
+          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
         ></app-tooth>
         }
       </div>
@@ -54,24 +30,8 @@
         @for(tooth of odontogram.upperTeethRight; track $index){
         <app-tooth
           [toothNumber]="tooth.number"
-          [topTreatments]="tooth.topTreatments"
-          [bottomTreatment]="tooth.bottomTreatment"
-          [leftTreatment]="tooth.leftTreatment"
-          [rightTreatment]="tooth.rightTreatment"
-          [centerTreatment]="tooth.centerTreatment"
-          [fullToothTreatment]="tooth.fullToothTreatment"
-          (fullToothTreatmentChange)="
-            onFullToothTreatmentChange(tooth.number, $event)
-          "
-          (topTreatmentChange)="onTopTreatmentChange(tooth.number, $event)"
-          (bottomTreatmentChange)="
-            onBottomTreatmentChange(tooth.number, $event)
-          "
-          (leftTreatmentChange)="onLeftTreatmentChange(tooth.number, $event)"
-          (rightTreatmentChange)="onRightTreatmentChange(tooth.number, $event)"
-          (centerTreatmentChange)="
-            onCenterTreatmentChange(tooth.number, $event)
-          "
+          [treatments]="tooth.treatments!"
+          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
         ></app-tooth>
         }
       </div>
@@ -82,24 +42,8 @@
         @for(tooth of odontogram.lowerTeethLeft; track $index){
         <app-tooth
           [toothNumber]="tooth.number"
-          [topTreatments]="tooth.topTreatments"
-          [bottomTreatment]="tooth.bottomTreatment"
-          [leftTreatment]="tooth.leftTreatment"
-          [rightTreatment]="tooth.rightTreatment"
-          [centerTreatment]="tooth.centerTreatment"
-          [fullToothTreatment]="tooth.fullToothTreatment"
-          (fullToothTreatmentChange)="
-            onFullToothTreatmentChange(tooth.number, $event)
-          "
-          (topTreatmentChange)="onTopTreatmentChange(tooth.number, $event)"
-          (bottomTreatmentChange)="
-            onBottomTreatmentChange(tooth.number, $event)
-          "
-          (leftTreatmentChange)="onLeftTreatmentChange(tooth.number, $event)"
-          (rightTreatmentChange)="onRightTreatmentChange(tooth.number, $event)"
-          (centerTreatmentChange)="
-            onCenterTreatmentChange(tooth.number, $event)
-          "
+          [treatments]="tooth.treatments!"
+          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
         ></app-tooth>
         }
       </div>
@@ -108,24 +52,8 @@
         @for(tooth of odontogram.lowerTeethRight; track $index){
         <app-tooth
           [toothNumber]="tooth.number"
-          [topTreatments]="tooth.topTreatments"
-          [bottomTreatment]="tooth.bottomTreatment"
-          [leftTreatment]="tooth.leftTreatment"
-          [rightTreatment]="tooth.rightTreatment"
-          [centerTreatment]="tooth.centerTreatment"
-          [fullToothTreatment]="tooth.fullToothTreatment"
-          (fullToothTreatmentChange)="
-            onFullToothTreatmentChange(tooth.number, $event)
-          "
-          (topTreatmentChange)="onTopTreatmentChange(tooth.number, $event)"
-          (bottomTreatmentChange)="
-            onBottomTreatmentChange(tooth.number, $event)
-          "
-          (leftTreatmentChange)="onLeftTreatmentChange(tooth.number, $event)"
-          (rightTreatmentChange)="onRightTreatmentChange(tooth.number, $event)"
-          (centerTreatmentChange)="
-            onCenterTreatmentChange(tooth.number, $event)
-          "
+          [treatments]="tooth.treatments!"
+          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
         ></app-tooth>
         }
       </div>
@@ -139,24 +67,8 @@
         @for(tooth of odontogram.temporaryUpperLeft; track $index){
         <app-tooth
           [toothNumber]="tooth.number"
-          [topTreatments]="tooth.topTreatments"
-          [bottomTreatment]="tooth.bottomTreatment"
-          [leftTreatment]="tooth.leftTreatment"
-          [rightTreatment]="tooth.rightTreatment"
-          [centerTreatment]="tooth.centerTreatment"
-          [fullToothTreatment]="tooth.fullToothTreatment"
-          (fullToothTreatmentChange)="
-            onFullToothTreatmentChange(tooth.number, $event)
-          "
-          (topTreatmentChange)="onTopTreatmentChange(tooth.number, $event)"
-          (bottomTreatmentChange)="
-            onBottomTreatmentChange(tooth.number, $event)
-          "
-          (leftTreatmentChange)="onLeftTreatmentChange(tooth.number, $event)"
-          (rightTreatmentChange)="onRightTreatmentChange(tooth.number, $event)"
-          (centerTreatmentChange)="
-            onCenterTreatmentChange(tooth.number, $event)
-          "
+          [treatments]="tooth.treatments!"
+          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
         ></app-tooth>
         }
       </div>
@@ -165,24 +77,8 @@
         @for(tooth of odontogram.temporaryUpperRight; track $index){
         <app-tooth
           [toothNumber]="tooth.number"
-          [topTreatments]="tooth.topTreatments"
-          [bottomTreatment]="tooth.bottomTreatment"
-          [leftTreatment]="tooth.leftTreatment"
-          [rightTreatment]="tooth.rightTreatment"
-          [centerTreatment]="tooth.centerTreatment"
-          [fullToothTreatment]="tooth.fullToothTreatment"
-          (fullToothTreatmentChange)="
-            onFullToothTreatmentChange(tooth.number, $event)
-          "
-          (topTreatmentChange)="onTopTreatmentChange(tooth.number, $event)"
-          (bottomTreatmentChange)="
-            onBottomTreatmentChange(tooth.number, $event)
-          "
-          (leftTreatmentChange)="onLeftTreatmentChange(tooth.number, $event)"
-          (rightTreatmentChange)="onRightTreatmentChange(tooth.number, $event)"
-          (centerTreatmentChange)="
-            onCenterTreatmentChange(tooth.number, $event)
-          "
+          [treatments]="tooth.treatments!"
+          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
         ></app-tooth>
         }
       </div>
@@ -193,24 +89,8 @@
         @for(tooth of odontogram.temporaryLowerLeft; track $index){
         <app-tooth
           [toothNumber]="tooth.number"
-          [topTreatments]="tooth.topTreatments"
-          [bottomTreatment]="tooth.bottomTreatment"
-          [leftTreatment]="tooth.leftTreatment"
-          [rightTreatment]="tooth.rightTreatment"
-          [centerTreatment]="tooth.centerTreatment"
-          [fullToothTreatment]="tooth.fullToothTreatment"
-          (fullToothTreatmentChange)="
-            onFullToothTreatmentChange(tooth.number, $event)
-          "
-          (topTreatmentChange)="onTopTreatmentChange(tooth.number, $event)"
-          (bottomTreatmentChange)="
-            onBottomTreatmentChange(tooth.number, $event)
-          "
-          (leftTreatmentChange)="onLeftTreatmentChange(tooth.number, $event)"
-          (rightTreatmentChange)="onRightTreatmentChange(tooth.number, $event)"
-          (centerTreatmentChange)="
-            onCenterTreatmentChange(tooth.number, $event)
-          "
+          [treatments]="tooth.treatments!"
+          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
         ></app-tooth>
         }
       </div>
@@ -219,24 +99,8 @@
         @for(tooth of odontogram.temporaryLowerRight; track $index){
         <app-tooth
           [toothNumber]="tooth.number"
-          [topTreatments]="tooth.topTreatments"
-          [bottomTreatment]="tooth.bottomTreatment"
-          [leftTreatment]="tooth.leftTreatment"
-          [rightTreatment]="tooth.rightTreatment"
-          [centerTreatment]="tooth.centerTreatment"
-          [fullToothTreatment]="tooth.fullToothTreatment"
-          (fullToothTreatmentChange)="
-            onFullToothTreatmentChange(tooth.number, $event)
-          "
-          (topTreatmentChange)="onTopTreatmentChange(tooth.number, $event)"
-          (bottomTreatmentChange)="
-            onBottomTreatmentChange(tooth.number, $event)
-          "
-          (leftTreatmentChange)="onLeftTreatmentChange(tooth.number, $event)"
-          (rightTreatmentChange)="onRightTreatmentChange(tooth.number, $event)"
-          (centerTreatmentChange)="
-            onCenterTreatmentChange(tooth.number, $event)
-          "
+          [treatments]="tooth.treatments!"
+          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
         ></app-tooth>
         }
       </div>

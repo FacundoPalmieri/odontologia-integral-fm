@@ -1,290 +1,102 @@
-<div class="relative mt-10">
+<div class="relative mt-10 mb-4">
   <!-- TOOTH NUMBER -->
   <div
-    class="absolute top-0 left-1/2 transform -translate-x-1/2 text-lg font-bold -mt-6 hover:scale-110 cursor-pointer"
-    [matMenuTriggerFor]="menuFullTooth"
+    class="absolute top-0 left-1/2 transform -translate-x-1/2 text-lg font-bold -mt-10 hover:scale-110 cursor-pointer"
+    (click)="openAddTreatmentDialog()"
   >
     <span>{{ toothNumber }}</span>
   </div>
-  <mat-menu #menuFullTooth="matMenu">
-    <mat-list>
-      <div class="grid grid-cols-2 gap-2 p-2">
-        <button
-          mat-button
-          (click)="clearFullTooth()"
-          class="flex flex-col items-center w-full h-full p-1"
-        >
-          <div class="flex justify-center items-center">
-            <i-tabler name="eraser"></i-tabler>
-          </div>
-          <span class="text-[0.6rem]">Limpiar</span>
-        </button>
-        @for(treatment of treatments; track $index){
-        <button
-          mat-button
-          (click)="updateFullTooth(treatment)"
-          class="flex flex-col items-center w-full h-full p-1"
-        >
-          <div class="flex justify-center items-center">
-            @for(icon of treatment.icons; track $index){
-            <i-tabler
-              [name]="icon"
-              [ngClass]="[
-                calculateMargin($index, treatment.icons!.length),
-                treatment.color ? treatment.color : ''
-              ]"
-            ></i-tabler>
-            }
-          </div>
-          <span class="text-[0.6rem]">{{ treatment.name }}</span>
-        </button>
-        }
-      </div>
-    </mat-list>
-  </mat-menu>
-  <!-- TOOTH NUMBER -->
 
+  <!-- GENERAL TREATMENTS ICONS -->
+  @for(treatment of generalTreatments; track treatment.name) {
+  @if(treatment.name === TreatmentEnum.TRAT_DE_CONDUCTO){
+  <div
+    class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 flex items-center justify-center scale-125"
+  >
+    @for(icon of getTreatmentIcons(treatment); track $index){
+    <i-tabler
+      [name]="icon"
+      [ngClass]="
+        calculateMargin($index, getTreatmentIcons(treatment).length) +
+        ' ' +
+        getColor(treatment!.treatmentType)
+      "
+    ></i-tabler>
+    }
+  </div>
+  } @else if(treatment.name === TreatmentEnum.IMPLANTES){
+  <div
+    class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-4 flex items-center justify-center scale-125"
+  >
+    @for(icon of getTreatmentIcons(treatment); track $index){
+    <i-tabler
+      [name]="icon"
+      [ngClass]="
+        calculateMargin($index, getTreatmentIcons(treatment).length) +
+        ' ' +
+        getColor(treatment!.treatmentType)
+      "
+    ></i-tabler>
+    }
+  </div>
+  } @else if(treatment.name === TreatmentEnum.CORONA || treatment.name ===
+  TreatmentEnum.DIENTE_AUSENTE){
+  <div
+    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20 scale-270 opacity-80"
+  >
+    @for(icon of getTreatmentIcons(treatment); track $index){
+    <i-tabler
+      [name]="icon"
+      [ngClass]="
+        calculateMargin($index, getTreatmentIcons(treatment).length) +
+        ' ' +
+        getColor(treatment!.treatmentType)
+      "
+    ></i-tabler>
+    }
+  </div>
+  } }
+
+  <!-- TOOTH FACES -->
   <div class="flex justify-center items-center h-18 w-18 relative">
-    @if(fullToothTreatment){
-    <app-tooth-face
-      class="flex items-center justify-center z-10 transition-transform hover:scale-180 scale-170 cursor-pointer"
-      [faceType]="toothFaceTypeEnum.FULL"
-      [treatment]="fullToothTreatment!"
-      [matMenuTriggerFor]="menuFullTooth"
-    ></app-tooth-face>
-    } @else {
     <!-- TOP TOOTH FACE -->
-    @if(topTreatments === undefined){
     <app-tooth-face
       class="flex items-center justify-center absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
-      [matMenuTriggerFor]="menuTop"
       [faceType]="toothFaceTypeEnum.TOP"
-    ></app-tooth-face
-    >} @else { @for(topTreatment of topTreatments; track $index){
-    <app-tooth-face
-      class="flex items-center justify-center absolute top-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
-      [matMenuTriggerFor]="menuTop"
-      [faceType]="toothFaceTypeEnum.TOP"
-      [treatment]="topTreatment!"
+      [treatment]="cariesFaces[toothFaceTypeEnum.TOP]"
+      (click)="openAddTreatmentDialog()"
     ></app-tooth-face>
-    }}
-    <mat-menu #menuTop="matMenu">
-      <mat-list>
-        <div class="grid grid-cols-2 gap-2 p-2">
-          <button
-            mat-button
-            (click)="clearTopTreatment()"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              <i-tabler name="eraser"></i-tabler>
-            </div>
-            <span class="text-[0.6rem]">Limpiar</span>
-          </button>
-          @for(treatment of treatments; track $index){
-          <button
-            mat-button
-            (click)="updateTopIcon(treatment)"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              @for(icon of treatment.icons; track $index){
-              <i-tabler
-                [name]="icon"
-                [ngClass]="[
-                  calculateMargin($index, treatment.icons!.length),
-                  treatment.color ? treatment.color : ''
-                ]"
-              ></i-tabler>
-              }
-            </div>
-            <span class="text-[0.6rem]">{{ treatment.name }}</span>
-          </button>
-          }
-        </div>
-      </mat-list>
-    </mat-menu>
-    <!-- TOP TOOTH FACE -->
 
     <!-- BOTTOM TOOTH FACE -->
     <app-tooth-face
       class="flex items-center justify-center absolute bottom-0 left-1/2 transform -translate-x-1/2 transition-transform hover:scale-110 cursor-pointer"
-      [matMenuTriggerFor]="menuBottom"
       [faceType]="toothFaceTypeEnum.BOTTOM"
-      [treatment]="bottomTreatment!"
+      [treatment]="cariesFaces[toothFaceTypeEnum.BOTTOM]"
+      (click)="openAddTreatmentDialog()"
     ></app-tooth-face>
-    <mat-menu #menuBottom="matMenu">
-      <mat-list>
-        <div class="grid grid-cols-2 gap-2 p-2">
-          <button
-            mat-button
-            (click)="clearBottomTreatment()"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              <i-tabler name="eraser"></i-tabler>
-            </div>
-            <span class="text-[0.6rem]">Limpiar</span>
-          </button>
-          @for(treatment of treatments; track $index){
-          <button
-            mat-button
-            (click)="updateBottomIcon(treatment)"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              @for(icon of treatment.icons; track $index){
-              <i-tabler
-                [name]="icon"
-                [ngClass]="[
-                  calculateMargin($index, treatment.icons!.length),
-                  treatment.color ? treatment.color : ''
-                ]"
-              ></i-tabler>
-              }
-            </div>
-            <span class="text-[0.6rem]">{{ treatment.name }}</span>
-          </button>
-          }
-        </div>
-      </mat-list>
-    </mat-menu>
-    <!-- BOTTOM TOOTH FACE -->
 
     <!-- LEFT TOOTH FACE -->
     <app-tooth-face
       class="flex items-center justify-center absolute left-0 top-1/2 transform -translate-y-1/2 rotate-90 transition-transform hover:scale-110 cursor-pointer"
-      [matMenuTriggerFor]="menuLeft"
       [faceType]="toothFaceTypeEnum.LEFT"
-      [treatment]="leftTreatment!"
+      [treatment]="cariesFaces[toothFaceTypeEnum.LEFT]"
+      (click)="openAddTreatmentDialog()"
     ></app-tooth-face>
-    <mat-menu #menuLeft="matMenu">
-      <mat-list>
-        <div class="grid grid-cols-2 gap-2 p-2">
-          <button
-            mat-button
-            (click)="clearLeftTreatment()"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              <i-tabler name="eraser"></i-tabler>
-            </div>
-            <span class="text-[0.6rem]">Limpiar</span>
-          </button>
-          @for(treatment of treatments; track $index){
-          <button
-            mat-button
-            (click)="updateLeftIcon(treatment)"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              @for(icon of treatment.icons; track $index){
-              <i-tabler
-                [name]="icon"
-                [ngClass]="[
-                  calculateMargin($index, treatment.icons!.length),
-                  treatment.color ? treatment.color : ''
-                ]"
-              ></i-tabler>
-              }
-            </div>
-            <span class="text-[0.6rem]">{{ treatment.name }}</span>
-          </button>
-          }
-        </div>
-      </mat-list>
-    </mat-menu>
-    <!-- LEFT TOOTH FACE -->
 
     <!-- RIGHT TOOTH FACE -->
     <app-tooth-face
       class="flex items-center justify-center absolute right-0 top-1/2 transform -translate-y-1/2 -rotate-270 transition-transform hover:scale-110 cursor-pointer"
-      [matMenuTriggerFor]="menuRight"
       [faceType]="toothFaceTypeEnum.RIGHT"
-      [treatment]="rightTreatment!"
+      [treatment]="cariesFaces[toothFaceTypeEnum.RIGHT]"
+      (click)="openAddTreatmentDialog()"
     ></app-tooth-face>
-    <mat-menu #menuRight="matMenu">
-      <mat-list>
-        <div class="grid grid-cols-2 gap-2 p-2">
-          <button
-            mat-button
-            (click)="clearRightTreatment()"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              <i-tabler name="eraser"></i-tabler>
-            </div>
-            <span class="text-[0.6rem]">Limpiar</span>
-          </button>
-          @for(treatment of treatments; track $index){
-          <button
-            mat-button
-            (click)="updateRightIcon(treatment)"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              @for(icon of treatment.icons; track $index){
-              <i-tabler
-                [name]="icon"
-                [ngClass]="[
-                  calculateMargin($index, treatment.icons!.length),
-                  treatment.color ? treatment.color : ''
-                ]"
-              ></i-tabler>
-              }
-            </div>
-            <span class="text-[0.6rem]">{{ treatment.name }}</span>
-          </button>
-          }
-        </div>
-      </mat-list>
-    </mat-menu>
-    <!-- RIGHT TOOTH FACE -->
 
     <!-- CENTER TOOTH FACE -->
     <app-tooth-face
       class="flex items-center justify-center z-10 transition-transform hover:scale-110 cursor-pointer"
-      [matMenuTriggerFor]="menuCenter"
       [faceType]="toothFaceTypeEnum.CENTER"
-      [treatment]="centerTreatment!"
+      [treatment]="cariesFaces[toothFaceTypeEnum.CENTER]"
+      (click)="openAddTreatmentDialog()"
     ></app-tooth-face>
-    <mat-menu #menuCenter="matMenu">
-      <mat-list>
-        <div class="grid grid-cols-2 gap-2 p-2">
-          <button
-            mat-button
-            (click)="clearCenterTreatment()"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              <i-tabler name="eraser"></i-tabler>
-            </div>
-            <span class="text-[0.6rem]">Limpiar</span>
-          </button>
-          @for(treatment of treatments; track $index){
-          <button
-            mat-button
-            (click)="updateCenterIcon(treatment)"
-            class="flex flex-col items-center w-full h-full p-1"
-          >
-            <div class="flex justify-center items-center">
-              @for(icon of treatment.icons; track $index){
-              <i-tabler
-                [name]="icon"
-                [ngClass]="[
-                  calculateMargin($index, treatment.icons!.length),
-                  treatment.color ? treatment.color : ''
-                ]"
-              ></i-tabler>
-              }
-            </div>
-            <span class="text-[0.6rem]">{{ treatment.name }}</span>
-          </button>
-          }
-        </div>
-      </mat-list>
-    </mat-menu>
-    <!-- CENTER TOOTH FACE -->
-    }
   </div>
 </div>

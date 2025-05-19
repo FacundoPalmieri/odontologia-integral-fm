@@ -1,10 +1,12 @@
-@if(treatment){ @for(icon of treatment.icons; track $index){
+@if(treatment?.name === 'CARIES'){ @for(icon of getTreatmentIcons(treatment!);
+track $index){
 <i-tabler
   [name]="icon"
-  [ngClass]="[
-    calculateMargin($index, treatment.icons!.length),
-    treatment.color ? treatment.color : ''
-  ]"
+  [ngClass]="
+    calculateMargin($index, getTreatmentIcons(treatment!).length) +
+    ' ' +
+    getColor(treatment!.treatmentType)
+  "
 ></i-tabler>
 } } @else if(righties.includes(faceType!)) {
 <i-tabler name="rectangle-rounded-top"></i-tabler>

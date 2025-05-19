@@ -1,62 +1,62 @@
-import { TreatmentInterface } from "../../domain/interfaces/treatment.interface";
+import { ShowTreatmentInterface } from "../../domain/interfaces/treatment.interface";
+import { TreatmentEnum, TreatmentTypeEnum } from "../enums/treatment.enum";
 
 export class TreatmentFactory {
-  static createTreatments(): TreatmentInterface[] {
+  static createTreatments(): ShowTreatmentInterface[] {
     return [
       {
-        name: "Trat. de Conducto",
-        icons: ["letter-t-small", "letter-c-small"],
-        color: "text-[#ef4444]",
-      },
-      {
-        name: "Trat. de Conducto",
-        icons: ["letter-t-small", "letter-c-small"],
-        color: "text-[#2b7fff]",
-      },
-      {
-        name: "Obt. Composite",
+        name: TreatmentEnum.CARIES,
+        label: "Caries",
+        availableTypes: [TreatmentTypeEnum.REQUIRED],
         icons: ["rectangle-filled"],
-        color: "text-[#ef4444]",
-      },
-      // {
-      //   name: "Diente Ausente",
-      //   icons: ["letter-x-small"],
-      //   color: "text-[#ef4444]",
-      // },
-      {
-        name: "Diente Ausente",
-        icons: ["dental-off"],
-        color: "text-[#ef4444]",
       },
       {
-        name: "Corona",
+        name: TreatmentEnum.TRAT_DE_CONDUCTO,
+        label: "Trat. de Conducto",
+        availableTypes: [
+          TreatmentTypeEnum.REQUIRED,
+          TreatmentTypeEnum.EXISTING,
+        ],
+        icons: ["letter-t-small", "letter-c-small"],
+      },
+      {
+        name: TreatmentEnum.OBT_COMPOSITE,
+        label: "Obt. Composite",
+        availableTypes: [TreatmentTypeEnum.EXISTING],
+        icons: ["rectangle-filled"],
+      },
+      {
+        name: TreatmentEnum.DIENTE_AUSENTE,
+        label: "Diente Ausente",
+        availableTypes: [TreatmentTypeEnum.EXISTING],
+        icons: ["x"],
+      },
+      {
+        name: TreatmentEnum.CORONA,
+        label: "Corona",
+        availableTypes: [
+          TreatmentTypeEnum.EXISTING,
+          TreatmentTypeEnum.REQUIRED,
+        ],
         icons: ["circle"],
-        color: "text-[#ef4444]",
       },
       {
-        name: "Corona",
-        icons: ["circle"],
-        color: "text-[#2b7fff]",
-      },
-      {
-        name: "Puente",
+        name: TreatmentEnum.PUENTE,
+        label: "Puente",
+        availableTypes: [TreatmentTypeEnum.EXISTING],
         icons: ["building-bridge-2"],
-        color: "text-[#ef4444]",
       },
       {
-        name: "Implante",
-        icons: ["letter-i-small", "letter-m-small"],
-        color: "text-[#ef4444]",
-      },
-      {
-        name: "Caries",
-        icons: ["rectangle-filled"],
-        color: "text-[#2b7fff]",
-      },
-      {
-        name: "Extracción",
+        name: TreatmentEnum.EXTRACCION,
+        label: "Extracción",
+        availableTypes: [TreatmentTypeEnum.REQUIRED],
         icons: ["equal"],
-        color: "text-[#2b7fff]",
+      },
+      {
+        name: TreatmentEnum.IMPLANTES,
+        label: "Implantes",
+        availableTypes: [TreatmentTypeEnum.EXISTING],
+        icons: ["letter-i-small", "letter-m-small"],
       },
     ];
   }

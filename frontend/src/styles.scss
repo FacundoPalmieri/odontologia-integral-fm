@@ -28,6 +28,20 @@ body {
     display: inline-flex !important;
   }
 
+  .mat-mdc-checkbox {
+    .mdc-checkbox {
+      border-radius: 6px;
+      width: 20px;
+      height: 20px;
+
+      .mdc-checkbox__background {
+        border-radius: 6px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
   .snackbar-success {
     @include mat.snack-bar-overrides(
       (
