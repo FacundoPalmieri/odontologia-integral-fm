@@ -40,7 +40,7 @@ public interface IUserService {
       * @param userSecCreateDto El DTO con la información del usuario a guardar.
       * @return Una respuesta que contiene el objeto {@link UserSecResponseDTO} del usuario recién creado.
       */
-     Response<UserSecResponseDTO> save(UserSecCreateDTO userSecCreateDto);
+     Response<UserSecResponseDTO> create(UserSecCreateDTO userSecCreateDto);
 
 
      /**

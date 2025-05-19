@@ -11,5 +11,5 @@ public interface IMedicalRiskRepository extends JpaRepository<MedicalRisk, Long>
 
     Set<MedicalRisk> findAllByEnabledTrue();
 
-    Set<MedicalRisk> findByIdInAndEnabledTrue(Set<Long> ids);
+    MedicalRisk findByIdAndEnabledTrue(Long id);
 }

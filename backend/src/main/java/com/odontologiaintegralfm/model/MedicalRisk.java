@@ -2,18 +2,26 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 /**
- * Entidad para representar los riesgos médicos
+ * Entidad para representar los riesgos médicos cargados en la aplicación.
  */
 
+@Audited
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "medical_risk")
 public class MedicalRisk {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(length = 50, nullable = false, unique = true)

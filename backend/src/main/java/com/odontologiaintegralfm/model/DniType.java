@@ -3,6 +3,9 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 /**
@@ -10,12 +13,15 @@ import org.hibernate.envers.Audited;
  * Ej: DNI - Pasaporte
  */
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name="dni_types")
 public class DniType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long Id;
 
     // Dni - Pasaporte - Etc.

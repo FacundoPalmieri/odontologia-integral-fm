@@ -143,7 +143,7 @@ public class UserController {
     @PostMapping
     @OnlyDeveloperAndAdministrator
     public  ResponseEntity<Response<UserSecResponseDTO>> createUser(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
-        Response<UserSecResponseDTO>response = userService.save(userSecCreateDto);
+        Response<UserSecResponseDTO>response = userService.create(userSecCreateDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

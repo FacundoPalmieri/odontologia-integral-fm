@@ -2,6 +2,9 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 
 /**
@@ -9,12 +12,15 @@ import lombok.Data;
  * Ej: Celular - Fijo.
  */
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table
 public class PhoneType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     // Celular - Fijo

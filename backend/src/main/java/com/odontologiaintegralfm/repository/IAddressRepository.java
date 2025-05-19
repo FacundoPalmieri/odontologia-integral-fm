@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.repository;
 
 import com.odontologiaintegralfm.model.Address;
 import com.odontologiaintegralfm.model.Locality;
+import com.odontologiaintegralfm.model.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,5 +28,26 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {
             @Param("floor") String floor,
             @Param("apartment") String apartment,
             @Param("locality") Locality locality);
+
+
+    @Query("""
+     SELECT p
+     FROM Patient p
+     JOIN FETCH p.address a
+     WHERE p.address.id = :addressOld
+     AND a.enabled = true
+     AND p.enabled = true
+     """)
+    Optional<Patient> findByAddressIdOld(@Param("addressOld") Long addressOld);
+
+
+    @Query("""
+    SELECT p.address
+    FROM Person p
+    WHERE p.id = :personId
+    AND p.address.enabled = true
+    AND p.enabled = true
+    """)
+    Address findByPersonId(@Param("personId") Long id);
 
 }

@@ -4,7 +4,6 @@ import com.odontologiaintegralfm.configuration.securityConfig.filter.JwtTokenVal
 import com.odontologiaintegralfm.configuration.securityConfig.filter.OAuth2UserFilter;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
-import com.odontologiaintegralfm.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

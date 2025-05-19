@@ -41,15 +41,15 @@ public class MedicalRiskService implements IMedicalRiskService {
     }
 
     /**
-     * Método para recuperar Set de Riesgos médicos "Habilitados" de acuerdo a los Ids recibidos.
+     * Método para recuperarRiesgos médicos "Habilitados" de acuerdo a los Ids recibidos.
      *
-     * @param ids de Riesgos médicos.
+     * @param id de Riesgos médicos.
      * @return Set de objetos {@link MedicalRisk} habilitados.
      */
     @Override
-    public Set<MedicalRisk> getByIds(Set<Long> ids) {
+    public MedicalRisk getById(Long id) {
         try{
-            return medicalRiskRepository.findByIdInAndEnabledTrue(ids);
+            return medicalRiskRepository.findByIdAndEnabledTrue(id);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "MedicalRiskService",null, null, "getByIds");

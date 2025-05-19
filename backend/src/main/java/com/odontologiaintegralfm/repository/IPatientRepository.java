@@ -2,8 +2,10 @@ package com.odontologiaintegralfm.repository;
 
 import com.odontologiaintegralfm.model.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,7 +14,15 @@ import java.util.Optional;
 @Repository
 public interface IPatientRepository extends JpaRepository<Patient, Long> {
 
-    Optional<Patient> findByDni(String dni);
+    Optional<Patient> findByAffiliateNumberAndEnabledTrue(String affiliateNumber);
+
+    List<Patient> findAllByEnabledTrue();
+
+    Optional<Patient> findById(Long id);
+
+
+
+
 
 
 }

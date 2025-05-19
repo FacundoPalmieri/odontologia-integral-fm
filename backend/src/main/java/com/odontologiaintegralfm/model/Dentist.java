@@ -2,10 +2,13 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.envers.Audited;
 
 /**
  * Entidad que representa los Odontólogos
  */
+
+@Audited
 @Entity
 @Data
 @Table(name ="dentists")

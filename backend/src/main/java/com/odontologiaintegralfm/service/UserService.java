@@ -11,7 +11,7 @@ import com.odontologiaintegralfm.service.interfaces.IEmailService;
 import com.odontologiaintegralfm.service.interfaces.IFailedLoginAttemptsService;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
-import com.odontologiaintegralfm.utils.JwtUtils;
+import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * <ul>
  *   <li>{@link IUserService#getAll()}: Recupera la lista de todos los usuarios del sistema.</li>
  *   <li>{@link IUserService#getById(Long)}: Busca un usuario por su identificador único.</li>
- *   <li>{@link UserService#save(UserSecCreateDTO)}: Guarda un nuevo usuario en la base de datos.</li>
+ *   <li>{@link IUserService#create(UserSecCreateDTO)}: Guarda un nuevo usuario en la base de datos.</li>
  *   <li>{@link UserService#update(UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
  *   <li>{@link UserService#encriptPassword(String)}: Encripta una contraseña utilizando el algoritmo BCrypt.</li>
  *   <li>{@link UserService#createTokenResetPasswordForUser(String)}: Crea un token de restablecimiento de contraseña y envía un correo electrónico.</li>
@@ -192,7 +192,7 @@ public class UserService implements IUserService {
      */
     @Override
     @Transactional
-    public Response<UserSecResponseDTO>save(UserSecCreateDTO userSecCreateDto) {
+    public Response<UserSecResponseDTO> create(UserSecCreateDTO userSecCreateDto) {
 
         //Valída que el usuario no exista en la base de datos.
         validateUsername(userSecCreateDto.getUsername());

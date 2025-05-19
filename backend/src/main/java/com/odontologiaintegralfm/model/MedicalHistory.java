@@ -2,6 +2,9 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import java.time.LocalDate;
@@ -10,16 +13,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Entidad para representar las historias clínicas.
+ * Entidad para representar una historia clínica.
  */
 @Audited
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table (name = "medical_histories")
 public class MedicalHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Patient.class)
@@ -29,20 +35,11 @@ public class MedicalHistory {
     @Column(nullable = false)
     private LocalDate dateTime;
 
-    @ManyToMany(fetch = FetchType.LAZY, targetEntity = MedicalRisk.class)
-    @JoinTable(
-            name = "medical_histories_medical_risk",
-            joinColumns = @JoinColumn(name = "medical_histories_id"),
-            inverseJoinColumns = @JoinColumn(name = "medical_risk_id")
-    )
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    private Set<MedicalRisk> medicalRisks = new HashSet<>();
-
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "update_by_id")
-    private Long updatedBy;
+    @JoinColumn(name = "updated_by_id")
+    private UserSec updatedBy;
 
     private Boolean enabled;
 

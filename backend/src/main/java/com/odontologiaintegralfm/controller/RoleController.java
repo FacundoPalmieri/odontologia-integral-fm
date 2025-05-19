@@ -139,7 +139,7 @@ public class RoleController {
     @PostMapping
     @OnlyDevelopers
     public ResponseEntity<Response<RoleResponseDTO>>createRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
-        Response<RoleResponseDTO> response = roleService.save(roleRequestDto);
+        Response<RoleResponseDTO> response = roleService.create(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

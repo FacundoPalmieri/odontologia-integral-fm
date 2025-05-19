@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.UnauthorizedException;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
-import com.odontologiaintegralfm.utils.JwtUtils;
+import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

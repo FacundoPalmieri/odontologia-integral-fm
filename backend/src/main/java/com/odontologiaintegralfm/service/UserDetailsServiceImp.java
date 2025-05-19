@@ -9,7 +9,7 @@ import com.odontologiaintegralfm.model.UserSec;
 import com.odontologiaintegralfm.repository.IUserRepository;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
-import com.odontologiaintegralfm.utils.JwtUtils;
+import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;

@@ -31,6 +31,7 @@ public class UserSec {
     /**Identificador único del usuario.*/
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     /**Nombre de usuario representado por el email.*/
