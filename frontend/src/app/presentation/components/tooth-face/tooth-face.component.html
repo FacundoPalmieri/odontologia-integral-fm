@@ -1,5 +1,5 @@
-@if(treatment?.name === 'CARIES'){ @for(icon of getTreatmentIcons(treatment!);
-track $index){
+@if(treatment?.name === 'CARIES' || treatment?.name === 'OBT_COMPOSITE'){
+@for(icon of getTreatmentIcons(treatment!); track $index){
 <i-tabler
   [name]="icon"
   [ngClass]="
