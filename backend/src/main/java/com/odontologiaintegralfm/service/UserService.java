@@ -222,7 +222,39 @@ public class UserService implements IUserService {
 
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", userSec.getId(), userSec.getUsername(), "save");
+            throw new DataBaseException(e, "userService", userSec.getId(), userSec.getUsername(), "create");
+        }
+    }
+
+
+    /**
+     * Método protégido para acceder desde otro servicios y devolver un Objeto UserSec.
+     * @param userSecCreateDto Datos del userSec a crear
+     * @return UserSec
+     */
+    @Transactional
+    protected UserSec createInternal(UserSecCreateDTO userSecCreateDto){
+        try {
+            //Valída que el usuario no exista en la base de datos.
+            validateUsername(userSecCreateDto.getUsername());
+
+            //Valida que no se asigne un rol DEV al nuevo usuario.
+            validateNotDevRole(userSecCreateDto);
+
+            //Valída que las pass sean coincidentes.
+            validatePasswords(userSecCreateDto.getPassword1(), userSecCreateDto.getPassword2(), userSecCreateDto.getUsername());
+
+            //Construye objeto model
+            UserSec userSec = buildUserSec(userSecCreateDto);
+
+            //Asigna Roles.
+            userSec.setRolesList(getRolesForUser(userSecCreateDto.getRolesList()));
+
+            //Guarda el objeto en la base de datos.
+            return userRepository.save(userSec);
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "userService", null, userSecCreateDto.getUsername(), "create");
         }
     }
 
@@ -812,12 +844,12 @@ public class UserService implements IUserService {
      * @return Un objeto {@link UserSecResponseDTO} que contiene los datos de la entidad {@link UserSec}.
      */
     private UserSecResponseDTO convertToDTO(UserSec userSec) {
-        UserSecResponseDTO userSecResponseDTO = new UserSecResponseDTO();
-        userSecResponseDTO.setId(userSec.getId());
-        userSecResponseDTO.setUsername(userSec.getUsername());
-        userSecResponseDTO.setRolesList(userSec.getRolesList());
-        userSecResponseDTO.setEnabled(userSec.isEnabled());
-        return userSecResponseDTO;
+        return new UserSecResponseDTO(
+                userSec.getId(),
+                userSec.getUsername(),
+                userSec.getRolesList(),
+                userSec.isEnabled()
+        );
     }
 
 

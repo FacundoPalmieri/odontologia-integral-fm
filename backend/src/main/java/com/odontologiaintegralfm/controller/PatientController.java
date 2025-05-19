@@ -19,9 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * @author [Facundo Palmieri]
- */
 
 @RestController
 @PreAuthorize("denyAll()")

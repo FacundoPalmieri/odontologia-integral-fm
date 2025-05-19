@@ -1,0 +1,16 @@
+package com.odontologiaintegralfm.repository;
+
+import com.odontologiaintegralfm.model.Dentist;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface IDentistRepository extends JpaRepository<Dentist, Long> {
+
+    Optional<Dentist> findByLicenseNumberAndEnabledTrue(String licenseNumber);
+
+    List<Dentist> findAllByEnabledTrue();
+}

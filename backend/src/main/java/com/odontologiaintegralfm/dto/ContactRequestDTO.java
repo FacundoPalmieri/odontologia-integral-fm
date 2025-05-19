@@ -6,14 +6,14 @@ import jakarta.validation.constraints.NotNull;
 
 
 public record ContactRequestDTO(
-        @Email(message = "contactCreateRequestDTO.email.Invalid")
-        @NotBlank(message = "contactCreateRequestDTO.email.Empty")
+        @Email(message = "contactRequestDTO.email.Invalid")
+        @NotBlank(message = "contactRequestDTO.email.Empty")
         String email,
 
-        @NotNull(message = "contactCreateRequestDTO.phoneType.Empty")
+        @NotNull(message = "contactRequestDTO.phoneType.Empty")
         Long phoneType,
 
-        @NotBlank(message = "contactCreateRequestDTO.phone.Empty")
+        @NotBlank(message = "contactRequestDTO.phone.Empty")
         String phone
 ) {
 }

@@ -4,6 +4,8 @@ import com.odontologiaintegralfm.dto.PatientCreateRequestDTO;
 import com.odontologiaintegralfm.dto.PatientUpdateRequestDTO;
 import com.odontologiaintegralfm.dto.PatientResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.exception.DataBaseException;
+import com.odontologiaintegralfm.model.Patient;
 
 import java.util.List;
 
@@ -13,9 +15,22 @@ import java.util.List;
 public interface IPatientService {
 
     /**
-     * Método para crear un paciente.
-     * @param patientRequestDTO El objeto paciente a crear
-     * @return Una respuesta que contiene el objeto {@link PatientResponseDTO } del paciente creado.
+     * Crea un nuevo paciente en el sistema junto con su domicilio, contactos, historia clínica
+     * y devuelve una respuesta con todos los datos relevantes.
+     *
+     * <p>Este método sigue los siguientes pasos:
+     * <ol>
+     *     <li>Valida que no exista un paciente con el mismo DNI.</li>
+     *     <li>Crea o habilita un domicilio según corresponda.</li>
+     *     <li>Crea un nuevo objeto {@link Patient} y lo persiste.</li>
+     *     <li>Genera una nueva historia clínica asociada al paciente.</li>
+     *     <li>Registra los contactos del paciente (email y teléfono).</li>
+     *     <li>Construye un DTO con toda la información creada.</li>
+     * </ol>
+     *
+     * @param patientRequestDTO DTO con los datos necesarios para crear el paciente.
+     * @return {@link Response} que contiene un {@link PatientResponseDTO} con los datos del paciente creado.
+     * @throws DataBaseException si ocurre un error durante el acceso a la base de datos.
      */
     Response<PatientResponseDTO> create(PatientCreateRequestDTO patientRequestDTO);
 

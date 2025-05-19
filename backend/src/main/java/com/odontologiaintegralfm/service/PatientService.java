@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.ConflictException;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
@@ -66,6 +68,8 @@ public class PatientService implements IPatientService {
 
     @Autowired
     private PersonService personService;
+    @Autowired
+    private AuthenticatedUserService authenticatedUserService;
 
 
     /**
@@ -144,7 +148,7 @@ public class PatientService implements IPatientService {
             return new Response<>(true,messageUser, patientResponseDTO);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", null, patientRequestDTO.personDto().dni(), "save");
+            throw new DataBaseException(e, "PatientService", null, patientRequestDTO.personDto().dni(), "create");
         }
     }
 
@@ -176,6 +180,10 @@ public class PatientService implements IPatientService {
             ContactPhone contactPhone = contactPhoneService.updatePatientContactPhone(patientUpdateRequestDTO.contactDto().phone(), patientUpdateRequestDTO.contactDto().phoneType(), patient);
             Set<MedicalHistoryRiskResponseDTO> medicalHistoryRiskResponseDTOS = medicalHistoryRiskService.updatePatientMedicalRisk(patient, patientUpdateRequestDTO.medicalRiskDto());
             MedicalHistory medicalHistory = medicalHistoryService.getByPatient(patient.getId());
+
+            //Cambios para auditoria.
+            patient.setUpdatedAt(LocalDateTime.now());
+            patient.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
 
             patientRepository.save(patient);
 
@@ -276,11 +284,15 @@ public class PatientService implements IPatientService {
             Patient patient = new Patient();
             patient.setHealthPlan(healthPlanService.getById(patientRequestDTO.healthPlanId()));
             patient.setAffiliateNumber(patientRequestDTO.affiliateNumber());
+
+            //Construye Persona
             patient = (Patient) personService.build(patient, patientRequestDTO.personDto(), address);
+
+            //Retorna objeto completo (Datos de paciente + persona)
             return patient;
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", null, patientRequestDTO.personDto().dni(), "createPatient");
+            throw new DataBaseException(e, "PatientService", null, patientRequestDTO.personDto().dni(), "buildPatient");
         }
     }
 
@@ -309,7 +321,7 @@ public class PatientService implements IPatientService {
 
 
     /**
-     * Construye un DTO de respuesta con los datos del paciente recién creado, su dirección,
+     * Construye un DTO de respuesta con los datos del paciente creado, su dirección,
      * contactos y antecedentes médicos.
      *
      * @param patient Objeto {@link Patient} creado.
