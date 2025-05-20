@@ -16,6 +16,16 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
 import { TreatmentInterface } from "../../../domain/interfaces/treatment.interface";
+import {
+  TreatmentEnum,
+  TreatmentTypeEnum,
+} from "../../../utils/enums/treatment.enum";
+
+interface BridgeConnection {
+  startTooth: number;
+  endTooth: number;
+  treatment: TreatmentInterface;
+}
 
 @Component({
   selector: "app-odontogram",
@@ -33,7 +43,8 @@ import { TreatmentInterface } from "../../../domain/interfaces/treatment.interfa
     MatSidenavModule,
   ],
 })
-export class OdontogramComponent {
+export class OdontogramComponent implements OnChanges {
+  treatmentTypeEnum = TreatmentTypeEnum;
   baseOdontogram: OdontogramInterface = {
     upperTeethLeft: [
       {
@@ -215,10 +226,162 @@ export class OdontogramComponent {
 
   treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
 
+  bridgeConnections: BridgeConnection[] = [];
+
   constructor() {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["odontogram"]) {
+      this.detectBridges();
+    }
+  }
+
+  private detectBridges() {
+    this.bridgeConnections = [];
+    const allTeeth = [
+      ...(this.odontogram.upperTeethLeft || []),
+      ...(this.odontogram.upperTeethRight || []),
+      ...(this.odontogram.lowerTeethLeft || []),
+      ...(this.odontogram.lowerTeethRight || []),
+      ...(this.odontogram.temporaryUpperLeft || []),
+      ...(this.odontogram.temporaryUpperRight || []),
+      ...(this.odontogram.temporaryLowerLeft || []),
+      ...(this.odontogram.temporaryLowerRight || []),
+    ];
+
+    allTeeth.forEach((tooth) => {
+      if (tooth.treatments) {
+        tooth.treatments.forEach((treatment: TreatmentInterface) => {
+          if (
+            treatment.name === TreatmentEnum.PUENTE &&
+            treatment.bridgeStart &&
+            treatment.bridgeEnd
+          ) {
+            this.bridgeConnections.push({
+              startTooth: treatment.bridgeStart,
+              endTooth: treatment.bridgeEnd,
+              treatment,
+            });
+          }
+        });
+      }
+    });
+  }
+
+  isUpperTooth(toothNumber: number): boolean {
+    const upperTeeth = [
+      ...(this.odontogram.upperTeethLeft || []),
+      ...(this.odontogram.upperTeethRight || []),
+      ...(this.odontogram.temporaryUpperLeft || []),
+      ...(this.odontogram.temporaryUpperRight || []),
+    ];
+    return upperTeeth.some((t) => t.number === toothNumber);
+  }
+
+  getToothPosition(toothNumber: number): { x: number; y: number } {
+    // Constants for tooth positioning
+    const TOOTH_WIDTH = 72; // Width of each tooth component
+    const TOOTH_HEIGHT = 72; // Height of each tooth component
+    const SECTION_GAP = 16; // Gap between sections
+    const UPPER_LOWER_GAP = 16; // Gap between upper and lower sections
+
+    let section:
+      | "upperLeft"
+      | "upperRight"
+      | "lowerLeft"
+      | "lowerRight"
+      | "tempUpperLeft"
+      | "tempUpperRight"
+      | "tempLowerLeft"
+      | "tempLowerRight";
+    let index = -1;
+
+    if (
+      this.odontogram.upperTeethLeft?.find((t, i) => {
+        index = i;
+        return t.number === toothNumber;
+      })
+    ) {
+      section = "upperLeft";
+    } else if (
+      this.odontogram.upperTeethRight?.find((t, i) => {
+        index = i;
+        return t.number === toothNumber;
+      })
+    ) {
+      section = "upperRight";
+    } else if (
+      this.odontogram.lowerTeethLeft?.find((t, i) => {
+        index = i;
+        return t.number === toothNumber;
+      })
+    ) {
+      section = "lowerLeft";
+    } else if (
+      this.odontogram.lowerTeethRight?.find((t, i) => {
+        index = i;
+        return t.number === toothNumber;
+      })
+    ) {
+      section = "lowerRight";
+    } else if (
+      this.odontogram.temporaryUpperLeft?.find((t, i) => {
+        index = i;
+        return t.number === toothNumber;
+      })
+    ) {
+      section = "tempUpperLeft";
+    } else if (
+      this.odontogram.temporaryUpperRight?.find((t, i) => {
+        index = i;
+        return t.number === toothNumber;
+      })
+    ) {
+      section = "tempUpperRight";
+    } else if (
+      this.odontogram.temporaryLowerLeft?.find((t, i) => {
+        index = i;
+        return t.number === toothNumber;
+      })
+    ) {
+      section = "tempLowerLeft";
+    } else if (
+      this.odontogram.temporaryLowerRight?.find((t, i) => {
+        index = i;
+        return t.number === toothNumber;
+      })
+    ) {
+      section = "tempLowerRight";
+    } else {
+      return { x: 0, y: 0 };
+    }
+
+    let x = 0;
+    let y = 0;
+
+    if (section.includes("Left")) {
+      x = index * TOOTH_WIDTH;
+    } else if (section.includes("Right")) {
+      x = (index + 8) * TOOTH_WIDTH + SECTION_GAP;
+    }
+
+    if (section.includes("upper")) {
+      y = 0;
+    } else if (section.includes("lower")) {
+      y = TOOTH_HEIGHT + UPPER_LOWER_GAP;
+    }
+
+    if (section.includes("temp")) {
+      y += (TOOTH_HEIGHT + UPPER_LOWER_GAP) * 2;
+    }
+
+    x += TOOTH_WIDTH / 2;
+    y += TOOTH_HEIGHT / 2;
+
+    return { x, y };
+  }
+
   onTreatmentsChange(toothNumber: number, treatments: TreatmentInterface[]) {
-    console.log("treatments", treatments);
     const sections = [
       this.odontogram.upperTeethLeft,
       this.odontogram.upperTeethRight,
@@ -230,13 +393,30 @@ export class OdontogramComponent {
       this.odontogram.temporaryLowerRight,
     ];
 
+    let found = false;
     for (const section of sections) {
       const tooth = section?.find((t) => t.number === toothNumber);
       if (tooth) {
         tooth.treatments = [...treatments];
-        this.odontogram = { ...this.odontogram };
+        found = true;
         break;
       }
+    }
+
+    if (found) {
+      this.odontogram = {
+        ...this.odontogram,
+        upperTeethLeft: [...(this.odontogram.upperTeethLeft || [])],
+        upperTeethRight: [...(this.odontogram.upperTeethRight || [])],
+        lowerTeethLeft: [...(this.odontogram.lowerTeethLeft || [])],
+        lowerTeethRight: [...(this.odontogram.lowerTeethRight || [])],
+        temporaryUpperLeft: [...(this.odontogram.temporaryUpperLeft || [])],
+        temporaryUpperRight: [...(this.odontogram.temporaryUpperRight || [])],
+        temporaryLowerLeft: [...(this.odontogram.temporaryLowerLeft || [])],
+        temporaryLowerRight: [...(this.odontogram.temporaryLowerRight || [])],
+      };
+      // Actualizar los puentes
+      this.detectBridges();
     }
   }
 }

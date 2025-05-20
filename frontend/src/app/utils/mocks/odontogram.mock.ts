@@ -70,6 +70,15 @@ export const mockOdontogram: OdontogramInterface = {
     },
     {
       number: 11,
+      treatments: [
+        {
+          name: TreatmentEnum.PUENTE,
+          label: "Puente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+          bridgeStart: 11,
+          bridgeEnd: 21,
+        },
+      ],
     },
   ],
   upperTeethRight: [
@@ -156,7 +165,7 @@ export const mockOdontogram: OdontogramInterface = {
           label: "Puente",
           treatmentType: TreatmentTypeEnum.EXISTING,
           bridgeStart: 36,
-          bridgeEnd: 34,
+          bridgeEnd: 33,
         },
       ],
     },

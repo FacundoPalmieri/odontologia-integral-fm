@@ -13,7 +13,118 @@
     </button>
     }
   </div>
-  <div class="flex flex-col">
+  <div class="flex flex-col relative">
+    <svg
+      class="absolute inset-0 w-full h-full pointer-events-none"
+      style="z-index: 10"
+    >
+      <!-- Puentes superiores -->
+      @for(bridge of bridgeConnections; track bridge.startTooth){
+      @if(isUpperTooth(bridge.startTooth) && isUpperTooth(bridge.endTooth)){
+      <!-- Línea horizontal principal -->
+      <line
+        [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
+        [attr.y1]="getToothPosition(bridge.startTooth).y + 35"
+        [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
+        [attr.y2]="getToothPosition(bridge.endTooth).y + 35"
+        [attr.stroke]="
+          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+            ? '#2b7fff'
+            : '#fb2c36'
+        "
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.8"
+      />
+      <!-- Línea vertical para el diente inicial -->
+      <line
+        [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
+        [attr.y1]="getToothPosition(bridge.startTooth).y + 35"
+        [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
+        [attr.y2]="getToothPosition(bridge.startTooth).y + 50"
+        [attr.stroke]="
+          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+            ? '#2b7fff'
+            : '#fb2c36'
+        "
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.8"
+      />
+      <!-- Línea vertical para el diente final -->
+      <line
+        [attr.x1]="getToothPosition(bridge.endTooth).x + 3"
+        [attr.y1]="getToothPosition(bridge.endTooth).y + 35"
+        [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
+        [attr.y2]="getToothPosition(bridge.endTooth).y + 50"
+        [attr.stroke]="
+          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+            ? '#2b7fff'
+            : '#fb2c36'
+        "
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.8"
+      />
+      } }
+
+      <!-- Puentes inferiores -->
+      @for(bridge of bridgeConnections; track bridge.startTooth){
+      @if(!isUpperTooth(bridge.startTooth) && !isUpperTooth(bridge.endTooth)){
+      <!-- Línea horizontal principal -->
+      <line
+        [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
+        [attr.y1]="getToothPosition(bridge.startTooth).y + 85"
+        [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
+        [attr.y2]="getToothPosition(bridge.endTooth).y + 85"
+        [attr.stroke]="
+          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+            ? '#2b7fff'
+            : '#fb2c36'
+        "
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.8"
+      />
+      <!-- Línea vertical para el diente inicial -->
+      <line
+        [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
+        [attr.y1]="getToothPosition(bridge.startTooth).y + 100"
+        [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
+        [attr.y2]="getToothPosition(bridge.startTooth).y + 85"
+        [attr.stroke]="
+          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+            ? '#2b7fff'
+            : '#fb2c36'
+        "
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.8"
+      />
+      <!-- Línea vertical para el diente final -->
+      <line
+        [attr.x1]="getToothPosition(bridge.endTooth).x + 3"
+        [attr.y1]="getToothPosition(bridge.endTooth).y + 100"
+        [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
+        [attr.y2]="getToothPosition(bridge.endTooth).y + 85"
+        [attr.stroke]="
+          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+            ? '#2b7fff'
+            : '#fb2c36'
+        "
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.8"
+      />
+      } }
+    </svg>
+
     <span class="text-xl font-bold text-center mb-4"> {{ title }}</span>
     <div class="flex justify-center">
       <div class="flex mb-2 mr-2">
