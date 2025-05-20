@@ -415,7 +415,6 @@ export class OdontogramComponent implements OnChanges {
         temporaryLowerLeft: [...(this.odontogram.temporaryLowerLeft || [])],
         temporaryLowerRight: [...(this.odontogram.temporaryLowerRight || [])],
       };
-      // Actualizar los puentes
       this.detectBridges();
     }
   }

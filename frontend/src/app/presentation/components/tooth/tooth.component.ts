@@ -50,7 +50,6 @@ export class ToothComponent implements OnChanges {
   TreatmentEnum = TreatmentEnum;
   private treatmentsList = TreatmentFactory.createTreatments();
 
-  // Mapeo de caras del diente a sus posiciones
   private faceToPositionMap = {
     [ToothFaceEnum.INCISAL]: ToothFaceTypeEnum.CENTER,
     [ToothFaceEnum.LINGUAL]: ToothFaceTypeEnum.TOP,
@@ -59,10 +58,8 @@ export class ToothComponent implements OnChanges {
     [ToothFaceEnum.VESTIBULAR]: ToothFaceTypeEnum.BOTTOM,
   };
 
-  // Tratamientos por cara (para caries y composite)
   cariesFaces: { [key in ToothFaceTypeEnum]?: TreatmentInterface } = {};
 
-  // Tratamientos generales
   generalTreatments: TreatmentInterface[] = [];
 
   constructor() {
@@ -76,7 +73,6 @@ export class ToothComponent implements OnChanges {
   }
 
   private _processTreatments() {
-    // Resetear todos los tratamientos
     this.cariesFaces = {};
     this.generalTreatments = [];
 
@@ -86,7 +82,6 @@ export class ToothComponent implements OnChanges {
           treatment.name === TreatmentEnum.CARIES ||
           treatment.name === TreatmentEnum.OBT_COMPOSITE
         ) {
-          // Procesar caras con caries u obturación
           treatment.faces?.forEach((face) => {
             const position = this.faceToPositionMap[face as ToothFaceEnum];
             if (position) {
