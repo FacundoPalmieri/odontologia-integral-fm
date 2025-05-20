@@ -11,7 +11,7 @@
   @for(treatment of generalTreatments; track treatment.name) {
   @if(treatment.name === TreatmentEnum.TRAT_DE_CONDUCTO){
   <div
-    class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 flex items-center justify-center scale-125"
+    class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 flex items-center justify-center scale-125 z-30"
   >
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
@@ -19,7 +19,9 @@
       [ngClass]="
         calculateMargin($index, getTreatmentIcons(treatment).length) +
         ' ' +
-        getColor(treatment!.treatmentType)
+        getColor(treatment!.treatmentType) +
+        ' ' +
+        'z-30'
       "
     ></i-tabler>
     }

@@ -44,7 +44,6 @@ interface BridgeConnection {
   ],
 })
 export class OdontogramComponent implements OnChanges {
-  treatmentTypeEnum = TreatmentTypeEnum;
   baseOdontogram: OdontogramInterface = {
     upperTeethLeft: [
       {
@@ -223,6 +222,7 @@ export class OdontogramComponent implements OnChanges {
   @Input() odontogram: OdontogramInterface = this.baseOdontogram;
   @Input() showTemporaries?: boolean = false;
   @Input() showToolbox: boolean = false;
+  treatmentTypeEnum = TreatmentTypeEnum;
 
   treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
 

@@ -8,7 +8,7 @@ export class TreatmentFactory {
         name: TreatmentEnum.CARIES,
         label: "Caries",
         availableTypes: [TreatmentTypeEnum.REQUIRED],
-        icons: ["rectangle-filled"],
+        icons: ["circle-filled"],
       },
       {
         name: TreatmentEnum.TRAT_DE_CONDUCTO,
@@ -23,7 +23,7 @@ export class TreatmentFactory {
         name: TreatmentEnum.OBT_COMPOSITE,
         label: "Obt. Composite",
         availableTypes: [TreatmentTypeEnum.EXISTING],
-        icons: ["rectangle-filled"],
+        icons: ["circle-filled"],
       },
       {
         name: TreatmentEnum.DIENTE_AUSENTE,
