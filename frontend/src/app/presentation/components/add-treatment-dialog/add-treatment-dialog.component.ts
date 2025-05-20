@@ -6,7 +6,12 @@ import {
   MatDialogRef,
 } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatRadioModule } from "@angular/material/radio";
@@ -25,6 +30,9 @@ import {
   TreatmentEnum,
   TreatmentTypeEnum,
 } from "../../../utils/enums/treatment.enum";
+import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
+import { SnackbarService } from "../../../services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 
 interface AddTreatmentDialogData {
   toothNumber: number;
@@ -47,10 +55,12 @@ interface AddTreatmentDialogData {
     IconsModule,
     MatTableModule,
     MatTooltipModule,
+    MatSnackBarModule,
   ],
 })
 export class AddTreatmentDialogComponent implements OnInit {
   dialogRef = inject(MatDialogRef<AddTreatmentDialogComponent>);
+  snackbarService = inject(SnackbarService);
   treatmentForm: FormGroup = new FormGroup({});
   data: AddTreatmentDialogData = inject(MAT_DIALOG_DATA);
 
@@ -69,7 +79,7 @@ export class AddTreatmentDialogComponent implements OnInit {
 
   toothFaces: ToothFaceInterface[] = ToothFaceFactory.createToothFaces();
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar) {
     this._loadForm();
     if (this.data.treatments?.length > 0) {
       this.treatmentsList = [...this.data.treatments];
@@ -137,6 +147,67 @@ export class AddTreatmentDialogComponent implements OnInit {
     });
   }
 
+  private isUpperTooth(toothNumber: number): boolean {
+    // Dientes superiores: 11-18, 21-28, 51-55, 61-65
+    return (
+      (toothNumber >= 11 && toothNumber <= 18) ||
+      (toothNumber >= 21 && toothNumber <= 28) ||
+      (toothNumber >= 51 && toothNumber <= 55) ||
+      (toothNumber >= 61 && toothNumber <= 65)
+    );
+  }
+
+  private validateBridgeTeeth(startTooth: number, endTooth: number): boolean {
+    const startIsUpper = this.isUpperTooth(startTooth);
+    const endIsUpper = this.isUpperTooth(endTooth);
+
+    if (endTooth < 11 || endTooth > 85) {
+      this.snackbarService.openSnackbar(
+        "El número de diente debe estar entre 11 y 85",
+        6000,
+        "center",
+        "top",
+        SnackbarTypeEnum.Info
+      );
+      return false;
+    }
+
+    if (startIsUpper !== endIsUpper) {
+      this.snackbarService.openSnackbar(
+        "Los puentes solo pueden conectarse entre dientes de la misma línea (superior o inferior)",
+        6000,
+        "center",
+        "top",
+        SnackbarTypeEnum.Info
+      );
+      return false;
+    }
+
+    if (endTooth <= 0) {
+      this.snackbarService.openSnackbar(
+        "Debe seleccionar un diente válido",
+        6000,
+        "center",
+        "top",
+        SnackbarTypeEnum.Info
+      );
+      return false;
+    }
+
+    if (startTooth === endTooth) {
+      this.snackbarService.openSnackbar(
+        "El puente debe conectarse a un diente diferente",
+        6000,
+        "center",
+        "top",
+        SnackbarTypeEnum.Info
+      );
+      return false;
+    }
+
+    return true;
+  }
+
   addTreatment() {
     const formValue = this.treatmentForm.value;
     const treatment: TreatmentInterface = {
@@ -146,6 +217,11 @@ export class AddTreatmentDialogComponent implements OnInit {
     };
 
     if (formValue.treatment === TreatmentEnum.PUENTE) {
+      if (
+        !this.validateBridgeTeeth(formValue.bridgeStart, formValue.bridgeEnd)
+      ) {
+        return;
+      }
       treatment.bridgeStart = formValue.bridgeStart;
       treatment.bridgeEnd = formValue.bridgeEnd;
     } else if (
