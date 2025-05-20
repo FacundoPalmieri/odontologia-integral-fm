@@ -13,6 +13,47 @@
 
   @for(treatment of treatments; track $index){
   <div class="flex items-center justify-start mb-4 space-x-2 ml-2">
+    @if(treatment.name === 'PUENTE'){
+    <div
+      class="flex items-center justify-center w-12 h-12 -mx-2 -my-3 relative"
+    >
+      <svg class="w-full h-full" viewBox="0 0 100 100">
+        <line
+          x1="10"
+          y1="50"
+          x2="50"
+          y2="50"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          opacity="0.8"
+        />
+        <line
+          x1="10"
+          y1="65"
+          x2="10"
+          y2="50"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          opacity="0.8"
+        />
+        <line
+          x1="50"
+          y1="65"
+          x2="50"
+          y2="50"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          opacity="0.8"
+        />
+      </svg>
+    </div>
+    } @else {
     <div class="flex">
       @for(icon of treatment.icons; track $index){
       <i-tabler
@@ -21,11 +62,18 @@
       ></i-tabler>
       }
     </div>
+    }
     <span class="text-sm">{{ treatment.label }}</span>
   </div>
   }
   <div class="flex flex-col items-center justify-start space-y-2 ml-2">
-    <span class="text-sm text-red-500">Rojo: Prestación existente</span>
-    <span class="text-sm text-blue-500">Azul: Prestación requerida</span>
+    <div class="flex items-center space-x-2">
+      <div class="w-4 h-4 rounded-full bg-red-500"></div>
+      <span class="text-sm">Prestación existente</span>
+    </div>
+    <div class="flex items-center space-x-2">
+      <div class="w-4 h-4 rounded-full bg-blue-500"></div>
+      <span class="text-sm">Prestación requerida</span>
+    </div>
   </div>
 </div>

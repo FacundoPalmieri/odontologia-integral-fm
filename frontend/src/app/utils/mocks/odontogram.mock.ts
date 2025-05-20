@@ -87,7 +87,7 @@ export const mockOdontogram: OdontogramInterface = {
       treatments: [
         {
           name: TreatmentEnum.IMPLANTES,
-          label: "Implanete",
+          label: "Implante",
           treatmentType: TreatmentTypeEnum.EXISTING,
         },
       ],

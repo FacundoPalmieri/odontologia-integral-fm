@@ -52,11 +52,11 @@ export class ToothComponent implements OnChanges {
 
   // Mapeo de caras del diente a sus posiciones
   private faceToPositionMap = {
-    [ToothFaceEnum.INCISAL]: ToothFaceTypeEnum.TOP,
-    [ToothFaceEnum.LINGUAL]: ToothFaceTypeEnum.BOTTOM,
-    [ToothFaceEnum.MESIAL]: ToothFaceTypeEnum.LEFT,
-    [ToothFaceEnum.DISTAL]: ToothFaceTypeEnum.RIGHT,
-    [ToothFaceEnum.VESTIBULAR]: ToothFaceTypeEnum.CENTER,
+    [ToothFaceEnum.INCISAL]: ToothFaceTypeEnum.CENTER,
+    [ToothFaceEnum.LINGUAL]: ToothFaceTypeEnum.TOP,
+    [ToothFaceEnum.MESIAL]: ToothFaceTypeEnum.RIGHT,
+    [ToothFaceEnum.DISTAL]: ToothFaceTypeEnum.LEFT,
+    [ToothFaceEnum.VESTIBULAR]: ToothFaceTypeEnum.BOTTOM,
   };
 
   // Tratamientos por cara (para caries y composite)
