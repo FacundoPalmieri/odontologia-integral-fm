@@ -6,7 +6,7 @@ import { PatientInterface } from "../../../domain/interfaces/patient.interface";
 import { MatStepperModule } from "@angular/material/stepper";
 import { MatButtonModule } from "@angular/material/button";
 import { OdontogramComponent } from "../odontogram/odontogram.component";
-import { mockOdontogram } from "../../../utils/mocks/odontogram.mock";
+import { mockOdontogram1 } from "../../../utils/mocks/odontogram.mock";
 import { MatIconModule } from "@angular/material/icon";
 
 @Component({
@@ -25,7 +25,7 @@ import { MatIconModule } from "@angular/material/icon";
 })
 export class PatientFileComponent {
   data: PatientInterface;
-  odontogram = mockOdontogram;
+  odontogram = mockOdontogram1;
 
   constructor() {
     this.data = inject(MAT_DIALOG_DATA);

@@ -20,11 +20,23 @@ import {
   TreatmentEnum,
   TreatmentTypeEnum,
 } from "../../../utils/enums/treatment.enum";
+import { MatSelectModule } from "@angular/material/select";
+import { FormsModule } from "@angular/forms";
+import {
+  mockOdontogram1,
+  mockOdontogram2,
+  mockOdontogram3,
+} from "../../../utils/mocks/odontogram.mock";
 
-interface BridgeConnection {
+interface BridgeConnectionInterface {
   startTooth: number;
   endTooth: number;
   treatment: TreatmentInterface;
+}
+
+interface OdontogramDateInterface {
+  date: Date;
+  odontogram: OdontogramInterface;
 }
 
 @Component({
@@ -41,192 +53,84 @@ interface BridgeConnection {
     MatButtonModule,
     MatTooltipModule,
     MatSidenavModule,
+    MatSelectModule,
+    FormsModule,
   ],
 })
 export class OdontogramComponent implements OnChanges {
+  mockOdontogram1 = mockOdontogram1;
+  mockOdontogram2 = mockOdontogram2;
+  mockOdontogram3 = mockOdontogram3;
   baseOdontogram: OdontogramInterface = {
     upperTeethLeft: [
-      {
-        number: 18,
-      },
-      {
-        number: 17,
-      },
-      {
-        number: 16,
-      },
-      {
-        number: 15,
-      },
-      {
-        number: 14,
-      },
-      {
-        number: 13,
-      },
-      {
-        number: 12,
-      },
-      {
-        number: 11,
-      },
+      { number: 18 },
+      { number: 17 },
+      { number: 16 },
+      { number: 15 },
+      { number: 14 },
+      { number: 13 },
+      { number: 12 },
+      { number: 11 },
     ],
     upperTeethRight: [
-      {
-        number: 21,
-      },
-      {
-        number: 22,
-      },
-      {
-        number: 23,
-      },
-      {
-        number: 24,
-      },
-      {
-        number: 25,
-      },
-      {
-        number: 26,
-      },
-      {
-        number: 27,
-      },
-      {
-        number: 28,
-      },
+      { number: 21 },
+      { number: 22 },
+      { number: 23 },
+      { number: 24 },
+      { number: 25 },
+      { number: 26 },
+      { number: 27 },
+      { number: 28 },
     ],
     lowerTeethLeft: [
-      {
-        number: 48,
-      },
-      {
-        number: 47,
-      },
-      {
-        number: 46,
-      },
-      {
-        number: 45,
-      },
-      {
-        number: 44,
-      },
-      {
-        number: 43,
-      },
-      {
-        number: 42,
-      },
-      {
-        number: 41,
-      },
+      { number: 48 },
+      { number: 47 },
+      { number: 46 },
+      { number: 45 },
+      { number: 44 },
+      { number: 43 },
+      { number: 42 },
+      { number: 41 },
     ],
     lowerTeethRight: [
-      {
-        number: 31,
-      },
-      {
-        number: 32,
-      },
-      {
-        number: 33,
-      },
-      {
-        number: 34,
-      },
-      {
-        number: 35,
-      },
-      {
-        number: 36,
-      },
-      {
-        number: 37,
-      },
-      {
-        number: 38,
-      },
-    ],
-    temporaryUpperLeft: [
-      {
-        number: 55,
-      },
-      {
-        number: 54,
-      },
-      {
-        number: 53,
-      },
-      {
-        number: 52,
-      },
-      {
-        number: 51,
-      },
-    ],
-    temporaryUpperRight: [
-      {
-        number: 61,
-      },
-      {
-        number: 62,
-      },
-      {
-        number: 63,
-      },
-      {
-        number: 64,
-      },
-      {
-        number: 65,
-      },
-    ],
-    temporaryLowerLeft: [
-      {
-        number: 85,
-      },
-      {
-        number: 84,
-      },
-      {
-        number: 83,
-      },
-      {
-        number: 82,
-      },
-      {
-        number: 81,
-      },
-    ],
-    temporaryLowerRight: [
-      {
-        number: 71,
-      },
-      {
-        number: 72,
-      },
-      {
-        number: 73,
-      },
-      {
-        number: 74,
-      },
-      {
-        number: 75,
-      },
+      { number: 31 },
+      { number: 32 },
+      { number: 33 },
+      { number: 34 },
+      { number: 35 },
+      { number: 36 },
+      { number: 37 },
+      { number: 38 },
     ],
   };
+
+  odontogramDates: OdontogramDateInterface[] = [
+    {
+      date: new Date(2025, 2, 15),
+      odontogram: this.mockOdontogram1,
+    },
+    {
+      date: new Date(2024, 11, 20),
+      odontogram: this.mockOdontogram2,
+    },
+    {
+      date: new Date(2024, 8, 5),
+      odontogram: this.mockOdontogram3,
+    },
+  ];
+
   @Input() title: string = "Odontograma";
   @Input() odontogram: OdontogramInterface = this.baseOdontogram;
   @Input() showTemporaries?: boolean = false;
   @Input() showToolbox: boolean = false;
+  @Input() showDateSelector: boolean = false;
   treatmentTypeEnum = TreatmentTypeEnum;
 
   treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
 
-  bridgeConnections: BridgeConnection[] = [];
+  bridgeConnections: BridgeConnectionInterface[] = [];
+  selectedDate: OdontogramDateInterface = this.odontogramDates[0];
+  selectedOdontogram: OdontogramInterface = this.selectedDate.odontogram;
 
   constructor() {}
 
@@ -417,5 +321,11 @@ export class OdontogramComponent implements OnChanges {
       };
       this.detectBridges();
     }
+  }
+
+  onDateChange(date: OdontogramDateInterface) {
+    this.selectedDate = date;
+    this.odontogram = date.odontogram;
+    this.detectBridges();
   }
 }

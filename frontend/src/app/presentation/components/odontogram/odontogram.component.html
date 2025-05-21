@@ -1,18 +1,38 @@
 <div class="p-8 background-odontogram-container">
-  <div
-    class="inline-flex items-center justify-center background-odontogram-utilities -mt-4"
-  >
-    @if(showToolbox){
-    <button
-      mat-icon-button
-      (click)="treatmentReferencesSidenavService.toggleSidenav()"
-      matTooltip="Referencias"
-      matTooltipPosition="above"
+  <div class="flex items-center justify-between -mt-4">
+    <div
+      class="inline-flex items-center justify-center background-odontogram-utilities"
     >
-      <i-tabler class="mb-1" name="notebook"></i-tabler>
-    </button>
+      @if(showToolbox){
+      <button
+        mat-icon-button
+        (click)="treatmentReferencesSidenavService.toggleSidenav()"
+        matTooltip="Referencias"
+        matTooltipPosition="above"
+      >
+        <i-tabler class="mb-1" name="notebook"></i-tabler>
+      </button>
+      }
+    </div>
+    @if(showDateSelector){
+    <div class="background-odontogram-utilities">
+      <mat-form-field appearance="outline" class="p-2 !-mb-5">
+        <mat-label>Seleccionar fecha</mat-label>
+        <mat-select
+          [(ngModel)]="selectedDate"
+          (selectionChange)="onDateChange($event.value)"
+        >
+          @for(date of odontogramDates; track date.date){
+          <mat-option [value]="date">
+            {{ date.date | date : "dd/MM/yyyy" }}
+          </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
     }
   </div>
+
   <div class="flex flex-col relative">
     <svg
       class="absolute inset-0 w-full h-full pointer-events-none"

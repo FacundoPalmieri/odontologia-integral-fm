@@ -6,13 +6,14 @@ import { AuthGuard } from "../utils/guards/auth.guard";
 import { LoginGuard } from "../utils/guards/login.guard";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 import { ConfigurationComponent } from "./pages/configuration/configuration.component";
-import { PatientsComponent } from "./pages/patients/patients.component";
 import { AppointmentsComponent } from "./pages/appointments/appointments.component";
 import { FinanceComponent } from "./pages/finance/finance.component";
 import { SystemComponent } from "./pages/system/system.component";
 import { InventoryComponent } from "./pages/inventory/inventory.component";
 import { ConsultationRegisterComponent } from "./pages/consultation-register/consultation-register.component";
 import { ReportsComponent } from "./pages/reports/reports.component";
+import { PatientsListComponent } from "./pages/patients/patients-list/patients-list.component";
+import { PatientComponent } from "./pages/patients/patient/patients.component";
 
 export const routes: Routes = [
   {
@@ -34,7 +35,11 @@ export const routes: Routes = [
       },
       {
         path: "patients",
-        component: PatientsComponent,
+        component: PatientsListComponent,
+      },
+      {
+        path: "patients/:id",
+        component: PatientComponent,
       },
       {
         path: "inventory",

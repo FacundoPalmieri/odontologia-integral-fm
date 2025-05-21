@@ -22,6 +22,7 @@ export class PatientService {
 
   private _mockPatients: PatientInterface[] = [
     {
+      id: 1,
       firstName: "María",
       lastName: "Pérez",
       dniType: {
@@ -67,6 +68,7 @@ export class PatientService {
       phone: "1123456789",
     },
     {
+      id: 2,
       firstName: "Carlos",
       lastName: "Rodríguez",
       dniType: { id: 1, dni: "DNI" },
@@ -94,6 +96,7 @@ export class PatientService {
       phone: "1156789123",
     },
     {
+      id: 3,
       firstName: "Laura",
       lastName: "Martínez",
       dniType: { id: 1, dni: "DNI" },
@@ -121,6 +124,7 @@ export class PatientService {
       phone: "2611357924",
     },
     {
+      id: 4,
       firstName: "Ana",
       lastName: "Gómez",
       dniType: { id: 1, dni: "DNI" },
@@ -148,6 +152,7 @@ export class PatientService {
       phone: "1511223344",
     },
     {
+      id: 5,
       firstName: "Martín",
       lastName: "Pérez",
       dniType: { id: 2, dni: "LC" },
@@ -175,6 +180,7 @@ export class PatientService {
       phone: "47778899",
     },
     {
+      id: 6,
       firstName: "Laura",
       lastName: "Fernández",
       dniType: { id: 1, dni: "DNI" },
@@ -202,6 +208,7 @@ export class PatientService {
       phone: "1599887766",
     },
     {
+      id: 7,
       firstName: "Javier",
       lastName: "López",
       dniType: { id: 1, dni: "DNI" },
@@ -229,6 +236,7 @@ export class PatientService {
       phone: "43332211",
     },
     {
+      id: 8,
       firstName: "Sofía",
       lastName: "Martínez",
       dniType: { id: 1, dni: "DNI" },

@@ -8,10 +8,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar.component";
-import { PatientInterface } from "../../../domain/interfaces/patient.interface";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatCardModule } from "@angular/material/card";
@@ -19,18 +16,21 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { PatientService } from "../../../services/patient.service";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { Subject, takeUntil } from "rxjs";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { CreatePatientDialogComponent } from "../../components/create-patient-dialog/create-patient-dialog.component";
-import { EditPatientDialogComponent } from "../../components/edit-patient-dialog/edit-patient-dialog.component";
-import { PatientFileComponent } from "../../components/patient-file/patient-file.component";
+import { IconsModule } from "../../../../utils/tabler-icons.module";
+import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
+import { PatientService } from "../../../../services/patient.service";
+import { PatientInterface } from "../../../../domain/interfaces/patient.interface";
+import { CreatePatientDialogComponent } from "../../../components/create-patient-dialog/create-patient-dialog.component";
+import { Router, RouterModule } from "@angular/router";
+import { OdontogramComponent } from "../../../components/odontogram/odontogram.component";
 
 @Component({
-  selector: "app-patients",
-  templateUrl: "./patients.component.html",
+  selector: "app-patients-list",
+  templateUrl: "./patients-list.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -47,12 +47,14 @@ import { PatientFileComponent } from "../../components/patient-file/patient-file
     MatPaginatorModule,
     MatTooltipModule,
     MatDialogModule,
+    RouterModule,
   ],
 })
-export class PatientsComponent implements OnDestroy, AfterViewInit {
+export class PatientsListComponent implements OnDestroy, AfterViewInit {
   private readonly _destroy$ = new Subject<void>();
   patientService = inject(PatientService);
   dialog = inject(MatDialog);
+  router = inject(Router);
   patients = signal<PatientInterface[]>([]);
 
   patientsFilter = new FormControl("");
@@ -100,15 +102,13 @@ export class PatientsComponent implements OnDestroy, AfterViewInit {
     const dialogRef = this.dialog.open(CreatePatientDialogComponent);
   }
 
-  edit(patient: PatientInterface) {
-    const dialogRef = this.dialog.open(EditPatientDialogComponent, {
-      data: patient,
-    });
+  openOdontogram() {
+    const dialogRef = this.dialog.open(OdontogramComponent);
   }
 
-  viewFile(patient: PatientInterface) {
-    const dialogRef = this.dialog.open(PatientFileComponent, {
-      data: patient,
+  viewFile(patient: PatientInterface): void {
+    this.router.navigate(["/patients", patient.id], {
+      state: { patient },
     });
   }
 

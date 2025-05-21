@@ -4,6 +4,7 @@ import {
 } from "../../utils/enums/dissease.enum";
 
 export interface PatientInterface {
+  id: number;
   firstName: string;
   lastName: string;
   dniType: DniTypeInterface;

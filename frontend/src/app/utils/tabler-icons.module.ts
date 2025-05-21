@@ -74,6 +74,9 @@ import {
   IconCornerUpLeft,
   IconCornerUpRight,
   IconX,
+  IconArrowLeft,
+  IconUpload,
+  IconEye,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -102,9 +105,9 @@ const ICONS = {
   IconPlus,
   IconArrowNarrowLeft,
   IconUserSquareRounded,
-  IconSquare,
   IconRectangleRoundedBottom,
   IconRectangleRoundedTop,
+  IconSquare,
   IconExclamationCircle,
   IconEqual,
   IconBuildingBridge2,
@@ -149,6 +152,9 @@ const ICONS = {
   IconCornerUpLeft,
   IconCornerUpRight,
   IconX,
+  IconArrowLeft,
+  IconUpload,
+  IconEye,
 } as const;
 
 @NgModule({

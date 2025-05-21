@@ -13,10 +13,10 @@ import { OdontogramComponent } from "../../components/odontogram/odontogram.comp
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatDialog } from "@angular/material/dialog";
-import { mockOdontogram } from "../../../utils/mocks/odontogram.mock";
 import { PatientSearchComponent } from "../../components/patient-search/patient-search.component";
 import { PaymentRegisterComponent } from "../../components/payment-register/payment-register.component";
 import { MatInputModule } from "@angular/material/input";
+import { mockOdontogram1 } from "../../../utils/mocks/odontogram.mock";
 
 @Component({
   selector: "app-consultation-register",
@@ -55,7 +55,7 @@ export class ConsultationRegisterComponent implements OnInit {
 
   todayDate: Date = new Date();
   observations: string = "";
-  odontogram = mockOdontogram;
+  odontogram = mockOdontogram1;
 
   ngOnInit() {
     this.patientForm.get("observations")?.valueChanges.subscribe((value) => {

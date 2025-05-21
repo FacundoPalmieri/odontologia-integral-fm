@@ -53,19 +53,19 @@
           <td mat-cell *matCellDef="let element">
             <button
               mat-icon-button
-              matTooltip="Editar"
+              matTooltip="Ver perfil"
               matTooltipPosition="left"
-              (click)="edit(element)"
-            >
-              <i-tabler name="edit"></i-tabler>
-            </button>
-            <button
-              mat-icon-button
-              matTooltip="Historia Clínica"
-              matTooltipPosition="right"
               (click)="viewFile(element)"
             >
               <i-tabler name="report-search"></i-tabler>
+            </button>
+            <button
+              mat-icon-button
+              matTooltip="Ver odontograma"
+              matTooltipPosition="right"
+              (click)="openOdontogram()"
+            >
+              <i-tabler name="dental"></i-tabler>
             </button>
           </td>
         </ng-container>
