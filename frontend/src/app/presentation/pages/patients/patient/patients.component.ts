@@ -110,11 +110,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   openOdontogram(element: OdontogramInterface) {
-    this.dialog.open(OdontogramComponent, {
-      data: {
-        odontogram: element.odontogram,
-      },
-    });
+    this.dialog.open(OdontogramComponent);
   }
 
   ngOnInit() {
