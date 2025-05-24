@@ -1,4 +1,12 @@
-import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ElementRef,
+  ViewChild,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { Subject, takeUntil } from "rxjs";
@@ -35,6 +43,8 @@ import { MatTableModule } from "@angular/material/table";
 import { mockOdontogram1 } from "../../../../utils/mocks/odontogram.mock";
 import { MatDialog } from "@angular/material/dialog";
 import { OdontogramComponent } from "../../../components/odontogram/odontogram.component";
+import { SnackbarService } from "../../../../services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
 
 interface OdontogramInterface {
   id: number;
@@ -66,6 +76,9 @@ interface OdontogramInterface {
   ],
 })
 export class PatientComponent implements OnInit, OnDestroy {
+  snackbarService = inject(SnackbarService);
+  @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
+
   private readonly _destroy$ = new Subject<void>();
   private readonly router = inject(Router);
   private readonly patientService = inject(PatientService);
@@ -97,6 +110,8 @@ export class PatientComponent implements OnInit, OnDestroy {
     { id: 1, name: "Celular" },
     { id: 2, name: "Fijo" },
   ]);
+
+  avatarUrl = signal<string | null>(null);
 
   constructor() {
     const navigation = this.router.getCurrentNavigation();
@@ -164,6 +179,48 @@ export class PatientComponent implements OnInit, OnDestroy {
   ): boolean => {
     return item1 && item2 ? item1.id === item2.id : item1 === item2;
   };
+
+  savePatient() {}
+
+  goBack(): void {
+    this.router.navigate(["/patients"]);
+  }
+
+  toggleAdditionalInfo(): void {
+    this.showAdditionalInfo.update((value) => !value);
+  }
+
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        this.snackbarService.openSnackbar(
+          "El archivo debe ser una imagen",
+          6000,
+          "center",
+          "bottom",
+          SnackbarTypeEnum.Error
+        );
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.avatarUrl.set(e.target?.result as string);
+        this.patientForm.markAsDirty();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeAvatar(): void {
+    this.avatarUrl.set(null);
+    this.patientForm.markAsDirty();
+  }
 
   private _loadForm() {
     this.patientForm = new FormGroup({
@@ -301,13 +358,5 @@ export class PatientComponent implements OnInit, OnDestroy {
       .subscribe((response: ApiResponseInterface<HealthPlanInterface[]>) => {
         this.healthPlans.set(response.data);
       });
-  }
-
-  goBack(): void {
-    this.router.navigate(["/patients"]);
-  }
-
-  toggleAdditionalInfo(): void {
-    this.showAdditionalInfo.update((value) => !value);
   }
 }
