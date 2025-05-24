@@ -6,7 +6,6 @@
 
 @if(patient()){
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-4">
-  <!-- Datos Personales -->
   <mat-card appearance="outlined" class="lg:col-span-8">
     <mat-card-header>
       <mat-card-title>Datos Personales</mat-card-title>
@@ -148,7 +147,6 @@
             </div>
           </div>
 
-          <!-- Datos de contacto -->
           <div class="mb-6">
             <h3 class="text-lg font-semibold mb-4">Datos de Contacto</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,7 +187,6 @@
           </div>
 
           @if(showAdditionalInfo()) {
-          <!-- Datos de ubicación -->
           <div class="mb-6">
             <h3 class="text-lg font-semibold mb-4">Datos de Ubicación</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -279,7 +276,6 @@
             </div>
           </div>
 
-          <!-- Datos de obra social -->
           <div>
             <h3 class="text-lg font-semibold mb-4">Datos de Obra Social</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -334,9 +330,7 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Columna derecha -->
   <div class="lg:col-span-4 flex flex-col gap-4">
-    <!-- Odontograma -->
     <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title>Odontograma</mat-card-title>
@@ -344,7 +338,6 @@
       <mat-card-content>
         <div class="p-4">
           <table mat-table [dataSource]="odontogramData" class="w-full">
-            <!-- Fecha de creación Column -->
             <ng-container matColumnDef="creationDate">
               <th mat-header-cell *matHeaderCellDef>Fecha de creación</th>
               <td mat-cell *matCellDef="let element">
@@ -352,7 +345,6 @@
               </td>
             </ng-container>
 
-            <!-- Fecha de modificación Column -->
             <ng-container matColumnDef="lastModified">
               <th mat-header-cell *matHeaderCellDef>Última modificación</th>
               <td mat-cell *matCellDef="let element">
@@ -360,14 +352,13 @@
               </td>
             </ng-container>
 
-            <!-- Acciones Column -->
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let element">
                 <button
                   mat-icon-button
                   matTooltip="Ver"
-                  (click)="openOdontogram(element)"
+                  (click)="openOdontogram()"
                 >
                   <i-tabler name="eye"></i-tabler>
                 </button>
@@ -393,7 +384,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Antecedentes Clínicos -->
     <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title>Antecedentes Clínicos</mat-card-title>
@@ -413,7 +403,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Estudios -->
     <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title>Estudios</mat-card-title>

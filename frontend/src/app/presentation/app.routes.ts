@@ -14,6 +14,7 @@ import { ConsultationRegisterComponent } from "./pages/consultation-register/con
 import { ReportsComponent } from "./pages/reports/reports.component";
 import { PatientsListComponent } from "./pages/patients/patients-list/patients-list.component";
 import { PatientComponent } from "./pages/patients/patient/patients.component";
+import { OdontogramEditComponent } from "./pages/patients/odontogram-edit/odontogram-edit.component";
 
 export const routes: Routes = [
   {
@@ -40,6 +41,10 @@ export const routes: Routes = [
       {
         path: "patients/:id",
         component: PatientComponent,
+      },
+      {
+        path: "patients/:id/odontogram/:id",
+        component: OdontogramEditComponent,
       },
       {
         path: "inventory",

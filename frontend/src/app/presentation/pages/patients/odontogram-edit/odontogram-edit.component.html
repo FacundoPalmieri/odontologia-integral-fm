@@ -1,0 +1,33 @@
+<app-page-toolbar
+  [title]="'Odontograma'"
+  [showBackButton]="true"
+  (back)="goBack()"
+></app-page-toolbar>
+
+<mat-card appearance="outlined" class="mt-4">
+  <mat-card-content>
+    <div class="my-2 w-full odontogram-container">
+      <div class="odontogram-wrapper gap-2">
+        <app-odontogram
+          [odontogram]="odontogram"
+          [showToolbox]="true"
+        ></app-odontogram>
+      </div>
+    </div>
+
+    <form [formGroup]="odontogramForm" class="mt-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Observaciones</mat-label>
+        <textarea matInput></textarea>
+      </mat-form-field>
+    </form>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button mat-flat-button class="m-2" (click)="saveOdontogram()">
+      <div class="flex items-center">
+        <span>Guardar</span>
+      </div>
+    </button>
+  </mat-card-actions>
+</mat-card>

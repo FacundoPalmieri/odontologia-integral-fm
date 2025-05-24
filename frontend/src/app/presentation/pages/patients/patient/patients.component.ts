@@ -42,7 +42,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTableModule } from "@angular/material/table";
 import { mockOdontogram1 } from "../../../../utils/mocks/odontogram.mock";
 import { MatDialog } from "@angular/material/dialog";
-import { OdontogramComponent } from "../../../components/odontogram/odontogram.component";
 import { SnackbarService } from "../../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
 
@@ -124,8 +123,10 @@ export class PatientComponent implements OnInit, OnDestroy {
     this._loadData();
   }
 
-  openOdontogram(element: OdontogramInterface) {
-    this.dialog.open(OdontogramComponent);
+  openOdontogram() {
+    this.router.navigate([
+      `patients/${this.patient()!.id}/odontogram/${this.odontogramData[0].id}`,
+    ]);
   }
 
   ngOnInit() {

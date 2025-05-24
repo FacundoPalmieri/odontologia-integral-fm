@@ -102,8 +102,8 @@ export class PatientsListComponent implements OnDestroy, AfterViewInit {
     const dialogRef = this.dialog.open(CreatePatientDialogComponent);
   }
 
-  openOdontogram() {
-    const dialogRef = this.dialog.open(OdontogramComponent);
+  openOdontogram(patient: PatientInterface) {
+    this.router.navigate([`patients/${patient.id}/odontogram/${patient.id}}`]);
   }
 
   viewFile(patient: PatientInterface): void {
