@@ -6,11 +6,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface IDentistRepository extends JpaRepository<Dentist, Long> {
 
     Optional<Dentist> findByLicenseNumberAndEnabledTrue(String licenseNumber);
 
-    List<Dentist> findAllByEnabledTrue();
+    Set<Dentist> findAllByEnabledTrue();
 }

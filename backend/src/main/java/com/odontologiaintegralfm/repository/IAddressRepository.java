@@ -35,7 +35,6 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {
      FROM Patient p
      JOIN FETCH p.address a
      WHERE p.address.id = :addressOld
-     AND a.enabled = true
      AND p.enabled = true
      """)
     Optional<Patient> findByAddressIdOld(@Param("addressOld") Long addressOld);

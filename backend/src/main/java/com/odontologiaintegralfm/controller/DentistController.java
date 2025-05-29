@@ -29,36 +29,6 @@ public class DentistController {
     private IDentistService dentistService;
 
 
-    /**
-     * Crea un nuevo Odontólogo en el sistema.
-     * <p>
-     * Requiere el rol <b>Admistrator</b> para acceder.
-     * </p>
-     *
-     * @param dentistRequestDTO Datos del odontólogo a crear.
-     * @return ResponseEntity con:
-     *         <ul>
-     *         <li><b>201 Created</b>:Odontólogo creado exitosamente.</li>
-     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
-     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
-     *         <li><b>409 Conflict</b>: Odontólogo existente en el sistema.</li>
-     *         </ul>
-     */
-
-    @Operation(summary = "Crear Odontólogo", description = "Crea un nuevo Odontólogo en el sistema.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Odontólogo Creado exitosamente."),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
-            @ApiResponse(responseCode = "409", description = "Odontólogo existente en el sistema.")
-    })
-    @PostMapping
-    @OnlyAdministrator
-    public ResponseEntity<Response<DentistResponseDTO>> create(@Valid @RequestBody DentistCreateRequestDTO dentistRequestDTO){
-        Response<DentistResponseDTO>response = dentistService.create(dentistRequestDTO);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
 
     /**
      * Obtiene la lista de todos los Odontólogos habilitados en el sistema.
@@ -73,7 +43,7 @@ public class DentistController {
      *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
      *         </ul>
      */
-
+/*
     @Operation(summary = "Listar Odontólogos", description = "Listar los Odontólogos habilitdos en el sistema.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista actualizada exitosamente."),
@@ -89,6 +59,8 @@ public class DentistController {
 
 
 
+
+ */
 
 
 

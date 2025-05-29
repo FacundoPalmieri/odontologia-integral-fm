@@ -40,6 +40,4 @@ public class Address {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Locality locality;
 
-    private Boolean enabled;
-
 }

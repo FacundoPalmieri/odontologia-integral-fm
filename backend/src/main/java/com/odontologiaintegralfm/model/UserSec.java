@@ -5,14 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.envers.Audited;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -52,10 +47,14 @@ public class UserSec {
     private LocalDateTime locktime;
 
     /**Fecha y hora de creación del usuario.*/
-    private LocalDateTime creationDateTime;
+    private LocalDateTime createdAt;
+
+    private Long createdBy;
 
     /**Fecha y hora de la última actualización del usuario.*/
-    private LocalDateTime lastUpdateDateTime;
+    private LocalDateTime updatedAt;
+
+    private Long updatedBy;
 
     /**Indica si la cuenta está activada.*/
     @Column(nullable = false, columnDefinition = "boolean default true")

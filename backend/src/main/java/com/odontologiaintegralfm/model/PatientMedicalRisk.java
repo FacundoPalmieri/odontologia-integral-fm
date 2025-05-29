@@ -1,39 +1,47 @@
 package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+
 
 /**
- * Entidad para representar una historia clínica.
+ * Entidad para representar los riesgos médicos de un paciente.
  */
-@Audited
 @Entity
+@Audited
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table (name = "medical_histories")
-public class MedicalHistory {
+@Table(name = "patient_medical_risks")
+public class PatientMedicalRisk {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Patient.class)
-    @JoinColumn(name = "patient_id",nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Patient.class)
+    @JoinColumn(name = "patient_id",nullable = false, updatable = false)
     private Patient patient;
 
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = MedicalRisk.class)
+    @JoinColumn(name = "medical_risk_id",nullable = false, updatable = false)
+    private MedicalRisk medicalRisk;
+
+    @Size(max = 500)
+    private String observation;
+
     @Column(nullable = false)
-    private LocalDate dateTime;
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
+    @JoinColumn(name = "created_by_id",nullable = false, updatable = false)
+    private UserSec createdBy;
 
     private LocalDateTime updatedAt;
 

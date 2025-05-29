@@ -15,9 +15,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,52 +38,30 @@ public class PatientService implements IPatientService {
     private IPatientRepository patientRepository;
 
     @Autowired
-    private IDniTypeService dniTypeService;
-
-    @Autowired
-    private IGenderService genderService;
-
-    @Autowired
-    private INationalityService nationalityService;
-
-    @Autowired
     private IHealthPlanService healthPlanService;
 
     @Autowired
-    private IContactEmailService contactEmailService;
+    IPatientMedicalRiskService patientMedicalRiskService;
 
     @Autowired
-    private IContactPhoneService contactPhoneService;
+    private PersonService personService;
+
+    @Autowired
+    private AuthenticatedUserService authenticatedUserService;
 
     @Autowired
     private IAddressService addressService;
 
-    @Autowired
-    private IMedicalRiskService medicalRiskService;
-
-    @Autowired
-    private IMedicalHistoryService medicalHistoryService;
-
-    @Autowired IMedicalHistoryRiskService medicalHistoryRiskService;
-
-
-    @Autowired
-    private PersonService personService;
-    @Autowired
-    private AuthenticatedUserService authenticatedUserService;
-
 
     /**
-     * Crea un nuevo paciente en el sistema junto con su domicilio, contactos, historia clínica
-     * y devuelve una respuesta con todos los datos relevantes.
+     * Crea un nuevo paciente en el sistema junto a los riesgos médicos.
+     * Devuelve una respuesta con todos los datos relevantes.
      *
      * <p>Este método sigue los siguientes pasos:
      * <ol>
      *     <li>Valida que no exista un paciente con el mismo DNI.</li>
-     *     <li>Crea o habilita un domicilio según corresponda.</li>
-     *     <li>Crea un nuevo objeto {@link Patient} y lo persiste.</li>
-     *     <li>Genera una nueva historia clínica asociada al paciente.</li>
-     *     <li>Registra los contactos del paciente (email y teléfono).</li>
+     *     <li>Crea por medio del PersonService un nuevo objeto {@link Patient} y lo persiste.</li>
+     *     <li>Crea por medio del patientMedicalRiskService los riesgos médicos asociados al paciente .</li>
      *     <li>Construye un DTO con toda la información creada.</li>
      * </ol>
      *
@@ -94,52 +73,30 @@ public class PatientService implements IPatientService {
     @Transactional
     public Response<PatientResponseDTO> create(PatientCreateRequestDTO patientRequestDTO) {
         try{
-
-
-            //Valída que la persona no exista por combinación Tipo DNI + DNI número.
-            personService.validatePerson(patientRequestDTO.personDto().dniTypeId(), patientRequestDTO.personDto().dni());
-
             //Valída que no exista el n.° de afiliado del plan de salud.
             validatePatient(patientRequestDTO.affiliateNumber());
 
+            //Valída y crea una persona.
+            Person person = personService.create(patientRequestDTO.personDto());
 
-            //Crear objeto dirección.
-            Address address = addressService.enableOrCreate(
-                    addressService.buildAddress(patientRequestDTO.addressDto())
-            );
+            //Crea Paciente
+            Patient patient = new Patient();
+            patient.setId(person.getId());
+            patient.setHealthPlan(healthPlanService.getById(patientRequestDTO.healthPlanId()));
+            patient.setAffiliateNumber(patientRequestDTO.affiliateNumber());
+            patient.setCreatedAt(LocalDateTime.now());
+            patient.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+            patient.setEnabled(true);
 
-            // Crear objeto Paciente (Internamente crea la persona)
-            Patient patient = buildPatient(patientRequestDTO, address);
+            //Persiste el paciente.
             patientRepository.save(patient);
 
-            //Crear objeto Historia Clínica.
-            MedicalHistory medicalHistory = medicalHistoryService.create(
-                    medicalHistoryService.buildMedicalHistory(patient)
-            );
 
-            //Crear Objeto Historia Clínica - Riesgos.
-            Set <MedicalHistoryRiskResponseDTO> medicalHistoryRiskResponseDTOS = medicalHistoryRiskService.createMedicalHistoryRisk(patientRequestDTO.medicalRiskDto(), medicalHistory);
-
-            //Crear objeto Contacto Email
-            ContactEmail contactEmail = contactEmailService.create(
-                    contactEmailService.buildContactEmail(
-                            patientRequestDTO.contactDto().email(),
-                            patient
-                    )
-            );
-
-            //Crear objeto Contacto Teléfono.
-            ContactPhone contactPhone = contactPhoneService.create(
-                    contactPhoneService.buildContactPhone(
-                            patientRequestDTO.contactDto().phone(),
-                            patientRequestDTO.contactDto().phoneType(),
-                            patient)
-            );
-
-
+            //Crear Objeto Riegos médicos del paciente y persiste la misma.
+            Set <PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.create(patientRequestDTO.medicalRiskDto(),patient);
 
             //Crear Objeto Respuesta
-            PatientResponseDTO patientResponseDTO = buildResponseDTO(patient,address,contactEmail,contactPhone,medicalHistory,medicalHistoryRiskResponseDTOS);
+            PatientResponseDTO patientResponseDTO = buildResponseDTO(patient, patientMedicalRiskResponseDTOS);
 
             //Crear mensaje para el usuario.
             String messageUser = messageService.getMessage("patientService.save.ok.user",null, LocaleContextHolder.getLocale());
@@ -165,21 +122,26 @@ public class PatientService implements IPatientService {
             //Validar que el paciente exista y recuperarlo desde la Base.
             Patient patient = validateExistentPatient(patientUpdateRequestDTO.personDto().id());
 
+
+            //Guarda valores viejos para realizar limpieza de datos huérfanos.
+            Long addressId = patient.getAddress().getId();
+
+            Set<Long> emailsIds = patient.getContactEmails().stream()
+                    .map(ContactEmail::getId)
+                    .collect(Collectors.toSet());
+
+            Set<Long> phonesIds = patient.getContactPhones().stream()
+                    .map(ContactPhone::getId)
+                    .collect(Collectors.toSet());
+
             //Actualiza datos de la persona.
-            patient = (Patient) personService.update(patient, patientUpdateRequestDTO.personDto());
+            Person person = personService.update(patient, patientUpdateRequestDTO.personDto());
+            patient.setId(person.getId());
 
             //Actualiza datos del paciente
             patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
-            if(!patient.getHealthPlan().getId().equals(patientUpdateRequestDTO.healthPlanId())){
-                patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
-            }
-
-            //Actualiza datos de otras entidades.
-            Address address = addressService.updatePatientAddress(patient, patientUpdateRequestDTO.addressDto());
-            ContactEmail contactEmail = contactEmailService.updateContactEmail(patientUpdateRequestDTO.contactDto().email(), patient);
-            ContactPhone contactPhone = contactPhoneService.updatePatientContactPhone(patientUpdateRequestDTO.contactDto().phone(), patientUpdateRequestDTO.contactDto().phoneType(), patient);
-            Set<MedicalHistoryRiskResponseDTO> medicalHistoryRiskResponseDTOS = medicalHistoryRiskService.updatePatientMedicalRisk(patient, patientUpdateRequestDTO.medicalRiskDto());
-            MedicalHistory medicalHistory = medicalHistoryService.getByPatient(patient.getId());
+            patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
+            Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.update(patient, patientUpdateRequestDTO.medicalRiskDto());
 
             //Cambios para auditoria.
             patient.setUpdatedAt(LocalDateTime.now());
@@ -187,10 +149,9 @@ public class PatientService implements IPatientService {
 
             patientRepository.save(patient);
 
-            PatientResponseDTO patientResponseDTO = buildResponseDTO(patient,address,contactEmail,contactPhone,medicalHistory,medicalHistoryRiskResponseDTOS);
+            PatientResponseDTO patientResponseDTO = buildResponseDTO(patient,patientMedicalRiskResponseDTOS);
 
-
-            return new Response<>(true,"", patientResponseDTO);
+            return new Response<>(true,"patientService.update.ok.user", patientResponseDTO);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "PatientService", patientUpdateRequestDTO.personDto().id(), patientUpdateRequestDTO.personDto().lastName() + "," + patientUpdateRequestDTO.personDto().firstName(), "validateNonExistentPatient");
@@ -205,10 +166,15 @@ public class PatientService implements IPatientService {
     @Override
     public Response<List<PatientResponseDTO>> getAll() {
         try{
+
             List <Patient> patients = patientRepository.findAllByEnabledTrue();
 
             List<PatientResponseDTO> patientResponseDTOS = patients.stream()
-                    .map(this::buildFullPatient) // Por cada elemento del stream, se llama al método buildFullPatient de esta instancia, pasando el elemento como parámetro.
+                    .map(patient -> {
+                        Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatient(patient);
+                        Set<PatientMedicalRiskResponseDTO> riskDTOs = patientMedicalRiskService.convertToDTO(risks);
+                       return buildResponseDTO(patient,riskDTOs);
+                    })
                     .toList();
 
             return new Response<>(true,null, patientResponseDTOS);
@@ -226,11 +192,16 @@ public class PatientService implements IPatientService {
     @Override
     public Response<PatientResponseDTO> getById(Long id) {
         try{
-            Patient patient = patientRepository.findById(id).orElseThrow(()-> new NotFoundException("exception.patientNotFound.user",null, "exception.patientNotFound.log", new Object[]{id, "PatientService", "getById"}, LogLevel.ERROR ));
-            return new Response<>(true,null, buildFullPatient(patient));
+            Patient patient = patientRepository.findById(id)
+                    .orElseThrow(()-> new NotFoundException("exception.patientNotFound.user",null, "exception.patientNotFound.log", new Object[]{id, "PatientService", "getById"}, LogLevel.ERROR ));
+
+            Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatient(patient);
+            Set<PatientMedicalRiskResponseDTO> riskDTOs = patientMedicalRiskService.convertToDTO(risks);
+
+            return new Response<>(true,null, buildResponseDTO(patient,riskDTOs));
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService",null,null, "getById");
+            throw new DataBaseException(e, "PatientService",id,"<- Id Paciente", "getById");
         }
     }
 
@@ -255,7 +226,11 @@ public class PatientService implements IPatientService {
         }
     }
 
-
+    /**
+     * Método privado para validar la existencia de un paciente, antes de actualizarlo.
+     * @param Id del paciente
+     * @return Patient
+     */
     private Patient validateExistentPatient(Long Id){
         try{
             Optional<Patient> patient = patientRepository.findById(Id);
@@ -271,102 +246,21 @@ public class PatientService implements IPatientService {
     }
 
 
-    /**
-     * Método protegido para crear el paciente.
-     * @param patientRequestDTO con los datos del paciente.
-     * @param address con los datos del domicilio del paciente.
-     * @return Patient con los datos creados.
-     */
-    @Transactional
-    protected Patient buildPatient(PatientCreateRequestDTO patientRequestDTO, Address address){
-        try {
-            //Crea paciente.
-            Patient patient = new Patient();
-            patient.setHealthPlan(healthPlanService.getById(patientRequestDTO.healthPlanId()));
-            patient.setAffiliateNumber(patientRequestDTO.affiliateNumber());
-
-            //Construye Persona
-            patient = (Patient) personService.build(patient, patientRequestDTO.personDto(), address);
-
-            //Retorna objeto completo (Datos de paciente + persona)
-            return patient;
-
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", null, patientRequestDTO.personDto().dni(), "buildPatient");
-        }
-    }
-
-    /**
-     * Método privado para obtener todos los datos adicionales de otras entidades para devolver un paciente completo
-     * @param patient objeto con los datos del paciente
-     * @return PatientResponseDTO
-     */
-    private PatientResponseDTO buildFullPatient(Patient patient){
-        Address address = addressService.getByPersonId(patient.getId());
-        ContactEmail contactEmail = contactEmailService.getByPerson(patient);
-        ContactPhone contactPhone = contactPhoneService.getByPerson(patient);
-        MedicalHistory medicalHistory = medicalHistoryService.getByPatient(patient.getId());
-        Set<MedicalHistoryRisk> risk = medicalHistoryRiskService.getByIdHistoryRisk(medicalHistory.getId());
-        Set<MedicalHistoryRiskResponseDTO> riskResponseDTOS = risk.stream()
-                .map(r -> new MedicalHistoryRiskResponseDTO(
-                        r.getId(),
-                        r.getMedicalRisk().getName(),
-                        r.getObservation()))
-                .collect(Collectors.toSet());
-
-        return buildResponseDTO(patient,address,contactEmail,contactPhone,medicalHistory,riskResponseDTOS);
-    }
-
-
-
 
     /**
      * Construye un DTO de respuesta con los datos del paciente creado, su dirección,
      * contactos y antecedentes médicos.
      *
-     * @param patient Objeto {@link Patient} creado.
-     * @param address Objeto {@link Address} asociado al paciente.
-     * @param contactEmail Objeto {@link ContactEmail} del paciente.
-     * @param contactPhone Objeto {@link ContactPhone} del paciente.
-     * @param medicalHistory Objeto {@link MedicalHistory} del paciente.
+     * @param patient Contiene solo con los datos de la entidad Paciente (incluye Domicilio)
+     * @param patientMedicalRiskResponseDTO contiene la lista de riesgos médicos.
      * @return DTO de respuesta con toda la información del paciente.
      */
-    private PatientResponseDTO buildResponseDTO(Patient patient, Address address, ContactEmail contactEmail, ContactPhone contactPhone, MedicalHistory medicalHistory, Set<MedicalHistoryRiskResponseDTO> medicalHistoryRiskResponseDTO){
+    private PatientResponseDTO buildResponseDTO(Patient patient, Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTO){
         return new PatientResponseDTO(
-             new PersonResponseDTO(
-                        patient.getId(),
-                        patient.getFirstName(),
-                        patient.getLastName(),
-                        patient.getDniType().getName(),
-                        patient.getDni(),
-                        patient.getBirthDate(),
-                        Period.between(patient.getBirthDate(), LocalDate.now()).getYears(),
-                        patient.getGender().getName(),
-                        patient.getNationality().getName()
-                ),
-                new AddressResponseDTO(
-                        address.getLocality().getId(),
-                        address.getLocality().getName(),
-                        address.getLocality().getProvince().getId(),
-                        address.getLocality().getProvince().getName(),
-                        address.getLocality().getProvince().getCountry().getId(),
-                        address.getLocality().getProvince().getCountry().getName(),
-                        address.getStreet(),
-                        address.getNumber(),
-                        address.getFloor(),
-                        address.getApartment()
-                ),
-                new ContactResponseDTO(
-                        contactEmail.getEmail(),
-                        contactPhone.getPhoneType().getName(),
-                        contactPhone.getNumber()
-                ),
+            personService.convertToDTO(patient),
                 patient.getHealthPlan().getName(),
                 patient.getAffiliateNumber(),
-                medicalHistory.getId(),
-                medicalHistoryRiskResponseDTO
+                patientMedicalRiskResponseDTO
          );
     }
-
-
 }

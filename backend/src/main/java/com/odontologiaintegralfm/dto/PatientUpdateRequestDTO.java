@@ -8,9 +8,8 @@ import java.util.Set;
 public record PatientUpdateRequestDTO(
 
         PersonUpdateRequestDTO personDto,
-        AddressRequestDTO addressDto,
-        ContactRequestDTO contactDto,
+        ContactPhoneRequestDTO contactDto,
         Long healthPlanId,
         String affiliateNumber,
-        Set<MedicalHistoryRiskRequestDTO>medicalRiskDto
+        Set<PatientMedicalRiskRequestDTO>medicalRiskDto
 ){}

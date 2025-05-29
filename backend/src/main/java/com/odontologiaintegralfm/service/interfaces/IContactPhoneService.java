@@ -1,7 +1,10 @@
 package com.odontologiaintegralfm.service.interfaces;
 
+import com.odontologiaintegralfm.dto.ContactPhoneRequestDTO;
 import com.odontologiaintegralfm.model.ContactPhone;
 import com.odontologiaintegralfm.model.Person;
+
+import java.util.Set;
 
 /**
  * @author [Facundo Palmieri]
@@ -9,32 +12,12 @@ import com.odontologiaintegralfm.model.Person;
 public interface IContactPhoneService {
 
     /**
-     * Método para crear un contacto telefónico y persistirlo en la base de datos.
-     * @param phone número de telefóno
+     * Método para buscar o  crear un contacto telefónico y persistirlo en la base de datos.
+     *
+     * @param contactPhone Tipo y número de teléfono
      * @return {@link ContactPhone}
      */
-    ContactPhone create(ContactPhone phone);
-
-
-    /**
-     * Método que construye un objeto {@link ContactPhone}
-     *
-     * @param phone     con los datos del contacto.
-     * @param phoneType con los datos del tipo contacto.
-     * @param person    con los datos del paciente (incluye ID)
-     * @return ContactEmail con el objeto creado.
-     */
-    ContactPhone buildContactPhone(String phone, Long phoneType, Person person);
-
-    /**
-     * Método para actualizar el contacto de una persona.
-     *
-     * @param phone
-     * @param phoneType
-     * @param person
-     * @return
-     */
-    ContactPhone updatePatientContactPhone(String phone, Long phoneType, Person person);
+    Set<ContactPhone> findOrCreate(Set<ContactPhoneRequestDTO> contactPhone);
 
 
     /**

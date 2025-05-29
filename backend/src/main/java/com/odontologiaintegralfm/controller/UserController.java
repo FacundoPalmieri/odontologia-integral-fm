@@ -1,9 +1,6 @@
 package com.odontologiaintegralfm.controller;
 import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDeveloperAndAdministrator;
-import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.UserSecCreateDTO;
-import com.odontologiaintegralfm.dto.UserSecResponseDTO;
-import com.odontologiaintegralfm.dto.UserSecUpdateDTO;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -43,6 +40,8 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
+
+
 
 
 
@@ -142,15 +141,10 @@ public class UserController {
     })
     @PostMapping
     @OnlyDeveloperAndAdministrator
-    public  ResponseEntity<Response<UserSecResponseDTO>> createUser(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
+    public  ResponseEntity<Response<UserSecResponseDTO>> create(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
         Response<UserSecResponseDTO>response = userService.create(userSecCreateDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
-
-
-
-
 
 
 

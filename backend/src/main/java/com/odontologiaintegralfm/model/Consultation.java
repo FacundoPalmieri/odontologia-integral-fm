@@ -31,6 +31,10 @@ public class Consultation {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Patient.class)
+    @JoinColumn(name = "patient_id")
+    private Patient patient;
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Dentist.class)
     @JoinColumn(name = "dentist_id")
     private Dentist dentist;
@@ -38,9 +42,6 @@ public class Consultation {
     @Column(nullable = false)
     private LocalDateTime dateTime;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Patient.class)
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
 
     @Lob
     @Column(nullable = false)

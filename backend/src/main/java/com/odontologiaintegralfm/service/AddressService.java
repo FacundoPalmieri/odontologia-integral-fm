@@ -1,9 +1,10 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.AddressRequestDTO;
+import com.odontologiaintegralfm.dto.AddressResponseDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.Address;
-import com.odontologiaintegralfm.model.Patient;
+import com.odontologiaintegralfm.model.Person;
 import com.odontologiaintegralfm.repository.IAddressRepository;
 import com.odontologiaintegralfm.service.interfaces.IAddressService;
 import com.odontologiaintegralfm.service.interfaces.IGeoService;
@@ -25,40 +26,30 @@ public class AddressService implements IAddressService {
     private IGeoService geoService;
 
 
+
+
     /**
      * Método para crear un domicilio
-     * Primero se realizar una búsqueda para ver si existe y está deshabilitado. En caso que sea así, se procede a habilitarlo.
-     * En caso que no exista, se crea.
      * @param address Objeto con el domicilio de la persona
-     * @throws DataBaseException En caso de error de conexión en base de datos.
      */
-
     @Override
     @Transactional
-    public Address enableOrCreate(Address address) {
+    public Address findOrCreate(Address address) {
         try{
             //Realiza búsqueda exacta
             Optional<Address> addressOptional = addressRepository.findAddressComplete(address.getStreet(),address.getNumber(),address.getFloor(),address.getApartment(),address.getLocality());
 
-            //Verifica si el optional tiene valor y está habilitado el domicilio se retorna el mismo.
-            if(addressOptional.isPresent() && addressOptional.get().getEnabled()){
+            //Verifica si el optional tiene valor y lo retorna.
+            if(addressOptional.isPresent()) {
                 return addressOptional.get();
-
-               //Verifica si el optional tiene valor y está Deshabilitado el domicilio. En ese caso, lo reactiva.
-            } else if(addressOptional.isPresent()){
-                Address addressExisting = addressOptional.get();
-                addressExisting.setEnabled(true);
-                addressRepository.save(addressExisting);
-                return addressExisting;
             }
 
             //Si el domicilio no existe, lo crea.
-            address.setEnabled(true);
             addressRepository.save(address);
             return address;
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "AddressService",null, address.getStreet() + " " +  address.getNumber(), "enableOrCreate");
+            throw new DataBaseException(e, "AddressService",null, address.getStreet() + " " +  address.getNumber(), "findOrCreate");
         }
 
     }
@@ -73,22 +64,9 @@ public class AddressService implements IAddressService {
             return addressRepository.findAddressComplete(address.getStreet(),address.getNumber(),address.getFloor(),address.getApartment(),address.getLocality());
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "AddressService",null, address.getStreet() + " " +  address.getNumber(), "getByAddress");
-
         }
     }
 
-    /**
-     * Método para un borrado físico por domicilio huérfano.
-     * @param Id del domicilio
-     */
-    @Transactional
-    public void delete(Long Id){
-        try{
-            addressRepository.deleteById(Id);
-        }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "AddressService",Id,null, "Delete");
-        }
-    }
 
     /**
      * Método que construye un objeto {@link Address} y llama al servicio correspondiente para su creación.
@@ -107,58 +85,17 @@ public class AddressService implements IAddressService {
     }
 
     /**
-     * Método para actualizar el domicilio de un paciente.
-     * <ul>
-     *     <li>
-     *         Se crea un objeto dirección.
-     *         Se busca si la misma existe.
-     *          <ul>
-     *              <li>
-     *                  Se verifica si el paciente apunta a la dirección.
-     *                  Si no apunta a esa dirección, se guarda el ID de la dirección que tenía asignada y se setea la nueva.
-     *                  Se verifica si el domicilio anterior que tenía asignado el paciente quedó asignado a otro paciente, caso contrario de elimina físicamente.
-     *              </li>
-     *          </ul>
-     *          Si la dirección no existe se crea una nueva  y se le asigna al paciente
-     *     </li>
-     * </ul>
+     * Elimina un domicilio huérfano.
      *
-     * @param patient
-     * @return Address
+     * @param id del domicilio.
      */
     @Override
-    @Transactional
-    public Address updatePatientAddress(Patient patient, AddressRequestDTO addressDTO) {
-        // Creamos una nueva dirección con los datos del request
-        Address addressNew = buildAddress(addressDTO);
+    public void delete(Long id) {
+        try{
 
-        // Buscamos si ya existe una dirección idéntica
-        Optional<Address> addressExisting = getByAddress(addressNew);
-
-        //Si la dirección existe no necesito crear una nueva, solo verificar si el paciente la tiene asignada
-        if(addressExisting.isPresent()){
-            // Se sabe que la dirección existe, entonces se verifica si el paciente apunta a la dirección existente
-            if(!patient.getAddress().getId().equals(addressExisting.get().getId())){
-                //Se sabe que el paciente no apunta a la dirección recibida en el request. Entonces se guarda el ID de la dirección que tenía asignada y se setea la nueva.
-                Address addressOld = patient.getAddress();
-                patient.setAddress(addressExisting.get());
-
-                //Se verifica si el domicilio anterior que tenía asignado el paciente quedó asignado a otro paciente.
-                Optional <Patient> patientsAddressOld = addressRepository.findByAddressIdOld(addressOld.getId());
-                if(patientsAddressOld.isEmpty()){
-                    // Si el domicilio quedó huérfano, se elimina.
-                    delete(addressOld.getId());
-                }
-                return addressExisting.get();
-            }
-            return addressExisting.get();
-        }else{
-            // Si la dirección no existe se crea una nueva  y se le asigna al paciente
-            Address addressCreate = enableOrCreate(addressNew);
-            patient.setAddress(addressCreate);
-            return addressCreate;
-        }
-
+        }catch(DataAccessException | CannotCreateTransactionException e){
+        throw new DataBaseException(e, "AddressService",id,"<- Id domicilio", "delete");
+    }
     }
 
 
@@ -175,6 +112,26 @@ public class AddressService implements IAddressService {
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "AddressService",id,null, "getByPersonId");
         }
+    }
+
+    /**
+     * Método para convertir un {@link Address} a un objeto {@link AddressResponseDTO}
+     * @param address Objeto con la información completa
+     * @return AddressResponseDTO
+     */
+    public AddressResponseDTO convertToDTO(Address address){
+      return  new AddressResponseDTO(
+                address.getLocality().getId(),
+                address.getLocality().getName(),
+                address.getLocality().getProvince().getId(),
+                address.getLocality().getProvince().getName(),
+                address.getLocality().getProvince().getCountry().getId(),
+                address.getLocality().getProvince().getCountry().getName(),
+                address.getStreet(),
+                address.getNumber(),
+                address.getFloor(),
+                address.getApartment()
+        );
     }
 
 

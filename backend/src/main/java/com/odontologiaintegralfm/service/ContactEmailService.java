@@ -14,6 +14,7 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ContactEmailService implements IContactEmailService {
@@ -22,83 +23,31 @@ public class ContactEmailService implements IContactEmailService {
 
 
     /**
-     * Método para crear un contacto email y persistirlo en la base de datos.
-     * @param contactEmail de la persona.
+     * Método para buscar o crear un contacto email y persistirlo en la base de datos.
+     * @param emails a agregar
      * @return {@link ContactEmail}
      */
     @Transactional
-    public ContactEmail create(ContactEmail contactEmail) {
+    public Set<ContactEmail> findOrCreate(Set<String> emails) {
+        Set<ContactEmail> contactEmails = new HashSet<>();
         try {
-            //Buscar si el contacto existe
-            Optional<ContactEmail> contactEmailOptional = contactEmailRepository.findByEmail(contactEmail.getEmail());
-            if (contactEmailOptional.isPresent()) {
-                ContactEmail existingContactEmail = contactEmailOptional.get();
-                existingContactEmail.getPersons().addAll(contactEmail.getPersons());
-                return contactEmailRepository.save(existingContactEmail);
-
-            }else{
-                return contactEmailRepository.save(contactEmail);
-
+            for (String email : emails) {
+                Optional<ContactEmail> existing = contactEmailRepository.findByEmail(email);
+                if (existing.isPresent()) {
+                    contactEmails.add(existing.get());
+                } else {
+                    ContactEmail newContactEmail = new ContactEmail();
+                    newContactEmail.setEmail(email);
+                    ContactEmail saved = contactEmailRepository.save(newContactEmail);
+                    contactEmails.add(saved);
+                }
             }
+            return contactEmails;
         } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "ContactEmailService", contactEmail.getId(), contactEmail.getEmail(), "save");
+            throw new DataBaseException(e, "ContactEmailService", null, String.join(", ", emails), "create");
         }
     }
 
-
-    /**
-     * Método que construye un objeto {@link ContactEmail}
-     *
-     * @param email   Email del contacto
-     * @param person con los datos del paciente (incluye ID)
-     * @return ContactEmail con el objeto creado.
-     */
-    @Override
-    @Transactional
-    public ContactEmail buildContactEmail(String email, Person person) {
-        ContactEmail contactEmail = new ContactEmail();
-        contactEmail.setPersons(new HashSet<>());
-        contactEmail.setEmail(email);
-        contactEmail.getPersons().add(person);
-        contactEmail.setEnabled(true);
-        return contactEmail;
-    }
-
-    /**
-     * Método para actualizar el contacto de un paciente
-     * @param email
-     * @param person
-     * @return
-     */
-    @Override
-    @Transactional
-    public ContactEmail updateContactEmail(String email, Person person) {
-        //Buscar si el Email existe en la base de datos.
-       Optional <ContactEmail> contactEmail = contactEmailRepository.findByEmail(email);
-       if(contactEmail.isPresent()) {
-            boolean flag = false;
-            for (Person p : contactEmail.get().getPersons()) {
-                //Verificar si el email pertenece al paciente.
-                if (p.getId().equals(person.getId())) {
-                    flag = true;
-                    if (!contactEmail.get().getEnabled()) {
-                        contactEmail.get().setEnabled(true); // Si pertenece y está deshabilitado, se reactiva.
-                        return create(contactEmail.get());
-                    }
-                }
-            }
-
-            //Si flag no cambió de valor, debo crear la relación.
-            if (!flag) {
-                contactEmail.get().getPersons().add(person);
-                return create(contactEmail.get());
-            }
-       }
-       clearContactEmail(person);
-
-        // Sino existe en la base de datos creo el email
-        return create(buildContactEmail(email, person));
-    }
 
 
 
@@ -116,19 +65,6 @@ public class ContactEmailService implements IContactEmailService {
         }
     }
 
-
-
-    private void clearContactEmail(Person person) {
-        Optional<ContactEmail> existingEmail = contactEmailRepository.findByPersonsId(person.getId());
-        if(existingEmail.isPresent()) {
-            existingEmail.get().getPersons().remove(person);
-            contactEmailRepository.save(existingEmail.get());
-            if(existingEmail.get().getPersons().isEmpty()){
-                contactEmailRepository.delete(existingEmail.get());
-            }
-
-        }
-    }
 
 
 }

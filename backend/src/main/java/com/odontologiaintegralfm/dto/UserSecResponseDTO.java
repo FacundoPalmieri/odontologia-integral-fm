@@ -1,21 +1,19 @@
 package com.odontologiaintegralfm.dto;
 
 import com.odontologiaintegralfm.model.Role;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import lombok.*;
 import java.util.Set;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserSecResponseDTO {
 
-public record UserSecResponseDTO(
-         Long id,
-         String username,
-         Set<Role> rolesList,
-         boolean enabled
-) {
-
-
-
-
+    private Long id;
+    private String username;
+    private Set<Role> rolesList;
+    private boolean enabled;
+    private PersonResponseDTO personResponseDTO;   //Optional
+    private DentistResponseDTO dentistResponseDTO; //Optional
 }

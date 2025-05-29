@@ -23,8 +23,13 @@ public class UserSecCreateDTO {
             message = "userSecCreateDTO.password.pattern")
     private String password2;
 
-
     @NotNull(message = "userSecCreateDTO.role.empty")
     private Set<Long> rolesList;
+
+    //Opcional
+    private PersonCreateRequestDTO personCreateRequestDTO;
+
+    //Opcional
+    private DentistCreateRequestDTO dentistCreateRequestDTO;
 }
 

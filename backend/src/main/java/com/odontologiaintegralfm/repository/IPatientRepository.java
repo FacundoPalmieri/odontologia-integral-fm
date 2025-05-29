@@ -2,6 +2,8 @@ package com.odontologiaintegralfm.repository;
 
 import com.odontologiaintegralfm.model.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
@@ -19,10 +21,5 @@ public interface IPatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> findAllByEnabledTrue();
 
     Optional<Patient> findById(Long id);
-
-
-
-
-
 
 }

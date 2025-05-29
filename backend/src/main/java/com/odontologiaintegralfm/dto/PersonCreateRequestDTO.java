@@ -1,8 +1,10 @@
 package com.odontologiaintegralfm.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Set;
 
 public record PersonCreateRequestDTO(
         //Persona
@@ -25,6 +27,15 @@ public record PersonCreateRequestDTO(
         Long genderId,
 
         @NotNull(message = "personCreateRequestDTO.nationalityId.Empty")
-        Long nationalityId
+        Long nationalityId,
+
+        @Email(message = "personCreateRequestDTO.email.Invalid")
+        @NotBlank(message = "personCreateRequestDTO.email.Empty")
+        Set<String> contactEmails,
+
+        Set<ContactPhoneRequestDTO> contactPhonesDTO,
+
+        AddressRequestDTO addressRequestDTO
+
 ) {
 }

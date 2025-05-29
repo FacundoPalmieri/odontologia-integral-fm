@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.ConflictException;
@@ -7,16 +8,19 @@ import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IDentistRepository;
 import com.odontologiaintegralfm.service.interfaces.*;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
-import java.time.Period;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class DentistService implements IDentistService {
@@ -33,9 +37,6 @@ public class DentistService implements IDentistService {
     private DentistSpecialtyService dentistSpecialtyService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private IContactEmailService contactEmailService;
 
     @Autowired
@@ -44,70 +45,44 @@ public class DentistService implements IDentistService {
     @Autowired
     private IMessageService messageService;
 
+    @Autowired
+    @Lazy
+    private AuthenticatedUserService authenticatedUserService;
+
+
 
     /**
      * Crea un nuevo odontólogo en el sistema junto con su domicilio, contactos, historia clínica
-     * y devuelve una respuesta con todos los datos relevantes.
+     * y devuelve un objeto  Dentist
      *
-     * <p>Este método sigue los siguientes pasos:
+     * <p>Este método:
      * <ol>
      *     <li>Valida que no exista un odontólogo con el mismo DNI.</li>
-     *     <li>Crea o habilita un domicilio según corresponda.</li>
      *     <li>Crea un nuevo objeto {@link Dentist} y lo persiste.</li>
-     *     <li>Registra los contactos del odontólogo (email y teléfono).</li>
-     *     <li>Construye un DTO con toda la información creada.</li>
      * </ol>
-     *
-     * @param dentistCreateRequestDTO DTO con los datos necesarios para crear el odontólogo.
-     * @return {@link Response} que contiene un {@link DentistResponseDTO} con los datos del odontólogo creado.
+     * @param person Objeto ya persistido en la base con los datos referidos a la Persona.
+     * @param dentistCreateRequestDTO DTO con los datos necesarios para específicamente un odontólogo.
+     * @return {@link Dentist} que contiene el dentista persistido en la base de datos.
      * @throws DataBaseException si ocurre un error durante el acceso a la base de datos.
      */
     @Override
     @Transactional
-    public Response<DentistResponseDTO> create(DentistCreateRequestDTO dentistCreateRequestDTO) {
+    public Dentist create(Person person, DentistCreateRequestDTO dentistCreateRequestDTO) {
         try{
-            //Valída que la persona no exista por combinación Tipo DNI + DNI número.
-            personService.validatePerson(dentistCreateRequestDTO.personDto().dniTypeId(), dentistCreateRequestDTO.personDto().dni());
-
             //Valída que no exista el n.° de licencia.
             validateDentist(dentistCreateRequestDTO.licenseNumber());
 
-            //Crear objeto dirección.
-            Address address = addressService.enableOrCreate(
-                    addressService.buildAddress(dentistCreateRequestDTO.addressDto())
-            );
-
-            //Crea objeto Odontólogo (Internamente crea la persona)
-            Dentist dentist = buildDentist(dentistCreateRequestDTO,address);
-            dentistRepository.save(dentist);
-
-            //Crear objeto Contacto Email
-            ContactEmail contactEmail = contactEmailService.create(
-                    contactEmailService.buildContactEmail(
-                            dentistCreateRequestDTO.contactDto().email(),
-                            dentist
-                    )
-            );
-
-            //Crear objeto Contacto Teléfono.
-            ContactPhone contactPhone = contactPhoneService.create(
-                    contactPhoneService.buildContactPhone(
-                            dentistCreateRequestDTO.contactDto().phone(),
-                            dentistCreateRequestDTO.contactDto().phoneType(),
-                            dentist)
-            );
-
-            //Crear Objeto Respuesta
-            DentistResponseDTO dentistResponseDTO = buildResponseDTO(dentist, address,contactEmail,contactPhone);
-
-            //Crear mensaje para el usuario.
-            String messageUser = messageService.getMessage("dentistService.save.ok.user",null, LocaleContextHolder.getLocale());
-
-            return new Response<>(true, messageUser, dentistResponseDTO);
-
+            Dentist dentist = new Dentist();
+            dentist.setPerson(person);
+            dentist.setLicenseNumber(dentistCreateRequestDTO.licenseNumber());
+            dentist.setDentistSpecialty(dentistSpecialtyService.getById(dentistCreateRequestDTO.dentistSpecialtyId()));
+            dentist.setCreatedAt(LocalDateTime.now());
+            dentist.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+            dentist.setEnabled(true);
+            return dentistRepository.save(dentist);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "DentistService", null, dentistCreateRequestDTO.personDto().dni(), "create");
+            throw new DataBaseException(e, "DentistService", person.getId(),person.getLastName() + "," + person.getFirstName(), "create");
         }
     }
 
@@ -117,14 +92,16 @@ public class DentistService implements IDentistService {
      * @return Una respuesta que contiene una lista de objetos {@link DentistResponseDTO }
      */
     @Override
-    public Response<List<DentistResponseDTO>> getAll() {
+    public Response<Set<DentistResponseDTO>> getAll() {
         try{
-            List<Dentist> dentists = dentistRepository.findAllByEnabledTrue();
-            List<DentistResponseDTO> dentistResponseDTOList = dentists.stream()
-                    .map(this::buildFullDentist) // Por cada elemento del stream, se llama al método buildFullPatient de esta instancia, pasando el elemento como parámetro.
-                    .toList();
+            Set<Dentist> dentists = dentistRepository.findAllByEnabledTrue();
+            Set <DentistResponseDTO> dentistDTO = dentists.stream()
+                    .map(dentist -> new DentistResponseDTO(personService.convertToDTO(dentist.getPerson()), dentist.getLicenseNumber(), dentist.getDentistSpecialty().getName())
+                            )
+                    .collect(Collectors.toSet());
 
-            return new Response<>(true, "", dentistResponseDTOList);
+            return new Response<>(true, null, dentistDTO);
+
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistService",null,null, "getAll");
         }
@@ -141,93 +118,16 @@ public class DentistService implements IDentistService {
         }
     }
 
-    /**
-     * Método protegido para crear un odontólogo.
-     * @param dentistCreateRequestDTO con los datos del odontólogo.
-     * @param address con los datos del domicilio del odontólogo.
-     * @return Dentist con los datos creados.
-     */
-    @Transactional
-    protected Dentist buildDentist(DentistCreateRequestDTO dentistCreateRequestDTO, Address address) {
-        try{
-            //Crea dentista.
-            Dentist dentist = new Dentist();
-            dentist.setLicenseNumber(dentistCreateRequestDTO.licenseNumber());
-            dentist.setDentistSpecialty(dentistSpecialtyService.getById(dentistCreateRequestDTO.dentistSpecialtyId()));
-
-            //Construye Persona
-            dentist = (Dentist) personService.build(dentist,dentistCreateRequestDTO.personDto(), address);
-
-            //Crea Usuario
-            dentist.setUser(userService.createInternal(dentistCreateRequestDTO.user()));
-
-            //Retorna objeto completo (Datos de paciente + persona + usuario)
-            return dentist;
-
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "DentistService", null, dentistCreateRequestDTO.personDto().dni(), "buildDentist");
-        }
-    }
 
 
     /**
-     * Método privado para obtener todos los datos adicionales de otras entidades para devolver un odontólogo completo
-     * @param dentist objeto con los datos del odontólogo
+     * Método para transformar un {@link Dentist} a un {@link DentistResponseDTO}
+     * @param dentist objeto completo
      * @return DentistResponseDTO
      */
-    private DentistResponseDTO buildFullDentist(Dentist dentist){
-        Address address = addressService.getByPersonId(dentist.getId());
-        ContactEmail contactEmail = contactEmailService.getByPerson(dentist);
-        ContactPhone contactPhone = contactPhoneService.getByPerson(dentist);
-        return buildResponseDTO(dentist, address,contactEmail,contactPhone);
-    }
-
-
-    /**
-     * Construye un DTO de respuesta con los datos del odontólogo creado, su dirección,
-     * contactos y antecedentes médicos.
-     * @param dentist  Objeto {@link Dentist} creado
-     * @param address Objeto {@link Address} asociado al odontólogo.
-     * @param contactEmail Objeto {@link ContactEmail} del odontólogo.
-     * @param contactPhone Objeto {@link ContactPhone} del odontólogo.
-     * @return DTO de respuesta con toda la información del odontólogo.
-     */
-    private DentistResponseDTO buildResponseDTO(Dentist dentist, Address address, ContactEmail contactEmail, ContactPhone contactPhone) {
+    public DentistResponseDTO convertToDTO(Dentist dentist) {
         return new DentistResponseDTO(
-                new PersonResponseDTO(
-                        dentist.getId(),
-                        dentist.getFirstName(),
-                        dentist.getLastName(),
-                        dentist.getDniType().getName(),
-                        dentist.getDni(),
-                        dentist.getBirthDate(),
-                        Period.between(dentist.getBirthDate(), LocalDate.now()).getYears(),
-                        dentist.getGender().getName(),
-                        dentist.getNationality().getName()
-                ),
-                new AddressResponseDTO(
-                        address.getLocality().getId(),
-                        address.getLocality().getName(),
-                        address.getLocality().getProvince().getId(),
-                        address.getLocality().getProvince().getName(),
-                        address.getLocality().getProvince().getCountry().getId(),
-                        address.getLocality().getProvince().getCountry().getName(),
-                        address.getStreet(),
-                        address.getNumber(),
-                        address.getFloor(),
-                        address.getApartment()
-                ),
-                new ContactResponseDTO(
-                        contactEmail.getEmail(),
-                        contactPhone.getPhoneType().getName(),
-                        contactPhone.getNumber()
-                ),
-                new UserSecResponseDTO(
-                        dentist.getUser().getId(),
-                        dentist.getUser().getUsername(),
-                        dentist.getUser().getRolesList(),
-                        dentist.getUser().isEnabled()
-                ),
+                personService.convertToDTO(dentist.getPerson()),
                 dentist.getLicenseNumber(),
                 dentist.getDentistSpecialty().getName()
         );

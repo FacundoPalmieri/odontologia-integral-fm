@@ -2,23 +2,27 @@ package com.odontologiaintegralfm.service.interfaces;
 
 
 import com.odontologiaintegralfm.dto.PersonCreateRequestDTO;
+import com.odontologiaintegralfm.dto.PersonResponseDTO;
 import com.odontologiaintegralfm.dto.PersonUpdateRequestDTO;
-import com.odontologiaintegralfm.model.Address;
 import com.odontologiaintegralfm.model.Person;
 
 public interface IPersonService {
 
+
     /**
      * Método para crear una Persona
-     * @param person objeto vacío que corresponde a la clase hija (Patient, Dentist, etc..)
      * @param personDto datos recibído del request
-     * @param address objeto domicilio ya persistido en la base de datos
-     * @return
+     * @return objeto {@link Person } con la persona persistida
      */
-    Person build(Person person, PersonCreateRequestDTO personDto, Address address);
+     Person create(PersonCreateRequestDTO personDto);
 
-
-    Person update(Person person, PersonUpdateRequestDTO personDTO);
+    /**
+     * Método para actualizar una Persona.
+     * @param person datos del objeto Persona recuperado desde la BD.
+     * @param personDTO datos nuevos recibidos en el DTO.
+     * @return Person
+     */
+     Person update(Person person, PersonUpdateRequestDTO personDTO);
 
 
     /**
@@ -27,5 +31,20 @@ public interface IPersonService {
      * @param dni Nùmero de identification.
      */
     void validatePerson(Long dniTypeId, String  dni);
+
+    /**
+     * Método para transformar un {@link Person} a un {@link PersonResponseDTO}
+     * @param person objeto completo
+     * @return PersonResponseDTO
+     */
+    PersonResponseDTO convertToDTO (Person person);
+
+
+    /**
+     * Método para saber cuantos pacientes están relacionados a un ID de domicilio
+     * @param addressId domicilio
+     * @return cantidad de personas asociadas.
+     */
+    long personsByAddressId(Long addressId);
 
 }

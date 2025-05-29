@@ -5,9 +5,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 
 /**
  * Entidad que representa los contactos telefónicos de las personas
@@ -18,6 +21,7 @@ import java.util.Set;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table (name = "contacts_phones")
+@Audited
 public class ContactPhone {
 
     @Id
@@ -27,20 +31,11 @@ public class ContactPhone {
 
     @ManyToOne(targetEntity = PhoneType.class)
     @JoinColumn(name = "telephone_type_id")
+    @Audited(targetAuditMode = NOT_AUDITED)
     private PhoneType phoneType;
 
     @Column(length = 20, nullable = false, unique = true)
     private String number;
 
-    @ManyToMany(fetch = FetchType.LAZY, targetEntity = Person.class)
-    @JoinTable(
-            name = "contact_phone_persons",
-            joinColumns = @JoinColumn(name = "contact_phone"),
-            inverseJoinColumns = @JoinColumn (name = "person"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"contact_phone", "person"})
-    )
-    private Set<Person> persons = new HashSet<>();
-
-    private Boolean enabled;
 
 }

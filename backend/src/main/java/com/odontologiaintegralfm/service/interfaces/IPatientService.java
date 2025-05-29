@@ -15,16 +15,14 @@ import java.util.List;
 public interface IPatientService {
 
     /**
-     * Crea un nuevo paciente en el sistema junto con su domicilio, contactos, historia clínica
-     * y devuelve una respuesta con todos los datos relevantes.
+     * Crea un nuevo paciente en el sistema junto a los riesgos médicos.
+     * Devuelve una respuesta con todos los datos relevantes.
      *
      * <p>Este método sigue los siguientes pasos:
      * <ol>
      *     <li>Valida que no exista un paciente con el mismo DNI.</li>
-     *     <li>Crea o habilita un domicilio según corresponda.</li>
-     *     <li>Crea un nuevo objeto {@link Patient} y lo persiste.</li>
-     *     <li>Genera una nueva historia clínica asociada al paciente.</li>
-     *     <li>Registra los contactos del paciente (email y teléfono).</li>
+     *     <li>Crea por medio del PersonService un nuevo objeto {@link Patient} y lo persiste.</li>
+     *     <li>Crea por medio del patientMedicalRiskService los riesgos médicos asociados al paciente .</li>
      *     <li>Construye un DTO con toda la información creada.</li>
      * </ol>
      *

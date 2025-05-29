@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.dto;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 
 public record PersonResponseDTO(
@@ -12,6 +13,9 @@ public record PersonResponseDTO(
         LocalDate birthDate,
         int age,
         String gender,
-        String nationality
+        String nationality,
+        Set<String> contactEmails,
+        Set<ContactPhoneResponseDTO> contactPhoneResponseDTO,
+        AddressResponseDTO addressResponseDTO
 ) {
 }
