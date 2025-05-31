@@ -20,7 +20,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "consultation_details")
 @Audited
-public class ConsultationDetail {
+public class ConsultationDetail extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,9 +46,5 @@ public class ConsultationDetail {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Treatment treatment;
 
-    @Column(nullable = false)
-    private Boolean enabled;
-
-    private LocalDate disabledAt;
 
 }

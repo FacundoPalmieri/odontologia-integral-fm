@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "patient_medical_risks")
-public class PatientMedicalRisk {
+public class PatientMedicalRisk extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,26 +35,5 @@ public class PatientMedicalRisk {
 
     @Size(max = 500)
     private String observation;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "created_by_id",nullable = false, updatable = false)
-    private UserSec createdBy;
-
-    private LocalDateTime updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "updated_by_id")
-    private UserSec updatedBy;
-
-    private Boolean enabled;
-
-    private LocalDateTime disabledAt;
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "disabled_by_id")
-    private UserSec disabledBy;
 
 }

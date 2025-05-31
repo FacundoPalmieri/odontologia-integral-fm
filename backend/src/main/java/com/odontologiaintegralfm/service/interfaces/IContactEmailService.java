@@ -18,10 +18,5 @@ public interface IContactEmailService {
     Set<ContactEmail> findOrCreate(Set<String> email);
 
 
-    /**
-     * Método para obtener el email de una persona.
-     * @param person objeto con datos de la persona
-     * @return {@link ContactEmail}
-     */
-    ContactEmail getByPerson (Person person);
+
 }

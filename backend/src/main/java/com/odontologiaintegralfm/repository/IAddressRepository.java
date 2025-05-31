@@ -32,7 +32,7 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {
 
     @Query("""
      SELECT p
-     FROM Patient p
+     FROM Person p
      JOIN FETCH p.address a
      WHERE p.address.id = :addressOld
      AND p.enabled = true
@@ -44,7 +44,6 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {
     SELECT p.address
     FROM Person p
     WHERE p.id = :personId
-    AND p.address.enabled = true
     AND p.enabled = true
     """)
     Address findByPersonId(@Param("personId") Long id);

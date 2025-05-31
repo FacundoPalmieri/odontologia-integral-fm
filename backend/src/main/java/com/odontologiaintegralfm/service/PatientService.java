@@ -15,19 +15,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
-/**
- * @author [Facundo Palmieri]
- */
 
 @Service
 public class PatientService implements IPatientService {
@@ -81,7 +74,7 @@ public class PatientService implements IPatientService {
 
             //Crea Paciente
             Patient patient = new Patient();
-            patient.setId(person.getId());
+            patient.setPerson(person);
             patient.setHealthPlan(healthPlanService.getById(patientRequestDTO.healthPlanId()));
             patient.setAffiliateNumber(patientRequestDTO.affiliateNumber());
             patient.setCreatedAt(LocalDateTime.now());
@@ -105,7 +98,7 @@ public class PatientService implements IPatientService {
             return new Response<>(true,messageUser, patientResponseDTO);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", null, patientRequestDTO.personDto().dni(), "create");
+            throw new DataBaseException(e, "PatientService", null, "DNI Paciente" + patientRequestDTO.personDto().dni(), "create");
         }
     }
 
@@ -122,21 +115,9 @@ public class PatientService implements IPatientService {
             //Validar que el paciente exista y recuperarlo desde la Base.
             Patient patient = validateExistentPatient(patientUpdateRequestDTO.personDto().id());
 
-
-            //Guarda valores viejos para realizar limpieza de datos huérfanos.
-            Long addressId = patient.getAddress().getId();
-
-            Set<Long> emailsIds = patient.getContactEmails().stream()
-                    .map(ContactEmail::getId)
-                    .collect(Collectors.toSet());
-
-            Set<Long> phonesIds = patient.getContactPhones().stream()
-                    .map(ContactPhone::getId)
-                    .collect(Collectors.toSet());
-
             //Actualiza datos de la persona.
-            Person person = personService.update(patient, patientUpdateRequestDTO.personDto());
-            patient.setId(person.getId());
+            Person person = personService.update(patient.getPerson(), patientUpdateRequestDTO.personDto());
+            patient.setPerson(person);
 
             //Actualiza datos del paciente
             patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
@@ -149,9 +130,13 @@ public class PatientService implements IPatientService {
 
             patientRepository.save(patient);
 
+            //Crear Objeto Respuesta
             PatientResponseDTO patientResponseDTO = buildResponseDTO(patient,patientMedicalRiskResponseDTOS);
 
-            return new Response<>(true,"patientService.update.ok.user", patientResponseDTO);
+            //Crear mensaje para el usuario.
+            String messageUser = messageService.getMessage("patientService.update.ok.user",null, LocaleContextHolder.getLocale());
+
+            return new Response<>(true,messageUser, patientResponseDTO);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "PatientService", patientUpdateRequestDTO.personDto().id(), patientUpdateRequestDTO.personDto().lastName() + "," + patientUpdateRequestDTO.personDto().firstName(), "validateNonExistentPatient");
@@ -257,7 +242,7 @@ public class PatientService implements IPatientService {
      */
     private PatientResponseDTO buildResponseDTO(Patient patient, Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTO){
         return new PatientResponseDTO(
-            personService.convertToDTO(patient),
+            personService.convertToDTO(patient.getPerson()),
                 patient.getHealthPlan().getName(),
                 patient.getAffiliateNumber(),
                 patientMedicalRiskResponseDTO

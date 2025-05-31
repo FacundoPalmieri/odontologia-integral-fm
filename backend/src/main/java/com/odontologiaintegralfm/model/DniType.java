@@ -17,7 +17,7 @@ import org.hibernate.envers.Audited;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name="dni_types")
-public class DniType {
+public class DniType extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,5 +28,4 @@ public class DniType {
     @Column(length=15, unique = true, nullable = false)
     private String name;
 
-    private Boolean enabled;
 }

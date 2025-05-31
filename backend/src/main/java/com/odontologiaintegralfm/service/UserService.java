@@ -815,7 +815,7 @@ public class UserService implements IUserService {
         }
 
         userSec.setUpdatedAt(LocalDateTime.now());
-        userSec.setUpdatedBy(authenticatedUserService.getAuthenticatedUser().getId());
+        userSec.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
 
         return userSec;
     }
@@ -952,19 +952,26 @@ public class UserService implements IUserService {
      * @return Un nuevo objeto {@code UserSec} con los valores especificados en el DTO.
      */
     private UserSec buildUserSec(UserSecCreateDTO userSecCreateDto) {
-        return UserSec.builder()
-                .username(userSecCreateDto.getUsername())
-                .password(encriptPassword(userSecCreateDto.getPassword1()))
-                .failedLoginAttempts(0)
-                .locktime(null)
-                .createdAt(LocalDateTime.now())
-                .createdBy(authenticatedUserService.getAuthenticatedUser().getId())
-                .enabled(true)
-                .accountNotExpired(true)
-                .accountNotLocked(true)
-                .credentialNotExpired(true)
-                .rolesList(getRolesForUser(userSecCreateDto.getRolesList()))
-                .build();
+        return new UserSec(
+                userSecCreateDto.getUsername(),
+                encriptPassword(userSecCreateDto.getPassword1()),
+                0, // failedLoginAttempts
+                null, // locktime
+                true, // accountNotExpired
+                true, // accountNotLocked
+                true, // credentialNotExpired
+                getRolesForUser(userSecCreateDto.getRolesList()),
+                null, // resetPasswordToken
+
+                // Campos heredados de Auditable
+                LocalDateTime.now(), // createdAt
+                authenticatedUserService.getAuthenticatedUser(), // createdBy
+                null, // updatedAt
+                null, // updatedBy
+                true, // enabled
+                null, // disabledAt
+                null  // disabledBy
+        );
     }
 }
 

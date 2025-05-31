@@ -11,6 +11,5 @@ public interface IContactEmailRepository extends JpaRepository<ContactEmail, Lon
 
     Optional<ContactEmail> findByEmail(String email);
 
-    Optional<ContactEmail> findByPersonsId(Long id);
 
 }

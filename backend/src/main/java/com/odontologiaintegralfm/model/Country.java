@@ -12,9 +12,9 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name= "countries")
-public class Country {
+public class Country extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

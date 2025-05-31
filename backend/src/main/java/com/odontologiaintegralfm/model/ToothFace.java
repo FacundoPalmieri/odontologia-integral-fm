@@ -13,9 +13,9 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "teeth_faces")
-public class ToothFace {
+public class ToothFace extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -26,6 +26,4 @@ public class ToothFace {
 
     @Column(length =20, unique = true)
     private String name;
-
-    private Boolean enabled;
 }

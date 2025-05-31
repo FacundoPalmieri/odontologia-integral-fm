@@ -21,7 +21,15 @@ import java.time.LocalDateTime;
 @Table(name="patients", uniqueConstraints = {
         @UniqueConstraint(columnNames = "affiliateNumber")
 })
-public class Patient extends Person {
+public class Patient extends Auditable {
+
+    @Id
+    private Long id; // Es el mismo que el de Person.
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_id")
+    @MapsId  // Mapea el id de persona a paciente.
+    private Person person;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = HealthPlan.class)
     @JoinColumn(name = "health_plan_id")

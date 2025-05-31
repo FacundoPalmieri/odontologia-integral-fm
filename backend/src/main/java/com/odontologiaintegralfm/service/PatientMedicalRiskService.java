@@ -60,7 +60,7 @@ public class PatientMedicalRiskService implements IPatientMedicalRiskService {
         try{
             return patientMedicalRiskRepository.findByPatient(patient);
         }catch (DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "PatientMedicalRiskService", patient.getId(), patient.getLastName() + "," + patient.getFirstName(), "getById");
+            throw new DataBaseException(e, "PatientMedicalRiskService", patient.getId(), patient.getPerson().getLastName() + "," + patient.getPerson().getFirstName(), "getById");
 
         }
     }

@@ -12,9 +12,9 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "Treatment")
-public class Treatment {
+public class Treatment extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +23,5 @@ public class Treatment {
 
     @Column(length = 50, nullable = false, unique = true)
     private String name;
-
-    @Column(nullable = false)
-    private Boolean enabled;
 
 }

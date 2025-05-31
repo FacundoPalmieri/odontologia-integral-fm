@@ -51,19 +51,6 @@ public class ContactEmailService implements IContactEmailService {
 
 
 
-    /**
-     * Método para obtener el email de una persona.
-     * @param person objeto con datos de la persona
-     * @return {@link ContactEmail}
-     */
-    @Override
-    public ContactEmail getByPerson(Person person) {
-        try{
-            return contactEmailRepository.findByPersonsId(person.getId()).orElseThrow(()-> new NotFoundException("exception.contactEmailNotFound.log",null, "exception.contactEmailNotFound.user",new Object[]{person.getId(), person.getFirstName(), person.getLastName(),"ContactEmailService", "getByPerson"}, LogLevel.ERROR));
-        } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "ContactEmailService", person.getId(), person.getFirstName() + "," + person.getLastName(), "getByPerson");
-        }
-    }
 
 
 

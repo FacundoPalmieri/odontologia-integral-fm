@@ -17,7 +17,7 @@ import org.hibernate.envers.Audited;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "medical_risk")
-public class MedicalRisk {
+public class MedicalRisk extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,5 +29,4 @@ public class MedicalRisk {
 
     private Long parentId;
 
-    private Boolean enabled;
 }

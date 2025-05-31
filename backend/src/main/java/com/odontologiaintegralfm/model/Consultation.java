@@ -24,7 +24,7 @@ import java.util.Set;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "consultations")
 @Audited
-public class Consultation {
+public class Consultation extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,9 +54,4 @@ public class Consultation {
 
     @Column(nullable = false)
     private BigDecimal amount;
-
-    @Column(nullable = false)
-    private Boolean enabled;
-
-    private LocalDate disabledAt;
 }

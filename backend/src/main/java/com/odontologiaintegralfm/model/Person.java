@@ -18,15 +18,14 @@ import java.util.Set;
  */
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Audited
 @Table(name = "persons", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"dni_type_id", "dni"})
 })
-public class Person {
+public class Person extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -85,28 +84,5 @@ public class Person {
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Address.class)
     @JoinColumn(name = "address_id")
     private Address address;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "created_by_id",nullable = false, updatable = false)
-    private UserSec createdBy;
-
-    private LocalDateTime updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "updated_by_id")
-    private UserSec updatedBy;
-
-    @Column(nullable = false)
-    private Boolean enabled;
-
-    private LocalDateTime disabledAt;
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "disabled_by_id")
-    private UserSec disabledBy;
 
 }

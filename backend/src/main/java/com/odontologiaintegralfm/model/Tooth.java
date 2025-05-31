@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table (name ="teeth")
-public class Tooth {
+public class Tooth extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -27,6 +27,5 @@ public class Tooth {
     @Column(length =20, unique = true)
     private String name;
 
-    private Boolean enabled;
 
 }

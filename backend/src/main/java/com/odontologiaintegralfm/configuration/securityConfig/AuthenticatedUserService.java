@@ -1,12 +1,13 @@
 package com.odontologiaintegralfm.configuration.securityConfig;
 
 import com.odontologiaintegralfm.model.UserSec;
-import com.odontologiaintegralfm.service.UserService;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
+import com.odontologiaintegralfm.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 /**
  * @author [Facundo Palmieri]
@@ -14,14 +15,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AuthenticatedUserService {
-    @Autowired
-    @Lazy
-    private UserService userService;
 
+    @Autowired
+    private IUserRepository userRepository;
 
     public UserSec  getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return userService.getByUsername(authentication.getName());
+        Optional<UserSec> userSec = userRepository.findUserEntityByUsername(authentication.getName());
+        return userSec.orElse(null);
     }
 
 }

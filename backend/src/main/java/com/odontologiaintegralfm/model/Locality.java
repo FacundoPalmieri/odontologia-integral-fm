@@ -12,9 +12,9 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "localities")
-public class Locality {
+public class Locality extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +28,4 @@ public class Locality {
     @JoinColumn(name ="province_id")
     private Province province;
 
-    @Column(nullable = false)
-    private boolean enabled;
 }

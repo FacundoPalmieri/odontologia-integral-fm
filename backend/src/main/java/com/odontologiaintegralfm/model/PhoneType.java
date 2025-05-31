@@ -14,9 +14,9 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table
-public class PhoneType {
+public class PhoneType extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +27,4 @@ public class PhoneType {
     @Column(length = 10, unique = true, nullable = false)
     private String name;
 
-    private Boolean enabled;
 }

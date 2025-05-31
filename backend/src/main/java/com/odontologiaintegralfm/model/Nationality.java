@@ -13,9 +13,9 @@ import org.hibernate.envers.Audited;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "nationalities")
-public class Nationality {
+public class Nationality extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -24,5 +24,4 @@ public class Nationality {
     @Column(length = 50, nullable = false, unique = true)
     private String name;
 
-    private Boolean enabled;
 }

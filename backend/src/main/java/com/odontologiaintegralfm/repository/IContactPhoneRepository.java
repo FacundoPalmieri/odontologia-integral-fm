@@ -12,7 +12,6 @@ public interface IContactPhoneRepository extends JpaRepository<ContactPhone, Lon
 
     Optional<ContactPhone> findByNumber(String phone);
 
-    Optional<ContactPhone> findByPersonsId(Long id);
 
 
 }

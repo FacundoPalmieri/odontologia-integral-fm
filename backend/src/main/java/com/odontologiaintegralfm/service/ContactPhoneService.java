@@ -55,21 +55,4 @@ public class ContactPhoneService implements IContactPhoneService {
 
 
 
-    /**
-     * Método para obtener el contacto telefónico de una persona.
-     *
-     * @param person objeto con datos de la persona
-     * @return {@link ContactPhone}
-     */
-    @Override
-    public ContactPhone getByPerson(Person person) {
-        try{
-            return contactPhoneRepository.findByPersonsId(person.getId()).orElseThrow(()->new NotFoundException("exception.contactPhoneNotFound.user",null, "exception.contactPhoneNotFound.log",new Object[]{person.getId(), person.getFirstName(), person.getLastName(),"ContactPhoneService", "getByPerson"}, LogLevel.ERROR));
-        }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "ContactPhoneService", person.getId(), person.getFirstName()+ "," +person.getLastName(), "getByPerson");
-
-        }
-    }
-
-
 }

@@ -17,7 +17,7 @@ import org.hibernate.envers.Audited;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "dental_specialties")
-public class DentistSpecialty {
+public class DentistSpecialty extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +27,4 @@ public class DentistSpecialty {
     @Column(length = 30, unique = true,nullable = false)
     private String name;
 
-    private Boolean enabled;
 }

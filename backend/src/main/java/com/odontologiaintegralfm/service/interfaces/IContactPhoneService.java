@@ -20,10 +20,5 @@ public interface IContactPhoneService {
     Set<ContactPhone> findOrCreate(Set<ContactPhoneRequestDTO> contactPhone);
 
 
-    /**
-     * Método para obtener el contacto telefónico de una persona.
-     * @param person objeto con datos de la persona
-     * @return {@link ContactPhone}
-     */
-    ContactPhone getByPerson (Person person);
+
 }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,6 +56,7 @@ public class PersonService implements IPersonService {
      * @param personDto datos recibído del request
      * @return objeto {@link Person } con la persona persistida
      */
+    @Transactional
     public Person create(PersonCreateRequestDTO personDto) {
         //Valída que la persona no exista por combinación Tipo DNI + DNI número.
         validatePerson(personDto.dniTypeId(), personDto.dni());
@@ -87,6 +89,7 @@ public class PersonService implements IPersonService {
      * @return Person
      */
     @Override
+    @Transactional
     public Person update(Person person,PersonUpdateRequestDTO personDTO) {
 
         person.setFirstName(personDTO.firstName());

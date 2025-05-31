@@ -20,9 +20,9 @@ import java.time.LocalDateTime;
 @Table(name ="dentists", uniqueConstraints = {
         @UniqueConstraint(columnNames = "licenseNumber")
 })
-public class Dentist {
+public class Dentist extends Auditable {
+
     @Id
-    @Column(name = "person_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -36,29 +36,5 @@ public class Dentist {
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = DentistSpecialty.class)
     @JoinColumn(name = "dentist_specialty_id")
     private DentistSpecialty dentistSpecialty;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "created_by_id",nullable = false, updatable = false)
-    private UserSec createdBy;
-
-    private LocalDateTime updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "updated_by_id")
-    private UserSec updatedBy;
-
-    @Column(nullable = false)
-    private Boolean enabled;
-
-    private LocalDateTime disabledAt;
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserSec.class)
-    @JoinColumn(name = "disabled_by_id")
-    private UserSec disabledBy;
-
 
 }

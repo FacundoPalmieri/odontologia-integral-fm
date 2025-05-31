@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name ="payment_methods")
-public class PaymentMethod {
+public class PaymentMethod extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -25,5 +25,4 @@ public class PaymentMethod {
     @Column(length = 20, unique = true, nullable = false)
     private String name;
 
-    private Boolean enabled;
 }

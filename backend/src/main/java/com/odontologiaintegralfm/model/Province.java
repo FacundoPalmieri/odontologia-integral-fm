@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name= "provinces")
-public class Province {
+public class Province extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +29,4 @@ public class Province {
     @JoinColumn(name = "country_id")
     private Country country;
 
-    @Column(nullable = false)
-    private boolean enabled;
 }
