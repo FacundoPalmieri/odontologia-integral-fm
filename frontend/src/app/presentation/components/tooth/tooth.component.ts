@@ -76,6 +76,11 @@ export class ToothComponent implements OnChanges {
     this.cariesFaces = {};
     this.generalTreatments = [];
 
+    // Primero, vamos a agrupar los tratamientos por cara
+    const facesTreatments: {
+      [key in ToothFaceTypeEnum]?: TreatmentInterface[];
+    } = {};
+
     if (this.treatments?.length > 0) {
       this.treatments.forEach((treatment) => {
         if (
@@ -85,11 +90,37 @@ export class ToothComponent implements OnChanges {
           treatment.faces?.forEach((face) => {
             const position = this.faceToPositionMap[face as ToothFaceEnum];
             if (position) {
-              this.cariesFaces[position] = treatment;
+              if (!facesTreatments[position]) {
+                facesTreatments[position] = [];
+              }
+              facesTreatments[position]!.push(treatment);
             }
           });
         } else {
           this.generalTreatments.push(treatment);
+        }
+      });
+
+      // Ahora procesamos cada cara para ver si tiene ambos tratamientos
+      Object.entries(facesTreatments).forEach(([position, treatments]) => {
+        const hasCaries = treatments.some(
+          (t) => t.name === TreatmentEnum.CARIES
+        );
+        const hasObtComposite = treatments.some(
+          (t) => t.name === TreatmentEnum.OBT_COMPOSITE
+        );
+
+        if (hasCaries && hasObtComposite) {
+          // Si tiene ambos, creamos un tratamiento especial con la letra D
+          this.cariesFaces[position as ToothFaceTypeEnum] = {
+            name: TreatmentEnum.DUAL_TREATMENT,
+            treatmentType: TreatmentTypeEnum.DONE,
+            label: "D",
+            faces: [],
+          };
+        } else if (treatments.length > 0) {
+          // Si solo tiene uno, usamos el primer tratamiento
+          this.cariesFaces[position as ToothFaceTypeEnum] = treatments[0];
         }
       });
     }

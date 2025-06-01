@@ -7,9 +7,11 @@ export enum TreatmentEnum {
   CARIES = "CARIES",
   EXTRACCION = "EXTRACCION",
   IMPLANTES = "IMPLANTES",
+  DUAL_TREATMENT = "DUAL_TREATMENT",
 }
 
 export enum TreatmentTypeEnum {
   EXISTING = "existing",
   REQUIRED = "required",
+  DONE = "DONE",
 }
