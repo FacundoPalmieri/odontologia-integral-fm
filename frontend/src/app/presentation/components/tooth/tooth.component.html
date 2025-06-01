@@ -41,6 +41,21 @@
     ></i-tabler>
     }
   </div>
+  } @else if(treatment.name === TreatmentEnum.EXTRACCION){
+  <div
+    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center rotate-120 justify-center z-20 scale-290 opacity-80"
+  >
+    @for(icon of getTreatmentIcons(treatment); track $index){
+    <i-tabler
+      [name]="icon"
+      [ngClass]="
+        calculateMargin($index, getTreatmentIcons(treatment).length) +
+        ' ' +
+        getColor(treatment!.treatmentType)
+      "
+    ></i-tabler>
+    }
+  </div>
   } @else if(treatment.name === TreatmentEnum.CORONA || treatment.name ===
   TreatmentEnum.DIENTE_AUSENTE){
   <div
