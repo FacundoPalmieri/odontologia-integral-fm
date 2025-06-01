@@ -78,6 +78,7 @@ import {
   IconUpload,
   IconEye,
   IconTrash,
+  IconSpace,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -157,6 +158,7 @@ const ICONS = {
   IconUpload,
   IconEye,
   IconTrash,
+  IconSpace,
 } as const;
 
 @NgModule({

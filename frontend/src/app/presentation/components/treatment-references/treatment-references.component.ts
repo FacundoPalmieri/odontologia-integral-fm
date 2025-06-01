@@ -7,6 +7,7 @@ import { TreatmentReferencesSidenavService } from "../../../services/treatment-r
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { TreatmentEnum } from "../../../utils/enums/treatment.enum";
 
 @Component({
   selector: "app-treatment-references",
@@ -23,12 +24,13 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 export class TreatmentReferencesComponent {
   treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
   treatments: ShowTreatmentInterface[] = TreatmentFactory.createTreatments();
+  treatmentEnum = TreatmentEnum;
 
   constructor() {}
 
   calculateMargin(index: number, totalIcons: number): string {
     if (totalIcons > 1 && index < totalIcons - 1) {
-      return "mr-[-16px]";
+      return "mr-[-18px]";
     }
     return "";
   }

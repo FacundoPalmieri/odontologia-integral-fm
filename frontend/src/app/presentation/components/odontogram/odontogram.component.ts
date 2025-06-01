@@ -184,8 +184,8 @@ export class OdontogramComponent implements OnChanges {
 
   getToothPosition(toothNumber: number): { x: number; y: number } {
     // Constants for tooth positioning
-    const TOOTH_WIDTH = 72; // Width of each tooth component
-    const TOOTH_HEIGHT = 72; // Height of each tooth component
+    const TOOTH_WIDTH = 68; // Width of each tooth component
+    const TOOTH_HEIGHT = 68; // Height of each tooth component
     const SECTION_GAP = 16; // Gap between sections
     const UPPER_LOWER_GAP = 16; // Gap between upper and lower sections
 
