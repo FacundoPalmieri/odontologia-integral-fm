@@ -7,7 +7,7 @@ export class ToothFaceFactory {
       { face: ToothFaceEnum.DISTAL, label: "Distal" },
       { face: ToothFaceEnum.VESTIBULAR, label: "Vestibular" },
       { face: ToothFaceEnum.MESIAL, label: "Mesial" },
-      { face: ToothFaceEnum.INCISAL, label: "Incisal" },
+      { face: ToothFaceEnum.OCLUSAL, label: "Oclusal" },
     ];
   }
 }
@@ -17,5 +17,5 @@ export enum ToothFaceEnum {
   DISTAL = "distal",
   VESTIBULAR = "vestibular",
   MESIAL = "mesial",
-  INCISAL = "incisal",
+  OCLUSAL = "oclusal",
 }

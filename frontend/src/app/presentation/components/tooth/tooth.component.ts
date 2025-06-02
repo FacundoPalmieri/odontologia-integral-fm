@@ -51,7 +51,7 @@ export class ToothComponent implements OnChanges {
   private treatmentsList = TreatmentFactory.createTreatments();
 
   private faceToPositionMap = {
-    [ToothFaceEnum.INCISAL]: ToothFaceTypeEnum.CENTER,
+    [ToothFaceEnum.OCLUSAL]: ToothFaceTypeEnum.CENTER,
     [ToothFaceEnum.LINGUAL]: ToothFaceTypeEnum.TOP,
     [ToothFaceEnum.MESIAL]: ToothFaceTypeEnum.RIGHT,
     [ToothFaceEnum.DISTAL]: ToothFaceTypeEnum.LEFT,
