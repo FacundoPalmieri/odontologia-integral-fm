@@ -19,6 +19,25 @@
     </div>
     <div class="overflow-x-auto">
       <table mat-table [dataSource]="patientsDataSource" matSort>
+        <ng-container matColumnDef="avatar">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element" class="w-16">
+            @if (element.profilePicture) {
+            <img
+              [src]="element.profilePicture"
+              class="h-10 w-10 rounded-full object-cover"
+              [alt]="element.firstName + ' ' + element.lastName"
+            />
+            } @else {
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200"
+            >
+              <i-tabler name="user-circle" class="text-gray-400"></i-tabler>
+            </div>
+            }
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="firstName">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
           <td mat-cell *matCellDef="let element">

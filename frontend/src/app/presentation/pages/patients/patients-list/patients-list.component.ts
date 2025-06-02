@@ -61,6 +61,7 @@ export class PatientsListComponent implements OnDestroy, AfterViewInit {
   patientsDataSource: MatTableDataSource<PatientInterface> =
     new MatTableDataSource();
   displayedColumns: string[] = [
+    "avatar",
     "firstName",
     "lastName",
     "dni",

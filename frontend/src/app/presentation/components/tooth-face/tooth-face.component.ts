@@ -11,13 +11,6 @@ import { TreatmentTypeEnum } from "../../../utils/enums/treatment.enum";
   templateUrl: "./tooth-face.component.html",
   standalone: true,
   imports: [CommonModule, IconsModule],
-  styles: [
-    `
-      .clip-left {
-        clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
-      }
-    `,
-  ],
 })
 export class ToothFaceComponent {
   @Input() faceType?: ToothFaceTypeEnum;
