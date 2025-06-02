@@ -83,6 +83,7 @@ export class ConfigurationComponent implements OnDestroy {
 
   userDisplayedColumns: string[] = [
     "id",
+    "avatar",
     "username",
     "rolesList",
     "enabled",

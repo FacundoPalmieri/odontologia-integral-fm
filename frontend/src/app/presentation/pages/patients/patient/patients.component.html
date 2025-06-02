@@ -25,12 +25,26 @@
                     class="w-full h-full object-cover"
                     alt="Avatar del paciente"
                   />
+                  } @else { @if (patientForm.get('gender')?.value?.alias ===
+                  'Hombre') {
+                  <img
+                    src="img/men-avatar.png"
+                    class="w-full h-full object-cover"
+                    alt="Avatar masculino por defecto"
+                  />
+                  } @else if (patientForm.get('gender')?.value?.alias ===
+                  'Mujer') {
+                  <img
+                    src="img/women-avatar.png"
+                    class="w-full h-full object-cover"
+                    alt="Avatar femenino por defecto"
+                  />
                   } @else {
                   <i-tabler
                     name="user-circle"
                     class="scale-1000 text-gray-400"
                   />
-                  }
+                  } }
                 </div>
                 <div
                   class="absolute inset-0 bg-black/80 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4 transition-opacity"
