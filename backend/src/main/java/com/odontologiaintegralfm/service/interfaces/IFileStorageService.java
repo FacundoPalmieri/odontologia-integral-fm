@@ -1,0 +1,63 @@
+package com.odontologiaintegralfm.service.interfaces;
+
+
+
+import com.odontologiaintegralfm.model.AttachedFiles;
+import com.odontologiaintegralfm.model.Person;
+import org.springframework.core.io.UrlResource;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+
+/**
+ * @author [Facundo Palmieri]
+ */
+public interface IFileStorageService {
+    /**
+     * Método para actualizar una imagen
+     * @param file
+     * @param person
+     * @return
+     */
+    String saveImage(MultipartFile file, Person person) throws IOException;
+
+    /**
+     * Método para obtener una imagen.
+     * @param person Id de la persona.
+     * @return
+     * @throws IOException
+     */
+    UrlResource getImage(Person person) throws IOException;
+
+    /**
+     * Método para guardar un documento en formato PDF.
+     * @param file
+     * @param person
+     * @return
+     * @throws IOException
+     */
+    String saveDocument(MultipartFile file, Person person) throws IOException;
+
+    /**
+     * Método para obtener un documento en formato PDF.
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    UrlResource getDocument(AttachedFiles file) throws IOException;
+
+
+    /**
+     * Método para validar la extensión de un archivo.
+     * @param filename
+     * @return
+     */
+    void extensionVerificationImage(String filename);
+
+
+
+    /**
+     * Método para validar el tamaño de un archivo.
+     * @param file
+     */
+    void sizeVerification(MultipartFile file);
+}

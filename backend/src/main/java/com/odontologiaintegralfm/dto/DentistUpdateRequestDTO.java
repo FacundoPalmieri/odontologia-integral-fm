@@ -1,9 +1,15 @@
 package com.odontologiaintegralfm.dto;
 
-/**
- * @author [Facundo Palmieri]
- */
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+
 public record DentistUpdateRequestDTO(
+        @NotBlank(message = "dentistCreateRequestDTO.licenseNumber.Empty")
+        String licenseNumber,
+
+        @NotNull(message = "dentistCreateRequestDTO.dentistSpecialtyId.Empty")
+        Long dentistSpecialtyId
 
 ) {
 }

@@ -15,11 +15,7 @@ public class UserSecUpdateDTO {
     private Set<Long> rolesList = new HashSet<>();
 
     //Opcional
-    private PersonCreateRequestDTO personCreateRequestDTO;
-
+    private PersonUpdateRequestDTO personUpdateRequestDTO;
     //Opcional
-    private ContactPhoneRequestDTO contactRequestDTO;
-
-    //Opcional
-    private DentistCreateRequestDTO dentistCreateRequestDTO;
+    private DentistUpdateRequestDTO dentistUpdateRequestDTO;
 }

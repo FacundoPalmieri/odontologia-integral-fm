@@ -16,13 +16,6 @@ public interface IAddressService {
      */
     Address findOrCreate(Address address);
 
-    /**
-     * Método para obtener una dirección por la información exacta.
-     * @param address objeto con los datos a buscar
-     * @return Optional<Address>
-     */
-    Optional<Address> getByAddress(Address address);
-
 
     /**
      * Método que construye un objeto {@link Address}
@@ -35,15 +28,6 @@ public interface IAddressService {
      * @param id del domicilio.
      */
     void delete(Long id);
-
-
-    /**
-     * Método para obtener el domicilio de una persona
-     *
-     * @param id objeto con los datos de la persona.
-     * @return {@link Address}
-     */
-    Address getByPersonId(Long id);
 
 
     /**

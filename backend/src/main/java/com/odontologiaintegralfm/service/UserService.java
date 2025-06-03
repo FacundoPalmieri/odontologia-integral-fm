@@ -181,26 +181,41 @@ public class UserService implements IUserService {
 
 
     /**
-     * Guarda un nuevo usuario en la base de datos.
+     * Guarda un nuevo usuario en la base de datos junto con su información personal y, si corresponde, como dentista.
      * <p>
      * Este método realiza varias validaciones antes de persistir el usuario:
      * <ul>
      *     <li>Verifica que el nombre de usuario no exista previamente en la base de datos.</li>
+     *     <li>Valida que no se asigne un rol de desarrollador (DEV) al nuevo usuario.</li>
      *     <li>Valida que las contraseñas ingresadas coincidan.</li>
-     *     <li>Construye el objeto {@link UserSec} a partir del DTO recibido.</li>
-     *     <li>Asigna los roles correspondientes al usuario.</li>
+     *     <li>Construye el objeto {@link UserSec} a partir del DTO recibido y lo persiste.</li>
      * </ul>
      * </p>
+     *
      * <p>
-     * Una vez realizadas las validaciones y asignaciones, se guarda el usuario en la base de datos.
-     * Si la operación es exitosa, se devuelve un {@link Response} conteniendo el usuario guardado en formato DTO.
-     * En caso de error en la transacción, se lanza una {@link DataBaseException}.
+     * Posteriormente, se realiza la creación de una entidad {@link Person} asociada al usuario:
+     * <ul>
+     *     <li>La persona es obligatoria y se crea mediante el {@link PersonService}.</li>
+     *     <li>La persona puede representar a una secretaria o un dentista, dependiendo del DTO recibido.</li>
+     * </ul>
      * </p>
      *
-     * @param userSecCreateDto Objeto {@link UserSecCreateDTO} con la información del usuario a guardar.
-     * @return Un {@link Response} con los datos del usuario guardado.
+     * <p>
+     * Si se incluye un {@link DentistCreateRequestDTO}, se crea también un {@link Dentist} asociado a la persona.
+     * </p>
+     *
+     * <p>
+     * Si la operación es exitosa, se devuelve un {@link Response} conteniendo el usuario guardado, junto con los datos de persona y dentista (si aplica), en formato {@link UserSecResponseDTO}.
+     * En caso de error en la transacción, se lanza una {@link DataBaseException}.
+     * Si no se proporciona información de persona, se lanza una {@link ConflictException}.
+     * </p>
+     *
+     * @param userSecCreateDto Objeto {@link UserSecCreateDTO} con la información del usuario, persona y dentista (opcional) a guardar.
+     * @return Un {@link Response} con los datos del usuario guardado, incluyendo la persona y el dentista si corresponde.
      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
+     * @throws ConflictException Si no se puede crear la persona asociada al usuario.
      */
+
     @Override
     @Transactional
     public Response<UserSecResponseDTO> create(UserSecCreateDTO userSecCreateDto) {
@@ -216,7 +231,6 @@ public class UserService implements IUserService {
 
             //Construye la entidad para persistirla.
             UserSec userSec = buildUserSec(userSecCreateDto);
-
 
             //Guarda el usuario en la base de datos.
             UserSec userSecSaved = userRepository.save(userSec);
@@ -242,7 +256,6 @@ public class UserService implements IUserService {
             }else {
                 throw new ConflictException("exception.createPerson.user", null, "exception.createPerson.log", new Object[]{userSecResponse.getId(), userSecResponse.getUsername()  ,"UserService","create"}, LogLevel.ERROR );
             }
-
 
             //Creación de Dentista
             if(userSecCreateDto.getDentistCreateRequestDTO() != null) {
@@ -301,18 +314,35 @@ public class UserService implements IUserService {
             UserSec userSaved = userRepository.save(userSecAux);
 
             //Convierte la entidad a un DTO.
-            UserSecResponseDTO UserSecResponse = convertToDTO(userSaved);
+            UserSecResponseDTO userSecResponse = convertToDTO(userSaved);
 
             //Se construye Mensaje para usuario.
             String userMessage = messageService.getMessage("userService.update.ok", null, LocaleContextHolder.getLocale());
 
-            // Verifica si se actualizan datos de Dentista.
-            if(userSecUpdateDto.getDentistCreateRequestDTO() != null) {
-             //   DentistResponseDTO dentistResponseDTO = dentistService.u
+            //Actualizar datos de la Persona.
+            if(userSecUpdateDto.getPersonUpdateRequestDTO() != null) {
+                Person person = personService.getById(userSecUpdateDto.getId());
+                person = personService.update(person,userSecUpdateDto.getPersonUpdateRequestDTO());
+
+                PersonResponseDTO personResponseDTO = personService.convertToDTO(person);
+
+                //Se agrega PersonaDTO a la respuesta final
+                userSecResponse.setPersonResponseDTO(personResponseDTO);
+
             }
 
+            // Verifica si se actualizan datos de Dentista.
+            if(userSecUpdateDto.getDentistUpdateRequestDTO() != null) {
+                Dentist dentist = dentistService.getById(userSecUpdateDto.getId());
+                dentist = dentistService.update(dentist,userSecUpdateDto.getDentistUpdateRequestDTO());
 
-            return new Response<>(true, userMessage, UserSecResponse);
+                DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist);
+
+                //Se agrega DentistResponseDTO a la respuesta final
+                userSecResponse.setDentistResponseDTO(dentistResponseDTO);
+            }
+
+            return new Response<>(true, userMessage, userSecResponse);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", userSecUpdateDto.getId(), "", "Update");

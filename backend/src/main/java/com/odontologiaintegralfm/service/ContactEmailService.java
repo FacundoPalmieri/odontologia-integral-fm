@@ -1,10 +1,8 @@
 package com.odontologiaintegralfm.service;
 
-import com.odontologiaintegralfm.enums.LogLevel;
+
 import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.ContactEmail;
-import com.odontologiaintegralfm.model.Person;
 import com.odontologiaintegralfm.repository.IContactEmailRepository;
 import com.odontologiaintegralfm.service.interfaces.IContactEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +45,5 @@ public class ContactEmailService implements IContactEmailService {
             throw new DataBaseException(e, "ContactEmailService", null, String.join(", ", emails), "create");
         }
     }
-
-
-
-
-
-
 
 }

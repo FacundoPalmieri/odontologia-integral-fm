@@ -6,17 +6,21 @@ import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.ConflictException;
 import com.odontologiaintegralfm.exception.DataBaseException;
+import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.ContactEmail;
 import com.odontologiaintegralfm.model.Person;
 import com.odontologiaintegralfm.repository.IPersonRepository;
 import com.odontologiaintegralfm.service.interfaces.*;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -50,6 +54,8 @@ public class PersonService implements IPersonService {
     @Autowired
     private IContactPhoneService contactPhoneService;
 
+    @Autowired
+    private IFileStorageService fileStorageService;
 
     /**
      * Método para crear una Persona
@@ -113,6 +119,23 @@ public class PersonService implements IPersonService {
     }
 
     /**
+     * Método para obtener una persona por su ID.
+     *
+     * @param id de la persona.
+     * @return Objeto Person
+     */
+    @Override
+    public Person getById(Long id) {
+        try {
+            return personRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("exception.personNotFound.user", null, "exception.personNotFound.log", new Object[]{id, "PersonService", "getById"}, LogLevel.ERROR));
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "PersonService", id, "<- Id de la Persona", "getById");
+        }
+    }
+
+    /**
      * Mètodo para validar la existencia de una persona por combinaciòn de Tipo documento + Nùmero
      * @param dniTypeId Id del tipo del documento
      * @param dni Nùmero de identification.
@@ -126,7 +149,7 @@ public class PersonService implements IPersonService {
             }
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", null,dni, "validatePatient");
+            throw new DataBaseException(e, "PersonService", null,dni, "validatePerson");
         }
 
     }
@@ -186,7 +209,58 @@ public class PersonService implements IPersonService {
         try {
             return personRepository.countByAddress_Id(addressId);
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", addressId,"<-  Id de domicilio", "personsByAddressId");
+            throw new DataBaseException(e, "PersonService", addressId,"<-  Id de domicilio", "personsByAddressId");
         }
     }
+
+
+
+    /**
+     * Método para actualizar la imágen de perfil de la persona.
+     *
+     * @param file
+     * @param personId
+     * @return
+     */
+    @Override
+    public Response<String> saveAvatar(MultipartFile file, Long personId)throws IOException {
+
+        //Verifica si existe imagen.
+        if(file.isEmpty()){
+            return null;
+        }
+
+        //Obtiene la persona
+        Person person = getById(personId);
+
+        //Llama al FileStorageService para crear/actualizar imagen
+        person.setAvatarUrl(fileStorageService.saveImage(file, person));
+        personRepository.save(person);
+
+        return new Response<>(true, null,person.getAvatarUrl());
+    }
+
+
+
+    /**
+     * Método para obtener la imágen de perfil de la persona.
+     *
+     * @param personId Id de la persona.
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public UrlResource getAvatar(Long personId) throws IOException {
+        try{
+            //Obtiene la persona
+            Person person = getById(personId);
+            return  fileStorageService.getImage(person);
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "PersonService", personId,"<-  Id de la persona", "getAvatar");
+        }
+
+
+    }
+
 }

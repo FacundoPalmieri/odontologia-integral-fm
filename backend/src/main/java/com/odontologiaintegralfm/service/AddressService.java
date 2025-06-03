@@ -4,7 +4,6 @@ import com.odontologiaintegralfm.dto.AddressRequestDTO;
 import com.odontologiaintegralfm.dto.AddressResponseDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.Address;
-import com.odontologiaintegralfm.model.Person;
 import com.odontologiaintegralfm.repository.IAddressRepository;
 import com.odontologiaintegralfm.service.interfaces.IAddressService;
 import com.odontologiaintegralfm.service.interfaces.IGeoService;
@@ -54,19 +53,6 @@ public class AddressService implements IAddressService {
 
     }
 
-    /**
-     * Método para obtener una dirección por la información exacta.
-     * @param address objeto con los datos a buscar
-     * @return Optional<Address>
-     */
-    public Optional<Address> getByAddress(Address address){
-        try{
-            return addressRepository.findAddressComplete(address.getStreet(),address.getNumber(),address.getFloor(),address.getApartment(),address.getLocality());
-        }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "AddressService",null, address.getStreet() + " " +  address.getNumber(), "getByAddress");
-        }
-    }
-
 
     /**
      * Método que construye un objeto {@link Address} y llama al servicio correspondiente para su creación.
@@ -98,21 +84,6 @@ public class AddressService implements IAddressService {
     }
     }
 
-
-    /**
-     * Método para obtener el domicilio de una persona
-     *
-     * @param id objeto con los datos de la persona.
-     * @return {@link Address}
-     */
-    @Override
-    public Address getByPersonId(Long id) {
-        try{
-            return addressRepository.findByPersonId(id);
-        }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "AddressService",id,null, "getByPersonId");
-        }
-    }
 
     /**
      * Método para convertir un {@link Address} a un objeto {@link AddressResponseDTO}

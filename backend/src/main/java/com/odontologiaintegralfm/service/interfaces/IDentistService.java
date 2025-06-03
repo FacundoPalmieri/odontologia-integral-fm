@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.DentistCreateRequestDTO;
 import com.odontologiaintegralfm.dto.DentistResponseDTO;
+import com.odontologiaintegralfm.dto.DentistUpdateRequestDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.Dentist;
@@ -29,6 +30,13 @@ public interface IDentistService {
      */
     Dentist create(Person person, DentistCreateRequestDTO dentistCreateRequestDTO);
 
+    /**
+     * Método para actualizar un Dentista.
+     * @param dentist datos del objeto Dentista recuperado desde la BD.
+     * @param dentistUpdateRequestDTO datos nuevos recibidos en el DTO.
+     * @return Dentista
+     */
+    Dentist update(Dentist dentist, DentistUpdateRequestDTO dentistUpdateRequestDTO);
 
     /**
      * Método para obtener un listado de pacientes habilitados en el sistema.
@@ -36,7 +44,12 @@ public interface IDentistService {
      */
     Response<Set<DentistResponseDTO>> getAll();
 
-
+    /**
+     * Método para obtener un dentista por su Id
+     * @param id del Dentista.
+     * @return objeto Dentist
+     */
+    Dentist getById(Long id);
 
     /**
      * Método para transformar un {@link Dentist} a un {@link DentistResponseDTO}

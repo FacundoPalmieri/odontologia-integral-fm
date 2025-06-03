@@ -42,11 +42,6 @@ public class UserController {
     private IUserService userService;
 
 
-
-
-
-
-
     /**
      * Lista todos los usuarios.
      * <p>Requiere rol <b>ADMIN</b> para acceder.</p>
@@ -65,7 +60,7 @@ public class UserController {
     })
     @GetMapping("/all")
     @OnlyDeveloperAndAdministrator
-    public ResponseEntity<Response<List<UserSecResponseDTO>>> getAllUsers() {
+    public ResponseEntity<Response<List<UserSecResponseDTO>>> getAll() {
         Response<List<UserSecResponseDTO>> response = userService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -97,19 +92,11 @@ public class UserController {
     })
     @GetMapping("/{id}")
     @OnlyDeveloperAndAdministrator
-    public ResponseEntity<Response<UserSecResponseDTO>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<Response<UserSecResponseDTO>> getById(@PathVariable Long id) {
         Response<UserSecResponseDTO>response = userService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
-
-
-
-
-
-
-
-
 
 
 

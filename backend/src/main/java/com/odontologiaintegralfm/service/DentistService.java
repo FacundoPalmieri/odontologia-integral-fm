@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.ConflictException;
 import com.odontologiaintegralfm.exception.DataBaseException;
+import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IDentistRepository;
 import com.odontologiaintegralfm.service.interfaces.*;
@@ -14,10 +15,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,19 +29,7 @@ public class DentistService implements IDentistService {
     private IDentistRepository dentistRepository;
 
     @Autowired
-    private IAddressService addressService;
-
-    @Autowired
     private DentistSpecialtyService dentistSpecialtyService;
-
-    @Autowired
-    private IContactEmailService contactEmailService;
-
-    @Autowired
-    private IContactPhoneService contactPhoneService;
-
-    @Autowired
-    private IMessageService messageService;
 
     @Autowired
     @Lazy
@@ -87,6 +73,32 @@ public class DentistService implements IDentistService {
     }
 
     /**
+     * Método para actualizar un Dentista.
+     *
+     * @param dentist                 datos del objeto Dentista recuperado desde la BD.
+     * @param dentistUpdateRequestDTO datos nuevos recibidos en el DTO.
+     * @return Dentista
+     */
+    @Override
+    @Transactional
+    public Dentist update(Dentist dentist, DentistUpdateRequestDTO dentistUpdateRequestDTO) {
+        try{
+            //Valída que no exista el n.° de licencia.
+            validateDentist(dentistUpdateRequestDTO.licenseNumber());
+
+            dentist.setLicenseNumber(dentistUpdateRequestDTO.licenseNumber());
+            dentist.setDentistSpecialty(dentistSpecialtyService.getById(dentistUpdateRequestDTO.dentistSpecialtyId()));
+
+            dentist.setUpdatedAt(LocalDateTime.now());
+            dentist.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+            return dentistRepository.save(dentist);
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "DentistService", dentist.getId(),null, "update");
+        }
+    }
+
+    /**
      * Método para obtener un listado de pacientes habilitados en el sistema.
      *
      * @return Una respuesta que contiene una lista de objetos {@link DentistResponseDTO }
@@ -104,6 +116,22 @@ public class DentistService implements IDentistService {
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistService",null,null, "getAll");
+        }
+    }
+
+    /**
+     * Método para obtener un dentista por su Id
+     *
+     * @param id del Dentista.
+     * @return objeto Dentist
+     */
+    @Override
+    public Dentist getById(Long id) {
+        try{
+            return dentistRepository.findById(id)
+                    .orElseThrow(() ->  new NotFoundException("exception.dentistNotFound.user",null,"exception.dentistNotFound.log",new Object[]{id,"DentistService","getById"}, LogLevel.ERROR));
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "DentistService",null,null, "getById");
         }
     }
 

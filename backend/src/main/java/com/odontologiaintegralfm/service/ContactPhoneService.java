@@ -1,20 +1,13 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.ContactPhoneRequestDTO;
-import com.odontologiaintegralfm.enums.LogLevel;
-import com.odontologiaintegralfm.exception.DataBaseException;
-import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.ContactPhone;
-import com.odontologiaintegralfm.model.Person;
 import com.odontologiaintegralfm.repository.IContactPhoneRepository;
 import com.odontologiaintegralfm.service.interfaces.IContactPhoneService;
 import com.odontologiaintegralfm.service.interfaces.IPhoneTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;

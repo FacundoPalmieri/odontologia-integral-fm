@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 /**
- * @author [Facundo Palmieri]
+ * Componente para obtener el usuario autenticado.
+ * Se utiliza para completar la información de auditoría.
  */
 
 @Component
