@@ -1,5 +1,9 @@
 package com.odontologiaintegralfm.scheduled;
 
+import com.odontologiaintegralfm.service.interfaces.IAddressService;
+import com.odontologiaintegralfm.service.interfaces.IContactEmailService;
+import com.odontologiaintegralfm.service.interfaces.IContactPhoneService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,10 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CleanupService {
 
+    @Autowired
+    private IAddressService addressService;
+
+    @Autowired
+    private IContactEmailService contactEmailService;
+
+    @Autowired
+    private IContactPhoneService contactPhoneService;
+
     @Scheduled(cron = "0 0 21 1 * *")
     @Transactional
     public void cleanOrphanData() {
-
+            addressService.deleteOrphan();
+            contactEmailService.deleteOrphan();
+            contactPhoneService.deleteOrphan();
     }
 
 }

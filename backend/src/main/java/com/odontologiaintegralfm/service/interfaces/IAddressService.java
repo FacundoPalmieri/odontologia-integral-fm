@@ -4,9 +4,6 @@ package com.odontologiaintegralfm.service.interfaces;
 import com.odontologiaintegralfm.dto.AddressRequestDTO;
 import com.odontologiaintegralfm.dto.AddressResponseDTO;
 import com.odontologiaintegralfm.model.Address;
-import com.odontologiaintegralfm.model.Person;
-
-import java.util.Optional;
 
 public interface IAddressService {
 
@@ -36,4 +33,12 @@ public interface IAddressService {
      * @return AddressResponseDTO
      */
     AddressResponseDTO convertToDTO(Address address);
+
+
+    /**
+     * Realiza una eliminación física de los domicilios huérfanos.
+     * Este método es invocado desde tareas programadas.
+     * @return
+     */
+     void deleteOrphan();
 }

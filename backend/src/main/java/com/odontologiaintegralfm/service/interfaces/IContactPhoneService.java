@@ -19,6 +19,13 @@ public interface IContactPhoneService {
      */
     Set<ContactPhone> findOrCreate(Set<ContactPhoneRequestDTO> contactPhone);
 
+    /**
+     * Realiza una eliminación física de los teléfonos huérfanos.
+     * Este método es invocado desde tareas programadas.
+     * @return
+     */
+    void deleteOrphan();
+
 
 
 }

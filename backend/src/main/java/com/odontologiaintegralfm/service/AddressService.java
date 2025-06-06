@@ -7,14 +7,16 @@ import com.odontologiaintegralfm.model.Address;
 import com.odontologiaintegralfm.repository.IAddressRepository;
 import com.odontologiaintegralfm.service.interfaces.IAddressService;
 import com.odontologiaintegralfm.service.interfaces.IGeoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class AddressService implements IAddressService {
 
@@ -72,16 +74,15 @@ public class AddressService implements IAddressService {
 
     /**
      * Elimina un domicilio huérfano.
-     *
      * @param id del domicilio.
      */
     @Override
     public void delete(Long id) {
         try{
-
+            addressRepository.deleteById(id);
         }catch(DataAccessException | CannotCreateTransactionException e){
-        throw new DataBaseException(e, "AddressService",id,"<- Id domicilio", "delete");
-    }
+            throw new DataBaseException(e, "AddressService",id,"<- Id domicilio", "delete");
+        }
     }
 
 
@@ -105,5 +106,37 @@ public class AddressService implements IAddressService {
         );
     }
 
+
+
+    /**
+     * Realiza una eliminación física de los domicilios huérfanos.
+     * Este método es invocado desde tareas programadas.
+     *
+     * @return
+     */
+    @Override
+    @Transactional
+    public void deleteOrphan() {
+        try{
+            List<Address> orphanAddresses  = addressRepository.findOrphan();
+
+            if (orphanAddresses.isEmpty()) {
+                log.info("Tarea Programada: [Domicilios huérfanos] - No se encontraron registros para eliminar.");
+                return;
+            }
+
+            //Se obtiene total para loguear.
+            int count = orphanAddresses.size();
+
+            //Se elimina
+            addressRepository.deleteAll(orphanAddresses);
+
+            log.info("Tarea Programada: [Domicilios huérfanos] - [Total eliminados:  {}]", count);
+
+        }catch(DataAccessException | CannotCreateTransactionException e){
+            throw new DataBaseException(e, "AddressService",null,null, "deleteOrphan");
+        }
+
+    }
 
 }

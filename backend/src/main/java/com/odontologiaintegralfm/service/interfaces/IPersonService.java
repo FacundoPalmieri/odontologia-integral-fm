@@ -11,6 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+
+/**
+ * Interfaz que define las operaciones de negocio relacionadas con la entidad {@link Person}.
+ * Permite crear, actualizar, consultar y validar personas, así como gestionar su imagen de perfil.
+ *
+ * @author Facundo Palmieri
+ */
 public interface IPersonService {
 
 
@@ -69,11 +76,5 @@ public interface IPersonService {
     UrlResource getAvatar (Long personId) throws IOException;
 
 
-    /**
-     * Método para saber cuantos pacientes están relacionados a un ID de domicilio
-     * @param addressId domicilio
-     * @return cantidad de personas asociadas.
-     */
-    long personsByAddressId(Long addressId);
 
 }

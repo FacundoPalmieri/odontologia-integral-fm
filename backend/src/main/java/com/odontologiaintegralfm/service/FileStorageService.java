@@ -5,11 +5,9 @@ import com.odontologiaintegralfm.exception.ConflictException;
 import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.AttachedFiles;
 import com.odontologiaintegralfm.model.Person;
-import com.odontologiaintegralfm.repository.IPersonRepository;
 import com.odontologiaintegralfm.service.interfaces.IFileStorageService;
 import jakarta.annotation.PostConstruct;
 import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -25,7 +23,24 @@ import java.util.stream.Collectors;
 
 
 /**
- * @author [Facundo Palmieri]
+ * Servicio encargado de gestionar el almacenamiento y recuperación de archivos físicos.
+ * <p>
+ * Soporta dos tipos de archivos:
+ * <ul>
+ *     <li>Imágenes de perfil de personas (avatares)</li>
+ *     <li>Documentos (generalmente en formato PDF) adjuntos a personas</li>
+ * </ul>
+ *
+ * Funcionalidades principales:
+ * <ul>
+ *     <li>Guardar y obtener imágenes de perfil</li>
+ *     <li>Guardar y obtener documentos</li>
+ *     <li>Validar extensiones y tamaños permitidos</li>
+ * </ul>
+ *
+ * Las rutas, extensiones y tamaños máximos están configuradas mediante propiedades externas (`application.properties` o `application.yml`).
+ *
+ * @author Facundo Palmieri
  */
 @Service
 public class FileStorageService implements IFileStorageService {
@@ -222,7 +237,7 @@ public class FileStorageService implements IFileStorageService {
 
         Path path = Paths.get(uploadDirDocument, file.getStoredFileName());
         if (!Files.exists(path)) {
-            throw new NotFoundException("exception.attachedFilesNotFound.user", null, "exception.attachedFilesNotFound.log", new Object[]{file.getStoredFileName(), "FileStorageService", "getDocument"}, LogLevel.ERROR);
+            throw new NotFoundException("exception.file.attachedFilesNotFound.user", null, "exception.file.attachedFilesNotFound.log", new Object[]{file.getStoredFileName(), "FileStorageService", "getDocument"}, LogLevel.ERROR);
         }
 
         return new UrlResource(path.toUri());

@@ -1,17 +1,23 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.ContactPhoneRequestDTO;
+import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.ContactPhone;
 import com.odontologiaintegralfm.repository.IContactPhoneRepository;
 import com.odontologiaintegralfm.service.interfaces.IContactPhoneService;
 import com.odontologiaintegralfm.service.interfaces.IPhoneTypeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class ContactPhoneService implements IContactPhoneService {
     @Autowired
@@ -46,6 +52,37 @@ public class ContactPhoneService implements IContactPhoneService {
         return contactPhones;
     }
 
+    /**
+     * Realiza una eliminación física de los teléfonos huérfanos.
+     * Este método es invocado desde tareas programadas.
+     *
+     * @return
+     */
+    @Override
+    @Transactional
+    public void deleteOrphan() {
+
+        try{
+            List<ContactPhone> orphanPhone = contactPhoneRepository.findOrphan();
+
+            if(orphanPhone.isEmpty()) {
+                log.info("Tarea Programada: [Teléfonos huérfanos] - No se encontraron registros para eliminar.");
+                return;
+            }
+
+            //Se obtiene total para loguear.
+            int count = orphanPhone.size();
+
+            //Se elimina
+            contactPhoneRepository.deleteAll(orphanPhone);
+
+            log.info("Tarea Programada: [Teléfonos huérfanos] - [Total eliminados:  {}]", count);
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "ContactPhoneService", null,null, "deleteOrphan");
+        }
+
+    }
 
 
 }

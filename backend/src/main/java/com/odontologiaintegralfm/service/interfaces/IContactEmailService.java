@@ -17,6 +17,11 @@ public interface IContactEmailService {
      */
     Set<ContactEmail> findOrCreate(Set<String> email);
 
-
+    /**
+     * Realiza una eliminación física de los emails huérfanos.
+     * Este método es invocado desde tareas programadas.
+     * @return
+     */
+    void deleteOrphan();
 
 }

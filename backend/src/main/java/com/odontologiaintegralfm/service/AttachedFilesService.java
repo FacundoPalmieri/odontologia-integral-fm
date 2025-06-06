@@ -13,24 +13,24 @@ import com.odontologiaintegralfm.service.interfaces.IAttachedFilesService;
 import com.odontologiaintegralfm.service.interfaces.IFileStorageService;
 import com.odontologiaintegralfm.service.interfaces.IPersonService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
- * @author [Facundo Palmieri]
+ * Servicio encargado de gestionar los archivos adjuntos (documentos PDF) asociados a personas.
+ * Incluye operaciones de almacenamiento, recuperación y obtención de metadata.
+ *
+ * @author Facundo Palmieri
  */
 @Service
 public class AttachedFilesService implements IAttachedFilesService {
-
-    @Value("${file.upload-dir.document}")
-    private String uploadDirDocument;
 
     @Autowired
     private IFileStorageService fileStorageService;
@@ -43,6 +43,8 @@ public class AttachedFilesService implements IAttachedFilesService {
 
     @Autowired
     private AuthenticatedUserService authenticatedUserService;
+
+
 
     /**
      * Método para guardar un documento en formato PDF.
@@ -87,15 +89,15 @@ public class AttachedFilesService implements IAttachedFilesService {
      * @throws IOException
      */
     @Override
-    public UrlResource getDocumentResourceById(Long id) throws IOException {
+    public UrlResource getByIdDocumentResource(Long id) throws IOException {
         try{
             AttachedFiles file = attachedFilesRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundException("exception.file.attachedFilesNotFound.user", null, "exception.file.attachedFilesNotFound.log", new Object[]{id, "AttachedFilesService", "getDocumentById"}, LogLevel.ERROR));
+                    .orElseThrow(() -> new NotFoundException("exception.file.attachedFilesNotFound.user", null, "exception.file.attachedFilesNotFound.log", new Object[]{id, "AttachedFilesService", "getByIdDocumentResource"}, LogLevel.ERROR));
 
             return fileStorageService.getDocument(file);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", id,"<-  Id del documento", "getDocumentById");
+            throw new DataBaseException(e, "AttachedService", id,"<-  Id del documento", "getByIdDocumentResource");
         }
     }
 
@@ -107,7 +109,7 @@ public class AttachedFilesService implements IAttachedFilesService {
      * @throws IOException
      */
     @Override
-    public Response<AttachedFileResponseDTO> getDocumentMetaDataById(Long id) throws IOException {
+    public Response<AttachedFileResponseDTO> getByIdDocumentMetaData(Long id) throws IOException {
         try{
             AttachedFiles file = attachedFilesRepository.findById(id)
                     .orElseThrow(() -> new NotFoundException("exception.file.attachedFilesNotFound.user", null, "exception.file.attachedFilesNotFound.log", new Object[]{id, "AttachedFilesService", "getDocumentById"}, LogLevel.ERROR));
@@ -118,12 +120,52 @@ public class AttachedFilesService implements IAttachedFilesService {
                     file.getStoredFileName(),
                     file.getCreatedAt(),
                     file.getCreatedBy().getUsername(),
-                    uploadDirDocument + file.getStoredFileName()
+                    buildDownloadPath(file)
             );
             return new Response<>(true, null,attachedFileResponseDTO);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", id,"<-  Id del documento", "getDocumentById");
+            throw new DataBaseException(e, "AttachedService", id,"<-  Id del documento", "getByIdDocumentMetaData");
         }
+    }
+
+    /**
+     * Método para obtener la información de todos los documentos adjuntos.
+     *
+     * @return Response<List < AttachedFileResponseDTO>>
+     * @throws IOException
+     */
+    @Override
+    public Response<List<AttachedFileResponseDTO>> getAllDocumentMetaData() throws IOException {
+        try{
+            List<AttachedFiles> attachedFiles = attachedFilesRepository.findByEnabledTrue();
+
+            List<AttachedFileResponseDTO> attachedFileResponseDTOS = attachedFiles.stream()
+                    .map(attachedFile -> new AttachedFileResponseDTO(
+                            attachedFile.getId(),
+                            attachedFile.getFileName(),
+                            attachedFile.getStoredFileName(),
+                            attachedFile.getCreatedAt(),
+                            attachedFile.getCreatedBy().getUsername(),
+                            buildDownloadPath(attachedFile)
+                    ))
+                    .toList();
+
+            return new Response<>(true, null,attachedFileResponseDTOS);
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "AttachedService", null,null, "getAllDocumentMetaData");
+        }
+    }
+
+
+    private String buildDownloadPath(AttachedFiles attachedFile){
+        return ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/api/files/")
+                .path(attachedFile.getId().toString())
+                .path("/download")
+                .toUriString();
+
     }
 }

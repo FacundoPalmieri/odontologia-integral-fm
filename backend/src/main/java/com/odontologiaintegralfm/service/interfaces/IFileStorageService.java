@@ -1,7 +1,5 @@
 package com.odontologiaintegralfm.service.interfaces;
 
-
-
 import com.odontologiaintegralfm.model.AttachedFiles;
 import com.odontologiaintegralfm.model.Person;
 import org.springframework.core.io.UrlResource;
@@ -9,7 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 /**
- * @author [Facundo Palmieri]
+ * Interfaz que define las operaciones para el almacenamiento y recuperación de archivos físicos.
+ * <p>
+ * Las implementaciones deben encargarse de manejar imágenes de perfil y documentos,
+ * incluyendo validaciones de tamaño y extensión, así como la gestión de rutas físicas.
+ * </p>
  */
 public interface IFileStorageService {
     /**

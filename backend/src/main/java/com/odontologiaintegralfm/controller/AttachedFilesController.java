@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * @author [Facundo Palmieri]
@@ -90,8 +91,8 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
     @GetMapping("/{id}/download")
-    public ResponseEntity<UrlResource> getDocumentAsResource(Long id) throws IOException {
-        UrlResource document = attachedFilesService.getDocumentResourceById(id);
+    protected ResponseEntity<UrlResource> getByIdDocumentAsResource(Long id) throws IOException {
+        UrlResource document = attachedFilesService.getByIdDocumentResource(id);
 
         //Detecta automáticamente el tipo MIME del archivo
         String contentType = Files.probeContentType(Paths.get(document.getFile().getAbsolutePath()));
@@ -127,10 +128,18 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
     @GetMapping("/{id}/metadata")
-    public ResponseEntity<Response<AttachedFileResponseDTO>> getDocumentMetadata(Long id) throws IOException {
-        Response<AttachedFileResponseDTO> response= attachedFilesService.getDocumentMetaDataById(id);
+    public ResponseEntity<Response<AttachedFileResponseDTO>> getByIdDocumentMetadata(Long id) throws IOException {
+        Response<AttachedFileResponseDTO> response= attachedFilesService.getByIdDocumentMetaData(id);
          return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/all/metadata")
+    public ResponseEntity<Response<List<AttachedFileResponseDTO>>> getAllDocumentMetadata() throws IOException {
+        Response<List<AttachedFileResponseDTO>> response = attachedFilesService.getAllDocumentMetaData();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
 
 
 }

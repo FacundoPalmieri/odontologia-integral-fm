@@ -27,6 +27,16 @@ import java.time.Period;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Servicio que implementa la lógica de negocio para la gestión de {@link Person}.
+ * Permite crear, actualizar, obtener personas, validar existencia y gestionar la imagen de perfil.
+ * Utiliza múltiples servicios y repositorios para manejar relaciones y operaciones asociadas.
+ *
+ * La mayoría de los métodos que modifican datos están anotados con {@link Transactional} para garantizar la atomicidad.
+ *
+ * @author Facundo Palmieri
+ */
+
 @Service
 public class PersonService implements IPersonService {
     @Autowired
@@ -198,21 +208,6 @@ public class PersonService implements IPersonService {
                 )
         );
     }
-
-    /**
-     * Método para saber cuantos pacientes están relacionados a un ID de domicilio
-     * @param addressId domicilio
-     * @return cantidad de personas asociadas.
-     */
-    @Override
-    public long personsByAddressId(Long addressId) {
-        try {
-            return personRepository.countByAddress_Id(addressId);
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PersonService", addressId,"<-  Id de domicilio", "personsByAddressId");
-        }
-    }
-
 
 
     /**
