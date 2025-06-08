@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/health-plans")
-@PreAuthorize("denyAll()")
+@OnlyAdmistratorAndSecretary
 public class HealthPlanController {
 
 
@@ -46,7 +46,6 @@ public class HealthPlanController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @OnlyAdmistratorAndSecretary
     public ResponseEntity<Response<List<HealthPlanResponseDTO>>> getAll(){
         Response<List<HealthPlanResponseDTO>> response = healthPlanService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

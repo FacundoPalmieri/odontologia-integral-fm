@@ -13,9 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 
@@ -41,7 +39,7 @@ import java.util.List;
  */
 
 @RestController
-@PreAuthorize("denyAll()")
+@OnlyDevelopers
 @RequestMapping("/api/role")
 public class RoleController {
 
@@ -73,7 +71,6 @@ public class RoleController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @OnlyDevelopers
     public ResponseEntity<Response<List<Role>>> getAllRoles() {
         Response<List<Role>> response = roleService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -104,7 +101,6 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Rol no encontrado."),
     })
     @GetMapping("/{id}")
-    @OnlyDevelopers
     public ResponseEntity<Response<RoleResponseDTO>> getRoleById(@Valid @PathVariable Long id) {
         Response<RoleResponseDTO> response = roleService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -137,7 +133,6 @@ public class RoleController {
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
     @PostMapping
-    @OnlyDevelopers
     public ResponseEntity<Response<RoleResponseDTO>>createRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
         Response<RoleResponseDTO> response = roleService.create(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -172,7 +167,6 @@ public class RoleController {
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
     @PatchMapping
-    @OnlyDevelopers
     public ResponseEntity<Response<RoleResponseDTO>> updateRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
         Response<RoleResponseDTO> response = roleService.update(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -70,6 +70,9 @@ public class UserSec extends Auditable {
     @Column(length = 500)
     private String resetPasswordToken;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "person_id")
+    private Person person;
 
 
     /** Constructor con campos heredados. */
@@ -83,6 +86,7 @@ public class UserSec extends Auditable {
             boolean credentialNotExpired,
             Set<Role> rolesList,
             String resetPasswordToken,
+            Person person,
 
             //Heredados.
             LocalDateTime createdAt,
@@ -102,6 +106,7 @@ public class UserSec extends Auditable {
         this.credentialNotExpired = credentialNotExpired;
         this.rolesList = rolesList;
         this.resetPasswordToken = resetPasswordToken;
+        this.person = person;
 
         // Heredados
         this.setCreatedAt(createdAt);

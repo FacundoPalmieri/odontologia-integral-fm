@@ -116,12 +116,34 @@ public class UserService implements IUserService {
     @Override
     public Response<List<UserSecResponseDTO>> getAll() {
         try{
+            //Obtiene listado de usuarios.
             List<UserSec> userList = userRepository.findAll();
 
-            List<UserSecResponseDTO> userSecResponseDTOList = new ArrayList<>();
-            for(UserSec userSec : userList) {
-              //  userSecResponseDTOList.add(convertToDTO(userSec));
-            }
+
+            List<UserSecResponseDTO> userSecResponseDTOList = userList
+                    .stream()
+                    .map(user -> {
+
+                            PersonResponseDTO personDTO = null;
+                            DentistResponseDTO dentistDTO = null;
+
+                            if (user.getPerson() != null) {
+                                personDTO = personService.convertToDTO(personService.getById(user.getPerson().getId()));
+                                dentistDTO = dentistService.convertToDTO(dentistService.getById(user.getPerson().getId()));
+                            }
+
+                            return new UserSecResponseDTO(
+                                    user.getId(),
+                                    user.getUsername(),
+                                    user.getRolesList(),
+                                    user.isEnabled(),
+                                    personDTO,
+                                    dentistDTO
+                            );
+            })
+    .collect(Collectors.toList());
+
+
             String messageUser = messageService.getMessage("userService.getAll.ok", null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser, userSecResponseDTOList);
 
@@ -250,6 +272,7 @@ public class UserService implements IUserService {
             if(userSecCreateDto.getPersonCreateRequestDTO() != null) {
                 person = personService.create(userSecCreateDto.getPersonCreateRequestDTO());
                 PersonResponseDTO personResponseDTO = personService.convertToDTO(person);
+                userSec.setPerson(person);
 
                 //Se agrega PersonaDTO a la respuesta final
                 userSecResponse.setPersonResponseDTO(personResponseDTO);
@@ -324,6 +347,7 @@ public class UserService implements IUserService {
                 Person person = personService.getById(userSecUpdateDto.getId());
                 person = personService.update(person,userSecUpdateDto.getPersonUpdateRequestDTO());
 
+                userSec.setPerson(person);
                 PersonResponseDTO personResponseDTO = personService.convertToDTO(person);
 
                 //Se agrega PersonaDTO a la respuesta final
@@ -992,6 +1016,7 @@ public class UserService implements IUserService {
                 true, // credentialNotExpired
                 getRolesForUser(userSecCreateDto.getRolesList()),
                 null, // resetPasswordToken
+                null, //Person
 
                 // Campos heredados de Auditable
                 LocalDateTime.now(), // createdAt
