@@ -9,6 +9,8 @@ import java.util.Set;
 
 
 public record PersonUpdateRequestDTO(
+
+        @NotNull(message = "generic.id.empty")
         Long id,
 
         @NotBlank(message = "personCreateRequestDTO.firstName.Empty")

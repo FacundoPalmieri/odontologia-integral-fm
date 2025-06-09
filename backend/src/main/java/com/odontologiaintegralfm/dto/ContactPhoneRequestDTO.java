@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotNull;
 
 public record ContactPhoneRequestDTO(
 
-        @NotNull(message = "ContactPhoneRequestDTO.phoneType.Empty")
+        @NotNull(message = "contactPhoneRequestDTO.phoneType.Empty")
         Long phoneType,
 
-        @NotBlank(message = "ContactPhoneRequestDTO.phone.Empty")
+        @NotBlank(message = "contactPhoneRequestDTO.phone.Empty")
         String phone
 ) {
 }

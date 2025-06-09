@@ -281,4 +281,59 @@ public class ConfigController {
 
     }
 
+
+    /**
+     * Actualiza la expresión Cron de las tareas programadas
+     * <p>
+     *   Requiere el rol <b>DEV</b> para acceder.
+     * </p>
+     * @param scheduleConfigRequestDTO con la expresión Cron
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 OK</b>: Expresión Cron actualizada exitosamente.</li>
+     *         <li><b>400 Bad Request</b>: Datos inválidos para actualizar la expresión cron.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         </ul>
+     */
+    @Operation(summary = "Actualizar expresión Cron de las tareas programadas", description = "Actualiza la expresión Cron de las tareas programadas.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Expresión Cron actualizada exitosamente."),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos para actualizar la expresión cron."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
+    })
+    @PatchMapping("/schedule")
+    public ResponseEntity<Response<String>> updateSchedule(@Valid @RequestBody ScheduleConfigRequestDTO scheduleConfigRequestDTO) {
+        Response<String> response = configService.updateSchedule(scheduleConfigRequestDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /**
+     * Obtiene la expresión Cron de las tareas programadas
+     * <p>
+     * Requiere el rol <b>Desarrollador</b> para acceder.
+     * </p>
+     *
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 OK</b>:  Expresión cron recuperada exitosamente.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         </ul>
+     */
+    @Operation(summary = "Obtener expresión cron de tareas programadas", description = "Obtiene la expresión cron de tareas programadas.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "expresión cron recuperada exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
+    })
+    @GetMapping("/schedule")
+    public ResponseEntity<Response<String>> getSchedule() {
+        Response<String> response = configService.getSchedule();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
 }

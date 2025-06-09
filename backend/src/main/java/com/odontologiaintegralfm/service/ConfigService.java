@@ -46,6 +46,9 @@ public class ConfigService implements IConfigService {
     @Autowired
     private IRefreshTokenConfigService refreshTokenConfigService;
 
+    @Autowired
+    private IScheduleConfigService scheduleConfigService;
+
 
     /**
      * Obtiene un listado de configuraciones de mensajes.
@@ -255,6 +258,58 @@ public class ConfigService implements IConfigService {
         }
 
         throw new NotFoundException("exception.refreshTokenConfigNotFoundException.user",null, "exception.refreshTokenConfigNotFoundException.log",new Object[]{"ConfigService","updateRefreshTokenExpiration"},LogLevel.ERROR);
+    }
+
+    /**
+     * Obtiene la regla que define cuándo se ejecutará la tarea programada.
+     * <p>
+     * La expresión se representa en el siguiente formato cron de 6 campos:
+     * <ul>
+     *     <li><b>Segundo</b> (0-59)</li>
+     *     <li><b>Minuto</b> (0-59)</li>
+     *     <li><b>Hora</b> (0-23)</li>
+     *     <li><b>Día del mes</b> (1-31)</li>
+     *     <li><b>Mes</b> (1-12 o JAN-DEC)</li>
+     *     <li><b>Día de la semana</b> (0-6 o SUN-SAT)</li>
+     * </ul>
+     * Por ejemplo: {@code "0 0 21 1 * *"} ejecuta la tarea el día 1 de cada mes a las 21:00 hs.
+     *
+     * @return {@link Response} que contiene la expresión cron actual configurada.
+     */
+    @Override
+    public Response<String> getSchedule() {
+       return new Response<>(true, null, scheduleConfigService.getSchedule());
+    }
+
+
+
+
+    /**
+     * Actualiza la regla que define cuándo se ejecutará la tarea programada.
+     *
+     * @param scheduleConfigRequestDTO regla expresada en:
+     *                       <ul>
+     *                           <li><b>Segundo</b> (0-59)</li>
+     *                           <li><b>Minuto</b> (0-59)</li>
+     *                           <li><b>Hora</b> (0-23)</li>
+     *                           <li><b>Día del mes</b> (1-31)</li>
+     *                           <li><b>Mes</b> (1-12 o JAN-DEC)</li>
+     *                           <li><b>Día de la semana</b> (0-6 o SUN-SAT)</li>
+     *                       </ul>
+     *                       Por ejemplo: {@code "0 0 21 1 * *"} ejecuta la tarea el día 1 de cada mes a las 21:00 hs.
+     * @return {@link Response}
+     */
+    @Override
+    public Response<String> updateSchedule(ScheduleConfigRequestDTO scheduleConfigRequestDTO) {
+
+        int filasAfectadas = scheduleConfigService.updateSchedule(scheduleConfigRequestDTO.cronExpression());
+
+        if(filasAfectadas > 0){
+            String userMessage = messageService.getMessage("config.updateSchedule.ok", new Object[]{scheduleConfigRequestDTO.cronExpression()}, LocaleContextHolder.getLocale());
+            return new Response<>(true, userMessage,scheduleConfigRequestDTO.cronExpression() );
+        }
+
+        throw new NotFoundException("exception.scheduleNotFound.user",null,"exception.scheduleNotFound.log",new Object[]{"ConfigService","updateSchedule"}, LogLevel.ERROR);
     }
 
 

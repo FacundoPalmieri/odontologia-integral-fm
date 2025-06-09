@@ -66,7 +66,6 @@ public class AttachedFilesController {
 
 
 
-
     /**
      * Obtiene el documento asociado a una persona.
      * <p>
