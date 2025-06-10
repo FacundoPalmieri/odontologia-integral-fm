@@ -13,7 +13,6 @@ import {
   PatientInterface,
   ProvinceInterface,
 } from "../domain/interfaces/patient.interface";
-import { PatientCreateDto } from "../domain/dto/patient.dto";
 
 @Injectable({ providedIn: "root" })
 export class PatientService {
@@ -274,14 +273,14 @@ export class PatientService {
     return of(response);
   }
 
-  create(
-    patient: PatientCreateDto
-  ): Observable<ApiResponseInterface<PatientCreateDto>> {
-    return this.http.post<ApiResponseInterface<PatientCreateDto>>(
-      `${this.apiUrl}/patient`,
-      patient
-    );
-  }
+  // create(
+  //   patient: PatientCreateDto
+  // ): Observable<ApiResponseInterface<PatientCreateDto>> {
+  //   return this.http.post<ApiResponseInterface<PatientCreateDto>>(
+  //     `${this.apiUrl}/patient`,
+  //     patient
+  //   );
+  // }
 
   getAllNationalities(): Observable<
     ApiResponseInterface<NationalityInterface[]>

@@ -1,21 +1,26 @@
-export interface PatientCreateDto {
-  firstName: string;
-  lastName: string;
-  dniTypeId: number;
-  dni: string;
-  birthDate: Date;
-  genderId: number;
-  nationalityId: number;
-  localityId: number;
-  street: string;
-  number: number;
-  floor: string;
-  apartment: string;
-  healthPlansId: number;
+import { PersonCreateDtoInterface, PersonDtoInterface } from "./person.dto";
+
+export interface PatientDtoInterface {
+  personDto: PersonDtoInterface;
+  healthPlans: string;
   affiliateNumber: string;
-  email: string;
-  phoneType: number;
-  phone: string;
-  // medicalRiskId: number[];
-  // medicalHistoryObservation: string;
+  medicalHistoryRiskDto: MedicalHistoryRiskDtoInterface[];
+}
+
+export interface MedicalHistoryRiskDtoInterface {
+  id: number;
+  name: string;
+  observation: string;
+}
+
+export interface PatientCreateDtoInterface {
+  personDto: PersonCreateDtoInterface;
+  healthPlanId: number;
+  affiliateNumber: string;
+  medicalRiskDto: MedicalRiskCreateDtoInterface[];
+}
+
+export interface MedicalRiskCreateDtoInterface {
+  medicalRiskId: number;
+  observation: string;
 }
