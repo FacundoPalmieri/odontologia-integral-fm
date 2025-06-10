@@ -32,9 +32,7 @@ import { UserUpdateDto } from "../../../domain/dto/user-update.dto";
 import { CreateUserDialogComponent } from "./create-user-dialog/create-user-dialog.component";
 import { UserCreateDto } from "../../../domain/dto/user-create.dto";
 import { EditRoleDialogComponent } from "./edit-role-dialog/edit-role-dialog.component";
-import { RoleUpdateDto } from "../../../domain/dto/role-update.dto";
 import { CreateRoleDialogComponent } from "./create-role-dialog/create-role-dialog.component";
-import { RoleCreateDto } from "../../../domain/dto/role-create.dto";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
@@ -184,7 +182,7 @@ export class ConfigurationComponent implements OnDestroy {
 
   createRole() {
     const dialogRef = this.dialog.open(CreateRoleDialogComponent);
-    dialogRef.afterClosed().subscribe((role: RoleCreateDto) => {
+    dialogRef.afterClosed().subscribe((role: RoleInterface) => {
       if (role) {
         this.roleService
           .create(role)
@@ -210,13 +208,8 @@ export class ConfigurationComponent implements OnDestroy {
       });
       dialogRef.afterClosed().subscribe((role: RoleInterface) => {
         if (role) {
-          const roleDto: RoleUpdateDto = {
-            id: role.id,
-            role: role.role,
-            permissionsList: role.permissionsList,
-          };
           this.roleService
-            .update(roleDto)
+            .update(role)
             .pipe(takeUntil(this._destroy$))
             .subscribe((response: ApiResponseInterface<RoleInterface>) => {
               this.snackbarService.openSnackbar(

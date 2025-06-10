@@ -1,10 +1,12 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { MessageInterface } from "../domain/interfaces/message.interface";
 import { MessageDto } from "../domain/dto/message-update.dto";
+import { MessageDtoInterface } from "../domain/dto/message.dto";
+import { MessageSerializer } from "../domain/serializers/message.serializer";
 
 @Injectable({ providedIn: "root" })
 export class ConfigService {
@@ -63,17 +65,33 @@ export class ConfigService {
   }
 
   getMessages(): Observable<ApiResponseInterface<MessageInterface[]>> {
-    return this.http.get<ApiResponseInterface<MessageInterface[]>>(
-      `${this.apiUrl}/config/message`
-    );
+    return this.http
+      .get<ApiResponseInterface<MessageDtoInterface[]>>(
+        `${this.apiUrl}/config/message`
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: response.data.map((message) =>
+            MessageSerializer.toView(message)
+          ),
+        }))
+      );
   }
 
   updateMessage(
     message: MessageDto
   ): Observable<ApiResponseInterface<MessageInterface>> {
-    return this.http.patch<ApiResponseInterface<MessageInterface>>(
-      `${this.apiUrl}/config/message`,
-      message
-    );
+    return this.http
+      .patch<ApiResponseInterface<MessageDtoInterface>>(
+        `${this.apiUrl}/config/message`,
+        message
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: MessageSerializer.toView(response.data),
+        }))
+      );
   }
 }

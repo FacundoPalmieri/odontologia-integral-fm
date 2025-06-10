@@ -14,10 +14,12 @@ import {
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { RoleInterface } from "../../../../domain/interfaces/role.interface";
+import {
+  PermissionInterface,
+  RoleInterface,
+} from "../../../../domain/interfaces/role.interface";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { PermissionService } from "../../../../services/permission.service";
-import { PermissionInterface } from "../../../../domain/interfaces/permission.interface";
 
 @Component({
   selector: "app-edit-role-dialog",

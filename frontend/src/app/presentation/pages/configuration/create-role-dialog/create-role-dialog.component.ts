@@ -13,7 +13,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { MatIconModule } from "@angular/material/icon";
 import { PermissionService } from "../../../../services/permission.service";
-import { PermissionInterface } from "../../../../domain/interfaces/permission.interface";
+import { PermissionInterface } from "../../../../domain/interfaces/role.interface";
 
 @Component({
   selector: "app-create-role-dialog",
