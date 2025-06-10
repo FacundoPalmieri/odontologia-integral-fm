@@ -5,7 +5,7 @@ export class ToothFaceFactory {
     return [
       { face: ToothFaceEnum.LINGUAL, label: "Lingual" },
       { face: ToothFaceEnum.DISTAL, label: "Distal" },
-      { face: ToothFaceEnum.VESTIBULAR, label: "Vestibular" },
+      { face: ToothFaceEnum.PALATINO, label: "Palatino" },
       { face: ToothFaceEnum.MESIAL, label: "Mesial" },
       { face: ToothFaceEnum.OCLUSAL, label: "Oclusal" },
     ];
@@ -15,7 +15,7 @@ export class ToothFaceFactory {
 export enum ToothFaceEnum {
   LINGUAL = "lingual",
   DISTAL = "distal",
-  VESTIBULAR = "vestibular",
+  PALATINO = "palatino",
   MESIAL = "mesial",
   OCLUSAL = "oclusal",
 }

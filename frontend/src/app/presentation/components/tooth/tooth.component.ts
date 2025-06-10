@@ -55,7 +55,7 @@ export class ToothComponent implements OnChanges {
     [ToothFaceEnum.LINGUAL]: ToothFaceTypeEnum.TOP,
     [ToothFaceEnum.MESIAL]: ToothFaceTypeEnum.RIGHT,
     [ToothFaceEnum.DISTAL]: ToothFaceTypeEnum.LEFT,
-    [ToothFaceEnum.VESTIBULAR]: ToothFaceTypeEnum.BOTTOM,
+    [ToothFaceEnum.PALATINO]: ToothFaceTypeEnum.BOTTOM,
   };
 
   cariesFaces: { [key in ToothFaceTypeEnum]?: TreatmentInterface } = {};
