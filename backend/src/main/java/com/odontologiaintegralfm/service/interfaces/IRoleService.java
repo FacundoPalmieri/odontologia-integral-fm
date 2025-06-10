@@ -51,7 +51,7 @@ public interface IRoleService {
      * @return Un objeto {@link Response} que contiene el rol guardado o actualizado como un
      *         {@link RoleResponseDTO}.
      */
-    Response<RoleResponseDTO> save(RoleRequestDTO roleRequestDto);
+    Response<RoleResponseDTO> create(RoleRequestDTO roleRequestDto);
 
 
 

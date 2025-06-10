@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
 
 
@@ -27,5 +29,17 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {
             @Param("floor") String floor,
             @Param("apartment") String apartment,
             @Param("locality") Locality locality);
+
+
+    @Query("""
+     SELECT a
+     FROM Address a
+     WHERE NOT EXISTS(
+        SELECT p
+        FROM Person p
+        WHERE p.address = a
+        )
+     """)
+    List<Address> findOrphan();
 
 }

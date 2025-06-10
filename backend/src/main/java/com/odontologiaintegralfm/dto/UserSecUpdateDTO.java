@@ -11,11 +11,11 @@ public class UserSecUpdateDTO {
 
     @NotNull(message = "userSecCreateDTO.id.empty")
     private Long id;
-
     private Boolean enabled;
     private Set<Long> rolesList = new HashSet<>();
 
-
-
-
+    //Opcional
+    private PersonUpdateRequestDTO personUpdateRequestDTO;
+    //Opcional
+    private DentistUpdateRequestDTO dentistUpdateRequestDTO;
 }

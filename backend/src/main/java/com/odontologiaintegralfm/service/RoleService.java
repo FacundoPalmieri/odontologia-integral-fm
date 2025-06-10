@@ -182,7 +182,7 @@ public class RoleService implements IRoleService {
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
-    public Response<RoleResponseDTO> save(RoleRequestDTO roleRequestDto) {
+    public Response<RoleResponseDTO> create(RoleRequestDTO roleRequestDto) {
 
         //Valída que el rol no exista en la base de datos.
         validateRoleNotExist(roleRequestDto.getRole());

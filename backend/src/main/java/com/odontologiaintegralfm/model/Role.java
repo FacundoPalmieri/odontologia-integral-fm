@@ -24,6 +24,7 @@ public class Role {
     /**Identificador único del rol.*/
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     /**Nombre del rol.*/

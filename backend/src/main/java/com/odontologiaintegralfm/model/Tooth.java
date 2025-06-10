@@ -2,17 +2,23 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Entidad que representa a los Dientes
  */
 
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table (name ="teeth")
-public class Tooth {
+public class Tooth extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -21,6 +27,5 @@ public class Tooth {
     @Column(length =20, unique = true)
     private String name;
 
-    private Boolean enabled;
 
 }

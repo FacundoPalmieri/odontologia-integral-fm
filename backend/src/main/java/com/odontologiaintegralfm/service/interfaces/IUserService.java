@@ -1,9 +1,10 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.*;
+import com.odontologiaintegralfm.exception.ConflictException;
+import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.UserSec;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.List;
 
 /**
@@ -36,11 +37,18 @@ public interface IUserService {
 
 
      /**
-      * Guarda un nuevo usuario.
-      * @param userSecCreateDto El DTO con la información del usuario a guardar.
-      * @return Una respuesta que contiene el objeto {@link UserSecResponseDTO} del usuario recién creado.
+      * Guarda un nuevo usuario junto con su información personal y, opcionalmente, su rol como dentista.
+      * <p>
+      * Este método realiza validaciones sobre el nombre de usuario, roles asignados y coincidencia de contraseñas.
+      * También gestiona la creación de la persona asociada y, si corresponde, del dentista.
+      * </p>
+      *
+      * @param userSecCreateDto Objeto {@link UserSecCreateDTO} con los datos del usuario, persona y dentista (opcional).
+      * @return Una {@link Response} con los datos del usuario creado, incluyendo la persona y el dentista si aplica.
+      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
+      * @throws ConflictException Si no se puede crear la persona asociada.
       */
-     Response<UserSecResponseDTO> save(UserSecCreateDTO userSecCreateDto);
+     Response<UserSecResponseDTO> create(UserSecCreateDTO userSecCreateDto);
 
 
      /**

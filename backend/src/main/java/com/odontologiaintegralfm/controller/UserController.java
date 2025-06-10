@@ -1,9 +1,6 @@
 package com.odontologiaintegralfm.controller;
 import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDeveloperAndAdministrator;
-import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.UserSecCreateDTO;
-import com.odontologiaintegralfm.dto.UserSecResponseDTO;
-import com.odontologiaintegralfm.dto.UserSecUpdateDTO;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,9 +42,6 @@ public class UserController {
     private IUserService userService;
 
 
-
-
-
     /**
      * Lista todos los usuarios.
      * <p>Requiere rol <b>ADMIN</b> para acceder.</p>
@@ -66,7 +60,7 @@ public class UserController {
     })
     @GetMapping("/all")
     @OnlyDeveloperAndAdministrator
-    public ResponseEntity<Response<List<UserSecResponseDTO>>> getAllUsers() {
+    public ResponseEntity<Response<List<UserSecResponseDTO>>> getAll() {
         Response<List<UserSecResponseDTO>> response = userService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -98,19 +92,11 @@ public class UserController {
     })
     @GetMapping("/{id}")
     @OnlyDeveloperAndAdministrator
-    public ResponseEntity<Response<UserSecResponseDTO>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<Response<UserSecResponseDTO>> getById(@PathVariable Long id) {
         Response<UserSecResponseDTO>response = userService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -142,15 +128,10 @@ public class UserController {
     })
     @PostMapping
     @OnlyDeveloperAndAdministrator
-    public  ResponseEntity<Response<UserSecResponseDTO>> createUser(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
-        Response<UserSecResponseDTO>response = userService.save(userSecCreateDto);
+    public  ResponseEntity<Response<UserSecResponseDTO>> create(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
+        Response<UserSecResponseDTO>response = userService.create(userSecCreateDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
-
-
-
-
 
 
 

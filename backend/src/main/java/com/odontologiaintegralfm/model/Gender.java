@@ -2,6 +2,9 @@ package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 /**
@@ -9,12 +12,15 @@ import org.hibernate.envers.Audited;
  * Ej: Masculino - Feminino - No Binario.
  */
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "genders")
-public class Gender {
+public class Gender extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     //Masculino - Feminino - No Binario
@@ -24,7 +30,5 @@ public class Gender {
     // M - F - X
     @Column(length = 1, nullable = false, unique = true)
     private Character alias;
-
-    private Boolean enabled;
 
 }

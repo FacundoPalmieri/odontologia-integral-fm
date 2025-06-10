@@ -1,59 +1,140 @@
 package com.odontologiaintegralfm.service;
 
-import com.odontologiaintegralfm.enums.LogLevel;
-import com.odontologiaintegralfm.exception.ConflictException;
+import com.odontologiaintegralfm.dto.AddressRequestDTO;
+import com.odontologiaintegralfm.dto.AddressResponseDTO;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.Address;
 import com.odontologiaintegralfm.repository.IAddressRepository;
 import com.odontologiaintegralfm.service.interfaces.IAddressService;
+import com.odontologiaintegralfm.service.interfaces.IGeoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class AddressService implements IAddressService {
 
     @Autowired
     private IAddressRepository addressRepository;
 
-     /**
-     * Método para crear un domicilio
-     * Primero se realizar una búsqueda para ver si existe y está deshabilitado. En caso que sea así, se procede a habilitarlo.
-     * En caso que no exista, se crea.
-     * @param address Objeto con el domicilio de la persona
-     * @throws DataBaseException En caso de error de conexión en base de datos.
-     */
+    @Autowired
+    private IGeoService geoService;
 
+
+
+
+    /**
+     * Método para crear un domicilio
+     * @param address Objeto con el domicilio de la persona
+     */
     @Override
     @Transactional
-    public Address enableOrCreate(Address address) {
+    public Address findOrCreate(Address address) {
         try{
             //Realiza búsqueda exacta
             Optional<Address> addressOptional = addressRepository.findAddressComplete(address.getStreet(),address.getNumber(),address.getFloor(),address.getApartment(),address.getLocality());
 
-            //Verifica si el optional tiene valor y está habilitado el domicilio.
-            if(addressOptional.isPresent() && addressOptional.get().getEnabled()){
-                throw new ConflictException("exception.addressExists.user", null, "exception.addressExists.log", new Object[]{addressOptional.get().getId(), "AddressService", "enableOrCreate"}, LogLevel.ERROR);
-
-               //Verifica si el optional tiene valor y está Deshabilitado el domicilio. En ese caso, lo reactiva.
-            } else if(addressOptional.isPresent()){
-                Address addressExisting = addressOptional.get();
-                addressExisting.setEnabled(true);
-                addressRepository.save(addressExisting);
-                return addressExisting;
+            //Verifica si el optional tiene valor y lo retorna.
+            if(addressOptional.isPresent()) {
+                return addressOptional.get();
             }
 
             //Si el domicilio no existe, lo crea.
-            address.setEnabled(true);
             addressRepository.save(address);
             return address;
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "AddressService",null, address.getStreet() + " " +  address.getNumber(), "enableOrCreate");
+            throw new DataBaseException(e, "AddressService",null, address.getStreet() + " " +  address.getNumber(), "findOrCreate");
+        }
+
+    }
+
+
+    /**
+     * Método que construye un objeto {@link Address} y llama al servicio correspondiente para su creación.
+     * @return objeto Address
+     */
+    @Transactional
+    @Override
+    public Address buildAddress(AddressRequestDTO addressDTO) {
+            Address address = new Address();
+            address.setStreet(addressDTO.street());
+            address.setNumber(addressDTO.number());
+            address.setFloor(addressDTO.floor());
+            address.setApartment(addressDTO.apartment());
+            address.setLocality(geoService.getLocalityById(addressDTO.localityId()));
+            return address;
+    }
+
+    /**
+     * Elimina un domicilio huérfano.
+     * @param id del domicilio.
+     */
+    @Override
+    public void delete(Long id) {
+        try{
+            addressRepository.deleteById(id);
+        }catch(DataAccessException | CannotCreateTransactionException e){
+            throw new DataBaseException(e, "AddressService",id,"<- Id domicilio", "delete");
+        }
+    }
+
+
+    /**
+     * Método para convertir un {@link Address} a un objeto {@link AddressResponseDTO}
+     * @param address Objeto con la información completa
+     * @return AddressResponseDTO
+     */
+    public AddressResponseDTO convertToDTO(Address address){
+      return  new AddressResponseDTO(
+                address.getLocality().getId(),
+                address.getLocality().getName(),
+                address.getLocality().getProvince().getId(),
+                address.getLocality().getProvince().getName(),
+                address.getLocality().getProvince().getCountry().getId(),
+                address.getLocality().getProvince().getCountry().getName(),
+                address.getStreet(),
+                address.getNumber(),
+                address.getFloor(),
+                address.getApartment()
+        );
+    }
+
+
+
+    /**
+     * Realiza una eliminación física de los domicilios huérfanos.
+     * Este método es invocado desde tareas programadas.
+     *
+     * @return
+     */
+    @Override
+    @Transactional
+    public void deleteOrphan() {
+        try{
+            List<Address> orphanAddresses  = addressRepository.findOrphan();
+
+            if (orphanAddresses.isEmpty()) {
+                log.info("Tarea Programada: [Domicilios huérfanos] - No se encontraron registros para eliminar.");
+                return;
+            }
+
+            //Se obtiene total para loguear.
+            int count = orphanAddresses.size();
+
+            //Se elimina
+            addressRepository.deleteAll(orphanAddresses);
+
+            log.info("Tarea Programada: [Domicilios huérfanos] - [Total eliminados:  {}]", count);
+
+        }catch(DataAccessException | CannotCreateTransactionException e){
+            throw new DataBaseException(e, "AddressService",null,null, "deleteOrphan");
         }
 
     }

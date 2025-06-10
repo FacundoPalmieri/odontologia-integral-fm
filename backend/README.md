@@ -12,6 +12,27 @@ Cuenta con **endpoints de parametrización** disponibles exclusivamente para usu
 - Límites de intentos de inicio de sesión fallidos.
 - Tiempo de expiración del token JWT.
 
+## Auditoría
+
+Este proyecto utiliza **Hibernate Envers** para auditar automáticamente los cambios realizados en las entidades anotadas con `@Audited`.
+
+### ¿Cómo funciona?
+
+Cuando una entidad auditada cambia, Hibernate genera un registro en una tabla con sufijo `_AUD`, que conserva el estado del objeto en ese momento.
+
+### Estructura típica de una tabla `_AUD`
+
+Cada tabla de auditoría contiene:
+
+- `id`: Identificador del objeto (igual que la entidad original).
+- `REV`: ID de la revisión (clave foránea a `revinfo.REV`).
+- `REVTYPE`: Tipo de operación realizada:
+   - `0` = INSERT
+   - `1` = UPDATE
+   - `2` = DELETE
+- `...otros campos...`: Una copia de los atributos auditados de la entidad original.
+
+
 ## Gestión
 El objetivo de este proyecto es abarcar la gestión interna del consultorio, tomando como referencia los siguientes aspectos:
 - Historia clínica de los pacientes.

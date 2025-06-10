@@ -1,16 +1,44 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 
+import com.odontologiaintegralfm.dto.AddressRequestDTO;
+import com.odontologiaintegralfm.dto.AddressResponseDTO;
 import com.odontologiaintegralfm.model.Address;
 
 public interface IAddressService {
 
     /**
      * Método para crear un domicilio
-     * Primero se realizar una búsqueda para ver si está deshabilitado. En caso que sea así, se procede a habilitarlo.
-     * En caso que no exista, se crea.
      * @param address Objeto con el domicilio de la persona
      */
-    Address enableOrCreate(Address address);
+    Address findOrCreate(Address address);
 
+
+    /**
+     * Método que construye un objeto {@link Address}
+     * @return objeto Address
+     */
+    Address buildAddress(AddressRequestDTO addressDTO);
+
+    /**
+     * Elimina un domicilio huérfano.
+     * @param id del domicilio.
+     */
+    void delete(Long id);
+
+
+    /**
+     * Método para convertir un {@link Address} a un objeto {@link AddressResponseDTO}
+     * @param address Objeto con la información completa
+     * @return AddressResponseDTO
+     */
+    AddressResponseDTO convertToDTO(Address address);
+
+
+    /**
+     * Realiza una eliminación física de los domicilios huérfanos.
+     * Este método es invocado desde tareas programadas.
+     * @return
+     */
+     void deleteOrphan();
 }

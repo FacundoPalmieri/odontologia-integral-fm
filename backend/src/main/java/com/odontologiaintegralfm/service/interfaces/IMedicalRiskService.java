@@ -18,9 +18,12 @@ public interface IMedicalRiskService {
 
 
     /**
-     * Método para recuperar Set de Riesgos médicos "Habilitados" de acuerdo a los Ids recibidos.
-     * @param ids de Riesgos médicos.
+     * Método para recuperar  Riesgos médicos "Habilitados" de acuerdo a los Ids recibidos.
+     *
+     * @param id de Riesgos médicos.
      * @return Set de objetos {@link MedicalRisk} habilitados.
      */
-    Set<MedicalRisk> getByIds(Set<Long> ids);
+    MedicalRisk getById(Long id);
+
+
 }
