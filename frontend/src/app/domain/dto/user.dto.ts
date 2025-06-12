@@ -7,8 +7,8 @@ export interface UserDtoInterface {
   username: string;
   rolesList: RoleDtoInterface[];
   enabled: boolean;
-  personResponseDTO: PersonDtoInterface;
-  desntisResponseDTO?: DentistDtoInterface[];
+  person: PersonDtoInterface;
+  desntist: DentistDtoInterface[];
 }
 
 export interface UserCreateDtoInterface {
@@ -16,6 +16,6 @@ export interface UserCreateDtoInterface {
   password1: string;
   password2: string;
   rolesList: number[];
-  personCreateRequestDTO: PersonCreateDtoInterface;
-  dentistCreateRequestDTO?: DentistCreateDtoInterface;
+  person: PersonCreateDtoInterface;
+  dentist?: DentistCreateDtoInterface;
 }

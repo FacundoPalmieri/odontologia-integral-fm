@@ -1,10 +1,10 @@
 import { PersonCreateDtoInterface, PersonDtoInterface } from "./person.dto";
 
 export interface PatientDtoInterface {
-  personDto: PersonDtoInterface;
+  person: PersonDtoInterface;
   healthPlans: string;
   affiliateNumber: string;
-  medicalHistoryRiskDto: MedicalHistoryRiskDtoInterface[];
+  medicalHistoryRisk: MedicalHistoryRiskDtoInterface[];
 }
 
 export interface MedicalHistoryRiskDtoInterface {

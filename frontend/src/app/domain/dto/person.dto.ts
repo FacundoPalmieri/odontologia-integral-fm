@@ -9,11 +9,11 @@ export interface PersonDtoInterface {
   gender: string;
   nationality: string;
   contactEmails: string[];
-  contactPhoneResponseDTO: ContactPhoneResponseDTOInterface[];
-  addressResponseDTO: AddressResponseDTOInterface[];
+  contactPhone: ContactPhoneDtoInterface[];
+  address: AddressDtoInterface[];
 }
 
-export interface AddressResponseDTOInterface {
+export interface AddressDtoInterface {
   localityId: number;
   locality: string;
   provinceId: number;
@@ -25,7 +25,7 @@ export interface AddressResponseDTOInterface {
   floor: string;
 }
 
-export interface ContactPhoneResponseDTOInterface {
+export interface ContactPhoneDtoInterface {
   typePhone: string;
   phone: string;
 }
@@ -39,8 +39,8 @@ export interface PersonCreateDtoInterface {
   genderId: number;
   nationalityId: number;
   contactEmails: string[];
-  contactPhonesDTO: ContactPhoneCreateDtoInterface[];
-  addressRequestDTO: AddressCreateDtoInterface[];
+  contactPhones: ContactPhoneCreateDtoInterface[];
+  address: AddressCreateDtoInterface[];
 }
 
 export interface AddressCreateDtoInterface {

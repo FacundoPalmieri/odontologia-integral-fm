@@ -1,7 +1,7 @@
 import { PersonDtoInterface } from "./person.dto";
 
 export interface DentistDtoInterface {
-  personDto: PersonDtoInterface;
+  person: PersonDtoInterface;
   licenseNumber: string;
   dentistSpecialty: string;
 }
