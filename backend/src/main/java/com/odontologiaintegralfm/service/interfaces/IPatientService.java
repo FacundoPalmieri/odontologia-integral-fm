@@ -6,8 +6,9 @@ import com.odontologiaintegralfm.dto.PatientResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.Patient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 /**
  * @author [Facundo Palmieri]
@@ -45,7 +46,7 @@ public interface IPatientService {
      * Método para obtener un listado de pacientes habilitados en el sistema.
      * @return Una respuesta que contiene una lista de objetos {@link PatientResponseDTO }
      */
-    Response<List<PatientResponseDTO>> getAll();
+    Response<Page<PatientResponseDTO>> getAll(int page, int size);
 
 
     /**

@@ -12,11 +12,14 @@ import com.odontologiaintegralfm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -67,7 +70,7 @@ public class PatientService implements IPatientService {
             validatePatient(patientRequestDTO.affiliateNumber());
 
             //Valída y crea una persona.
-            Person person = personService.create(patientRequestDTO.personDto());
+            Person person = personService.create(patientRequestDTO.person());
 
             //Crea Paciente
             Patient patient = new Patient();
@@ -83,7 +86,7 @@ public class PatientService implements IPatientService {
 
 
             //Crear Objeto Riegos médicos del paciente y persiste la misma.
-            Set <PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.create(patientRequestDTO.medicalRiskDto(),patient);
+            Set <PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.create(patientRequestDTO.medicalRisk(),patient);
 
             //Crear Objeto Respuesta
             PatientResponseDTO patientResponseDTO = buildResponseDTO(patient, patientMedicalRiskResponseDTOS);
@@ -95,7 +98,7 @@ public class PatientService implements IPatientService {
             return new Response<>(true,messageUser, patientResponseDTO);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", null, "DNI Paciente" + patientRequestDTO.personDto().dni(), "create");
+            throw new DataBaseException(e, "PatientService", null, "DNI Paciente" + patientRequestDTO.person().dni(), "create");
         }
     }
 
@@ -110,16 +113,16 @@ public class PatientService implements IPatientService {
     public Response<PatientResponseDTO> update(PatientUpdateRequestDTO patientUpdateRequestDTO) {
         try{
             //Validar que el paciente exista y recuperarlo desde la Base.
-            Patient patient = validateExistentPatient(patientUpdateRequestDTO.personDto().id());
+            Patient patient = validateExistentPatient(patientUpdateRequestDTO.person().id());
 
             //Actualiza datos de la persona.
-            Person person = personService.update(patient.getPerson(), patientUpdateRequestDTO.personDto());
+            Person person = personService.update(patient.getPerson(), patientUpdateRequestDTO.person());
             patient.setPerson(person);
 
             //Actualiza datos del paciente
             patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
             patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
-            Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.update(patient, patientUpdateRequestDTO.medicalRiskDto());
+            Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.update(patient, patientUpdateRequestDTO.medicalRisk());
 
             //Cambios para auditoria.
             patient.setUpdatedAt(LocalDateTime.now());
@@ -136,7 +139,7 @@ public class PatientService implements IPatientService {
             return new Response<>(true,messageUser, patientResponseDTO);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService", patientUpdateRequestDTO.personDto().id(), patientUpdateRequestDTO.personDto().lastName() + "," + patientUpdateRequestDTO.personDto().firstName(), "validateNonExistentPatient");
+            throw new DataBaseException(e, "PatientService", patientUpdateRequestDTO.person().id(), patientUpdateRequestDTO.person().lastName() + "," + patientUpdateRequestDTO.person().firstName(), "validateNonExistentPatient");
         }
     }
 
@@ -146,18 +149,19 @@ public class PatientService implements IPatientService {
      * @return Una respuesta que contiene una lista de objetos {@link PatientResponseDTO }
      */
     @Override
-    public Response<List<PatientResponseDTO>> getAll() {
+    public Response<Page<PatientResponseDTO>> getAll(int page, int size) {
         try{
 
-            List <Patient> patients = patientRepository.findAllByEnabledTrue();
+            Pageable pageable = PageRequest.of(page,size, Sort.by("lastName").descending());
 
-            List<PatientResponseDTO> patientResponseDTOS = patients.stream()
+            Page <Patient> patients = patientRepository.findAllByEnabledTrue(pageable);
+
+            Page<PatientResponseDTO> patientResponseDTOS = patients
                     .map(patient -> {
                         Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatient(patient);
                         Set<PatientMedicalRiskResponseDTO> riskDTOs = patientMedicalRiskService.convertToDTO(risks);
                        return buildResponseDTO(patient,riskDTOs);
-                    })
-                    .toList();
+                    });
 
             return new Response<>(true,null, patientResponseDTOS);
         }catch (DataAccessException | CannotCreateTransactionException e) {

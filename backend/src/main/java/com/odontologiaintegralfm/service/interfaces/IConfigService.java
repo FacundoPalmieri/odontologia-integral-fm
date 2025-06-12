@@ -69,4 +69,42 @@ public interface IConfigService {
      */
     Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO);
 
+    /**
+     * Obtiene la regla que define cuándo se ejecutará la tarea programada.
+     * <p>
+     * La expresión se representa en el siguiente formato cron de 6 campos:
+     * <ul>
+     *     <li><b>Segundo</b> (0-59)</li>
+     *     <li><b>Minuto</b> (0-59)</li>
+     *     <li><b>Hora</b> (0-23)</li>
+     *     <li><b>Día del mes</b> (1-31)</li>
+     *     <li><b>Mes</b> (1-12 o JAN-DEC)</li>
+     *     <li><b>Día de la semana</b> (0-6 o SUN-SAT)</li>
+     * </ul>
+     * Por ejemplo: {@code "0 0 21 1 * *"} ejecuta la tarea el día 1 de cada mes a las 21:00 hs.
+     *
+     * @return {@link Response} que contiene la expresión cron actual configurada.
+     */
+    Response<String> getSchedule();
+
+
+    /**
+     * Actualiza la regla que define cuándo se ejecutará la tarea programada.
+     *
+     * @param scheduleConfigRequestDTO regla expresada en:
+     *                        <ul>
+     *                            <li><b>Segundo</b> (0-59)</li>
+     *                            <li><b>Minuto</b> (0-59)</li>
+     *                            <li><b>Hora</b> (0-23)</li>
+     *                            <li><b>Día del mes</b> (1-31)</li>
+     *                            <li><b>Mes</b> (1-12 o JAN-DEC)</li>
+     *                            <li><b>Día de la semana</b> (0-6 o SUN-SAT)</li>
+     *                        </ul>
+     *                        Por ejemplo: {@code "0 0 21 1 * *"} ejecuta la tarea el día 1 de cada mes a las 21:00 hs.
+     *
+     * @return {@link Response}
+     */
+    Response<String> updateSchedule(ScheduleConfigRequestDTO scheduleConfigRequestDTO);
+
+
 }

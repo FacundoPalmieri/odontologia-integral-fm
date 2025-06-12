@@ -15,7 +15,7 @@ public record PersonResponseDTO(
         String gender,
         String nationality,
         Set<String> contactEmails,
-        Set<ContactPhoneResponseDTO> contactPhoneResponseDTO,
-        AddressResponseDTO addressResponseDTO
+        Set<ContactPhoneResponseDTO> contactPhone,
+        AddressResponseDTO address
 ) {
 }

@@ -10,19 +10,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 import java.util.Set;
 
 /**
  * @author [Facundo Palmieri]
  */
 @RestController
-@PreAuthorize("denyAll()")
+@OnlyAdmistratorAndSecretary
 @RequestMapping("/api/dni-type")
 public class DniTypeController {
     @Autowired
@@ -49,7 +46,6 @@ public class DniTypeController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @OnlyAdmistratorAndSecretary
     public ResponseEntity<Response<Set<DniTypeResponseDTO>>> getAll(){
         Response<Set<DniTypeResponseDTO>> response = dniTypeService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

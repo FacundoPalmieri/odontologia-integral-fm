@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -33,7 +32,7 @@ import java.util.List;
  * </p>
  */
 @RestController
-@PreAuthorize("denyAll()")
+@OnlyDevelopers
 @RequestMapping("/api/permission")
 public class PermissionController {
 
@@ -60,7 +59,6 @@ public class PermissionController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("all")
-    @OnlyDevelopers
     public ResponseEntity<Response<List<PermissionResponseDTO>>> getAllPermissions() {
         Response<List<PermissionResponseDTO>> response = permissionService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -90,7 +88,6 @@ public class PermissionController {
             @ApiResponse(responseCode = "404", description = "Permiso no encontrado.")
     })
     @GetMapping("/{id}")
-    @OnlyDevelopers
     public ResponseEntity<Response<PermissionResponseDTO>> getPermissionById(@PathVariable Long id) {
         Response<PermissionResponseDTO> response = permissionService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

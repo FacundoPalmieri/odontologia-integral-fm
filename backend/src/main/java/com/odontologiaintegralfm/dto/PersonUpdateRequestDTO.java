@@ -9,6 +9,8 @@ import java.util.Set;
 
 
 public record PersonUpdateRequestDTO(
+
+        @NotNull(message = "generic.id.empty")
         Long id,
 
         @NotBlank(message = "personCreateRequestDTO.firstName.Empty")
@@ -36,8 +38,8 @@ public record PersonUpdateRequestDTO(
         @NotBlank(message = "personCreateRequestDTO.email.Empty")
         Set<String> contactEmails,
 
-        Set<ContactPhoneRequestDTO> contactPhonesDTO,
+        Set<ContactPhoneRequestDTO> contactPhones,
 
-        AddressRequestDTO addressRequestDTO
+        AddressRequestDTO address
 ) {
 }

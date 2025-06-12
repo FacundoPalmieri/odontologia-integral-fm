@@ -5,6 +5,8 @@ import com.odontologiaintegralfm.exception.ConflictException;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.UserSec;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 /**
@@ -17,7 +19,7 @@ public interface IUserService {
       * Obtiene todos los usuarios.
       * @return Una respuesta que contiene una lista de objetos {@link UserSecResponseDTO} representando los usuarios.
       */
-     Response<List<UserSecResponseDTO>> getAll();
+     Response<Page<UserSecResponseDTO>> getAll(int page, int size);
 
      /**
       * Obtiene un usuario por su ID.

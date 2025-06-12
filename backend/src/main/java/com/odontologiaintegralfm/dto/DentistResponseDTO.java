@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.dto;
 
 
 public record DentistResponseDTO(
-        PersonResponseDTO personDto,
+        PersonResponseDTO person,
         String licenseNumber,
         String dentistSpecialty
 ) {

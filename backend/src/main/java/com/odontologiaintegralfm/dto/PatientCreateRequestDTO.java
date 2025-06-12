@@ -4,9 +4,9 @@ import java.util.Set;
 
 
 public record PatientCreateRequestDTO(
-        PersonCreateRequestDTO personDto, //Incluye domicilio y Contactos
+        PersonCreateRequestDTO person, //Incluye domicilio y Contactos
         Long healthPlanId,
         String affiliateNumber,
-        Set<PatientMedicalRiskRequestDTO> medicalRiskDto
+        Set<PatientMedicalRiskRequestDTO> medicalRisk
 ) {
 }

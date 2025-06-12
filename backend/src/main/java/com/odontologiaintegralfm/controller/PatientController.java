@@ -12,12 +12,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -25,9 +25,14 @@ import java.util.List;
 @RequestMapping("/api/patient")
 public class PatientController {
 
-
     @Autowired
     private IPatientService patientService;
+
+    @Value("${pagination.default-page}")
+    private int defaultPage;
+
+    @Value("${pagination.default-size}")
+    private int defaultSize;
 
     /**
      * Crea un nuevo paciente en el sistema.
@@ -112,10 +117,14 @@ public class PatientController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping
+    @GetMapping("/all")
     @OnlyAuthenticated
-    public ResponseEntity<Response<List<PatientResponseDTO>>> getAll() {
-        Response<List<PatientResponseDTO>> response = patientService.getAll();
+    public ResponseEntity<Response<Page<PatientResponseDTO>>> getAll(@RequestParam(required = false) Integer page,
+                                                                     @RequestParam(required = false) Integer size) {
+        int pageValue = (page != null) ? page : defaultPage;
+        int sizeValue = (size != null) ? size : defaultSize;
+
+        Response<Page<PatientResponseDTO>> response = patientService.getAll(pageValue,sizeValue);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
