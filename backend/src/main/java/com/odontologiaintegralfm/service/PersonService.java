@@ -86,10 +86,10 @@ public class PersonService implements IPersonService {
         person.setGender(genderService.getById(personDto.genderId()));
         person.setNationality(nationalityService.getById(personDto.nationalityId()));
         person.setContactEmails(contactEmailService.findOrCreate(personDto.contactEmails()));
-        person.setContactPhones(contactPhoneService.findOrCreate(personDto.contactPhonesDTO()));
+        person.setContactPhones(contactPhoneService.findOrCreate(personDto.contactPhones()));
         person.setCreatedAt(LocalDateTime.now());
         person.setAddress(addressService.findOrCreate(
-                addressService.buildAddress(personDto.addressRequestDTO())));
+                addressService.buildAddress(personDto.address())));
 
         //Cambios para auditoria.
         person.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
@@ -116,9 +116,9 @@ public class PersonService implements IPersonService {
         person.setGender(genderService.getById(personDTO.genderId()));
         person.setNationality(nationalityService.getById(personDTO.nationalityId()));
         person.setContactEmails(contactEmailService.findOrCreate(personDTO.contactEmails()));
-        person.setContactPhones(contactPhoneService.findOrCreate(personDTO.contactPhonesDTO()));
+        person.setContactPhones(contactPhoneService.findOrCreate(personDTO.contactPhones()));
         person.setAddress(addressService.findOrCreate(
-                addressService.buildAddress(personDTO.addressRequestDTO())));
+                addressService.buildAddress(personDTO.address())));
 
 
         //Cambios para auditoria.

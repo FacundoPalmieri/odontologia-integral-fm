@@ -27,9 +27,9 @@ public class UserSecCreateDTO {
     private Set<Long> rolesList;
 
     //Opcional
-    private PersonCreateRequestDTO personCreateRequestDTO;
+    private PersonCreateRequestDTO person;
 
     //Opcional
-    private DentistCreateRequestDTO dentistCreateRequestDTO;
+    private DentistCreateRequestDTO dentist;
 }
 

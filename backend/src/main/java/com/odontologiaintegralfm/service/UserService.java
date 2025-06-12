@@ -18,6 +18,10 @@ import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -114,14 +118,16 @@ public class UserService implements IUserService {
      * @throws DataBaseException Si ocurre un error en la consulta a la base de datos.
      */
     @Override
-    public Response<List<UserSecResponseDTO>> getAll() {
+    public Response<Page<UserSecResponseDTO>> getAll(int page, int size) {
         try{
+
+            Pageable pageable = PageRequest.of(page, size, Sort.by("username").descending());
+
             //Obtiene listado de usuarios.
-            List<UserSec> userList = userRepository.findAll();
+            Page<UserSec> userList = userRepository.findAll(pageable);
 
 
-            List<UserSecResponseDTO> userSecResponseDTOList = userList
-                    .stream()
+            Page<UserSecResponseDTO> userSecResponseDTOList = userList
                     .map(user -> {
 
                             PersonResponseDTO personDTO = null;
@@ -140,8 +146,7 @@ public class UserService implements IUserService {
                                     personDTO,
                                     dentistDTO
                             );
-            })
-    .collect(Collectors.toList());
+            });
 
 
             String messageUser = messageService.getMessage("userService.getAll.ok", null, LocaleContextHolder.getLocale());
@@ -269,24 +274,24 @@ public class UserService implements IUserService {
 
             Person person;
             //Creación de la Persona (Puede ser Secretaría o Dentista)
-            if(userSecCreateDto.getPersonCreateRequestDTO() != null) {
-                person = personService.create(userSecCreateDto.getPersonCreateRequestDTO());
+            if(userSecCreateDto.getPerson() != null) {
+                person = personService.create(userSecCreateDto.getPerson());
                 PersonResponseDTO personResponseDTO = personService.convertToDTO(person);
                 userSec.setPerson(person);
 
                 //Se agrega PersonaDTO a la respuesta final
-                userSecResponse.setPersonResponseDTO(personResponseDTO);
+                userSecResponse.setPerson(personResponseDTO);
             }else {
                 throw new ConflictException("exception.createPerson.user", null, "exception.createPerson.log", new Object[]{userSecResponse.getId(), userSecResponse.getUsername()  ,"UserService","create"}, LogLevel.ERROR );
             }
 
             //Creación de Dentista
-            if(userSecCreateDto.getDentistCreateRequestDTO() != null) {
-                    Dentist dentist = dentistService.create(person,userSecCreateDto.getDentistCreateRequestDTO());
+            if(userSecCreateDto.getDentist() != null) {
+                    Dentist dentist = dentistService.create(person,userSecCreateDto.getDentist());
                     DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist);
 
                     //Se agrega DentistaDTO  a la respuesta final
-                    userSecResponse.setDentistResponseDTO(dentistResponseDTO);
+                    userSecResponse.setDentist(dentistResponseDTO);
             }
 
             return new Response<>(true, userMessage,userSecResponse);
@@ -343,27 +348,27 @@ public class UserService implements IUserService {
             String userMessage = messageService.getMessage("userService.update.ok", null, LocaleContextHolder.getLocale());
 
             //Actualizar datos de la Persona.
-            if(userSecUpdateDto.getPersonUpdateRequestDTO() != null) {
+            if(userSecUpdateDto.getPerson() != null) {
                 Person person = personService.getById(userSecUpdateDto.getId());
-                person = personService.update(person,userSecUpdateDto.getPersonUpdateRequestDTO());
+                person = personService.update(person,userSecUpdateDto.getPerson());
 
                 userSec.setPerson(person);
                 PersonResponseDTO personResponseDTO = personService.convertToDTO(person);
 
                 //Se agrega PersonaDTO a la respuesta final
-                userSecResponse.setPersonResponseDTO(personResponseDTO);
+                userSecResponse.setPerson(personResponseDTO);
 
             }
 
             // Verifica si se actualizan datos de Dentista.
-            if(userSecUpdateDto.getDentistUpdateRequestDTO() != null) {
+            if(userSecUpdateDto.getDentist() != null) {
                 Dentist dentist = dentistService.getById(userSecUpdateDto.getId());
-                dentist = dentistService.update(dentist,userSecUpdateDto.getDentistUpdateRequestDTO());
+                dentist = dentistService.update(dentist,userSecUpdateDto.getDentist());
 
                 DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist);
 
                 //Se agrega DentistResponseDTO a la respuesta final
-                userSecResponse.setDentistResponseDTO(dentistResponseDTO);
+                userSecResponse.setDentist(dentistResponseDTO);
             }
 
             return new Response<>(true, userMessage, userSecResponse);

@@ -8,10 +8,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 
 
 /**
@@ -41,6 +43,12 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
+    @Value("${pagination.default-page}")
+    private int defaultPage;
+
+    @Value("${pagination.default-size}")
+    private int defaultSize;
+
 
     /**
      * Lista todos los usuarios.
@@ -59,8 +67,13 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    public ResponseEntity<Response<List<UserSecResponseDTO>>> getAll() {
-        Response<List<UserSecResponseDTO>> response = userService.getAll();
+    public ResponseEntity<Response<Page<UserSecResponseDTO>>> getAll(@RequestParam(required = false)  Integer page,
+                                                                     @RequestParam(required = false)  Integer size
+                                                                    ){
+        int pageValue = (page != null) ? page : defaultPage;
+        int sizeValue = (size != null) ? size : defaultSize;
+
+        Response<Page<UserSecResponseDTO>> response = userService.getAll(pageValue, sizeValue);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

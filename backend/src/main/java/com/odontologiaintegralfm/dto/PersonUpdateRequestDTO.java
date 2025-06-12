@@ -38,8 +38,8 @@ public record PersonUpdateRequestDTO(
         @NotBlank(message = "personCreateRequestDTO.email.Empty")
         Set<String> contactEmails,
 
-        Set<ContactPhoneRequestDTO> contactPhonesDTO,
+        Set<ContactPhoneRequestDTO> contactPhones,
 
-        AddressRequestDTO addressRequestDTO
+        AddressRequestDTO address
 ) {
 }

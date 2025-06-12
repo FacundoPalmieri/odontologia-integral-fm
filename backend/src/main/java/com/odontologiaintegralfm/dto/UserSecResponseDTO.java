@@ -15,6 +15,6 @@ public class UserSecResponseDTO {
     private Set<Role> rolesList;
     private boolean enabled;
 
-    private PersonResponseDTO personResponseDTO;   //Optional
-    private DentistResponseDTO dentistResponseDTO; //Optional
+    private PersonResponseDTO person;   //Optional
+    private DentistResponseDTO dentist; //Optional
 }

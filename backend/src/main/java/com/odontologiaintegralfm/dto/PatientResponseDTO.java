@@ -5,9 +5,9 @@ import java.util.Set;
 
 
 public record PatientResponseDTO(
-        PersonResponseDTO personDto,
+        PersonResponseDTO person,
         String healthPlans,
         String affiliateNumber,
-        Set<PatientMedicalRiskResponseDTO> medicalHistoryRiskDto
+        Set<PatientMedicalRiskResponseDTO> medicalHistoryRisk
 ) {
 }

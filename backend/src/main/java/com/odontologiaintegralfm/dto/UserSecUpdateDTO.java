@@ -20,7 +20,7 @@ public class UserSecUpdateDTO {
     private Set<Long> rolesList = new HashSet<>();
 
     //Opcional
-    private PersonUpdateRequestDTO personUpdateRequestDTO;
+    private PersonUpdateRequestDTO person;
     //Opcional
-    private DentistUpdateRequestDTO dentistUpdateRequestDTO;
+    private DentistUpdateRequestDTO dentist;
 }
