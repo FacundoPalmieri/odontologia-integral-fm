@@ -18,7 +18,10 @@ import { PermissionService } from "../../../services/permission.service";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { RoleInterface } from "../../../domain/interfaces/role.interface";
-import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
+import {
+  ApiResponseInterface,
+  PagedDataInterface,
+} from "../../../domain/interfaces/api-response.interface";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -28,15 +31,14 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { EditUserDialogComponent } from "./edit-user-dialog/edit-user-dialog.component";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
-import { UserUpdateDto } from "../../../domain/dto/user-update.dto";
 import { CreateUserDialogComponent } from "./create-user-dialog/create-user-dialog.component";
-import { UserCreateDto } from "../../../domain/dto/user-create.dto";
 import { EditRoleDialogComponent } from "./edit-role-dialog/edit-role-dialog.component";
 import { CreateRoleDialogComponent } from "./create-role-dialog/create-role-dialog.component";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { Subject, takeUntil } from "rxjs";
+import { UserCreateDtoInterface } from "../../../domain/dto/user.dto";
 
 @Component({
   selector: "app-configuration",
@@ -124,7 +126,7 @@ export class ConfigurationComponent implements OnDestroy {
     dialogRef
       .afterClosed()
       .pipe(takeUntil(this._destroy$))
-      .subscribe((user: UserCreateDto) => {
+      .subscribe((user: UserCreateDtoInterface) => {
         if (user) {
           this.userService
             .create(user)
@@ -149,13 +151,8 @@ export class ConfigurationComponent implements OnDestroy {
       });
       dialogRef.afterClosed().subscribe((user: UserInterface) => {
         if (user) {
-          const userDto: UserUpdateDto = {
-            id: user.id,
-            enabled: user.enabled,
-            rolesList: user.rolesList.map((role) => role.id),
-          };
           this.userService
-            .update(userDto)
+            .update(user)
             .pipe(takeUntil(this._destroy$))
             .subscribe((response: ApiResponseInterface<UserInterface>) => {
               this.snackbarService.openSnackbar(
@@ -243,9 +240,13 @@ export class ConfigurationComponent implements OnDestroy {
     this.userService
       .getAll()
       .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<UserInterface[]>) => {
-        this.users.set(response.data);
-      });
+      .subscribe(
+        (
+          response: ApiResponseInterface<PagedDataInterface<UserInterface[]>>
+        ) => {
+          this.users.set(response.data.content);
+        }
+      );
   }
 
   private _loadRoles() {

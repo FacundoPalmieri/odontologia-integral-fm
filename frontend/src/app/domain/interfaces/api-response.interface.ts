@@ -3,3 +3,11 @@ export interface ApiResponseInterface<T> {
   message: string;
   data: T;
 }
+
+export interface PagedDataInterface<T> {
+  content: T;
+  size: number;
+  totalPages: number;
+  totalElements: number;
+  number: number;
+}
