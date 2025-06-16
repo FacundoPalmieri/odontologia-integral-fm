@@ -149,10 +149,16 @@ public class PatientService implements IPatientService {
      * @return Una respuesta que contiene una lista de objetos {@link PatientResponseDTO }
      */
     @Override
-    public Response<Page<PatientResponseDTO>> getAll(int page, int size) {
+    public Response<Page<PatientResponseDTO>> getAll(int page, int size, String sortBy, String direction) {
         try{
 
-            Pageable pageable = PageRequest.of(page,size, Sort.by("lastName").descending());
+            //Define criterio de ordenamiento
+            Sort sort = direction.equalsIgnoreCase("desc") ?
+                    Sort.by(sortBy).descending()
+                    : Sort.by(sortBy).ascending();
+
+            //Se define paginación con n°página, cantidad elementos y ordenamiento.
+            Pageable pageable = PageRequest.of(page,size, sort);
 
             Page <Patient> patients = patientRepository.findAllByEnabledTrue(pageable);
 

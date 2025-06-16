@@ -118,10 +118,16 @@ public class UserService implements IUserService {
      * @throws DataBaseException Si ocurre un error en la consulta a la base de datos.
      */
     @Override
-    public Response<Page<UserSecResponseDTO>> getAll(int page, int size) {
+    public Response<Page<UserSecResponseDTO>> getAll(int page, int size, String sortBy, String direction) {
         try{
 
-            Pageable pageable = PageRequest.of(page, size, Sort.by("username").descending());
+            //Define criterio de ordenamiento
+            Sort sort = direction.equalsIgnoreCase("desc") ?
+                    Sort.by(sortBy).descending()
+                    : Sort.by(sortBy).ascending();
+
+            //Se define paginación con n°página, cantidad elementos y ordenamiento.
+            Pageable pageable = PageRequest.of(page,size, sort);
 
             //Obtiene listado de usuarios.
             Page<UserSec> userList = userRepository.findAll(pageable);
