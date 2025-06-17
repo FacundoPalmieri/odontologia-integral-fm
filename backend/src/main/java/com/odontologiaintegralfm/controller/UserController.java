@@ -49,6 +49,12 @@ public class UserController {
     @Value("${pagination.default-size}")
     private int defaultSize;
 
+    @Value("${pagination.default.user-sortBy}")
+    private String defaultSortBy;
+
+    @Value("${pagination.default-direction}")
+    private String defaultDirection;
+
 
     /**
      * Lista todos los usuarios.
@@ -68,12 +74,15 @@ public class UserController {
     })
     @GetMapping("/all")
     public ResponseEntity<Response<Page<UserSecResponseDTO>>> getAll(@RequestParam(required = false)  Integer page,
-                                                                     @RequestParam(required = false)  Integer size
-                                                                    ){
+                                                                     @RequestParam(required = false)  Integer size,
+                                                                     @RequestParam(required = false) String  sortBy,
+                                                                     @RequestParam(required = false) String  direction){
         int pageValue = (page != null) ? page : defaultPage;
         int sizeValue = (size != null) ? size : defaultSize;
+        String sortByValue = (sortBy != null) ? sortBy : defaultSortBy;
+        String directionValue = (direction != null) ? direction : defaultDirection;
 
-        Response<Page<UserSecResponseDTO>> response = userService.getAll(pageValue, sizeValue);
+        Response<Page<UserSecResponseDTO>> response = userService.getAll(pageValue, sizeValue,sortByValue,directionValue);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

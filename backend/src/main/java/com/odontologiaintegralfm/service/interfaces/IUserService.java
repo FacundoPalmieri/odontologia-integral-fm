@@ -19,7 +19,7 @@ public interface IUserService {
       * Obtiene todos los usuarios.
       * @return Una respuesta que contiene una lista de objetos {@link UserSecResponseDTO} representando los usuarios.
       */
-     Response<Page<UserSecResponseDTO>> getAll(int page, int size);
+     Response<Page<UserSecResponseDTO>> getAll(int page, int size, String sortBy, String direction);
 
      /**
       * Obtiene un usuario por su ID.

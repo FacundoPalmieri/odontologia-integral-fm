@@ -34,6 +34,12 @@ public class PatientController {
     @Value("${pagination.default-size}")
     private int defaultSize;
 
+    @Value("${pagination.default.patient-sortBy}")
+    private String defaultSortBy;
+
+    @Value("${pagination.default-direction}")
+    private String defaultDirection;
+
     /**
      * Crea un nuevo paciente en el sistema.
      * <p>
@@ -120,11 +126,15 @@ public class PatientController {
     @GetMapping("/all")
     @OnlyAuthenticated
     public ResponseEntity<Response<Page<PatientResponseDTO>>> getAll(@RequestParam(required = false) Integer page,
-                                                                     @RequestParam(required = false) Integer size) {
+                                                                     @RequestParam(required = false) Integer size,
+                                                                     @RequestParam(required = false) String  sortBy,
+                                                                     @RequestParam(required = false) String  direction) {
         int pageValue = (page != null) ? page : defaultPage;
         int sizeValue = (size != null) ? size : defaultSize;
+        String sortByValue = (sortBy != null) ? sortBy : defaultSortBy;
+        String directionValue = (direction != null) ? direction : defaultDirection;
 
-        Response<Page<PatientResponseDTO>> response = patientService.getAll(pageValue,sizeValue);
+        Response<Page<PatientResponseDTO>> response = patientService.getAll(pageValue,sizeValue, sortByValue,directionValue);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

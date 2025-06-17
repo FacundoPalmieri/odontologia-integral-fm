@@ -46,7 +46,7 @@ public interface IPatientService {
      * Método para obtener un listado de pacientes habilitados en el sistema.
      * @return Una respuesta que contiene una lista de objetos {@link PatientResponseDTO }
      */
-    Response<Page<PatientResponseDTO>> getAll(int page, int size);
+    Response<Page<PatientResponseDTO>> getAll(int page, int size, String sortBy, String direction);
 
 
     /**

@@ -3,6 +3,7 @@ import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.exception.ForbiddenException;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.UnauthorizedException;
+import com.odontologiaintegralfm.model.Person;
 import com.odontologiaintegralfm.model.RefreshToken;
 import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.model.UserSec;
@@ -85,6 +86,8 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
     @Autowired
     private IRefreshTokenService refreshTokenService;
+    @Autowired
+    private PersonService personService;
 
 
     /**
@@ -165,8 +168,15 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //si es autenticado correctamente se almacena la información SecurityContextHolder.
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            //Obtiene Datos del usuario desde la base de datos.
+            //Obtiene datos del usuario desde la base de datos.
             UserSec userSec = userService.getByUsername(username);
+
+            //
+            PersonResponseDTO personResponseDTO = null;
+            if (userSec.getPerson() != null) {
+                personResponseDTO = personService.convertToDTO(userSec.getPerson());
+            }
+
 
             // Elimina el RefreshToken anterior.
             refreshTokenService.deleteRefreshToken(userSec.getId());
@@ -189,6 +199,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
                     )
                     .jwt(accessToken)
                     .refreshToken(refreshToken.getRefreshToken())
+                    .person(personResponseDTO)
                     .build();
 
             return new Response<> (true,"", authLoginResponseDTO);
