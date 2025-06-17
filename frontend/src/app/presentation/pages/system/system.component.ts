@@ -31,8 +31,8 @@ import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { EditMessageDialogComponent } from "./edit-message-dialog/edit-message-dialog.component";
-import { MessageDto } from "../../../domain/dto/message-update.dto";
 import { Subject, takeUntil } from "rxjs";
+import { MessageCreateDtoInterface } from "../../../domain/dto/message.dto";
 
 @Component({
   selector: "app-system",
@@ -163,8 +163,10 @@ export class SystemComponent implements OnDestroy {
       });
       dialogRef.afterClosed().subscribe((message: MessageInterface) => {
         if (message) {
-          const messageDto: MessageDto = {
+          const messageDto: MessageCreateDtoInterface = {
             id: message.id,
+            key: message.key,
+            locale: message.locale,
             value: message.value,
           };
           this.configService

@@ -4,8 +4,10 @@ import { environment } from "../environments/environment";
 import { map, Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { MessageInterface } from "../domain/interfaces/message.interface";
-import { MessageDto } from "../domain/dto/message-update.dto";
-import { MessageDtoInterface } from "../domain/dto/message.dto";
+import {
+  MessageCreateDtoInterface,
+  MessageDtoInterface,
+} from "../domain/dto/message.dto";
 import { MessageSerializer } from "../domain/serializers/message.serializer";
 
 @Injectable({ providedIn: "root" })
@@ -80,7 +82,7 @@ export class ConfigService {
   }
 
   updateMessage(
-    message: MessageDto
+    message: MessageCreateDtoInterface
   ): Observable<ApiResponseInterface<MessageInterface>> {
     return this.http
       .patch<ApiResponseInterface<MessageDtoInterface>>(

@@ -1,7 +1,4 @@
-import {
-  DentistInterface,
-  DentistSpecialtyInterface,
-} from "./dentist.interface";
+import { DentistSpecialtyInterface } from "./dentist.interface";
 import { PersonInterface } from "./person.interface";
 import { RoleInterface } from "./role.interface";
 
