@@ -30,7 +30,7 @@ public class GenderService implements IGenderService {
         try{
             List<Gender> listGender = genderRepository.findAllByEnabledTrue();
             List<GenderResponseDTO> listGenderDTOs = listGender.stream()
-                    .map(gender -> new GenderResponseDTO(gender.getId(),gender.getAlias()))
+                    .map(gender -> new GenderResponseDTO(gender.getId(),gender.getAlias(),gender.getName()))
                     .toList();
 
             return new Response<>(true,null,listGenderDTOs);

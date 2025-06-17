@@ -279,6 +279,7 @@ public class UserService implements IUserService {
             String userMessage = messageService.getMessage("userService.save.ok", null, LocaleContextHolder.getLocale());
 
             Person person;
+
             //Creación de la Persona (Puede ser Secretaría o Dentista)
             if(userSecCreateDto.getPerson() != null) {
                 person = personService.create(userSecCreateDto.getPerson());
@@ -287,17 +288,15 @@ public class UserService implements IUserService {
 
                 //Se agrega PersonaDTO a la respuesta final
                 userSecResponse.setPerson(personResponseDTO);
-            }else {
-                throw new ConflictException("exception.createPerson.user", null, "exception.createPerson.log", new Object[]{userSecResponse.getId(), userSecResponse.getUsername()  ,"UserService","create"}, LogLevel.ERROR );
-            }
 
-            //Creación de Dentista
-            if(userSecCreateDto.getDentist() != null) {
+                //Creación de Dentista
+                if(userSecCreateDto.getDentist() != null) {
                     Dentist dentist = dentistService.create(person,userSecCreateDto.getDentist());
                     DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist);
 
                     //Se agrega DentistaDTO  a la respuesta final
                     userSecResponse.setDentist(dentistResponseDTO);
+                }
             }
 
             return new Response<>(true, userMessage,userSecResponse);
