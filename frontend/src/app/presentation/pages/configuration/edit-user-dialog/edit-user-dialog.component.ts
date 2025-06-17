@@ -51,7 +51,7 @@ export class EditUserDialogComponent {
 
   private _loadForm() {
     this.userForm = new FormGroup({
-      id: new FormControl<number>(this.data.user.id, [Validators.required]),
+      id: new FormControl<number>(this.data.user.id!, [Validators.required]),
       username: new FormControl<string>(this.data.user.username, [
         Validators.required,
         Validators.email,
@@ -59,7 +59,7 @@ export class EditUserDialogComponent {
       rolesList: new FormControl<RoleInterface[]>(this.data.user.rolesList, [
         Validators.required,
       ]),
-      enabled: new FormControl<boolean>(this.data.user.enabled, [
+      enabled: new FormControl<boolean>(this.data.user.enabled!, [
         Validators.required,
       ]),
     });

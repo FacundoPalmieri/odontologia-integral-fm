@@ -2,6 +2,16 @@ import {
   DisseaseConditionEnum,
   DisseaseEnum,
 } from "../../utils/enums/dissease.enum";
+import {
+  CountryInterface,
+  DniTypeInterface,
+  GenderInterface,
+  HealthPlanInterface,
+  LocalityInterface,
+  NationalityInterface,
+  PhoneTypeInterface,
+  ProvinceInterface,
+} from "./person-data.interface";
 
 export interface PatientInterface {
   id: number;
@@ -26,32 +36,6 @@ export interface PatientInterface {
   phone: string;
   // medicalRisk: DisseaseInterface[];
   // medicalHistoryObservation: string;
-}
-
-export interface HealthPlanInterface {
-  id: number;
-  name: string;
-}
-
-export interface BaseGeoEntityInterface {
-  id: number;
-  name: string;
-}
-
-export interface ProvinceInterface extends BaseGeoEntityInterface {}
-export interface NationalityInterface extends BaseGeoEntityInterface {}
-export interface LocalityInterface extends BaseGeoEntityInterface {}
-export interface CountryInterface extends BaseGeoEntityInterface {}
-export interface PhoneTypeInterface extends BaseGeoEntityInterface {}
-
-export interface GenderInterface {
-  id: number;
-  alias: string;
-}
-
-export interface DniTypeInterface {
-  id: number;
-  dni: string;
 }
 
 export interface DisseaseInterface {

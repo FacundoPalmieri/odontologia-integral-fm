@@ -12,17 +12,6 @@ import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { Subject, takeUntil } from "rxjs";
 import { MatCardModule } from "@angular/material/card";
 import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
-import {
-  CountryInterface,
-  DniTypeInterface,
-  GenderInterface,
-  HealthPlanInterface,
-  LocalityInterface,
-  NationalityInterface,
-  PatientInterface,
-  PhoneTypeInterface,
-  ProvinceInterface,
-} from "../../../../domain/interfaces/patient.interface";
 import { Router } from "@angular/router";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
@@ -44,6 +33,18 @@ import { mockOdontogram1 } from "../../../../utils/mocks/odontogram.mock";
 import { MatDialog } from "@angular/material/dialog";
 import { SnackbarService } from "../../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
+import { PatientInterface } from "../../../../domain/interfaces/patient.interface";
+import {
+  CountryInterface,
+  DniTypeInterface,
+  GenderInterface,
+  HealthPlanInterface,
+  LocalityInterface,
+  NationalityInterface,
+  PhoneTypeInterface,
+  ProvinceInterface,
+} from "../../../../domain/interfaces/person-data.interface";
+import { PersonDataService } from "../../../../services/person-data.service";
 
 interface OdontogramInterface {
   id: number;
@@ -81,6 +82,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly router = inject(Router);
   private readonly patientService = inject(PatientService);
+  private readonly personDataService = inject(PersonDataService);
   private readonly dialog = inject(MatDialog);
 
   showAdditionalInfo = signal(false);
@@ -277,7 +279,7 @@ export class PatientComponent implements OnInit, OnDestroy {
     this._getCountries();
 
     if (this.patient()!.country.id) {
-      this.patientService
+      this.personDataService
         .getProvinceByCountryId(this.patient()!.country.id)
         .pipe(takeUntil(this._destroy$))
         .subscribe((response: ApiResponseInterface<ProvinceInterface[]>) => {
@@ -285,7 +287,7 @@ export class PatientComponent implements OnInit, OnDestroy {
         });
     }
     if (this.patient()!.province.id) {
-      this.patientService
+      this.personDataService
         .getLocalityByProvinceId(this.patient()!.province.id)
         .pipe(takeUntil(this._destroy$))
         .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
@@ -299,7 +301,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   private _getCountries() {
-    this.patientService
+    this.personDataService
       .getAllCountries()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<CountryInterface[]>) => {
@@ -308,7 +310,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   private _getDniTypes() {
-    this.patientService
+    this.personDataService
       .getAllDNITypes()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<DniTypeInterface[]>) => {
@@ -317,7 +319,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   private _getGenders() {
-    this.patientService
+    this.personDataService
       .getAllGenders()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<GenderInterface[]>) => {
@@ -326,7 +328,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   private _getNationalities() {
-    this.patientService
+    this.personDataService
       .getAllNationalities()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<NationalityInterface[]>) => {
@@ -335,7 +337,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   private _getProvincesByCountryId(id: number) {
-    this.patientService
+    this.personDataService
       .getProvinceByCountryId(id)
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<ProvinceInterface[]>) => {
@@ -344,7 +346,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   private _getLocalitiesByProvinceId(id: number) {
-    this.patientService
+    this.personDataService
       .getLocalityByProvinceId(id)
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
@@ -353,7 +355,7 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   private _getHealthPlans() {
-    this.patientService
+    this.personDataService
       .getAllHealthPlans()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<HealthPlanInterface[]>) => {

@@ -8,7 +8,7 @@ export interface UserDtoInterface {
   rolesList: RoleDtoInterface[];
   enabled: boolean;
   person: PersonDtoInterface;
-  desntist: DentistDtoInterface[];
+  dentist: DentistDtoInterface[];
 }
 
 export interface UserCreateDtoInterface {

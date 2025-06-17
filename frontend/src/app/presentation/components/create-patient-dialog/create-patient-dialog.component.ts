@@ -16,6 +16,9 @@ import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MedicalRisksComponent } from "../medical-risks/medical-risks.component";
 import { MatExpansionModule } from "@angular/material/expansion";
+import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
+import { MatSelectModule } from "@angular/material/select";
+import { MatIconModule } from "@angular/material/icon";
 import {
   CountryInterface,
   DniTypeInterface,
@@ -25,11 +28,8 @@ import {
   NationalityInterface,
   PhoneTypeInterface,
   ProvinceInterface,
-} from "../../../domain/interfaces/patient.interface";
-import { PatientService } from "../../../services/patient.service";
-import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
-import { MatSelectModule } from "@angular/material/select";
-import { MatIconModule } from "@angular/material/icon";
+} from "../../../domain/interfaces/person-data.interface";
+import { PersonDataService } from "../../../services/person-data.service";
 
 @Component({
   selector: "app-create-patient-dialog",
@@ -54,8 +54,10 @@ import { MatIconModule } from "@angular/material/icon";
 })
 export class CreatePatientDialogComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
-  patientService = inject(PatientService);
-  dialogRef = inject(MatDialogRef<CreatePatientDialogComponent>);
+  private readonly personDataService = inject(PersonDataService);
+  private readonly dialogRef = inject(
+    MatDialogRef<CreatePatientDialogComponent>
+  );
   patientForm: FormGroup = new FormGroup({});
 
   countries = signal<CountryInterface[]>([]);
@@ -141,7 +143,7 @@ export class CreatePatientDialogComponent implements OnInit, OnDestroy {
   }
 
   private _getCountries() {
-    this.patientService
+    this.personDataService
       .getAllCountries()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<CountryInterface[]>) => {
@@ -150,7 +152,7 @@ export class CreatePatientDialogComponent implements OnInit, OnDestroy {
   }
 
   private _getDniTypes() {
-    this.patientService
+    this.personDataService
       .getAllDNITypes()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<DniTypeInterface[]>) => {
@@ -159,7 +161,7 @@ export class CreatePatientDialogComponent implements OnInit, OnDestroy {
   }
 
   private _getGenders() {
-    this.patientService
+    this.personDataService
       .getAllGenders()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<GenderInterface[]>) => {
@@ -168,7 +170,7 @@ export class CreatePatientDialogComponent implements OnInit, OnDestroy {
   }
 
   private _getNationalities() {
-    this.patientService
+    this.personDataService
       .getAllNationalities()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<NationalityInterface[]>) => {
@@ -177,7 +179,7 @@ export class CreatePatientDialogComponent implements OnInit, OnDestroy {
   }
 
   private _getProvincesByCountryId(id: number) {
-    this.patientService
+    this.personDataService
       .getProvinceByCountryId(id)
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<ProvinceInterface[]>) => {
@@ -186,7 +188,7 @@ export class CreatePatientDialogComponent implements OnInit, OnDestroy {
   }
 
   private _getLocalitiesByProvinceId(id: number) {
-    this.patientService
+    this.personDataService
       .getLocalityByProvinceId(id)
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
@@ -195,7 +197,7 @@ export class CreatePatientDialogComponent implements OnInit, OnDestroy {
   }
 
   private _getHealthPlans() {
-    this.patientService
+    this.personDataService
       .getAllHealthPlans()
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<HealthPlanInterface[]>) => {

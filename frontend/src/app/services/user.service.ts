@@ -8,6 +8,7 @@ import {
 } from "../domain/interfaces/api-response.interface";
 import { UserInterface } from "../domain/interfaces/user.interface";
 import { UserCreateDtoInterface } from "../domain/dto/user.dto";
+import { UserSerializer } from "../domain/serializers/user.serializer";
 
 @Injectable({ providedIn: "root" })
 export class UserService {
@@ -33,12 +34,11 @@ export class UserService {
     );
   }
 
-  create(
-    user: UserCreateDtoInterface
-  ): Observable<ApiResponseInterface<UserInterface>> {
+  create(user: UserInterface): Observable<ApiResponseInterface<UserInterface>> {
+    const serializedUser = UserSerializer.toCreateDto(user);
     return this.http.post<ApiResponseInterface<UserInterface>>(
       `${this.apiUrl}/user`,
-      user
+      serializedUser
     );
   }
 

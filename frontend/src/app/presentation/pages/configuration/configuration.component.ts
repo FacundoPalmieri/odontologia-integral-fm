@@ -31,14 +31,13 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { EditUserDialogComponent } from "./edit-user-dialog/edit-user-dialog.component";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
-import { CreateUserDialogComponent } from "./create-user-dialog/create-user-dialog.component";
 import { EditRoleDialogComponent } from "./edit-role-dialog/edit-role-dialog.component";
 import { CreateRoleDialogComponent } from "./create-role-dialog/create-role-dialog.component";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { Subject, takeUntil } from "rxjs";
-import { UserCreateDtoInterface } from "../../../domain/dto/user.dto";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-configuration",
@@ -65,6 +64,7 @@ import { UserCreateDtoInterface } from "../../../domain/dto/user.dto";
 export class ConfigurationComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
   userService = inject(UserService);
   roleService = inject(RoleService);
   permissionService = inject(PermissionService);
@@ -121,27 +121,31 @@ export class ConfigurationComponent implements OnDestroy {
     this._destroy$.complete();
   }
 
+  // createUser() {
+  //   const dialogRef = this.dialog.open(CreateUserDialogComponent);
+  //   dialogRef
+  //     .afterClosed()
+  //     .pipe(takeUntil(this._destroy$))
+  //     .subscribe((user: UserCreateDtoInterface) => {
+  //       if (user) {
+  //         this.userService
+  //           .create(user)
+  //           .subscribe((response: ApiResponseInterface<UserInterface>) => {
+  //             this.snackbarService.openSnackbar(
+  //               response.message,
+  //               3000,
+  //               "center",
+  //               "top",
+  //               SnackbarTypeEnum.Success
+  //             );
+  //             this._loadUsers();
+  //           });
+  //       }
+  //     });
+  // }
+
   createUser() {
-    const dialogRef = this.dialog.open(CreateUserDialogComponent);
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((user: UserCreateDtoInterface) => {
-        if (user) {
-          this.userService
-            .create(user)
-            .subscribe((response: ApiResponseInterface<UserInterface>) => {
-              this.snackbarService.openSnackbar(
-                response.message,
-                3000,
-                "center",
-                "top",
-                SnackbarTypeEnum.Success
-              );
-              this._loadUsers();
-            });
-        }
-      });
+    this.router.navigate(["/configuration/users/create"]);
   }
 
   editUser(user: UserInterface) {

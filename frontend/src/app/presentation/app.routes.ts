@@ -15,6 +15,7 @@ import { ReportsComponent } from "./pages/reports/reports.component";
 import { PatientsListComponent } from "./pages/patients/patients-list/patients-list.component";
 import { PatientComponent } from "./pages/patients/patient/patients.component";
 import { OdontogramEditComponent } from "./pages/patients/odontogram-edit/odontogram-edit.component";
+import { UserCreatePageComponent } from "./pages/configuration/create-user-page/user-create-page.component";
 
 export const routes: Routes = [
   {
@@ -60,6 +61,14 @@ export const routes: Routes = [
       },
       {
         path: "configuration",
+        component: ConfigurationComponent,
+      },
+      {
+        path: "configuration/users/create",
+        component: UserCreatePageComponent,
+      },
+      {
+        path: "users/:id",
         component: ConfigurationComponent,
       },
       {

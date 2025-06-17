@@ -32,7 +32,7 @@ export interface ContactPhoneDtoInterface {
 
 export interface PersonCreateDtoInterface {
   firstName: string;
-  lastname: string;
+  lastName: string;
   dniTypeId: number;
   dni: string;
   birthDate: Date;
@@ -40,7 +40,7 @@ export interface PersonCreateDtoInterface {
   nationalityId: number;
   contactEmails: string[];
   contactPhones: ContactPhoneCreateDtoInterface[];
-  address: AddressCreateDtoInterface[];
+  address: AddressCreateDtoInterface;
 }
 
 export interface AddressCreateDtoInterface {
