@@ -16,7 +16,10 @@
             <div class="flex flex-col">
               <div class="flex flex-col md:flex-row gap-4">
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Username</mat-label>
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="user-circle"></i-tabler>
+                    <span class="font-bold">Username (email)</span>
+                  </mat-label>
                   <input matInput formControlName="username" />
                   @if(userForm.get('username')?.hasError('required') &&
                   userForm.get('username')?.touched){
@@ -28,7 +31,10 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Rol</mat-label>
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="user-cog"></i-tabler>
+                    <span class="font-bold">Rol</span>
+                  </mat-label>
                   <mat-select
                     name="rolesSelect"
                     formControlName="rolesList"
@@ -39,12 +45,19 @@
                     <mat-option [value]="role">{{ role.role }}</mat-option>
                     }
                   </mat-select>
+                  @if(userForm.get('rolesList')?.hasError('required') &&
+                  userForm.get('rolesList')?.touched){
+                  <mat-error>Campo requerido</mat-error>
+                  }
                 </mat-form-field>
               </div>
 
               <div class="flex flex-col md:flex-row gap-6">
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Contraseña</mat-label>
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="password"></i-tabler>
+                    <span class="font-bold">Contraseña</span>
+                  </mat-label>
                   <input
                     matInput
                     [type]="hidePassword() ? 'password' : 'text'"
@@ -62,12 +75,15 @@
                   </button>
                   @if(userForm.get('password1')?.hasError('required') &&
                   userForm.get('password1')?.touched){
-                  <mat-error>La contraseña es requerida</mat-error>
+                  <mat-error>Campo requerido</mat-error>
                   }
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Confirmar contraseña</mat-label>
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="password"></i-tabler>
+                    <span class="font-bold">Confirmar contraseña</span>
+                  </mat-label>
                   <input
                     matInput
                     [type]="hidePassword() ? 'password' : 'text'"
@@ -144,18 +160,26 @@
                   <div class="flex flex-col md:flex-row gap-4">
                     <mat-form-field appearance="outline" class="w-full !mb-0">
                       <mat-label class="items-center flex gap-1">
-                        <i-tabler name="id"></i-tabler>
+                        <i-tabler name="user-circle"></i-tabler>
                         <span class="font-bold">Nombre</span>
                       </mat-label>
                       <input type="text" matInput formControlName="firstName" />
+                      @if(userForm.get('firstName')?.hasError('required') &&
+                      userForm.get('firstName')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
                       <mat-label class="items-center flex gap-1">
-                        <i-tabler name="id"></i-tabler>
+                        <i-tabler name="user-circle"></i-tabler>
                         <span class="font-bold">Apellido</span>
                       </mat-label>
                       <input type="text" matInput formControlName="lastName" />
+                      @if(userForm.get('lastName')?.hasError('required') &&
+                      userForm.get('lastName')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
 
@@ -176,6 +200,10 @@
                         }}</mat-option>
                         }
                       </mat-select>
+                      @if(userForm.get('dniType')?.hasError('required') &&
+                      userForm.get('dniType')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -184,6 +212,10 @@
                         <span class="font-bold">DNI</span>
                       </mat-label>
                       <input type="text" matInput formControlName="dni" />
+                      @if(userForm.get('dni')?.hasError('required') &&
+                      userForm.get('dni')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
 
@@ -204,6 +236,10 @@
                         [for]="picker"
                       ></mat-datepicker-toggle>
                       <mat-datepicker touchUi #picker></mat-datepicker>
+                      @if(userForm.get('birthDate')?.hasError('required') &&
+                      userForm.get('birthDate')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -218,10 +254,14 @@
                       >
                         @for(gender of genders(); track $index){
                         <mat-option [value]="gender">{{
-                          gender.alias
+                          gender.name
                         }}</mat-option>
                         }
                       </mat-select>
+                      @if(userForm.get('gender')?.hasError('required') &&
+                      userForm.get('gender')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
 
@@ -242,6 +282,10 @@
                         }}</mat-option>
                         }
                       </mat-select>
+                      @if(userForm.get('nationality')?.hasError('required') &&
+                      userForm.get('nationality')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
                 </div>
@@ -257,7 +301,10 @@
                         <span class="font-bold">Email</span>
                       </mat-label>
                       <input type="mail" matInput formControlName="email" />
-                      @if(userForm.get('email')?.hasError('email') &&
+                      @if(userForm.get('email')?.hasError('required') &&
+                      userForm.get('email')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      } @if(userForm.get('email')?.hasError('email') &&
                       userForm.get('email')?.touched){
                       <mat-error>El email no es válido</mat-error>
                       }
@@ -279,6 +326,10 @@
                         }}</mat-option>
                         }
                       </mat-select>
+                      @if(userForm.get('phoneType')?.hasError('required') &&
+                      userForm.get('phoneType')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
 
@@ -289,6 +340,10 @@
                         <span class="font-bold">Nro. Teléfono</span>
                       </mat-label>
                       <input type="string" matInput formControlName="phone" />
+                      @if(userForm.get('phone')?.hasError('required') &&
+                      userForm.get('phone')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
                 </div>
@@ -414,6 +469,33 @@
                         matInput
                         formControlName="licenseNumber"
                       />
+                      @if(userForm.get('licenseNumber')?.hasError('required') &&
+                      userForm.get('licenseNumber')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="stethoscope"></i-tabler>
+                        <span class="font-bold">Especialidad</span>
+                      </mat-label>
+                      <mat-select
+                        name="dentistSpecialtySelect"
+                        formControlName="dentistSpecialty"
+                        [compareWith]="compare"
+                      >
+                        @for(dentistSpecialty of dentistSpecialties(); track
+                        $index){
+                        <mat-option [value]="dentistSpecialty">{{
+                          dentistSpecialty.name
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('gender')?.hasError('required') &&
+                      userForm.get('gender')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
                 </div>

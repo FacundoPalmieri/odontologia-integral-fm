@@ -96,7 +96,7 @@
                   [compareWith]="compare"
                 >
                   @for(dniType of dniTypes(); track $index){
-                  <mat-option [value]="dniType">{{ dniType.dni }}</mat-option>
+                  <mat-option [value]="dniType">{{ dniType.name }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>

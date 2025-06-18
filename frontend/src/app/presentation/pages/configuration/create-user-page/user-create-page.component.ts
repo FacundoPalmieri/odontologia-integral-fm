@@ -33,7 +33,6 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { RoleInterface } from "../../../../domain/interfaces/role.interface";
 import { MatIconModule } from "@angular/material/icon";
 import { RoleService } from "../../../../services/role.service";
-import { UserCreateDtoInterface } from "../../../../domain/dto/user.dto";
 import { UserInterface } from "../../../../domain/interfaces/user.interface";
 import { UserService } from "../../../../services/user.service";
 import {
@@ -92,6 +91,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
   phoneTypes = signal<PhoneTypeInterface[]>([]);
   healthPlans = signal<HealthPlanInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
+  dentistSpecialties = signal<DentistSpecialtyInterface[]>([]);
 
   constructor() {
     this._loadForm();
@@ -173,6 +173,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       | PhoneTypeInterface
       | HealthPlanInterface
       | RoleInterface
+      | DentistSpecialtyInterface
       | null,
     item2:
       | GenderInterface
@@ -184,6 +185,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       | PhoneTypeInterface
       | HealthPlanInterface
       | RoleInterface
+      | DentistSpecialtyInterface
       | null
   ): boolean => {
     return item1 && item2 ? item1.id === item2.id : item1 === item2;
@@ -242,6 +244,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
     this._getNationalities();
     this._getPhoneTypes();
     this._getRoles();
+    this._getDentistSpecialties();
   }
 
   private _getCountries() {
@@ -316,6 +319,17 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       });
   }
 
+  private _getDentistSpecialties() {
+    this.personDataService
+      .getAllDentistSpecialties()
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(
+        (response: ApiResponseInterface<DentistSpecialtyInterface[]>) => {
+          this.dentistSpecialties.set(response.data);
+        }
+      );
+  }
+
   private _loadForm() {
     this.userForm = new FormGroup({
       username: new FormControl<string>("", [
@@ -330,13 +344,19 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       rolesList: new FormControl<RoleInterface[] | null>(null, [
         Validators.required,
       ]),
-      firstName: new FormControl<string>(""),
-      lastName: new FormControl<string>(""),
-      dniType: new FormControl<DniTypeInterface | null>(null),
-      dni: new FormControl<string | null>(""),
-      birthDate: new FormControl<Date | null>(null),
-      gender: new FormControl<GenderInterface | null>(null),
-      nationality: new FormControl<NationalityInterface | null>(null),
+      firstName: new FormControl<string>("", [Validators.required]),
+      lastName: new FormControl<string>("", [Validators.required]),
+      dniType: new FormControl<DniTypeInterface | null>(null, [
+        Validators.required,
+      ]),
+      dni: new FormControl<string | null>("", [Validators.required]),
+      birthDate: new FormControl<Date | null>(null, [Validators.required]),
+      gender: new FormControl<GenderInterface | null>(null, [
+        Validators.required,
+      ]),
+      nationality: new FormControl<NationalityInterface | null>(null, [
+        Validators.required,
+      ]),
       country: new FormControl<CountryInterface | null>(null),
       province: new FormControl<ProvinceInterface | null>(null),
       locality: new FormControl<LocalityInterface | null>(null),
@@ -344,12 +364,47 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       number: new FormControl<number | null>(null),
       floor: new FormControl<string | null>(""),
       apartment: new FormControl<string | null>(""),
-      email: new FormControl<string>("", [Validators.email]),
-      phoneType: new FormControl<PhoneTypeInterface | null>(null),
-      phone: new FormControl<string>(""),
+      email: new FormControl<string>("", [
+        Validators.email,
+        Validators.required,
+      ]),
+      phoneType: new FormControl<PhoneTypeInterface | null>(null, [
+        Validators.required,
+      ]),
+      phone: new FormControl<string>("", [Validators.required]),
       licenseNumber: new FormControl<string | null>(""),
       dentistSpecialty: new FormControl<DentistSpecialtyInterface | null>(null),
     });
+
+    this.userForm
+      .get("rolesList")
+      ?.valueChanges.pipe(takeUntil(this._destroy$))
+      .subscribe((roles: RoleInterface[]) => {
+        this.updateLicenseNumberValidation(roles);
+      });
+  }
+
+  private updateLicenseNumberValidation(roles: RoleInterface[] | null): void {
+    if (!roles) {
+      this.userForm.get("licenseNumber")?.clearValidators();
+      this.showProfessionalData.set(false);
+      return;
+    }
+
+    const hasDentistRole = roles.some((role) => role.role === "Odontólogo");
+    this.showProfessionalData.set(hasDentistRole);
+
+    if (hasDentistRole) {
+      this.userForm.get("licenseNumber")?.setValidators([Validators.required]);
+      this.userForm
+        .get("dentistSpecialty")
+        ?.setValidators([Validators.required]);
+    } else {
+      this.userForm.get("licenseNumber")?.clearValidators();
+      this.userForm.get("dentistSpecialty")?.clearValidators();
+    }
+    this.userForm.get("licenseNumber")?.updateValueAndValidity();
+    this.userForm.get("dentistSpecialty")?.updateValueAndValidity();
   }
 
   private passwordMatchValidator(): ValidatorFn {
