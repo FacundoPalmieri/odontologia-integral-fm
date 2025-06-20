@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.dto.PhoneTypeResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.DataBaseException;
@@ -12,7 +13,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PhoneTypeService implements IPhoneTypeService {
@@ -41,11 +44,17 @@ public class PhoneTypeService implements IPhoneTypeService {
      * @return Response<Set < PhoneType>> con el listado de tipos de teléfonos habilitados.
      */
     @Override
-    public Response<Set<PhoneType>> getAll() {
+    public Response<Set<PhoneTypeResponseDTO>> getAll() {
         try{
             Set<PhoneType> phoneTypes = phoneTypeRepository.findAllByEnabledTrue();
 
-            return new Response<>(true,null,phoneTypes);
+            Set<PhoneTypeResponseDTO> phoneTypeResponseDTOSet = phoneTypes
+                    .stream()
+                    .map(phoneType -> new PhoneTypeResponseDTO(phoneType.getId(), phoneType.getName()))
+                    .collect(Collectors.toSet());
+
+
+            return new Response<>(true,null,phoneTypeResponseDTOSet);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
            throw new DataBaseException(e,"PhoneTypeService",null,null,"getAll");

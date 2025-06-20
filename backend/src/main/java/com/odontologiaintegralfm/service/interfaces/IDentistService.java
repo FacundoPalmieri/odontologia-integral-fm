@@ -9,6 +9,7 @@ import com.odontologiaintegralfm.model.Dentist;
 import com.odontologiaintegralfm.model.Person;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -45,11 +46,12 @@ public interface IDentistService {
     Response<Set<DentistResponseDTO>> getAll();
 
     /**
-     * Método para obtener un dentista por su Id
+     * Método para obtener un dentista por su Id. Retorna un Optional ya que al consultar por ID de Person, puede ser que la persona no sea un dentista.
+     * El método llamador realiza acción.
      * @param id del Dentista.
-     * @return objeto Dentist
+     * @return objeto  Optional<Dentist>
      */
-    Dentist getById(Long id);
+    Optional<Dentist> getById(Long id);
 
     /**
      * Método para transformar un {@link Dentist} a un {@link DentistResponseDTO}

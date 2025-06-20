@@ -120,16 +120,15 @@ public class DentistService implements IDentistService {
     }
 
     /**
-     * Método para obtener un dentista por su Id
-     *
+     * Método para obtener un dentista por su Id. Retorna un Optional ya que al consultar por ID de Person, puede ser que la persona no sea un dentista.
+     * El método llamador realiza acción.
      * @param id del Dentista.
-     * @return objeto Dentist
+     * @return Optional <Dentist>
      */
     @Override
-    public Dentist getById(Long id) {
+    public Optional <Dentist> getById(Long id) {
         try{
-            return dentistRepository.findById(id)
-                    .orElseThrow(() ->  new NotFoundException("exception.dentistNotFound.user",null,"exception.dentistNotFound.log",new Object[]{id,"DentistService","getById"}, LogLevel.ERROR));
+            return dentistRepository.findById(id);
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistService",null,null, "getById");
         }
