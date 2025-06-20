@@ -116,6 +116,11 @@ public class GlobalExceptionHandler {
             log.error(logMessage);
         });
 
+        Response<Map<String, String>> response = new Response<>(
+                false,
+                "Error de validación en DTO",
+                errors
+        );
 
         // Devolvemos una respuesta con un código de estado HTTP 400 (Bad Request) y el mapa de errores como cuerpo de la respuesta
         return ResponseEntity
