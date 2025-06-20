@@ -116,9 +116,13 @@ public class GlobalExceptionHandler {
             log.error(logMessage);
         });
 
+        // Toma el primer mensaje para mostrarlo en el campo "message" y luego en errors se ve todos los errores de validación de dtos.
+        String firstErrorMessage = errors.values().stream().findFirst().orElse("Error de validación");
+
+        //Genera el objeto response.
         Response<Map<String, String>> response = new Response<>(
                 false,
-                "Error de validación en DTO",
+                firstErrorMessage,
                 errors
         );
 
