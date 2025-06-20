@@ -125,7 +125,7 @@ public class GlobalExceptionHandler {
         // Devolvemos una respuesta con un código de estado HTTP 400 (Bad Request) y el mapa de errores como cuerpo de la respuesta
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(errors);  // Enviamos los errores de validación como cuerpo de la respuesta
+                .body(response);  // Enviamos los errores de validación como cuerpo de la respuesta
     }
 
 
