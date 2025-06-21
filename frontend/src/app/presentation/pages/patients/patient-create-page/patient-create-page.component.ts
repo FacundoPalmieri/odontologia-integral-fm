@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
-import { Router, ActivatedRoute } from "@angular/router";
+import { Router } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import {
   FormControl,
@@ -27,26 +27,26 @@ import { Subject, takeUntil } from "rxjs";
 import { PersonDataService } from "../../../../services/person-data.service";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { MatDatepickerModule } from "@angular/material/datepicker";
-import { RoleInterface } from "../../../../domain/interfaces/role.interface";
 import { MatIconModule } from "@angular/material/icon";
-import { RoleService } from "../../../../services/role.service";
 import { UserInterface } from "../../../../domain/interfaces/user.interface";
 import { UserService } from "../../../../services/user.service";
 import {
   CountryInterface,
   DniTypeInterface,
   GenderInterface,
+  HealthPlanInterface,
   LocalityInterface,
   NationalityInterface,
   PhoneTypeInterface,
   ProvinceInterface,
 } from "../../../../domain/interfaces/person-data.interface";
-import { DentistSpecialtyInterface } from "../../../../domain/interfaces/dentist.interface";
-import { UserDtoInterface } from "../../../../domain/dto/user.dto";
+import { PatientInterface } from "../../../../domain/interfaces/patient.interface";
+import { PatientService } from "../../../../services/patient.service";
+import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 
 @Component({
-  selector: "app-user-edit-page",
-  templateUrl: "./user-edit-page.component.html",
+  selector: "app-patient-create-page",
+  templateUrl: "./patient-create-page.component.html",
   standalone: true,
   imports: [
     PageToolbarComponent,
@@ -61,23 +61,19 @@ import { UserDtoInterface } from "../../../../domain/dto/user.dto";
     MatIconModule,
   ],
 })
-export class UserEditPageComponent implements OnInit, OnDestroy {
+export class PatientCreatePageComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly snackbarService = inject(SnackbarService);
   private readonly personDataService = inject(PersonDataService);
-  private readonly userService = inject(UserService);
+  private readonly patientService = inject(PatientService);
   private readonly _destroy$ = new Subject<void>();
-  private readonly roleService = inject(RoleService);
-  private readonly activatedRoute = inject(ActivatedRoute);
 
-  userForm: FormGroup = new FormGroup({});
-  userId: number | null = null;
+  patientForm: FormGroup = new FormGroup({});
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
 
   avatarUrl = signal<string | null>(null);
   showAdditionalInfo = signal(false);
-  showProfessionalData = signal(false);
 
   countries = signal<CountryInterface[]>([]);
   localities = signal<LocalityInterface[]>([]);
@@ -86,17 +82,15 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   genders = signal<GenderInterface[]>([]);
   nationalities = signal<NationalityInterface[]>([]);
   phoneTypes = signal<PhoneTypeInterface[]>([]);
-  roles = signal<RoleInterface[]>([]);
-  dentistSpecialties = signal<DentistSpecialtyInterface[]>([]);
+  healthPlans = signal<HealthPlanInterface[]>([]);
 
   constructor() {
     this._loadForm();
     this._loadData();
-    this._getUserIdFromRoute();
   }
 
   ngOnInit() {
-    this.userForm
+    this.patientForm
       .get("country")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((country: CountryInterface) => {
@@ -107,7 +101,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.userForm
+    this.patientForm
       .get("province")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((province: ProvinceInterface) => {
@@ -115,20 +109,6 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
           this._getLocalitiesByProvinceId(province.id);
         } else {
           this.localities.set([]);
-        }
-      });
-
-    this.userForm
-      .get("rolesList")
-      ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((roles: RoleInterface[]) => {
-        if (roles) {
-          const hasDentistRole = roles.some(
-            (role) => role.role === "Odontólogo"
-          );
-          this.showProfessionalData.set(hasDentistRole);
-        } else {
-          this.showProfessionalData.set(false);
         }
       });
   }
@@ -139,7 +119,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(["/configuration"]);
+    this.router.navigate(["/patients"]);
   }
 
   toggleAdditionalInfo(): void {
@@ -159,8 +139,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       | CountryInterface
       | DniTypeInterface
       | PhoneTypeInterface
-      | RoleInterface
-      | DentistSpecialtyInterface
+      | HealthPlanInterface
       | null,
     item2:
       | GenderInterface
@@ -170,8 +149,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       | CountryInterface
       | DniTypeInterface
       | PhoneTypeInterface
-      | RoleInterface
-      | DentistSpecialtyInterface
+      | HealthPlanInterface
       | null
   ): boolean => {
     return item1 && item2 ? item1.id === item2.id : item1 === item2;
@@ -194,7 +172,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.avatarUrl.set(e.target?.result as string);
-        this.userForm.markAsDirty();
+        this.patientForm.markAsDirty();
       };
       reader.readAsDataURL(file);
     }
@@ -202,23 +180,23 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
 
   removeAvatar(): void {
     this.avatarUrl.set(null);
-    this.userForm.markAsDirty();
+    this.patientForm.markAsDirty();
   }
 
   create() {
-    const user: UserInterface = this.userForm.getRawValue();
+    const patient: PatientInterface = this.patientForm.getRawValue();
 
-    this.userService
-      .update(user)
-      .subscribe((response: ApiResponseInterface<UserDtoInterface>) => {
+    this.patientService
+      .create(patient)
+      .subscribe((response: ApiResponseInterface<PatientDtoInterface>) => {
         this.snackbarService.openSnackbar(
-          "Usuario modificado correctamente",
+          "Paciente creado correctamente",
           6000,
           "center",
           "bottom",
           SnackbarTypeEnum.Success
         );
-        this.router.navigate(["/configuration/users/edit", response.data.id]);
+        this.router.navigate(["/patients/edit/", response.data.person.id]);
       });
   }
 
@@ -228,8 +206,6 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     this._getGenders();
     this._getNationalities();
     this._getPhoneTypes();
-    this._getRoles();
-    this._getDentistSpecialties();
   }
 
   private _getCountries() {
@@ -295,35 +271,8 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  private _getRoles() {
-    this.roleService
-      .getAll()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<RoleInterface[]>) => {
-        this.roles.set(response.data);
-      });
-  }
-
-  private _getDentistSpecialties() {
-    this.personDataService
-      .getAllDentistSpecialties()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe(
-        (response: ApiResponseInterface<DentistSpecialtyInterface[]>) => {
-          this.dentistSpecialties.set(response.data);
-        }
-      );
-  }
-
   private _loadForm() {
-    this.userForm = new FormGroup({
-      username: new FormControl<string>("", [
-        Validators.required,
-        Validators.email,
-      ]),
-      rolesList: new FormControl<RoleInterface[] | null>(null, [
-        Validators.required,
-      ]),
+    this.patientForm = new FormGroup({
       firstName: new FormControl<string>("", [Validators.required]),
       lastName: new FormControl<string>("", [Validators.required]),
       dniType: new FormControl<DniTypeInterface | null>(null, [
@@ -352,98 +301,6 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
         Validators.required,
       ]),
       phone: new FormControl<string>("", [Validators.required]),
-      licenseNumber: new FormControl<string | null>(""),
-      dentistSpecialty: new FormControl<DentistSpecialtyInterface | null>(null),
     });
-
-    this.userForm
-      .get("rolesList")
-      ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((roles: RoleInterface[]) => {
-        this.updateLicenseNumberValidation(roles);
-      });
-  }
-
-  private updateLicenseNumberValidation(roles: RoleInterface[] | null): void {
-    if (!roles) {
-      this.userForm.get("licenseNumber")?.clearValidators();
-      this.showProfessionalData.set(false);
-      return;
-    }
-
-    const hasDentistRole = roles.some((role) => role.role === "Odontólogo");
-    this.showProfessionalData.set(hasDentistRole);
-
-    if (hasDentistRole) {
-      this.userForm.get("licenseNumber")?.setValidators([Validators.required]);
-      this.userForm
-        .get("dentistSpecialty")
-        ?.setValidators([Validators.required]);
-    } else {
-      this.userForm.get("licenseNumber")?.clearValidators();
-      this.userForm.get("dentistSpecialty")?.clearValidators();
-    }
-    this.userForm.get("licenseNumber")?.updateValueAndValidity();
-    this.userForm.get("dentistSpecialty")?.updateValueAndValidity();
-  }
-
-  private _getUserIdFromRoute() {
-    this.activatedRoute.params.subscribe((params) => {
-      this.userId = params["id"];
-      if (this.userId) {
-        this._loadUserData();
-      } else {
-        this.snackbarService.openSnackbar(
-          "El usuario no se pudo cargar correctamente.",
-          6000,
-          "center",
-          "bottom",
-          SnackbarTypeEnum.Error
-        );
-        this.goBack();
-      }
-    });
-  }
-
-  private _loadUserData() {
-    if (!this.userId) return;
-
-    this.userService
-      .getById(this.userId)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<UserInterface>) => {
-        const user = response.data;
-        this._populateForm(user);
-      });
-  }
-
-  private _populateForm(user: UserInterface) {
-    this.userForm.patchValue({
-      username: user.username,
-      firstName: user.person?.firstName,
-      lastName: user.person?.lastName,
-      dniType: user.person?.dniType,
-      dni: user.person?.dni,
-      birthDate: user.person?.birthDate
-        ? new Date(user.person.birthDate)
-        : null,
-      gender: user.person?.gender,
-      nationality: user.person?.nationality,
-      country: user.person?.country,
-      province: user.person?.province,
-      locality: user.person?.locality,
-      street: user.person?.street,
-      number: user.person?.number,
-      floor: user.person?.floor,
-      apartment: user.person?.apartment,
-      email: user.person?.contactEmails,
-      phoneType: user.person?.phoneType,
-      phone: user.person?.phone,
-      rolesList: user.rolesList,
-      licenseNumber: user.licenseNumber,
-      dentistSpecialty: user.dentistSpecialty,
-    });
-
-    this.userForm.markAsPristine();
   }
 }

@@ -1,21 +1,30 @@
-import { PersonDtoInterface } from "../dto/person.dto";
-import { UserCreateDtoInterface, UserDtoInterface } from "../dto/user.dto";
+import { PersonCreateDtoInterface } from "../dto/person.dto";
 import { PersonInterface } from "../interfaces/person.interface";
-import { UserInterface } from "../interfaces/user.interface";
 
 export class PersonSerializer {
-  // static toView(person: PersonDtoInterface): PersonInterface {
-  //   const personView: PersonInterface = {
-  //     id: person.id,
-  //     firstName: person.firstName,
-  //     lastName: person.lastName,
-  //     dniType: person.dniType,
-  //     dni: person.dni,
-  //     birthDate: person.birthDate,
-  //   };
-  //   return personView;
-  // }
-  // static toCreateDto(user: UserInterface): UserCreateDtoInterface | {} {
-  //   return {};
-  // }
+  static toCreateDto(person: PersonInterface): PersonCreateDtoInterface {
+    return {
+      firstName: person.firstName,
+      lastName: person.lastName,
+      dniTypeId: person.dniType.id,
+      dni: person.dni,
+      birthDate: person.birthDate,
+      genderId: person.gender.id,
+      nationalityId: person.nationality.id,
+      contactEmails: person.contactEmails ? [person.contactEmails] : [],
+      contactPhones: [
+        {
+          phoneType: person.phoneType.id,
+          phone: person.phone,
+        },
+      ],
+      address: {
+        localityId: person.locality.id,
+        street: person.street,
+        number: person.number,
+        floor: person.floor,
+        apartment: person.apartment,
+      },
+    };
+  }
 }

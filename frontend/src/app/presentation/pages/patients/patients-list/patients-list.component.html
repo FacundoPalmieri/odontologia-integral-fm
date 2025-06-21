@@ -28,13 +28,13 @@
               class="h-10 w-10 rounded-full object-cover"
               [alt]="element.firstName + ' ' + element.lastName"
             />
-            } @else { @if (element.gender.alias === 'Mujer') {
+            } @else { @if (element.person.gender === 'Femenino') {
             <img
               src="img/women-avatar.png"
               class="h-10 w-10 rounded-full object-cover"
               [alt]="element.firstName + ' ' + element.lastName"
             />
-            } @else if (element.gender.alias === 'Hombre') {
+            } @else if (element.person.gender === 'Masculino') {
             <img
               src="img/men-avatar.png"
               class="h-10 w-10 rounded-full object-cover"
@@ -53,30 +53,34 @@
         <ng-container matColumnDef="firstName">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
           <td mat-cell *matCellDef="let element">
-            {{ element.firstName }}
+            {{ element.person.firstName }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="lastName">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</th>
           <td mat-cell *matCellDef="let element">
-            {{ element.lastName }}
+            {{ element.person.lastName }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="dni">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>DNI</th>
-          <td mat-cell *matCellDef="let element">{{ element.dni }}</td>
+          <td mat-cell *matCellDef="let element">{{ element.person.dni }}</td>
         </ng-container>
 
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Mail</th>
-          <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+          <td mat-cell *matCellDef="let element">
+            {{ element.person.contactEmails[0] }}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="phone">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Teléfono</th>
-          <td mat-cell *matCellDef="let element">{{ element.phone }}</td>
+          <td mat-cell *matCellDef="let element">
+            {{ element.person.contactPhone[0].phone }}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="action">

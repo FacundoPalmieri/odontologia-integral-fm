@@ -7,7 +7,10 @@ import {
   PagedDataInterface,
 } from "../domain/interfaces/api-response.interface";
 import { UserInterface } from "../domain/interfaces/user.interface";
-import { UserCreateDtoInterface } from "../domain/dto/user.dto";
+import {
+  UserCreateDtoInterface,
+  UserDtoInterface,
+} from "../domain/dto/user.dto";
 import { UserSerializer } from "../domain/serializers/user.serializer";
 
 @Injectable({ providedIn: "root" })
@@ -18,13 +21,13 @@ export class UserService {
   getAll(
     page: number = 0,
     size: number = 100
-  ): Observable<ApiResponseInterface<PagedDataInterface<UserInterface[]>>> {
+  ): Observable<ApiResponseInterface<PagedDataInterface<UserDtoInterface[]>>> {
     const params = new HttpParams()
       .set("page", page.toString())
       .set("size", size.toString());
 
     return this.http.get<
-      ApiResponseInterface<PagedDataInterface<UserInterface[]>>
+      ApiResponseInterface<PagedDataInterface<UserDtoInterface[]>>
     >(`${this.apiUrl}/user/all`, { params });
   }
 
@@ -34,16 +37,20 @@ export class UserService {
     );
   }
 
-  create(user: UserInterface): Observable<ApiResponseInterface<UserInterface>> {
+  create(
+    user: UserInterface
+  ): Observable<ApiResponseInterface<UserDtoInterface>> {
     const serializedUser = UserSerializer.toCreateDto(user);
-    return this.http.post<ApiResponseInterface<UserInterface>>(
+    return this.http.post<ApiResponseInterface<UserDtoInterface>>(
       `${this.apiUrl}/user`,
       serializedUser
     );
   }
 
-  update(user: UserInterface): Observable<ApiResponseInterface<UserInterface>> {
-    return this.http.patch<ApiResponseInterface<UserInterface>>(
+  update(
+    user: UserInterface
+  ): Observable<ApiResponseInterface<UserDtoInterface>> {
+    return this.http.patch<ApiResponseInterface<UserDtoInterface>>(
       `${this.apiUrl}/user`,
       user
     );

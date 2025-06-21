@@ -39,13 +39,13 @@ import {
   CountryInterface,
   DniTypeInterface,
   GenderInterface,
-  HealthPlanInterface,
   LocalityInterface,
   NationalityInterface,
   PhoneTypeInterface,
   ProvinceInterface,
 } from "../../../../domain/interfaces/person-data.interface";
 import { DentistSpecialtyInterface } from "../../../../domain/interfaces/dentist.interface";
+import { UserDtoInterface } from "../../../../domain/dto/user.dto";
 
 @Component({
   selector: "app-user-create-page",
@@ -89,7 +89,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
   genders = signal<GenderInterface[]>([]);
   nationalities = signal<NationalityInterface[]>([]);
   phoneTypes = signal<PhoneTypeInterface[]>([]);
-  healthPlans = signal<HealthPlanInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
   dentistSpecialties = signal<DentistSpecialtyInterface[]>([]);
 
@@ -171,7 +170,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       | CountryInterface
       | DniTypeInterface
       | PhoneTypeInterface
-      | HealthPlanInterface
       | RoleInterface
       | DentistSpecialtyInterface
       | null,
@@ -183,7 +181,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       | CountryInterface
       | DniTypeInterface
       | PhoneTypeInterface
-      | HealthPlanInterface
       | RoleInterface
       | DentistSpecialtyInterface
       | null
@@ -221,11 +218,10 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
 
   create() {
     const user: UserInterface = this.userForm.getRawValue();
-    console.log(user);
 
     this.userService
       .create(user)
-      .subscribe((response: ApiResponseInterface<UserInterface>) => {
+      .subscribe((response: ApiResponseInterface<UserDtoInterface>) => {
         this.snackbarService.openSnackbar(
           "Usuario creado correctamente",
           6000,
@@ -233,7 +229,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
           "bottom",
           SnackbarTypeEnum.Success
         );
-        this.router.navigate(["/configuration"]);
+        this.router.navigate(["/configuration/users/edit/", response.data.id]);
       });
   }
 

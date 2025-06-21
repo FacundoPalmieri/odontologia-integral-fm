@@ -16,7 +16,6 @@ import { UserService } from "../../../services/user.service";
 import { RoleService } from "../../../services/role.service";
 import { PermissionService } from "../../../services/permission.service";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { RoleInterface } from "../../../domain/interfaces/role.interface";
 import {
   ApiResponseInterface,
@@ -36,6 +35,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { Subject, takeUntil } from "rxjs";
 import { Router } from "@angular/router";
+import { UserDtoInterface } from "../../../domain/dto/user.dto";
 
 @Component({
   selector: "app-configuration",
@@ -68,11 +68,11 @@ export class ConfigurationComponent implements OnDestroy {
   permissionService = inject(PermissionService);
   snackbarService = inject(SnackbarService);
 
-  users = signal<UserInterface[]>([]);
+  users = signal<UserDtoInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
 
   userFilter = new FormControl("");
-  usersDataSource = new MatTableDataSource<UserInterface>([]);
+  usersDataSource = new MatTableDataSource<UserDtoInterface>([]);
   roleFilter = new FormControl("");
   rolesDataSource = new MatTableDataSource<RoleInterface>([]);
 
@@ -123,7 +123,7 @@ export class ConfigurationComponent implements OnDestroy {
     this.router.navigate(["/configuration/users/create"]);
   }
 
-  editUser(user: UserInterface) {
+  editUser(user: UserDtoInterface) {
     this.router.navigate(["/configuration/users/edit", user.id]);
   }
 
@@ -171,7 +171,7 @@ export class ConfigurationComponent implements OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (
-          response: ApiResponseInterface<PagedDataInterface<UserInterface[]>>
+          response: ApiResponseInterface<PagedDataInterface<UserDtoInterface[]>>
         ) => {
           this.users.set(response.data.content);
         }

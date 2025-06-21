@@ -13,10 +13,11 @@ import { InventoryComponent } from "./pages/inventory/inventory.component";
 import { ConsultationRegisterComponent } from "./pages/consultation-register/consultation-register.component";
 import { ReportsComponent } from "./pages/reports/reports.component";
 import { PatientsListComponent } from "./pages/patients/patients-list/patients-list.component";
-import { PatientComponent } from "./pages/patients/patient/patients.component";
 import { OdontogramEditComponent } from "./pages/patients/odontogram-edit/odontogram-edit.component";
 import { UserCreatePageComponent } from "./pages/configuration/user-create-page/user-create-page.component";
 import { UserEditPageComponent } from "./pages/configuration/user-edit-page/user-edit-page.component";
+import { PatientCreatePageComponent } from "./pages/patients/patient-create-page/patient-create-page.component";
+import { PatientEditPageComponent } from "./pages/patients/patient-edit-page/patient-edit-page.component";
 
 export const routes: Routes = [
   {
@@ -41,8 +42,12 @@ export const routes: Routes = [
         component: PatientsListComponent,
       },
       {
-        path: "patients/:id",
-        component: PatientComponent,
+        path: "patients/create",
+        component: PatientCreatePageComponent,
+      },
+      {
+        path: "patients/edit/:id",
+        component: PatientEditPageComponent,
       },
       {
         path: "patients/:id/odontogram/:id",

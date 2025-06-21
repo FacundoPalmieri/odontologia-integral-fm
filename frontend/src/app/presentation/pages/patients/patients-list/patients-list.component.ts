@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   effect,
   inject,
@@ -23,10 +22,13 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
 import { PatientService } from "../../../../services/patient.service";
-import { PatientInterface } from "../../../../domain/interfaces/patient.interface";
 import { CreatePatientDialogComponent } from "../../../components/create-patient-dialog/create-patient-dialog.component";
 import { Router, RouterModule } from "@angular/router";
-import { OdontogramComponent } from "../../../components/odontogram/odontogram.component";
+import {
+  ApiResponseInterface,
+  PagedDataInterface,
+} from "../../../../domain/interfaces/api-response.interface";
+import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 
 @Component({
   selector: "app-patients-list",
@@ -50,15 +52,15 @@ import { OdontogramComponent } from "../../../components/odontogram/odontogram.c
     RouterModule,
   ],
 })
-export class PatientsListComponent implements OnDestroy, AfterViewInit {
+export class PatientsListComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   patientService = inject(PatientService);
   dialog = inject(MatDialog);
   router = inject(Router);
-  patients = signal<PatientInterface[]>([]);
+  patients = signal<PatientDtoInterface[]>([]);
 
   patientsFilter = new FormControl("");
-  patientsDataSource: MatTableDataSource<PatientInterface> =
+  patientsDataSource: MatTableDataSource<PatientDtoInterface> =
     new MatTableDataSource();
   displayedColumns: string[] = [
     "avatar",
@@ -81,17 +83,10 @@ export class PatientsListComponent implements OnDestroy, AfterViewInit {
     effect(() => {
       if (this.patients()) {
         this.patientsDataSource.data = this.patients();
-        // Descomentar cuando exista el método en la API para recuperar todos los pacientes
-        // this.patientsDataSource.paginator = this.paginator;
-        // this.patientsDataSource.sort = this.sort;
+        this.patientsDataSource.paginator = this.paginator;
+        this.patientsDataSource.sort = this.sort;
       }
     });
-  }
-
-  // Quitar cuando exista el método en la API.
-  ngAfterViewInit(): void {
-    this.patientsDataSource.paginator = this.paginator;
-    this.patientsDataSource.sort = this.sort;
   }
 
   ngOnDestroy(): void {
@@ -100,15 +95,17 @@ export class PatientsListComponent implements OnDestroy, AfterViewInit {
   }
 
   create() {
-    const dialogRef = this.dialog.open(CreatePatientDialogComponent);
+    this.router.navigate(["/patients/create"]);
   }
 
-  openOdontogram(patient: PatientInterface) {
-    this.router.navigate([`patients/${patient.id}/odontogram/${patient.id}}`]);
+  openOdontogram(patient: PatientDtoInterface) {
+    this.router.navigate([
+      `patients/${patient.person.id}/odontogram/${patient.person.id}}`,
+    ]);
   }
 
-  viewFile(patient: PatientInterface): void {
-    this.router.navigate(["/patients", patient.id], {
+  viewFile(patient: PatientDtoInterface): void {
+    this.router.navigate(["/patients/edit", patient.person.id], {
       state: { patient },
     });
   }
@@ -117,11 +114,17 @@ export class PatientsListComponent implements OnDestroy, AfterViewInit {
     this.patientService
       .getAll()
       .pipe(takeUntil(this._destroy$))
-      .subscribe((response) => {
-        this.patients.set(response.data);
-        this.patientsDataSource.paginator = this.paginator;
-        this.patientsDataSource.sort = this.sort;
-      });
+      .subscribe(
+        (
+          response: ApiResponseInterface<
+            PagedDataInterface<PatientDtoInterface[]>
+          >
+        ) => {
+          this.patients.set(response.data.content);
+          this.patientsDataSource.paginator = this.paginator;
+          this.patientsDataSource.sort = this.sort;
+        }
+      );
 
     this._setupFilters();
   }

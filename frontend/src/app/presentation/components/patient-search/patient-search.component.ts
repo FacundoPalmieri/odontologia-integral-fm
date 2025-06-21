@@ -6,9 +6,11 @@ import { MatSelectModule } from "@angular/material/select";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { PatientService } from "../../../services/patient.service";
-import { PatientInterface } from "../../../domain/interfaces/patient.interface";
 import { map, Observable, of, startWith, Subject, takeUntil } from "rxjs";
-import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
+import {
+  ApiResponseInterface,
+  PagedDataInterface,
+} from "../../../domain/interfaces/api-response.interface";
 import { MatInputModule } from "@angular/material/input";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -16,6 +18,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { CreatePatientDialogComponent } from "../create-patient-dialog/create-patient-dialog.component";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { PatientDtoInterface } from "../../../domain/dto/patient.dto";
 
 @Component({
   selector: "app-patient-search",
@@ -42,11 +45,11 @@ export class PatientSearchComponent {
 
   patientService = inject(PatientService);
   dialog = inject(MatDialog);
-  patients = signal<PatientInterface[]>([]);
+  patients = signal<PatientDtoInterface[]>([]);
 
   patientSearchControl = new FormControl("");
-  filteredPatients: Observable<PatientInterface[]> = of([]);
-  selectedPatient: PatientInterface | null = null;
+  filteredPatients: Observable<PatientDtoInterface[]> = of([]);
+  selectedPatient: PatientDtoInterface | null = null;
 
   constructor() {
     this._getPatients();
@@ -59,13 +62,13 @@ export class PatientSearchComponent {
     );
   }
 
-  displayFn(patient: PatientInterface): string {
-    return patient && patient.firstName && patient.lastName
-      ? patient.firstName + " " + patient.lastName
+  displayFn(patient: PatientDtoInterface): string {
+    return patient && patient.person.firstName && patient.person.lastName
+      ? patient.person.firstName + " " + patient.person.lastName
       : "";
   }
 
-  onPatientSelected(patient: PatientInterface): void {
+  onPatientSelected(patient: PatientDtoInterface): void {
     this.selectedPatient = patient;
 
     this.filteredPatients = this.patientSearchControl.valueChanges.pipe(
@@ -76,13 +79,13 @@ export class PatientSearchComponent {
     );
   }
 
-  private _filterPatients(value: string): PatientInterface[] {
+  private _filterPatients(value: string): PatientDtoInterface[] {
     const filterValue = value.toLowerCase();
 
     return this.patients().filter((patient) => {
-      const firstName = patient.firstName.toLowerCase();
-      const lastName = patient.lastName.toLowerCase();
-      const dni = patient.dni.toString();
+      const firstName = patient.person.firstName.toLowerCase();
+      const lastName = patient.person.lastName.toLowerCase();
+      const dni = patient.person.dni.toString();
 
       return (
         firstName.includes(filterValue) ||
@@ -100,10 +103,16 @@ export class PatientSearchComponent {
     this.patientService
       .getAll()
       .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<PatientInterface[]>) => {
-        if (response.success) {
-          this.patients.set(response.data);
+      .subscribe(
+        (
+          response: ApiResponseInterface<
+            PagedDataInterface<PatientDtoInterface[]>
+          >
+        ) => {
+          if (response.success) {
+            this.patients.set(response.data.content);
+          }
         }
-      });
+      );
   }
 }

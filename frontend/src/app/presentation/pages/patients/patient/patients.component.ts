@@ -126,9 +126,9 @@ export class PatientComponent implements OnInit, OnDestroy {
   }
 
   openOdontogram() {
-    this.router.navigate([
-      `patients/${this.patient()!.id}/odontogram/${this.odontogramData[0].id}`,
-    ]);
+    // this.router.navigate([
+    //   `patients/${this.patient()!.id}/odontogram/${this.odontogramData[0].id}`,
+    // ]);
   }
 
   ngOnInit() {
@@ -266,7 +266,7 @@ export class PatientComponent implements OnInit, OnDestroy {
       affiliateNumber: new FormControl<string | null>(
         this.patient()!.affiliateNumber
       ),
-      email: new FormControl<string>(this.patient()!.email, [Validators.email]),
+      email: new FormControl<string>("", [Validators.email]),
       phoneType: new FormControl<PhoneTypeInterface | null>(
         this.patient()!.phoneType
       ),

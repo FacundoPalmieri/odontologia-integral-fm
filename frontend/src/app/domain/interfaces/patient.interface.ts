@@ -2,40 +2,19 @@ import {
   DisseaseConditionEnum,
   DisseaseEnum,
 } from "../../utils/enums/dissease.enum";
-import {
-  CountryInterface,
-  DniTypeInterface,
-  GenderInterface,
-  HealthPlanInterface,
-  LocalityInterface,
-  NationalityInterface,
-  PhoneTypeInterface,
-  ProvinceInterface,
-} from "./person-data.interface";
+import { HealthPlanInterface } from "./person-data.interface";
+import { PersonInterface } from "./person.interface";
 
-export interface PatientInterface {
-  id: number;
-  firstName: string;
-  lastName: string;
-  dniType: DniTypeInterface;
-  dni: string;
-  birthDate: Date;
-  gender: GenderInterface;
-  nationality: NationalityInterface;
-  country: CountryInterface;
-  province: ProvinceInterface;
-  locality: LocalityInterface;
-  street: string;
-  number: number;
-  floor: string;
-  apartment: string;
+export interface PatientInterface extends PersonInterface {
+  medicalRisks: MedicalHistoryRiskInterface;
   healthPlan: HealthPlanInterface;
   affiliateNumber: string;
-  email: string;
-  phoneType: PhoneTypeInterface;
-  phone: string;
-  // medicalRisk: DisseaseInterface[];
-  // medicalHistoryObservation: string;
+}
+
+export interface MedicalHistoryRiskInterface {
+  id: number;
+  name: string;
+  observation: string;
 }
 
 export interface DisseaseInterface {
