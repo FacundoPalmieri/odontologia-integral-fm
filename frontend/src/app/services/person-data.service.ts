@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
-import { Observable, of } from "rxjs";
+import { Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import {
   CountryInterface,
@@ -19,23 +19,6 @@ import {
 export class PersonDataService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
-
-  _mockPhoneTypes: PhoneTypeInterface[] = [
-    {
-      id: 1,
-      name: "Celular",
-    },
-    {
-      id: 2,
-      name: "Fijo",
-    },
-  ];
-
-  private _mockDentistSpecialties: DentistSpecialtyInterface[] = [
-    { id: 1, name: "Odontología" },
-    { id: 2, name: "Ortodoncia" },
-    { id: 3, name: "Ortopediatría" },
-  ];
 
   getAllNationalities(): Observable<
     ApiResponseInterface<NationalityInterface[]>
@@ -86,22 +69,16 @@ export class PersonDataService {
   }
 
   getAllPhoneTypes(): Observable<ApiResponseInterface<PhoneTypeInterface[]>> {
-    const response: ApiResponseInterface<PhoneTypeInterface[]> = {
-      success: true,
-      message: "",
-      data: this._mockPhoneTypes,
-    };
-    return of(response);
+    return this.http.get<ApiResponseInterface<PhoneTypeInterface[]>>(
+      `${this.apiUrl}/phone-type/all`
+    );
   }
 
   getAllDentistSpecialties(): Observable<
     ApiResponseInterface<DentistSpecialtyInterface[]>
   > {
-    const response: ApiResponseInterface<DentistSpecialtyInterface[]> = {
-      success: true,
-      message: "",
-      data: this._mockDentistSpecialties,
-    };
-    return of(response);
+    return this.http.get<ApiResponseInterface<DentistSpecialtyInterface[]>>(
+      `${this.apiUrl}/dentist-Specialty/all`
+    );
   }
 }
