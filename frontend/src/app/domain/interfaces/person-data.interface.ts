@@ -24,7 +24,11 @@ export interface BaseInterface {
   name: string;
 }
 
-export interface DniTypeInterface extends BaseInterface {}
+export interface DniTypeInterface {
+  id: number;
+  dni: string;
+}
+
 export interface ProvinceInterface extends BaseInterface {}
 export interface NationalityInterface extends BaseInterface {}
 export interface LocalityInterface extends BaseInterface {}

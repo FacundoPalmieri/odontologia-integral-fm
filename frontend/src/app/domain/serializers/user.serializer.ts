@@ -1,5 +1,6 @@
-import { UserCreateDtoInterface } from "../dto/user.dto";
+import { UserCreateDtoInterface, UserDtoInterface } from "../dto/user.dto";
 import { UserInterface } from "../interfaces/user.interface";
+import { PersonSerializer } from "./person.serializer";
 
 export class UserSerializer {
   // static toView(user: UserDtoInterface): UserInterface {
@@ -11,9 +12,6 @@ export class UserSerializer {
   //     person: PersonSerializer.toView(user.person),
   //   };
   //   return userView;
-  // }
-  // static toCreateDto(user: UserInterface): UserCreateDtoInterface | {} {
-  //   return {};
   // }
 
   static toCreateDto(user: UserInterface): UserCreateDtoInterface {

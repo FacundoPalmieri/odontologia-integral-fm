@@ -28,11 +28,9 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { EditUserDialogComponent } from "./edit-user-dialog/edit-user-dialog.component";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { EditRoleDialogComponent } from "./edit-role-dialog/edit-role-dialog.component";
-import { CreateRoleDialogComponent } from "./create-role-dialog/create-role-dialog.component";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
@@ -121,85 +119,12 @@ export class ConfigurationComponent implements OnDestroy {
     this._destroy$.complete();
   }
 
-  // createUser() {
-  //   const dialogRef = this.dialog.open(CreateUserDialogComponent);
-  //   dialogRef
-  //     .afterClosed()
-  //     .pipe(takeUntil(this._destroy$))
-  //     .subscribe((user: UserCreateDtoInterface) => {
-  //       if (user) {
-  //         this.userService
-  //           .create(user)
-  //           .subscribe((response: ApiResponseInterface<UserInterface>) => {
-  //             this.snackbarService.openSnackbar(
-  //               response.message,
-  //               3000,
-  //               "center",
-  //               "top",
-  //               SnackbarTypeEnum.Success
-  //             );
-  //             this._loadUsers();
-  //           });
-  //       }
-  //     });
-  // }
-
   createUser() {
     this.router.navigate(["/configuration/users/create"]);
   }
 
   editUser(user: UserInterface) {
-    if (user != null) {
-      const dialogRef = this.dialog.open(EditUserDialogComponent, {
-        data: { user: user },
-      });
-      dialogRef.afterClosed().subscribe((user: UserInterface) => {
-        if (user) {
-          this.userService
-            .update(user)
-            .pipe(takeUntil(this._destroy$))
-            .subscribe((response: ApiResponseInterface<UserInterface>) => {
-              this.snackbarService.openSnackbar(
-                response.message,
-                6000,
-                "center",
-                "top",
-                SnackbarTypeEnum.Success
-              );
-              this._loadUsers();
-            });
-        }
-      });
-    } else {
-      this.snackbarService.openSnackbar(
-        "Ocurrió un error el editar el elemento",
-        6000,
-        "center",
-        "bottom",
-        SnackbarTypeEnum.Error
-      );
-    }
-  }
-
-  createRole() {
-    const dialogRef = this.dialog.open(CreateRoleDialogComponent);
-    dialogRef.afterClosed().subscribe((role: RoleInterface) => {
-      if (role) {
-        this.roleService
-          .create(role)
-          .pipe(takeUntil(this._destroy$))
-          .subscribe((response: ApiResponseInterface<RoleInterface>) => {
-            this.snackbarService.openSnackbar(
-              response.message,
-              3000,
-              "center",
-              "top",
-              SnackbarTypeEnum.Success
-            );
-            this._loadRoles();
-          });
-      }
-    });
+    this.router.navigate(["/configuration/users/edit", user.id]);
   }
 
   editRole(role: RoleInterface) {

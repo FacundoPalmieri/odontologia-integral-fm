@@ -8,15 +8,12 @@ import {
   ViewChild,
 } from "@angular/core";
 import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import {
-  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from "@angular/forms";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
@@ -48,8 +45,8 @@ import {
 import { DentistSpecialtyInterface } from "../../../../domain/interfaces/dentist.interface";
 
 @Component({
-  selector: "app-create-user-page",
-  templateUrl: "./user-create-page.component.html",
+  selector: "app-user-edit-page",
+  templateUrl: "./user-edit-page.component.html",
   standalone: true,
   imports: [
     PageToolbarComponent,
@@ -64,23 +61,23 @@ import { DentistSpecialtyInterface } from "../../../../domain/interfaces/dentist
     MatIconModule,
   ],
 })
-export class UserCreatePageComponent implements OnInit, OnDestroy {
+export class UserEditPageComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly snackbarService = inject(SnackbarService);
   private readonly personDataService = inject(PersonDataService);
   private readonly userService = inject(UserService);
   private readonly _destroy$ = new Subject<void>();
   private readonly roleService = inject(RoleService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   userForm: FormGroup = new FormGroup({});
+  userId: number | null = null;
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
 
   avatarUrl = signal<string | null>(null);
   showAdditionalInfo = signal(false);
   showProfessionalData = signal(false);
-
-  hidePassword = signal(true);
 
   countries = signal<CountryInterface[]>([]);
   localities = signal<LocalityInterface[]>([]);
@@ -96,6 +93,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
   constructor() {
     this._loadForm();
     this._loadData();
+    this._getUserIdFromRoute();
   }
 
   ngOnInit() {
@@ -133,15 +131,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
         } else {
           this.showProfessionalData.set(false);
         }
-      });
-
-    this.userForm
-      .get("password1")
-      ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe(() => {
-        this.userForm
-          .get("password2")
-          ?.updateValueAndValidity({ emitEvent: false });
       });
   }
 
@@ -224,10 +213,10 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
     console.log(user);
 
     this.userService
-      .create(user)
+      .update(user)
       .subscribe((response: ApiResponseInterface<UserInterface>) => {
         this.snackbarService.openSnackbar(
-          "Usuario creado correctamente",
+          "Usuario modificado correctamente",
           6000,
           "center",
           "bottom",
@@ -336,11 +325,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.email,
       ]),
-      password1: new FormControl<string>("", [Validators.required]),
-      password2: new FormControl<string>("", [
-        Validators.required,
-        this.passwordMatchValidator(),
-      ]),
       rolesList: new FormControl<RoleInterface[] | null>(null, [
         Validators.required,
       ]),
@@ -407,20 +391,63 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
     this.userForm.get("dentistSpecialty")?.updateValueAndValidity();
   }
 
-  private passwordMatchValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const password = this.userForm?.get("password1")?.value;
-      const confirmPassword = control.value;
-
-      if (!password || !confirmPassword) {
-        return null;
+  private _getUserIdFromRoute() {
+    this.activatedRoute.params.subscribe((params) => {
+      this.userId = params["id"];
+      if (this.userId) {
+        this._loadUserData();
+      } else {
+        this.snackbarService.openSnackbar(
+          "El usuario no se pudo cargar correctamente.",
+          6000,
+          "center",
+          "bottom",
+          SnackbarTypeEnum.Error
+        );
+        this.goBack();
       }
-
-      return password === confirmPassword ? null : { passwordsMismatch: true };
-    };
+    });
   }
 
-  togglePasswordVisibility(): void {
-    this.hidePassword.set(!this.hidePassword());
+  private _loadUserData() {
+    if (!this.userId) return;
+
+    this.userService
+      .getById(this.userId)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((response: ApiResponseInterface<UserInterface>) => {
+        const user = response.data;
+        this._populateForm(user);
+      });
+  }
+
+  private _populateForm(user: UserInterface) {
+    this.userForm.patchValue({
+      username: user.username,
+      firstName: user.person?.firstName,
+      lastName: user.person?.lastName,
+      dniType: user.person?.dniType,
+      dni: user.person?.dni,
+      birthDate: user.person?.birthDate
+        ? new Date(user.person.birthDate)
+        : null,
+      gender: user.person?.gender,
+      nationality: user.person?.nationality,
+      country: user.person?.country,
+      province: user.person?.province,
+      locality: user.person?.locality,
+      street: user.person?.street,
+      number: user.person?.number,
+      floor: user.person?.floor,
+      apartment: user.person?.apartment,
+      email: user.person?.contactEmails,
+      phoneType: user.person?.phoneType,
+      phone: user.person?.phone,
+      rolesList: user.rolesList,
+      licenseNumber: user.licenseNumber,
+      dentistSpecialty: user.dentistSpecialty,
+    });
+
+    this.userForm.markAsPristine();
   }
 }
