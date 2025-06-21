@@ -116,11 +116,20 @@ public class GlobalExceptionHandler {
             log.error(logMessage);
         });
 
+        // Toma el primer mensaje para mostrarlo en el campo "message" y luego en errors se ve todos los errores de validación de dtos.
+        String firstErrorMessage = errors.values().stream().findFirst().orElse("Error de validación");
+
+        //Genera el objeto response.
+        Response<Map<String, String>> response = new Response<>(
+                false,
+                firstErrorMessage,
+                errors
+        );
 
         // Devolvemos una respuesta con un código de estado HTTP 400 (Bad Request) y el mapa de errores como cuerpo de la respuesta
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(errors);  // Enviamos los errores de validación como cuerpo de la respuesta
+                .body(response);  // Enviamos los errores de validación como cuerpo de la respuesta
     }
 
 

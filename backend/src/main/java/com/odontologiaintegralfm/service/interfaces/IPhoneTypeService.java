@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.service.interfaces;
 
+import com.odontologiaintegralfm.dto.PhoneTypeResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.model.PhoneType;
 
@@ -18,5 +19,5 @@ public interface IPhoneTypeService {
      * Método para obtener todos los "tipo teléfono" habilitados en la aplicación.
      * @return  Response<Set<PhoneType>> con el listado de tipos de teléfonos habilitados.
      */
-    Response<Set<PhoneType>> getAll();
+    Response<Set<PhoneTypeResponseDTO>> getAll();
 }

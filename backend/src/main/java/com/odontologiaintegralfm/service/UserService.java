@@ -141,7 +141,14 @@ public class UserService implements IUserService {
 
                             if (user.getPerson() != null) {
                                 personDTO = personService.convertToDTO(personService.getById(user.getPerson().getId()));
-                                dentistDTO = dentistService.convertToDTO(dentistService.getById(user.getPerson().getId()));
+
+
+                               Optional<Dentist> dentist = dentistService.getById(user.getPerson().getId());
+                               if(dentist.isPresent()){
+                                   dentistDTO = dentistService.convertToDTO(dentist.get());
+                               }
+
+
                             }
 
                             return new UserSecResponseDTO(
@@ -367,10 +374,10 @@ public class UserService implements IUserService {
 
             // Verifica si se actualizan datos de Dentista.
             if(userSecUpdateDto.getDentist() != null) {
-                Dentist dentist = dentistService.getById(userSecUpdateDto.getId());
-                dentist = dentistService.update(dentist,userSecUpdateDto.getDentist());
+                Optional <Dentist> dentist = dentistService.getById(userSecUpdateDto.getId());
+                dentist = Optional.ofNullable(dentistService.update(dentist.get(), userSecUpdateDto.getDentist()));
 
-                DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist);
+                DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist.get());
 
                 //Se agrega DentistResponseDTO a la respuesta final
                 userSecResponse.setDentist(dentistResponseDTO);
