@@ -27,9 +27,7 @@ import { Subject, takeUntil } from "rxjs";
 import { PersonDataService } from "../../../../services/person-data.service";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { MatDatepickerModule } from "@angular/material/datepicker";
-import { RoleInterface } from "../../../../domain/interfaces/role.interface";
 import { MatIconModule } from "@angular/material/icon";
-import { UserInterface } from "../../../../domain/interfaces/user.interface";
 import {
   CountryInterface,
   DniTypeInterface,
@@ -40,16 +38,28 @@ import {
   PhoneTypeInterface,
   ProvinceInterface,
 } from "../../../../domain/interfaces/person-data.interface";
-import { DentistSpecialtyInterface } from "../../../../domain/interfaces/dentist.interface";
 import { PatientService } from "../../../../services/patient.service";
 import { PatientInterface } from "../../../../domain/interfaces/patient.interface";
 import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
+import { mockOdontogram1 } from "../../../../utils/mocks/odontogram.mock";
+import { MatTableModule } from "@angular/material/table";
+import { CommonModule } from "@angular/common";
+import { MatTooltipModule } from "@angular/material/tooltip";
+
+//QUITAR
+interface OdontogramInterface {
+  id: number;
+  creationDate: Date;
+  lastModified: Date;
+  odontogram: any;
+}
 
 @Component({
   selector: "app-patient-edit-page",
   templateUrl: "./patient-edit-page.component.html",
   standalone: true,
   imports: [
+    CommonModule,
     PageToolbarComponent,
     MatCardModule,
     ReactiveFormsModule,
@@ -60,6 +70,8 @@ import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
     MatSelectModule,
     MatDatepickerModule,
     MatIconModule,
+    MatTableModule,
+    MatTooltipModule,
   ],
 })
 export class PatientEditPageComponent implements OnInit, OnDestroy {
@@ -72,6 +84,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
 
   patientForm: FormGroup = new FormGroup({});
   patientId: number | null = null;
+  patient = signal<PatientInterface>({} as PatientInterface);
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
 
@@ -81,6 +94,15 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
 
+  displayedColumns: string[] = ["creationDate", "lastModified", "actions"];
+  odontogramData: OdontogramInterface[] = [
+    {
+      id: 1,
+      creationDate: new Date("2024-03-12 14:46:00"),
+      lastModified: new Date("2025-03-20 18:33:00"),
+      odontogram: mockOdontogram1,
+    },
+  ];
   constructor() {
     this._loadForm();
     this._getPatientIdFromRoute();
@@ -180,6 +202,13 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     this.patientForm.markAsDirty();
   }
 
+  //QUITAR
+  openOdontogram() {
+    // this.router.navigate([
+    //   `patients/${this.patient()!.id}/odontogram/${this.odontogramData[0].id}`,
+    // ]);
+  }
+
   save() {
     const patient: PatientInterface = this.patientForm.getRawValue();
 
@@ -247,6 +276,10 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         ]),
         phone: new FormControl<string>("", [Validators.required]),
       }),
+      healthPlan: new FormControl<HealthPlanInterface | null>(null, [
+        Validators.required,
+      ]),
+      affiliateNumber: new FormControl<string>("", [Validators.required]),
     });
   }
 
@@ -275,8 +308,8 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       .getById(this.patientId)
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<PatientInterface>) => {
-        const patient = response.data;
-        this._populateForm(patient);
+        this.patient.set(response.data);
+        this._populateForm(this.patient());
       });
   }
 
@@ -303,6 +336,8 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         phoneType: patient.person?.phoneType,
         phone: patient.person?.phone,
       },
+      affiliateNumber: patient.affiliateNumber,
+      healthPlan: patient.healthPlan,
     });
 
     this.patientForm.markAsPristine();
