@@ -1,9 +1,4 @@
-import {
-  MessageCreateDtoInterface,
-  MessageDtoInterface,
-} from "../dto/message.dto";
 import { RoleCreateDtoInterface, RoleDtoInterface } from "../dto/role.dto";
-import { MessageInterface } from "../interfaces/message.interface";
 import { RoleInterface } from "../interfaces/role.interface";
 
 export class RoleSerializer {

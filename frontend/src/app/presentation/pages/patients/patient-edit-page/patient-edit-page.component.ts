@@ -41,7 +41,6 @@ import {
   ProvinceInterface,
 } from "../../../../domain/interfaces/person-data.interface";
 import { DentistSpecialtyInterface } from "../../../../domain/interfaces/dentist.interface";
-import { UserDtoInterface } from "../../../../domain/dto/user.dto";
 import { PatientService } from "../../../../services/patient.service";
 import { PatientInterface } from "../../../../domain/interfaces/patient.interface";
 import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
@@ -66,10 +65,10 @@ import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 export class PatientEditPageComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly snackbarService = inject(SnackbarService);
-  private readonly personDataService = inject(PersonDataService);
   private readonly patientService = inject(PatientService);
   private readonly _destroy$ = new Subject<void>();
   private readonly activatedRoute = inject(ActivatedRoute);
+  personDataService = inject(PersonDataService);
 
   patientForm: FormGroup = new FormGroup({});
   patientId: number | null = null;
@@ -79,24 +78,17 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   avatarUrl = signal<string | null>(null);
   showAdditionalInfo = signal(false);
 
-  countries = signal<CountryInterface[]>([]);
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
-  dniTypes = signal<DniTypeInterface[]>([]);
-  genders = signal<GenderInterface[]>([]);
-  nationalities = signal<NationalityInterface[]>([]);
-  phoneTypes = signal<PhoneTypeInterface[]>([]);
-  healthPlans = signal<HealthPlanInterface[]>([]);
 
   constructor() {
     this._loadForm();
-    this._loadData();
     this._getPatientIdFromRoute();
   }
 
   ngOnInit() {
     this.patientForm
-      .get("country")
+      .get("person.country")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((country: CountryInterface) => {
         if (country) {
@@ -107,7 +99,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       });
 
     this.patientForm
-      .get("province")
+      .get("person.province")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((province: ProvinceInterface) => {
         if (province) {
@@ -188,7 +180,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     this.patientForm.markAsDirty();
   }
 
-  create() {
+  save() {
     const patient: PatientInterface = this.patientForm.getRawValue();
 
     this.patientService
@@ -202,50 +194,6 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
           SnackbarTypeEnum.Success
         );
         this.router.navigate(["/patients/edit/", response.data.person.id]);
-      });
-  }
-
-  private _loadData() {
-    this._getCountries();
-    this._getDniTypes();
-    this._getGenders();
-    this._getNationalities();
-    this._getPhoneTypes();
-  }
-
-  private _getCountries() {
-    this.personDataService
-      .getAllCountries()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<CountryInterface[]>) => {
-        this.countries.set(response.data);
-      });
-  }
-
-  private _getDniTypes() {
-    this.personDataService
-      .getAllDNITypes()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<DniTypeInterface[]>) => {
-        this.dniTypes.set(response.data);
-      });
-  }
-
-  private _getGenders() {
-    this.personDataService
-      .getAllGenders()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<GenderInterface[]>) => {
-        this.genders.set(response.data);
-      });
-  }
-
-  private _getNationalities() {
-    this.personDataService
-      .getAllNationalities()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<NationalityInterface[]>) => {
-        this.nationalities.set(response.data);
       });
   }
 
@@ -267,54 +215,38 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  private _getPhoneTypes() {
-    this.personDataService
-      .getAllPhoneTypes()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<PhoneTypeInterface[]>) => {
-        this.phoneTypes.set(response.data);
-      });
-  }
-
   private _loadForm() {
     this.patientForm = new FormGroup({
-      username: new FormControl<string>("", [
-        Validators.required,
-        Validators.email,
-      ]),
-      rolesList: new FormControl<RoleInterface[] | null>(null, [
-        Validators.required,
-      ]),
-      firstName: new FormControl<string>("", [Validators.required]),
-      lastName: new FormControl<string>("", [Validators.required]),
-      dniType: new FormControl<DniTypeInterface | null>(null, [
-        Validators.required,
-      ]),
-      dni: new FormControl<string | null>("", [Validators.required]),
-      birthDate: new FormControl<Date | null>(null, [Validators.required]),
-      gender: new FormControl<GenderInterface | null>(null, [
-        Validators.required,
-      ]),
-      nationality: new FormControl<NationalityInterface | null>(null, [
-        Validators.required,
-      ]),
-      country: new FormControl<CountryInterface | null>(null),
-      province: new FormControl<ProvinceInterface | null>(null),
-      locality: new FormControl<LocalityInterface | null>(null),
-      street: new FormControl<string | null>(""),
-      number: new FormControl<number | null>(null),
-      floor: new FormControl<string | null>(""),
-      apartment: new FormControl<string | null>(""),
-      email: new FormControl<string>("", [
-        Validators.email,
-        Validators.required,
-      ]),
-      phoneType: new FormControl<PhoneTypeInterface | null>(null, [
-        Validators.required,
-      ]),
-      phone: new FormControl<string>("", [Validators.required]),
-      licenseNumber: new FormControl<string | null>(""),
-      dentistSpecialty: new FormControl<DentistSpecialtyInterface | null>(null),
+      person: new FormGroup({
+        firstName: new FormControl<string>("", [Validators.required]),
+        lastName: new FormControl<string>("", [Validators.required]),
+        dniType: new FormControl<DniTypeInterface | null>(null, [
+          Validators.required,
+        ]),
+        dni: new FormControl<string | null>("", [Validators.required]),
+        birthDate: new FormControl<Date | null>(null, [Validators.required]),
+        gender: new FormControl<GenderInterface | null>(null, [
+          Validators.required,
+        ]),
+        nationality: new FormControl<NationalityInterface | null>(null, [
+          Validators.required,
+        ]),
+        country: new FormControl<CountryInterface | null>(null),
+        province: new FormControl<ProvinceInterface | null>(null),
+        locality: new FormControl<LocalityInterface | null>(null),
+        street: new FormControl<string | null>(""),
+        number: new FormControl<number | null>(null),
+        floor: new FormControl<string | null>(""),
+        apartment: new FormControl<string | null>(""),
+        email: new FormControl<string>("", [
+          Validators.email,
+          Validators.required,
+        ]),
+        phoneType: new FormControl<PhoneTypeInterface | null>(null, [
+          Validators.required,
+        ]),
+        phone: new FormControl<string>("", [Validators.required]),
+      }),
     });
   }
 
@@ -342,33 +274,35 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     this.patientService
       .getById(this.patientId)
       .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<PatientDtoInterface>) => {
+      .subscribe((response: ApiResponseInterface<PatientInterface>) => {
         const patient = response.data;
         this._populateForm(patient);
       });
   }
 
-  private _populateForm(patient: PatientDtoInterface) {
+  private _populateForm(patient: PatientInterface) {
     this.patientForm.patchValue({
-      firstName: patient.person.firstName,
-      lastName: patient.person?.lastName,
-      dniType: patient.person?.dniType,
-      dni: patient.person?.dni,
-      birthDate: patient.person?.birthDate
-        ? new Date(patient.person.birthDate)
-        : null,
-      gender: patient.person?.gender,
-      nationality: patient.person?.nationality,
-      country: patient.person?.country,
-      province: patient.person?.province,
-      locality: patient.person?.locality,
-      street: patient.person?.street,
-      number: patient.person?.number,
-      floor: patient.person?.floor,
-      apartment: patient.person?.apartment,
-      email: patient.person?.contactEmails,
-      phoneType: patient.person?.phoneType,
-      phone: patient.person?.phone,
+      person: {
+        firstName: patient.person.firstName,
+        lastName: patient.person?.lastName,
+        dniType: patient.person?.dniType,
+        dni: patient.person?.dni,
+        birthDate: patient.person?.birthDate
+          ? new Date(patient.person.birthDate)
+          : null,
+        gender: patient.person?.gender,
+        nationality: patient.person?.nationality,
+        country: patient.person?.country,
+        province: patient.person?.province,
+        locality: patient.person?.locality,
+        street: patient.person?.street,
+        number: patient.person?.number,
+        floor: patient.person?.floor,
+        apartment: patient.person?.apartment,
+        email: patient.person?.contactEmails,
+        phoneType: patient.person?.phoneType,
+        phone: patient.person?.phone,
+      },
     });
 
     this.patientForm.markAsPristine();

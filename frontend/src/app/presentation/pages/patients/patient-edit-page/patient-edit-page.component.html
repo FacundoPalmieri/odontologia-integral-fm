@@ -1,61 +1,12 @@
 <app-page-toolbar
-  [title]="'Editar usuario'"
+  [title]="'Editar paciente'"
   [showBackButton]="true"
   (back)="goBack()"
 ></app-page-toolbar>
 
 <div class="pt-4">
-  <form [formGroup]="userForm" class="w-full">
-    <div class="grid grid-cols-1 gap-4">
-      <mat-card appearance="outlined" class="w-full">
-        <mat-card-header>
-          <mat-card-title> Datos del usuario </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="p-4">
-            <div class="flex flex-col">
-              <div class="flex flex-col md:flex-row gap-4">
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label class="items-center flex gap-1">
-                    <i-tabler name="user-circle"></i-tabler>
-                    <span class="font-bold">Username (email)</span>
-                  </mat-label>
-                  <input matInput formControlName="username" />
-                  @if(userForm.get('username')?.hasError('required') &&
-                  userForm.get('username')?.touched){
-                  <mat-error>El username es requerido</mat-error>
-                  } @if(userForm.get('username')?.hasError('email') &&
-                  userForm.get('username')?.touched){
-                  <mat-error>El username debe ser un email válido</mat-error>
-                  }
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label class="items-center flex gap-1">
-                    <i-tabler name="user-cog"></i-tabler>
-                    <span class="font-bold">Rol</span>
-                  </mat-label>
-                  <mat-select
-                    name="rolesSelect"
-                    formControlName="rolesList"
-                    multiple
-                    [compareWith]="compare"
-                  >
-                    @for(role of roles(); track $index){
-                    <mat-option [value]="role">{{ role.role }}</mat-option>
-                    }
-                  </mat-select>
-                  @if(userForm.get('rolesList')?.hasError('required') &&
-                  userForm.get('rolesList')?.touched){
-                  <mat-error>Campo requerido</mat-error>
-                  }
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
+  <form [formGroup]="patientForm" class="w-full">
+    <div class="grid grid-cols-1 gap-4" [formGroupName]="'person'">
       <mat-card appearance="outlined" class="w-full">
         <mat-card-header>
           <mat-card-title>Datos Personales</mat-card-title>
@@ -105,8 +56,8 @@
                         <span class="font-bold">Nombre</span>
                       </mat-label>
                       <input type="text" matInput formControlName="firstName" />
-                      @if(userForm.get('firstName')?.hasError('required') &&
-                      userForm.get('firstName')?.touched){
+                      @if(patientForm.get('firstName')?.hasError('required') &&
+                      patientForm.get('firstName')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -117,8 +68,8 @@
                         <span class="font-bold">Apellido</span>
                       </mat-label>
                       <input type="text" matInput formControlName="lastName" />
-                      @if(userForm.get('lastName')?.hasError('required') &&
-                      userForm.get('lastName')?.touched){
+                      @if(patientForm.get('lastName')?.hasError('required') &&
+                      patientForm.get('lastName')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -135,14 +86,15 @@
                         formControlName="dniType"
                         [compareWith]="compare"
                       >
-                        @for(dniType of dniTypes(); track $index){
+                        @for(dniType of personDataService.dniTypes(); track
+                        $index){
                         <mat-option [value]="dniType">{{
                           dniType.dni
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('dniType')?.hasError('required') &&
-                      userForm.get('dniType')?.touched){
+                      @if(patientForm.get('dniType')?.hasError('required') &&
+                      patientForm.get('dniType')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -153,8 +105,8 @@
                         <span class="font-bold">DNI</span>
                       </mat-label>
                       <input type="text" matInput formControlName="dni" />
-                      @if(userForm.get('dni')?.hasError('required') &&
-                      userForm.get('dni')?.touched){
+                      @if(patientForm.get('dni')?.hasError('required') &&
+                      patientForm.get('dni')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -177,8 +129,8 @@
                         [for]="picker"
                       ></mat-datepicker-toggle>
                       <mat-datepicker touchUi #picker></mat-datepicker>
-                      @if(userForm.get('birthDate')?.hasError('required') &&
-                      userForm.get('birthDate')?.touched){
+                      @if(patientForm.get('birthDate')?.hasError('required') &&
+                      patientForm.get('birthDate')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -193,14 +145,15 @@
                         formControlName="gender"
                         [compareWith]="compare"
                       >
-                        @for(gender of genders(); track $index){
+                        @for(gender of personDataService.genders(); track
+                        $index){
                         <mat-option [value]="gender">{{
                           gender.name
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('gender')?.hasError('required') &&
-                      userForm.get('gender')?.touched){
+                      @if(patientForm.get('gender')?.hasError('required') &&
+                      patientForm.get('gender')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -213,18 +166,19 @@
                         <span class="font-bold">Nacionalidad</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="nationalitySelect"
                         formControlName="nationality"
                         [compareWith]="compare"
                       >
-                        @for(nationality of nationalities(); track $index){
+                        @for(nationality of personDataService.nationalities();
+                        track $index){
                         <mat-option [value]="nationality">{{
                           nationality.name
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('nationality')?.hasError('required') &&
-                      userForm.get('nationality')?.touched){
+                      @if(patientForm.get('nationality')?.hasError('required')
+                      && patientForm.get('nationality')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -242,11 +196,11 @@
                         <span class="font-bold">Email</span>
                       </mat-label>
                       <input type="mail" matInput formControlName="email" />
-                      @if(userForm.get('email')?.hasError('required') &&
-                      userForm.get('email')?.touched){
+                      @if(patientForm.get('email')?.hasError('required') &&
+                      patientForm.get('email')?.touched){
                       <mat-error>Campo requerido</mat-error>
-                      } @if(userForm.get('email')?.hasError('email') &&
-                      userForm.get('email')?.touched){
+                      } @if(patientForm.get('email')?.hasError('email') &&
+                      patientForm.get('email')?.touched){
                       <mat-error>El email no es válido</mat-error>
                       }
                     </mat-form-field>
@@ -257,18 +211,19 @@
                         <span class="font-bold">Tipo de Teléfono</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="phoneTypeSelect"
                         formControlName="phoneType"
                         [compareWith]="compare"
                       >
-                        @for(phoneType of phoneTypes(); track $index){
+                        @for(phoneType of personDataService.phoneTypes(); track
+                        $index){
                         <mat-option [value]="phoneType">{{
                           phoneType.name
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('phoneType')?.hasError('required') &&
-                      userForm.get('phoneType')?.touched){
+                      @if(patientForm.get('phoneType')?.hasError('required') &&
+                      patientForm.get('phoneType')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -281,8 +236,8 @@
                         <span class="font-bold">Nro. Teléfono</span>
                       </mat-label>
                       <input type="string" matInput formControlName="phone" />
-                      @if(userForm.get('phone')?.hasError('required') &&
-                      userForm.get('phone')?.touched){
+                      @if(patientForm.get('phone')?.hasError('required') &&
+                      patientForm.get('phone')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -301,11 +256,12 @@
                         <span class="font-bold">País</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="countrySelect"
                         formControlName="country"
                         [compareWith]="compare"
                       >
-                        @for(country of countries(); track $index){
+                        @for(country of personDataService.countries(); track
+                        $index){
                         <mat-option [value]="country">{{
                           country.name
                         }}</mat-option>
@@ -319,7 +275,7 @@
                         <span class="font-bold">Provincia</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="provinceSelect"
                         formControlName="province"
                         [compareWith]="compare"
                       >
@@ -339,7 +295,7 @@
                         <span class="font-bold">Localidad</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="localitySelect"
                         formControlName="locality"
                         [compareWith]="compare"
                       >
@@ -393,54 +349,6 @@
                   </div>
                 </div>
               </div>
-              } @if(showProfessionalData()) {
-              <div class="mt-4">
-                <h3 class="text-lg font-semibold mb-4">
-                  Datos del profesional
-                </h3>
-                <div class="flex flex-col">
-                  <div class="flex flex-col md:flex-row gap-4">
-                    <mat-form-field appearance="outline" class="w-full !mb-0">
-                      <mat-label class="items-center flex gap-1">
-                        <i-tabler name="certificate"></i-tabler>
-                        <span class="font-bold">Número de Licencia</span>
-                      </mat-label>
-                      <input
-                        type="text"
-                        matInput
-                        formControlName="licenseNumber"
-                      />
-                      @if(userForm.get('licenseNumber')?.hasError('required') &&
-                      userForm.get('licenseNumber')?.touched){
-                      <mat-error>Campo requerido</mat-error>
-                      }
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="w-full !mb-0">
-                      <mat-label class="items-center flex gap-1">
-                        <i-tabler name="stethoscope"></i-tabler>
-                        <span class="font-bold">Especialidad</span>
-                      </mat-label>
-                      <mat-select
-                        name="dentistSpecialtySelect"
-                        formControlName="dentistSpecialty"
-                        [compareWith]="compare"
-                      >
-                        @for(dentistSpecialty of dentistSpecialties(); track
-                        $index){
-                        <mat-option [value]="dentistSpecialty">{{
-                          dentistSpecialty.name
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                      @if(userForm.get('gender')?.hasError('required') &&
-                      userForm.get('gender')?.touched){
-                      <mat-error>Campo requerido</mat-error>
-                      }
-                    </mat-form-field>
-                  </div>
-                </div>
-              </div>
               }
               <div class="flex justify-end gap-2 mt-4">
                 <button mat-button (click)="toggleAdditionalInfo()">
@@ -448,11 +356,11 @@
                 </button>
                 <button
                   mat-flat-button
-                  [disabled]="!userForm.valid"
-                  (click)="create()"
+                  [disabled]="!patientForm.dirty"
+                  (click)="save()"
                 >
                   <div class="flex items-center gap-2">
-                    <span>Crear</span>
+                    <span>Guardar</span>
                   </div>
                 </button>
               </div>

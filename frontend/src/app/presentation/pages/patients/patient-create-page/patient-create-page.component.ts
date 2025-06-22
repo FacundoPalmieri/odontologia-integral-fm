@@ -11,6 +11,7 @@ import { PageToolbarComponent } from "../../../components/page-toolbar/page-tool
 import { Router } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import {
+  FormArray,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
@@ -28,8 +29,6 @@ import { PersonDataService } from "../../../../services/person-data.service";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatIconModule } from "@angular/material/icon";
-import { UserInterface } from "../../../../domain/interfaces/user.interface";
-import { UserService } from "../../../../services/user.service";
 import {
   CountryInterface,
   DniTypeInterface,
@@ -40,9 +39,13 @@ import {
   PhoneTypeInterface,
   ProvinceInterface,
 } from "../../../../domain/interfaces/person-data.interface";
-import { PatientInterface } from "../../../../domain/interfaces/patient.interface";
+import {
+  MedicalHistoryRiskInterface,
+  PatientInterface,
+} from "../../../../domain/interfaces/patient.interface";
 import { PatientService } from "../../../../services/patient.service";
 import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
   selector: "app-patient-create-page",
@@ -59,39 +62,32 @@ import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
     MatSelectModule,
     MatDatepickerModule,
     MatIconModule,
+    MatTooltipModule,
   ],
 })
 export class PatientCreatePageComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly snackbarService = inject(SnackbarService);
-  private readonly personDataService = inject(PersonDataService);
   private readonly patientService = inject(PatientService);
   private readonly _destroy$ = new Subject<void>();
 
+  personDataService = inject(PersonDataService);
   patientForm: FormGroup = new FormGroup({});
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
 
   avatarUrl = signal<string | null>(null);
-  showAdditionalInfo = signal(false);
 
-  countries = signal<CountryInterface[]>([]);
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
-  dniTypes = signal<DniTypeInterface[]>([]);
-  genders = signal<GenderInterface[]>([]);
-  nationalities = signal<NationalityInterface[]>([]);
-  phoneTypes = signal<PhoneTypeInterface[]>([]);
-  healthPlans = signal<HealthPlanInterface[]>([]);
 
   constructor() {
     this._loadForm();
-    this._loadData();
   }
 
   ngOnInit() {
     this.patientForm
-      .get("country")
+      .get("person.country")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((country: CountryInterface) => {
         if (country) {
@@ -102,7 +98,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
       });
 
     this.patientForm
-      .get("province")
+      .get("person.province")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((province: ProvinceInterface) => {
         if (province) {
@@ -120,10 +116,6 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.router.navigate(["/patients"]);
-  }
-
-  toggleAdditionalInfo(): void {
-    this.showAdditionalInfo.update((value) => !value);
   }
 
   triggerFileInput(): void {
@@ -184,10 +176,13 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
   }
 
   create() {
-    const patient: PatientInterface = this.patientForm.getRawValue();
+    const patientForm: PatientInterface = this.patientForm.getRawValue();
+    const medicalRisks: MedicalHistoryRiskInterface[] =
+      this.getMedicalRisksValue();
+    const patientValues = { ...patientForm, medicalRisks: medicalRisks };
 
     this.patientService
-      .create(patient)
+      .create(patientValues)
       .subscribe((response: ApiResponseInterface<PatientDtoInterface>) => {
         this.snackbarService.openSnackbar(
           "Paciente creado correctamente",
@@ -197,50 +192,6 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
           SnackbarTypeEnum.Success
         );
         this.router.navigate(["/patients/edit/", response.data.person.id]);
-      });
-  }
-
-  private _loadData() {
-    this._getCountries();
-    this._getDniTypes();
-    this._getGenders();
-    this._getNationalities();
-    this._getPhoneTypes();
-  }
-
-  private _getCountries() {
-    this.personDataService
-      .getAllCountries()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<CountryInterface[]>) => {
-        this.countries.set(response.data);
-      });
-  }
-
-  private _getDniTypes() {
-    this.personDataService
-      .getAllDNITypes()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<DniTypeInterface[]>) => {
-        this.dniTypes.set(response.data);
-      });
-  }
-
-  private _getGenders() {
-    this.personDataService
-      .getAllGenders()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<GenderInterface[]>) => {
-        this.genders.set(response.data);
-      });
-  }
-
-  private _getNationalities() {
-    this.personDataService
-      .getAllNationalities()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<NationalityInterface[]>) => {
-        this.nationalities.set(response.data);
       });
   }
 
@@ -262,45 +213,80 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
       });
   }
 
-  private _getPhoneTypes() {
-    this.personDataService
-      .getAllPhoneTypes()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<PhoneTypeInterface[]>) => {
-        this.phoneTypes.set(response.data);
-      });
-  }
-
   private _loadForm() {
     this.patientForm = new FormGroup({
-      firstName: new FormControl<string>("", [Validators.required]),
-      lastName: new FormControl<string>("", [Validators.required]),
-      dniType: new FormControl<DniTypeInterface | null>(null, [
+      person: new FormGroup({
+        firstName: new FormControl<string>("", [Validators.required]),
+        lastName: new FormControl<string>("", [Validators.required]),
+        dniType: new FormControl<DniTypeInterface | null>(null, [
+          Validators.required,
+        ]),
+        dni: new FormControl<string | null>("", [Validators.required]),
+        birthDate: new FormControl<Date | null>(null, [Validators.required]),
+        gender: new FormControl<GenderInterface | null>(null, [
+          Validators.required,
+        ]),
+        nationality: new FormControl<NationalityInterface | null>(null, [
+          Validators.required,
+        ]),
+        country: new FormControl<CountryInterface | null>(null, [
+          Validators.required,
+        ]),
+        province: new FormControl<ProvinceInterface | null>(null, [
+          Validators.required,
+        ]),
+        locality: new FormControl<LocalityInterface | null>(null, [
+          Validators.required,
+        ]),
+        street: new FormControl<string | null>("", [Validators.required]),
+        number: new FormControl<number | null>(null, [Validators.required]),
+        floor: new FormControl<string | null>("", [Validators.required]),
+        apartment: new FormControl<string | null>("", [Validators.required]),
+        contactEmails: new FormControl<string>("", [
+          Validators.email,
+          Validators.required,
+        ]),
+        phoneType: new FormControl<PhoneTypeInterface | null>(null, [
+          Validators.required,
+        ]),
+        phone: new FormControl<string>("", [Validators.required]),
+      }),
+      healthPlan: new FormControl<HealthPlanInterface | null>(null, [
         Validators.required,
       ]),
-      dni: new FormControl<string | null>("", [Validators.required]),
-      birthDate: new FormControl<Date | null>(null, [Validators.required]),
-      gender: new FormControl<GenderInterface | null>(null, [
-        Validators.required,
-      ]),
-      nationality: new FormControl<NationalityInterface | null>(null, [
-        Validators.required,
-      ]),
-      country: new FormControl<CountryInterface | null>(null),
-      province: new FormControl<ProvinceInterface | null>(null),
-      locality: new FormControl<LocalityInterface | null>(null),
-      street: new FormControl<string | null>(""),
-      number: new FormControl<number | null>(null),
-      floor: new FormControl<string | null>(""),
-      apartment: new FormControl<string | null>(""),
-      email: new FormControl<string>("", [
-        Validators.email,
-        Validators.required,
-      ]),
-      phoneType: new FormControl<PhoneTypeInterface | null>(null, [
-        Validators.required,
-      ]),
-      phone: new FormControl<string>("", [Validators.required]),
+      affiliateNumber: new FormControl<string>("", [Validators.required]),
+      medicalRisks: new FormArray([]),
     });
+  }
+
+  get medicalRisks(): FormArray {
+    return this.patientForm.get("medicalRisks") as FormArray;
+  }
+
+  addMedicalRisk() {
+    this.medicalRisks.push(
+      new FormGroup({
+        selectedRisk: new FormControl<MedicalHistoryRiskInterface | null>(
+          null,
+          [Validators.required]
+        ),
+        observation: new FormControl<string>(""),
+      })
+    );
+  }
+
+  getMedicalRisksValue(): MedicalHistoryRiskInterface[] {
+    return this.medicalRisks.controls.map((ctrl) => {
+      const risk = ctrl.value.selectedRisk;
+      return {
+        id: risk.id,
+        name: risk.name,
+        observation: ctrl.value.observation,
+      };
+    });
+  }
+
+  removeMedicalRisk(index: number) {
+    this.medicalRisks.removeAt(index);
   }
 }

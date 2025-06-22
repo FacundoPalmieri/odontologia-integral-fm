@@ -3,7 +3,9 @@ import { UserInterface } from "../interfaces/user.interface";
 import { PersonSerializer } from "./person.serializer";
 
 export class UserSerializer {
-  static toCreateDto(user: UserInterface): UserCreateDtoInterface {
+  private readonly personSerializer = new PersonSerializer();
+
+  toCreateDto(user: UserInterface): UserCreateDtoInterface {
     const dto: Partial<UserCreateDtoInterface> = {};
 
     if (user.username) {
@@ -23,7 +25,7 @@ export class UserSerializer {
     }
 
     if (user.person) {
-      dto.person = PersonSerializer.toCreateDto(user.person);
+      dto.person = this.personSerializer.toCreateDto(user.person);
     }
 
     if (user.licenseNumber || user.dentistSpecialty?.id) {

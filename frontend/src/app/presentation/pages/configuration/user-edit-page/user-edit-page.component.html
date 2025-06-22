@@ -135,7 +135,8 @@
                         formControlName="dniType"
                         [compareWith]="compare"
                       >
-                        @for(dniType of dniTypes(); track $index){
+                        @for(dniType of personDataSerializer.dniTypes(); track
+                        $index){
                         <mat-option [value]="dniType">{{
                           dniType.dni
                         }}</mat-option>
@@ -193,7 +194,8 @@
                         formControlName="gender"
                         [compareWith]="compare"
                       >
-                        @for(gender of genders(); track $index){
+                        @for(gender of personDataSerializer.genders(); track
+                        $index){
                         <mat-option [value]="gender">{{
                           gender.name
                         }}</mat-option>
@@ -213,11 +215,12 @@
                         <span class="font-bold">Nacionalidad</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="nationalitySelect"
                         formControlName="nationality"
                         [compareWith]="compare"
                       >
-                        @for(nationality of nationalities(); track $index){
+                        @for(nationality of
+                        personDataSerializer.nationalities(); track $index){
                         <mat-option [value]="nationality">{{
                           nationality.name
                         }}</mat-option>
@@ -257,11 +260,12 @@
                         <span class="font-bold">Tipo de Teléfono</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="phoneTypeSelect"
                         formControlName="phoneType"
                         [compareWith]="compare"
                       >
-                        @for(phoneType of phoneTypes(); track $index){
+                        @for(phoneType of personDataSerializer.phoneTypes();
+                        track $index){
                         <mat-option [value]="phoneType">{{
                           phoneType.name
                         }}</mat-option>
@@ -301,11 +305,12 @@
                         <span class="font-bold">País</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="countrySelect"
                         formControlName="country"
                         [compareWith]="compare"
                       >
-                        @for(country of countries(); track $index){
+                        @for(country of personDataSerializer.countries(); track
+                        $index){
                         <mat-option [value]="country">{{
                           country.name
                         }}</mat-option>
@@ -319,7 +324,7 @@
                         <span class="font-bold">Provincia</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="provinceSelect"
                         formControlName="province"
                         [compareWith]="compare"
                       >
@@ -339,7 +344,7 @@
                         <span class="font-bold">Localidad</span>
                       </mat-label>
                       <mat-select
-                        name="genderSelect"
+                        name="localitySelect"
                         formControlName="locality"
                         [compareWith]="compare"
                       >
@@ -426,7 +431,8 @@
                         formControlName="dentistSpecialty"
                         [compareWith]="compare"
                       >
-                        @for(dentistSpecialty of dentistSpecialties(); track
+                        @for(dentistSpecialty of
+                        personDataSerializer.dentistSpecialties(); track
                         $index){
                         <mat-option [value]="dentistSpecialty">{{
                           dentistSpecialty.name
@@ -449,10 +455,10 @@
                 <button
                   mat-flat-button
                   [disabled]="!userForm.valid"
-                  (click)="create()"
+                  (click)="save()"
                 >
                   <div class="flex items-center gap-2">
-                    <span>Crear</span>
+                    <span>Guardar</span>
                   </div>
                 </button>
               </div>

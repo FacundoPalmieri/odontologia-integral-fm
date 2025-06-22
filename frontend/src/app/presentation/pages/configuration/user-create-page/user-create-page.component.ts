@@ -71,6 +71,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly _destroy$ = new Subject<void>();
   private readonly roleService = inject(RoleService);
+  personDataservice = inject(PersonDataService);
 
   userForm: FormGroup = new FormGroup({});
 
@@ -82,22 +83,22 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
 
   hidePassword = signal(true);
 
-  countries = signal<CountryInterface[]>([]);
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
-  dniTypes = signal<DniTypeInterface[]>([]);
-  genders = signal<GenderInterface[]>([]);
-  nationalities = signal<NationalityInterface[]>([]);
-  phoneTypes = signal<PhoneTypeInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
-  dentistSpecialties = signal<DentistSpecialtyInterface[]>([]);
 
   constructor() {
     this._loadForm();
-    this._loadData();
   }
 
   ngOnInit() {
+    this.roleService
+      .getAll()
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((response: ApiResponseInterface<RoleInterface[]>) => {
+        this.roles.set(response.data);
+      });
+
     this.userForm
       .get("country")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
@@ -233,52 +234,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       });
   }
 
-  private _loadData() {
-    this._getCountries();
-    this._getDniTypes();
-    this._getGenders();
-    this._getNationalities();
-    this._getPhoneTypes();
-    this._getRoles();
-    this._getDentistSpecialties();
-  }
-
-  private _getCountries() {
-    this.personDataService
-      .getAllCountries()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<CountryInterface[]>) => {
-        this.countries.set(response.data);
-      });
-  }
-
-  private _getDniTypes() {
-    this.personDataService
-      .getAllDNITypes()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<DniTypeInterface[]>) => {
-        this.dniTypes.set(response.data);
-      });
-  }
-
-  private _getGenders() {
-    this.personDataService
-      .getAllGenders()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<GenderInterface[]>) => {
-        this.genders.set(response.data);
-      });
-  }
-
-  private _getNationalities() {
-    this.personDataService
-      .getAllNationalities()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<NationalityInterface[]>) => {
-        this.nationalities.set(response.data);
-      });
-  }
-
   private _getProvincesByCountryId(id: number) {
     this.personDataService
       .getProvinceByCountryId(id)
@@ -295,35 +250,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
         this.localities.set(response.data);
       });
-  }
-
-  private _getPhoneTypes() {
-    this.personDataService
-      .getAllPhoneTypes()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<PhoneTypeInterface[]>) => {
-        this.phoneTypes.set(response.data);
-      });
-  }
-
-  private _getRoles() {
-    this.roleService
-      .getAll()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<RoleInterface[]>) => {
-        this.roles.set(response.data);
-      });
-  }
-
-  private _getDentistSpecialties() {
-    this.personDataService
-      .getAllDentistSpecialties()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe(
-        (response: ApiResponseInterface<DentistSpecialtyInterface[]>) => {
-          this.dentistSpecialties.set(response.data);
-        }
-      );
   }
 
   private _loadForm() {

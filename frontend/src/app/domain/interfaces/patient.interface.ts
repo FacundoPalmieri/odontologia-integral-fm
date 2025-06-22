@@ -5,8 +5,9 @@ import {
 import { HealthPlanInterface } from "./person-data.interface";
 import { PersonInterface } from "./person.interface";
 
-export interface PatientInterface extends PersonInterface {
-  medicalRisks: MedicalHistoryRiskInterface;
+export interface PatientInterface {
+  person: PersonInterface;
+  medicalRisks: MedicalHistoryRiskInterface[];
   healthPlan: HealthPlanInterface;
   affiliateNumber: string;
 }

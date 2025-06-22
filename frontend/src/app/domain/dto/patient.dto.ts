@@ -14,10 +14,10 @@ export interface MedicalHistoryRiskDtoInterface {
 }
 
 export interface PatientCreateDtoInterface {
-  personDto: PersonCreateDtoInterface;
+  person: PersonCreateDtoInterface;
   healthPlanId: number;
   affiliateNumber: string;
-  medicalRiskDto: MedicalRiskCreateDtoInterface[];
+  medicalRisk: MedicalRiskCreateDtoInterface[];
 }
 
 export interface MedicalRiskCreateDtoInterface {

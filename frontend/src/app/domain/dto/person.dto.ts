@@ -10,7 +10,7 @@ export interface PersonDtoInterface {
   nationality: string;
   contactEmails: string[];
   contactPhone: ContactPhoneDtoInterface[];
-  address: AddressDtoInterface[];
+  address: AddressDtoInterface;
 }
 
 export interface AddressDtoInterface {
@@ -23,6 +23,7 @@ export interface AddressDtoInterface {
   street: string;
   number: number;
   floor: string;
+  apartment: string;
 }
 
 export interface ContactPhoneDtoInterface {

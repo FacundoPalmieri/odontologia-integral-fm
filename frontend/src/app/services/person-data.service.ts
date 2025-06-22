@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { environment } from "../environments/environment";
-import { Observable } from "rxjs";
+import { forkJoin, Observable, tap } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import {
   CountryInterface,
@@ -14,11 +14,47 @@ import {
   PhoneTypeInterface,
   ProvinceInterface,
 } from "../domain/interfaces/person-data.interface";
+import { MedicalHistoryRiskInterface } from "../domain/interfaces/patient.interface";
 
 @Injectable({ providedIn: "root" })
 export class PersonDataService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
+
+  nationalities = signal<NationalityInterface[]>([]);
+  healthPlans = signal<HealthPlanInterface[]>([]);
+  countries = signal<CountryInterface[]>([]);
+  provinces = signal<ProvinceInterface[]>([]);
+  localities = signal<LocalityInterface[]>([]);
+  genders = signal<GenderInterface[]>([]);
+  dniTypes = signal<DniTypeInterface[]>([]);
+  phoneTypes = signal<PhoneTypeInterface[]>([]);
+  dentistSpecialties = signal<DentistSpecialtyInterface[]>([]);
+  medicalHistoryRisks = signal<MedicalHistoryRiskInterface[]>([]);
+
+  loadAllCatalogs() {
+    return forkJoin({
+      nationalities: this.getAllNationalities(),
+      healthPlans: this.getAllHealthPlans(),
+      countries: this.getAllCountries(),
+      genders: this.getAllGenders(),
+      dniTypes: this.getAllDNITypes(),
+      phoneTypes: this.getAllPhoneTypes(),
+      dentistSpecialties: this.getAllDentistSpecialties(),
+      medicalHistoryRisks: this.getAllMedicalHistoryRisks(),
+    }).pipe(
+      tap((results) => {
+        this.nationalities.set(results.nationalities.data);
+        this.healthPlans.set(results.healthPlans.data);
+        this.countries.set(results.countries.data);
+        this.genders.set(results.genders.data);
+        this.dniTypes.set(results.dniTypes.data);
+        this.phoneTypes.set(results.phoneTypes.data);
+        this.dentistSpecialties.set(results.dentistSpecialties.data);
+        this.medicalHistoryRisks.set(results.medicalHistoryRisks.data);
+      })
+    );
+  }
 
   getAllNationalities(): Observable<
     ApiResponseInterface<NationalityInterface[]>
@@ -79,6 +115,14 @@ export class PersonDataService {
   > {
     return this.http.get<ApiResponseInterface<DentistSpecialtyInterface[]>>(
       `${this.apiUrl}/dentist-Specialty/all`
+    );
+  }
+
+  getAllMedicalHistoryRisks(): Observable<
+    ApiResponseInterface<MedicalHistoryRiskInterface[]>
+  > {
+    return this.http.get<ApiResponseInterface<MedicalHistoryRiskInterface[]>>(
+      `${this.apiUrl}/medical-risk/all`
     );
   }
 }

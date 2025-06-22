@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import {
   ApiResponseInterface,
   PagedDataInterface,
@@ -12,6 +12,7 @@ import { PatientSerializer } from "../domain/serializers/patient.serializer";
 
 @Injectable({ providedIn: "root" })
 export class PatientService {
+  private readonly patientSerializer = new PatientSerializer();
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
@@ -33,7 +34,7 @@ export class PatientService {
   create(
     user: PatientInterface
   ): Observable<ApiResponseInterface<PatientDtoInterface>> {
-    const serializedUser = PatientSerializer.toCreateDto(user);
+    const serializedUser = this.patientSerializer.toCreateDto(user);
     return this.http.post<ApiResponseInterface<PatientDtoInterface>>(
       `${this.apiUrl}/patient`,
       serializedUser
@@ -43,16 +44,23 @@ export class PatientService {
   update(
     patient: PatientInterface
   ): Observable<ApiResponseInterface<PatientDtoInterface>> {
-    const patientSerialized = PatientSerializer.toCreateDto(patient);
+    const patientSerialized = this.patientSerializer.toCreateDto(patient);
     return this.http.patch<ApiResponseInterface<PatientDtoInterface>>(
       `${this.apiUrl}/patient`,
       patientSerialized
     );
   }
 
-  getById(id: number): Observable<ApiResponseInterface<PatientDtoInterface>> {
-    return this.http.get<ApiResponseInterface<PatientDtoInterface>>(
-      `${this.apiUrl}/patient/${id}`
-    );
+  getById(id: number): Observable<ApiResponseInterface<PatientInterface>> {
+    return this.http
+      .get<ApiResponseInterface<PatientDtoInterface>>(
+        `${this.apiUrl}/patient/${id}`
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: this.patientSerializer.toView(response.data),
+        }))
+      );
   }
 }

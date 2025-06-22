@@ -15,6 +15,7 @@ import { UserSerializer } from "../domain/serializers/user.serializer";
 
 @Injectable({ providedIn: "root" })
 export class UserService {
+  private readonly userSerializer = new UserSerializer();
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
@@ -40,7 +41,7 @@ export class UserService {
   create(
     user: UserInterface
   ): Observable<ApiResponseInterface<UserDtoInterface>> {
-    const serializedUser = UserSerializer.toCreateDto(user);
+    const serializedUser = this.userSerializer.toCreateDto(user);
     return this.http.post<ApiResponseInterface<UserDtoInterface>>(
       `${this.apiUrl}/user`,
       serializedUser

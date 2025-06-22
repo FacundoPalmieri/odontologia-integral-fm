@@ -21,6 +21,7 @@ import { TreatmentReferencesComponent } from "../../components/treatment-referen
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { Subject, takeUntil } from "rxjs";
 import { MatBadgeModule } from "@angular/material/badge";
+import { PersonDataService } from "../../../services/person-data.service";
 
 @Component({
   selector: "app-home",
@@ -45,8 +46,10 @@ import { MatBadgeModule } from "@angular/material/badge";
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
-  themeService = inject(ThemeService);
-  authService = inject(AuthService);
+  private readonly themeService = inject(ThemeService);
+  private readonly authService = inject(AuthService);
+  private readonly personDataService = inject(PersonDataService);
+
   router = inject(Router);
   fullScreenService = inject(FullscreenService);
   treatmentReferencesService = inject(TreatmentReferencesSidenavService);
@@ -69,6 +72,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
       this.permissions = [...new Set(this.permissions)];
       this.filteredMenuItems = this.filterMenuItems();
+    }
+    // Revisar si es necesario para todos los roles.
+    if (this.personDataService.nationalities().length === 0) {
+      this.personDataService.loadAllCatalogs().subscribe();
     }
   }
 

@@ -9,6 +9,7 @@ import {
 } from "./person-data.interface";
 
 export interface PersonInterface {
+  id?: number;
   firstName: string;
   lastName: string;
   dniType: DniTypeInterface;

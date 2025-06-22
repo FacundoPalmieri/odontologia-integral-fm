@@ -14,7 +14,6 @@ import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { Observable, Subject, takeUntil } from "rxjs";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { MedicalRisksComponent } from "../medical-risks/medical-risks.component";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatSelectModule } from "@angular/material/select";
@@ -45,7 +44,6 @@ import { PersonDataService } from "../../../services/person-data.service";
     MatAutocompleteModule,
     IconsModule,
     MatTooltipModule,
-    MedicalRisksComponent,
     MatExpansionModule,
     MatSelectModule,
     MatExpansionModule,
