@@ -194,11 +194,33 @@ public class UserService implements IUserService {
         try{
              Optional<UserSec> user = userRepository.findById(id);
              if(user.isPresent()){
-                 UserSecResponseDTO dto = convertToDTO(user.get());
+                 PersonResponseDTO personDTO = null;
+                 DentistResponseDTO dentistDTO = null;
+
+                 if (user.get().getPerson() != null) {
+                     personDTO = personService.convertToDTO(personService.getById(user.get().getPerson().getId()));
+
+
+                     Optional<Dentist> dentist = dentistService.getById(user.get().getPerson().getId());
+                     if(dentist.isPresent()){
+                         dentistDTO = dentistService.convertToDTO(dentist.get());
+                     }
+
+
+                 }
+
+                   UserSecResponseDTO userSecResponseDTO = new UserSecResponseDTO(
+                         user.get().getId(),
+                         user.get().getUsername(),
+                         user.get().getRolesList(),
+                         user.get().isEnabled(),
+                         personDTO,
+                         dentistDTO
+                 );
 
                  String messageUser = messageService.getMessage("userService.getById.ok.user", null, LocaleContextHolder.getLocale());
 
-                 return new Response<>(true, messageUser, dto);
+                 return new Response<>(true, messageUser, userSecResponseDTO);
              }else{
                  throw new NotFoundException("userService.findById.error.user", null,"userService.findById.error.log",new Object[]{id,"UserService", "getById"}, LogLevel.ERROR );
              }
