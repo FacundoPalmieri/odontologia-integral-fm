@@ -42,7 +42,6 @@ public class Consultation extends Auditable {
     @Column(nullable = false)
     private LocalDateTime dateTime;
 
-
     @Lob
     @Column(nullable = false)
     private String observations;
