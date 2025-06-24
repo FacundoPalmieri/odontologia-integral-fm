@@ -32,7 +32,7 @@ export class PersonSerializer {
         },
       ],
       address: {
-        localityId: person.locality.id,
+        localityId: person.locality?.id,
         street: person.street,
         number: person.number,
         floor: person.floor,

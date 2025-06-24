@@ -32,6 +32,7 @@ export interface ContactPhoneDtoInterface {
 }
 
 export interface PersonCreateDtoInterface {
+  id?: number;
   firstName: string;
   lastName: string;
   dniTypeId: number;

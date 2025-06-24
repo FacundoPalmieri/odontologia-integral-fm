@@ -1,15 +1,28 @@
-import { UserCreateDtoInterface } from "../dto/user.dto";
+import { inject } from "@angular/core";
+import { UserCreateDtoInterface, UserDtoInterface } from "../dto/user.dto";
+import { DentistSpecialtyInterface } from "../interfaces/dentist.interface";
+import { RoleInterface } from "../interfaces/role.interface";
 import { UserInterface } from "../interfaces/user.interface";
 import { PersonSerializer } from "./person.serializer";
+import { PersonDataService } from "../../services/person-data.service";
 
 export class UserSerializer {
   private readonly personSerializer = new PersonSerializer();
+  private readonly personDataService = inject(PersonDataService);
 
   toCreateDto(user: UserInterface): UserCreateDtoInterface {
     const dto: Partial<UserCreateDtoInterface> = {};
 
+    if (user.id) {
+      dto.id = user.id;
+    }
+
     if (user.username) {
       dto.username = user.username;
+    }
+
+    if (user.enabled) {
+      dto.enabled = user.enabled;
     }
 
     if (user.password1) {
@@ -34,7 +47,27 @@ export class UserSerializer {
         dentistSpecialtyId: user.dentistSpecialty?.id!,
       };
     }
-
     return dto as UserCreateDtoInterface;
+  }
+
+  toView(user: UserDtoInterface): UserInterface {
+    return {
+      id: user.id,
+      username: user.username,
+      rolesList: user.rolesList as RoleInterface[],
+      person:
+        user.person !== null ? this.personSerializer.toView(user.person) : null,
+      licenseNumber: user.dentist?.licenseNumber,
+      dentistSpecialty: this._getDentistSpecialty(
+        user.dentist?.dentistSpecialty
+      ),
+      enabled: user.enabled,
+    };
+  }
+
+  _getDentistSpecialty(dentistSpecialty: string): DentistSpecialtyInterface {
+    return this.personDataService
+      .dentistSpecialties()
+      .find((ds) => ds.name == dentistSpecialty) as DentistSpecialtyInterface;
   }
 }

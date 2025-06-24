@@ -5,10 +5,10 @@ import { RoleInterface } from "./role.interface";
 export interface UserInterface {
   id?: number;
   username: string;
-  password1: string;
-  password2: string;
+  password1?: string;
+  password2?: string;
   rolesList: RoleInterface[];
-  person?: PersonInterface;
+  person?: PersonInterface | null;
   licenseNumber?: string;
   dentistSpecialty?: DentistSpecialtyInterface;
   enabled?: boolean;

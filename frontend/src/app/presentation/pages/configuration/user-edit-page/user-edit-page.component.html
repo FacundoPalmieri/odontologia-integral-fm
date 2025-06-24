@@ -50,12 +50,45 @@
                   <mat-error>Campo requerido</mat-error>
                   }
                 </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="user-cog"></i-tabler>
+                    <span class="font-bold">Estado</span>
+                  </mat-label>
+                  <mat-select
+                    name="enabledSelect"
+                    formControlName="enabled"
+                    [compareWith]="compare"
+                  >
+                    <mat-option [value]="true">Habilitado</mat-option>
+                    <mat-option [value]="false">Deshabilitado</mat-option>
+                  </mat-select>
+                  @if(userForm.get('enabled')?.hasError('required') &&
+                  userForm.get('enabled')?.touched){
+                  <mat-error>Campo requerido</mat-error>
+                  }
+                </mat-form-field>
               </div>
             </div>
           </div>
+          @if(!showPersonForm()){
+          <div class="flex justify-end">
+            <button
+              mat-flat-button
+              [disabled]="!userForm.valid"
+              (click)="save()"
+            >
+              <div class="flex items-center gap-2">
+                <span>Guardar</span>
+              </div>
+            </button>
+          </div>
+          }
         </mat-card-content>
       </mat-card>
 
+      @if(showPersonForm()){
       <mat-card appearance="outlined" class="w-full">
         <mat-card-header>
           <mat-card-title>Datos Personales</mat-card-title>
@@ -97,7 +130,7 @@
                   </div>
                 </div>
 
-                <div class="flex-1 flex flex-col">
+                <div class="flex-1 flex flex-col" [formGroupName]="'person'">
                   <div class="flex flex-col md:flex-row gap-4">
                     <mat-form-field appearance="outline" class="w-full !mb-0">
                       <mat-label class="items-center flex gap-1">
@@ -105,8 +138,8 @@
                         <span class="font-bold">Nombre</span>
                       </mat-label>
                       <input type="text" matInput formControlName="firstName" />
-                      @if(userForm.get('firstName')?.hasError('required') &&
-                      userForm.get('firstName')?.touched){
+                      @if(userForm.get('person.firstName')?.hasError('required')
+                      && userForm.get('person.firstName')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -117,8 +150,8 @@
                         <span class="font-bold">Apellido</span>
                       </mat-label>
                       <input type="text" matInput formControlName="lastName" />
-                      @if(userForm.get('lastName')?.hasError('required') &&
-                      userForm.get('lastName')?.touched){
+                      @if(userForm.get('person.lastName')?.hasError('required')
+                      && userForm.get('person.lastName')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -142,8 +175,8 @@
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('dniType')?.hasError('required') &&
-                      userForm.get('dniType')?.touched){
+                      @if(userForm.get('person.dniType')?.hasError('required')
+                      && userForm.get('person.dniType')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -154,8 +187,8 @@
                         <span class="font-bold">DNI</span>
                       </mat-label>
                       <input type="text" matInput formControlName="dni" />
-                      @if(userForm.get('dni')?.hasError('required') &&
-                      userForm.get('dni')?.touched){
+                      @if(userForm.get('person.dni')?.hasError('required') &&
+                      userForm.get('person.dni')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -178,8 +211,8 @@
                         [for]="picker"
                       ></mat-datepicker-toggle>
                       <mat-datepicker touchUi #picker></mat-datepicker>
-                      @if(userForm.get('birthDate')?.hasError('required') &&
-                      userForm.get('birthDate')?.touched){
+                      @if(userForm.get('person.birthDate')?.hasError('required')
+                      && userForm.get('person.birthDate')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -201,8 +234,8 @@
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('gender')?.hasError('required') &&
-                      userForm.get('gender')?.touched){
+                      @if(userForm.get('person.gender')?.hasError('required') &&
+                      userForm.get('person.gender')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -226,8 +259,8 @@
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('nationality')?.hasError('required') &&
-                      userForm.get('nationality')?.touched){
+                      @if(userForm.get('person.nationality')?.hasError('required')
+                      && userForm.get('person.nationality')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -235,7 +268,7 @@
                 </div>
               </div>
 
-              <div class="mt-4">
+              <div class="mt-4" [formGroupName]="'person'">
                 <h3 class="text-lg font-semibold mb-4">Datos de Contacto</h3>
                 <div class="flex flex-col">
                   <div class="flex flex-col md:flex-row gap-4">
@@ -244,13 +277,18 @@
                         <i-tabler name="mail"></i-tabler>
                         <span class="font-bold">Email</span>
                       </mat-label>
-                      <input type="mail" matInput formControlName="email" />
-                      @if(userForm.get('email')?.hasError('required') &&
-                      userForm.get('email')?.touched){
+                      <input
+                        type="mail"
+                        matInput
+                        formControlName="contactEmails"
+                      />
+                      @if(userForm.get('person.contactEmails')?.hasError('required')
+                      && userForm.get('person.contactEmails')?.touched){
                       <mat-error>Campo requerido</mat-error>
-                      } @if(userForm.get('email')?.hasError('email') &&
-                      userForm.get('email')?.touched){
-                      <mat-error>El email no es válido</mat-error>
+                      }
+                      @if(userForm.get('person.contactEmails')?.hasError('email')
+                      && userForm.get('person.contactEmails')?.touched){
+                      <mat-error>El Email no es válido</mat-error>
                       }
                     </mat-form-field>
 
@@ -271,8 +309,8 @@
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('phoneType')?.hasError('required') &&
-                      userForm.get('phoneType')?.touched){
+                      @if(userForm.get('person.phoneType')?.hasError('required')
+                      && userForm.get('person.phoneType')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -285,8 +323,8 @@
                         <span class="font-bold">Nro. Teléfono</span>
                       </mat-label>
                       <input type="string" matInput formControlName="phone" />
-                      @if(userForm.get('phone')?.hasError('required') &&
-                      userForm.get('phone')?.touched){
+                      @if(userForm.get('person.phone')?.hasError('required') &&
+                      userForm.get('person.phone')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -294,8 +332,7 @@
                 </div>
               </div>
 
-              @if(showAdditionalInfo()) {
-              <div class="mt-4">
+              <div class="mt-4" [formGroupName]="'person'">
                 <h3 class="text-lg font-semibold mb-4">Datos de Ubicación</h3>
                 <div class="flex flex-col">
                   <div class="flex flex-col md:flex-row gap-4">
@@ -316,6 +353,10 @@
                         }}</mat-option>
                         }
                       </mat-select>
+                      @if(userForm.get('person.country')?.hasError('required')
+                      && userForm.get('person.country')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -334,6 +375,10 @@
                         }}</mat-option>
                         }
                       </mat-select>
+                      @if(userForm.get('person.province')?.hasError('required')
+                      && userForm.get('person.province')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
 
@@ -354,6 +399,10 @@
                         }}</mat-option>
                         }
                       </mat-select>
+                      @if(userForm.get('person.locality')?.hasError('required')
+                      && userForm.get('person.locality')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -362,6 +411,10 @@
                         <span class="font-bold">Calle</span>
                       </mat-label>
                       <input type="string" matInput formControlName="street" />
+                      @if(userForm.get('person.street')?.hasError('required') &&
+                      userForm.get('person.street')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
 
@@ -372,6 +425,10 @@
                         <span class="font-bold">Altura</span>
                       </mat-label>
                       <input type="number" matInput formControlName="number" />
+                      @if(userForm.get('person.number')?.hasError('required') &&
+                      userForm.get('person.number')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -380,6 +437,10 @@
                         <span class="font-bold">Piso</span>
                       </mat-label>
                       <input type="string" matInput formControlName="floor" />
+                      @if(userForm.get('person.floor')?.hasError('required') &&
+                      userForm.get('person.floor')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
 
@@ -394,12 +455,16 @@
                         matInput
                         formControlName="apartment"
                       />
+                      @if(userForm.get('person.apartment')?.hasError('required')
+                      && userForm.get('person.apartment')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
                     </mat-form-field>
                   </div>
                 </div>
               </div>
-              } @if(showProfessionalData()) {
-              <div class="mt-4">
+              @if(showProfessionalData()) {
+              <div class="mt-4" [formGroupName]="'dentist'">
                 <h3 class="text-lg font-semibold mb-4">
                   Datos del profesional
                 </h3>
@@ -415,8 +480,8 @@
                         matInput
                         formControlName="licenseNumber"
                       />
-                      @if(userForm.get('licenseNumber')?.hasError('required') &&
-                      userForm.get('licenseNumber')?.touched){
+                      @if(userForm.get('dentist.licenseNumber')?.hasError('required')
+                      && userForm.get('dentist.licenseNumber')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -439,8 +504,8 @@
                         }}</mat-option>
                         }
                       </mat-select>
-                      @if(userForm.get('gender')?.hasError('required') &&
-                      userForm.get('gender')?.touched){
+                      @if(userForm.get('dentist.dentistSpecialty')?.hasError('required')
+                      && userForm.get('dentist.dentistSpecialty')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
                     </mat-form-field>
@@ -448,10 +513,7 @@
                 </div>
               </div>
               }
-              <div class="flex justify-end gap-2 mt-4">
-                <button mat-button (click)="toggleAdditionalInfo()">
-                  {{ showAdditionalInfo() ? "Ver menos" : "Ver más" }}
-                </button>
+              <div class="flex justify-end">
                 <button
                   mat-flat-button
                   [disabled]="!userForm.valid"
@@ -466,6 +528,7 @@
           </div>
         </mat-card-content>
       </mat-card>
+      }
     </div>
   </form>
 </div>

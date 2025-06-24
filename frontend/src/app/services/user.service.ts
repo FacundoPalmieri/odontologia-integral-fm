@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import {
   ApiResponseInterface,
   PagedDataInterface,
@@ -32,12 +32,6 @@ export class UserService {
     >(`${this.apiUrl}/user/all`, { params });
   }
 
-  getById(id: number): Observable<ApiResponseInterface<UserInterface>> {
-    return this.http.get<ApiResponseInterface<UserInterface>>(
-      `${this.apiUrl}/user/${id}`
-    );
-  }
-
   create(
     user: UserInterface
   ): Observable<ApiResponseInterface<UserDtoInterface>> {
@@ -51,9 +45,21 @@ export class UserService {
   update(
     user: UserInterface
   ): Observable<ApiResponseInterface<UserDtoInterface>> {
+    const userSerialized = this.userSerializer.toCreateDto(user);
     return this.http.patch<ApiResponseInterface<UserDtoInterface>>(
       `${this.apiUrl}/user`,
-      user
+      userSerialized
     );
+  }
+
+  getById(id: number): Observable<ApiResponseInterface<UserInterface>> {
+    return this.http
+      .get<ApiResponseInterface<UserDtoInterface>>(`${this.apiUrl}/user/${id}`)
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: this.userSerializer.toView(response.data),
+        }))
+      );
   }
 }

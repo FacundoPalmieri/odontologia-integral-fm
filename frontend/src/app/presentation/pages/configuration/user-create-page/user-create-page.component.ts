@@ -73,23 +73,33 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
   private readonly roleService = inject(RoleService);
   personDataservice = inject(PersonDataService);
 
-  userForm: FormGroup = new FormGroup({});
+  userForm: FormGroup = new FormGroup({
+    username: new FormControl<string>("", [
+      Validators.required,
+      Validators.email,
+    ]),
+    password1: new FormControl<string>("", [Validators.required]),
+    password2: new FormControl<string>("", [
+      Validators.required,
+      this.passwordMatchValidator(),
+    ]),
+    rolesList: new FormControl<RoleInterface[] | null>(null, [
+      Validators.required,
+    ]),
+  });
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
 
   avatarUrl = signal<string | null>(null);
   showAdditionalInfo = signal(false);
   showProfessionalData = signal(false);
+  showPersonForm = signal(false);
 
   hidePassword = signal(true);
 
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
-
-  constructor() {
-    this._loadForm();
-  }
 
   ngOnInit() {
     this.roleService
@@ -100,38 +110,109 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       });
 
     this.userForm
-      .get("country")
-      ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((country: CountryInterface) => {
-        if (country) {
-          this._getProvincesByCountryId(country.id);
-        } else {
-          this.provinces.set([]);
-        }
-      });
-
-    this.userForm
-      .get("province")
-      ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((province: ProvinceInterface) => {
-        if (province) {
-          this._getLocalitiesByProvinceId(province.id);
-        } else {
-          this.localities.set([]);
-        }
-      });
-
-    this.userForm
       .get("rolesList")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((roles: RoleInterface[]) => {
-        if (roles) {
-          const hasDentistRole = roles.some(
-            (role) => role.role === "Odontólogo"
+        const showPerson = roles?.some(
+          (role) =>
+            role.role === "Administrador" ||
+            role.role === "Odontólogo" ||
+            role.role === "Secretaria"
+        );
+        this.showPersonForm.set(showPerson);
+
+        const hasDentistRole = roles?.some(
+          (role) => role.role === "Odontólogo"
+        );
+        this.showProfessionalData.set(hasDentistRole);
+
+        if (showPerson && !this.userForm.get("person")) {
+          this.userForm.addControl(
+            "person",
+            new FormGroup({
+              firstName: new FormControl<string>("", [Validators.required]),
+              lastName: new FormControl<string>("", [Validators.required]),
+              dniType: new FormControl<DniTypeInterface | null>(null, [
+                Validators.required,
+              ]),
+              dni: new FormControl<string | null>("", [Validators.required]),
+              birthDate: new FormControl<Date | null>(null, [
+                Validators.required,
+              ]),
+              gender: new FormControl<GenderInterface | null>(null, [
+                Validators.required,
+              ]),
+              nationality: new FormControl<NationalityInterface | null>(null, [
+                Validators.required,
+              ]),
+              country: new FormControl<CountryInterface | null>(null, [
+                Validators.required,
+              ]),
+              province: new FormControl<ProvinceInterface | null>(null, [
+                Validators.required,
+              ]),
+              locality: new FormControl<LocalityInterface | null>(null, [
+                Validators.required,
+              ]),
+              street: new FormControl<string | null>("", [Validators.required]),
+              number: new FormControl<number | null>(null, [
+                Validators.required,
+              ]),
+              floor: new FormControl<string | null>("", [Validators.required]),
+              apartment: new FormControl<string | null>("", [
+                Validators.required,
+              ]),
+              contactEmails: new FormControl<string>("", [
+                Validators.email,
+                Validators.required,
+              ]),
+              phoneType: new FormControl<PhoneTypeInterface | null>(null, [
+                Validators.required,
+              ]),
+              phone: new FormControl<string>("", [Validators.required]),
+            })
           );
-          this.showProfessionalData.set(hasDentistRole);
-        } else {
-          this.showProfessionalData.set(false);
+
+          this.userForm
+            .get("person.country")
+            ?.valueChanges.pipe(takeUntil(this._destroy$))
+            .subscribe((country: CountryInterface) => {
+              if (country) {
+                this._getProvincesByCountryId(country.id);
+              } else {
+                this.provinces.set([]);
+              }
+            });
+
+          this.userForm
+            .get("person.province")
+            ?.valueChanges.pipe(takeUntil(this._destroy$))
+            .subscribe((province: ProvinceInterface) => {
+              if (province) {
+                this._getLocalitiesByProvinceId(province.id);
+              } else {
+                this.localities.set([]);
+              }
+            });
+        } else if (!showPerson && this.userForm.get("person")) {
+          this.userForm.removeControl("person");
+        }
+
+        if (hasDentistRole && !this.userForm.get("dentist")) {
+          this.userForm.addControl(
+            "dentist",
+            new FormGroup({
+              licenseNumber: new FormControl<string | null>("", [
+                Validators.required,
+              ]),
+              dentistSpecialty:
+                new FormControl<DentistSpecialtyInterface | null>(null, [
+                  Validators.required,
+                ]),
+            })
+          );
+        } else if (!hasDentistRole && this.userForm.get("dentist")) {
+          this.userForm.removeControl("dentist");
         }
       });
 
@@ -217,6 +298,10 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
     this.userForm.markAsDirty();
   }
 
+  togglePasswordVisibility(): void {
+    this.hidePassword.set(!this.hidePassword());
+  }
+
   create() {
     const user: UserInterface = this.userForm.getRawValue();
 
@@ -252,83 +337,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       });
   }
 
-  private _loadForm() {
-    this.userForm = new FormGroup({
-      username: new FormControl<string>("", [
-        Validators.required,
-        Validators.email,
-      ]),
-      password1: new FormControl<string>("", [Validators.required]),
-      password2: new FormControl<string>("", [
-        Validators.required,
-        this.passwordMatchValidator(),
-      ]),
-      rolesList: new FormControl<RoleInterface[] | null>(null, [
-        Validators.required,
-      ]),
-      firstName: new FormControl<string>("", [Validators.required]),
-      lastName: new FormControl<string>("", [Validators.required]),
-      dniType: new FormControl<DniTypeInterface | null>(null, [
-        Validators.required,
-      ]),
-      dni: new FormControl<string | null>("", [Validators.required]),
-      birthDate: new FormControl<Date | null>(null, [Validators.required]),
-      gender: new FormControl<GenderInterface | null>(null, [
-        Validators.required,
-      ]),
-      nationality: new FormControl<NationalityInterface | null>(null, [
-        Validators.required,
-      ]),
-      country: new FormControl<CountryInterface | null>(null),
-      province: new FormControl<ProvinceInterface | null>(null),
-      locality: new FormControl<LocalityInterface | null>(null),
-      street: new FormControl<string | null>(""),
-      number: new FormControl<number | null>(null),
-      floor: new FormControl<string | null>(""),
-      apartment: new FormControl<string | null>(""),
-      email: new FormControl<string>("", [
-        Validators.email,
-        Validators.required,
-      ]),
-      phoneType: new FormControl<PhoneTypeInterface | null>(null, [
-        Validators.required,
-      ]),
-      phone: new FormControl<string>("", [Validators.required]),
-      licenseNumber: new FormControl<string | null>(""),
-      dentistSpecialty: new FormControl<DentistSpecialtyInterface | null>(null),
-    });
-
-    this.userForm
-      .get("rolesList")
-      ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((roles: RoleInterface[]) => {
-        this.updateLicenseNumberValidation(roles);
-      });
-  }
-
-  private updateLicenseNumberValidation(roles: RoleInterface[] | null): void {
-    if (!roles) {
-      this.userForm.get("licenseNumber")?.clearValidators();
-      this.showProfessionalData.set(false);
-      return;
-    }
-
-    const hasDentistRole = roles.some((role) => role.role === "Odontólogo");
-    this.showProfessionalData.set(hasDentistRole);
-
-    if (hasDentistRole) {
-      this.userForm.get("licenseNumber")?.setValidators([Validators.required]);
-      this.userForm
-        .get("dentistSpecialty")
-        ?.setValidators([Validators.required]);
-    } else {
-      this.userForm.get("licenseNumber")?.clearValidators();
-      this.userForm.get("dentistSpecialty")?.clearValidators();
-    }
-    this.userForm.get("licenseNumber")?.updateValueAndValidity();
-    this.userForm.get("dentistSpecialty")?.updateValueAndValidity();
-  }
-
   private passwordMatchValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const password = this.userForm?.get("password1")?.value;
@@ -340,9 +348,5 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
 
       return password === confirmPassword ? null : { passwordsMismatch: true };
     };
-  }
-
-  togglePasswordVisibility(): void {
-    this.hidePassword.set(!this.hidePassword());
   }
 }

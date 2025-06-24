@@ -8,14 +8,16 @@ export interface UserDtoInterface {
   rolesList: RoleDtoInterface[];
   enabled: boolean;
   person: PersonDtoInterface;
-  dentist: DentistDtoInterface[];
+  dentist: DentistDtoInterface;
 }
 
 export interface UserCreateDtoInterface {
+  id: number;
   username: string;
   password1: string;
   password2: string;
   rolesList: number[];
+  enabled: boolean;
   person: PersonCreateDtoInterface;
   dentist?: DentistCreateDtoInterface;
 }
