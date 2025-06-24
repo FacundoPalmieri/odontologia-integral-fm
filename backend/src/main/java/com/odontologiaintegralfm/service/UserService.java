@@ -366,8 +366,10 @@ public class UserService implements IUserService {
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
             validateNotDevRole(userSec, userSecUpdateDto);
 
-            //Valída cambio que haya al menos una actualización de datos.
-            validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
+            //Valída  que haya al menos una actualización de datos de usuario (No persona)
+            if(userSecUpdateDto.getPerson() == null) {
+                validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
+            }
 
             //Actualiza datos en el UserSec
             UserSec userSecAux = updateUserSec(userSec, userSecUpdateDto);
@@ -383,7 +385,7 @@ public class UserService implements IUserService {
 
             //Actualizar datos de la Persona.
             if(userSecUpdateDto.getPerson() != null) {
-                Person person = personService.getById(userSecUpdateDto.getId());
+                Person person = personService.getById(userSecUpdateDto.getPerson().id());
                 person = personService.update(person,userSecUpdateDto.getPerson());
 
                 userSec.setPerson(person);
@@ -392,18 +394,20 @@ public class UserService implements IUserService {
                 //Se agrega PersonaDTO a la respuesta final
                 userSecResponse.setPerson(personResponseDTO);
 
+                // Verifica si se actualizan datos de Dentista.
+                if(userSecUpdateDto.getDentist() != null) {
+                    Optional <Dentist> dentist = dentistService.getById(userSecUpdateDto.getPerson().id());
+                    dentist = Optional.ofNullable(dentistService.update(dentist.get(), userSecUpdateDto.getDentist()));
+
+                    DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist.get());
+
+                    //Se agrega DentistResponseDTO a la respuesta final
+                    userSecResponse.setDentist(dentistResponseDTO);
+                }
+
             }
 
-            // Verifica si se actualizan datos de Dentista.
-            if(userSecUpdateDto.getDentist() != null) {
-                Optional <Dentist> dentist = dentistService.getById(userSecUpdateDto.getId());
-                dentist = Optional.ofNullable(dentistService.update(dentist.get(), userSecUpdateDto.getDentist()));
 
-                DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist.get());
-
-                //Se agrega DentistResponseDTO a la respuesta final
-                userSecResponse.setDentist(dentistResponseDTO);
-            }
 
             return new Response<>(true, userMessage, userSecResponse);
 
@@ -827,7 +831,7 @@ public class UserService implements IUserService {
 
 
     /**
-     * Valída que no se intente realizar una actualización que no cambie el estado de la cuenta del usuario y la lista de roles.
+     * Valída que no se intente realizar una actualización que no cambie el estado del usuario (habilitado / deshabilitado) y la lista de roles.
      * <p>
      * Este método compara el estado de la cuenta actual del usuario (habilitado o deshabilitado) con el estado que se quiere
      * asignar en el DTO de actualización. A su vez, compara la lista de roles actuales con la que recibe mediante el DTO. Si no hay modificaciones, se lanza una excepción {@link ConflictException}.
