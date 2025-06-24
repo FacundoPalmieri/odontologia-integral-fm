@@ -1,14 +1,11 @@
 package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
-
-import java.time.LocalDate;
 
 /**
  * Entidad para representar los detalles de las consultas
@@ -29,7 +26,7 @@ public class ConsultationDetail extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consultation_id", nullable = false)
-    private Consultation consultation;
+    private ConsultationRegistration consultationRegistration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tooth_id")

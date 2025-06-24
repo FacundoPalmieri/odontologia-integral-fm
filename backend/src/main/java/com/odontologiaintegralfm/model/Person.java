@@ -1,18 +1,14 @@
 package com.odontologiaintegralfm.model;
 
-import com.nimbusds.openid.connect.sdk.assurance.evidences.attachment.Attachment;
+
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
