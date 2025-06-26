@@ -7,7 +7,6 @@ import org.hibernate.envers.RelationTargetAuditMode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 /**
@@ -19,7 +18,7 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "consultations_registration")
 @Audited
-public class ConsultationRegistration extends Auditable {
+public class Consultation extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +47,5 @@ public class ConsultationRegistration extends Auditable {
 
     @Column(nullable = false)
     private BigDecimal amount;
-
 
 }

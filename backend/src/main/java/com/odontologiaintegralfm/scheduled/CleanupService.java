@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
  * - Contacto Email.
  *
  * Esta tarea ya no tiene una expresión cron fija.
- * Su ejecución es programada dinámicamente desde DynamicScheduledTaskConfig.
+ * Su ejecución es programada dinámicamente desde ScheduledConfig.
  */
 @Service
 public class CleanupService {

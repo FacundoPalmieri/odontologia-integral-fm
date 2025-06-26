@@ -40,7 +40,7 @@ import java.util.Date;
  */
 @Configuration
 @EnableScheduling // Habilita la ejecución de tareas programadas en el contexto de Spring
-public class DynamicScheduledTaskConfig implements SchedulingConfigurer {
+public class ScheduledConfig implements SchedulingConfigurer {
 
     @Autowired
     private CleanupService cleanupService;

@@ -26,7 +26,7 @@ public class ConsultationDetail extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consultation_id", nullable = false)
-    private ConsultationRegistration consultationRegistration;
+    private Consultation consultation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tooth_id")
