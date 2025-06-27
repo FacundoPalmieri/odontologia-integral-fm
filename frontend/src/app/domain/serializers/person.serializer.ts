@@ -17,6 +17,7 @@ export class PersonSerializer {
 
   toCreateDto(person: PersonInterface): PersonCreateDtoInterface {
     return {
+      id: person.id,
       firstName: person.firstName,
       lastName: person.lastName,
       dniTypeId: person.dniType.id,

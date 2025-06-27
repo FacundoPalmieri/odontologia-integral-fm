@@ -9,7 +9,11 @@ export interface UserInterface {
   password2?: string;
   rolesList: RoleInterface[];
   person?: PersonInterface | null;
-  licenseNumber?: string;
-  dentistSpecialty?: DentistSpecialtyInterface;
+  dentist?: DentistDataInterface;
   enabled?: boolean;
+}
+
+export interface DentistDataInterface {
+  licenseNumber: string;
+  dentistSpecialty: DentistSpecialtyInterface;
 }

@@ -1,4 +1,7 @@
-import { DentistCreateDtoInterface, DentistDtoInterface } from "./dentist.dto";
+import {
+  DentistCreateDtoInterface,
+  DentistDataDtoInterface,
+} from "./dentist.dto";
 import { PersonCreateDtoInterface, PersonDtoInterface } from "./person.dto";
 import { RoleDtoInterface } from "./role.dto";
 
@@ -8,7 +11,7 @@ export interface UserDtoInterface {
   rolesList: RoleDtoInterface[];
   enabled: boolean;
   person: PersonDtoInterface;
-  dentist: DentistDtoInterface;
+  dentist: DentistDataDtoInterface;
 }
 
 export interface UserCreateDtoInterface {

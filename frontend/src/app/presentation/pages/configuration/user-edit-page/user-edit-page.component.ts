@@ -424,12 +424,12 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     }
 
     if (
-      (user.licenseNumber || user.dentistSpecialty) &&
+      (user.dentist?.licenseNumber || user.dentist?.dentistSpecialty) &&
       this.userForm.get("dentist")
     ) {
       this.userForm.get("dentist")?.patchValue({
-        licenseNumber: user.licenseNumber,
-        dentistSpecialty: user.dentistSpecialty,
+        licenseNumber: user.dentist.licenseNumber,
+        dentistSpecialty: user.dentist.dentistSpecialty,
       });
     }
     this.userForm.markAsPristine();

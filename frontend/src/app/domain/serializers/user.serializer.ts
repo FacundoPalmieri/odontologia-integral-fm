@@ -12,7 +12,7 @@ export class UserSerializer {
 
   toCreateDto(user: UserInterface): UserCreateDtoInterface {
     const dto: Partial<UserCreateDtoInterface> = {};
-
+    console.log(user);
     if (user.id) {
       dto.id = user.id;
     }
@@ -41,10 +41,10 @@ export class UserSerializer {
       dto.person = this.personSerializer.toCreateDto(user.person);
     }
 
-    if (user.licenseNumber || user.dentistSpecialty?.id) {
+    if (user.dentist?.licenseNumber || user.dentist?.dentistSpecialty?.id) {
       dto.dentist = {
-        licenseNumber: user.licenseNumber!,
-        dentistSpecialtyId: user.dentistSpecialty?.id!,
+        licenseNumber: user.dentist.licenseNumber!,
+        dentistSpecialtyId: user.dentist.dentistSpecialty?.id!,
       };
     }
     return dto as UserCreateDtoInterface;
@@ -55,13 +55,15 @@ export class UserSerializer {
       id: user.id,
       username: user.username,
       rolesList: user.rolesList as RoleInterface[],
+      enabled: user.enabled,
       person:
         user.person !== null ? this.personSerializer.toView(user.person) : null,
-      licenseNumber: user.dentist?.licenseNumber,
-      dentistSpecialty: this._getDentistSpecialty(
-        user.dentist?.dentistSpecialty
-      ),
-      enabled: user.enabled,
+      dentist: {
+        licenseNumber: user.dentist?.licenseNumber,
+        dentistSpecialty: this._getDentistSpecialty(
+          user.dentist?.dentistSpecialty?.name
+        ),
+      },
     };
   }
 

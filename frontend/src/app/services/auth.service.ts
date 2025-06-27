@@ -113,6 +113,7 @@ export class AuthService {
       refreshToken: authUserData.refreshToken,
       roles: authUserData.roles,
       username: authUserData.username,
+      person: authUserData.person,
     };
 
     localStorage.setItem("userData", JSON.stringify(userData));
