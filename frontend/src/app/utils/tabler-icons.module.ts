@@ -82,6 +82,7 @@ import {
   IconCertificate,
   IconPassword,
   IconUserCog,
+  IconCheck,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -89,6 +90,7 @@ const ICONS = {
   IconAlertTriangle,
   IconAlertCircle,
   IconCircleCheck,
+  IconCheck,
   IconXboxX,
   IconSettings,
   IconFileDollar,

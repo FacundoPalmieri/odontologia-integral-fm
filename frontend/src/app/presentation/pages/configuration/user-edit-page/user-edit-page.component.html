@@ -53,7 +53,7 @@
 
                 <mat-form-field appearance="outline" class="w-full">
                   <mat-label class="items-center flex gap-1">
-                    <i-tabler name="user-cog"></i-tabler>
+                    <i-tabler name="check"></i-tabler>
                     <span class="font-bold">Estado</span>
                   </mat-label>
                   <mat-select
@@ -72,7 +72,6 @@
               </div>
             </div>
           </div>
-          @if(!showPersonForm()){
           <div class="flex justify-end">
             <button
               mat-flat-button
@@ -84,11 +83,9 @@
               </div>
             </button>
           </div>
-          }
         </mat-card-content>
       </mat-card>
 
-      @if(showPersonForm()){
       <mat-card appearance="outlined" class="w-full">
         <mat-card-header>
           <mat-card-title>Datos Personales</mat-card-title>
@@ -528,7 +525,6 @@
           </div>
         </mat-card-content>
       </mat-card>
-      }
     </div>
   </form>
 </div>
