@@ -55,8 +55,9 @@ public class DentistService implements IDentistService {
     @Transactional
     public Dentist create(Person person, DentistCreateRequestDTO dentistCreateRequestDTO) {
         try{
-            //Valída que no exista el n.° de licencia.
-            validateDentist(dentistCreateRequestDTO.licenseNumber());
+            //Valída que no exista el n.° de licencia para otro dentista.
+            // Al crearse un dentista nuevo se pasa ID 0 ya que requiere un id de comparación el método de valicación.
+            validateDentist(dentistCreateRequestDTO.licenseNumber(), 0L);
 
             Dentist dentist = new Dentist();
             dentist.setPerson(person);
@@ -83,8 +84,8 @@ public class DentistService implements IDentistService {
     @Transactional
     public Dentist update(Dentist dentist, DentistUpdateRequestDTO dentistUpdateRequestDTO) {
         try{
-            //Valída que no exista el n.° de licencia.
-            validateDentist(dentistUpdateRequestDTO.licenseNumber());
+            //Valída que no exista el n.° de licencia para otro dentista
+            validateDentist(dentistUpdateRequestDTO.licenseNumber(),dentist.getId());
 
             dentist.setLicenseNumber(dentistUpdateRequestDTO.licenseNumber());
             dentist.setDentistSpecialty(dentistSpecialtyService.getById(dentistUpdateRequestDTO.dentistSpecialtyId()));
@@ -134,10 +135,15 @@ public class DentistService implements IDentistService {
         }
     }
 
-    private void validateDentist(String licenseNumber) {
+    /**
+     * Valida que la licencia médica no exista para otro dentista.
+     * @param licenseNumber : Licencia médica del dentista
+     * @param id de la persona/dentista
+     */
+    private void validateDentist(String licenseNumber, Long id) {
         try{
             Optional<Dentist> dentist  = dentistRepository.findByLicenseNumberAndEnabledTrue(licenseNumber);
-            if(dentist.isPresent()){
+            if(dentist.isPresent() && (!id.equals(dentist.get().getId()))) {
                 throw new ConflictException("exception.licenseNumber.user", null,"exception.licenseNumber.log", new Object[]{licenseNumber,"DentistService", "validateDentist"}, LogLevel.ERROR);
             }
         }catch (DataAccessException | CannotCreateTransactionException e) {
