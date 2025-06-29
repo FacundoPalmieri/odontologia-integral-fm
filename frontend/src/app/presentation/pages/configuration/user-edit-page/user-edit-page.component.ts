@@ -94,9 +94,10 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   provinces = signal<ProvinceInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
 
+  private selectedAvatarFile: File | null = null;
+
   constructor() {
     this._loadForm();
-    this._getUserIdFromRoute();
   }
 
   ngOnInit() {
@@ -213,6 +214,8 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
         return;
       }
 
+      this.selectedAvatarFile = file;
+
       const reader = new FileReader();
       reader.onload = (e) => {
         this.avatarUrl.set(e.target?.result as string);
@@ -232,14 +235,32 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     this.userService
       .update(user)
       .subscribe((response: ApiResponseInterface<UserDtoInterface>) => {
-        this.snackbarService.openSnackbar(
-          "Usuario modificado correctamente",
-          6000,
-          "center",
-          "bottom",
-          SnackbarTypeEnum.Success
-        );
-        this.router.navigate(["/configuration/users/edit", response.data.id]);
+        if (this.selectedAvatarFile && user.person?.id) {
+          this.personDataService
+            .setAvatar(user.person.id, this.selectedAvatarFile)
+            .subscribe(() => {
+              this.snackbarService.openSnackbar(
+                "Usuario modificado correctamente",
+                6000,
+                "center",
+                "bottom",
+                SnackbarTypeEnum.Success
+              );
+              this.router.navigate([
+                "/configuration/users/edit",
+                response.data.id,
+              ]);
+            });
+        } else {
+          this.snackbarService.openSnackbar(
+            "Usuario modificado correctamente",
+            6000,
+            "center",
+            "bottom",
+            SnackbarTypeEnum.Success
+          );
+          this.router.navigate(["/configuration/users/edit", response.data.id]);
+        }
       });
   }
 
@@ -368,6 +389,15 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<UserInterface>) => {
         const user = response.data;
+
+        if (user.person?.id) {
+          this.personDataService
+            .getAvatar(user.person?.id)
+            .pipe(takeUntil(this._destroy$))
+            .subscribe((response: string) => {
+              this.avatarUrl.set(response);
+            });
+        }
         this._populateForm(user);
       });
   }

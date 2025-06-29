@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
 import { environment } from "../environments/environment";
-import { forkJoin, Observable, tap } from "rxjs";
+import { forkJoin, Observable, switchMap, tap } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import {
   CountryInterface,
@@ -124,5 +124,29 @@ export class PersonDataService {
     return this.http.get<ApiResponseInterface<MedicalHistoryRiskInterface[]>>(
       `${this.apiUrl}/medical-risk/all`
     );
+  }
+
+  getAvatar(id: number): Observable<string> {
+    return this.http
+      .get(`${this.apiUrl}/person/${id}/avatar`, { responseType: "blob" })
+      .pipe(
+        switchMap((blob) => {
+          return new Observable<string>((observer) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              observer.next(reader.result as string);
+              observer.complete();
+            };
+            reader.readAsDataURL(blob);
+          });
+        })
+      );
+  }
+
+  setAvatar(id: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    return this.http.post(`${this.apiUrl}/person/${id}/avatar`, formData);
   }
 }
