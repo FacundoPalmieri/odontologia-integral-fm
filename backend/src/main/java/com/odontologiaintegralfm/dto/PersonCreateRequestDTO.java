@@ -31,6 +31,7 @@ public record PersonCreateRequestDTO(
 
         @Email(message = "personCreateRequestDTO.email.Invalid")
         @NotBlank(message = "personCreateRequestDTO.email.Empty")
+
         Set<String> contactEmails,
 
         Set<ContactPhoneRequestDTO> contactPhones,

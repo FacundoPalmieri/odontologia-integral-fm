@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -122,7 +123,12 @@ public class PatientService implements IPatientService {
             //Actualiza datos del paciente
             patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
             patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
-            Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.update(patient, patientUpdateRequestDTO.medicalRisk());
+
+
+            Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = new HashSet<PatientMedicalRiskResponseDTO>();
+            if(patientUpdateRequestDTO.medicalRisk() != null){
+               patientMedicalRiskResponseDTOS = patientMedicalRiskService.update(patient, patientUpdateRequestDTO.medicalRisk());
+            }
 
             //Cambios para auditoria.
             patient.setUpdatedAt(LocalDateTime.now());
