@@ -36,6 +36,7 @@ import { MatInputModule } from "@angular/material/input";
 import { Subject, takeUntil } from "rxjs";
 import { Router } from "@angular/router";
 import { UserDtoInterface } from "../../../domain/dto/user.dto";
+import { PersonDataService } from "../../../services/person-data.service";
 
 @Component({
   selector: "app-configuration",
@@ -64,6 +65,7 @@ export class ConfigurationComponent implements OnDestroy {
   readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   userService = inject(UserService);
+  personDataService = inject(PersonDataService);
   roleService = inject(RoleService);
   permissionService = inject(PermissionService);
   snackbarService = inject(SnackbarService);
@@ -173,7 +175,19 @@ export class ConfigurationComponent implements OnDestroy {
         (
           response: ApiResponseInterface<PagedDataInterface<UserDtoInterface[]>>
         ) => {
-          this.users.set(response.data.content);
+          const users = response.data.content;
+          this.users.set(users);
+
+          users.forEach((user) => {
+            if (user.person?.id) {
+              this.personDataService
+                .getAvatar(user.person.id)
+                .subscribe((avatar: any) => {
+                  user.avatarUrl = avatar;
+                  this.users.set([...this.users()]);
+                });
+            }
+          });
         }
       );
   }
