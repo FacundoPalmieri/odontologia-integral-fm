@@ -29,6 +29,7 @@ import {
   PagedDataInterface,
 } from "../../../../domain/interfaces/api-response.interface";
 import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
+import { PersonDataService } from "../../../../services/person-data.service";
 
 @Component({
   selector: "app-patients-list",
@@ -55,6 +56,7 @@ import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 export class PatientsListComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   patientService = inject(PatientService);
+  personDataService = inject(PersonDataService);
   dialog = inject(MatDialog);
   router = inject(Router);
   patients = signal<PatientDtoInterface[]>([]);
@@ -120,7 +122,18 @@ export class PatientsListComponent implements OnDestroy {
             PagedDataInterface<PatientDtoInterface[]>
           >
         ) => {
-          this.patients.set(response.data.content);
+          const patients = response.data.content;
+          this.patients.set(patients);
+          patients.forEach((patient) => {
+            if (patient.person?.id) {
+              this.personDataService
+                .getAvatar(patient.person.id)
+                .subscribe((avatar: any) => {
+                  patient.avatarUrl = avatar;
+                  this.patients.set([...this.patients()]);
+                });
+            }
+          });
           this.patientsDataSource.paginator = this.paginator;
           this.patientsDataSource.sort = this.sort;
         }

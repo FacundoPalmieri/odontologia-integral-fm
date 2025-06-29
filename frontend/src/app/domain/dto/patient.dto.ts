@@ -5,6 +5,7 @@ export interface PatientDtoInterface {
   healthPlans: string;
   affiliateNumber: string;
   medicalHistoryRisk: MedicalHistoryRiskDtoInterface[];
+  avatarUrl?: Blob; //Para cargar en la grillas
 }
 
 export interface MedicalHistoryRiskDtoInterface {
