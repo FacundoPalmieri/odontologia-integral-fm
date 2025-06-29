@@ -71,6 +71,8 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   personDataSerializer = inject(PersonDataService);
 
+  @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
+
   userForm: FormGroup = new FormGroup({
     id: new FormControl<number>(0, [Validators.required]),
     username: new FormControl<string>("", [
@@ -81,23 +83,61 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       Validators.required,
     ]),
     enabled: new FormControl<boolean>(false, [Validators.required]),
+    person: new FormGroup({
+      id: new FormControl<number>(0, [Validators.required]),
+      firstName: new FormControl<string>("", [Validators.required]),
+      lastName: new FormControl<string>("", [Validators.required]),
+      dniType: new FormControl<DniTypeInterface | null>(null, [
+        Validators.required,
+      ]),
+      dni: new FormControl<string | null>("", [Validators.required]),
+      birthDate: new FormControl<Date | null>(null, [Validators.required]),
+      gender: new FormControl<GenderInterface | null>(null, [
+        Validators.required,
+      ]),
+      nationality: new FormControl<NationalityInterface | null>(null, [
+        Validators.required,
+      ]),
+      country: new FormControl<CountryInterface | null>(null, [
+        Validators.required,
+      ]),
+      province: new FormControl<ProvinceInterface | null>(null, [
+        Validators.required,
+      ]),
+      locality: new FormControl<LocalityInterface | null>(null, [
+        Validators.required,
+      ]),
+      street: new FormControl<string | null>("", [Validators.required]),
+      number: new FormControl<number | null>(null, [Validators.required]),
+      floor: new FormControl<string | null>("", [Validators.required]),
+      apartment: new FormControl<string | null>("", [Validators.required]),
+      contactEmails: new FormControl<string>("", [
+        Validators.email,
+        Validators.required,
+      ]),
+      phoneType: new FormControl<PhoneTypeInterface | null>(null, [
+        Validators.required,
+      ]),
+      phone: new FormControl<string>("", [Validators.required]),
+    }),
   });
-  userId: number | null = null;
 
-  @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
+  userId: number | null = null;
 
   avatarUrl = signal<string | null>(null);
   showProfessionalData = signal(false);
-
   countries = signal<CountryInterface[]>([]);
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
 
-  private selectedAvatarFile: File | null = null;
-
   constructor() {
-    this._loadForm();
+    this.userForm
+      .get("rolesList")
+      ?.valueChanges.pipe(takeUntil(this._destroy$))
+      .subscribe((roles: RoleInterface[]) => {
+        this.updateLicenseNumberValidation(roles);
+      });
   }
 
   ngOnInit() {
@@ -202,26 +242,50 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
 
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        this.snackbarService.openSnackbar(
-          "El archivo debe ser una imagen",
-          6000,
-          "center",
-          "bottom",
-          SnackbarTypeEnum.Error
-        );
-        return;
-      }
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      this.snackbarService.openSnackbar(
+        "El archivo debe ser una imagen",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+      return;
+    }
 
-      this.selectedAvatarFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.avatarUrl.set(e.target?.result as string);
+      this.userForm.markAsDirty();
+    };
+    reader.readAsDataURL(file);
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.avatarUrl.set(e.target?.result as string);
-        this.userForm.markAsDirty();
-      };
-      reader.readAsDataURL(file);
+    const personId = this.userForm.get("person.id")?.value;
+    if (personId) {
+      this.personDataService
+        .setAvatar(personId, file)
+        .pipe(takeUntil(this._destroy$))
+        .subscribe({
+          next: () => {
+            this.snackbarService.openSnackbar(
+              "Imagen de perfil actualizada correctamente.",
+              6000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Success
+            );
+          },
+          error: () => {
+            this.snackbarService.openSnackbar(
+              "Error al actualizar la imgen de perfil.",
+              6000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Error
+            );
+          },
+        });
     }
   }
 
@@ -235,32 +299,14 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     this.userService
       .update(user)
       .subscribe((response: ApiResponseInterface<UserDtoInterface>) => {
-        if (this.selectedAvatarFile && user.person?.id) {
-          this.personDataService
-            .setAvatar(user.person.id, this.selectedAvatarFile)
-            .subscribe(() => {
-              this.snackbarService.openSnackbar(
-                "Usuario modificado correctamente",
-                6000,
-                "center",
-                "bottom",
-                SnackbarTypeEnum.Success
-              );
-              this.router.navigate([
-                "/configuration/users/edit",
-                response.data.id,
-              ]);
-            });
-        } else {
-          this.snackbarService.openSnackbar(
-            "Usuario modificado correctamente",
-            6000,
-            "center",
-            "bottom",
-            SnackbarTypeEnum.Success
-          );
-          this.router.navigate(["/configuration/users/edit", response.data.id]);
-        }
+        this.snackbarService.openSnackbar(
+          "Usuario modificado correctamente",
+          6000,
+          "center",
+          "bottom",
+          SnackbarTypeEnum.Success
+        );
+        this.router.navigate(["/configuration/users/edit", response.data.id]);
       });
   }
 
@@ -279,64 +325,6 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
         this.localities.set(response.data);
-      });
-  }
-
-  private _loadForm() {
-    this.userForm = new FormGroup({
-      id: new FormControl<number>(0, [Validators.required]),
-      username: new FormControl<string>("", [
-        Validators.required,
-        Validators.email,
-      ]),
-      rolesList: new FormControl<RoleInterface[] | null>(null, [
-        Validators.required,
-      ]),
-      enabled: new FormControl<boolean>(false, [Validators.required]),
-      person: new FormGroup({
-        id: new FormControl<number>(0, [Validators.required]),
-        firstName: new FormControl<string>("", [Validators.required]),
-        lastName: new FormControl<string>("", [Validators.required]),
-        dniType: new FormControl<DniTypeInterface | null>(null, [
-          Validators.required,
-        ]),
-        dni: new FormControl<string | null>("", [Validators.required]),
-        birthDate: new FormControl<Date | null>(null, [Validators.required]),
-        gender: new FormControl<GenderInterface | null>(null, [
-          Validators.required,
-        ]),
-        nationality: new FormControl<NationalityInterface | null>(null, [
-          Validators.required,
-        ]),
-        country: new FormControl<CountryInterface | null>(null, [
-          Validators.required,
-        ]),
-        province: new FormControl<ProvinceInterface | null>(null, [
-          Validators.required,
-        ]),
-        locality: new FormControl<LocalityInterface | null>(null, [
-          Validators.required,
-        ]),
-        street: new FormControl<string | null>("", [Validators.required]),
-        number: new FormControl<number | null>(null, [Validators.required]),
-        floor: new FormControl<string | null>("", [Validators.required]),
-        apartment: new FormControl<string | null>("", [Validators.required]),
-        contactEmails: new FormControl<string>("", [
-          Validators.email,
-          Validators.required,
-        ]),
-        phoneType: new FormControl<PhoneTypeInterface | null>(null, [
-          Validators.required,
-        ]),
-        phone: new FormControl<string>("", [Validators.required]),
-      }),
-    });
-
-    this.userForm
-      .get("rolesList")
-      ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((roles: RoleInterface[]) => {
-        this.updateLicenseNumberValidation(roles);
       });
   }
 

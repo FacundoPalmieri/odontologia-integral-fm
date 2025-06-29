@@ -145,7 +145,7 @@ export class PersonDataService {
 
   setAvatar(id: number, file: File): Observable<any> {
     const formData = new FormData();
-    formData.append("avatar", file);
+    formData.append("file", file);
 
     return this.http.post(`${this.apiUrl}/person/${id}/avatar`, formData);
   }

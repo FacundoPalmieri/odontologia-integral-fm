@@ -103,6 +103,8 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       odontogram: mockOdontogram1,
     },
   ];
+  private selectedAvatarFile: File | null = null;
+
   constructor() {
     this._loadForm();
     this._getPatientIdFromRoute();
@@ -176,24 +178,50 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
 
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        this.snackbarService.openSnackbar(
-          "El archivo debe ser una imagen",
-          6000,
-          "center",
-          "bottom",
-          SnackbarTypeEnum.Error
-        );
-        return;
-      }
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      this.snackbarService.openSnackbar(
+        "El archivo debe ser una imagen",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+      return;
+    }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.avatarUrl.set(e.target?.result as string);
-        this.patientForm.markAsDirty();
-      };
-      reader.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.avatarUrl.set(e.target?.result as string);
+      this.patientForm.markAsDirty();
+    };
+    reader.readAsDataURL(file);
+
+    const personId = this.patientForm.get("person.id")?.value;
+    if (personId) {
+      this.personDataService
+        .setAvatar(personId, file)
+        .pipe(takeUntil(this._destroy$))
+        .subscribe({
+          next: () => {
+            this.snackbarService.openSnackbar(
+              "Imagen de perfil actualizada correctamente.",
+              6000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Success
+            );
+          },
+          error: () => {
+            this.snackbarService.openSnackbar(
+              "Error al actualizar la imgen de perfil.",
+              6000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Error
+            );
+          },
+        });
     }
   }
 
@@ -215,38 +243,33 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     this.patientService
       .update(patient)
       .subscribe((response: ApiResponseInterface<PatientDtoInterface>) => {
-        this.snackbarService.openSnackbar(
-          "Paciente modificado correctamente",
-          6000,
-          "center",
-          "bottom",
-          SnackbarTypeEnum.Success
-        );
-        this.router.navigate(["/patients/edit/", response.data.person.id]);
-      });
-  }
-
-  private _getProvincesByCountryId(id: number) {
-    this.personDataService
-      .getProvinceByCountryId(id)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<ProvinceInterface[]>) => {
-        this.provinces.set(response.data);
-      });
-  }
-
-  private _getLocalitiesByProvinceId(id: number) {
-    this.personDataService
-      .getLocalityByProvinceId(id)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
-        this.localities.set(response.data);
+        if (this.selectedAvatarFile && patient.person?.id) {
+          this.personDataService
+            .setAvatar(patient.person.id, this.selectedAvatarFile)
+            .subscribe(() => {
+              this.selectedAvatarFile = null;
+              this.router.navigate([
+                "/patients/edit/",
+                response.data.person.id,
+              ]);
+            });
+        } else {
+          this.snackbarService.openSnackbar(
+            "Paciente modificado correctamente",
+            6000,
+            "center",
+            "bottom",
+            SnackbarTypeEnum.Success
+          );
+          this.router.navigate(["/patients/edit/", response.data.person.id]);
+        }
       });
   }
 
   private _loadForm() {
     this.patientForm = new FormGroup({
       person: new FormGroup({
+        id: new FormControl<number>(0, [Validators.required]),
         firstName: new FormControl<string>("", [Validators.required]),
         lastName: new FormControl<string>("", [Validators.required]),
         dniType: new FormControl<DniTypeInterface | null>(null, [
@@ -310,17 +333,27 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       .subscribe((response: ApiResponseInterface<PatientInterface>) => {
         this.patient.set(response.data);
         this._populateForm(this.patient());
+
+        if (response.data.person?.id) {
+          this.personDataService
+            .getAvatar(response.data.person.id)
+            .pipe(takeUntil(this._destroy$))
+            .subscribe((avatar: string) => {
+              this.avatarUrl.set(avatar);
+            });
+        }
       });
   }
 
   private _populateForm(patient: PatientInterface) {
     this.patientForm.patchValue({
       person: {
-        firstName: patient.person.firstName,
+        id: patient.person?.id,
+        firstName: patient.person?.firstName,
         lastName: patient.person?.lastName,
         dniType: patient.person?.dniType,
         dni: patient.person?.dni,
-        birthDate: patient.person?.birthDate
+        birthDate: patient.person.birthDate
           ? new Date(patient.person.birthDate)
           : null,
         gender: patient.person?.gender,
@@ -341,5 +374,23 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     });
 
     this.patientForm.markAsPristine();
+  }
+
+  private _getProvincesByCountryId(id: number) {
+    this.personDataService
+      .getProvinceByCountryId(id)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((response: ApiResponseInterface<ProvinceInterface[]>) => {
+        this.provinces.set(response.data);
+      });
+  }
+
+  private _getLocalitiesByProvinceId(id: number) {
+    this.personDataService
+      .getLocalityByProvinceId(id)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
+        this.localities.set(response.data);
+      });
   }
 }
