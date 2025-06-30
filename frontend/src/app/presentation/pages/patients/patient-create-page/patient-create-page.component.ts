@@ -252,7 +252,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
         phone: new FormControl<string>("", [Validators.required]),
       }),
       healthPlan: new FormControl<HealthPlanInterface | null>(null),
-      affiliateNumber: new FormControl<string>(""),
+      affiliateNumber: new FormControl<string | null>(null),
       medicalRisks: new FormArray([]),
     });
   }

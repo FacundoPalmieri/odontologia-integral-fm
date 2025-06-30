@@ -299,10 +299,8 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         ]),
         phone: new FormControl<string>("", [Validators.required]),
       }),
-      healthPlan: new FormControl<HealthPlanInterface | null>(null, [
-        Validators.required,
-      ]),
-      affiliateNumber: new FormControl<string>("", [Validators.required]),
+      healthPlan: new FormControl<HealthPlanInterface | null>(null),
+      affiliateNumber: new FormControl<string | null>(null),
     });
   }
 
