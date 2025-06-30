@@ -283,11 +283,17 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         nationality: new FormControl<NationalityInterface | null>(null, [
           Validators.required,
         ]),
-        country: new FormControl<CountryInterface | null>(null),
-        province: new FormControl<ProvinceInterface | null>(null),
-        locality: new FormControl<LocalityInterface | null>(null),
-        street: new FormControl<string | null>(""),
-        number: new FormControl<number | null>(null),
+        country: new FormControl<CountryInterface | null>(null, [
+          Validators.required,
+        ]),
+        province: new FormControl<ProvinceInterface | null>(null, [
+          Validators.required,
+        ]),
+        locality: new FormControl<LocalityInterface | null>(null, [
+          Validators.required,
+        ]),
+        street: new FormControl<string | null>("", [Validators.required]),
+        number: new FormControl<number | null>(null, [Validators.required]),
         floor: new FormControl<string | null>(null),
         apartment: new FormControl<string | null>(null),
         email: new FormControl<string>("", [
