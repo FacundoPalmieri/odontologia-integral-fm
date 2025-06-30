@@ -158,10 +158,8 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
               number: new FormControl<number | null>(null, [
                 Validators.required,
               ]),
-              floor: new FormControl<string | null>("", [Validators.required]),
-              apartment: new FormControl<string | null>("", [
-                Validators.required,
-              ]),
+              floor: new FormControl<string | null>(null),
+              apartment: new FormControl<string | null>(null),
               contactEmails: new FormControl<string>("", [
                 Validators.email,
                 Validators.required,

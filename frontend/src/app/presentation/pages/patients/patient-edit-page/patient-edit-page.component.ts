@@ -288,8 +288,8 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         locality: new FormControl<LocalityInterface | null>(null),
         street: new FormControl<string | null>(""),
         number: new FormControl<number | null>(null),
-        floor: new FormControl<string | null>(""),
-        apartment: new FormControl<string | null>(""),
+        floor: new FormControl<string | null>(null),
+        apartment: new FormControl<string | null>(null),
         email: new FormControl<string>("", [
           Validators.email,
           Validators.required,
