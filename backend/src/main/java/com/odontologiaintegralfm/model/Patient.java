@@ -36,6 +36,6 @@ public class Patient extends Auditable {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private HealthPlan healthPlan;
 
-    @Column(length = 20, unique = true, nullable = false)
+    @Column(length = 20, unique = true)
     private String affiliateNumber;
 }
