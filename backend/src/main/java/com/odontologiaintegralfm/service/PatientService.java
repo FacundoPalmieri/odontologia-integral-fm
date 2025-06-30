@@ -68,7 +68,9 @@ public class PatientService implements IPatientService {
     public Response<PatientResponseDTO> create(PatientCreateRequestDTO patientRequestDTO) {
         try{
             //Valída que no exista el n.° de afiliado del plan de salud.
-            validatePatient(patientRequestDTO.affiliateNumber());
+            if(patientRequestDTO.affiliateNumber() != null) {
+                validatePatient(patientRequestDTO.affiliateNumber());
+            }
 
             //Valída y crea una persona.
             Person person = personService.create(patientRequestDTO.person());
@@ -76,8 +78,11 @@ public class PatientService implements IPatientService {
             //Crea Paciente
             Patient patient = new Patient();
             patient.setPerson(person);
-            patient.setHealthPlan(healthPlanService.getById(patientRequestDTO.healthPlanId()));
-            patient.setAffiliateNumber(patientRequestDTO.affiliateNumber());
+            if(patientRequestDTO.healthPlanId() != null){
+                patient.setHealthPlan(healthPlanService.getById(patientRequestDTO.healthPlanId()));
+                patient.setAffiliateNumber(patientRequestDTO.affiliateNumber());
+            }
+
             patient.setCreatedAt(LocalDateTime.now());
             patient.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
             patient.setEnabled(true);
@@ -254,11 +259,17 @@ public class PatientService implements IPatientService {
      * @return DTO de respuesta con toda la información del paciente.
      */
     private PatientResponseDTO buildResponseDTO(Patient patient, Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTO){
-        return new PatientResponseDTO(
-            personService.convertToDTO(patient.getPerson()),
-                patient.getHealthPlan().getName(),
-                patient.getAffiliateNumber(),
-                patientMedicalRiskResponseDTO
-         );
+
+        PatientResponseDTO patientResponseDTO = new PatientResponseDTO();
+        patientResponseDTO.setPerson(personService.convertToDTO(patient.getPerson()));
+
+        if((patient.getHealthPlan() != null) || (patient.getAffiliateNumber() != null)){
+            patientResponseDTO.setHealthPlans(patient.getHealthPlan().getName());
+            patientResponseDTO.setAffiliateNumber(patient.getAffiliateNumber());
+        }
+
+        patientResponseDTO.setMedicalHistoryRisk(patientMedicalRiskResponseDTO);
+
+        return patientResponseDTO;
     }
 }

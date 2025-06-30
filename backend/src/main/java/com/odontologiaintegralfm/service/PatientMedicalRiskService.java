@@ -87,7 +87,7 @@ public class PatientMedicalRiskService implements IPatientMedicalRiskService {
             }
             return patientMedicalRisks;
         }catch (DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "PatientMedicalRiskService", patient.getId(),": <- ID Paciente", "create");
+            throw new DataBaseException(e, "PatientMedicalRiskService", patient.getId()," <- ID Paciente", "create");
         }
     }
 
