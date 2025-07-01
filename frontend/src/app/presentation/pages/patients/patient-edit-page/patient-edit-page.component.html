@@ -366,6 +366,17 @@
                   }}</mat-option>
                   }
                 </mat-select>
+                @if(patientForm.get('healthPlan')?.value){
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="patientForm.get('healthPlan')?.setValue(null)"
+                  aria-label="Borrar prepaga"
+                >
+                  <i-tabler class="text-red-500" name="xbox-x"></i-tabler>
+                </button>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="w-full !mb-0">
