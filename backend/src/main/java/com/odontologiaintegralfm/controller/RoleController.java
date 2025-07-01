@@ -51,7 +51,7 @@ public class RoleController {
 
 
     /**
-     * Lista todos los roles disponibles en el sistema.
+     * Lista los roles disponibles en el sistema, excluyendo el rol "Desarrollador".
      * <p>
      * Requiere el rol <b>DEV</b> para acceder.
      * </p>

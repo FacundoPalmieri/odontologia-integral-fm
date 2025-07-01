@@ -57,7 +57,7 @@ public class UserController {
 
 
     /**
-     * Lista todos los usuarios.
+     * Lista todos los usuarios Excluyendo a los Desarrolladores.
      * <p>Requiere rol <b>ADMIN</b> para acceder.</p>
      * @return ResponseEntity con:
      * <ul>
