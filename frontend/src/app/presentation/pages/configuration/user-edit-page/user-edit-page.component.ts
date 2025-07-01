@@ -123,6 +123,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   });
 
   userId: number | null = null;
+  maxDate = new Date();
 
   avatarUrl = signal<string | null>(null);
   showProfessionalData = signal(false);

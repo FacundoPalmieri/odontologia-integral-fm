@@ -83,6 +83,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   personDataService = inject(PersonDataService);
 
   patientForm: FormGroup = new FormGroup({});
+  maxDate = new Date();
   patientId: number | null = null;
   patient = signal<PatientInterface>({} as PatientInterface);
 

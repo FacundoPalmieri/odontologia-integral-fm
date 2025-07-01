@@ -73,6 +73,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
   personDataService = inject(PersonDataService);
 
   patientForm: FormGroup = new FormGroup({});
+  maxDate = new Date();
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
   private selectedAvatarFile: File | null = null;
@@ -193,6 +194,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
           "top",
           SnackbarTypeEnum.Success
         );
+        console.log(response);
         const personId = response.data.person.id;
         if (personId && this.selectedAvatarFile) {
           this.personDataService

@@ -124,8 +124,10 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       phone: new FormControl<string>("", [Validators.required]),
     }),
   });
+  maxDate = new Date();
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
+  private selectedAvatarFile: File | null = null;
 
   avatarUrl = signal<string | null>(null);
   showProfessionalData = signal(false);
@@ -261,6 +263,8 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
         this.userForm.markAsDirty();
       };
       reader.readAsDataURL(file);
+
+      this.selectedAvatarFile = file;
     }
   }
 
@@ -286,6 +290,24 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
           "top",
           SnackbarTypeEnum.Success
         );
+        const personId = response.data.person.id;
+        if (personId && this.selectedAvatarFile) {
+          this.personDataService
+            .setAvatar(personId, this.selectedAvatarFile!)
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+              next: () => {},
+              error: () => {
+                this.snackbarService.openSnackbar(
+                  "Error al cargar la imagen de perfil.",
+                  6000,
+                  "center",
+                  "bottom",
+                  SnackbarTypeEnum.Error
+                );
+              },
+            });
+        }
         this.router.navigate(["/configuration/users/edit/", response.data.id]);
       });
   }

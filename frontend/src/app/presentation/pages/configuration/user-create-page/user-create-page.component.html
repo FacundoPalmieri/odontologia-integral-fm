@@ -129,7 +129,7 @@
                       class="w-64 h-64 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden"
                     >
                       <img
-                        src="img/men-avatar.png"
+                        [src]="avatarUrl() ? avatarUrl() : 'img/men-avatar.png'"
                         class="w-full h-full object-cover"
                         alt="Avatar masculino por defecto"
                       />
@@ -230,6 +230,7 @@
                       <input
                         matInput
                         [matDatepicker]="picker"
+                        [max]="maxDate"
                         formControlName="birthDate"
                       />
                       <mat-datepicker-toggle
