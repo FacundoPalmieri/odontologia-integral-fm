@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.UserRole;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IUserRepository;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
 
  * Métodos disponibles:
  * <ul>
- *   <li>{@link IUserService#getAll()}: Recupera la lista de todos los usuarios del sistema.</li>
+ *   <li>{@link IUserService#getAll(int, int, String, String)}: Recupera la lista de todos los usuarios del sistema.</li>
  *   <li>{@link IUserService#getById(Long)}: Busca un usuario por su identificador único.</li>
  *   <li>{@link IUserService#create(UserSecCreateDTO)}: Guarda un nuevo usuario en la base de datos.</li>
  *   <li>{@link UserService#update(UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
@@ -105,7 +106,7 @@ public class UserService implements IUserService {
 
 
     /**
-     * Recupera la lista de todos los usuarios del sistema.
+     * Recupera la lista de todos los usuarios del sistema EXCLUIDOS los desarrolladores.
      * <p>
      * Este método obtiene todos los usuarios desde el repositorio {@link IUserRepository},
      * los convierte a objetos {@link UserSecResponseDTO} y los retorna dentro de un objeto {@link Response}.
@@ -130,36 +131,28 @@ public class UserService implements IUserService {
             Pageable pageable = PageRequest.of(page,size, sort);
 
             //Obtiene listado de usuarios.
-            Page<UserSec> userList = userRepository.findAll(pageable);
+            Page<UserSec> userList = userRepository.findAllExcludingDevelopers(UserRole.Desarrollador.toString(),pageable);
 
 
             Page<UserSecResponseDTO> userSecResponseDTOList = userList
                     .map(user -> {
+                        PersonResponseDTO personDTO = personService.convertToDTO(personService.getById(user.getPerson().getId()));
 
-                            PersonResponseDTO personDTO = null;
-                            DentistResponseDTO dentistDTO = null;
+                        Optional<Dentist> dentist = dentistService.getById(user.getPerson().getId());
 
-                            if (user.getPerson() != null) {
-                                personDTO = personService.convertToDTO(personService.getById(user.getPerson().getId()));
-
-
-                               Optional<Dentist> dentist = dentistService.getById(user.getPerson().getId());
-                               if(dentist.isPresent()){
-                                   dentistDTO = dentistService.convertToDTO(dentist.get());
-                               }
-
-
-                            }
-
-                            return new UserSecResponseDTO(
-                                    user.getId(),
-                                    user.getUsername(),
-                                    user.getRolesList(),
-                                    user.isEnabled(),
-                                    personDTO,
-                                    dentistDTO
-                            );
-            });
+                        DentistResponseDTO dentistDTO = null;
+                                if (dentist.isPresent()) {
+                                    dentistDTO = dentistService.convertToDTO(dentist.get());
+                                }
+                        return new UserSecResponseDTO(
+                                user.getId(),
+                                user.getUsername(),
+                                user.getRolesList(),
+                                user.isEnabled(),
+                                personDTO,
+                                dentistDTO
+                        );
+                    });
 
 
             String messageUser = messageService.getMessage("userService.getAll.ok", null, LocaleContextHolder.getLocale());

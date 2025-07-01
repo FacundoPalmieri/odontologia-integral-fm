@@ -4,6 +4,7 @@ import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.UserRole;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.Permission;
 import com.odontologiaintegralfm.model.Role;
@@ -63,7 +64,7 @@ public class RoleService implements IRoleService {
 
 
     /**
-     * Recupera todos los roles almacenados en la base de datos.
+     * Recupera todos los roles almacenados en la base de datos excpeto el rol DESARROLLADOR.
      * <p>
      * Este método obtiene la lista de roles desde el repositorio y la devuelve dentro de un objeto {@link Response}.
      * Además, genera un mensaje de éxito utilizando el servicio de mensajes {@link MessageService}.
@@ -79,7 +80,7 @@ public class RoleService implements IRoleService {
     @Override
     public Response<List<Role>> getAll() {
        try{
-           List<Role> roleList =  roleRepository.findAll();
+           List<Role> roleList =  roleRepository.findAllExcludingDevelopers(UserRole.Desarrollador.toString());
 
            String messageUser = messageService.getMessage("roleService.getAll.user.ok", null, LocaleContextHolder.getLocale());
            return new Response<>(true, messageUser, roleList);
