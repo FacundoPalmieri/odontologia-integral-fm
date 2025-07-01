@@ -86,17 +86,50 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
     rolesList: new FormControl<RoleInterface[] | null>(null, [
       Validators.required,
     ]),
+    person: new FormGroup({
+      id: new FormControl<number>(0, [Validators.required]),
+      firstName: new FormControl<string>("", [Validators.required]),
+      lastName: new FormControl<string>("", [Validators.required]),
+      dniType: new FormControl<DniTypeInterface | null>(null, [
+        Validators.required,
+      ]),
+      dni: new FormControl<string | null>("", [Validators.required]),
+      birthDate: new FormControl<Date | null>(null, [Validators.required]),
+      gender: new FormControl<GenderInterface | null>(null, [
+        Validators.required,
+      ]),
+      nationality: new FormControl<NationalityInterface | null>(null, [
+        Validators.required,
+      ]),
+      country: new FormControl<CountryInterface | null>(null, [
+        Validators.required,
+      ]),
+      province: new FormControl<ProvinceInterface | null>(null, [
+        Validators.required,
+      ]),
+      locality: new FormControl<LocalityInterface | null>(null, [
+        Validators.required,
+      ]),
+      street: new FormControl<string | null>("", [Validators.required]),
+      number: new FormControl<number | null>(null, [Validators.required]),
+      floor: new FormControl<string | null>(null),
+      apartment: new FormControl<string | null>(null),
+      contactEmails: new FormControl<string>("", [
+        Validators.email,
+        Validators.required,
+      ]),
+      phoneType: new FormControl<PhoneTypeInterface | null>(null, [
+        Validators.required,
+      ]),
+      phone: new FormControl<string>("", [Validators.required]),
+    }),
   });
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
 
   avatarUrl = signal<string | null>(null);
-  showAdditionalInfo = signal(false);
   showProfessionalData = signal(false);
-  showPersonForm = signal(false);
-
   hidePassword = signal(true);
-
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
@@ -113,88 +146,10 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       .get("rolesList")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((roles: RoleInterface[]) => {
-        const showPerson = roles?.some(
-          (role) =>
-            role.role === "Administrador" ||
-            role.role === "Odontólogo" ||
-            role.role === "Secretaria"
-        );
-        this.showPersonForm.set(showPerson);
-
         const hasDentistRole = roles?.some(
           (role) => role.role === "Odontólogo"
         );
         this.showProfessionalData.set(hasDentistRole);
-
-        if (showPerson && !this.userForm.get("person")) {
-          this.userForm.addControl(
-            "person",
-            new FormGroup({
-              firstName: new FormControl<string>("", [Validators.required]),
-              lastName: new FormControl<string>("", [Validators.required]),
-              dniType: new FormControl<DniTypeInterface | null>(null, [
-                Validators.required,
-              ]),
-              dni: new FormControl<string | null>("", [Validators.required]),
-              birthDate: new FormControl<Date | null>(null, [
-                Validators.required,
-              ]),
-              gender: new FormControl<GenderInterface | null>(null, [
-                Validators.required,
-              ]),
-              nationality: new FormControl<NationalityInterface | null>(null, [
-                Validators.required,
-              ]),
-              country: new FormControl<CountryInterface | null>(null, [
-                Validators.required,
-              ]),
-              province: new FormControl<ProvinceInterface | null>(null, [
-                Validators.required,
-              ]),
-              locality: new FormControl<LocalityInterface | null>(null, [
-                Validators.required,
-              ]),
-              street: new FormControl<string | null>("", [Validators.required]),
-              number: new FormControl<number | null>(null, [
-                Validators.required,
-              ]),
-              floor: new FormControl<string | null>(null),
-              apartment: new FormControl<string | null>(null),
-              contactEmails: new FormControl<string>("", [
-                Validators.email,
-                Validators.required,
-              ]),
-              phoneType: new FormControl<PhoneTypeInterface | null>(null, [
-                Validators.required,
-              ]),
-              phone: new FormControl<string>("", [Validators.required]),
-            })
-          );
-
-          this.userForm
-            .get("person.country")
-            ?.valueChanges.pipe(takeUntil(this._destroy$))
-            .subscribe((country: CountryInterface) => {
-              if (country) {
-                this._getProvincesByCountryId(country.id);
-              } else {
-                this.provinces.set([]);
-              }
-            });
-
-          this.userForm
-            .get("person.province")
-            ?.valueChanges.pipe(takeUntil(this._destroy$))
-            .subscribe((province: ProvinceInterface) => {
-              if (province) {
-                this._getLocalitiesByProvinceId(province.id);
-              } else {
-                this.localities.set([]);
-              }
-            });
-        } else if (!showPerson && this.userForm.get("person")) {
-          this.userForm.removeControl("person");
-        }
 
         if (hasDentistRole && !this.userForm.get("dentist")) {
           this.userForm.addControl(
@@ -222,6 +177,28 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
           .get("password2")
           ?.updateValueAndValidity({ emitEvent: false });
       });
+
+    this.userForm
+      .get("person.country")
+      ?.valueChanges.pipe(takeUntil(this._destroy$))
+      .subscribe((country: CountryInterface) => {
+        if (country) {
+          this._getProvincesByCountryId(country.id);
+        } else {
+          this.provinces.set([]);
+        }
+      });
+
+    this.userForm
+      .get("person.province")
+      ?.valueChanges.pipe(takeUntil(this._destroy$))
+      .subscribe((province: ProvinceInterface) => {
+        if (province) {
+          this._getLocalitiesByProvinceId(province.id);
+        } else {
+          this.localities.set([]);
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -231,10 +208,6 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.router.navigate(["/configuration"]);
-  }
-
-  toggleAdditionalInfo(): void {
-    this.showAdditionalInfo.update((value) => !value);
   }
 
   triggerFileInput(): void {
@@ -310,7 +283,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
           "Usuario creado correctamente",
           6000,
           "center",
-          "bottom",
+          "top",
           SnackbarTypeEnum.Success
         );
         this.router.navigate(["/configuration/users/edit/", response.data.id]);

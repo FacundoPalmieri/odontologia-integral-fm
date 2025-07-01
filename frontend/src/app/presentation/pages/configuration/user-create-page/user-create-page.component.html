@@ -112,23 +112,9 @@
               </div>
             </div>
           </div>
-          @if(!showPersonForm()){
-          <div class="flex justify-end">
-            <button
-              mat-flat-button
-              [disabled]="!userForm.valid"
-              (click)="create()"
-            >
-              <div class="flex items-center gap-2">
-                <span>Crear</span>
-              </div>
-            </button>
-          </div>
-          }
         </mat-card-content>
       </mat-card>
 
-      @if(showPersonForm()){
       <mat-card appearance="outlined" class="w-full">
         <mat-card-header>
           <mat-card-title>Datos Personales</mat-card-title>
@@ -154,11 +140,11 @@
                       <button mat-icon-button (click)="triggerFileInput()">
                         <i-tabler name="edit" class="text-white"></i-tabler>
                       </button>
-                      @if(avatarUrl()) {
+                      <!-- @if(avatarUrl()) {
                       <button mat-icon-button (click)="removeAvatar()">
                         <i-tabler name="trash" class="text-red-500"></i-tabler>
                       </button>
-                      }
+                      } -->
                     </div>
                     <input
                       #fileInput
@@ -568,7 +554,6 @@
           </div>
         </mat-card-content>
       </mat-card>
-      }
     </div>
   </form>
 </div>

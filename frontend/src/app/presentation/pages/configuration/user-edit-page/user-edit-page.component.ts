@@ -245,7 +245,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       this.snackbarService.openSnackbar(
-        "El archivo debe ser una imagen",
+        "El archivo debe ser una imagen.",
         6000,
         "center",
         "bottom",
@@ -278,10 +278,10 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
           },
           error: () => {
             this.snackbarService.openSnackbar(
-              "Error al actualizar la imgen de perfil.",
+              "Error al actualizar la imagen de perfil.",
               6000,
               "center",
-              "top",
+              "bottom",
               SnackbarTypeEnum.Error
             );
           },
@@ -300,10 +300,10 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       .update(user)
       .subscribe((response: ApiResponseInterface<UserDtoInterface>) => {
         this.snackbarService.openSnackbar(
-          "Usuario modificado correctamente",
+          "El usuario ha sido modificado.",
           6000,
           "center",
-          "bottom",
+          "top",
           SnackbarTypeEnum.Success
         );
         this.router.navigate(["/configuration/users/edit", response.data.id]);

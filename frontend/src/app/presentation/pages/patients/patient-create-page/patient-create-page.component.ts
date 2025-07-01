@@ -70,12 +70,12 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
   private readonly snackbarService = inject(SnackbarService);
   private readonly patientService = inject(PatientService);
   private readonly _destroy$ = new Subject<void>();
-
   personDataService = inject(PersonDataService);
+
   patientForm: FormGroup = new FormGroup({});
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
-
+  private selectedAvatarFile: File | null = null;
   avatarUrl = signal<string | null>(null);
 
   localities = signal<LocalityInterface[]>([]);
@@ -152,7 +152,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
     if (file) {
       if (!file.type.startsWith("image/")) {
         this.snackbarService.openSnackbar(
-          "El archivo debe ser una imagen",
+          "El archivo debe ser una imagen.",
           6000,
           "center",
           "bottom",
@@ -167,6 +167,8 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
         this.patientForm.markAsDirty();
       };
       reader.readAsDataURL(file);
+
+      this.selectedAvatarFile = file;
     }
   }
 
@@ -185,12 +187,30 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
       .create(patientValues)
       .subscribe((response: ApiResponseInterface<PatientDtoInterface>) => {
         this.snackbarService.openSnackbar(
-          "Paciente creado correctamente",
+          "El paciente ha sido creado con éxito.",
           6000,
           "center",
-          "bottom",
+          "top",
           SnackbarTypeEnum.Success
         );
+        const personId = response.data.person.id;
+        if (personId && this.selectedAvatarFile) {
+          this.personDataService
+            .setAvatar(personId, this.selectedAvatarFile!)
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+              next: () => {},
+              error: () => {
+                this.snackbarService.openSnackbar(
+                  "Error al cargar la imagen de perfil.",
+                  6000,
+                  "center",
+                  "bottom",
+                  SnackbarTypeEnum.Error
+                );
+              },
+            });
+        }
         this.router.navigate(["/patients/edit/", response.data.person.id]);
       });
   }

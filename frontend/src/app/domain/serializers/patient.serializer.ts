@@ -16,7 +16,6 @@ export class PatientSerializer {
   private personSerializer = new PersonSerializer();
 
   toCreateDto(patient: PatientInterface): PatientCreateDtoInterface {
-    console.log(patient);
     return {
       person: this.personSerializer.toCreateDto(patient.person),
       healthPlanId: patient.healthPlan?.id,
@@ -28,7 +27,6 @@ export class PatientSerializer {
   }
 
   toView(patient: PatientDtoInterface): PatientInterface {
-    console.log(patient);
     return {
       person: this.personSerializer.toView(patient.person),
       affiliateNumber: patient.affiliateNumber,

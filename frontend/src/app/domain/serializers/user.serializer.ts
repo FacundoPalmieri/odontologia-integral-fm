@@ -12,7 +12,6 @@ export class UserSerializer {
 
   toCreateDto(user: UserInterface): UserCreateDtoInterface {
     const dto: Partial<UserCreateDtoInterface> = {};
-    console.log(user);
     if (user.id) {
       dto.id = user.id;
     }

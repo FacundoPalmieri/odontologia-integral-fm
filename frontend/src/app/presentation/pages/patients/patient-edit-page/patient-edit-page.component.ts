@@ -205,7 +205,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.snackbarService.openSnackbar(
-              "Imagen de perfil actualizada correctamente.",
+              "Imagen de perfil actualizada.",
               6000,
               "center",
               "top",
@@ -255,7 +255,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             });
         } else {
           this.snackbarService.openSnackbar(
-            "Paciente modificado correctamente",
+            "El paciente ha sido modificado.",
             6000,
             "center",
             "bottom",
