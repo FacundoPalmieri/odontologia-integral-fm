@@ -194,14 +194,15 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
           "top",
           SnackbarTypeEnum.Success
         );
-        console.log(response);
+
         const personId = response.data.person.id;
         if (personId && this.selectedAvatarFile) {
           this.personDataService
             .setAvatar(personId, this.selectedAvatarFile!)
-            .pipe(takeUntil(this._destroy$))
             .subscribe({
-              next: () => {},
+              next: () => {
+                this.router.navigate(["/patients/edit/", personId]);
+              },
               error: () => {
                 this.snackbarService.openSnackbar(
                   "Error al cargar la imagen de perfil.",
@@ -210,10 +211,12 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
                   "bottom",
                   SnackbarTypeEnum.Error
                 );
+                this.router.navigate(["/patients/edit/", personId]);
               },
             });
+        } else {
+          this.router.navigate(["/patients/edit/", personId]);
         }
-        this.router.navigate(["/patients/edit/", response.data.person.id]);
       });
   }
 

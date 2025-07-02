@@ -334,7 +334,6 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
 
     this.patientService
       .getById(this.patientId)
-      .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<PatientInterface>) => {
         this.patient.set(response.data);
         this._populateForm(this.patient());
@@ -342,7 +341,6 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         if (response.data.person?.id) {
           this.personDataService
             .getAvatar(response.data.person.id)
-            .pipe(takeUntil(this._destroy$))
             .subscribe((avatar: string) => {
               this.avatarUrl.set(avatar);
             });

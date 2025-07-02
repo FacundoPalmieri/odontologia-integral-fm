@@ -294,9 +294,13 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
         if (personId && this.selectedAvatarFile) {
           this.personDataService
             .setAvatar(personId, this.selectedAvatarFile!)
-            .pipe(takeUntil(this._destroy$))
             .subscribe({
-              next: () => {},
+              next: () => {
+                this.router.navigate([
+                  "/configuration/users/edit/",
+                  response.data.id,
+                ]);
+              },
               error: () => {
                 this.snackbarService.openSnackbar(
                   "Error al cargar la imagen de perfil.",
@@ -305,10 +309,18 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
                   "bottom",
                   SnackbarTypeEnum.Error
                 );
+                this.router.navigate([
+                  "/configuration/users/edit/",
+                  response.data.id,
+                ]);
               },
             });
+        } else {
+          this.router.navigate([
+            "/configuration/users/edit/",
+            response.data.id,
+          ]);
         }
-        this.router.navigate(["/configuration/users/edit/", response.data.id]);
       });
   }
 

@@ -7,7 +7,7 @@ export interface DentistDtoInterface {
 }
 
 export interface DentistDataDtoInterface {
-  dentistSpecialty: DentistSpecialtyDtoInterface;
+  dentistSpecialty: string;
   licenseNumber: string;
 }
 

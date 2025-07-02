@@ -60,7 +60,7 @@ export class UserSerializer {
       dentist: {
         licenseNumber: user.dentist?.licenseNumber,
         dentistSpecialty: this._getDentistSpecialty(
-          user.dentist?.dentistSpecialty?.name
+          user.dentist?.dentistSpecialty
         ),
       },
     };
