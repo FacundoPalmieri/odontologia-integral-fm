@@ -126,8 +126,13 @@ public class PatientService implements IPatientService {
             patient.setPerson(person);
 
             //Actualiza datos del paciente
-            patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
-            patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
+            if(patientUpdateRequestDTO.healthPlanId() != null) {
+                patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
+                patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
+            }else{
+                patient.setAffiliateNumber(null);
+                patient.setHealthPlan(null);
+            }
 
 
             Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = new HashSet<PatientMedicalRiskResponseDTO>();
