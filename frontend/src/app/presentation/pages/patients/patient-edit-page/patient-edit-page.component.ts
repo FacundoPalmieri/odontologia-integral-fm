@@ -297,7 +297,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         number: new FormControl<number | null>(null, [Validators.required]),
         floor: new FormControl<string | null>(null),
         apartment: new FormControl<string | null>(null),
-        email: new FormControl<string>("", [
+        contactEmails: new FormControl<string>("", [
           Validators.email,
           Validators.required,
         ]),
@@ -368,7 +368,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         number: patient.person?.number,
         floor: patient.person?.floor,
         apartment: patient.person?.apartment,
-        email: patient.person?.contactEmails,
+        contactEmails: patient.person?.contactEmails,
         phoneType: patient.person?.phoneType,
         phone: patient.person?.phone,
       },

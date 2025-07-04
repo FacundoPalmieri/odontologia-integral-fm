@@ -194,12 +194,17 @@
                       <i-tabler name="mail"></i-tabler>
                       <span class="font-bold">Email</span>
                     </mat-label>
-                    <input type="mail" matInput formControlName="email" />
-                    @if(patientForm.get('email')?.hasError('required') &&
-                    patientForm.get('email')?.touched){
+                    <input
+                      type="mail"
+                      matInput
+                      formControlName="contactEmails"
+                    />
+                    @if(patientForm.get('contactEmails')?.hasError('required')
+                    && patientForm.get('contactEmails')?.touched){
                     <mat-error>Campo requerido</mat-error>
-                    } @if(patientForm.get('email')?.hasError('email') &&
-                    patientForm.get('email')?.touched){
+                    }
+                    @if(patientForm.get('contactEmails')?.hasError('contactEmails')
+                    && patientForm.get('contactEmails')?.touched){
                     <mat-error>El email no es válido</mat-error>
                     }
                   </mat-form-field>
