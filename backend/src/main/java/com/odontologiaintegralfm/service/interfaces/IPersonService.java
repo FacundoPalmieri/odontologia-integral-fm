@@ -75,6 +75,13 @@ public interface IPersonService {
      */
     UrlResource getAvatar (Long personId) throws IOException;
 
+    /**
+     * Elimina el avatar por ID de persona.
+     * @param personId: ID Persona
+     * @return objeto response.
+     * @throws IOException
+     */
+    Response<String> deleteAvatar (Long personId) throws IOException;
 
 
 }

@@ -92,7 +92,7 @@ public class PatientService implements IPatientService {
 
 
             //Crear Objeto Riegos médicos del paciente y persiste la misma.
-            Set <PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.create(patientRequestDTO.medicalRisk(),patient);
+            Set <PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.CreateOrUpdate(patient.getId(),patientRequestDTO.medicalRisk());
 
             //Crear Objeto Respuesta
             PatientResponseDTO patientResponseDTO = buildResponseDTO(patient, patientMedicalRiskResponseDTOS);
@@ -125,7 +125,7 @@ public class PatientService implements IPatientService {
             Person person = personService.update(patient.getPerson(), patientUpdateRequestDTO.person());
             patient.setPerson(person);
 
-            //Actualiza datos del paciente
+            //Actualiza datos del paciente.
             if(patientUpdateRequestDTO.healthPlanId() != null) {
                 patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
                 patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
@@ -134,11 +134,10 @@ public class PatientService implements IPatientService {
                 patient.setHealthPlan(null);
             }
 
-
+            //Actualiza lista de riesgos médicos.
             Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = new HashSet<PatientMedicalRiskResponseDTO>();
-            if(patientUpdateRequestDTO.medicalRisk() != null){
-               patientMedicalRiskResponseDTOS = patientMedicalRiskService.update(patient, patientUpdateRequestDTO.medicalRisk());
-            }
+            patientMedicalRiskResponseDTOS = patientMedicalRiskService.CreateOrUpdate(patient.getId(), patientUpdateRequestDTO.medicalRisk());
+
 
             //Cambios para auditoria.
             patient.setUpdatedAt(LocalDateTime.now());
@@ -180,7 +179,7 @@ public class PatientService implements IPatientService {
 
             Page<PatientResponseDTO> patientResponseDTOS = patients
                     .map(patient -> {
-                        Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatient(patient);
+                        Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatientIdAndEnabledTrue(patient.getId());
                         Set<PatientMedicalRiskResponseDTO> riskDTOs = patientMedicalRiskService.convertToDTO(risks);
                        return buildResponseDTO(patient,riskDTOs);
                     });
@@ -203,7 +202,7 @@ public class PatientService implements IPatientService {
             Patient patient = patientRepository.findById(id)
                     .orElseThrow(()-> new NotFoundException("exception.patientNotFound.user",null, "exception.patientNotFound.log", new Object[]{id, "PatientService", "getById"}, LogLevel.ERROR ));
 
-            Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatient(patient);
+            Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatientIdAndEnabledTrue(patient.getId());
             Set<PatientMedicalRiskResponseDTO> riskDTOs = patientMedicalRiskService.convertToDTO(risks);
 
             return new Response<>(true,null, buildResponseDTO(patient,riskDTOs));

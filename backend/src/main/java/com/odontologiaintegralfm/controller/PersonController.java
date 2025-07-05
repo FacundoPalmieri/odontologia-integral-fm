@@ -102,4 +102,36 @@ public class PersonController {
                 .body(avatar);
     }
 
+
+
+    /**
+     * Elimina la imágen de perfil de la persona.
+     * <p>
+     * Requiere el rol <b>AdmistratorAndSecretary</b> para acceder.
+     * </p>
+     *
+     * @param id de la persona.
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 OK</b>: Imágen Eliminada exitosamente.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         <li><b>404 Not Found</b>: Roles y/o permisos requeridos no encontrados.</li>
+     *         </ul>
+     */
+
+    @Operation(summary = "Eliminar Imágen", description = "Elimina la imágen de la persona.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Imágen Eliminada exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
+    })
+    @DeleteMapping("/{id}/avatar")
+    public ResponseEntity<Response<String>> deleteAvatar(@PathVariable Long id) throws IOException {
+        Response<String> response = personService.deleteAvatar(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
 }
