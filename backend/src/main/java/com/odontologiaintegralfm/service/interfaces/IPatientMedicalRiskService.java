@@ -20,27 +20,19 @@ public interface IPatientMedicalRiskService {
 
     /**
      *Método para obtener la lista de riesgo clínicos "Habilitados" de un paciente
-     * @param patient Paciente
+     * @param patientId Paciente
      * @return objeto PatientMedicalRisk
      */
-    Set<PatientMedicalRisk> getByPatient(Patient patient);
+    Set<PatientMedicalRisk> getByPatientIdAndEnabledTrue(Long patientId);
 
-
-    /**
-     * Método para crear riesgos médicos asociados a un paciente.
-     * @param patientMedicalRiskRequestDTO Objeto que contiene el ID y la observación del riesgo escrita por el profesional.
-     * @param patient paciente.
-     * @return Set<PatientMedicalRiskResponseDTO>
-     */
-    Set<PatientMedicalRiskResponseDTO> create(Set <PatientMedicalRiskRequestDTO> patientMedicalRiskRequestDTO, Patient patient);
 
     /**
      * Método para actualizar los riesgos médicos asociados a un paciente.
-     * @param patient paciente
+     * @param patientId Id del paciente
      * @param patientMedicalRiskRequestDTO Riesgos médicos del paciente
      * @return
      */
-    Set <PatientMedicalRiskResponseDTO> update(Patient patient, Set<PatientMedicalRiskRequestDTO> patientMedicalRiskRequestDTO);
+   Set<PatientMedicalRiskResponseDTO> CreateOrUpdate(Long patientId, Set<PatientMedicalRiskRequestDTO> patientMedicalRiskRequestDTO);
 
     /**
      * Método para convertir una Set de PatientMedicalRisk en un PatientMedicalRiskResponseDTO

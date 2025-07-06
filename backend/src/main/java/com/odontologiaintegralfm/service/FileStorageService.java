@@ -182,6 +182,25 @@ public class FileStorageService implements IFileStorageService {
         return new UrlResource(avatarPath.toUri());
     }
 
+
+
+    /**
+     * Método para eliminar una imagen
+     * @param person Id de la persona.
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public void deleteImage(Person person) throws IOException {
+        String previousAvatar = person.getAvatarUrl();
+        if (previousAvatar != null) {
+            Path previousPath = Paths.get(uploadDirImage, Paths.get(previousAvatar).getFileName().toString());
+            Files.deleteIfExists(previousPath);
+        }
+    }
+
+
+
     /**
      * Método para guardar un documento en formato PDF.
      *

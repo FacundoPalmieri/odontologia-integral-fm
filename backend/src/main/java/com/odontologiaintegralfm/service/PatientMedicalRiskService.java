@@ -3,18 +3,21 @@ package com.odontologiaintegralfm.service;
 import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.PatientMedicalRiskRequestDTO;
 import com.odontologiaintegralfm.dto.PatientMedicalRiskResponseDTO;
+import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.DataBaseException;
+import com.odontologiaintegralfm.exception.NotFoundException;
 import com.odontologiaintegralfm.model.PatientMedicalRisk;
 import com.odontologiaintegralfm.model.Patient;
 import com.odontologiaintegralfm.repository.IPatientMedicalRiskRepository;
+import com.odontologiaintegralfm.repository.IPatientRepository;
 import com.odontologiaintegralfm.service.interfaces.IPatientMedicalRiskService;
 import com.odontologiaintegralfm.service.interfaces.IMedicalRiskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
-import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,6 +35,9 @@ public class PatientMedicalRiskService implements IPatientMedicalRiskService {
 
     @Autowired
     private AuthenticatedUserService authenticatedUserService;
+
+    @Autowired
+    private IPatientRepository patientRepository;
 
 
     /**
@@ -52,44 +58,29 @@ public class PatientMedicalRiskService implements IPatientMedicalRiskService {
     /**
      * Método para obtener la lista de riesgo clínicos "Habilitados" por medio del ID de la historía clínica.
      *
-     * @param patient  paciente
+     * @param patientId  paciente
      * @return objeto PatientMedicalRisk
      */
     @Override
-    public Set<PatientMedicalRisk> getByPatient(Patient patient) {
+    public Set<PatientMedicalRisk> getByPatientIdAndEnabledTrue(Long patientId) {
         try{
-            return patientMedicalRiskRepository.findByPatient(patient);
+            return patientMedicalRiskRepository.findByPatientIdAndEnabledTrue(patientId);
         }catch (DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "PatientMedicalRiskService", patient.getId(), patient.getPerson().getLastName() + "," + patient.getPerson().getFirstName(), "getById");
+            throw new DataBaseException(e, "PatientMedicalRiskService", patientId, null, "getById");
 
         }
     }
 
-    /**
-     * Método para crear riesgos médicos asociados a un paciente.
-     * @param patientMedicalRiskRequestDTO Objeto que contiene el ID y la observación del riesgo escrita por el profesional.
-     * @param patient paciente.
-     * @return Set<PatientMedicalRiskResponseDTO>
-     */
-    @Override
-    @Transactional
-    public Set<PatientMedicalRiskResponseDTO> create(Set<PatientMedicalRiskRequestDTO> patientMedicalRiskRequestDTO, Patient patient) {
+
+    private Set<PatientMedicalRisk> getByPatientId(Long patientId) {
         try{
-            Set <PatientMedicalRiskResponseDTO> patientMedicalRisks = new HashSet<>();
-            for(PatientMedicalRiskRequestDTO dto : patientMedicalRiskRequestDTO){
-                PatientMedicalRisk patientMedicalRisk = build(dto.medicalRiskId(), patient, dto.observation());
-                patientMedicalRiskRepository.save(patientMedicalRisk);
-                patientMedicalRisks.add(new PatientMedicalRiskResponseDTO(
-                        patientMedicalRisk.getId(),
-                        patientMedicalRisk.getMedicalRisk().getName(),
-                        patientMedicalRisk.getObservation()
-                ));
-            }
-            return patientMedicalRisks;
+            return patientMedicalRiskRepository.findByPatientId(patientId);
         }catch (DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "PatientMedicalRiskService", patient.getId()," <- ID Paciente", "create");
+            throw new DataBaseException(e, "PatientMedicalRiskService", patientId, null, "getById");
+
         }
     }
+
 
     /**
      * Método para actualizar los riesgos médicos asociados a un paciente.
@@ -103,65 +94,133 @@ public class PatientMedicalRiskService implements IPatientMedicalRiskService {
      * </ul>
      *
      *
-     * @param patient
+     * @param patientId
      * @param patientMedicalRiskRequestDTO
      * @return
      */
     @Override
-    public Set<PatientMedicalRiskResponseDTO> update(Patient patient, Set<PatientMedicalRiskRequestDTO> patientMedicalRiskRequestDTO) {
+    public  Set<PatientMedicalRiskResponseDTO> CreateOrUpdate(Long patientId, Set<PatientMedicalRiskRequestDTO> patientMedicalRiskRequestDTO) {
 
         //Obtiene los riesgos médicos de un paciente.
-        Set<PatientMedicalRisk> currentRisks = getByPatient(patient);
+        Set<PatientMedicalRisk> currentRisks = getByPatientId(patientId);
 
-        //Compara si el ID del riesgo del DTO es igual a la BD. Si coincide, actualiza campos.
-        for(PatientMedicalRiskRequestDTO dto : patientMedicalRiskRequestDTO){
-            boolean exists = false;
-            for(PatientMedicalRisk currentRisk : currentRisks){
-                if(dto.medicalRiskId().equals(currentRisk.getMedicalRisk().getId())){
-                    currentRisk.setObservation(dto.observation());
-                    currentRisk.setUpdatedAt(LocalDateTime.now());
-                    currentRisk.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
-                    exists = true;
-                    break;
+        //Obtiene paciente
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(()-> new NotFoundException("exception.patientNotFound.user",null, "exception.patientNotFound.log", new Object[]{patientId, "PatientMedicalRiskService", "CreateOrUpdate"}, LogLevel.ERROR ));
+
+
+        //1. Si la nueva lista no tiene ningún riesgo médico y poseé riesgos previos, se deshabilitan todos.
+        if (patientMedicalRiskRequestDTO == null || patientMedicalRiskRequestDTO.isEmpty()) {
+            if(currentRisks != null){
+                for (PatientMedicalRisk risk : currentRisks) {
+                    if (risk.isEnabled()) {
+                        risk.setEnabled(false);
+                        risk.setUpdatedAt(LocalDateTime.now());
+                        risk.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+                        risk.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
+                        risk.setDisabledAt(LocalDateTime.now());
+                        patientMedicalRiskRepository.save(risk);
+                    }
                 }
-            }
 
-            //Si no coincide, crear el nuevo riesgo.
-            if(!exists){
-                PatientMedicalRisk patientMedicalRisk = build(dto.medicalRiskId(),patient,dto.observation());
-                patientMedicalRiskRepository.save(patientMedicalRisk);
-            }
-
-        }
-
-        //Realiza una nueva comparación para deshabilitar los riesgos de la BD que no están en el DTO.
-        for(PatientMedicalRisk risk : currentRisks){
-            boolean exists = false;
-            for(PatientMedicalRiskRequestDTO dto: patientMedicalRiskRequestDTO){
-                if(dto.medicalRiskId().equals(risk.getMedicalRisk().getId())){
-                    exists = true;
-                    break;
-                }
-            }
-            if(!exists){
-                risk.setEnabled(false);
-                risk.setUpdatedAt(LocalDateTime.now());
-                risk.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
-                risk.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
-                risk.setDisabledAt(LocalDateTime.now());
-                patientMedicalRiskRepository.save(risk);
+                // Retorno conjunto vacío porque ya no hay riesgos activos
+                return Collections.emptySet();
             }
         }
 
-        //Se realiza una nueva búsqueda actualizada desde la Base para retornar.
-        Set<PatientMedicalRisk> medicalHistoryRisk = getByPatient(patient);
 
-        return medicalHistoryRisk.stream()
-                .map(medicalHistoryRiskResponse -> new PatientMedicalRiskResponseDTO(
-                        medicalHistoryRiskResponse.getMedicalRisk().getId(),
-                        medicalHistoryRiskResponse.getMedicalRisk().getName(),
-                        medicalHistoryRiskResponse.getObservation()))
-                .collect(Collectors.toSet());
+        /*2. Si la lista tiene información y existen riesgos previos:
+             - Compara si el ID del riesgo del DTO es igual a la BD:
+              Si existe:
+                - Evalúa si está habilitado. En ese caso actualiza campos.
+                - Sino lo vuelve a hablitar.
+
+             Sino existe:
+             -Crea el nuevo riesgo.
+         */
+
+        if( ! currentRisks.isEmpty() ) {
+            for (PatientMedicalRiskRequestDTO dto : patientMedicalRiskRequestDTO) {
+                boolean exists = false;
+                for (PatientMedicalRisk currentRisk : currentRisks) {
+                    if (dto.medicalRiskId().equals(currentRisk.getMedicalRisk().getId())) {
+                        if(currentRisk.isEnabled()) {
+                            currentRisk.setObservation(dto.observation());
+                            currentRisk.setUpdatedAt(LocalDateTime.now());
+                            currentRisk.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+                            exists = true;
+                            break;
+                        }else{
+                            currentRisk.setEnabled(true);
+                            currentRisk.setDisabledAt(null);
+                            currentRisk.setDisabledBy(null);
+                            currentRisk.setObservation(dto.observation());
+                            exists = true;
+                            break;
+                        }
+
+                    }
+                }
+
+                //Si no coincide, crear el nuevo riesgo.
+                if (!exists) {
+                    PatientMedicalRisk patientMedicalRisk = build(dto.medicalRiskId(), patient, dto.observation());
+                    patientMedicalRiskRepository.save(patientMedicalRisk);
+                }
+
+            }
+
+
+            //Realiza una nueva comparación para deshabilitar los riesgos de la BD que no están en el DTO.
+            for (PatientMedicalRisk risk : currentRisks) {
+                boolean exists = false;
+                for (PatientMedicalRiskRequestDTO dto : patientMedicalRiskRequestDTO) {
+                    if (dto.medicalRiskId().equals(risk.getMedicalRisk().getId())) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    risk.setEnabled(false);
+                    risk.setUpdatedAt(LocalDateTime.now());
+                    risk.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+                    risk.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
+                    risk.setDisabledAt(LocalDateTime.now());
+                    patientMedicalRiskRepository.save(risk);
+                }
+            }
+
+            //Se realiza una nueva búsqueda actualizada desde la Base para retornar.
+            Set<PatientMedicalRisk> medicalHistoryRisk = getByPatientIdAndEnabledTrue(patientId);
+
+
+            return medicalHistoryRisk.stream()
+                    .map(medicalHistoryRiskResponse -> new PatientMedicalRiskResponseDTO(
+                            medicalHistoryRiskResponse.getMedicalRisk().getId(),
+                            medicalHistoryRiskResponse.getMedicalRisk().getName(),
+                            medicalHistoryRiskResponse.getObservation()))
+                    .collect(Collectors.toSet());
+
+
+
+        }else{
+            //3. Si la lista tiene información, pero no hay riesgos previos.
+            try{
+                Set <PatientMedicalRiskResponseDTO> patientMedicalRisks = new HashSet<>();
+                for(PatientMedicalRiskRequestDTO dto : patientMedicalRiskRequestDTO){
+                    PatientMedicalRisk patientMedicalRisk = build(dto.medicalRiskId(), patient, dto.observation());
+                    patientMedicalRiskRepository.save(patientMedicalRisk);
+                    patientMedicalRisks.add(new PatientMedicalRiskResponseDTO(
+                            patientMedicalRisk.getId(),
+                            patientMedicalRisk.getMedicalRisk().getName(),
+                            patientMedicalRisk.getObservation()
+                    ));
+                }
+                return patientMedicalRisks;
+            }catch (DataAccessException | CannotCreateTransactionException e){
+                throw new DataBaseException(e, "PatientMedicalRiskService", patient.getId()," <- ID Paciente", "CreateOrUpdate");
+            }
+        }
     }
 
     /**
