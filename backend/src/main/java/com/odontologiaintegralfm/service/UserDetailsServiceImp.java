@@ -226,7 +226,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * @throws ForbiddenException Si la cuenta ha sido bloqueada debido a intentos fallidos de inicio de sesión.
      */
     public Authentication authenticate (String username, String password) {
-        //Se recupera información del usuario por el username
+        //Se recupera información de todos los detalles del usuario por el username
         UserDetails userDetails = this.loadUserByUsername(username);
 
         // En caso que sea nulo, se informa que no se pudo encontrar al usuario.
