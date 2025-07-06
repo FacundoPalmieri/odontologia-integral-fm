@@ -31,6 +31,13 @@ public interface IFileStorageService {
     UrlResource getImage(Person person) throws IOException;
 
     /**
+     * Método para eliminar una imagen
+     * @param person Id de la persona.
+     * @throws IOException
+     */
+    void deleteImage(Person person) throws IOException;
+
+    /**
      * Método para guardar un documento en formato PDF.
      * @param file
      * @param person
@@ -62,4 +69,6 @@ public interface IFileStorageService {
      * @param file
      */
     void sizeVerification(MultipartFile file);
+
+
 }

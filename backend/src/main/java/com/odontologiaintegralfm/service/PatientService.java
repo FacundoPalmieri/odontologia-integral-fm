@@ -68,7 +68,9 @@ public class PatientService implements IPatientService {
     public Response<PatientResponseDTO> create(PatientCreateRequestDTO patientRequestDTO) {
         try{
             //Valída que no exista el n.° de afiliado del plan de salud.
-            validatePatient(patientRequestDTO.affiliateNumber());
+            if(patientRequestDTO.affiliateNumber() != null) {
+                validatePatient(patientRequestDTO.affiliateNumber());
+            }
 
             //Valída y crea una persona.
             Person person = personService.create(patientRequestDTO.person());
@@ -76,8 +78,11 @@ public class PatientService implements IPatientService {
             //Crea Paciente
             Patient patient = new Patient();
             patient.setPerson(person);
-            patient.setHealthPlan(healthPlanService.getById(patientRequestDTO.healthPlanId()));
-            patient.setAffiliateNumber(patientRequestDTO.affiliateNumber());
+            if(patientRequestDTO.healthPlanId() != null){
+                patient.setHealthPlan(healthPlanService.getById(patientRequestDTO.healthPlanId()));
+                patient.setAffiliateNumber(patientRequestDTO.affiliateNumber());
+            }
+
             patient.setCreatedAt(LocalDateTime.now());
             patient.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
             patient.setEnabled(true);
@@ -87,7 +92,7 @@ public class PatientService implements IPatientService {
 
 
             //Crear Objeto Riegos médicos del paciente y persiste la misma.
-            Set <PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.create(patientRequestDTO.medicalRisk(),patient);
+            Set <PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.CreateOrUpdate(patient.getId(),patientRequestDTO.medicalRisk());
 
             //Crear Objeto Respuesta
             PatientResponseDTO patientResponseDTO = buildResponseDTO(patient, patientMedicalRiskResponseDTOS);
@@ -120,15 +125,19 @@ public class PatientService implements IPatientService {
             Person person = personService.update(patient.getPerson(), patientUpdateRequestDTO.person());
             patient.setPerson(person);
 
-            //Actualiza datos del paciente
-            patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
-            patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
-
-
-            Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = new HashSet<PatientMedicalRiskResponseDTO>();
-            if(patientUpdateRequestDTO.medicalRisk() != null){
-               patientMedicalRiskResponseDTOS = patientMedicalRiskService.update(patient, patientUpdateRequestDTO.medicalRisk());
+            //Actualiza datos del paciente.
+            if(patientUpdateRequestDTO.healthPlanId() != null) {
+                patient.setAffiliateNumber(patientUpdateRequestDTO.affiliateNumber());
+                patient.setHealthPlan(healthPlanService.getById(patientUpdateRequestDTO.healthPlanId()));
+            }else{
+                patient.setAffiliateNumber(null);
+                patient.setHealthPlan(null);
             }
+
+            //Actualiza lista de riesgos médicos.
+            Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = new HashSet<PatientMedicalRiskResponseDTO>();
+            patientMedicalRiskResponseDTOS = patientMedicalRiskService.CreateOrUpdate(patient.getId(), patientUpdateRequestDTO.medicalRisk());
+
 
             //Cambios para auditoria.
             patient.setUpdatedAt(LocalDateTime.now());
@@ -170,7 +179,7 @@ public class PatientService implements IPatientService {
 
             Page<PatientResponseDTO> patientResponseDTOS = patients
                     .map(patient -> {
-                        Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatient(patient);
+                        Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatientIdAndEnabledTrue(patient.getId());
                         Set<PatientMedicalRiskResponseDTO> riskDTOs = patientMedicalRiskService.convertToDTO(risks);
                        return buildResponseDTO(patient,riskDTOs);
                     });
@@ -193,7 +202,7 @@ public class PatientService implements IPatientService {
             Patient patient = patientRepository.findById(id)
                     .orElseThrow(()-> new NotFoundException("exception.patientNotFound.user",null, "exception.patientNotFound.log", new Object[]{id, "PatientService", "getById"}, LogLevel.ERROR ));
 
-            Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatient(patient);
+            Set<PatientMedicalRisk> risks = patientMedicalRiskService.getByPatientIdAndEnabledTrue(patient.getId());
             Set<PatientMedicalRiskResponseDTO> riskDTOs = patientMedicalRiskService.convertToDTO(risks);
 
             return new Response<>(true,null, buildResponseDTO(patient,riskDTOs));
@@ -254,11 +263,17 @@ public class PatientService implements IPatientService {
      * @return DTO de respuesta con toda la información del paciente.
      */
     private PatientResponseDTO buildResponseDTO(Patient patient, Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTO){
-        return new PatientResponseDTO(
-            personService.convertToDTO(patient.getPerson()),
-                patient.getHealthPlan().getName(),
-                patient.getAffiliateNumber(),
-                patientMedicalRiskResponseDTO
-         );
+
+        PatientResponseDTO patientResponseDTO = new PatientResponseDTO();
+        patientResponseDTO.setPerson(personService.convertToDTO(patient.getPerson()));
+
+        if((patient.getHealthPlan() != null) || (patient.getAffiliateNumber() != null)){
+            patientResponseDTO.setHealthPlans(patient.getHealthPlan().getName());
+            patientResponseDTO.setAffiliateNumber(patient.getAffiliateNumber());
+        }
+
+        patientResponseDTO.setMedicalHistoryRisk(patientMedicalRiskResponseDTO);
+
+        return patientResponseDTO;
     }
 }

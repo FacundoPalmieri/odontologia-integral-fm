@@ -13,6 +13,7 @@ import com.odontologiaintegralfm.repository.IPersonRepository;
 import com.odontologiaintegralfm.service.interfaces.*;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -66,6 +68,9 @@ public class PersonService implements IPersonService {
 
     @Autowired
     private IFileStorageService fileStorageService;
+
+    @Autowired
+    private MessageService messageService;
 
     /**
      * Método para crear una Persona
@@ -232,7 +237,8 @@ public class PersonService implements IPersonService {
         person.setAvatarUrl(fileStorageService.saveImage(file, person));
         personRepository.save(person);
 
-        return new Response<>(true, null,person.getAvatarUrl());
+        String messageUser = messageService.getMessage("personService.saveAvatar.user.ok", null, LocaleContextHolder.getLocale());
+        return new Response<>(true, messageUser,person.getAvatarUrl());
     }
 
 
@@ -256,6 +262,27 @@ public class PersonService implements IPersonService {
         }
 
 
+    }
+
+    /**
+     * Elimina el avatar por ID de persona.
+     *
+     * @param personId : ID Persona
+     * @return objeto response.
+     * @throws IOException
+     */
+    @Override
+    public Response<String> deleteAvatar(Long personId) throws IOException {
+        try{
+            //Obtiene la persona
+            Person person = getById(personId);
+            fileStorageService.deleteImage(person);
+
+            String messageUser = messageService.getMessage("personService.deleteAvatar.user.ok",null, LocaleContextHolder.getLocale());
+            return new Response<>(true, messageUser,null);
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "PersonService", personId,"<-  Id de la persona", "deleteAvatar");
+        }
     }
 
 }

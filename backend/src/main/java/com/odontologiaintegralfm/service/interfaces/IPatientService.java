@@ -7,7 +7,6 @@ import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.Patient;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 
 /**
@@ -55,5 +54,7 @@ public interface IPatientService {
      * @return Una respuesta que contiene el objeto {@link PatientResponseDTO } del paciente
      */
     Response<PatientResponseDTO> getById(Long id);
+
+
 
 }

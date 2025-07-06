@@ -13,6 +13,8 @@ import java.util.Set;
 @Repository
 public interface IPatientMedicalRiskRepository extends JpaRepository<PatientMedicalRisk, Long> {
 
-    Set<PatientMedicalRisk> findByPatient(Patient patient);
+    Set<PatientMedicalRisk> findByPatientIdAndEnabledTrue(Long idPatient);
+
+    Set<PatientMedicalRisk> findByPatientId(Long idPatient);
 
 }

@@ -1,13 +1,16 @@
 package com.odontologiaintegralfm.dto;
 
 
+
+import lombok.Getter;
+import lombok.Setter;
 import java.util.Set;
 
-
-public record PatientResponseDTO(
-        PersonResponseDTO person,
-        String healthPlans,
-        String affiliateNumber,
-        Set<PatientMedicalRiskResponseDTO> medicalHistoryRisk
-) {
+@Getter
+@Setter
+public class  PatientResponseDTO{
+       private  PersonResponseDTO person;
+       private  String healthPlans;
+       private  String affiliateNumber;
+       private  Set<PatientMedicalRiskResponseDTO> medicalHistoryRisk;
 }
