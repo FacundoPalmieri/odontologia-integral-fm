@@ -85,12 +85,21 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     enabled: new FormControl<boolean>(false, [Validators.required]),
     person: new FormGroup({
       id: new FormControl<number>(0, [Validators.required]),
-      firstName: new FormControl<string>("", [Validators.required]),
-      lastName: new FormControl<string>("", [Validators.required]),
+      firstName: new FormControl<string>("", [
+        Validators.required,
+        Validators.maxLength(30),
+      ]),
+      lastName: new FormControl<string>("", [
+        Validators.required,
+        Validators.maxLength(30),
+      ]),
       dniType: new FormControl<DniTypeInterface | null>(null, [
         Validators.required,
       ]),
-      dni: new FormControl<string | null>("", [Validators.required]),
+      dni: new FormControl<string | null>("", [
+        Validators.required,
+        Validators.maxLength(30),
+      ]),
       birthDate: new FormControl<Date | null>(null, [Validators.required]),
       gender: new FormControl<GenderInterface | null>(null, [
         Validators.required,
@@ -107,18 +116,30 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       locality: new FormControl<LocalityInterface | null>(null, [
         Validators.required,
       ]),
-      street: new FormControl<string | null>("", [Validators.required]),
+      street: new FormControl<string | null>("", [
+        Validators.required,
+        Validators.maxLength(30),
+      ]),
       number: new FormControl<number | null>(null, [Validators.required]),
-      floor: new FormControl<string | null>(null),
-      apartment: new FormControl<string | null>(null),
+      floor: new FormControl<number | null>(null, [
+        Validators.min(0),
+        Validators.max(99),
+      ]),
+      apartment: new FormControl<string | null>(null, [
+        Validators.maxLength(2),
+      ]),
       contactEmails: new FormControl<string>("", [
         Validators.email,
         Validators.required,
+        Validators.maxLength(50),
       ]),
       phoneType: new FormControl<PhoneTypeInterface | null>(null, [
         Validators.required,
       ]),
-      phone: new FormControl<string>("", [Validators.required]),
+      phone: new FormControl<number | null>(null, [
+        Validators.required,
+        Validators.maxLength(20),
+      ]),
     }),
   });
 
@@ -164,6 +185,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
             new FormGroup({
               licenseNumber: new FormControl<string | null>("", [
                 Validators.required,
+                Validators.maxLength(30),
               ]),
               dentistSpecialty:
                 new FormControl<DentistSpecialtyInterface | null>(null, [

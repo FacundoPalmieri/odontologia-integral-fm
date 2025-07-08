@@ -168,6 +168,11 @@
                       && userForm.get('person.firstName')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
+                      @if(userForm.get('person.firstName')?.hasError('maxlength')){
+                      <mat-error>
+                        El nombre no puede superar los 30 caracteres.
+                      </mat-error>
+                      }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -179,6 +184,11 @@
                       @if(userForm.get('person.lastName')?.hasError('required')
                       && userForm.get('person.lastName')?.touched){
                       <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('person.lastName')?.hasError('maxlength')){
+                      <mat-error>
+                        El apellido no puede superar los 30 caracteres.
+                      </mat-error>
                       }
                     </mat-form-field>
                   </div>
@@ -216,6 +226,10 @@
                       @if(userForm.get('person.dni')?.hasError('required') &&
                       userForm.get('person.dni')?.touched){
                       <mat-error>Campo requerido</mat-error>
+                      } @if(userForm.get('person.dni')?.hasError('maxlength')){
+                      <mat-error>
+                        El valor del dni no puede superar los 30 caracteres.
+                      </mat-error>
                       }
                     </mat-form-field>
                   </div>
@@ -317,6 +331,11 @@
                       && userForm.get('person.contactEmails')?.touched){
                       <mat-error>El Email no es válido</mat-error>
                       }
+                      @if(userForm.get('person.contactEmails')?.hasError('maxlength')){
+                      <mat-error>
+                        El email no puede tener más de 50 caracteres.
+                      </mat-error>
+                      }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -353,6 +372,12 @@
                       @if(userForm.get('person.phone')?.hasError('required') &&
                       userForm.get('person.phone')?.touched){
                       <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('person.phone')?.hasError('maxlength')){
+                      <mat-error>
+                        El número de teléfono no puede tener más de 20
+                        caracteres.
+                      </mat-error>
                       }
                     </mat-form-field>
                   </div>
@@ -442,6 +467,12 @@
                       userForm.get('person.street')?.touched){
                       <mat-error>Campo requerido</mat-error>
                       }
+                      @if(userForm.get('person.street')?.hasError('maxlength')){
+                      <mat-error>
+                        El nombre de la calle no puede tener más de 30
+                        caracteres.
+                      </mat-error>
+                      }
                     </mat-form-field>
                   </div>
 
@@ -463,10 +494,12 @@
                         <i-tabler name="building"></i-tabler>
                         <span class="font-bold">Piso</span>
                       </mat-label>
-                      <input type="string" matInput formControlName="floor" />
-                      @if(userForm.get('person.floor')?.hasError('required') &&
-                      userForm.get('person.floor')?.touched){
-                      <mat-error>Campo requerido</mat-error>
+                      <input type="number" matInput formControlName="floor" />
+                      @if(userForm.get('person.floor')?.hasError('min') ||
+                      userForm.get('person.floor')?.hasError('max')){
+                      <mat-error>
+                        El piso no puede tener más de 2 caracteres.
+                      </mat-error>
                       }
                     </mat-form-field>
                   </div>
@@ -482,9 +515,10 @@
                         matInput
                         formControlName="apartment"
                       />
-                      @if(userForm.get('person.apartment')?.hasError('required')
-                      && userForm.get('person.apartment')?.touched){
-                      <mat-error>Campo requerido</mat-error>
+                      @if(userForm.get('person.apartment')?.hasError('maxlength')){
+                      <mat-error>
+                        El departamento no puede tener más de 2 caracteres.
+                      </mat-error>
                       }
                     </mat-form-field>
                   </div>
@@ -508,9 +542,15 @@
                         matInput
                         formControlName="licenseNumber"
                       />
-                      @if(userForm.get('licenseNumber')?.hasError('required') &&
-                      userForm.get('licenseNumber')?.touched){
+                      @if(userForm.get('dentist.licenseNumber')?.hasError('required')
+                      && userForm.get('dentist.licenseNumber')?.touched){
                       <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('dentist.licenseNumber')?.hasError('maxlength')){
+                      <mat-error>
+                        El número de licencia no puede tener más de 30
+                        caracteres.
+                      </mat-error>
                       }
                     </mat-form-field>
 

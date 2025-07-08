@@ -58,6 +58,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   permissions: string[] = [];
   private menuItems = PermissionFactory.createPermissions();
   filteredMenuItems: MenuItemInterface[] = [];
+  avatar: string | null = null;
 
   constructor() {}
 
@@ -70,6 +71,13 @@ export class HomeComponent implements OnInit, OnDestroy {
           });
         }
       });
+      if (this.userData.person?.id) {
+        this.personDataService
+          .getAvatar(this.userData.person.id)
+          .subscribe((avatar) => {
+            this.avatar = avatar;
+          });
+      }
       this.permissions = [...new Set(this.permissions)];
       this.filteredMenuItems = this.filterMenuItems();
     }

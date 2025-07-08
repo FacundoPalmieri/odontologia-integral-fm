@@ -70,6 +70,11 @@
                         && patientForm.get('firstName')?.touched){
                         <mat-error>Campo requerido</mat-error>
                         }
+                        @if(patientForm.get('person.firstName')?.hasError('maxlength')){
+                        <mat-error>
+                          El nombre no puede superar los 30 caracteres.
+                        </mat-error>
+                        }
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -85,6 +90,11 @@
                         @if(patientForm.get('lastName')?.hasError('required') &&
                         patientForm.get('lastName')?.touched){
                         <mat-error>Campo requerido</mat-error>
+                        }
+                        @if(patientForm.get('person.lastName')?.hasError('maxlength')){
+                        <mat-error>
+                          El apellido no puede superar los 30 caracteres.
+                        </mat-error>
                         }
                       </mat-form-field>
                     </div>
@@ -122,6 +132,11 @@
                         @if(patientForm.get('dni')?.hasError('required') &&
                         patientForm.get('dni')?.touched){
                         <mat-error>Campo requerido</mat-error>
+                        }
+                        @if(patientForm.get('person.dni')?.hasError('maxlength')){
+                        <mat-error>
+                          El dni no puede superar los 30 caracteres.
+                        </mat-error>
                         }
                       </mat-form-field>
                     </div>
@@ -222,6 +237,11 @@
                         patientForm.get('email')?.touched){
                         <mat-error>El email no es válido</mat-error>
                         }
+                        @if(patientForm.get('person.contactEmails')?.hasError('maxlength')){
+                        <mat-error>
+                          El email no puede tener más de 50 caracteres.
+                        </mat-error>
+                        }
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -254,10 +274,16 @@
                           <i-tabler name="phone"></i-tabler>
                           <span class="font-bold">Nro. Teléfono</span>
                         </mat-label>
-                        <input type="number" matInput formControlName="phone" />
+                        <input type="string" matInput formControlName="phone" />
                         @if(patientForm.get('phone')?.hasError('required') &&
                         patientForm.get('phone')?.touched){
                         <mat-error>Campo requerido</mat-error>
+                        }
+                        @if(patientForm.get('person.phone')?.hasError('maxlength')){
+                        <mat-error>
+                          El número de teléfono no puede tener más de 20
+                          caracteres.
+                        </mat-error>
                         }
                       </mat-form-field>
                     </div>
@@ -335,6 +361,16 @@
                           matInput
                           formControlName="street"
                         />
+                        @if(patientForm.get('person.street')?.hasError('required')
+                        && patientForm.get('person.street')?.touched){
+                        <mat-error>Campo requerido</mat-error>
+                        }
+                        @if(patientForm.get('person.street')?.hasError('maxlength')){
+                        <mat-error>
+                          El nombre de la calle no puede tener más de 30
+                          caracteres.
+                        </mat-error>
+                        }
                       </mat-form-field>
                     </div>
 
@@ -356,7 +392,13 @@
                           <i-tabler name="building"></i-tabler>
                           <span class="font-bold">Piso</span>
                         </mat-label>
-                        <input type="string" matInput formControlName="floor" />
+                        <input type="number" matInput formControlName="floor" />
+                        @if(patientForm.get('person.floor')?.hasError('min') ||
+                        patientForm.get('person.floor')?.hasError('max')){
+                        <mat-error>
+                          El piso no puede tener más de 2 caracteres.
+                        </mat-error>
+                        }
                       </mat-form-field>
                     </div>
 
@@ -371,6 +413,11 @@
                           matInput
                           formControlName="apartment"
                         />
+                        @if(patientForm.get('person.apartment')?.hasError('maxlength')){
+                        <mat-error>
+                          El departamento no puede tener más de 2 caracteres.
+                        </mat-error>
+                        }
                       </mat-form-field>
                     </div>
                   </div>
@@ -424,6 +471,11 @@
                     && patientForm.get('affiliateNumber')?.touched){
                     <mat-error>Campo requerido</mat-error>
                     }
+                    @if(patientForm.get('affiliateNumber')?.hasError('maxlength')){
+                    <mat-error>
+                      El número de afiliado no puede tener más de 20 caracteres.
+                    </mat-error>
+                    }
                   </mat-form-field>
                 </div>
               </div>
@@ -465,6 +517,7 @@
                       <textarea
                         matInput
                         formControlName="observation"
+                        maxlength="500"
                       ></textarea>
                     </mat-form-field>
 

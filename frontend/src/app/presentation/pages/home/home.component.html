@@ -60,7 +60,11 @@
 
       <button mat-button [matMenuTriggerFor]="menu">
         <div class="flex items-center gap-1">
-          <img src="img/doctor-avatar.png" alt="Avatar" class="avatar-icon" />
+          <img
+            [src]="avatar ? avatar : 'img/doctor-avatar.png'"
+            alt="Avatar"
+            class="avatar-icon"
+          />
           <i-tabler name="chevron-down"></i-tabler>
         </div>
       </button>
