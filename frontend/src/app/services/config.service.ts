@@ -66,6 +66,24 @@ export class ConfigService {
     );
   }
 
+  getCronSchedule(): Observable<ApiResponseInterface<string>> {
+    return this.http.get<ApiResponseInterface<string>>(
+      `${this.apiUrl}/config/schedule`
+    );
+  }
+
+  updateCronSchedule(
+    cronExpression: string
+  ): Observable<ApiResponseInterface<string>> {
+    return this.http.patch<ApiResponseInterface<string>>(
+      `${this.apiUrl}/config/schedule`,
+      {
+        id: 1, //El get tendría que retornarme el id para que lo pueda enviar en el patch
+        cronExpression: cronExpression,
+      }
+    );
+  }
+
   getMessages(): Observable<ApiResponseInterface<MessageInterface[]>> {
     return this.http
       .get<ApiResponseInterface<MessageDtoInterface[]>>(

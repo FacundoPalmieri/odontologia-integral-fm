@@ -77,6 +77,9 @@ export class SystemComponent implements OnDestroy {
       jwtExpiration: new FormControl<number>(0, [Validators.required]),
       attempts: new FormControl<number>(0, [Validators.required]),
       refreshTokenExpiration: new FormControl<number>(0, [Validators.required]),
+      cronExpressionScheduler: new FormControl<string>("", [
+        Validators.required,
+      ]),
     });
     this.loadInitialData();
 
@@ -99,6 +102,7 @@ export class SystemComponent implements OnDestroy {
     this._getMessages();
     this._getTokenExpirationTime();
     this._getRefreshTokenExpirationTime();
+    this._getCronSchedule();
     this._setupFilters();
   }
 
@@ -153,6 +157,24 @@ export class SystemComponent implements OnDestroy {
           SnackbarTypeEnum.Success
         );
         this._getRefreshTokenExpirationTime();
+      });
+  }
+
+  updateCronExpressionScheduler() {
+    const cronExpression = this.tokenForm.value.cronExpressionScheduler;
+
+    this.configService
+      .updateCronSchedule(cronExpression)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((response: ApiResponseInterface<string>) => {
+        this.snackbarService.openSnackbar(
+          response.message,
+          3000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Success
+        );
+        this._getCronSchedule();
       });
   }
 
@@ -228,6 +250,19 @@ export class SystemComponent implements OnDestroy {
         if (response.success) {
           this.tokenForm.patchValue({
             attempts: response.data,
+          });
+        }
+      });
+  }
+
+  private _getCronSchedule() {
+    this.configService
+      .getCronSchedule()
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((response: ApiResponseInterface<string>) => {
+        if (response.success) {
+          this.tokenForm.patchValue({
+            cronExpressionScheduler: response.data,
           });
         }
       });
