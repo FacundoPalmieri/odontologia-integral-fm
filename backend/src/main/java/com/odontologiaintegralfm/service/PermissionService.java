@@ -44,6 +44,8 @@ public class PermissionService implements IPermissionService {
 
     @Autowired
     private IMessageService messageService;
+    @Autowired
+    private ActionService actionService;
 
     /**
      * Recupera todos los permisos almacenados en la base de datos.
@@ -144,7 +146,6 @@ public class PermissionService implements IPermissionService {
              new NotFoundException("exception.refreshTokenConfigNotFoundException.user",null,"exception.refreshTokenConfigNotFoundException.log",new Object[]{id,"Refresh Token Config Service", "getExpiration"}, LogLevel.ERROR));
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"PermissionService", id, "","getByIdInternal");
-
         }
     }
 
@@ -168,7 +169,7 @@ public class PermissionService implements IPermissionService {
         permissionResponseDTO.setId(permission.getId());
         permissionResponseDTO.setPermission(permission.getPermission());
         permissionResponseDTO.setName(permission.getName());
-        permissionResponseDTO.setActions(permission.getActions());
+        permissionResponseDTO.setActions(actionService.convertToDTO(permission.getActions()));
         return permissionResponseDTO;
     }
 

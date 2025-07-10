@@ -3,15 +3,10 @@ import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.exception.ForbiddenException;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.UnauthorizedException;
-import com.odontologiaintegralfm.model.Person;
-import com.odontologiaintegralfm.model.RefreshToken;
-import com.odontologiaintegralfm.model.Role;
-import com.odontologiaintegralfm.model.UserSec;
+import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IUserRepository;
-import com.odontologiaintegralfm.service.interfaces.IMessageService;
-import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
+import com.odontologiaintegralfm.service.interfaces.*;
 import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
-import com.odontologiaintegralfm.service.interfaces.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -28,9 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 
 /**
@@ -86,8 +79,16 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
     @Autowired
     private IRefreshTokenService refreshTokenService;
+
     @Autowired
     private PersonService personService;
+
+    @Autowired
+    private IRolePermissionActionService rolePermissionActionService;
+
+    @Autowired
+    private IRoleService roleService;
+
 
 
     /**
@@ -105,8 +106,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
-
-
         //Se cuenta con usuario de tipo Usersec y se necesita devolver un tipo UserDetails
         //Se recupera el usuario de la bd
         UserSec userSec = userRepo.findUserEntityByUsername(username)
@@ -118,14 +117,24 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
 
         //Se obtiene roles y los convertimos en SimpleGrantedAuthority para poder agregarlos a la authorityList
-        userSec.getRolesList()
-                .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getRole()))));
+        for (Role role : userSec.getRolesList()) {
 
+            // Arma el árbol de respuesta entre rol, permisos y acciones.
+            RoleResponseDTO roleResponseDTO = roleService.getFullByRoleId(role.getId());
 
-        //Se obtiene los permisos y los agregamos a la lista.
-        userSec.getRolesList().stream()
-                .flatMap(role -> role.getPermissionsList().stream()) //acá recorro los permisos de los roles
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermission())));
+            // 1. Agregamos el rol como autoridad
+            authorityList.add(new SimpleGrantedAuthority("ROLE_" + roleResponseDTO.getRole()));
+
+            // 2. Por cada permiso y su lista de acciones, agregamos cada combinación como autoridad
+            roleResponseDTO.getPermissionsList().forEach(permissionDTO -> {
+                String permission = permissionDTO.getPermission().toUpperCase();
+
+                permissionDTO.getActions().forEach(actionDTO -> {
+                    String action = actionDTO.getAction().toUpperCase();
+                    authorityList.add(new SimpleGrantedAuthority("PERMISO_" + permission + "_" + action));
+                });
+            });
+        }
 
         //Se retorna el usuario en formato Spring Security con los datos del userSec
         return new User(
@@ -138,7 +147,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
                 authorityList
         );
     }
-
 
 
 
@@ -171,16 +179,15 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Obtiene datos del usuario desde la base de datos.
             UserSec userSec = userService.getByUsername(username);
 
+
             //
             PersonResponseDTO personResponseDTO = null;
             if (userSec.getPerson() != null) {
                 personResponseDTO = personService.convertToDTO(userSec.getPerson());
             }
 
-
             // Elimina el RefreshToken anterior.
             refreshTokenService.deleteRefreshToken(userSec.getId());
-
 
             //Crea el JWT
             String accessToken = jwtUtils.createToken(authentication);
@@ -188,15 +195,18 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Crea el RefreshToken
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
 
+            Set<RoleResponseDTO> roleSet = new HashSet<>();
+            //Arma el árbol de roles, permisos y acciones.
+            for(Role role : userSec.getRolesList()) {
+                RoleResponseDTO roleResponseDTO = roleService.getFullByRoleId(role.getId());
+                roleSet.add(roleResponseDTO);
+            }
 
             //Construye el DTO para respuesta
             AuthLoginResponseDTO authLoginResponseDTO = AuthLoginResponseDTO.builder()
                     .idUser(userSec.getId())
                     .username(userSec.getUsername())
-                    .roles(userSec.getRolesList().stream()
-                            .map(role -> new Role(role.getId(), role.getRole(), role.getPermissionsList()))
-                            .collect(Collectors.toSet())
-                    )
+                    .roles(roleSet)
                     .jwt(accessToken)
                     .refreshToken(refreshToken.getRefreshToken())
                     .person(personResponseDTO)
@@ -339,7 +349,5 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
         return new Response<>(true,message ,null);
     }
-
-
 
 }

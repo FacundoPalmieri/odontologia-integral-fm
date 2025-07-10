@@ -23,13 +23,37 @@ public interface IRoleService {
 
 
     /**
-     * Obtiene un rol por su ID.
+     * Método para obtener los permisos y acciones asociados a un Rol específico.
+     * A partir del Id de un rol del usuario, este método obtiene todas las combinaciones
+     * {@code RolePermissionAction} asociadas a cada rol, y agrupa las acciones por permiso
+     * y los permisos por rol. El resultado es una lista de {@code RoleResponseDTO}, donde cada
+     * rol contiene sus permisos y cada permiso contiene sus acciones correspondientes.
      *
-     * @param id El ID del rol que se desea obtener.
-     * @return Un objeto {@link Response} que contiene el rol correspondiente al ID especificado
-     *         como un {@link RoleResponseDTO}.
+     * <p>Ejemplo de estructura devuelta:</p>
+     * <pre>
+     * [
+     *   {
+     *     "id": 1,
+     *     "role": "ADMIN",
+     *     "permissionsList": [
+     *       {
+     *         "id": 10,
+     *         "permission": "USERS",
+     *         "name": "Gestión de usuarios",
+     *         "actions": [
+     *           { "id": 100, "action": "READ" },
+     *           { "id": 101, "action": "WRITE" }
+     *         ]
+     *       }
+     *     ]
+     *   }
+     * ]
+     * </pre>
+     *
+     * @param idRole
+     * @return
      */
-    Response<RoleResponseDTO> getById(Long id);
+    RoleResponseDTO getFullByRoleId(Long idRole);
 
 
 

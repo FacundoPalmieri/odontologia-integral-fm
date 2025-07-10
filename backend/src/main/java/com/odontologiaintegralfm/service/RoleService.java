@@ -1,26 +1,24 @@
 package com.odontologiaintegralfm.service;
 
-import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.RoleRequestDTO;
-import com.odontologiaintegralfm.dto.RoleResponseDTO;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.enums.UserRole;
 import com.odontologiaintegralfm.exception.*;
+import com.odontologiaintegralfm.model.Action;
 import com.odontologiaintegralfm.model.Permission;
 import com.odontologiaintegralfm.model.Role;
+import com.odontologiaintegralfm.model.RolePermissionAction;
 import com.odontologiaintegralfm.repository.IRoleRepository;
-import com.odontologiaintegralfm.service.interfaces.IMessageService;
-import com.odontologiaintegralfm.service.interfaces.IPermissionService;
-import com.odontologiaintegralfm.service.interfaces.IRoleService;
+import com.odontologiaintegralfm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -62,6 +60,12 @@ public class RoleService implements IRoleService {
     @Autowired
     private IMessageService messageService;
 
+    @Autowired
+    private IRolePermissionActionService rolePermissionActionService;
+
+    @Autowired
+    private ActionService actionService;
+
 
     /**
      * Recupera todos los roles almacenados en la base de datos excpeto el rol DESARROLLADOR.
@@ -92,42 +96,82 @@ public class RoleService implements IRoleService {
     }
 
 
-
     /**
-     * Obtiene un rol por su identificador único y devuelve la información al endpoint.
-     * <p>
-     * Este método busca un rol en la base de datos mediante su ID. Si el rol existe,
-     * se convierte a un objeto {@link RoleResponseDTO} y se devuelve dentro de un
-     * objeto {@link Response}, junto con un mensaje de éxito obtenido del servicio de mensajes.
-     * </p>
-     * <p>
-     * Si el rol no se encuentra, lanza una excepción {@link NotFoundException}.
-     * En caso de error de acceso a la base de datos o de transacción, lanza una excepción {@link DataBaseException}.
-     * </p>
+     * Método para obtener los permisos y acciones asociados a un Rol específico.
+     * A partir de la lista de roles del usuario, este método obtiene todas las combinaciones
+     * {@code RolePermissionAction} asociadas a cada rol, y agrupa las acciones por permiso
+     * y los permisos por rol. El resultado es una lista de {@code RoleResponseDTO}, donde cada
+     * rol contiene sus permisos y cada permiso contiene sus acciones correspondientes.
      *
-     * @param id El identificador único del rol a buscar.
-     * @return Un objeto {@link Response} que contiene el rol en formato {@link RoleResponseDTO}.
-     * @throws NotFoundException Si no se encuentra un rol con el ID especificado.
-     * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
+     * <p>Ejemplo de estructura devuelta:</p>
+     * <pre>
+     * [
+     *   {
+     *     "id": 1,
+     *     "role": "ADMIN",
+     *     "permissionsList": [
+     *       {
+     *         "id": 10,
+     *         "permission": "USERS",
+     *         "name": "Gestión de usuarios",
+     *         "actions": [
+     *           { "id": 100, "action": "READ" },
+     *           { "id": 101, "action": "WRITE" }
+     *         ]
+     *       }
+     *     ]
+     *   }
+     * ]
+     * </pre>
+     *
+     * @param idRole
+     * @return
      */
-
     @Override
-    public Response<RoleResponseDTO> getById(Long id) {
-        try{
-              Optional<Role> role = roleRepository.findById(id);
-              if(role.isPresent()){
-                  RoleResponseDTO dto = convertToDTOResponse(role.get());
+    public RoleResponseDTO getFullByRoleId(Long idRole) {
 
-                  String messageUser = messageService.getMessage("roleService.getById.user.ok", null, LocaleContextHolder.getLocale());
-                  return new Response<>(true, messageUser, dto);
-              }else{
-                  throw new NotFoundException("exception.roleNotFound.user",null,"exception.roleNotFound.log", new Object[]{id,"RoleService", "getById" }, LogLevel.ERROR);
-              }
+        //Obtiene la entidad
+        Role role = this.getByIdInternal(idRole);
 
-        }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", id, "", "getById");
+        //Obtiene la relación persistida desde la base de datos.
+        Set<RolePermissionAction> savedRolePermissionAction = rolePermissionActionService.getAllByRoleId(role.getId());
+
+        // Mapa para agrupar acciones por permiso
+        Map<Long, PermissionResponseDTO> permissionMap = new HashMap<>();
+
+        for(RolePermissionAction rpa : savedRolePermissionAction){
+            Long permissionId = rpa.getPermission().getId();
+
+            // Si no existe el permiso en el mapa, lo agrego
+            permissionMap.putIfAbsent(permissionId, new PermissionResponseDTO(
+                    permissionId,
+                    rpa.getPermission().getPermission(),
+                    rpa.getPermission().getName(),
+                    new HashSet<>()
+            ));
+
+            // Agrego acción al permiso correspondiente
+            PermissionResponseDTO permDTO = permissionMap.get(permissionId);
+            permDTO.getActions().add(new ActionResponseDTO(
+                    rpa.getAction().getId(),
+                    rpa.getAction().getAction()
+            ));
 
         }
+
+        // Ordena los PermissionResponseDTO por ID y los agrega a un LinkedHashSet para mantener el orden
+        Set<PermissionResponseDTO> sortedPermissions = permissionMap.values().stream()
+                .sorted(Comparator.comparing(PermissionResponseDTO::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+
+        // Armo el role con su lista de permisos
+        RoleResponseDTO roleResponseDTO = new RoleResponseDTO();
+        roleResponseDTO.setId(role.getId());
+        roleResponseDTO.setRole(role.getRole());
+        roleResponseDTO.setPermissionsList(sortedPermissions);
+
+        return roleResponseDTO;
     }
 
 
@@ -149,7 +193,6 @@ public class RoleService implements IRoleService {
      */
     @Override
     public Role getByIdInternal(Long id) {
-
         try{
             return roleRepository.findById(id).orElseThrow(()->
                     new BadRequestException("exception.roleNotFoundUserCreationException.user",null,"exception.roleNotFoundUserCreationException.log",new Object[]{id,"RoleService", "getByIdInternal"},LogLevel.ERROR));
@@ -183,26 +226,35 @@ public class RoleService implements IRoleService {
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
+    @Transactional
     public Response<RoleResponseDTO> create(RoleRequestDTO roleRequestDto) {
-
-        //Valída que el rol no exista en la base de datos.
-        validateRoleNotExist(roleRequestDto.getRole());
-
-        //Asigna permisos al rol
-        roleRequestDto.setPermissionsList(getPermissionForRole(roleRequestDto.getPermissionsList()));
-
-        //Se construye el Objeto model
-        Role role = buildRole(roleRequestDto);
-
         try{
-            //Guarda el objeto en la base de datos.
+            //Valída que el rol no exista en la base de datos.
+            validateRoleNotExist(roleRequestDto.getRole());
+
+            //Se construye el Objeto model
+            Role role = buildRole(roleRequestDto);
+
+            //Guarda el rol en la base de datos.
             Role savedRole = roleRepository.save(role);
 
-            //Conviente la entidad a un DTO
-            RoleResponseDTO savedRoleDto = convertToDTOResponse(savedRole);
+            //Persiste la relación entre Rol, permiso y acción.
+            RolePermissionAction rolePermissionAction = new RolePermissionAction();
+            for (PermissionActionRequestDTO permissionAction: roleRequestDto.getPermissionsList()) {
+                Permission permission = permissionService.getByIdInternal(permissionAction.getPermissionId());
+                rolePermissionAction.setRole(role);
+                rolePermissionAction.setPermission(permission);
+                for(Action action: permission.getActions()){
+                    rolePermissionAction.setAction(action);
+                    rolePermissionActionService.create(rolePermissionAction);
+                }
+            }
+
+            // Arma el árbol de respuesta entre rol, permisos y acciones.
+            RoleResponseDTO roleResponseDTO = this.getFullByRoleId(savedRole.getId());
 
             String messageUser = messageService.getMessage("roleService.save.ok", null, LocaleContextHolder.getLocale());
-            return new Response<>(true, messageUser, savedRoleDto);
+            return new Response<>(true, messageUser, roleResponseDTO);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "save");
@@ -219,41 +271,33 @@ public class RoleService implements IRoleService {
      */
     @Override
     public Response<RoleResponseDTO> update(RoleRequestDTO roleRequestDto) {
-
-        //Valída que el rol exista en la base de datos.
-        Role role = validateRoleExist(roleRequestDto.getRole());
-
-        //Se limpia la lista de permisos
-        role.getPermissionsList().clear();
-
-        //Actualiza en el objeto role la lista obtenida de base de datos con la lista que poseé el DTO.
-        role.setPermissionsList(roleRequestDto.getPermissionsList());
-
-        //Valída que existan todos los permisos del DTO en la base de datos.
-        roleRequestDto.getPermissionsList()
-                .forEach(permissionId -> {
-                    permissionService.getByIdInternal(permissionId.getId());
-                });
-
         try{
-            //Guarda el objeto en la base de datos.
-            Role savedRole = roleRepository.save(role);
+            //Valída que el rol exista en la base de datos.
+            Role role = validateRoleExist(roleRequestDto.getRole());
 
-            //Conviente la entidad a un DTO
-            RoleResponseDTO savedRoleDto = convertToDTOResponse(savedRole);
+            //Elimina las relaciones anteriores entre Rol, Permisos y acciones.
+            rolePermissionActionService.deleteByRoleId(role.getId());
+
+            //Valída que existan todos los permisos del DTO en la base de datos.
+            roleRequestDto.getPermissionsList()
+                    .forEach(permissionId -> {
+                        permissionService.getByIdInternal(permissionId.getPermissionId());
+                    });
+
+            //Crea las nuevas relaciones.
+            rolePermissionActionService.buildRelationByRole(role, roleRequestDto.getPermissionsList());
+
+            // Arma el árbol de respuesta entre rol, permisos y acciones.
+            RoleResponseDTO roleResponseDTO = this.getFullByRoleId(role.getId());
 
             String messageUser = messageService.getMessage("roleService.update.ok", null, LocaleContextHolder.getLocale());
-            return new Response<>(true, messageUser, savedRoleDto);
+            return new Response<>(true, messageUser, roleResponseDTO);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "update");
 
         }
     }
-
-
-
-
 
 
 
@@ -292,50 +336,6 @@ public class RoleService implements IRoleService {
     }
 
 
-
-
-    /**
-     * Convierte una entidad {@link Role} a un objeto de transferencia de datos (DTO) {@link RoleResponseDTO}.
-     * <p>
-     * Este método transfiere los datos desde la entidad {@link Role} hacia un objeto {@link RoleResponseDTO}.
-     * Los datos transferidos incluyen el ID del rol, el nombre del rol y la lista de permisos asociados a dicho rol.
-     * </p>
-     *
-     * @param role La entidad {@link Role} a convertir.
-     * @return Un objeto {@link RoleResponseDTO} que contiene los datos de la entidad {@link Role}.
-     */
-    private RoleResponseDTO convertToDTOResponse(Role role) {
-        RoleResponseDTO roleDTO = new RoleResponseDTO();
-        roleDTO.setId(role.getId());
-        roleDTO.setPermissionsList(role.getPermissionsList());
-        return roleDTO;
-    }
-
-
-
-
-    /**
-     * Recupera y valida un conjunto de permisos para un rol.
-     * <p>
-     * Este método toma un conjunto de permisos, busca cada uno en el sistema usando su ID, y los agrega a un conjunto de permisos válidos.
-     * Si un permiso no se encuentra, se lanza una excepción {@link BadRequestException}.
-     * </p>
-     *
-     * @param permissions Un conjunto de permisos que se desea asignar al rol.
-     * @return Un conjunto {@link Set} de permisos válidos que se han encontrado en el sistema.
-     * @throws BadRequestException Si no se encuentra un permiso con el ID proporcionado.
-     */
-    private Set<Permission> getPermissionForRole(Set<Permission> permissions) {
-        Set<Permission> validPermission = new HashSet<>();
-        for (Permission permission : permissions) {
-            Permission foundPermission = permissionService.getByIdInternal(permission.getId());
-            validPermission.add(foundPermission);
-        }
-        return validPermission;
-    }
-
-
-
     /**
      * Construye una entidad {@link Role} a partir de un objeto {@link RoleRequestDTO}.
      * <p>
@@ -349,23 +349,9 @@ public class RoleService implements IRoleService {
     private Role buildRole(RoleRequestDTO roleRequestDto) {
         return Role.builder()
                 .role(roleRequestDto.getRole())
-                .permissionsList(roleRequestDto.getPermissionsList())
                 .build();
     }
 
 
 
-    /*
-
-    @Override
-    public void deleteById(Long id) {
-        try{
-            roleRepository.deleteById(id);
-        }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", id, "", "delete");
-
-        }
-    }
-
-    */
 }

@@ -92,6 +92,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
                 //si el token es válido, le concedemos el acceso
                 String username = jwtUtils.extractUsername(decodedJWT);
+
                 //me devuelve claim, necesito pasarlo a String
                 String authorities = jwtUtils.getSpecificClaim(decodedJWT, "authorities").asString();
 

@@ -118,7 +118,7 @@ public class JwtUtils {
             // Configurar el verificador del token con el emisor esperado
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer(this.userGenerator)
-                    .build(); //usa patrón builder
+                    .build();
 
             // Si el token es válido, se decodifica y se devuelve el objeto DecodedJWT
             DecodedJWT decodedJWT = verifier.verify(token);
@@ -165,20 +165,4 @@ public class JwtUtils {
     }
 
 
-    /**
-     * Devuelve todos los claims de un token JWT decodificado.
-     * <p>
-     * Este método extrae todos los claims del token JWT decodificado. Los claims son pares clave-valor
-     * que contienen información adicional sobre el token, y este método devuelve todos los claims presentes
-     * en el token como un mapa de clave-valor.
-     * </p>
-     *
-     * @param decodedJWT El objeto {@link DecodedJWT} que contiene el token JWT decodificado.
-     * @return Un {@link Map} que contiene todos los claims del token, donde la clave es el nombre del claim
-     *         y el valor es el {@link Claim} asociado.
-     * @throws NullPointerException Si el token JWT es nulo.
-     */
-    public Map<String, Claim> returnAllClaims (DecodedJWT decodedJWT){
-        return decodedJWT.getClaims();
-    }
 }

@@ -4,7 +4,6 @@ import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.dto.RoleResponseDTO;
 import com.odontologiaintegralfm.model.Role;
-import com.odontologiaintegralfm.service.interfaces.IPermissionService;
 import com.odontologiaintegralfm.service.interfaces.IRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,10 +45,6 @@ public class RoleController {
     @Autowired
     private IRoleService roleService;
 
-    @Autowired
-    private IPermissionService permiService;
-
-
     /**
      * Lista los roles disponibles en el sistema, excluyendo el rol "Desarrollador".
      * <p>
@@ -71,7 +66,7 @@ public class RoleController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    public ResponseEntity<Response<List<Role>>> getAllRoles() {
+    public ResponseEntity<Response<List<Role>>> getAll() {
         Response<List<Role>> response = roleService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -101,9 +96,9 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Rol no encontrado."),
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Response<RoleResponseDTO>> getRoleById(@Valid @PathVariable Long id) {
-        Response<RoleResponseDTO> response = roleService.getById(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<Response<RoleResponseDTO>> getFull(@Valid @PathVariable Long id) {
+        RoleResponseDTO roleResponseDTO = roleService.getFullByRoleId(id);
+        return new ResponseEntity<>(new Response<>(true, null, roleResponseDTO), HttpStatus.OK);
     }
 
 

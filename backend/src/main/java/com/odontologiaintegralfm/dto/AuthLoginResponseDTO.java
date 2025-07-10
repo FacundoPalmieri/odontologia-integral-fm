@@ -16,7 +16,7 @@ public class AuthLoginResponseDTO {
 
     private Long idUser;
     private String username;
-    private Set<Role> roles; // Lista de Roles
+    private Set<RoleResponseDTO> roles; // Lista de Roles
     private String jwt;
     private String refreshToken;
     private PersonResponseDTO person;

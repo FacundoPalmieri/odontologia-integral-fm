@@ -15,7 +15,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Getter
 @Setter
 @Table(name = "roles_permissions_actions")
-public class RolePermissionAction extends Auditable {
+public class RolePermissionAction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,17 +23,14 @@ public class RolePermissionAction extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "permission_id", nullable = false)
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Permission permission;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "action_id", nullable = false)
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Action action;
 
 }
