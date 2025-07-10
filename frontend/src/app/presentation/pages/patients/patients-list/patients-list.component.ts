@@ -22,7 +22,6 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
 import { PatientService } from "../../../../services/patient.service";
-import { CreatePatientDialogComponent } from "../../../components/create-patient-dialog/create-patient-dialog.component";
 import { Router, RouterModule } from "@angular/router";
 import {
   ApiResponseInterface,
@@ -30,6 +29,7 @@ import {
 } from "../../../../domain/interfaces/api-response.interface";
 import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 import { PersonDataService } from "../../../../services/person-data.service";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
   selector: "app-patients-list",
@@ -51,43 +51,55 @@ import { PersonDataService } from "../../../../services/person-data.service";
     MatTooltipModule,
     MatDialogModule,
     RouterModule,
+    MatProgressSpinnerModule,
   ],
 })
 export class PatientsListComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
-  patientService = inject(PatientService);
-  personDataService = inject(PersonDataService);
+  private readonly router = inject(Router);
+  private readonly patientService = inject(PatientService);
+  private readonly personDataService = inject(PersonDataService);
   dialog = inject(MatDialog);
-  router = inject(Router);
-  patients = signal<PatientDtoInterface[]>([]);
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  patients = signal<PatientDtoInterface[]>([]);
   patientsFilter = new FormControl("");
-  patientsDataSource: MatTableDataSource<PatientDtoInterface> =
-    new MatTableDataSource();
+  patientsDataSource = new MatTableDataSource<PatientDtoInterface>([]);
   displayedColumns: string[] = [
     "avatar",
-    "firstName",
-    "lastName",
-    "dni",
-    "email",
-    "phone",
+    "person.firstName",
+    "person.lastName",
+    "person.contactEmails",
+    "person.dni",
     "action",
   ];
 
-  @ViewChild(MatPaginator)
-  paginator!: MatPaginator;
-  @ViewChild(MatSort)
-  sort!: MatSort;
+  currentPage = 0;
+  pageSize = 10;
+  sortBy = "person.lastName";
+  sortDirection = "asc";
 
   constructor() {
     this._loadInitialData();
+  }
 
-    effect(() => {
-      if (this.patients()) {
-        this.patientsDataSource.data = this.patients();
-        this.patientsDataSource.paginator = this.paginator;
-        this.patientsDataSource.sort = this.sort;
+  ngAfterViewInit() {
+    this.paginator.page.pipe(takeUntil(this._destroy$)).subscribe(() => {
+      this.currentPage = this.paginator.pageIndex;
+      this.pageSize = this.paginator.pageSize;
+      this._loadData();
+    });
+
+    this.sort.sortChange.pipe(takeUntil(this._destroy$)).subscribe((sort) => {
+      this.sortBy = sort.active;
+      this.sortDirection = sort.direction;
+      this.currentPage = 0;
+      if (this.paginator) {
+        this.paginator.pageIndex = 0;
       }
+      this._loadData();
     });
   }
 
@@ -113,8 +125,13 @@ export class PatientsListComponent implements OnDestroy {
   }
 
   private _loadInitialData() {
+    this._loadData();
+    this._setupFilters();
+  }
+
+  private _loadData() {
     this.patientService
-      .getAll()
+      .getAll(this.currentPage, this.pageSize, this.sortBy, this.sortDirection)
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (
@@ -124,6 +141,11 @@ export class PatientsListComponent implements OnDestroy {
         ) => {
           const patients = response.data.content;
           this.patients.set(patients);
+
+          if (this.paginator) {
+            this.paginator.length = response.data.totalElements;
+          }
+
           patients.forEach((patient) => {
             if (patient.person?.id) {
               this.personDataService
@@ -134,12 +156,13 @@ export class PatientsListComponent implements OnDestroy {
                 });
             }
           });
-          this.patientsDataSource.paginator = this.paginator;
-          this.patientsDataSource.sort = this.sort;
+
+          this.patientsDataSource.data = patients;
+          if (!this.patientsDataSource.sort) {
+            this.patientsDataSource.sort = this.sort;
+          }
         }
       );
-
-    this._setupFilters();
   }
 
   private _setupFilters() {

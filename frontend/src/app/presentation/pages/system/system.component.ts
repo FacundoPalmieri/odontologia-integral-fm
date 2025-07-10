@@ -162,7 +162,6 @@ export class SystemComponent implements OnDestroy {
 
   updateCronExpressionScheduler() {
     const cronExpression = this.tokenForm.value.cronExpressionScheduler;
-
     this.configService
       .updateCronSchedule(cronExpression)
       .pipe(takeUntil(this._destroy$))

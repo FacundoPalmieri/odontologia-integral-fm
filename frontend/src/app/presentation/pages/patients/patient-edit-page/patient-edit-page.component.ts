@@ -88,6 +88,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   patient = signal<PatientInterface>({} as PatientInterface);
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("studyFileInput") studyFileInput!: ElementRef<HTMLInputElement>;
 
   avatarUrl = signal<string | null>(null);
   showAdditionalInfo = signal(false);
@@ -150,6 +151,10 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
 
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
+  }
+
+  triggerStudyFileInput(): void {
+    this.studyFileInput.nativeElement.click();
   }
 
   compare = (
@@ -417,6 +422,60 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
         this.localities.set(response.data);
+      });
+  }
+
+  onStudyFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      this.snackbarService.openSnackbar(
+        "El archivo debe ser PDF o Word (doc, docx)",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+      return;
+    }
+    const personId = this.patientForm.get("person.id")?.value;
+    if (!personId) {
+      this.snackbarService.openSnackbar(
+        "No se encontró el ID del paciente.",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+      return;
+    }
+    this.personDataService
+      .uploadFile(personId, file)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: () => {
+          this.snackbarService.openSnackbar(
+            "Archivo subido correctamente.",
+            6000,
+            "center",
+            "bottom",
+            SnackbarTypeEnum.Success
+          );
+        },
+        error: () => {
+          this.snackbarService.openSnackbar(
+            "Error al subir el estudio.",
+            6000,
+            "center",
+            "bottom",
+            SnackbarTypeEnum.Error
+          );
+        },
       });
   }
 }

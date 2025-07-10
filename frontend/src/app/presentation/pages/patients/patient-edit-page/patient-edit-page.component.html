@@ -546,17 +546,24 @@
 
     <mat-card appearance="outlined">
       <mat-card-header>
-        <mat-card-title>Estudios</mat-card-title>
+        <mat-card-title>Archivos adjuntos</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="p-4 flex flex-col items-center justify-center gap-4">
-          <span>Aún no tienes estudios cargados.</span>
-          <button mat-flat-button>
+          <span>Aún no tienes adjuntos cargados.</span>
+          <button mat-flat-button (click)="triggerStudyFileInput()">
             <div class="flex items-center gap-2">
               <i-tabler name="search"></i-tabler>
-              <span>Crear estudio</span>
+              <span>Subir adjunto</span>
             </div>
           </button>
+          <input
+            #studyFileInput
+            type="file"
+            class="hidden"
+            accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            (change)="onStudyFileSelected($event)"
+          />
         </div>
       </mat-card-content>
     </mat-card>

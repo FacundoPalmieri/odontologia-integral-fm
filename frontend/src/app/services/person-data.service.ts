@@ -143,10 +143,25 @@ export class PersonDataService {
       );
   }
 
-  setAvatar(id: number, file: File): Observable<any> {
+  setAvatar(id: number, file: File): Observable<ApiResponseInterface<string>> {
     const formData = new FormData();
     formData.append("file", file);
 
-    return this.http.post(`${this.apiUrl}/person/${id}/avatar`, formData);
+    return this.http.post<ApiResponseInterface<string>>(
+      `${this.apiUrl}/person/${id}/avatar`,
+      formData
+    );
+  }
+
+  uploadFile(
+    personId: number,
+    file: File
+  ): Observable<ApiResponseInterface<string>> {
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.http.post<ApiResponseInterface<string>>(
+      `${this.apiUrl}/files/${personId}`,
+      formData
+    );
   }
 }
