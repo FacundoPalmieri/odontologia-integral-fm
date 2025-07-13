@@ -18,7 +18,7 @@ import java.util.Set;
 
 @RestController
 @OnlyAdmistratorAndSecretary
-@RequestMapping("/patient/{id}/medical-risk")
+@RequestMapping("/api/patient/{id}/medical-risk")
 public class PatientMedicalRiskController {
     @Autowired
     IPatientMedicalRiskService patientMedicalRiskService;

@@ -19,7 +19,7 @@ import java.util.Set;
 
 @RestController
 @OnlyAdmistratorAndSecretary
-@RequestMapping("/medical-risk")
+@RequestMapping("/api/medical-risk")
 public class MedicalRiskController {
     @Autowired
     private MedicalRiskService medicalRiskService;
