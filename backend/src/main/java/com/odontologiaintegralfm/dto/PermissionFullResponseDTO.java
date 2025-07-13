@@ -8,10 +8,13 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+/**
+ * DTO que se utiliza como atributo de RoleFullResponseDTO
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PermissionResponseDTO {
+public class PermissionFullResponseDTO {
     private Long id;
     private String permission;
     private String name;

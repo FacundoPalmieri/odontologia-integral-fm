@@ -14,7 +14,10 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Audited
 @Getter
 @Setter
-@Table(name = "roles_permissions_actions")
+@Table(
+        name = "roles_permissions_actions",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"role_id", "permission_id","action_id"})
+)
 public class RolePermissionAction {
 
     @Id

@@ -4,8 +4,6 @@ import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.enums.UserRole;
 import com.odontologiaintegralfm.exception.*;
-import com.odontologiaintegralfm.model.Action;
-import com.odontologiaintegralfm.model.Permission;
 import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.model.RolePermissionAction;
 import com.odontologiaintegralfm.repository.IRoleRepository;
@@ -82,12 +80,15 @@ public class RoleService implements IRoleService {
      */
 
     @Override
-    public Response<List<Role>> getAll() {
+    public Response<Set<RoleSimpleResponseDTO>> getAll() {
        try{
-           List<Role> roleList =  roleRepository.findAllExcludingDevelopers(UserRole.Desarrollador.toString());
+           Set<Role> roleSet =  roleRepository.findAllExcludingDevelopers(UserRole.Desarrollador.toString());
+
+           Set<RoleSimpleResponseDTO> roleSimpleResponseDTO = convertToSimpleDTO(roleSet);
+
 
            String messageUser = messageService.getMessage("roleService.getAll.user.ok", null, LocaleContextHolder.getLocale());
-           return new Response<>(true, messageUser, roleList);
+           return new Response<>(true, messageUser, roleSimpleResponseDTO);
 
        }catch(DataAccessException | CannotCreateTransactionException e){
            throw new DataBaseException(e,"roleService", 0L, "", "getAll");
@@ -100,7 +101,7 @@ public class RoleService implements IRoleService {
      * Método para obtener los permisos y acciones asociados a un Rol específico.
      * A partir de la lista de roles del usuario, este método obtiene todas las combinaciones
      * {@code RolePermissionAction} asociadas a cada rol, y agrupa las acciones por permiso
-     * y los permisos por rol. El resultado es una lista de {@code RoleResponseDTO}, donde cada
+     * y los permisos por rol. El resultado es una lista de {@code RoleFullResponseDTO}, donde cada
      * rol contiene sus permisos y cada permiso contiene sus acciones correspondientes.
      *
      * <p>Ejemplo de estructura devuelta:</p>
@@ -128,7 +129,7 @@ public class RoleService implements IRoleService {
      * @return
      */
     @Override
-    public RoleResponseDTO getFullByRoleId(Long idRole) {
+    public RoleFullResponseDTO getFullByRoleId(Long idRole) {
 
         //Obtiene la entidad
         Role role = this.getByIdInternal(idRole);
@@ -137,21 +138,21 @@ public class RoleService implements IRoleService {
         Set<RolePermissionAction> savedRolePermissionAction = rolePermissionActionService.getAllByRoleId(role.getId());
 
         // Mapa para agrupar acciones por permiso
-        Map<Long, PermissionResponseDTO> permissionMap = new HashMap<>();
+        Map<Long, PermissionFullResponseDTO> permissionMap = new TreeMap<>();
 
         for(RolePermissionAction rpa : savedRolePermissionAction){
             Long permissionId = rpa.getPermission().getId();
 
             // Si no existe el permiso en el mapa, lo agrego
-            permissionMap.putIfAbsent(permissionId, new PermissionResponseDTO(
+            permissionMap.putIfAbsent(permissionId, new PermissionFullResponseDTO(
                     permissionId,
                     rpa.getPermission().getPermission(),
                     rpa.getPermission().getName(),
-                    new HashSet<>()
+                    new TreeSet<>()
             ));
 
             // Agrego acción al permiso correspondiente
-            PermissionResponseDTO permDTO = permissionMap.get(permissionId);
+            PermissionFullResponseDTO permDTO = permissionMap.get(permissionId);
             permDTO.getActions().add(new ActionResponseDTO(
                     rpa.getAction().getId(),
                     rpa.getAction().getAction()
@@ -159,19 +160,16 @@ public class RoleService implements IRoleService {
 
         }
 
-        // Ordena los PermissionResponseDTO por ID y los agrega a un LinkedHashSet para mantener el orden
-        Set<PermissionResponseDTO> sortedPermissions = permissionMap.values().stream()
-                .sorted(Comparator.comparing(PermissionResponseDTO::getId))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        //Convierte el MAP en SET
+        Set<PermissionFullResponseDTO> Permissions = new LinkedHashSet<>(permissionMap.values());
 
+        // Arma el role con su lista de permisos
+        RoleFullResponseDTO roleFullResponseDTO = new RoleFullResponseDTO();
+        roleFullResponseDTO.setId(role.getId());
+        roleFullResponseDTO.setRole(role.getRole());
+        roleFullResponseDTO.setPermissionsList(Permissions);
 
-        // Armo el role con su lista de permisos
-        RoleResponseDTO roleResponseDTO = new RoleResponseDTO();
-        roleResponseDTO.setId(role.getId());
-        roleResponseDTO.setRole(role.getRole());
-        roleResponseDTO.setPermissionsList(sortedPermissions);
-
-        return roleResponseDTO;
+        return roleFullResponseDTO;
     }
 
 
@@ -204,16 +202,12 @@ public class RoleService implements IRoleService {
     }
 
 
-
-
-
-
     /**
      * Guarda un nuevo rol en la base de datos.
      * <p>
      * Este método valida si el rol ya existe en la base de datos, asigna permisos al rol,
      * y luego construye el objeto {@link Role}. Después, guarda el rol en la base de datos
-     * y convierte la entidad guardada en un objeto {@link RoleResponseDTO},
+     * y convierte la entidad guardada en un objeto {@link RoleFullResponseDTO},
      * el cual es devuelto junto con un mensaje de éxito.
      * </p>
      * <p>
@@ -222,12 +216,12 @@ public class RoleService implements IRoleService {
      * </p>
      *
      * @param roleRequestDto El objeto DTO que contiene los datos del rol a guardar.
-     * @return Un objeto {@link Response} que contiene el rol guardado en formato {@link RoleResponseDTO}.
+     * @return Un objeto {@link Response} que contiene el rol guardado en formato {@link RoleFullResponseDTO}.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
     @Transactional
-    public Response<RoleResponseDTO> create(RoleRequestDTO roleRequestDto) {
+    public Response<RoleFullResponseDTO> create(RoleRequestDTO roleRequestDto) {
         try{
             //Valída que el rol no exista en la base de datos.
             validateRoleNotExist(roleRequestDto.getRole());
@@ -238,23 +232,21 @@ public class RoleService implements IRoleService {
             //Guarda el rol en la base de datos.
             Role savedRole = roleRepository.save(role);
 
-            //Persiste la relación entre Rol, permiso y acción.
-            RolePermissionAction rolePermissionAction = new RolePermissionAction();
-            for (PermissionActionRequestDTO permissionAction: roleRequestDto.getPermissionsList()) {
-                Permission permission = permissionService.getByIdInternal(permissionAction.getPermissionId());
-                rolePermissionAction.setRole(role);
-                rolePermissionAction.setPermission(permission);
-                for(Action action: permission.getActions()){
-                    rolePermissionAction.setAction(action);
-                    rolePermissionActionService.create(rolePermissionAction);
-                }
-            }
+            //Valída que existan todos los permisos del DTO en la base de datos.
+            roleRequestDto.getPermissionsList()
+                    .forEach(permissionId -> {
+                        permissionService.getByIdInternal(permissionId.getPermissionId());
+                    });
+
+            //Crea las nuevas relaciones.
+            rolePermissionActionService.buildRelationByRole(role, roleRequestDto.getPermissionsList());
+
 
             // Arma el árbol de respuesta entre rol, permisos y acciones.
-            RoleResponseDTO roleResponseDTO = this.getFullByRoleId(savedRole.getId());
+            RoleFullResponseDTO roleFullResponseDTO = this.getFullByRoleId(savedRole.getId());
 
             String messageUser = messageService.getMessage("roleService.save.ok", null, LocaleContextHolder.getLocale());
-            return new Response<>(true, messageUser, roleResponseDTO);
+            return new Response<>(true, messageUser, roleFullResponseDTO);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "save");
@@ -267,10 +259,10 @@ public class RoleService implements IRoleService {
      * Actualiza la lista de permisos para el rol.
      *
      * @param roleRequestDto {@link RoleRequestDTO} que contiene la lista de permisos.
-     * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleResponseDTO}
+     * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleFullResponseDTO}
      */
     @Override
-    public Response<RoleResponseDTO> update(RoleRequestDTO roleRequestDto) {
+    public Response<RoleFullResponseDTO> update(RoleRequestDTO roleRequestDto) {
         try{
             //Valída que el rol exista en la base de datos.
             Role role = validateRoleExist(roleRequestDto.getRole());
@@ -288,10 +280,10 @@ public class RoleService implements IRoleService {
             rolePermissionActionService.buildRelationByRole(role, roleRequestDto.getPermissionsList());
 
             // Arma el árbol de respuesta entre rol, permisos y acciones.
-            RoleResponseDTO roleResponseDTO = this.getFullByRoleId(role.getId());
+            RoleFullResponseDTO roleFullResponseDTO = this.getFullByRoleId(role.getId());
 
             String messageUser = messageService.getMessage("roleService.update.ok", null, LocaleContextHolder.getLocale());
-            return new Response<>(true, messageUser, roleResponseDTO);
+            return new Response<>(true, messageUser, roleFullResponseDTO);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "update");
@@ -350,6 +342,16 @@ public class RoleService implements IRoleService {
         return Role.builder()
                 .role(roleRequestDto.getRole())
                 .build();
+    }
+
+
+    private Set <RoleSimpleResponseDTO> convertToSimpleDTO(Set <Role> roles) {
+
+        Set<RoleSimpleResponseDTO> roleSimpleResponseDTOSet = roles.stream()
+                .map(role -> new RoleSimpleResponseDTO(role.getId(), role.getRole()))
+                .collect(Collectors.toSet());
+
+        return roleSimpleResponseDTOSet;
     }
 
 

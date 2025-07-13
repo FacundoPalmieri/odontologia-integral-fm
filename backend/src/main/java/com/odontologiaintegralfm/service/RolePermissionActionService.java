@@ -25,7 +25,8 @@ public class RolePermissionActionService implements IRolePermissionActionService
 
     @Autowired
     private IPermissionService permissionService;
-
+    @Autowired
+    private ActionService actionService;
 
 
     /**
@@ -89,7 +90,8 @@ public class RolePermissionActionService implements IRolePermissionActionService
                 Permission permission = permissionService.getByIdInternal(permissionAction.getPermissionId());
                 rolePermissionAction.setRole(role);
                 rolePermissionAction.setPermission(permission);
-                for(Action action: permission.getActions()){
+                for(Long idAction: permissionAction.getActionId()){
+                    Action action = actionService.getById(idAction);
                     rolePermissionAction.setAction(action);
                     this.create(rolePermissionAction);
                 }

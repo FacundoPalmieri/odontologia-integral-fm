@@ -120,13 +120,13 @@ public class UserDetailsServiceImp implements UserDetailsService {
         for (Role role : userSec.getRolesList()) {
 
             // Arma el árbol de respuesta entre rol, permisos y acciones.
-            RoleResponseDTO roleResponseDTO = roleService.getFullByRoleId(role.getId());
+            RoleFullResponseDTO roleFullResponseDTO = roleService.getFullByRoleId(role.getId());
 
             // 1. Agregamos el rol como autoridad
-            authorityList.add(new SimpleGrantedAuthority("ROLE_" + roleResponseDTO.getRole()));
+            authorityList.add(new SimpleGrantedAuthority("ROLE_" + roleFullResponseDTO.getRole()));
 
             // 2. Por cada permiso y su lista de acciones, agregamos cada combinación como autoridad
-            roleResponseDTO.getPermissionsList().forEach(permissionDTO -> {
+            roleFullResponseDTO.getPermissionsList().forEach(permissionDTO -> {
                 String permission = permissionDTO.getPermission().toUpperCase();
 
                 permissionDTO.getActions().forEach(actionDTO -> {
@@ -195,11 +195,11 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Crea el RefreshToken
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
 
-            Set<RoleResponseDTO> roleSet = new HashSet<>();
+            Set<RoleFullResponseDTO> roleSet = new HashSet<>();
             //Arma el árbol de roles, permisos y acciones.
             for(Role role : userSec.getRolesList()) {
-                RoleResponseDTO roleResponseDTO = roleService.getFullByRoleId(role.getId());
-                roleSet.add(roleResponseDTO);
+                RoleFullResponseDTO roleFullResponseDTO = roleService.getFullByRoleId(role.getId());
+                roleSet.add(roleFullResponseDTO);
             }
 
             //Construye el DTO para respuesta

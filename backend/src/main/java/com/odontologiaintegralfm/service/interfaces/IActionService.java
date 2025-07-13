@@ -20,5 +20,10 @@ public interface IActionService {
      */
     Set<ActionResponseDTO> convertToDTO(Set<Action> action);
 
-
+    /**
+     * Método para obtener las acciones por ID
+     * @param id de la acción
+     * @return
+     */
+    Action getById(Long id);
 }

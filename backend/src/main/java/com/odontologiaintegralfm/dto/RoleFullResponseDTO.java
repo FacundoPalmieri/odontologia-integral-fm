@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-public class RoleResponseDTO {
+public class RoleFullResponseDTO {
 
     private Long id;
     private String role;
-    private Set<PermissionResponseDTO> permissionsList = new HashSet<>();
+    private Set<PermissionFullResponseDTO> permissionsList = new HashSet<>();
 }

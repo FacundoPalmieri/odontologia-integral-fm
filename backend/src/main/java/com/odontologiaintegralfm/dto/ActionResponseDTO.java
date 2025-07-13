@@ -9,7 +9,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActionResponseDTO{
+public class ActionResponseDTO implements Comparable<ActionResponseDTO>{
        private Long id;
        private String action;
+
+
+       @Override
+       public int compareTo(ActionResponseDTO o) {
+              return this.id.compareTo(o.id);
+       }
 }

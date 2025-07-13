@@ -37,14 +37,6 @@ public class Permission {
     @Column(length = 50, unique = true, nullable = false)
     private String name;
 
-    /** Set que representa listado de acciones */
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "permissions_actions",
-            joinColumns = @JoinColumn(name = "permission_id"),
-            inverseJoinColumns = @JoinColumn(name = "action_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"permission_id","action_id"})
-    )
-    private Set<Action> actions = new HashSet<>();
+
 
 }

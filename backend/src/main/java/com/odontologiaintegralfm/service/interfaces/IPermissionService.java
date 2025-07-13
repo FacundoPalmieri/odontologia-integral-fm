@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.service.interfaces;
 
-import com.odontologiaintegralfm.dto.PermissionResponseDTO;
+import com.odontologiaintegralfm.dto.PermissionFullResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.model.Permission;
 
@@ -16,18 +16,18 @@ public interface IPermissionService {
 
     /**
      * Obtiene todos los permisos disponibles.
-     * @return Un objeto {@link Response} que contiene una lista de objetos {@link PermissionResponseDTO}
+     * @return Un objeto {@link Response} que contiene una lista de objetos {@link PermissionFullResponseDTO}
      *         con todos los permisos disponibles.
      */
-    Response<List<PermissionResponseDTO>> getAll();
+    Response<List<PermissionFullResponseDTO>> getAll();
 
     /**
      * Obtiene un permiso por su ID.
      * @param id El ID del permiso que se desea obtener.
      * @return Un objeto {@link Response} que contiene el permiso correspondiente al ID especificado
-     *         como un {@link PermissionResponseDTO}.
+     *         como un {@link PermissionFullResponseDTO}.
      */
-    Response<PermissionResponseDTO> getById(Long id);
+    Response<PermissionFullResponseDTO> getById(Long id);
 
     /**
      * Busca un permiso en función de su ID y devuelve un {@link Optional} que puede estar vacío
