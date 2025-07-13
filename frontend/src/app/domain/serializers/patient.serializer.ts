@@ -21,7 +21,7 @@ export class PatientSerializer {
       healthPlanId: patient.healthPlan?.id,
       affiliateNumber: patient.affiliateNumber,
       medicalRisk: patient.medicalRisks?.map((mr) => {
-        return { medicalRiskId: mr.id, observation: mr.observation };
+        return { medicalRiskId: mr.id, observation: mr.observation || "" };
       }),
     };
   }

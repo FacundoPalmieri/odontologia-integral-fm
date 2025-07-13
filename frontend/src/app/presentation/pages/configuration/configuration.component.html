@@ -24,11 +24,6 @@
     </div>
     <div class="overflow-x-auto">
       <table mat-table [dataSource]="usersDataSource" matSort>
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
-          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
-        </ng-container>
-
         <ng-container matColumnDef="avatar">
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let element">

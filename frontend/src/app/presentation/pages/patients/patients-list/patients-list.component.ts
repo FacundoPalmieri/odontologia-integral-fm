@@ -30,6 +30,7 @@ import {
 import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 import { PersonDataService } from "../../../../services/person-data.service";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { LoaderService } from "../../../../services/loader.service";
 
 @Component({
   selector: "app-patients-list",
@@ -59,6 +60,7 @@ export class PatientsListComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly patientService = inject(PatientService);
   private readonly personDataService = inject(PersonDataService);
+  private readonly loaderService = inject(LoaderService);
   dialog = inject(MatDialog);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -130,6 +132,7 @@ export class PatientsListComponent implements OnDestroy {
   }
 
   private _loadData() {
+    this.loaderService.show();
     this.patientService
       .getAll(this.currentPage, this.pageSize, this.sortBy, this.sortDirection)
       .pipe(takeUntil(this._destroy$))
@@ -161,6 +164,7 @@ export class PatientsListComponent implements OnDestroy {
           if (!this.patientsDataSource.sort) {
             this.patientsDataSource.sort = this.sort;
           }
+          this.loaderService.hide();
         }
       );
   }

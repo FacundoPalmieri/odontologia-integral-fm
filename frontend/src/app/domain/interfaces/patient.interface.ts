@@ -15,7 +15,7 @@ export interface PatientInterface {
 export interface MedicalHistoryRiskInterface {
   id: number;
   name: string;
-  observation: string;
+  observation?: string;
 }
 
 export interface DisseaseInterface {

@@ -37,6 +37,7 @@ import { Subject, takeUntil } from "rxjs";
 import { Router } from "@angular/router";
 import { UserDtoInterface } from "../../../domain/dto/user.dto";
 import { PersonDataService } from "../../../services/person-data.service";
+import { LoaderService } from "../../../services/loader.service";
 
 @Component({
   selector: "app-configuration",
@@ -62,6 +63,7 @@ import { PersonDataService } from "../../../services/person-data.service";
 })
 export class ConfigurationComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
+  private readonly loaderService = inject(LoaderService);
   readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   userService = inject(UserService);
@@ -82,7 +84,6 @@ export class ConfigurationComponent implements OnDestroy {
   @ViewChildren(MatSort) sorts!: QueryList<MatSort>;
 
   userDisplayedColumns: string[] = [
-    "id",
     "avatar",
     "username",
     "rolesList",

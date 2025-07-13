@@ -21,11 +21,15 @@ export class UserService {
 
   getAll(
     page: number = 0,
-    size: number = 100
+    size: number = 100,
+    sortBy: string = "username",
+    direction: string = "asc"
   ): Observable<ApiResponseInterface<PagedDataInterface<UserDtoInterface[]>>> {
     const params = new HttpParams()
       .set("page", page.toString())
-      .set("size", size.toString());
+      .set("size", size.toString())
+      .set("sortBy", sortBy)
+      .set("direction", direction);
 
     return this.http.get<
       ApiResponseInterface<PagedDataInterface<UserDtoInterface[]>>

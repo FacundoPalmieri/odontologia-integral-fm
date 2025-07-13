@@ -11,6 +11,7 @@ import { PageToolbarComponent } from "../../../components/page-toolbar/page-tool
 import { Router, ActivatedRoute } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import {
+  FormArray,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
@@ -39,12 +40,18 @@ import {
   ProvinceInterface,
 } from "../../../../domain/interfaces/person-data.interface";
 import { PatientService } from "../../../../services/patient.service";
-import { PatientInterface } from "../../../../domain/interfaces/patient.interface";
+import {
+  MedicalHistoryRiskInterface,
+  PatientInterface,
+} from "../../../../domain/interfaces/patient.interface";
 import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 import { mockOdontogram1 } from "../../../../utils/mocks/odontogram.mock";
 import { MatTableModule } from "@angular/material/table";
 import { CommonModule } from "@angular/common";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatListModule } from "@angular/material/list";
+import { MatDialog } from "@angular/material/dialog";
+import { AddMedicalRiskDialogComponent } from "./add-medical-risk-dialog/add-medical-risk-dialog.component";
 
 //QUITAR
 interface OdontogramInterface {
@@ -72,6 +79,7 @@ interface OdontogramInterface {
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
+    MatListModule,
   ],
 })
 export class PatientEditPageComponent implements OnInit, OnDestroy {
@@ -80,12 +88,14 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   private readonly patientService = inject(PatientService);
   private readonly _destroy$ = new Subject<void>();
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
   personDataService = inject(PersonDataService);
 
   patientForm: FormGroup = new FormGroup({});
   maxDate = new Date();
   patientId: number | null = null;
   patient = signal<PatientInterface>({} as PatientInterface);
+  medicalRisks = signal<MedicalHistoryRiskInterface[]>([]);
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild("studyFileInput") studyFileInput!: ElementRef<HTMLInputElement>;
@@ -264,12 +274,31 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             "El paciente ha sido modificado.",
             6000,
             "center",
-            "bottom",
+            "top",
             SnackbarTypeEnum.Success
           );
           this.router.navigate(["/patients/edit/", response.data.person.id]);
         }
+        this._loadPatientData();
       });
+  }
+
+  openAddMedicalRiskDialog() {
+    const personId = this.patientForm.get("person.id")?.value;
+    console.log(this.medicalRisks());
+    const dialogRef = this.dialog.open(AddMedicalRiskDialogComponent, {
+      width: "800px",
+      data: {
+        patientId: personId,
+        medicalRisks: this.medicalRisks(),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this._loadPatientData();
+      }
+    });
   }
 
   private _loadForm() {
@@ -336,6 +365,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       affiliateNumber: new FormControl<string | null>(null, [
         Validators.maxLength(20),
       ]),
+      medicalRisks: new FormArray<FormControl<MedicalHistoryRiskInterface>>([]),
     });
   }
 
@@ -404,6 +434,14 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       healthPlan: patient.healthPlan,
     });
 
+    const risksArray = this.patientForm.get("medicalRisks") as FormArray;
+    risksArray.clear();
+    if (Array.isArray(patient.medicalRisks)) {
+      patient.medicalRisks.forEach((risk) => {
+        risksArray.push(new FormControl(risk));
+      });
+    }
+    this.medicalRisks.set(risksArray.value);
     this.patientForm.markAsPristine();
   }
 
@@ -463,7 +501,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             "Archivo subido correctamente.",
             6000,
             "center",
-            "bottom",
+            "top",
             SnackbarTypeEnum.Success
           );
         },
