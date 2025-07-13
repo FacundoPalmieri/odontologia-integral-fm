@@ -329,7 +329,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
           "top",
           SnackbarTypeEnum.Success
         );
-        this.router.navigate(["/configuration/users/edit", response.data.id]);
+        this._loadUserData();
       });
   }
 

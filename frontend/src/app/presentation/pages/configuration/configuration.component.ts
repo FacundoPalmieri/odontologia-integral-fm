@@ -6,6 +6,7 @@ import {
   signal,
   effect,
   OnDestroy,
+  AfterViewInit,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
@@ -61,7 +62,7 @@ import { LoaderService } from "../../../services/loader.service";
     MatInputModule,
   ],
 })
-export class ConfigurationComponent implements OnDestroy {
+export class ConfigurationComponent implements OnDestroy, AfterViewInit {
   private readonly _destroy$ = new Subject<void>();
   private readonly loaderService = inject(LoaderService);
   readonly dialog = inject(MatDialog);
@@ -74,6 +75,12 @@ export class ConfigurationComponent implements OnDestroy {
 
   users = signal<UserDtoInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
+
+  usersPageSize = signal(5);
+  usersPageIndex = signal(0);
+  usersSortBy = signal("username");
+  usersSortDirection = signal("asc");
+  usersTotalElements = signal(0);
 
   userFilter = new FormControl("");
   usersDataSource = new MatTableDataSource<UserDtoInterface>([]);
@@ -99,9 +106,8 @@ export class ConfigurationComponent implements OnDestroy {
     effect(() => {
       if (this.users()) {
         this.usersDataSource.data = this.users();
-        if (this.paginators && this.sorts) {
-          this.usersDataSource.paginator = this.paginators.toArray()[0];
-          this.usersDataSource.sort = this.sorts.toArray()[0];
+        if (this.paginators && this.paginators.length > 0) {
+          this.paginators.toArray()[0].length = this.usersTotalElements();
         }
       }
     });
@@ -115,6 +121,37 @@ export class ConfigurationComponent implements OnDestroy {
         }
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.paginators.length > 0 && this.sorts.length > 0) {
+      const userPaginator = this.paginators.toArray()[0];
+      const userSort = this.sorts.toArray()[0];
+
+      userPaginator.page.pipe(takeUntil(this._destroy$)).subscribe((event) => {
+        this.usersPageIndex.set(event.pageIndex);
+        this.usersPageSize.set(event.pageSize);
+        this._loadUsers(
+          this.usersPageIndex(),
+          this.usersPageSize(),
+          this.usersSortBy(),
+          this.usersSortDirection()
+        );
+      });
+
+      userSort.sortChange.pipe(takeUntil(this._destroy$)).subscribe((sort) => {
+        this.usersPageIndex.set(0);
+        this.usersSortBy.set(sort.active);
+        this.usersSortDirection.set(sort.direction);
+        // Load users with new sort parameters
+        this._loadUsers(
+          this.usersPageIndex(),
+          this.usersPageSize(),
+          this.usersSortBy(),
+          this.usersSortDirection()
+        );
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -162,15 +199,25 @@ export class ConfigurationComponent implements OnDestroy {
       );
     }
   }
-
   private _loadInitialData() {
-    this._loadUsers();
+    this._loadUsers(
+      this.usersPageIndex(),
+      this.usersPageSize(),
+      this.usersSortBy(),
+      this.usersSortDirection()
+    );
     this._loadRoles();
   }
 
-  private _loadUsers() {
+  private _loadUsers(
+    page: number,
+    size: number,
+    sortBy: string,
+    direction: string
+  ) {
+    this.loaderService.show();
     this.userService
-      .getAll()
+      .getAll(page, size, sortBy, direction)
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (
@@ -178,6 +225,7 @@ export class ConfigurationComponent implements OnDestroy {
         ) => {
           const users = response.data.content;
           this.users.set(users);
+          this.usersTotalElements.set(response.data.totalElements);
 
           users.forEach((user) => {
             if (user.person?.id) {
@@ -189,6 +237,18 @@ export class ConfigurationComponent implements OnDestroy {
                 });
             }
           });
+          this.loaderService.hide();
+        },
+        (error) => {
+          console.error("Error al cargar usuarios:", error);
+          this.loaderService.hide();
+          this.snackbarService.openSnackbar(
+            "Error al cargar usuarios.",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Error
+          );
         }
       );
   }
