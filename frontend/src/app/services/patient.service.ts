@@ -6,7 +6,10 @@ import {
   ApiResponseInterface,
   PagedDataInterface,
 } from "../domain/interfaces/api-response.interface";
-import { PatientDtoInterface } from "../domain/dto/patient.dto";
+import {
+  MedicalRiskCreateDtoInterface,
+  PatientDtoInterface,
+} from "../domain/dto/patient.dto";
 import { PatientInterface } from "../domain/interfaces/patient.interface";
 import { PatientSerializer } from "../domain/serializers/patient.serializer";
 
@@ -19,7 +22,7 @@ export class PatientService {
   getAll(
     page: number = 0,
     size: number = 100,
-    sortBy: string = "person.lastName",
+    sortBy: string = "",
     direction: string = "asc"
   ): Observable<
     ApiResponseInterface<PagedDataInterface<PatientDtoInterface[]>>
@@ -66,5 +69,15 @@ export class PatientService {
           data: this.patientSerializer.toView(response.data),
         }))
       );
+  }
+
+  updateMedicalRisks(
+    id: number,
+    medicalRisks: MedicalRiskCreateDtoInterface[]
+  ) {
+    return this.http.patch<ApiResponseInterface<string>>(
+      `${this.apiUrl}/patient/${id}/medical-risk`,
+      medicalRisks
+    );
   }
 }
