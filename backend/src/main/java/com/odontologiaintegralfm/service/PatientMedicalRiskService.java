@@ -233,7 +233,7 @@ public class PatientMedicalRiskService implements IPatientMedicalRiskService {
     public Set<PatientMedicalRiskResponseDTO> convertToDTO(Set<PatientMedicalRisk> patientMedicalRisk) {
         try{
             return patientMedicalRisk.stream()
-                    .map(obj -> new PatientMedicalRiskResponseDTO(obj.getId(), obj.getMedicalRisk().getName(), obj.getObservation()))
+                    .map(obj -> new PatientMedicalRiskResponseDTO(obj.getMedicalRisk().getId(), obj.getMedicalRisk().getName(), obj.getObservation()))
                     .collect(Collectors.toSet());
         }catch (DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "PatientMedicalRiskService", null,null, "convertToDTO");
