@@ -1,15 +1,12 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdministrator;
 import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
 import com.odontologiaintegralfm.dto.MedicalRiskResponseDTO;
-import com.odontologiaintegralfm.dto.PatientMedicalRiskRequestDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.MedicalRiskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +16,7 @@ import java.util.Set;
 
 @RestController
 @OnlyAdmistratorAndSecretary
-@RequestMapping("/medical-risk")
+@RequestMapping("/api/medical-risk")
 public class MedicalRiskController {
     @Autowired
     private MedicalRiskService medicalRiskService;

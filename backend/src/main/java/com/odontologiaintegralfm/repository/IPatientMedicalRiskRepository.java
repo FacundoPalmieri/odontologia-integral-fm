@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.repository;
 
-import com.odontologiaintegralfm.model.Patient;
 import com.odontologiaintegralfm.model.PatientMedicalRisk;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
