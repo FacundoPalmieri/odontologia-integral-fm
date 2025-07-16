@@ -27,6 +27,7 @@ import {
   mockOdontogram2,
   mockOdontogram3,
 } from "../../../utils/mocks/odontogram.mock";
+import { MatInputModule } from "@angular/material/input";
 
 interface BridgeConnectionInterface {
   startTooth: number;
@@ -55,6 +56,7 @@ interface OdontogramDateInterface {
     MatSidenavModule,
     MatSelectModule,
     FormsModule,
+    MatInputModule,
   ],
 })
 export class OdontogramComponent implements OnChanges {
