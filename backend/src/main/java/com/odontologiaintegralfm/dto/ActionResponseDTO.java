@@ -11,7 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ActionResponseDTO implements Comparable<ActionResponseDTO>{
        private Long id;
-       private String action;
+       private String name;
+       private String label;
 
 
        @Override

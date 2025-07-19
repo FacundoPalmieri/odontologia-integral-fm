@@ -1,9 +1,9 @@
 package com.odontologiaintegralfm.dto;
 
 /**
- * @author [Facundo Palmieri]
+ * Permite devolver una entidad simple para listar en grilla
  */
-public record RoleSimpleResponseDTO(
+public record PermissionSimpleResponseDTO(
         Long id,
         String name,
         String label

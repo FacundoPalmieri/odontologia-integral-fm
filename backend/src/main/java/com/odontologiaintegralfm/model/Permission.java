@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 
-import java.util.HashSet;
-import java.util.Set;
-
 
 /**
  * Entidad que representa un permiso de usuario.
@@ -28,14 +25,13 @@ public class Permission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     /**Descripción del permiso.*/
     @Column(length = 50, unique = true, nullable = false)
-    private String permission;
+    private String name;
 
     /**Nombre del permiso.*/
     @Column(length = 50, unique = true, nullable = false)
-    private String name;
+    private String label;
 
 
 

@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.PermissionFullResponseDTO;
+import com.odontologiaintegralfm.dto.PermissionSimpleResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.enums.LogLevel;
@@ -15,9 +16,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Servicio que gestiona las operaciones relacionadas con los permisos del sistema.
@@ -44,8 +43,8 @@ public class PermissionService implements IPermissionService {
 
     @Autowired
     private IMessageService messageService;
-    @Autowired
-    private ActionService actionService;
+
+
 
     /**
      * Recupera todos los permisos almacenados en la base de datos.
@@ -63,18 +62,18 @@ public class PermissionService implements IPermissionService {
      */
 
     @Override
-    public Response<List<PermissionFullResponseDTO>> getAll() {
+    public Response<List<PermissionSimpleResponseDTO>> getAll() {
         try{
 
             List<Permission> permissionList = permissionRepository.findAll();
 
-            List<PermissionFullResponseDTO> permissionFullResponseDTOList = new ArrayList<>();
+            List<PermissionSimpleResponseDTO> permissionSimpleResponseDTOList = new ArrayList<>();
             for(Permission permission : permissionList) {
-                permissionFullResponseDTOList.add(convertToDTO(permission));
+                permissionSimpleResponseDTOList.add(convertToSimpleDTO(permission));
             }
 
             String messageUser = messageService.getMessage("permissionService.getAll.ok", null, LocaleContextHolder.getLocale());
-            return new Response<>(true, messageUser, permissionFullResponseDTOList);
+            return new Response<>(true, messageUser, permissionSimpleResponseDTOList);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e,"PermissionService", 0L,"","getAll");
@@ -102,23 +101,6 @@ public class PermissionService implements IPermissionService {
      * @throws NotFoundException Si no se encuentra un permiso con el ID especificado.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
-    @Override
-    public Response<PermissionFullResponseDTO> getById(Long id) {
-        try{
-            Optional<Permission> permissionOptional = permissionRepository.findById(id);
-            if(permissionOptional.isPresent()) {
-                Permission permission = permissionOptional.get();
-                PermissionFullResponseDTO permissionFullResponseDTO = convertToDTO(permission);
-
-                String messageUser = messageService.getMessage("permissionService.getById.ok", null, LocaleContextHolder.getLocale());
-                return new Response<>(true, messageUser, permissionFullResponseDTO);
-            }else{
-                throw new NotFoundException("exception.permissionNotFound.user",null,"exception.permissionNotFound.log",new Object[]{id, "PermissionService","getById"}, LogLevel.ERROR);            }
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e,"PermissionService", id,"","getById");
-
-        }
-    }
 
 
 
@@ -151,8 +133,6 @@ public class PermissionService implements IPermissionService {
 
 
 
-
-
     /**
      * Convierte una entidad {@link Permission} a un objeto de transferencia de datos (DTO).
      * <p>
@@ -164,13 +144,15 @@ public class PermissionService implements IPermissionService {
      * @return Un objeto {@link PermissionFullResponseDTO} con los datos de la entidad.
      */
 
-    private PermissionFullResponseDTO convertToDTO(Permission permission) {
-        PermissionFullResponseDTO permissionFullResponseDTO = new PermissionFullResponseDTO();
-        permissionFullResponseDTO.setId(permission.getId());
-        permissionFullResponseDTO.setPermission(permission.getPermission());
-        permissionFullResponseDTO.setName(permission.getName());
-        permissionFullResponseDTO.setActions(actionService.convertToDTO(permission.getActions()));
-        return permissionFullResponseDTO;
+    private PermissionSimpleResponseDTO convertToSimpleDTO(Permission permission) {
+        return new PermissionSimpleResponseDTO(
+                permission.getId(),
+                permission.getName(),
+                permission.getLabel()
+        );
     }
+
+
+
 
 }

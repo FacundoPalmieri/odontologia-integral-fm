@@ -2,7 +2,6 @@ package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
-import com.odontologiaintegralfm.enums.UserRole;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.model.RolePermissionAction;
@@ -82,7 +81,7 @@ public class RoleService implements IRoleService {
     @Override
     public Response<Set<RoleSimpleResponseDTO>> getAll() {
        try{
-           Set<Role> roleSet =  roleRepository.findAllExcludingDevelopers(UserRole.Desarrollador.toString());
+           Set<Role> roleSet =  roleRepository.findAllExcludingDevelopers(1L);
 
            Set<RoleSimpleResponseDTO> roleSimpleResponseDTO = convertToSimpleDTO(roleSet);
 
@@ -109,7 +108,7 @@ public class RoleService implements IRoleService {
      * [
      *   {
      *     "id": 1,
-     *     "role": "ADMIN",
+     *     "name": "ADMIN",
      *     "permissionsList": [
      *       {
      *         "id": 10,
@@ -124,6 +123,8 @@ public class RoleService implements IRoleService {
      *   }
      * ]
      * </pre>
+     *
+     * No se arma el objeto Response aquí, porque este método es consumido también por el método loadUserByUsername de UserDetailServiceImpl.
      *
      * @param idRole
      * @return
@@ -146,8 +147,8 @@ public class RoleService implements IRoleService {
             // Si no existe el permiso en el mapa, lo agrego
             permissionMap.putIfAbsent(permissionId, new PermissionFullResponseDTO(
                     permissionId,
-                    rpa.getPermission().getPermission(),
                     rpa.getPermission().getName(),
+                    rpa.getPermission().getLabel(),
                     new TreeSet<>()
             ));
 
@@ -155,7 +156,8 @@ public class RoleService implements IRoleService {
             PermissionFullResponseDTO permDTO = permissionMap.get(permissionId);
             permDTO.getActions().add(new ActionResponseDTO(
                     rpa.getAction().getId(),
-                    rpa.getAction().getAction()
+                    rpa.getAction().getName(),
+                    rpa.getAction().getLabel()
             ));
 
         }
@@ -163,10 +165,11 @@ public class RoleService implements IRoleService {
         //Convierte el MAP en SET
         Set<PermissionFullResponseDTO> Permissions = new LinkedHashSet<>(permissionMap.values());
 
-        // Arma el role con su lista de permisos
+        // Arma el name con su lista de permisos
         RoleFullResponseDTO roleFullResponseDTO = new RoleFullResponseDTO();
         roleFullResponseDTO.setId(role.getId());
-        roleFullResponseDTO.setRole(role.getRole());
+        roleFullResponseDTO.setName(role.getName());
+        roleFullResponseDTO.setLabel(role.getLabel());
         roleFullResponseDTO.setPermissionsList(Permissions);
 
         return roleFullResponseDTO;
@@ -224,7 +227,7 @@ public class RoleService implements IRoleService {
     public Response<RoleFullResponseDTO> create(RoleRequestDTO roleRequestDto) {
         try{
             //Valída que el rol no exista en la base de datos.
-            validateRoleNotExist(roleRequestDto.getRole());
+            validateRoleNotExist(roleRequestDto.getName());
 
             //Se construye el Objeto model
             Role role = buildRole(roleRequestDto);
@@ -249,7 +252,7 @@ public class RoleService implements IRoleService {
             return new Response<>(true, messageUser, roleFullResponseDTO);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "save");
+            throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getName(), "save");
 
         }
     }
@@ -265,7 +268,7 @@ public class RoleService implements IRoleService {
     public Response<RoleFullResponseDTO> update(RoleRequestDTO roleRequestDto) {
         try{
             //Valída que el rol exista en la base de datos.
-            Role role = validateRoleExist(roleRequestDto.getRole());
+            Role role = validateRoleExist(roleRequestDto.getName());
 
             //Elimina las relaciones anteriores entre Rol, Permisos y acciones.
             rolePermissionActionService.deleteByRoleId(role.getId());
@@ -286,7 +289,7 @@ public class RoleService implements IRoleService {
             return new Response<>(true, messageUser, roleFullResponseDTO);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getRole(), "update");
+            throw new DataBaseException(e,"roleService", 0L, roleRequestDto.getName(), "update");
 
         }
     }
@@ -304,9 +307,9 @@ public class RoleService implements IRoleService {
      * @throws ConflictException Si el rol ya existe en la base de datos.
      */
     private void validateRoleNotExist(String roleNew){
-        Optional<Role> role = roleRepository.findRoleEntityByRole(roleNew);
+        Optional<Role> role = roleRepository.findRoleEntityByName(roleNew);
         if(role.isPresent()) {
-            if (role.get().getRole().equals(roleNew)) {
+            if (role.get().getName().equals(roleNew)) {
                 throw new ConflictException("exception.roleExisting.user",new Object[]{roleNew},"exception.roleExisting.log",new Object[]{roleNew,"RoleService", "Save"},LogLevel.ERROR);
             }
         }
@@ -324,7 +327,7 @@ public class RoleService implements IRoleService {
      * @throws NotFoundException   Si el rol no fue encontrando en la base de datos.
      */
     private Role validateRoleExist(String roleUpdate){
-        return roleRepository.findRoleEntityByRole(roleUpdate).orElseThrow(()-> new NotFoundException("exception.roleNotFound.user",null,"exception.roleNotFound.log",new Object[]{roleUpdate,"RoleService", "validateRoleExist"},LogLevel.ERROR ));
+        return roleRepository.findRoleEntityByName(roleUpdate).orElseThrow(()-> new NotFoundException("exception.roleNotFound.user",null,"exception.roleNotFound.log",new Object[]{roleUpdate,"RoleService", "validateRoleExist"},LogLevel.ERROR ));
     }
 
 
@@ -340,7 +343,8 @@ public class RoleService implements IRoleService {
      */
     private Role buildRole(RoleRequestDTO roleRequestDto) {
         return Role.builder()
-                .role(roleRequestDto.getRole())
+                .name(roleRequestDto.getName())
+                .label(roleRequestDto.getLabel())
                 .build();
     }
 
@@ -348,7 +352,7 @@ public class RoleService implements IRoleService {
     private Set <RoleSimpleResponseDTO> convertToSimpleDTO(Set <Role> roles) {
 
         Set<RoleSimpleResponseDTO> roleSimpleResponseDTOSet = roles.stream()
-                .map(role -> new RoleSimpleResponseDTO(role.getId(), role.getRole()))
+                .map(role -> new RoleSimpleResponseDTO(role.getId(), role.getName(), role.getLabel()))
                 .collect(Collectors.toSet());
 
         return roleSimpleResponseDTOSet;

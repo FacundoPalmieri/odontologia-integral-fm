@@ -1,6 +1,9 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDeveloperAndAdministrator;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessUserProfile;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationCreate;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationUpdate;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,9 +40,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/user")
-@OnlyDeveloperAndAdministrator
 public class UserController {
-
     @Autowired
     private IUserService userService;
 
@@ -73,6 +74,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessConfigurationRead
     public ResponseEntity<Response<Page<UserSecResponseDTO>>> getAll(@RequestParam(required = false)  Integer page,
                                                                      @RequestParam(required = false)  Integer size,
                                                                      @RequestParam(required = false) String  sortBy,
@@ -112,6 +114,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
     @GetMapping("/{id}")
+    @OnlyAccessUserProfile
     public ResponseEntity<Response<UserSecResponseDTO>> getById(@PathVariable Long id) {
         Response<UserSecResponseDTO>response = userService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -147,6 +150,7 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "Usuario existente en el sistema.")
     })
     @PostMapping
+    @OnlyAccessConfigurationCreate
     public  ResponseEntity<Response<UserSecResponseDTO>> create(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
         Response<UserSecResponseDTO>response = userService.create(userSecCreateDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -178,6 +182,7 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "Usuario existente en el sistema o se intenta actualizar a un rol DEV.")
     })
     @PatchMapping
+    @OnlyAccessConfigurationUpdate
     public ResponseEntity<Response<UserSecResponseDTO>> updateUser(@Valid @RequestBody UserSecUpdateDTO userSecUpdateDto) {
        Response<UserSecResponseDTO> response =  userService.update(userSecUpdateDto);
        return new ResponseEntity<>(response, HttpStatus.OK);

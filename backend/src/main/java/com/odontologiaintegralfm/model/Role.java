@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.Audited;
 
-import java.util.HashSet;
-import java.util.Set;
-
 
 /**
  * Entidad que representa un rol de usuario.
@@ -29,5 +26,9 @@ public class Role {
 
     /**Nombre del rol.*/
     @Column(length = 50, unique = true)
-    private String role;
+    private String name;
+
+    /**Nombre del rol.*/
+    @Column(length = 50, unique = true)
+    private String label;
 }

@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessPatientsUpdate;
 import com.odontologiaintegralfm.dto.PatientMedicalRiskRequestDTO;
 import com.odontologiaintegralfm.dto.PatientMedicalRiskResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 
 @RestController
-@OnlyAdmistratorAndSecretary
 @RequestMapping("/api/patient/{id}/medical-risk")
 public class PatientMedicalRiskController {
     @Autowired
@@ -43,6 +42,7 @@ public class PatientMedicalRiskController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @PatchMapping
+    @OnlyAccessPatientsUpdate
     public ResponseEntity<Response<Set<PatientMedicalRiskResponseDTO>>> update (@PathVariable("id") Long id,
                                                                                 @RequestBody Set<PatientMedicalRiskRequestDTO> patientMedicalRiskRequestDTO) {
 

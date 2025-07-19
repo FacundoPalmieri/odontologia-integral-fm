@@ -26,9 +26,9 @@ public interface IUserRepository extends JpaRepository<UserSec, Long> {
     SELECT u
     FROM UserSec u
     WHERE NOT EXISTS (
-    SELECT r FROM u.rolesList r WHERE r.role = :nameRoleDev
+    SELECT r FROM u.rolesList r WHERE r.id = :idRoleDev
     )
     """)
-    Page<UserSec> findAllExcludingDevelopers (@Param("nameRoleDev") String nameRoleDev ,Pageable pageable);
+    Page<UserSec> findAllExcludingDevelopers (@Param("idRoleDev") Long idRoleDev ,Pageable pageable);
 
 }

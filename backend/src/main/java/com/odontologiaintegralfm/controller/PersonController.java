@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessUserProfile;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IPersonService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,11 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-/**
- * @author [Facundo Palmieri]
- */
+
 @RestController
-@OnlyAdmistratorAndSecretary
 @RequestMapping("/api/person")
 public class PersonController {
 
@@ -56,6 +53,7 @@ public class PersonController {
             @ApiResponse(responseCode = "409", description = "Error en la extensión o tamaño del archivo.")
     })
     @PostMapping(value = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @OnlyAccessUserProfile
     public ResponseEntity<Response<String>> uploadAvatar(@PathVariable Long id,
                                                          @RequestParam("file") MultipartFile file) throws IOException {
         Response<String> response = personService.saveAvatar(file, id);
@@ -90,6 +88,8 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
     })
     @GetMapping("/{id}/avatar")
+    @OnlyAccessUserProfile
+
     public ResponseEntity<UrlResource> getAvatar(@PathVariable Long id) throws IOException {
 
         UrlResource avatar = personService.getAvatar(id);
@@ -128,6 +128,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
     })
     @DeleteMapping("/{id}/avatar")
+    @OnlyAccessUserProfile
     public ResponseEntity<Response<String>> deleteAvatar(@PathVariable Long id) throws IOException {
         Response<String> response = personService.deleteAvatar(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

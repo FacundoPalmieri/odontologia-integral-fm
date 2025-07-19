@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Administrador.name())")
-public @interface OnlyAdministrator {
+@PreAuthorize("hasAuthority('PERMISO_SYSTEM_READ')")
+public @interface OnlySystemRead {
 }

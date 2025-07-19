@@ -36,7 +36,7 @@ public interface IRoleService {
      * [
      *   {
      *     "id": 1,
-     *     "role": "ADMIN",
+     *     "name": "ADMIN",
      *     "permissionsList": [
      *       {
      *         "id": 10,

@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessPatientsRead;
 import com.odontologiaintegralfm.dto.HealthPlanResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IHealthPlanService;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +19,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/health-plans")
-@OnlyAdmistratorAndSecretary
 public class HealthPlanController {
 
 
@@ -46,6 +45,7 @@ public class HealthPlanController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessPatientsRead
     public ResponseEntity<Response<List<HealthPlanResponseDTO>>> getAll(){
         Response<List<HealthPlanResponseDTO>> response = healthPlanService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

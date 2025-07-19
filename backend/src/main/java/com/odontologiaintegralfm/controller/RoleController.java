@@ -1,5 +1,5 @@
 package com.odontologiaintegralfm.controller;
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDevelopers;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.*;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.dto.RoleFullResponseDTO;
 import com.odontologiaintegralfm.dto.RoleRequestDTO;
@@ -26,8 +26,8 @@ import java.util.Set;
  * <p>
  * Los métodos disponibles son:
  * <ul>
- *   <li><b>GET /api/role/all</b>: Obtiene el listado completo de roles.</li>
- *   <li><b>GET /api/role/{id}</b>: Obtiene un rol específico por su ID.</li>
+ *   <li><b>GET /api/name/all</b>: Obtiene el listado completo de roles.</li>
+ *   <li><b>GET /api/name/{id}</b>: Obtiene un rol específico por su ID.</li>
  *   <li><b>POST/api/roles</b>: Crea un nuevo rol en el sistema.</li>
  *   <li><b>PATCH/api/roles</b>: Actualiza un rol en el sistema..</li>
  * </ul>
@@ -38,7 +38,6 @@ import java.util.Set;
  */
 
 @RestController
-@OnlyDevelopers
 @RequestMapping("/api/role")
 public class RoleController {
 
@@ -66,6 +65,7 @@ public class RoleController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessConfigurationRead
     public ResponseEntity<Response<Set<RoleSimpleResponseDTO>>> getAll() {
         Response<Set<RoleSimpleResponseDTO>> response = roleService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -77,7 +77,6 @@ public class RoleController {
      * <p>
      * Requiere el rol <b>DEV</b> para acceder.
      * </p>
-     *
      * @param id ID del rol a buscar.
      * @return ResponseEntity con:
      *         <ul>
@@ -86,6 +85,9 @@ public class RoleController {
      *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
      *         <li><b>404 Not Found</b>: Rol no encontrado.</li>
      *         </ul>
+     *
+     * Se arma el objeto Response aquí, porque el método getFullByRoleId(id), es consumido también por el método
+     * loadUserByUsername de UserDetailServiceImpl
      */
 
     @Operation(summary = "Obtener Rol", description = "Obtiene un Rol por su ID")
@@ -96,6 +98,7 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Rol no encontrado."),
     })
     @GetMapping("/{id}")
+    @OnlyAccessConfigurationRead
     public ResponseEntity<Response<RoleFullResponseDTO>> getById(@Valid @PathVariable Long id) {
         RoleFullResponseDTO roleFullResponseDTO = roleService.getFullByRoleId(id);
         return new ResponseEntity<>(new Response<>(true, null, roleFullResponseDTO), HttpStatus.OK);
@@ -128,6 +131,7 @@ public class RoleController {
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
     @PostMapping
+    @OnlyAccessConfigurationCreate
     public ResponseEntity<Response<RoleFullResponseDTO>>createRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
         Response<RoleFullResponseDTO> response = roleService.create(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -162,6 +166,7 @@ public class RoleController {
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
     @PatchMapping
+    @OnlyAccessConfigurationUpdate
     public ResponseEntity<Response<RoleFullResponseDTO>> updateRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
         Response<RoleFullResponseDTO> response = roleService.update(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);

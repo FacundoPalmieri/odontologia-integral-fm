@@ -187,12 +187,11 @@ public class GlobalExceptionHandler {
 
 
     /**
-     * Maneja las excepciones de acceso denegado en la aplicación.
+     * Maneja las excepciones de autorización denegada en la aplicación mediante las anotaciones @PreAuthorize.
      * <p>
      * Este método intercepta las excepciones {@link AccessDeniedException} generadas cuando un usuario intenta acceder
      * a un recurso para el cual no tiene permisos suficientes. Se distingue entre dos casos:
      * <ul>
-     *     <li>Si el usuario no está autenticado (es un usuario anónimo), se devuelve un código HTTP 401 (Unauthorized).</li>
      *     <li>Si el usuario está autenticado pero no tiene los permisos adecuados, se devuelve un código HTTP 403 (Forbidden).</li>
      * </ul>
      * </p>
@@ -201,6 +200,8 @@ public class GlobalExceptionHandler {
      * @param request La solicitud HTTP que generó la excepción.
      * @return Una {@link ResponseEntity} con un objeto {@link Response} que contiene el mensaje de error y el código HTTP correspondiente.
      */
+
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Response<Void>> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
 
@@ -211,30 +212,20 @@ public class GlobalExceptionHandler {
         // Obtener la URL del endpoint al que se intentó acceder
         String requestedUrl = request.getRequestURI();
 
-        if(username.equals("anonymousUser")) {
-            // Obtener el mensaje desde el archivo de propiedades y asignar datos
-            String logMessage = messageService.getMessage("exception.authenticationRequired.log", new Object[]{username, requestedUrl, ex.getMessage()}, LocaleContextHolder.getLocale());
+        // Obtener el mensaje desde el archivo de propiedades y asignar datos
+        String logMessage = messageService.getMessage("exception.accessDenied.log", new Object[]{username, requestedUrl, ex.getMessage()}, LocaleContextHolder.getLocale());
 
-            // Loguear la excepción para detalles de diagnóstico
-            log.error(logMessage, ex);
+        // Loguear la excepción para detalles de diagnóstico
+        log.error(logMessage, ex);
 
-            // Mensaje para el usuario final
-            String messageUser = messageService.getMessage("exception.authenticationRequired.user", null, LocaleContextHolder.getLocale());
-            Response<Void> response = new Response<>(false, messageUser, null);
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-        }else{
-            // Obtener el mensaje desde el archivo de propiedades y asignar datos
-            String logMessage = messageService.getMessage("exception.accessDenied.log", new Object[]{username, requestedUrl, ex.getMessage()}, LocaleContextHolder.getLocale());
+        // Mensaje para el usuario final
+        String messageUser = messageService.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale());
+        Response<Void> response = new Response<>(false, messageUser, null);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
 
-            // Loguear la excepción para detalles de diagnóstico
-            log.error(logMessage, ex);
-
-            // Mensaje para el usuario final
-            String messageUser = messageService.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale());
-            Response<Void> response = new Response<>(false, messageUser, null);
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-        }
     }
+
+
 
 
 

@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessPatientsRead;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyPatientsUpload;
 import com.odontologiaintegralfm.dto.AttachedFileResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IAttachedFilesService;
@@ -23,7 +24,6 @@ import java.util.List;
  * @author [Facundo Palmieri]
  */
 @RestController
-@OnlyAdmistratorAndSecretary
 @RequestMapping("/api/files")
 public class AttachedFilesController {
 
@@ -58,6 +58,7 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "409", description = "Error en la extensión o tamaño del archivo.")
     })
     @PostMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @OnlyPatientsUpload
     public ResponseEntity<Response<String>> saveDocument(@PathVariable Long id,
                                                          @RequestParam("file") MultipartFile file) throws IOException {
         Response<String> response = attachedFilesService.saveDocument(file, id);
@@ -90,6 +91,7 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
     @GetMapping("/{id}/download")
+    @OnlyAccessPatientsRead
     protected ResponseEntity<UrlResource> getByIdDocumentAsResource(Long id) throws IOException {
         UrlResource document = attachedFilesService.getByIdDocumentResource(id);
 
@@ -127,12 +129,14 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
     @GetMapping("/{id}/metadata")
+    @OnlyAccessPatientsRead
     public ResponseEntity<Response<AttachedFileResponseDTO>> getByIdDocumentMetadata(Long id) throws IOException {
         Response<AttachedFileResponseDTO> response= attachedFilesService.getByIdDocumentMetaData(id);
          return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/all/metadata")
+    @OnlyAccessPatientsRead
     public ResponseEntity<Response<List<AttachedFileResponseDTO>>> getAllDocumentMetadata() throws IOException {
         Response<List<AttachedFileResponseDTO>> response = attachedFilesService.getAllDocumentMetaData();
         return new ResponseEntity<>(response, HttpStatus.OK);

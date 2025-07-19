@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdministrator;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConsultationRecordRead;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.model.TreatmentCondition;
 import com.odontologiaintegralfm.service.interfaces.ITreatmentConditionService;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@OnlyAdministrator
 @RequestMapping("/api/treatment-condition")
 public class TreatmentConditionController {
 
@@ -56,6 +55,7 @@ public class TreatmentConditionController {
     })
 
     @GetMapping("/all")
+    @OnlyAccessConsultationRecordRead
     public ResponseEntity<Response<Page<TreatmentCondition>>> getAll(@RequestParam (required = false) Integer page,
                                                                      @RequestParam (required = false) Integer size,
                                                                      @RequestParam (required = false) String SortBy,

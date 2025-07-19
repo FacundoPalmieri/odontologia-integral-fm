@@ -98,7 +98,7 @@ public class RolePermissionActionService implements IRolePermissionActionService
             }
 
         }catch (DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e, "RolePermissionActionService",role.getId(), role.getRole(), "buildRelationByRole");
+            throw new DataBaseException(e, "RolePermissionActionService",role.getId(), role.getName(), "buildRelationByRole");
         }
 
     }

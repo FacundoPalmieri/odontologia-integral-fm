@@ -25,5 +25,9 @@ public class Action {
     private Long id;
 
     @Column(unique = true,nullable = false)
-    private String action;
+    private String name;
+
+    @Column(unique = true,nullable = false)
+    private String label;
+
 }

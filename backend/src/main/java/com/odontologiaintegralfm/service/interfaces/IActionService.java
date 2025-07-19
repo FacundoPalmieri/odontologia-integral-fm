@@ -2,8 +2,9 @@ package com.odontologiaintegralfm.service.interfaces;
 
 
 import com.odontologiaintegralfm.dto.ActionResponseDTO;
+import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.model.Action;
-
+import java.util.List;
 import java.util.Set;
 
 public interface IActionService {
@@ -26,4 +27,11 @@ public interface IActionService {
      * @return
      */
     Action getById(Long id);
+
+
+    /**
+     * Método para obtener un listado de acciones.
+     * @return
+     */
+    Response<List<ActionResponseDTO>> getAll();
 }

@@ -8,6 +8,7 @@ import java.util.Set;
 public class RoleFullResponseDTO {
 
     private Long id;
-    private String role;
+    private String name;
+    private String label;
     private Set<PermissionFullResponseDTO> permissionsList = new HashSet<>();
 }

@@ -84,9 +84,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
     private PersonService personService;
 
     @Autowired
-    private IRolePermissionActionService rolePermissionActionService;
-
-    @Autowired
     private IRoleService roleService;
 
 
@@ -105,7 +102,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * @throws UnauthorizedException Si el usuario no se encuentra en la base de datos.
      */
     @Override
-    public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
+        public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
         //Se cuenta con usuario de tipo Usersec y se necesita devolver un tipo UserDetails
         //Se recupera el usuario de la bd
         UserSec userSec = userRepo.findUserEntityByUsername(username)
@@ -123,14 +120,14 @@ public class UserDetailsServiceImp implements UserDetailsService {
             RoleFullResponseDTO roleFullResponseDTO = roleService.getFullByRoleId(role.getId());
 
             // 1. Agregamos el rol como autoridad
-            authorityList.add(new SimpleGrantedAuthority("ROLE_" + roleFullResponseDTO.getRole()));
+            authorityList.add(new SimpleGrantedAuthority("ROLE_" + roleFullResponseDTO.getName()));
 
             // 2. Por cada permiso y su lista de acciones, agregamos cada combinación como autoridad
             roleFullResponseDTO.getPermissionsList().forEach(permissionDTO -> {
-                String permission = permissionDTO.getPermission().toUpperCase();
+                String permission = permissionDTO.getName().toUpperCase();
 
                 permissionDTO.getActions().forEach(actionDTO -> {
-                    String action = actionDTO.getAction().toUpperCase();
+                    String action = actionDTO.getName().toUpperCase();
                     authorityList.add(new SimpleGrantedAuthority("PERMISO_" + permission + "_" + action));
                 });
             });

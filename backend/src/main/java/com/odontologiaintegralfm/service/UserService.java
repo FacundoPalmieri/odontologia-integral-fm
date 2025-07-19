@@ -4,7 +4,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
-import com.odontologiaintegralfm.enums.UserRole;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IUserRepository;
@@ -120,7 +119,7 @@ public class UserService implements IUserService {
      */
     @Override
     public Response<Page<UserSecResponseDTO>> getAll(int page, int size, String sortBy, String direction) {
-        try{
+        try {
 
             //Define criterio de ordenamiento
             Sort sort = direction.equalsIgnoreCase("desc") ?
@@ -128,40 +127,44 @@ public class UserService implements IUserService {
                     : Sort.by(sortBy).ascending();
 
             //Se define paginación con n°página, cantidad elementos y ordenamiento.
-            Pageable pageable = PageRequest.of(page,size, sort);
+            Pageable pageable = PageRequest.of(page, size, sort);
 
             //Obtiene listado de usuarios.
-            Page<UserSec> userList = userRepository.findAllExcludingDevelopers(UserRole.Desarrollador.toString(),pageable);
+            Page<UserSec> userList = userRepository.findAllExcludingDevelopers(1L, pageable);
 
+            if (!userList.isEmpty()) {
+                Page<UserSecResponseDTO> userSecResponseDTOList = userList
+                        .map(user -> {
+                            PersonResponseDTO personDTO = personService.convertToDTO(personService.getById(user.getPerson().getId()));
 
-            Page<UserSecResponseDTO> userSecResponseDTOList = userList
-                    .map(user -> {
-                        PersonResponseDTO personDTO = personService.convertToDTO(personService.getById(user.getPerson().getId()));
+                            Optional<Dentist> dentist = dentistService.getById(user.getPerson().getId());
 
-                        Optional<Dentist> dentist = dentistService.getById(user.getPerson().getId());
+                            DentistResponseDTO dentistDTO = null;
+                            if (dentist.isPresent()) {
+                                dentistDTO = dentistService.convertToDTO(dentist.get());
+                            }
+                            return new UserSecResponseDTO(
+                                    user.getId(),
+                                    user.getUsername(),
+                                    user.getRolesList(),
+                                    user.isEnabled(),
+                                    personDTO,
+                                    dentistDTO
+                            );
+                        });
 
-                        DentistResponseDTO dentistDTO = null;
-                                if (dentist.isPresent()) {
-                                    dentistDTO = dentistService.convertToDTO(dentist.get());
-                                }
-                        return new UserSecResponseDTO(
-                                user.getId(),
-                                user.getUsername(),
-                                user.getRolesList(),
-                                user.isEnabled(),
-                                personDTO,
-                                dentistDTO
-                        );
-                    });
+                String messageUser = messageService.getMessage("userService.getAll.ok.user", null, LocaleContextHolder.getLocale());
+                return new Response<>(true, messageUser, userSecResponseDTOList);
 
+            }
 
-            String messageUser = messageService.getMessage("userService.getAll.ok", null, LocaleContextHolder.getLocale());
-            return new Response<>(true, messageUser, userSecResponseDTOList);
-
-        }catch (DataAccessException | CannotCreateTransactionException e) {
+            String messageUser = messageService.getMessage("userService.getAll.empty.user", null, LocaleContextHolder.getLocale());
+            return new Response<>(true, messageUser, null);
+        } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "getAll");
         }
     }
+
 
 
 
@@ -453,7 +456,7 @@ public class UserService implements IUserService {
 
             // Crear los authorities manualmente desde el usuario
             List<GrantedAuthority> authorities = user.getRolesList().stream()
-                    .map(role -> new SimpleGrantedAuthority(role.getRole()))
+                    .map(role -> new SimpleGrantedAuthority(role.getName()))
                     .collect(Collectors.toList());
 
 
@@ -742,7 +745,7 @@ public class UserService implements IUserService {
             Role role = roleService.getByIdInternal(id);
 
             //Valída que la creación no sea a un rol DEV
-            if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
+            if (role.getName().equals("Developer") || role.getName().equals("DEVELOPER")) {
                 throw new ConflictException("exception.save.validateNotDevRole.user", null,"exception.save.validateNotDevRole.log",new Object[]{role.getId(),"UserService", "validateNotDevRole"},LogLevel.ERROR);
             }
         }
@@ -800,7 +803,7 @@ public class UserService implements IUserService {
     private void validateNotDevRole(UserSec userSec, UserSecUpdateDTO userSecUpdateDto) {
         //Valída que no pueda realizar ningún tipo de actualización a un usuario de tipo DEV
         for (Role role : userSec.getRolesList()) {
-            if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
+            if (role.getName().equals("Developer") || role.getName().equals("DEVELOPER")) {
                 throw new ConflictException("exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",new Object[]{ role.getId(),"UserService", "validateNotDevRole"},LogLevel.INFO);
             }
         }
@@ -816,7 +819,7 @@ public class UserService implements IUserService {
             Role role = roleService.getByIdInternal(id);
 
             //Valída que la actualización no sea a un rol DEV
-            if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
+            if (role.getName().equals("Dev") || role.getName().equals("DEV")) {
                 throw new ConflictException("exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",new Object[]{ role.getId(),"UserService", "validateNotDevRole"},LogLevel.INFO);
             }
         }

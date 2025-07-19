@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.ActionResponseDTO;
+import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.exception.NotFoundException;
@@ -12,6 +13,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ public class ActionService implements IActionService {
         try{
 
             return action.stream()
-                    .map(data -> new ActionResponseDTO(data.getId(), data.getAction()))
+                    .map(data -> new ActionResponseDTO(data.getId(), data.getName(), data.getLabel()))
                     .collect(Collectors.toSet());
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"ActionService", null, null, "convertToDTO");
@@ -58,6 +60,27 @@ public class ActionService implements IActionService {
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e,"ActionService", id, null, "getById");
+        }
+    }
+
+    /**
+     * Método para obtener un listado de acciones.
+     *
+     * @return
+     */
+    @Override
+    public Response<List<ActionResponseDTO>> getAll() {
+        try{
+           List <Action> actionsList = actionRepository.findAll();
+
+           List<ActionResponseDTO> actionsListDTO = actionsList.stream()
+                   .map(obj -> new ActionResponseDTO(obj.getId(), obj.getName(), obj.getLabel()))
+                   .toList();
+
+           return new Response<>(true, null, actionsListDTO);
+
+        }catch(DataAccessException | CannotCreateTransactionException e){
+            throw new DataBaseException(e,"ActionService", null, null, "getAll");
         }
     }
 

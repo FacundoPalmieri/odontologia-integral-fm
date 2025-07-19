@@ -9,13 +9,13 @@ import java.util.Set;
 
 @Repository
 public interface IRoleRepository extends JpaRepository<Role, Long> {
-    Optional<Role> findRoleEntityByRole(String role);
+    Optional<Role> findRoleEntityByName(String role);
 
    @Query("""
     SELECT  r
     FROM Role r
-    WHERE r.role != :role
+    WHERE r.id != :id
     """)
-   Set<Role> findAllExcludingDevelopers(@Param("role") String role);
+   Set<Role> findAllExcludingDevelopers(@Param("id") Long id);
 
 }

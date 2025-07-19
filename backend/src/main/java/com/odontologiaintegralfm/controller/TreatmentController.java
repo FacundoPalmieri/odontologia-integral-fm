@@ -1,9 +1,8 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDentist;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConsultationRecordRead;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.dto.TreatmentResponseDTO;
-import com.odontologiaintegralfm.model.Treatment;
 import com.odontologiaintegralfm.service.interfaces.ITreatmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,10 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
-
 @RestController
-@OnlyDentist
 @RequestMapping("/api/treatment")
 public class TreatmentController {
 
@@ -44,7 +40,7 @@ public class TreatmentController {
 
 
     /**
-     * Lista todos los tratamientos  "habilitadas".
+     * Lista todos los tratamientos "habilitadas".
      * <p>Requiere rol <b>Odontólogo</b> para acceder.</p>
      * @return ResponseEntity con:
      * <ul>
@@ -60,6 +56,7 @@ public class TreatmentController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessConsultationRecordRead
     public ResponseEntity<Response<Page<TreatmentResponseDTO>>> getAll(@RequestParam (required = false) Integer page,
                                                                       @RequestParam (required = false) Integer size,
                                                                       @RequestParam (required = false) String sortBy,

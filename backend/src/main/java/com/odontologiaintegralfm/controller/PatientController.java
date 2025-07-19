@@ -1,7 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAuthenticated;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.*;
 import com.odontologiaintegralfm.dto.PatientCreateRequestDTO;
 import com.odontologiaintegralfm.dto.PatientUpdateRequestDTO;
 import com.odontologiaintegralfm.dto.PatientResponseDTO;
@@ -16,12 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@PreAuthorize("denyAll()")
 @RequestMapping("/api/patient")
 public class PatientController {
 
@@ -64,7 +61,7 @@ public class PatientController {
             @ApiResponse(responseCode = "409", description = "Paciente existente en el sistema.")
     })
     @PostMapping
-    @OnlyAdmistratorAndSecretary
+    @OnlyAccessPatientsCreate
     public ResponseEntity<Response<PatientResponseDTO>> create(@Valid @RequestBody PatientCreateRequestDTO patientRequestDTO) {
         Response<PatientResponseDTO> response = patientService.create(patientRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -96,7 +93,7 @@ public class PatientController {
             @ApiResponse(responseCode = "409", description = "Paciente existente en el sistema.")
     })
     @PatchMapping
-    @OnlyAdmistratorAndSecretary
+    @OnlyAccessPatientsUpdate
     public ResponseEntity<Response<PatientResponseDTO>> update(@Valid @RequestBody PatientUpdateRequestDTO patientUpdateRequestDTO) {
         Response<PatientResponseDTO> response = patientService.update(patientUpdateRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -124,7 +121,7 @@ public class PatientController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @OnlyAuthenticated
+    @OnlyAccessPatientsRead
     public ResponseEntity<Response<Page<PatientResponseDTO>>> getAll(@RequestParam(required = false) Integer page,
                                                                      @RequestParam(required = false) Integer size,
                                                                      @RequestParam(required = false) String  sortBy,
@@ -163,7 +160,7 @@ public class PatientController {
             @ApiResponse(responseCode = "404", description = "Paciente no encontrado.")
     })
     @GetMapping("/{id}")
-    @OnlyAuthenticated
+    @OnlyAccessPatientsRead
     public ResponseEntity<Response<PatientResponseDTO>> getById(@PathVariable Long id) {
         Response<PatientResponseDTO> response = patientService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

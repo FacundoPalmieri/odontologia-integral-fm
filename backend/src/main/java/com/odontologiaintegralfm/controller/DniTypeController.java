@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationOrPatientsRead;
 import com.odontologiaintegralfm.dto.DniTypeResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IDniTypeService;
@@ -19,7 +19,6 @@ import java.util.Set;
  * @author [Facundo Palmieri]
  */
 @RestController
-@OnlyAdmistratorAndSecretary
 @RequestMapping("/api/dni-type")
 public class DniTypeController {
     @Autowired
@@ -46,6 +45,7 @@ public class DniTypeController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessConfigurationOrPatientsRead
     public ResponseEntity<Response<Set<DniTypeResponseDTO>>> getAll(){
         Response<Set<DniTypeResponseDTO>> response = dniTypeService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

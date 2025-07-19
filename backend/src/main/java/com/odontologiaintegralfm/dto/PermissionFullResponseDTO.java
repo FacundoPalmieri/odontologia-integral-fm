@@ -16,7 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class PermissionFullResponseDTO {
     private Long id;
-    private String permission;
     private String name;
+    private String label;
     private Set<ActionResponseDTO> actions;
 }
