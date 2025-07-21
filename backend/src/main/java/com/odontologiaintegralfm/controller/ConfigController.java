@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlySystemRead;
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlySystemUpdate;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessSystemRead;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessSystemUpdate;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.model.MessageConfig;
 import com.odontologiaintegralfm.service.ConfigService;
@@ -78,7 +78,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/message")
-    @OnlySystemRead
+    @OnlyAccessSystemRead
     public ResponseEntity<Response<List<MessageConfig>>> getMessage() {
         Response<List<MessageConfig>> response = configService.getMessage();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -108,7 +108,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "404", description = "Mensaje no encontrado para actualizar.")
     })
     @PatchMapping("/message")
-    @OnlySystemUpdate
+    @OnlyAccessSystemUpdate
     public ResponseEntity<Response<MessageConfig>> updateMessage(@Valid @RequestBody MessageRequestDTO messageRequestDTO) {
         Response<MessageConfig> response =  configService.updateMessage(messageRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -137,7 +137,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @GetMapping("/session")
-    @OnlySystemRead
+    @OnlyAccessSystemRead
     public ResponseEntity<Response<Integer>> getAttempts() {
         Response<Integer> response =  configService.getAttempts();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -167,7 +167,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/session")
-    @OnlySystemUpdate
+    @OnlyAccessSystemUpdate
     public ResponseEntity<Response<Integer>> updateAttempts(@Valid @RequestBody FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO) {
         Response<Integer> response = configService.updateAttempts(failedLoginAttemptsRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -194,7 +194,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @GetMapping ("/token")
-    @OnlySystemRead
+    @OnlyAccessSystemRead
     public ResponseEntity<Response<Long>> getTokenExpiration() {
         Response<Long> response = configService.getTokenExpiration();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -223,7 +223,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/token")
-    @OnlySystemUpdate
+    @OnlyAccessSystemUpdate
     public ResponseEntity<Response<Long>> updateTokenExpiration(@Valid @RequestBody TokenConfigRequestDTO tokenConfigRequestDTO) {
          Response<Long> response = configService.updateTokenExpiration(tokenConfigRequestDTO);
          return new ResponseEntity<>(response, HttpStatus.OK);
@@ -250,7 +250,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @GetMapping ("/token/refresh")
-    @OnlySystemRead
+    @OnlyAccessSystemRead
     public ResponseEntity<Response<Long>> getRefreshTokenExpiration() {
         Response<Long> response = configService.getRefreshTokenExpiration();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -280,7 +280,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/token/refresh")
-    @OnlySystemUpdate
+    @OnlyAccessSystemUpdate
     public ResponseEntity<Response<Long>> updateRefreshTokenExpiration(@Valid @RequestBody RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO) {
         Response<Long> response = configService.updateRefreshTokenExpiration(refreshTokenConfigRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -310,7 +310,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/schedule")
-    @OnlySystemUpdate
+    @OnlyAccessSystemUpdate
     public ResponseEntity<Response<String>> updateSchedule(@Valid @RequestBody ScheduleConfigRequestDTO scheduleConfigRequestDTO) {
         Response<String> response = configService.updateSchedule(scheduleConfigRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -337,7 +337,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @GetMapping("/schedule")
-    @OnlySystemRead
+    @OnlyAccessSystemRead
     public ResponseEntity<Response<String>> getSchedule() {
         Response<String> response = configService.getSchedule();
         return new ResponseEntity<>(response, HttpStatus.OK);

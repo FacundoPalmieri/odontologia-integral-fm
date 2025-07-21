@@ -1,7 +1,5 @@
 package com.odontologiaintegralfm.configuration.securityConfig.annotations;
 
-import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -47,7 +47,7 @@ public interface IFileStorageService {
     String saveDocument(MultipartFile file, Person person) throws IOException;
 
     /**
-     * Método para obtener un documento en formato PDF.
+     * Método para obtener el documento físico en formato PDF.
      * @param file
      * @return
      * @throws IOException

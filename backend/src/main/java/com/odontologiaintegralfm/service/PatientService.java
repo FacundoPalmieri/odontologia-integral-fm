@@ -212,6 +212,23 @@ public class PatientService implements IPatientService {
         }
     }
 
+    /**
+     * Método para obtener un paciente habilitado por ID
+     *
+     * @param id del paciente
+     * @return La entidad recuperada
+     */
+    @Override
+    public Patient getByIdInternal(Long id) {
+        try{
+            return patientRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("exception.patientNotFound.user",null, "exception.patientNotFound.log", new Object[]{id, "PatientService", "getByIdInternal"}, LogLevel.ERROR ));
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "PatientService",id,"<- Id Paciente", "getByIdInternal");
+        }
+    }
+
 
     /**
      * Método privado para validar:

@@ -218,10 +218,26 @@ public class UserService implements IUserService {
 
                  return new Response<>(true, messageUser, userSecResponseDTO);
              }else{
-                 throw new NotFoundException("userService.findById.error.user", null,"userService.findById.error.log",new Object[]{id,"UserService", "getById"}, LogLevel.ERROR );
+                 throw new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{id,"UserService", "getById"}, LogLevel.ERROR );
              }
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", id, "", "getById");
+        }
+    }
+
+    /**
+     * Obtiene un usuario por su ID.
+     *
+     * @param id El ID del usuario a recuperar.
+     * @return La entidad recuperada
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public UserSec getByIdInternal(Long id) {
+        try {
+            return userRepository.findById(id).orElseThrow(() -> new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log",new Object[]{id,"UserService", "getByIdInternal"}, LogLevel.ERROR ));
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "userService", id, "", "getByIdInternal");
         }
     }
 
@@ -354,7 +370,7 @@ public class UserService implements IUserService {
         try {
             //Se obtiene el usuario desde la base de datos para realizar validaciones
             UserSec userSec = userRepository.findById(userSecUpdateDto.getId())
-                    .orElseThrow(() -> new NotFoundException("userService.findById.error.user", null,"userService.findById.error.log",new Object[]{userSecUpdateDto.getId(), "UserService", "Update"},LogLevel.ERROR));
+                    .orElseThrow(() -> new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{userSecUpdateDto.getId(), "UserService", "Update"},LogLevel.ERROR));
 
             //Valída que el ID del UserSecUpdate no sea el mismo de quien está autenticado y recibe el usuario de la BD.
             validateSelfUpdate(userSecUpdateDto.getId());
@@ -362,7 +378,7 @@ public class UserService implements IUserService {
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
             validateNotDevRole(userSec, userSecUpdateDto);
 
-            //Valída  que haya al menos una actualización de datos de usuario (No persona)
+            //Valída que haya al menos una actualización de datos de usuario (No persona)
             if(userSecUpdateDto.getPerson() == null) {
                 validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
             }
@@ -776,7 +792,7 @@ public class UserService implements IUserService {
            }
 
            //Obtener el ID del usuario autenticado.
-           UserSec userSec = userRepository.findUserEntityByUsername(authenticatedUsername).orElseThrow(() -> new NotFoundException("userService.findById.error.user",null,"userService.findById.error.log",new Object[]{authenticatedUsername,"UserService", "validateSelfUpdate"},LogLevel.ERROR));
+           UserSec userSec = userRepository.findUserEntityByUsername(authenticatedUsername).orElseThrow(() -> new NotFoundException("userService.getById.error.user",null,"userService.getById.error.log",new Object[]{authenticatedUsername,"UserService", "validateSelfUpdate"},LogLevel.ERROR));
 
            //Comparar el ID del usuario autenticado con el ID de la solicitud.
            if (userSec.getId().equals(id)) {

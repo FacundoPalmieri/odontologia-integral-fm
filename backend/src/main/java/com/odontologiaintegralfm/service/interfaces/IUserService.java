@@ -7,8 +7,6 @@ import com.odontologiaintegralfm.model.UserSec;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
-
 /**
  * Interfaz que define los métodos para el servicio de gestión de usuarios.
  * Proporciona operaciones para recuperar, guardar, actualizar y eliminar usuarios,
@@ -27,6 +25,14 @@ public interface IUserService {
       * @return Una respuesta que contiene el objeto {@link UserSecResponseDTO} correspondiente al usuario.
       */
      Response<UserSecResponseDTO> getById(Long id);
+
+     /**
+      * Obtiene un usuario por su ID.
+      * @param id El ID del usuario a recuperar.
+      * @return La entidad recuperada
+      */
+      UserSec getByIdInternal(Long id);
+
 
 
 

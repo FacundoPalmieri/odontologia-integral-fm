@@ -16,36 +16,66 @@ import java.util.List;
 public interface IAttachedFilesService {
 
     /**
-     * Método para guardar un documento en formato PDF.
+     * Método para guardar un documento en formato PDF asociado a un Usuario.
      * @param file
-     * @param personId
+     * @param id
      * @return
      * @throws IOException
      */
-    Response<String> saveDocument (MultipartFile file, Long personId) throws IOException;
+    Response<String> saveDocumentUser(MultipartFile file, Long id) throws IOException;
+
 
 
     /**
-     * Método para obtener un documento PDF
-     * @param id Id del documento
+     * Método para guardar un documento en formato PDF asociado a un Paciente.
+     * @param file
+     * @param id
      * @return
      * @throws IOException
      */
-    UrlResource getByIdDocumentResource(Long id) throws IOException;
+    Response<String> saveDocumentPatient(MultipartFile file, Long id) throws IOException;
+
 
 
     /**
-     * Método para obtener la metadata de un documento PDF
-     * @param id Id del documento
+     * Método para obtener de un usuario un documento PDF por su ID.
+     * @param documentId Id del documento
      * @return
      * @throws IOException
      */
-    Response<AttachedFileResponseDTO> getByIdDocumentMetaData(Long id) throws IOException;
+    UrlResource getByIdDocumentUserResource(Long documentId) throws IOException;
+
+
+
 
     /**
-     * Método para obtener la información de todos los documentos adjuntos.
-     * @return  Response<List<AttachedFileResponseDTO>>
+     * Método para obtener de un paciente un documento PDF por su ID.
+     * @param documentId Id del documento
+     * @return
      * @throws IOException
      */
-    Response<List<AttachedFileResponseDTO>> getAllDocumentMetaData() throws IOException;
+    UrlResource getByIdDocumentPatientResource(Long documentId) throws IOException;
+
+
+
+
+    /**
+     * Método para obtener la metadata de todos los documento PDF de un usuario.
+     * @param idUser idUser
+     * @return Objeto Response, con la lista de la información de todos los documentos.
+     * @throws IOException
+     */
+    Response<List<AttachedFileResponseDTO>> getAllDocumentsMetadataByIdUser(Long idUser) throws IOException;
+
+
+
+    /**
+     * Método para obtener la metadata de todos los documento PDF de un paciente.
+     * @param idPatient id de paciente
+     * @return Objeto Response, con la lista de la información de todos los documentos.
+     * @throws IOException
+     */
+    Response<List<AttachedFileResponseDTO>> getAllDocumentsMetadataByIdPatient(Long idPatient) throws IOException;
+
+
 }

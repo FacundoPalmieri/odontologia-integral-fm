@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAuthority('PERMISO_SYSTEM_UPDATE')")
-public @interface OnlySystemUpdate {
+@PreAuthorize("hasAuthority('PERMISO_SYSTEM_READ')")
+public @interface OnlyAccessSystemRead {
 }
