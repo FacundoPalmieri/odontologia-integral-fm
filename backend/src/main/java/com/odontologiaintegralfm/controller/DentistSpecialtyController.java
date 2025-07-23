@@ -1,9 +1,8 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationRead;
 import com.odontologiaintegralfm.dto.DentistSpecialtyResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.model.DentistSpecialty;
 import com.odontologiaintegralfm.service.DentistSpecialtyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/dentist-Specialty")
-@OnlyAdmistratorAndSecretary
 public class DentistSpecialtyController {
 
    @Autowired
@@ -44,6 +42,7 @@ public class DentistSpecialtyController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessConfigurationRead
     public ResponseEntity<Response<List<DentistSpecialtyResponseDTO>>> getAll(){
         Response<List<DentistSpecialtyResponseDTO>> response = dentistSpecialtyService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -217,7 +217,7 @@ public class FileStorageService implements IFileStorageService {
             return null;
         }
 
-        //Verifica extensión de del documento.
+        //Verifica extensión del documento.
         extensionVerificationDocument(file.getOriginalFilename());
 
         //Verifica tamaño del documento
@@ -245,7 +245,7 @@ public class FileStorageService implements IFileStorageService {
     }
 
     /**
-     * Método para obtener un documento en formato PDF.
+     * Método para obtener un documento físico en formato PDF.
      *
      * @param file
      * @return

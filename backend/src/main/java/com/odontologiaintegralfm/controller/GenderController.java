@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationOrPatientsRead;
 import com.odontologiaintegralfm.dto.GenderResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IGenderService;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@OnlyAdmistratorAndSecretary
 @RequestMapping("/api/gender")
 public class GenderController {
 
@@ -41,6 +40,7 @@ public class GenderController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessConfigurationOrPatientsRead
     public ResponseEntity<Response<List<GenderResponseDTO>>> getAll(){
         Response<List<GenderResponseDTO>> response = genderService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

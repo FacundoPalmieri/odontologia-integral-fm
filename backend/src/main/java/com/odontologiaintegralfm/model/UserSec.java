@@ -62,8 +62,11 @@ public class UserSec extends Auditable {
      * Se utiliza Set porque no permite repetidos.
      */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) //el eager carga todos los roles
-    @JoinTable (name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns=@JoinColumn(name = "role_id"))
+    @JoinTable (
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns=@JoinColumn(name = "role_id")
+    )
     private Set<Role> rolesList = new HashSet<>();
 
     /**Token para restablecimiento de contraseña.*/

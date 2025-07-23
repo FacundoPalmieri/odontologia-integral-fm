@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAnyRole(T(com.odontologiaintegralfm.enums.UserRole).Administrador.name()," +
-        " T(com.odontologiaintegralfm.enums.UserRole).Secretaria.name())")
-public @interface OnlyAdmistratorAndSecretary {
+@PreAuthorize("hasAuthority('PERMISO_PATIENTS_UPLOAD')")
+public @interface OnlyAccessPatientsUpload {
 }

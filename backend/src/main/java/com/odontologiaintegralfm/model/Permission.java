@@ -25,13 +25,14 @@ public class Permission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     /**Descripción del permiso.*/
     @Column(length = 50, unique = true, nullable = false)
-    private String permission;
+    private String name;
 
     /**Nombre del permiso.*/
     @Column(length = 50, unique = true, nullable = false)
-    private String name;
+    private String label;
+
+
 
 }

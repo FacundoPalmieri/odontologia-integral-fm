@@ -1,15 +1,12 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdministrator;
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessPatientsRead;
 import com.odontologiaintegralfm.dto.MedicalRiskResponseDTO;
-import com.odontologiaintegralfm.dto.PatientMedicalRiskRequestDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.MedicalRiskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 
 @RestController
-@OnlyAdmistratorAndSecretary
 @RequestMapping("/api/medical-risk")
 public class MedicalRiskController {
     @Autowired
@@ -41,6 +37,7 @@ public class MedicalRiskController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessPatientsRead
     public ResponseEntity<Response<Set<MedicalRiskResponseDTO>>> getAll(){
         Response<Set<MedicalRiskResponseDTO>> response = medicalRiskService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

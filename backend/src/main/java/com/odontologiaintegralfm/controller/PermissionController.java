@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyDevelopers;
-import com.odontologiaintegralfm.dto.PermissionResponseDTO;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationRead;
+import com.odontologiaintegralfm.dto.PermissionSimpleResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.service.interfaces.IPermissionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +32,6 @@ import java.util.List;
  * </p>
  */
 @RestController
-@OnlyDevelopers
 @RequestMapping("/api/permission")
 public class PermissionController {
 
@@ -58,39 +57,11 @@ public class PermissionController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("all")
-    public ResponseEntity<Response<List<PermissionResponseDTO>>> getAllPermissions() {
-        Response<List<PermissionResponseDTO>> response = permissionService.getAll();
+    @GetMapping("/all")
+    @OnlyAccessConfigurationRead
+    public ResponseEntity<Response<List<PermissionSimpleResponseDTO>>> getAll() {
+        Response<List<PermissionSimpleResponseDTO>> response = permissionService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
-    /**
-     * Obtiene un permiso por su ID.
-     * <p>
-     * Requiere el rol <b>DEV</b> para acceder.
-     * </p>
-     *
-     * @param id ID del permiso a buscar.
-     * @return ResponseEntity con:
-     *         <ul>
-     *         <li><b>200 OK</b>: Permiso encontrado exitosamente.</li>
-     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
-     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
-     *         <li><b>404 Not Found</b>: Permiso no encontrado.</li>
-     *         </ul>
-     */
-    @Operation(summary = "Obtener Permiso", description = "Obtiene un permiso por su ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Permiso encontrado exitosamente."),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
-            @ApiResponse(responseCode = "404", description = "Permiso no encontrado.")
-    })
-    @GetMapping("/{id}")
-    public ResponseEntity<Response<PermissionResponseDTO>> getPermissionById(@PathVariable Long id) {
-        Response<PermissionResponseDTO> response = permissionService.getById(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
 }
+

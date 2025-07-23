@@ -1,9 +1,8 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAdmistratorAndSecretary;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationOrPatientsRead;
 import com.odontologiaintegralfm.dto.PhoneTypeResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.model.PhoneType;
 import com.odontologiaintegralfm.service.interfaces.IPhoneTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +18,6 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/phone-type")
-@OnlyAdmistratorAndSecretary
 public class PhoneTypeController {
 
     @Autowired
@@ -43,6 +41,7 @@ public class PhoneTypeController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
+    @OnlyAccessConfigurationOrPatientsRead
     public ResponseEntity<Response<Set<PhoneTypeResponseDTO>>> getAll() {
         Response<Set<PhoneTypeResponseDTO>>response = phoneTypeService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);

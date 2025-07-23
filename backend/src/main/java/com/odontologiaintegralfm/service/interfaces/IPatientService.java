@@ -56,5 +56,13 @@ public interface IPatientService {
     Response<PatientResponseDTO> getById(Long id);
 
 
+    /**
+     * Método para obtener un paciente habilitado por ID
+     * @param id del paciente
+     * @return La entidad recuperada
+     */
+    Patient getByIdInternal(Long id);
+
+
 
 }

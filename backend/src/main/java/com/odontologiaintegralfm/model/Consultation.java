@@ -1,18 +1,12 @@
 package com.odontologiaintegralfm.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
@@ -22,7 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "consultations")
+@Table(name = "consultations_registration")
 @Audited
 public class Consultation extends Auditable {
 
@@ -53,4 +47,5 @@ public class Consultation extends Auditable {
 
     @Column(nullable = false)
     private BigDecimal amount;
+
 }

@@ -17,7 +17,6 @@ import jakarta.validation.Valid;
 /**
  * Controlador de autenticación que maneja los endpoints relacionados con el inicio de sesión,
  * la solicitud de restablecimiento de contraseña y el restablecimiento efectivo de la contraseña del usuario.
- *
  * Este controlador expone las siguientes operaciones:
  * <ul>
  *     <li><b>/api/auth/login</b>: Inicia sesión autenticando las credenciales del usuario y devuelve un token en caso de autenticación exitosa.</li>
@@ -32,7 +31,6 @@ import jakarta.validation.Valid;
  * {@link IUserService} para la gestión de las contraseñas y el envío de correos electrónicos de restablecimiento.
  */
 @RestController
-@PreAuthorize("permitAll()")
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
