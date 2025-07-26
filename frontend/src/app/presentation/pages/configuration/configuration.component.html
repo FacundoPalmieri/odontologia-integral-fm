@@ -6,15 +6,21 @@
     <div class="flex w-full justify-end">
       <button
         mat-flat-button
-        matTooltip="Agregar usuario"
+        [matTooltip]="
+          !canCreate()
+            ? 'No tienes permisos para crear usuarios'
+            : 'Crear usuario'
+        "
         matTooltipPosition="left"
         (click)="createUser()"
+        [disabled]="!canCreate()"
       >
         <i-tabler class="mt-1" name="plus"></i-tabler>
       </button>
     </div>
   </mat-card-header>
   <mat-card-content>
+    @if(canRead()){
     <div class="w-1/2 flex mt-4">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Buscar usuario</mat-label>
@@ -81,6 +87,7 @@
           </td>
         </ng-container>
 
+        @if(canEdit()){
         <ng-container matColumnDef="action">
           <th mat-header-cell *matHeaderCellDef>Acción</th>
           <td mat-cell *matCellDef="let element">
@@ -92,8 +99,8 @@
             >
               <i-tabler name="edit"></i-tabler>
             </button>
-          </td>
-        </ng-container>
+          </td> </ng-container
+        >}
 
         <tr mat-header-row *matHeaderRowDef="userDisplayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: userDisplayedColumns"></tr>
@@ -105,6 +112,7 @@
       ></mat-paginator>
       }
     </div>
+    }
   </mat-card-content>
 </mat-card>
 
@@ -142,6 +150,7 @@
           <td mat-cell *matCellDef="let element">{{ element.label }}</td>
         </ng-container>
 
+        @if(canEdit()){
         <ng-container matColumnDef="action">
           <th mat-header-cell *matHeaderCellDef>Acción</th>
           <td mat-cell *matCellDef="let element">
@@ -155,6 +164,7 @@
             </button>
           </td>
         </ng-container>
+        }
 
         <tr mat-header-row *matHeaderRowDef="roleDisplayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: roleDisplayedColumns"></tr>

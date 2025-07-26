@@ -39,6 +39,12 @@ import { Router } from "@angular/router";
 import { UserDtoInterface } from "../../../domain/dto/user.dto";
 import { PersonDataService } from "../../../services/person-data.service";
 import { LoaderService } from "../../../services/loader.service";
+import { AccessControlService } from "../../../services/access-control.service";
+import { Action } from "rxjs/internal/scheduler/Action";
+import {
+  ActionsEnum,
+  PermissionsEnum,
+} from "../../../utils/enums/permissions.enum";
 
 @Component({
   selector: "app-configuration",
@@ -72,6 +78,7 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
   roleService = inject(RoleService);
   permissionService = inject(PermissionService);
   snackbarService = inject(SnackbarService);
+  accessControlService = inject(AccessControlService);
 
   users = signal<UserDtoInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
@@ -95,9 +102,12 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
     "username",
     "rolesList",
     "enabled",
-    "action",
   ];
-  roleDisplayedColumns: string[] = ["id", "name", "label", "action"];
+  roleDisplayedColumns: string[] = ["id", "name", "label"];
+
+  canCreate = signal<boolean>(false);
+  canRead = signal<boolean>(false);
+  canEdit = signal<boolean>(false);
 
   constructor() {
     this._loadInitialData();
@@ -119,6 +129,13 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
           this.rolesDataSource.paginator = this.paginators.toArray()[1];
           this.rolesDataSource.sort = this.sorts.toArray()[1];
         }
+      }
+    });
+
+    effect(() => {
+      if (this.canEdit() == true) {
+        this.roleDisplayedColumns.push("action");
+        this.userDisplayedColumns.push("action");
       }
     });
   }
@@ -211,6 +228,28 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
       this.usersSortDirection()
     );
     this._loadRoles();
+    this._loadPermissionsFlags();
+  }
+
+  private _loadPermissionsFlags() {
+    this.canCreate.set(
+      this.accessControlService.can(
+        PermissionsEnum.CONFIGURATION,
+        ActionsEnum.CREATE
+      )
+    );
+    this.canRead.set(
+      this.accessControlService.can(
+        PermissionsEnum.CONFIGURATION,
+        ActionsEnum.READ
+      )
+    );
+    this.canEdit.set(
+      this.accessControlService.can(
+        PermissionsEnum.CONFIGURATION,
+        ActionsEnum.UPDATE
+      )
+    );
   }
 
   private _loadUsers(
