@@ -5,11 +5,11 @@ export class RoleSerializer {
   static toUpdateDto(role: RoleInterface): RoleCreateDtoInterface {
     const roleDto: RoleCreateDtoInterface = {
       id: role.id,
-      role: role.role,
-      permissionsList: role.permissionsList.map((permission) => ({
-        id: permission.id,
-        permission: permission.permission,
-        name: permission.name,
+      name: role.name,
+      label: role.label,
+      permissionsList: role.permissionsList!.map((permission) => ({
+        permissionId: permission.id,
+        actionId: permission.actions!.map((action) => action.id),
       })),
     };
     return roleDto;
@@ -18,11 +18,11 @@ export class RoleSerializer {
   static toCreateDto(role: RoleInterface): RoleCreateDtoInterface {
     const roleDto: RoleCreateDtoInterface = {
       id: role.id,
-      role: role.role,
-      permissionsList: role.permissionsList.map((permission) => ({
-        id: permission.id,
-        permission: permission.permission,
-        name: permission.name,
+      name: role.name,
+      label: role.label,
+      permissionsList: role.permissionsList!.map((permission) => ({
+        permissionId: permission.id,
+        actionId: permission.actions!.map((action) => action.id),
       })),
     };
     return roleDto;
@@ -31,12 +31,9 @@ export class RoleSerializer {
   static toView(role: RoleDtoInterface): RoleInterface {
     const roleView: RoleInterface = {
       id: role.id,
-      role: role.role,
-      permissionsList: role.permissionsList.map((permission) => ({
-        id: permission.id,
-        permission: permission.permission,
-        name: permission.name,
-      })),
+      name: role.name,
+      label: role.label,
+      permissionsList: role.permissionsList,
     };
     return roleView;
   }

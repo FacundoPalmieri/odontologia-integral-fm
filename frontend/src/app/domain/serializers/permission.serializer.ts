@@ -5,8 +5,8 @@ export class PermissionSerializer {
   static toView(permission: PermissionDtoInterface): PermissionInterface {
     const permissionView: PermissionInterface = {
       id: permission.id,
-      permission: permission.permission,
       name: permission.name,
+      label: permission.label,
     };
     return permissionView;
   }

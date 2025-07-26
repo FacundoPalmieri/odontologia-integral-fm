@@ -174,9 +174,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       .get("rolesList")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((roles: RoleInterface[]) => {
-        const hasDentistRole = roles?.some(
-          (role) => role.role === "Odontólogo"
-        );
+        const hasDentistRole = roles?.some((role) => role.name === "DENTIST");
         this.showProfessionalData.set(hasDentistRole);
 
         if (hasDentistRole && !this.userForm.get("dentist")) {
@@ -358,7 +356,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const hasDentistRole = roles.some((role) => role.role === "Odontólogo");
+    const hasDentistRole = roles.some((role) => role.name === "DENTIST");
     this.showProfessionalData.set(hasDentistRole);
 
     if (hasDentistRole) {
@@ -447,7 +445,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     }
 
     const roles = user.rolesList || [];
-    const hasDentistRole = roles.some((role) => role.role === "Odontólogo");
+    const hasDentistRole = roles.some((role) => role.name === "DENTIST");
 
     if (hasDentistRole && !this.userForm.get("dentist")) {
       this.userForm.addControl(

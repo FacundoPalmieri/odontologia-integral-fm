@@ -31,6 +31,7 @@ import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 import { PersonDataService } from "../../../../services/person-data.service";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { LoaderService } from "../../../../services/loader.service";
+import { MatChipsModule } from "@angular/material/chips";
 
 @Component({
   selector: "app-patients-list",
@@ -53,6 +54,7 @@ import { LoaderService } from "../../../../services/loader.service";
     MatDialogModule,
     RouterModule,
     MatProgressSpinnerModule,
+    MatChipsModule,
   ],
 })
 export class PatientsListComponent implements OnDestroy {

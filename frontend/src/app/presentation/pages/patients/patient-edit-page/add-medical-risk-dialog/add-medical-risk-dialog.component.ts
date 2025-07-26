@@ -57,7 +57,6 @@ export class AddMedicalRiskDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.data.medicalRisks);
     if (this.data.medicalRisks && this.data.medicalRisks.length > 0) {
       this.data.medicalRisks.forEach((risk: MedicalHistoryRiskInterface) => {
         this.medicalRisks.push(

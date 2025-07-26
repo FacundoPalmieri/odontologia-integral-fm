@@ -35,16 +35,32 @@ export class RoleService {
   }
 
   create(role: RoleInterface): Observable<ApiResponseInterface<RoleInterface>> {
-    return this.http.post<ApiResponseInterface<RoleDtoInterface>>(
-      `${this.apiUrl}/role`,
-      RoleSerializer.toCreateDto(role)
-    );
+    const roleCreateDto = RoleSerializer.toCreateDto(role);
+    return this.http
+      .post<ApiResponseInterface<RoleDtoInterface>>(
+        `${this.apiUrl}/role`,
+        roleCreateDto
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: RoleSerializer.toView(response.data),
+        }))
+      );
   }
 
   update(role: RoleInterface): Observable<ApiResponseInterface<RoleInterface>> {
-    return this.http.patch<ApiResponseInterface<RoleDtoInterface>>(
-      `${this.apiUrl}/role`,
-      RoleSerializer.toUpdateDto(role)
-    );
+    const roleUpdateDto = RoleSerializer.toUpdateDto(role);
+    return this.http
+      .patch<ApiResponseInterface<RoleDtoInterface>>(
+        `${this.apiUrl}/role`,
+        roleUpdateDto
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: RoleSerializer.toView(response.data),
+        }))
+      );
   }
 }

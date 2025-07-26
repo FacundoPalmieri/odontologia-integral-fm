@@ -1,4 +1,4 @@
-import { PermissionsEnum } from "../../utils/enums/permission.enum";
+import { PermissionsEnum } from "../../utils/enums/permissions.enum";
 
 export interface MenuItemInterface {
   label: string;

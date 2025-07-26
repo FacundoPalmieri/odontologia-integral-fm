@@ -1,23 +1,24 @@
 export interface RoleDtoInterface {
   id: number;
-  role: string;
-  permissionsList: PermissionDtoInterface[];
+  name: string;
+  label: string;
+  permissionsList?: PermissionDtoInterface[];
 }
 
 export interface RoleCreateDtoInterface {
-  id: number;
-  role: string;
+  id?: number;
+  name: string;
+  label: string;
   permissionsList: PermissionCreateDtoInterface[];
 }
 
 export interface PermissionDtoInterface {
   id: number;
-  permission: string;
   name: string;
+  label: string;
 }
 
 export interface PermissionCreateDtoInterface {
-  id: number;
-  permission: string;
-  name: string;
+  permissionId: number;
+  actionId: number[];
 }

@@ -56,12 +56,7 @@
         </div>
         }
 
-        <button
-          mat-button
-          color="primary"
-          type="button"
-          (click)="addMedicalRisk()"
-        >
+        <button mat-button type="button" (click)="addMedicalRisk()">
           <mat-icon>add</mat-icon> Agregar antecedente
         </button>
       </div>
@@ -70,7 +65,5 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-flat-button color="primary" type="button" (click)="submit()">
-    Confirmar
-  </button>
+  <button mat-flat-button type="button" (click)="submit()">Confirmar</button>
 </mat-dialog-actions>

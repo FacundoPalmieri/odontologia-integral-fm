@@ -285,7 +285,6 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
 
   openAddMedicalRiskDialog() {
     const personId = this.patientForm.get("person.id")?.value;
-    console.log(this.medicalRisks());
     const dialogRef = this.dialog.open(AddMedicalRiskDialogComponent, {
       width: "800px",
       data: {

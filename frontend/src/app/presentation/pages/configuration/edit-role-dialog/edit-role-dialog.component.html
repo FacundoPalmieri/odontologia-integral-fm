@@ -1,40 +1,96 @@
 <h2 mat-dialog-title>Editar Rol</h2>
 <mat-dialog-content>
-  <div class="mt-1">
-    <form [formGroup]="roleForm" class="mt-1">
+  <div
+    class="mt-1 p-4 bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)]"
+  >
+    <form [formGroup]="roleForm" class="mt-1 flex flex-col">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>ID</mat-label>
         <input matInput formControlName="id" readonly />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Rol</mat-label>
-        <input matInput formControlName="role" readonly />
+        <mat-label>Nombre (no editable)</mat-label>
+        <input matInput formControlName="name" readonly />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Permisos</mat-label>
-        <mat-select
-          name="permissionsSelect"
-          formControlName="permissionsList"
-          multiple
-          [compareWith]="comparePermissions"
-        >
-          @for(permission of permissions; track $index){
-          <mat-option [value]="permission">{{ permission.name }}</mat-option>
-          }
-        </mat-select>
+        <mat-label>Alias</mat-label>
+        <input matInput formControlName="label" />
       </mat-form-field>
+
+      <div formArrayName="permissionsList" class="flex flex-col">
+        <span class="text-xl">Permisos</span>
+        @for(permission of permissionsList.controls; track $index){
+        <div
+          [formGroupName]="$index"
+          class="flex flex-col md:flex-row md:gap-4 mt-2"
+        >
+          <mat-form-field appearance="outline" class="w-full md:w-1/2 !mb-0">
+            <mat-label class="items-center flex gap-1">
+              <span class="font-bold">Permiso</span>
+            </mat-label>
+            <mat-select
+              name="permissionSelect"
+              formControlName="permission"
+              [compareWith]="compare"
+            >
+              @for(permission of permissions(); track $index){
+              <mat-option [value]="permission">{{
+                permission.label
+              }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full md:w-1/2 !mb-0">
+            <mat-label class="items-center flex gap-1">
+              <span class="font-bold">Acciones</span>
+            </mat-label>
+            <mat-select
+              name="actionSelect"
+              formControlName="actions"
+              [compareWith]="compare"
+              multiple
+            >
+              @for(action of actions(); track $index){
+              <mat-option [value]="action">{{ action.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <button
+            mat-icon-button
+            aria-label="Eliminar permiso"
+            (click)="removePermission($index)"
+            class="mt-1 self-end md:self-auto"
+            matTooltip="Eliminar"
+          >
+            <i-tabler class="text-[#ef4444] mb-1" name="xbox-x"></i-tabler>
+          </button>
+        </div>
+        }
+
+        <button
+          mat-flat-button
+          type="button"
+          (click)="addPermission()"
+          class="w-full md:w-auto mt-2"
+        >
+          <mat-icon>add</mat-icon> Agregar permiso
+        </button>
+      </div>
     </form>
   </div>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
+<mat-dialog-actions align="end" class="flex flex-col md:flex-row gap-2">
+  <button mat-button mat-dialog-close class="w-full md:w-auto">Cancelar</button>
   <button
     mat-flat-button
-    [mat-dialog-close]="roleForm.value"
+    (click)="save()"
     [disabled]="!roleForm.valid"
     cdkFocusInitial
+    class="w-full md:w-auto"
   >
     Guardar
   </button>

@@ -13,12 +13,14 @@ import { Router } from "@angular/router";
 import { UserService } from "./user.service";
 import { UserInterface } from "../domain/interfaces/user.interface";
 import { RoleInterface } from "../domain/interfaces/role.interface";
+import { AccessControlService } from "./access-control.service";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
   http = inject(HttpClient);
   userService = inject(UserService);
   router = inject(Router);
+  accessControlService = inject(AccessControlService);
   apiUrl = environment.apiUrl;
 
   refreshTokenInProgress = false;
@@ -117,6 +119,7 @@ export class AuthService {
     };
 
     localStorage.setItem("userData", JSON.stringify(userData));
+    this.accessControlService.initializePermissions();
   }
 
   dologout(): void {

@@ -97,7 +97,7 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
     "enabled",
     "action",
   ];
-  roleDisplayedColumns: string[] = ["id", "role", "permissionsList", "action"];
+  roleDisplayedColumns: string[] = ["id", "name", "label", "action"];
 
   constructor() {
     this._loadInitialData();
@@ -169,26 +169,30 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
 
   editRole(role: RoleInterface) {
     if (role != null) {
-      const dialogRef = this.dialog.open(EditRoleDialogComponent, {
-        data: { role: role },
-      });
-      dialogRef.afterClosed().subscribe((role: RoleInterface) => {
-        if (role) {
-          this.roleService
-            .update(role)
-            .pipe(takeUntil(this._destroy$))
-            .subscribe((response: ApiResponseInterface<RoleInterface>) => {
-              this.snackbarService.openSnackbar(
-                response.message,
-                6000,
-                "center",
-                "top",
-                SnackbarTypeEnum.Success
-              );
-              this._loadRoles();
-            });
-        }
-      });
+      this.roleService
+        .getById(role.id)
+        .subscribe((response: ApiResponseInterface<RoleInterface>) => {
+          const dialogRef = this.dialog.open(EditRoleDialogComponent, {
+            data: { role: response.data },
+          });
+          dialogRef.afterClosed().subscribe((role: RoleInterface) => {
+            if (role) {
+              this.roleService
+                .update(role)
+                .pipe(takeUntil(this._destroy$))
+                .subscribe((response: ApiResponseInterface<RoleInterface>) => {
+                  this.snackbarService.openSnackbar(
+                    response.message,
+                    6000,
+                    "center",
+                    "top",
+                    SnackbarTypeEnum.Success
+                  );
+                  this._loadRoles();
+                });
+            }
+          });
+        });
     } else {
       this.snackbarService.openSnackbar(
         "Ocurrió un error el editar el elemento",
@@ -215,7 +219,7 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
     sortBy: string,
     direction: string
   ) {
-    this.loaderService.show();
+    // this.loaderService.show();
     this.userService
       .getAll(page, size, sortBy, direction)
       .pipe(takeUntil(this._destroy$))
@@ -223,20 +227,23 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
         (
           response: ApiResponseInterface<PagedDataInterface<UserDtoInterface[]>>
         ) => {
-          const users = response.data.content;
+          const users = response.data?.content;
           this.users.set(users);
-          this.usersTotalElements.set(response.data.totalElements);
+          this.usersTotalElements.set(response.data?.totalElements);
 
-          users.forEach((user) => {
-            if (user.person?.id) {
-              this.personDataService
-                .getAvatar(user.person.id)
-                .subscribe((avatar: any) => {
-                  user.avatarUrl = avatar;
-                  this.users.set([...this.users()]);
-                });
-            }
-          });
+          if (this.users()?.length > 0) {
+            users.forEach((user) => {
+              if (user.person?.id) {
+                this.personDataService
+                  .getAvatar(user.person.id)
+                  .subscribe((avatar: any) => {
+                    user.avatarUrl = avatar;
+                    this.users.set([...this.users()]);
+                  });
+              }
+            });
+          }
+
           this.loaderService.hide();
         },
         (error) => {

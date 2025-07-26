@@ -169,9 +169,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       .get("rolesList")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((roles: RoleInterface[]) => {
-        const hasDentistRole = roles?.some(
-          (role) => role.role === "Odontólogo"
-        );
+        const hasDentistRole = roles?.some((role) => role.name === "DENTIST");
         this.showProfessionalData.set(hasDentistRole);
 
         if (hasDentistRole && !this.userForm.get("dentist")) {

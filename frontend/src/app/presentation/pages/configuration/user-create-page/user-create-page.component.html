@@ -42,7 +42,7 @@
                     [compareWith]="compare"
                   >
                     @for(role of roles(); track $index){
-                    <mat-option [value]="role">{{ role.role }}</mat-option>
+                    <mat-option [value]="role">{{ role.label }}</mat-option>
                     }
                   </mat-select>
                   @if(userForm.get('rolesList')?.hasError('required') &&

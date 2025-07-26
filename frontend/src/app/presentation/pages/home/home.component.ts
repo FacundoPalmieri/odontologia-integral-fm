@@ -22,6 +22,7 @@ import { ApiResponseInterface } from "../../../domain/interfaces/api-response.in
 import { Subject, takeUntil } from "rxjs";
 import { MatBadgeModule } from "@angular/material/badge";
 import { PersonDataService } from "../../../services/person-data.service";
+import { AccessControlService } from "../../../services/access-control.service";
 
 @Component({
   selector: "app-home",
@@ -49,6 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
   private readonly personDataService = inject(PersonDataService);
+  private readonly accessControlService = inject(AccessControlService);
 
   router = inject(Router);
   fullScreenService = inject(FullscreenService);
@@ -60,14 +62,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   filteredMenuItems: MenuItemInterface[] = [];
   avatar: string | null = null;
 
-  constructor() {}
+  constructor() {
+    if (this.authService.isLoggedIn()) {
+      this.accessControlService.initializePermissions();
+    }
+  }
 
   ngOnInit() {
     if (this.userData?.roles && this.userData?.roles.length > 0) {
       this.userData.roles.forEach((role) => {
         if (role.permissionsList) {
           role.permissionsList.forEach((permissionObject) => {
-            this.permissions.push(permissionObject.permission);
+            this.permissions.push(permissionObject.name);
           });
         }
       });
@@ -113,7 +119,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getRoles(): string {
     if (this.userData?.roles && this.userData.roles.length > 0) {
-      return this.userData.roles.map((role) => role.role).join(", ");
+      return this.userData.roles.map((role) => role.label).join(", ");
     }
     return "";
   }

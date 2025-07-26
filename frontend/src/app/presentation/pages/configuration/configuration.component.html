@@ -23,6 +23,11 @@
       </mat-form-field>
     </div>
     <div class="overflow-x-auto">
+      @if(usersDataSource.data.length === 0) {
+      <div class="flex flex-col items-center justify-center py-8">
+        <mat-chip>No se encontraron usuarios</mat-chip>
+      </div>
+      } @else {
       <table mat-table [dataSource]="usersDataSource" matSort>
         <ng-container matColumnDef="avatar">
           <th mat-header-cell *matHeaderCellDef></th>
@@ -46,7 +51,7 @@
             @if (element.rolesList && element.rolesList.length > 0) {
             <mat-chip-set>
               @for (role of element.rolesList; track $index) {
-              <mat-chip>{{ role.role }}</mat-chip>
+              <mat-chip>{{ role.label }}</mat-chip>
               }
             </mat-chip-set>
             } @else {
@@ -98,6 +103,7 @@
         showFirstLastButtons="true"
         aria-label="Seleccionar página de usuarios"
       ></mat-paginator>
+      }
     </div>
   </mat-card-content>
 </mat-card>
@@ -115,31 +121,25 @@
       </mat-form-field>
     </div>
     <div class="overflow-x-auto">
+      @if(rolesDataSource.data.length === 0) {
+      <div class="flex flex-col items-center justify-center py-8">
+        <mat-chip>No se encontraron roles</mat-chip>
+      </div>
+      } @else {
       <table mat-table [dataSource]="rolesDataSource" matSort>
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
           <td mat-cell *matCellDef="let element">{{ element.id }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="role">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Rol</th>
-          <td mat-cell *matCellDef="let element">{{ element.role }}</td>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="permissionsList">
-          <th mat-header-cell *matHeaderCellDef>Permisos</th>
-          <td mat-cell *matCellDef="let element">
-            @if (element.permissionsList && element.permissionsList.length > 0)
-            {
-            <mat-chip-set>
-              @for (permission of element.permissionsList; track $index) {
-              <mat-chip>{{ permission.name }}</mat-chip>
-              }
-            </mat-chip-set>
-            } @else {
-            <p>Sin permisos asignados</p>
-            }
-          </td>
+        <ng-container matColumnDef="label">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Alias</th>
+          <td mat-cell *matCellDef="let element">{{ element.label }}</td>
         </ng-container>
 
         <ng-container matColumnDef="action">
@@ -164,6 +164,7 @@
         showFirstLastButtons="true"
         aria-label="Seleccionar página de usuarios"
       ></mat-paginator>
+      }
     </div>
   </mat-card-content>
 </mat-card>
