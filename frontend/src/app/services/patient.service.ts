@@ -10,7 +10,10 @@ import {
   MedicalRiskCreateDtoInterface,
   PatientDtoInterface,
 } from "../domain/dto/patient.dto";
-import { PatientInterface } from "../domain/interfaces/patient.interface";
+import {
+  FileMetadataInterface,
+  PatientInterface,
+} from "../domain/interfaces/patient.interface";
 import { PatientSerializer } from "../domain/serializers/patient.serializer";
 
 @Injectable({ providedIn: "root" })
@@ -79,5 +82,31 @@ export class PatientService {
       `${this.apiUrl}/patient/${id}/medical-risk`,
       medicalRisks
     );
+  }
+
+  uploadFile(
+    patientId: number,
+    file: File
+  ): Observable<ApiResponseInterface<string>> {
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.http.post<ApiResponseInterface<string>>(
+      `${this.apiUrl}/files/patient/${patientId}`,
+      formData
+    );
+  }
+
+  getFilesMetadata(
+    patientId: number
+  ): Observable<ApiResponseInterface<FileMetadataInterface[]>> {
+    return this.http.get<ApiResponseInterface<FileMetadataInterface[]>>(
+      `${this.apiUrl}/files/patient/all/${patientId}/metadata`
+    );
+  }
+
+  downloadFile(fileId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/files/patient/${fileId}/download`, {
+      responseType: "blob",
+    });
   }
 }

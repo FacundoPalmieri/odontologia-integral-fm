@@ -83,6 +83,7 @@ import {
   IconPassword,
   IconUserCog,
   IconCheck,
+  IconDownload,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -167,6 +168,7 @@ const ICONS = {
   IconCertificate,
   IconPassword,
   IconUserCog,
+  IconDownload,
 } as const;
 
 @NgModule({

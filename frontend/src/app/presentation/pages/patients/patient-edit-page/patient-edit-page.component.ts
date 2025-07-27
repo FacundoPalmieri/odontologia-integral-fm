@@ -41,6 +41,7 @@ import {
 } from "../../../../domain/interfaces/person-data.interface";
 import { PatientService } from "../../../../services/patient.service";
 import {
+  FileMetadataInterface,
   MedicalHistoryRiskInterface,
   PatientInterface,
 } from "../../../../domain/interfaces/patient.interface";
@@ -104,6 +105,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   patientId: number | null = null;
   patient = signal<PatientInterface>({} as PatientInterface);
   medicalRisks = signal<MedicalHistoryRiskInterface[]>([]);
+  filesMetadata = signal<FileMetadataInterface[]>([]);
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild("studyFileInput") studyFileInput!: ElementRef<HTMLInputElement>;
@@ -323,6 +325,24 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  downloadFile(fileId: number, fileName: string): void {
+    this.patientService.downloadFile(fileId).subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  viewFile(fileId: number): void {
+    this.patientService.downloadFile(fileId).subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    });
+  }
+
   private _loadPermissionsFlags() {
     this.canUpdate.set(
       this.accessControlService.can(
@@ -439,6 +459,14 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             .subscribe((avatar: string) => {
               this.avatarUrl.set(avatar);
             });
+
+          this.patientService
+            .getFilesMetadata(response.data.person.id)
+            .subscribe(
+              (response: ApiResponseInterface<FileMetadataInterface[]>) => {
+                this.filesMetadata.set(response.data);
+              }
+            );
         }
       });
   }
@@ -529,7 +557,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    this.personDataService
+    this.patientService
       .uploadFile(personId, file)
       .pipe(takeUntil(this._destroy$))
       .subscribe({
