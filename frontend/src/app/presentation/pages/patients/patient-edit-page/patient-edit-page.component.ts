@@ -52,6 +52,11 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatListModule } from "@angular/material/list";
 import { MatDialog } from "@angular/material/dialog";
 import { AddMedicalRiskDialogComponent } from "./add-medical-risk-dialog/add-medical-risk-dialog.component";
+import { AccessControlService } from "../../../../services/access-control.service";
+import {
+  ActionsEnum,
+  PermissionsEnum,
+} from "../../../../utils/enums/permissions.enum";
 
 //QUITAR
 interface OdontogramInterface {
@@ -89,7 +94,10 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
+  private readonly accessControlService = inject(AccessControlService);
   personDataService = inject(PersonDataService);
+
+  private selectedAvatarFile: File | null = null;
 
   patientForm: FormGroup = new FormGroup({});
   maxDate = new Date();
@@ -115,11 +123,14 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       odontogram: mockOdontogram1,
     },
   ];
-  private selectedAvatarFile: File | null = null;
+
+  canUpdate = signal<boolean>(false);
+  canUpload = signal<boolean>(false);
 
   constructor() {
     this._loadForm();
     this._getPatientIdFromRoute();
+    this._loadPermissionsFlags();
   }
 
   ngOnInit() {
@@ -144,6 +155,18 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
           this.localities.set([]);
         }
       });
+
+    if (!this.canUpdate()) {
+      this.patientForm.get("person.dniType")?.disable();
+      this.patientForm.get("person.nationality")?.disable();
+      this.patientForm.get("person.gender")?.disable();
+      this.patientForm.get("person.phoneType")?.disable();
+      this.patientForm.get("person.country")?.disable();
+      this.patientForm.get("person.province")?.disable();
+      this.patientForm.get("person.locality")?.disable();
+      this.patientForm.get("healthPlan")?.disable();
+      this.patientForm.get("person.birthDate")?.disable();
+    }
   }
 
   ngOnDestroy(): void {
@@ -298,6 +321,21 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         this._loadPatientData();
       }
     });
+  }
+
+  private _loadPermissionsFlags() {
+    this.canUpdate.set(
+      this.accessControlService.can(
+        PermissionsEnum.PATIENTS,
+        ActionsEnum.UPDATE
+      )
+    );
+    this.canUpload.set(
+      this.accessControlService.can(
+        PermissionsEnum.PATIENTS,
+        ActionsEnum.UPLOAD
+      )
+    );
   }
 
   private _loadForm() {

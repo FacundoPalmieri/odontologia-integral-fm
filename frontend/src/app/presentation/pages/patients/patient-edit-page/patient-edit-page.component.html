@@ -29,7 +29,11 @@
                     <div
                       class="absolute inset-0 bg-black/80 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4 transition-opacity"
                     >
-                      <button mat-icon-button (click)="triggerFileInput()">
+                      <button
+                        mat-icon-button
+                        (click)="triggerFileInput()"
+                        [disabled]="!canUpdate()"
+                      >
                         <i-tabler name="edit" class="text-white"></i-tabler>
                       </button>
                       <!-- @if(avatarUrl()) {
@@ -55,7 +59,12 @@
                         <i-tabler name="user-circle"></i-tabler>
                         <span class="font-bold">Nombre</span>
                       </mat-label>
-                      <input type="text" matInput formControlName="firstName" />
+                      <input
+                        type="text"
+                        matInput
+                        formControlName="firstName"
+                        [readonly]="!canUpdate()"
+                      />
                       @if(patientForm.get('firstName')?.hasError('required') &&
                       patientForm.get('firstName')?.touched){
                       <mat-error>Campo requerido</mat-error>
@@ -72,7 +81,12 @@
                         <i-tabler name="user-circle"></i-tabler>
                         <span class="font-bold">Apellido</span>
                       </mat-label>
-                      <input type="text" matInput formControlName="lastName" />
+                      <input
+                        type="text"
+                        matInput
+                        formControlName="lastName"
+                        [readonly]="!canUpdate()"
+                      />
                       @if(patientForm.get('lastName')?.hasError('required') &&
                       patientForm.get('lastName')?.touched){
                       <mat-error>Campo requerido</mat-error>
@@ -114,7 +128,12 @@
                         <i-tabler name="id"></i-tabler>
                         <span class="font-bold">DNI</span>
                       </mat-label>
-                      <input type="text" matInput formControlName="dni" />
+                      <input
+                        type="text"
+                        matInput
+                        formControlName="dni"
+                        [readonly]="!canUpdate()"
+                      />
                       @if(patientForm.get('dni')?.hasError('required') &&
                       patientForm.get('dni')?.touched){
                       <mat-error>Campo requerido</mat-error>
@@ -139,6 +158,7 @@
                         [matDatepicker]="picker"
                         [max]="maxDate"
                         formControlName="birthDate"
+                        [readonly]="!canUpdate()"
                       />
                       <mat-datepicker-toggle
                         matIconSuffix
@@ -215,6 +235,7 @@
                         type="mail"
                         matInput
                         formControlName="contactEmails"
+                        [readonly]="!canUpdate()"
                       />
                       @if(patientForm.get('contactEmails')?.hasError('required')
                       && patientForm.get('contactEmails')?.touched){
@@ -344,7 +365,12 @@
                         <i-tabler name="map-pin"></i-tabler>
                         <span class="font-bold">Calle</span>
                       </mat-label>
-                      <input type="string" matInput formControlName="street" />
+                      <input
+                        type="string"
+                        matInput
+                        formControlName="street"
+                        [readonly]="!canUpdate()"
+                      />
                       @if(patientForm.get('person.street')?.hasError('required')
                       && patientForm.get('person.street')?.touched){
                       <mat-error>Campo requerido</mat-error>
@@ -364,7 +390,12 @@
                         <i-tabler name="map-pin"></i-tabler>
                         <span class="font-bold">Altura</span>
                       </mat-label>
-                      <input type="number" matInput formControlName="number" />
+                      <input
+                        type="number"
+                        matInput
+                        formControlName="number"
+                        [readonly]="!canUpdate()"
+                      />
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="w-full !mb-0">
@@ -372,7 +403,12 @@
                         <i-tabler name="building"></i-tabler>
                         <span class="font-bold">Piso</span>
                       </mat-label>
-                      <input type="number" matInput formControlName="floor" />
+                      <input
+                        type="number"
+                        matInput
+                        formControlName="floor"
+                        [readonly]="!canUpdate()"
+                      />
                       @if(patientForm.get('person.floor')?.hasError('min') ||
                       patientForm.get('person.floor')?.hasError('max')){
                       <mat-error>
@@ -447,6 +483,7 @@
                     type="string"
                     matInput
                     formControlName="affiliateNumber"
+                    [readonly]="!canUpdate()"
                   />
                   @if(patientForm.get('affiliateNumber')?.hasError('required')
                   && patientForm.get('affiliateNumber')?.touched){
@@ -465,6 +502,7 @@
               <button mat-button (click)="toggleAdditionalInfo()">
                 {{ showAdditionalInfo() ? "Ver menos" : "Ver más" }}
               </button>
+              @if(canUpdate()){
               <button
                 mat-flat-button
                 [disabled]="!patientForm.valid || !patientForm.dirty"
@@ -474,6 +512,7 @@
                   <span>Guardar</span>
                 </div>
               </button>
+              }
             </div>
           </div>
         </form>
@@ -503,7 +542,11 @@
             } @else {
             <span>El paciente aún no registra antecedes clínicos.</span>
             }
-            <button mat-flat-button (click)="openAddMedicalRiskDialog()">
+            <button
+              mat-flat-button
+              (click)="openAddMedicalRiskDialog()"
+              [disabled]="!canUpdate()"
+            >
               <div class="flex items-center gap-2">
                 <i-tabler name="medical-cross"></i-tabler>
                 <span>Agregar antecedentes</span>
@@ -576,7 +619,11 @@
       <mat-card-content>
         <div class="p-4 flex flex-col items-center justify-center gap-4">
           <span>Aún no tienes adjuntos cargados.</span>
-          <button mat-flat-button (click)="triggerStudyFileInput()">
+          <button
+            mat-flat-button
+            (click)="triggerStudyFileInput()"
+            [disabled]="!canUpload()"
+          >
             <div class="flex items-center gap-2">
               <i-tabler name="search"></i-tabler>
               <span>Subir adjunto</span>

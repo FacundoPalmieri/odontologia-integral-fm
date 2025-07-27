@@ -71,14 +71,15 @@ import {
 export class ConfigurationComponent implements OnDestroy, AfterViewInit {
   private readonly _destroy$ = new Subject<void>();
   private readonly loaderService = inject(LoaderService);
-  readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
+  private readonly accessControlService = inject(AccessControlService);
+  readonly dialog = inject(MatDialog);
+
   userService = inject(UserService);
   personDataService = inject(PersonDataService);
   roleService = inject(RoleService);
   permissionService = inject(PermissionService);
   snackbarService = inject(SnackbarService);
-  accessControlService = inject(AccessControlService);
 
   users = signal<UserDtoInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
@@ -107,7 +108,7 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
 
   canCreate = signal<boolean>(false);
   canRead = signal<boolean>(false);
-  canEdit = signal<boolean>(false);
+  canUpdate = signal<boolean>(false);
 
   constructor() {
     this._loadInitialData();
@@ -133,7 +134,7 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
     });
 
     effect(() => {
-      if (this.canEdit() == true) {
+      if (this.canUpdate()) {
         this.roleDisplayedColumns.push("action");
         this.userDisplayedColumns.push("action");
       }
@@ -244,7 +245,7 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
         ActionsEnum.READ
       )
     );
-    this.canEdit.set(
+    this.canUpdate.set(
       this.accessControlService.can(
         PermissionsEnum.CONFIGURATION,
         ActionsEnum.UPDATE

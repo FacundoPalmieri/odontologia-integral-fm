@@ -87,7 +87,7 @@
           </td>
         </ng-container>
 
-        @if(canEdit()){
+        @if(canUpdate()){
         <ng-container matColumnDef="action">
           <th mat-header-cell *matHeaderCellDef>Acción</th>
           <td mat-cell *matCellDef="let element">
@@ -150,7 +150,7 @@
           <td mat-cell *matCellDef="let element">{{ element.label }}</td>
         </ng-container>
 
-        @if(canEdit()){
+        @if(canUpdate()){
         <ng-container matColumnDef="action">
           <th mat-header-cell *matHeaderCellDef>Acción</th>
           <td mat-cell *matCellDef="let element">

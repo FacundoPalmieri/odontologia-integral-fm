@@ -32,6 +32,11 @@ import { PersonDataService } from "../../../../services/person-data.service";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { LoaderService } from "../../../../services/loader.service";
 import { MatChipsModule } from "@angular/material/chips";
+import { AccessControlService } from "../../../../services/access-control.service";
+import {
+  ActionsEnum,
+  PermissionsEnum,
+} from "../../../../utils/enums/permissions.enum";
 
 @Component({
   selector: "app-patients-list",
@@ -63,6 +68,7 @@ export class PatientsListComponent implements OnDestroy {
   private readonly patientService = inject(PatientService);
   private readonly personDataService = inject(PersonDataService);
   private readonly loaderService = inject(LoaderService);
+  private readonly accessControlService = inject(AccessControlService);
   dialog = inject(MatDialog);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -85,12 +91,15 @@ export class PatientsListComponent implements OnDestroy {
   sortBy = "person.lastName";
   sortDirection = "asc";
 
+  canRead = signal<boolean>(false);
+  canCreate = signal<boolean>(false);
+
   constructor() {
     this._loadInitialData();
   }
 
   ngAfterViewInit() {
-    this.paginator.page.pipe(takeUntil(this._destroy$)).subscribe(() => {
+    this.paginator.page!.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this.currentPage = this.paginator.pageIndex;
       this.pageSize = this.paginator.pageSize;
       this._loadData();
@@ -131,6 +140,19 @@ export class PatientsListComponent implements OnDestroy {
   private _loadInitialData() {
     this._loadData();
     this._setupFilters();
+    this._loadPermissionsFlags();
+  }
+
+  private _loadPermissionsFlags() {
+    this.canRead.set(
+      this.accessControlService.can(PermissionsEnum.PATIENTS, ActionsEnum.READ)
+    );
+    this.canCreate.set(
+      this.accessControlService.can(
+        PermissionsEnum.PATIENTS,
+        ActionsEnum.CREATE
+      )
+    );
   }
 
   private _loadData() {
