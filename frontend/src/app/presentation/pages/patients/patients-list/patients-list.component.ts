@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   effect,
   inject,
@@ -62,7 +63,7 @@ import {
     MatChipsModule,
   ],
 })
-export class PatientsListComponent implements OnDestroy {
+export class PatientsListComponent implements OnDestroy, AfterViewInit {
   private readonly _destroy$ = new Subject<void>();
   private readonly router = inject(Router);
   private readonly patientService = inject(PatientService);
@@ -99,7 +100,7 @@ export class PatientsListComponent implements OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.paginator.page!.pipe(takeUntil(this._destroy$)).subscribe(() => {
+    this.paginator.page.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this.currentPage = this.paginator.pageIndex;
       this.pageSize = this.paginator.pageSize;
       this._loadData();
