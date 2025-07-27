@@ -58,6 +58,7 @@ import {
   ActionsEnum,
   PermissionsEnum,
 } from "../../../../utils/enums/permissions.enum";
+import { response } from "express";
 
 //QUITAR
 interface OdontogramInterface {
@@ -562,6 +563,13 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: () => {
+          this.patientService
+            .getFilesMetadata(personId)
+            .subscribe(
+              (response: ApiResponseInterface<FileMetadataInterface[]>) => {
+                this.filesMetadata.set(response.data);
+              }
+            );
           this.snackbarService.openSnackbar(
             "Archivo subido correctamente.",
             6000,
