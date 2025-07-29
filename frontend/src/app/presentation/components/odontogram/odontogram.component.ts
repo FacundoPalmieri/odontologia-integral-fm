@@ -14,8 +14,8 @@ import { OdontogramInterface } from "../../../domain/interfaces/odontogram.inter
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatSidenavModule } from "@angular/material/sidenav";
-import { TreatmentReferencesSidenavService } from "../../../services/treatment-references-sidenav.service";
-import { TreatmentInterface } from "../../../domain/interfaces/treatment.interface";
+import { TreatmentService } from "../../../services/treatment.service";
+import { TreatmentInterfaceOld } from "../../../domain/interfaces/treatment.interface";
 import {
   TreatmentEnum,
   TreatmentTypeEnum,
@@ -32,7 +32,7 @@ import { MatInputModule } from "@angular/material/input";
 interface BridgeConnectionInterface {
   startTooth: number;
   endTooth: number;
-  treatment: TreatmentInterface;
+  treatment: TreatmentInterfaceOld;
 }
 
 interface OdontogramDateInterface {
@@ -128,7 +128,7 @@ export class OdontogramComponent implements OnChanges {
   @Input() showDateSelector: boolean = false;
   treatmentTypeEnum = TreatmentTypeEnum;
 
-  treatmentReferencesSidenavService = inject(TreatmentReferencesSidenavService);
+  treatmentReferencesSidenavService = inject(TreatmentService);
 
   bridgeConnections: BridgeConnectionInterface[] = [];
   selectedDate: OdontogramDateInterface = this.odontogramDates[0];
@@ -157,7 +157,7 @@ export class OdontogramComponent implements OnChanges {
 
     allTeeth.forEach((tooth) => {
       if (tooth.treatments) {
-        tooth.treatments.forEach((treatment: TreatmentInterface) => {
+        tooth.treatments.forEach((treatment: TreatmentInterfaceOld) => {
           if (
             treatment.name === TreatmentEnum.PUENTE &&
             treatment.bridgeStart &&
@@ -287,7 +287,7 @@ export class OdontogramComponent implements OnChanges {
     return { x, y };
   }
 
-  onTreatmentsChange(toothNumber: number, treatments: TreatmentInterface[]) {
+  onTreatmentsChange(toothNumber: number, treatments: TreatmentInterfaceOld[]) {
     const sections = [
       this.odontogram.upperTeethLeft,
       this.odontogram.upperTeethRight,

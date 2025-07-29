@@ -51,6 +51,11 @@ export class PatientSearchComponent {
   filteredPatients: Observable<PatientDtoInterface[]> = of([]);
   selectedPatient: PatientDtoInterface | null = null;
 
+  currentPage = 0;
+  pageSize = 10;
+  sortBy = "person.lastName";
+  sortDirection = "asc";
+
   constructor() {
     this._getPatients();
 
@@ -101,7 +106,7 @@ export class PatientSearchComponent {
 
   private _getPatients() {
     this.patientService
-      .getAll()
+      .getAll(this.currentPage, this.pageSize, this.sortBy, this.sortDirection)
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (

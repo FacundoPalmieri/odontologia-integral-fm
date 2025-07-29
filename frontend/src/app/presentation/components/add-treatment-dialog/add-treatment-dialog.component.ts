@@ -21,7 +21,7 @@ import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import {
-  TreatmentInterface,
+  TreatmentInterfaceOld,
   ShowTreatmentInterface,
 } from "../../../domain/interfaces/treatment.interface";
 import { ToothFaceInterface } from "../../../domain/interfaces/tooth.interface";
@@ -36,7 +36,7 @@ import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 
 interface AddTreatmentDialogData {
   toothNumber: number;
-  treatments: TreatmentInterface[];
+  treatments: TreatmentInterfaceOld[];
 }
 
 @Component({
@@ -69,7 +69,7 @@ export class AddTreatmentDialogComponent implements OnInit {
   TreatmentEnum = TreatmentEnum;
   TreatmentTypeEnum = TreatmentTypeEnum;
 
-  treatmentsList: TreatmentInterface[] = [];
+  treatmentsList: TreatmentInterfaceOld[] = [];
   displayedColumns: string[] = [
     "treatment",
     "observations",
@@ -210,7 +210,7 @@ export class AddTreatmentDialogComponent implements OnInit {
 
   addTreatment() {
     const formValue = this.treatmentForm.value;
-    const treatment: TreatmentInterface = {
+    const treatment: TreatmentInterfaceOld = {
       name: formValue.treatment,
       label: this.selectedTreatment.label,
       treatmentType: formValue.treatmentType,

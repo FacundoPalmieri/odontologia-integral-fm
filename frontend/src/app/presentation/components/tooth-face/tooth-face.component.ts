@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
-import { TreatmentInterface } from "../../../domain/interfaces/treatment.interface";
+import { TreatmentInterfaceOld } from "../../../domain/interfaces/treatment.interface";
 import { ToothFaceTypeEnum } from "../../../utils/enums/tooth-face-type.enum";
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
 import { TreatmentTypeEnum } from "../../../utils/enums/treatment.enum";
@@ -14,7 +14,7 @@ import { TreatmentTypeEnum } from "../../../utils/enums/treatment.enum";
 })
 export class ToothFaceComponent {
   @Input() faceType?: ToothFaceTypeEnum;
-  @Input() treatment?: TreatmentInterface;
+  @Input() treatment?: TreatmentInterfaceOld;
   private treatmentsList = TreatmentFactory.createTreatments();
 
   righties = [ToothFaceTypeEnum.RIGHT, ToothFaceTypeEnum.TOP];
@@ -22,7 +22,7 @@ export class ToothFaceComponent {
 
   constructor() {}
 
-  getTreatmentIcons(treatment: TreatmentInterface): string[] {
+  getTreatmentIcons(treatment: TreatmentInterfaceOld): string[] {
     const showTreatment = this.treatmentsList.find(
       (t) => t.name === treatment.name
     );

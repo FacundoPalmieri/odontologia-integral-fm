@@ -1,9 +1,9 @@
 import { ToothFaceEnum } from "../../utils/factories/tooth-face.factory";
-import { TreatmentInterface } from "./treatment.interface";
+import { TreatmentInterfaceOld } from "./treatment.interface";
 
 export interface ToothInterface {
   number: number;
-  treatments?: TreatmentInterface[];
+  treatments?: TreatmentInterfaceOld[];
 }
 
 export interface ToothFaceInterface {

@@ -11,7 +11,7 @@ import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatListModule } from "@angular/material/list";
-import { TreatmentInterface } from "../../../domain/interfaces/treatment.interface";
+import { TreatmentInterfaceOld } from "../../../domain/interfaces/treatment.interface";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ToothFaceTypeEnum } from "../../../utils/enums/tooth-face-type.enum";
@@ -43,8 +43,8 @@ import { ToothFaceComponent } from "../tooth-face/tooth-face.component";
 export class ToothComponent implements OnChanges {
   private readonly dialog = inject(MatDialog);
   @Input() toothNumber: number = 0;
-  @Input() treatments: TreatmentInterface[] = [];
-  @Output() treatmentsChange = new EventEmitter<TreatmentInterface[]>();
+  @Input() treatments: TreatmentInterfaceOld[] = [];
+  @Output() treatmentsChange = new EventEmitter<TreatmentInterfaceOld[]>();
 
   toothFaceTypeEnum = ToothFaceTypeEnum;
   TreatmentEnum = TreatmentEnum;
@@ -58,9 +58,9 @@ export class ToothComponent implements OnChanges {
     [ToothFaceEnum.PALATINO]: ToothFaceTypeEnum.BOTTOM,
   };
 
-  cariesFaces: { [key in ToothFaceTypeEnum]?: TreatmentInterface } = {};
+  cariesFaces: { [key in ToothFaceTypeEnum]?: TreatmentInterfaceOld } = {};
 
-  generalTreatments: TreatmentInterface[] = [];
+  generalTreatments: TreatmentInterfaceOld[] = [];
 
   constructor() {
     this._processTreatments();
@@ -78,7 +78,7 @@ export class ToothComponent implements OnChanges {
 
     // Primero, vamos a agrupar los tratamientos por cara
     const facesTreatments: {
-      [key in ToothFaceTypeEnum]?: TreatmentInterface[];
+      [key in ToothFaceTypeEnum]?: TreatmentInterfaceOld[];
     } = {};
 
     if (this.treatments?.length > 0) {
@@ -126,7 +126,7 @@ export class ToothComponent implements OnChanges {
     }
   }
 
-  getTreatmentIcons(treatment: TreatmentInterface): string[] {
+  getTreatmentIcons(treatment: TreatmentInterfaceOld): string[] {
     const showTreatment = this.treatmentsList.find(
       (t) => t.name === treatment.name
     );
@@ -156,7 +156,7 @@ export class ToothComponent implements OnChanges {
         },
       })
       .afterClosed()
-      .subscribe((treatments: TreatmentInterface[]) => {
+      .subscribe((treatments: TreatmentInterfaceOld[]) => {
         if (treatments) {
           this.treatmentsChange.emit(treatments);
         }

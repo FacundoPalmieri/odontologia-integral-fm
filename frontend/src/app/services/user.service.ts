@@ -7,10 +7,7 @@ import {
   PagedDataInterface,
 } from "../domain/interfaces/api-response.interface";
 import { UserInterface } from "../domain/interfaces/user.interface";
-import {
-  UserCreateDtoInterface,
-  UserDtoInterface,
-} from "../domain/dto/user.dto";
+import { UserDtoInterface } from "../domain/dto/user.dto";
 import { UserSerializer } from "../domain/serializers/user.serializer";
 
 @Injectable({ providedIn: "root" })
