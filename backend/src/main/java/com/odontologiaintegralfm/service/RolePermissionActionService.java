@@ -36,6 +36,7 @@ public class RolePermissionActionService implements IRolePermissionActionService
      * @return
      */
     @Override
+    @Transactional
     public RolePermissionAction create(RolePermissionAction rolePermissionAction) {
         try{
             return rolePermissionActionRepository.save(rolePermissionAction);
@@ -65,6 +66,7 @@ public class RolePermissionActionService implements IRolePermissionActionService
      * @param idRole del Rol
      */
     @Override
+    @Transactional
     public void deleteByRoleId(Long idRole) {
         try{
             rolePermissionActionRepository.deleteAllByRoleId(idRole);

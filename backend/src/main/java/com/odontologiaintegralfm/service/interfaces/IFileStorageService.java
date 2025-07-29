@@ -1,10 +1,11 @@
 package com.odontologiaintegralfm.service.interfaces;
 
-import com.odontologiaintegralfm.model.AttachedFiles;
+import com.odontologiaintegralfm.model.AttachedFile;
 import com.odontologiaintegralfm.model.Person;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Interfaz que define las operaciones para el almacenamiento y recuperación de archivos físicos.
@@ -52,7 +53,7 @@ public interface IFileStorageService {
      * @return
      * @throws IOException
      */
-    UrlResource getDocument(AttachedFiles file) throws IOException;
+    UrlResource getDocument(AttachedFile file) throws IOException;
 
 
     /**
@@ -69,6 +70,13 @@ public interface IFileStorageService {
      * @param file
      */
     void sizeVerification(MultipartFile file);
+
+    /**
+     * Eliminación física de archivos adjuntos.
+     * Esté método es llamado desde {@link com.odontologiaintegralfm.service.AttachedFilesService} el cual es invocado por la tarea programada.
+     * @param files
+     */
+    List<AttachedFile>  delete(List<AttachedFile> files);
 
 
 }

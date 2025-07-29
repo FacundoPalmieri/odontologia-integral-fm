@@ -78,4 +78,31 @@ public interface IAttachedFilesService {
     Response<List<AttachedFileResponseDTO>> getAllDocumentsMetadataByIdPatient(Long idPatient) throws IOException;
 
 
+    /**
+     * Método para eliminar un documento asociado a un usuario.
+     * El mismo realiza una baja lógica, ya que luego se corre una tarea programada para limpieza de archivos basura.
+     * @param idDocument
+     * @return
+     * @throws IOException
+     */
+    Response<?> disabledByIdDocumentUser(Long idDocument) throws IOException;
+
+
+    /**
+     * Método para eliminar un documento asociado a un paciente.
+     * El mismo realiza una baja lógica, ya que luego se corre una tarea programada para limpieza de archivos basura.
+     * @param idDocument
+     * @return
+     * @throws IOException
+     */
+    Response<?> disabledByIdDocumentPatient (Long idDocument) throws IOException;
+
+    /**
+     /**
+     * Método que se ejecuta cuando es programado por Spring.
+     * Elimina todos los archivos adjuntos con baja lógica de mas de "x" cantidad de días.
+     * @throws IOException
+     */
+     void deleteAttachedFiles();
+
 }

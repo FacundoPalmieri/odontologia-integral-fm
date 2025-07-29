@@ -265,6 +265,7 @@ public class RoleService implements IRoleService {
      * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleFullResponseDTO}
      */
     @Override
+    @Transactional
     public Response<RoleFullResponseDTO> update(RoleRequestDTO roleRequestDto) {
         try{
             //Valída que el rol exista en la base de datos.

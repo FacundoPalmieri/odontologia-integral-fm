@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.controller;
 import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessSystemRead;
 import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessSystemUpdate;
 import com.odontologiaintegralfm.dto.*;
+import com.odontologiaintegralfm.model.AttachedFileConfig;
 import com.odontologiaintegralfm.model.MessageConfig;
 import com.odontologiaintegralfm.service.ConfigService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,10 +60,16 @@ public class ConfigController {
     @Autowired
     private ConfigService configService;
 
+
+
+//////////////////////////////////////////////
+// Sección: Configuración de Mensajes
+//////////////////////////////////////////////
+
     /**
      * Obtiene la configuración de mensajes.
      * <p>
-     * Requiere rol <b>Desarrollador</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
      * @return ResponseEntity con:
@@ -88,7 +96,7 @@ public class ConfigController {
     /**
      * Actualiza la configuración de un mensaje.
      * <p>
-     * Requiere rol <b>Desarrollador</b> para acceder.
+     * Requiere b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
      * @param messageRequestDTO Objeto con los datos del mensaje a actualizar.
@@ -116,11 +124,15 @@ public class ConfigController {
 
 
 
+//////////////////////////////////////////////
+// Sección: Configuración de intento fallídos
+/////////////////////////////////////////////
+
 
     /**
      * Obtiene la cantidad de intentos fallidos de sesión.
      * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
      * @return ResponseEntity con:
@@ -147,7 +159,7 @@ public class ConfigController {
     /**
      * Actualiza la cantidad de intentos fallidos de sesión.
      * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
      * @param failedLoginAttemptsRequestDTO Datos para actualizar los intentos fallidos de sesión.
@@ -174,6 +186,12 @@ public class ConfigController {
     }
 
 
+
+
+
+//////////////////////////////////////////////
+// Sección: Configuración de Token
+/////////////////////////////////////////////
     /**
      * Obtiene la expiración del token.
      * <p>
@@ -203,7 +221,7 @@ public class ConfigController {
     /**
      * Actualiza la expiración del token.
      * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
      * @param tokenConfigRequestDTO Datos para actualizar la expiración del token.
@@ -229,6 +247,12 @@ public class ConfigController {
          return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+
+
+//////////////////////////////////////////////
+// Sección: Configuración de Refresh Token
+/////////////////////////////////////////////
 
     /**
      * Obtiene la expiración del Refresh token.
@@ -288,10 +312,63 @@ public class ConfigController {
     }
 
 
+
+
+
+//////////////////////////////////////////////
+// Sección: Configuración días mínimos permitidos de baja lógica de archivos adjuntos antes de bajas físicas.
+/////////////////////////////////////////////
+    /**
+     * Obtiene la cantidad de días mínimos permitidos de bajas lógicas de un archivo adjunto.
+     * <p>
+     * Requiere poseer <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
+     * </p>
+     */
+    @Operation(summary = "Obtiene días mínimos de baja lógica de archivos adjuntos", description = "Obtiene la cantidad de días mínimos permitidos de bajas lógicas de un archivo adjunto")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Parametrización obtenida exitosamente."),
+            @ApiResponse(responseCode = "404", description = "Parametrización no encontrada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
+    })
+    @GetMapping("/attachedFile")
+    @OnlyAccessSystemUpdate
+    public ResponseEntity<Response<AttachedFileConfig>> getAttachedFileConfig() {
+        Response<AttachedFileConfig> response = configService.getAttachedFileConfig();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /**
+     * Actualiza la cantidad de días mínimos permitidos de bajas lógicas de un archivo adjunto.
+     * <p>
+     * Requiere poseer <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
+     * </p>
+     */
+    @Operation(summary = "Actualiza días mínimos de baja lógica de archivos adjuntos", description = "Actualiza la cantidad de días mínimos permitidos de bajas lógicas de un archivo adjunto")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Parametrización actualizada exitosamente."),
+            @ApiResponse(responseCode = "404", description = "Parametrización no encontrada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
+    })
+    @PatchMapping("/attachedFile")
+    @OnlyAccessSystemUpdate
+    public ResponseEntity<Response<AttachedFileConfig>> updateAttachedFileConfig(@Valid @RequestBody AttachedFileConfigRequestDTO attachedFileConfigRequestDTO) {
+        Response<AttachedFileConfig> response = configService.updateAttachedFileConfig(attachedFileConfigRequestDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+
+//////////////////////////////////////////////
+// Sección: Configuración de Tareas programadas
+/////////////////////////////////////////////
+
     /**
      * Actualiza la expresión Cron de las tareas programadas
      * <p>
-     *   Requiere el rol <b>DEV</b> para acceder.
+     *   Requiere  <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      * @param scheduleConfigRequestDTO con la expresión Cron
      * @return ResponseEntity con:
@@ -305,43 +382,50 @@ public class ConfigController {
     @Operation(summary = "Actualizar expresión Cron de las tareas programadas", description = "Actualiza la expresión Cron de las tareas programadas.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Expresión Cron actualizada exitosamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos para actualizar la expresión cron."),
+            @ApiResponse(responseCode = "404", description = "Datos inválidos para actualizar la expresión cron."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
     @PatchMapping("/schedule")
     @OnlyAccessSystemUpdate
-    public ResponseEntity<Response<String>> updateSchedule(@Valid @RequestBody ScheduleConfigRequestDTO scheduleConfigRequestDTO) {
-        Response<String> response = configService.updateSchedule(scheduleConfigRequestDTO);
+    public ResponseEntity<Response<ScheduleConfigResponseDTO>> updateSchedule(@Valid @RequestBody ScheduleConfigRequestDTO scheduleConfigRequestDTO) {
+        Response<ScheduleConfigResponseDTO> response = configService.updateSchedule(scheduleConfigRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
+
+
     /**
-     * Obtiene la expresión Cron de las tareas programadas
+     * Obtiene todas las expresiones Cron de las tareas programadas
      * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_READ</b> para acceder.
      * </p>
      *
      * @return ResponseEntity con:
      *         <ul>
-     *         <li><b>200 OK</b>:  Expresión cron recuperada exitosamente.</li>
+     *         <li><b>200 OK</b>:  Expresiones cron recuperadas exitosamente.</li>
      *         <li><b>401 Unauthorized</b>: No autenticado.</li>
      *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
      *         </ul>
      */
-    @Operation(summary = "Obtener expresión cron de tareas programadas", description = "Obtiene la expresión cron de tareas programadas.")
+    @Operation(summary = "Obtener listado de tareas programadas", description = "Obtiene la expresión cron de tareas programadas.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "expresión cron recuperada exitosamente."),
+            @ApiResponse(responseCode = "200", description = "expresiones cron recuperadas exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @GetMapping("/schedule")
+    @GetMapping("/all/schedule")
     @OnlyAccessSystemRead
-    public ResponseEntity<Response<String>> getSchedule() {
-        Response<String> response = configService.getSchedule();
+    public ResponseEntity<Response<List<ScheduleConfigResponseDTO>>> getAllSchedule() {
+        Response<List<ScheduleConfigResponseDTO>> response = configService.getAllSchedule();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
+
+
+
 
 
 }

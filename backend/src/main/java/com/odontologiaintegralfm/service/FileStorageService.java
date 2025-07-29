@@ -3,10 +3,11 @@ package com.odontologiaintegralfm.service;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.ConflictException;
 import com.odontologiaintegralfm.exception.NotFoundException;
-import com.odontologiaintegralfm.model.AttachedFiles;
+import com.odontologiaintegralfm.model.AttachedFile;
 import com.odontologiaintegralfm.model.Person;
 import com.odontologiaintegralfm.service.interfaces.IFileStorageService;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
@@ -17,7 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,6 +46,7 @@ import java.util.stream.Collectors;
  * @author Facundo Palmieri
  */
 @Service
+@Slf4j
 public class FileStorageService implements IFileStorageService {
 
     @Value("${file.upload-dir.image}")
@@ -252,11 +256,11 @@ public class FileStorageService implements IFileStorageService {
      * @throws IOException
      */
     @Override
-    public UrlResource getDocument(AttachedFiles file) throws IOException {
+    public UrlResource getDocument(AttachedFile file) throws IOException {
 
         Path path = Paths.get(uploadDirDocument, file.getStoredFileName());
         if (!Files.exists(path)) {
-            throw new NotFoundException("exception.file.attachedFilesNotFound.user", null, "exception.file.attachedFilesNotFound.log", new Object[]{file.getStoredFileName(), "FileStorageService", "getDocument"}, LogLevel.ERROR);
+            throw new NotFoundException("exception.file.attachedFileNotFound.user", null, "exception.file.attachedFilesNotFound.log", new Object[]{file.getStoredFileName(), "FileStorageService", "getDocument"}, LogLevel.ERROR);
         }
 
         return new UrlResource(path.toUri());
@@ -313,5 +317,32 @@ public class FileStorageService implements IFileStorageService {
         }
     }
 
+    /**
+     * Elimina físicamente archivos adjuntos del sistema de archivos.
+     * Este método es invocado por {@link com.odontologiaintegralfm.service.AttachedFilesService}, que a su vez es utilizado por una tarea programada.
+     *
+     * @param files lista de archivos adjuntos a eliminar.
+     */
+    @Override
+    public  List<AttachedFile>  delete(List<AttachedFile> files){
+
+        List<AttachedFile> deleted = new ArrayList<>();
+
+        for (AttachedFile file : files) {
+            try {
+                Path path = Paths.get(uploadDirDocument,
+                        Paths.get(file.getStoredFileName()).getFileName().toString());
+
+                if (Files.deleteIfExists(path)) {
+                    deleted.add(file);
+                }
+            } catch (IOException e) {
+                log.warn("No se pudo eliminar el archivo: {}", file.getStoredFileName(), e);
+            }
+        }
+
+        return deleted;
+
+    }
 
 }

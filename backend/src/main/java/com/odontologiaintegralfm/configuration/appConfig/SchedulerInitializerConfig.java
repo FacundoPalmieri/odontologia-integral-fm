@@ -1,7 +1,10 @@
 package com.odontologiaintegralfm.configuration.appConfig;
 
-import com.odontologiaintegralfm.scheduled.CleanupService;
+import com.odontologiaintegralfm.dto.ScheduleConfigResponseDTO;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.scheduler.CleanupService;
 import com.odontologiaintegralfm.service.interfaces.IScheduleConfigService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -11,10 +14,9 @@ import org.springframework.scheduling.support.CronTrigger;
 import java.util.Date;
 
 /**
- * Método obligatorio al implementar {@link SchedulingConfigurer}.
+ * Clase que se activa al iniciar Spring.
  * <p>
  * Permite registrar tareas programadas de forma dinámica en tiempo de ejecución usando {@link ScheduledTaskRegistrar}.
- * En este caso, se registra una tarea que ejecuta la limpieza de datos huérfanos, y se programa con una expresión cron obtenida dinámicamente.
  * </p>
  *
  * <h3>Flujo interno de ejecución en Spring</h3>
@@ -38,9 +40,10 @@ import java.util.Date;
  * Esto permite cambiar la expresión cron en tiempo de ejecución, sin reiniciar la aplicación.
  * </p>
  */
+@Slf4j
 @Configuration
 @EnableScheduling // Habilita la ejecución de tareas programadas en el contexto de Spring
-public class ScheduledConfig implements SchedulingConfigurer {
+public class SchedulerInitializerConfig implements SchedulingConfigurer {
 
     @Autowired
     private CleanupService cleanupService;
@@ -53,23 +56,35 @@ public class ScheduledConfig implements SchedulingConfigurer {
      */
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-        taskRegistrar.addTriggerTask(
-                // Primera parte: lógica de la tarea a ejecutar
-                () -> cleanupService.cleanOrphanData(),
 
-                // Segunda parte: trigger dinámico (cuándo ejecutar la tarea)
+        // Registrar tareas programadas dinámicamente
+        registerTask(taskRegistrar, 1L, () -> cleanupService.cleanOrphanDataAddress());
+        registerTask(taskRegistrar, 2L, () -> cleanupService.cleanOrphanDataContactEmail());
+        registerTask(taskRegistrar, 3L, () -> cleanupService.cleanOrphanDataContactPhone());
+        registerTask(taskRegistrar, 4L, () -> cleanupService.cleanAttachedFileConfig());
+    }
+
+    private void registerTask(ScheduledTaskRegistrar registrar, Long id, Runnable task) {
+        registrar.addTriggerTask(
+                task,
                 triggerContext -> {
-                    // 1. Obtener la expresión cron actual desde el servicio
-                    String cron = scheduleConfigService.getSchedule();
+                    try {
+                        // 1. Obtener la expresión cron actual desde el servicio
+                        ScheduleConfigResponseDTO config = scheduleConfigService.getById(id);
 
-                    // 2. Crear un CronTrigger con esa expresión
-                    CronTrigger trigger = new CronTrigger(cron);
+                        // 2. Crear un CronTrigger con esa expresión
+                        CronTrigger trigger = new CronTrigger(config.cron());
 
-                    // 3. Calcular la próxima fecha de ejecución (devuelve Date, aunque esté deprecated)
-                    Date nextExec = trigger.nextExecutionTime(triggerContext);
+                        // 3. Calcular la próxima fecha de ejecución (devuelve Date, aunque esté deprecated)
+                        Date nextExec = trigger.nextExecutionTime(triggerContext);
 
-                    // 4. Retornar la fecha convertida a Instant ya que lo pide Spring
-                    return (nextExec != null) ? nextExec.toInstant() : null;
+                        // 4. Retornar la fecha convertida a Instant ya que lo pide Spring
+                        return (nextExec != null) ? nextExec.toInstant() : null;
+                    } catch (Exception e) {
+                        log.warn("Error al obtener cron para tarea ID: " + id);
+                        e.printStackTrace();
+                        return null;
+                    }
                 }
         );
     }

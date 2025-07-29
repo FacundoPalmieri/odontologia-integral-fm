@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
+
+import java.time.LocalDateTime;
 
 /**
  * Entidad que representa los archivos adjuntos.
@@ -13,7 +16,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "attachments_files")
-public class AttachedFiles extends Auditable {
+public class AttachedFile extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -31,4 +34,8 @@ public class AttachedFiles extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id", nullable = false)
     private Person person;
+
+    private Boolean deletedByScheduler;
+
+    private LocalDateTime deletedAtScheduler;
 }

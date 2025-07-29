@@ -33,6 +33,12 @@ public interface IUserService {
       */
       UserSec getByIdInternal(Long id);
 
+     /**
+      * Realiza baja lógica de un usuario, con todos las entidades relacionadas (ej: Archivos adjuntos)
+      * @param id
+      * @return
+      */
+     // UserSecResponseDTO disableById(Long id);
 
 
 

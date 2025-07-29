@@ -5,7 +5,9 @@ import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.NotFoundException;
+import com.odontologiaintegralfm.model.AttachedFileConfig;
 import com.odontologiaintegralfm.model.MessageConfig;
+import com.odontologiaintegralfm.model.ScheduleConfig;
 import com.odontologiaintegralfm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -48,6 +50,9 @@ public class ConfigService implements IConfigService {
 
     @Autowired
     private IScheduleConfigService scheduleConfigService;
+
+    @Autowired
+    private IAttachedFileConfigService attachedFileConfigService;
 
 
     /**
@@ -277,15 +282,15 @@ public class ConfigService implements IConfigService {
      * @return {@link Response} que contiene la expresión cron actual configurada.
      */
     @Override
-    public Response<String> getSchedule() {
-       return new Response<>(true, null, scheduleConfigService.getSchedule());
+    public Response<List<ScheduleConfigResponseDTO>> getAllSchedule() {
+       return new Response<>(true, null, scheduleConfigService.getAll());
     }
-
 
 
 
     /**
      * Actualiza la regla que define cuándo se ejecutará la tarea programada.
+     * El método realiza lógica de validación y llama al servicio correspondiente para actualizar.
      *
      * @param scheduleConfigRequestDTO regla expresada en:
      *                       <ul>
@@ -300,16 +305,75 @@ public class ConfigService implements IConfigService {
      * @return {@link Response}
      */
     @Override
-    public Response<String> updateSchedule(ScheduleConfigRequestDTO scheduleConfigRequestDTO) {
+    public Response<ScheduleConfigResponseDTO> updateSchedule(ScheduleConfigRequestDTO scheduleConfigRequestDTO) {
+        try{
+            //Validar que la tarea exista
+            ScheduleConfigResponseDTO scheduleConfigDTO = scheduleConfigService.getById(scheduleConfigRequestDTO.id());
 
-        int filasAfectadas = scheduleConfigService.updateSchedule(scheduleConfigRequestDTO.cronExpression());
+            //Actualiza la entidad para guardar en bd.
+            ScheduleConfig scheduleConfig = new ScheduleConfig();
+            scheduleConfig.setId(scheduleConfigRequestDTO.id());
+            scheduleConfig.setName(scheduleConfigDTO.name());
+            scheduleConfig.setLabel(scheduleConfigDTO.label());
+            scheduleConfig.setCronExpression(scheduleConfigRequestDTO.cronExpression());
 
-        if(filasAfectadas > 0){
+            //Persiste
+            scheduleConfig = scheduleConfigService.update(scheduleConfig);
+
+            //Carga el objeto Response.
+            ScheduleConfigResponseDTO scheduleConfigResponseDTO = new ScheduleConfigResponseDTO(
+                    scheduleConfig.getId(),
+                    scheduleConfig.getName(),
+                    scheduleConfig.getLabel(),
+                    scheduleConfig.getCronExpression()
+            );
+
             String userMessage = messageService.getMessage("config.updateSchedule.ok", new Object[]{scheduleConfigRequestDTO.cronExpression()}, LocaleContextHolder.getLocale());
-            return new Response<>(true, userMessage,scheduleConfigRequestDTO.cronExpression() );
-        }
+            return new Response<>(true, userMessage,scheduleConfigResponseDTO);
 
-        throw new NotFoundException("exception.scheduleNotFound.user",null,"exception.scheduleNotFound.log",new Object[]{"ConfigService","updateSchedule"}, LogLevel.ERROR);
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "configService", scheduleConfigRequestDTO.id(), "", "updateSchedule");
+        }
+    }
+
+    /**
+     * Método para obtener la configuración de días "minimos" permitidos para un archivo adjunto antes de su baja física.
+     *
+     * @return
+     */
+    @Override
+    public Response<AttachedFileConfig> getAttachedFileConfig() {
+        try{
+            return new Response<>(true,null, attachedFileConfigService.get());
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "configService", null, null, "getAttachedFileConfig");
+        }
+    }
+
+    /**
+     * Método para actualizar la configuración de días "mínimos" permitidos para un archivo adjunto antes de su baja física.
+     *
+     * @param attachedFileConfigRequestDTO
+     * @return
+     */
+    @Override
+    public Response<AttachedFileConfig> updateAttachedFileConfig(AttachedFileConfigRequestDTO attachedFileConfigRequestDTO) {
+        try{
+
+            //Convierte el DTO a la entidad para luego persistirla.
+            AttachedFileConfig attachedFileConfig = new AttachedFileConfig(
+                    attachedFileConfigRequestDTO.id(),
+                    attachedFileConfigRequestDTO.days()
+            );
+
+            String messageUser = messageService.getMessage("config.updateAttachedFileConfig.ok",new Object[]{attachedFileConfigRequestDTO.days()}, LocaleContextHolder.getLocale());
+            return new Response<>(true,messageUser, attachedFileConfigService.update(attachedFileConfig));
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "configService", null, null, "getAttachedFileConfig");
+        }
     }
 
 
