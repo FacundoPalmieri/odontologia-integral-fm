@@ -29,6 +29,7 @@ public abstract class Auditable {
     @Column(nullable = false)
     private boolean enabled;
 
+    @Column(name = "disabled_at")
     private LocalDateTime disabledAt;
 
     @ManyToOne

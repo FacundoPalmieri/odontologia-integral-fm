@@ -235,11 +235,36 @@ public class UserService implements IUserService {
     @Transactional(readOnly = true)
     public UserSec getByIdInternal(Long id) {
         try {
-            return userRepository.findById(id).orElseThrow(() -> new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log",new Object[]{id,"UserService", "getByIdInternal"}, LogLevel.ERROR ));
+            return userRepository.findByIdAndEnabledTrue(id).orElseThrow(() -> new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log",new Object[]{id,"UserService", "getByIdInternal"}, LogLevel.ERROR ));
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", id, "", "getByIdInternal");
         }
     }
+
+    /**
+     * Realiza baja lógica de un usuario, con todos las entidades relacionadas (ej: Archivos adjuntos)
+     *
+     * @param
+     * @return
+     */
+    /*
+    @Override
+    public UserSecResponseDTO disableById(Long id) {
+        try{
+            //Valída que exista el usuario.
+
+            //Valída que no tenga turnos próximos.
+
+            // NO ELIMINAR ODONTOGRAMA
+
+
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "userService", id, null, "disableById");
+        }
+    }
+
+     */
 
     @Override
     public UserSec getByUsername(String username) {

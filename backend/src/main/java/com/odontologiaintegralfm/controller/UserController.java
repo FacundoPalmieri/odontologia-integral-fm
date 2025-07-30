@@ -1,9 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessUserProfile;
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationCreate;
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationRead;
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConfigurationUpdate;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.*;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -188,5 +186,17 @@ public class UserController {
        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
+
+/*
+    @DeleteMapping("/{id}")
+    @OnlyAccessConfigurationDelete
+    public ResponseEntity<Response<UserSecResponseDTO>> delete(@PathVariable @Param("id") Long id){
+        Response<UserSecResponseDTO> response = userService.disabled(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+
+ */
 
 }

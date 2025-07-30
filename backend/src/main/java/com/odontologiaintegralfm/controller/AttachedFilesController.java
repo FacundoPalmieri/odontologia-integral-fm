@@ -125,8 +125,8 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
-    @GetMapping("user/{documentId}/download")
-    protected ResponseEntity<UrlResource> getByIdDocumentUserDownload(@PathVariable("documentId") Long documentId) throws IOException {
+    @GetMapping("/user/{documentId}/download")
+    public ResponseEntity<UrlResource> getByIdDocumentUserDownload(@PathVariable("documentId") Long documentId) throws IOException {
         UrlResource document = attachedFilesService.getByIdDocumentUserResource(documentId);
 
         //Detecta automáticamente el tipo MIME del archivo
@@ -165,7 +165,7 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
-    @GetMapping("patient/{documentId}/download")
+    @GetMapping("/patient/{documentId}/download")
     @OnlyAccessPatientsUpload
     protected ResponseEntity<UrlResource> getByIdDocumentPatientDownload(@PathVariable("documentId") Long documentId) throws IOException {
         UrlResource document = attachedFilesService.getByIdDocumentPatientResource(documentId);
@@ -201,14 +201,14 @@ public class AttachedFilesController {
      *         </ul>
      */
 
-    @Operation(summary = "Obtener datos de todos los documentos de un usuario", description = "Obtener datos de todos los documentos por ID de usuario.")
+    @Operation(summary = "Obtener información de todos los documentos de un usuario", description = "Obtener datos de todos los documentos por ID de usuario.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Datos recuperados exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
-    @GetMapping("user/all/{id}/metadata")
+    @GetMapping("/user/all/{id}/metadata")
     @OnlyAccessUserProfile
     public ResponseEntity<Response<List<AttachedFileResponseDTO>>> getAllDocumentsMetadataByIdUser(@PathVariable("id") Long id) throws IOException {
         Response<List<AttachedFileResponseDTO>> response= attachedFilesService.getAllDocumentsMetadataByIdUser(id);
@@ -235,19 +235,89 @@ public class AttachedFilesController {
      *         </ul>
      */
 
-    @Operation(summary = "Obtener datos de todos los documentos de un paciente", description = "Obtener datos de todos los documentos por ID de paciente.")
+    @Operation(summary = "Obtener información de todos los documentos de un paciente", description = "Obtener datos de todos los documentos por ID de paciente.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Datos recuperados exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
-    @GetMapping("patient/all/{id}/metadata")
+    @GetMapping("/patient/all/{id}/metadata")
     @OnlyAccessPatientsUpload
     public ResponseEntity<Response<List<AttachedFileResponseDTO>>> getAllDocumentsMetadataByIdPatient(@PathVariable("id") Long id) throws IOException {
         Response<List<AttachedFileResponseDTO>> response= attachedFilesService.getAllDocumentsMetadataByIdPatient(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
+
+
+
+
+    /**
+     * Elimina un documento asociado a un usuario por ID de documento.
+     * La validación de acceso al requerir lógica compleja se realiza en el servicio.
+     * <p>
+     * Requiere permisos <b>CONFIGURATION_UPLOAD ó bien ser el mismo usuario</b> para acceder.
+     * </p>
+     *
+     * @param documentId del documento.
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 OK</b>: Documento eliminado exitosamente.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         <li><b>404 Not Found</b>: Roles y/o permisos requeridos no encontrados.</li>
+     *         </ul>
+     */
+    @Operation(summary = "Eliminar documento asociado a usuario", description = "Eliminar recurso de usuario por ID documento")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Documento eliminado exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
+    })
+    @DeleteMapping("/user/{documentId}")
+    public ResponseEntity<Response<?>> deleteByIdDocumentUser (@PathVariable("documentId") Long documentId) throws IOException{
+        Response<?> response = attachedFilesService.disabledByIdDocumentUser(documentId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+
+
+
+
+    /**
+     * Elimina un documento asociado a un paciente por ID de documento.
+     * La validación de acceso al requerir lógica compleja se realiza en el servicio.
+     * <p>
+     * Requiere permisos <b>PATIENTS_UPLOAD</b> para acceder.
+     * </p>
+     *
+     * @param documentId del documento.
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 OK</b>: Documento eliminado exitosamente.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         <li><b>404 Not Found</b>: Roles y/o permisos requeridos no encontrados.</li>
+     *         </ul>
+     */
+    @Operation(summary = "Eliminar documento asociado a paciente", description = "Eliminar recurso de paciente por ID documento")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Documento eliminado exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
+    })
+    @DeleteMapping("/patient/{documentId}")
+    @OnlyAccessPatientsUpload
+    public ResponseEntity<Response<?>> deleteByIdDocumentPatient (@PathVariable("documentId") Long documentId) throws IOException{
+        Response<?> response = attachedFilesService.disabledByIdDocumentPatient(documentId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
 
 

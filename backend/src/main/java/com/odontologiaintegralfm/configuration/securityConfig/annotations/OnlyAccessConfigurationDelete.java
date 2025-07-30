@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAuthority('PERMISO_CONFIGURATION_CREATE')")
-public @interface OnlyAccessConfigurationCreate {
+@PreAuthorize("hasAuthority('PERMISO_CONFIGURATION_DELETE')")
+public @interface OnlyAccessConfigurationDelete {
 }

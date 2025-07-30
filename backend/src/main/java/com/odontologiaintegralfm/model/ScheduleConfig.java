@@ -16,6 +16,13 @@ public class ScheduleConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 50, updatable = false)
+    private String name;
+
+    @Column(nullable = false, length = 150)
+    private String label;
+
+    @Column(nullable = false, length = 30)
     private String cronExpression;
 
 }

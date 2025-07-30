@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.*;
+import com.odontologiaintegralfm.model.AttachedFileConfig;
 import com.odontologiaintegralfm.model.MessageConfig;
 
 import java.util.List;
@@ -69,8 +70,12 @@ public interface IConfigService {
      */
     Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO);
 
+
+
     /**
-     * Obtiene la regla que define cuándo se ejecutará la tarea programada.
+     * Obtiene un listado de todas las tareas programadas con su expresión cron.
+
+     * Este método se comunica con el servicio de {@link IScheduleConfigService}
      * <p>
      * La expresión se representa en el siguiente formato cron de 6 campos:
      * <ul>
@@ -85,7 +90,10 @@ public interface IConfigService {
      *
      * @return {@link Response} que contiene la expresión cron actual configurada.
      */
-    Response<String> getSchedule();
+    Response<List<ScheduleConfigResponseDTO>> getAllSchedule();
+
+
+
 
 
     /**
@@ -104,7 +112,27 @@ public interface IConfigService {
      *
      * @return {@link Response}
      */
-    Response<String> updateSchedule(ScheduleConfigRequestDTO scheduleConfigRequestDTO);
+    Response<ScheduleConfigResponseDTO> updateSchedule(ScheduleConfigRequestDTO scheduleConfigRequestDTO);
+
+
+
+
+
+    /**
+     * Método para obtener la configuración de días "mínimos" permitidos para un archivo adjunto antes de su baja física.
+     * @return
+     */
+    Response<AttachedFileConfig> getAttachedFileConfig();
+
+
+
+    /**
+     * Método para actualizar la configuración de días "mínimos" permitidos para un archivo adjunto antes de su baja física.
+     * @return
+     */
+    Response<AttachedFileConfig> updateAttachedFileConfig(AttachedFileConfigRequestDTO attachedFileConfigRequestDTO);
+
+
 
 
 }
