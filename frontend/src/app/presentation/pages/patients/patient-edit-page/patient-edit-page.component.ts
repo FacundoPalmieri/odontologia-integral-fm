@@ -256,7 +256,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
           },
           error: () => {
             this.snackbarService.openSnackbar(
-              "Error al actualizar la imgen de perfil.",
+              "Error al actualizar la imagen de perfil.",
               6000,
               "center",
               "top",
