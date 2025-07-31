@@ -33,6 +33,9 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { EditMessageDialogComponent } from "./edit-message-dialog/edit-message-dialog.component";
 import { Subject, takeUntil } from "rxjs";
 import { MessageCreateDtoInterface } from "../../../domain/dto/message.dto";
+import { ScheduleInterface } from "../../../domain/interfaces/schedule.interface";
+import { ScheduleUpdateDtoInterface } from "../../../domain/dto/schedule.dto";
+import { EditScheduleDialogComponent } from "./edit-schedule-dialog/edit-schedule-dialog.component";
 
 @Component({
   selector: "app-system",
@@ -67,27 +70,37 @@ export class SystemComponent implements OnDestroy {
   messagesDataSource: MatTableDataSource<MessageInterface> =
     new MatTableDataSource();
 
-  @ViewChild(MatPaginator)
-  paginator!: MatPaginator;
-  @ViewChild(MatSort)
-  sort!: MatSort;
+  schedules = signal<any[]>([]);
+  schedulesFilter = new FormControl("");
+  schedulesDataSource: MatTableDataSource<any> = new MatTableDataSource();
+
+  @ViewChild("messagesPaginator") messagesPaginator!: MatPaginator;
+  @ViewChild("messagesSort") messagesSort!: MatSort;
+
+  @ViewChild("schedulePaginator") schedulePaginator!: MatPaginator;
+  @ViewChild("scheduleSort") scheduleSort!: MatSort;
 
   constructor() {
     this.tokenForm = new FormGroup({
       jwtExpiration: new FormControl<number>(0, [Validators.required]),
       attempts: new FormControl<number>(0, [Validators.required]),
       refreshTokenExpiration: new FormControl<number>(0, [Validators.required]),
-      cronExpressionScheduler: new FormControl<string>("", [
-        Validators.required,
-      ]),
     });
     this.loadInitialData();
 
     effect(() => {
       if (this.messages()) {
         this.messagesDataSource.data = this.messages();
-        this.messagesDataSource.paginator = this.paginator;
-        this.messagesDataSource.sort = this.sort;
+        this.messagesDataSource.paginator = this.messagesPaginator;
+        this.messagesDataSource.sort = this.messagesSort;
+      }
+    });
+
+    effect(() => {
+      if (this.schedules()) {
+        this.schedulesDataSource.data = this.schedules();
+        this.schedulesDataSource.paginator = this.schedulePaginator;
+        this.schedulesDataSource.sort = this.scheduleSort;
       }
     });
   }
@@ -102,7 +115,7 @@ export class SystemComponent implements OnDestroy {
     this._getMessages();
     this._getTokenExpirationTime();
     this._getRefreshTokenExpirationTime();
-    this._getCronSchedule();
+    this._getSchedules();
     this._setupFilters();
   }
 
@@ -160,24 +173,7 @@ export class SystemComponent implements OnDestroy {
       });
   }
 
-  updateCronExpressionScheduler() {
-    const cronExpression = this.tokenForm.value.cronExpressionScheduler;
-    this.configService
-      .updateCronSchedule(cronExpression)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<string>) => {
-        this.snackbarService.openSnackbar(
-          response.message,
-          3000,
-          "center",
-          "top",
-          SnackbarTypeEnum.Success
-        );
-        this._getCronSchedule();
-      });
-  }
-
-  edit(message: MessageInterface) {
+  editMessage(message: MessageInterface) {
     if (message != null) {
       const dialogRef = this.dialog.open(EditMessageDialogComponent, {
         data: { message: message },
@@ -205,6 +201,40 @@ export class SystemComponent implements OnDestroy {
             });
         }
       });
+    } else
+      this.snackbarService.openSnackbar(
+        "Ocurrió un error el editar el elemento",
+        3000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+  }
+
+  editSchedule(schedule: ScheduleInterface) {
+    if (schedule != null) {
+      const dialogRef = this.dialog.open(EditScheduleDialogComponent, {
+        data: { schedule: schedule },
+      });
+      dialogRef
+        .afterClosed()
+        .subscribe((scheduleUpdateDto: ScheduleUpdateDtoInterface) => {
+          if (scheduleUpdateDto) {
+            this.configService
+              .updateSchedule(scheduleUpdateDto)
+              .pipe(takeUntil(this._destroy$))
+              .subscribe((response: ApiResponseInterface<string>) => {
+                this.snackbarService.openSnackbar(
+                  response.message,
+                  3000,
+                  "center",
+                  "top",
+                  SnackbarTypeEnum.Success
+                );
+                this._getSchedules();
+              });
+          }
+        });
     } else
       this.snackbarService.openSnackbar(
         "Ocurrió un error el editar el elemento",
@@ -254,16 +284,12 @@ export class SystemComponent implements OnDestroy {
       });
   }
 
-  private _getCronSchedule() {
+  private _getSchedules() {
     this.configService
-      .getCronSchedule()
+      .getSchedules()
       .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<string>) => {
-        if (response.success) {
-          this.tokenForm.patchValue({
-            cronExpressionScheduler: response.data,
-          });
-        }
+      .subscribe((response: ApiResponseInterface<ScheduleInterface[]>) => {
+        this.schedules.set(response.data);
       });
   }
 
@@ -282,6 +308,14 @@ export class SystemComponent implements OnDestroy {
 
       if (this.messagesDataSource.paginator) {
         this.messagesDataSource.paginator.firstPage();
+      }
+    });
+
+    this.schedulesFilter.valueChanges.subscribe((filterValue) => {
+      this.schedulesDataSource.filter = filterValue?.trim().toLowerCase()!;
+
+      if (this.schedulesDataSource.paginator) {
+        this.schedulesDataSource.paginator.firstPage();
       }
     });
   }

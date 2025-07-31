@@ -9,6 +9,11 @@ import {
   MessageDtoInterface,
 } from "../domain/dto/message.dto";
 import { MessageSerializer } from "../domain/serializers/message.serializer";
+import { ScheduleInterface } from "../domain/interfaces/schedule.interface";
+import {
+  ScheduleDtoInterface,
+  ScheduleUpdateDtoInterface,
+} from "../domain/dto/schedule.dto";
 
 @Injectable({ providedIn: "root" })
 export class ConfigService {
@@ -66,21 +71,18 @@ export class ConfigService {
     );
   }
 
-  getCronSchedule(): Observable<ApiResponseInterface<string>> {
-    return this.http.get<ApiResponseInterface<string>>(
-      `${this.apiUrl}/config/schedule`
+  getSchedules(): Observable<ApiResponseInterface<ScheduleInterface[]>> {
+    return this.http.get<ApiResponseInterface<ScheduleDtoInterface[]>>(
+      `${this.apiUrl}/config/all/schedule`
     );
   }
 
-  updateCronSchedule(
-    cronExpression: string
+  updateSchedule(
+    schedule: ScheduleUpdateDtoInterface
   ): Observable<ApiResponseInterface<string>> {
     return this.http.patch<ApiResponseInterface<string>>(
       `${this.apiUrl}/config/schedule`,
-      {
-        id: 1, //El get tendría que retornarme el id para que lo pueda enviar en el patch
-        cronExpression: cronExpression,
-      }
+      schedule
     );
   }
 

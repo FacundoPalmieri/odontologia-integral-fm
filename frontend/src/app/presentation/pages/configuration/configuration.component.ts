@@ -40,7 +40,6 @@ import { UserDtoInterface } from "../../../domain/dto/user.dto";
 import { PersonDataService } from "../../../services/person-data.service";
 import { LoaderService } from "../../../services/loader.service";
 import { AccessControlService } from "../../../services/access-control.service";
-import { Action } from "rxjs/internal/scheduler/Action";
 import {
   ActionsEnum,
   PermissionsEnum,
@@ -259,7 +258,6 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
     sortBy: string,
     direction: string
   ) {
-    // this.loaderService.show();
     this.userService
       .getAll(page, size, sortBy, direction)
       .pipe(takeUntil(this._destroy$))

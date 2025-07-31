@@ -1,8 +1,9 @@
 <app-page-toolbar [title]="'Sistema'"></app-page-toolbar>
 <mat-card appearance="outlined" class="mt-4">
   <mat-card-content>
+    <h1 class="text-xl text-bold">Parámetros generales</h1>
     <form [formGroup]="tokenForm">
-      <div class="flex flex-wrap gap-4 justify-center">
+      <div class="flex flex-wrap gap-4 mt-4 justify-center">
         <div class="flex-1 min-w-[250px] max-w-xs">
           <mat-form-field appearance="outline" class="w-full">
             <mat-label>Expiración del Token (minutos)</mat-label>
@@ -48,28 +49,75 @@
             Actualizar
           </button>
         </div>
-
-        <div class="flex-1 min-w-[250px] max-w-xs">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Tareas programadas (cron expression)</mat-label>
-            <input
-              matInput
-              type="text"
-              formControlName="cronExpressionScheduler"
-            />
-          </mat-form-field>
-          <button
-            mat-flat-button
-            (click)="updateCronExpressionScheduler()"
-            class="w-full"
-          >
-            Actualizar
-          </button>
-        </div>
       </div>
     </form>
   </mat-card-content>
 </mat-card>
+
+<mat-card appearance="outlined" class="mt-4">
+  <mat-card-content>
+    <h1 class="text-xl text-bold">Tareas programadas</h1>
+    <div class="w-1/2 flex mt-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Buscar tarea</mat-label>
+        <input type="text" matInput [formControl]="schedulesFilter" />
+        <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+      </mat-form-field>
+    </div>
+    <div class="overflow-x-auto">
+      <table
+        mat-table
+        [dataSource]="schedulesDataSource"
+        matSort
+        #scheduleSort="matSort"
+      >
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="key">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="value">
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
+          <td mat-cell *matCellDef="let element">{{ element.label }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="locale">
+          <th mat-header-cell *matHeaderCellDef>Cron</th>
+          <td mat-cell *matCellDef="let element">{{ element.cron }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>Acción</th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              mat-icon-button
+              (click)="editSchedule(element)"
+              matTooltip="Editar"
+              matTooltipPosition="right"
+            >
+              <i-tabler name="edit"></i-tabler>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+      <mat-paginator
+        #schedulePaginator
+        [pageSizeOptions]="[5, 10]"
+        showFirstLastButtons="true"
+        aria-label="Seleccionar página de usuarios"
+      ></mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>
+
 <mat-card appearance="outlined" class="mt-4">
   <mat-card-content>
     <h1 class="text-xl text-bold">Mensajes del Sistema</h1>
@@ -81,7 +129,12 @@
       </mat-form-field>
     </div>
     <div class="overflow-x-auto">
-      <table mat-table [dataSource]="messagesDataSource" matSort>
+      <table
+        mat-table
+        [dataSource]="messagesDataSource"
+        matSort
+        #messagesSort="matSort"
+      >
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
           <td mat-cell *matCellDef="let element">{{ element.id }}</td>
@@ -107,7 +160,7 @@
           <td mat-cell *matCellDef="let element">
             <button
               mat-icon-button
-              (click)="edit(element)"
+              (click)="editMessage(element)"
               matTooltip="Editar"
               matTooltipPosition="right"
             >
@@ -120,6 +173,7 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
       <mat-paginator
+        #messagesPaginator
         [pageSizeOptions]="[5, 10]"
         showFirstLastButtons="true"
         aria-label="Seleccionar página de usuarios"
