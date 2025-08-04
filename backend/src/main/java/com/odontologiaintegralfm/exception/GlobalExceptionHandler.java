@@ -1,8 +1,12 @@
 package com.odontologiaintegralfm.exception;
 
+import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
+import com.odontologiaintegralfm.service.interfaces.ISystemLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,15 @@ public class GlobalExceptionHandler {
     @Autowired
     private IMessageService messageService;
 
+    @Autowired
+    private ISystemLogService systemLogService;
+
+    @Autowired
+    private AuthenticatedUserService authenticatedUserService;
+
+
+
+
     /**
      * Maneja excepciones personalizadas del tipo {@link AppException}.
      * <p>
@@ -65,16 +78,28 @@ public class GlobalExceptionHandler {
         //Verifica si corresponde loguear.
         if (e.getLogLevel() != LogLevel.NONE) {
 
-
             //Construye mensaje para el log
             String logMessage = messageService.getMessage(e.getLogMessageKey(),e.getLogArgs(), LocaleContextHolder.getLocale());
 
-            // Loguea de acurdo al nivel.
+            // Loguea en consola de acuerdo al nivel.
             switch (e.getLogLevel()) {
                 case INFO -> log.info(logMessage, e);
                 case WARN -> log.warn(logMessage, e);
                 case ERROR -> log.error(logMessage, e);
             }
+
+            //Loguea en base de datos.
+            systemLogService.save(new SystemLogResponseDTO(
+                    e.getLogLevel(),                     // level
+                    LogType.EXCEPTION,                   // type
+                    userMessage,                         // userMessage
+                    logMessage,                          // technicalMessage
+                    e.getClass().getSimpleName(),        // name
+                    authenticatedUserService.getAuthenticatedUser().getUsername(),// username
+                    null,                                //Argumentos están dentro del mensaje técnico.
+                    systemLogService.getStackTraceAsString(e)           // stacktrace como texto
+            ));
+
         }
         //Construir respuesta y enviar.
         Response<Void> response = new Response<>(false, userMessage, null);
@@ -102,6 +127,9 @@ public class GlobalExceptionHandler {
         // Crear un mapa para almacenar los errores de validación
         Map<String, String> errors = new HashMap<>();
 
+        // Toma el primer mensaje de error de todas las validaciones de DTO para mostrarlo en el campo "message" y luego en errors se ve todos los errores de validación de dtos.
+        String firstErrorMessage = errors.values().stream().findFirst().orElse("Error de validación");
+
         // Iteramos sobre los errores de cada campo que falló en la validación
         ex.getBindingResult().getFieldErrors().forEach(error ->{
             String errorMessage = messageService.getMessage(error.getDefaultMessage(), null, LocaleContextHolder.getLocale());   // Guardamos el nombre del campo (error.getField()) y el mensaje de error correspondiente (error.getDefaultMessage()) en el mapa
@@ -111,13 +139,24 @@ public class GlobalExceptionHandler {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = (authentication != null) ? authentication.getName() : "Anónimo";
 
-            //Guarda el log
+            //Construye mensaje para log
             String logMessage = messageService.getMessage("exception.validation.log",new Object[]{error.getField(),errorMessage,username}, LocaleContextHolder.getLocale());
-            log.error(logMessage);
-        });
 
-        // Toma el primer mensaje para mostrarlo en el campo "message" y luego en errors se ve todos los errores de validación de dtos.
-        String firstErrorMessage = errors.values().stream().findFirst().orElse("Error de validación");
+            // Log tradicional en consola
+            log.error(logMessage);
+
+            // Guardar log en base de datos
+            systemLogService.save(new SystemLogResponseDTO(
+                    LogLevel.WARN,
+                    LogType.EXCEPTION,
+                    firstErrorMessage,
+                    logMessage,
+                    "MethodArgumentNotValidException",
+                    username,
+                    null,
+                    null
+            ));
+        });
 
         //Genera el objeto response.
         Response<Map<String, String>> response = new Response<>(
@@ -158,7 +197,25 @@ public class GlobalExceptionHandler {
                 LocaleContextHolder.getLocale()
                 );
 
+        // Log en consola
         log.error(logMessage);
+
+        // Log en base de datos
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.ERROR,
+                LogType.EXCEPTION,
+                userMessage,
+                logMessage,
+                authenticatedUserService.getAuthenticatedUser().getUsername(),
+                this.getClass().getSimpleName(),
+                Map.of(
+                        "clase", ex.getClase(),
+                        "entityId", ex.getEntityId(),
+                        "entityName", ex.getEntityName(),
+                        "method", ex.getMethod(),
+                        "rootCause", ex.getRootCause()
+                ), systemLogService.getStackTraceAsString(ex)           // stacktrace como texto
+        ));
 
         // Respuesta a usuario.
         Response<Void> response = new Response<>(false, userMessage, null);
@@ -181,6 +238,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<Response<Void>> handleNotFound(Exception ex) {
         String messageUser = messageService.getMessage("exception.notFound", null, LocaleContextHolder.getLocale());
+
+        // Log en consola (puede ser warn o info)
+        log.warn("Recurso no encontrado: " + ex.getMessage(), ex);
+
+        // Guardar log en BD
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.WARN,
+                LogType.EXCEPTION,
+                null,
+                ex.getMessage(),
+                ex.getClass().getSimpleName(),
+                authenticatedUserService.getAuthenticatedUser().getUsername(),
+                null,
+                systemLogService.getStackTraceAsString(ex)           // stacktrace como texto
+        ));
+
         Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
@@ -215,8 +288,21 @@ public class GlobalExceptionHandler {
         // Obtener el mensaje desde el archivo de propiedades y asignar datos
         String logMessage = messageService.getMessage("exception.accessDenied.log", new Object[]{username, requestedUrl, ex.getMessage()}, LocaleContextHolder.getLocale());
 
-        // Loguear la excepción para detalles de diagnóstico
+        // Log en consola
         log.error(logMessage, ex);
+
+        // Log en base de datos
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.ERROR,
+                LogType.EXCEPTION,
+                messageService.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale()),
+                logMessage,
+                username,
+                this.getClass().getSimpleName(),
+                Map.of("requestedUrl", requestedUrl),
+                systemLogService.getStackTraceAsString(ex)           // stacktrace como texto
+        ));
+
 
         // Mensaje para el usuario final
         String messageUser = messageService.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale());
@@ -242,11 +328,25 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response<Void>> handleGeneralException(Exception e) {
+
         // Loguear la excepción para detalles de diagnóstico
         log.error("Error inesperado: " + e.getMessage(), e);
 
         // Respuesta genérica para cualquier excepción no capturada
         String messageUser = messageService.getMessage("exception.generic", null, LocaleContextHolder.getLocale());
+
+        // Guardar log en base de datos
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.ERROR,
+                LogType.EXCEPTION,
+                messageUser,
+                e.getMessage(),
+                e.getClass().getSimpleName(),
+                authenticatedUserService.getAuthenticatedUser().getUsername(),
+                null,
+                systemLogService.getStackTraceAsString(e)           // stacktrace como texto
+        ));
+
         Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }

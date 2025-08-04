@@ -22,8 +22,21 @@ public class AuthenticatedUserService {
 
     public UserSec  getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Optional<UserSec> userSec = userRepository.findUserEntityByUsername(authentication.getName());
-        return userSec.orElse(null);
+
+        String username;
+        if (authentication == null || !authentication.isAuthenticated()) {
+            username = "No autenticado";
+        } else {
+            username = authentication.getName();
+        }
+
+        return userRepository.findUserEntityByUsername(username)
+                .orElseGet(() -> {
+                    UserSec anon = new UserSec();
+                    anon.setUsername(username);
+                    return anon;
+                });
+
     }
 
 }

@@ -1,9 +1,13 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.AttachedFileResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
+import com.odontologiaintegralfm.enums.SystemParameterKey;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.AttachedFile;
 import com.odontologiaintegralfm.model.Patient;
@@ -70,7 +74,7 @@ public class AttachedFilesService implements IAttachedFilesService {
     @Autowired
     private PatientService patientService;
     @Autowired
-    private AttachedFileConfigService attachedFileConfigService;
+    private SystemParameterService systemParameterService;
 
 
     /**
@@ -327,6 +331,12 @@ public class AttachedFilesService implements IAttachedFilesService {
      */
     @Override
     @Transactional
+    @LogAction(
+            value = "attachedFileService.systemLogService.disabledByIdDocumentUser",
+            args = {"#documentId"},
+            level = LogLevel.INFO,
+            type = LogType.SYSTEM
+    )
     public Response<?> disabledByIdDocumentUser(Long documentId) throws IOException {
         try{
 
@@ -379,6 +389,12 @@ public class AttachedFilesService implements IAttachedFilesService {
      * @throws IOException
      */
     @Override
+    @LogAction(
+            value = "attachedFileService.systemLogService.disabledByIdDocumentPatient",
+            args = {"#documentId"},
+            level = LogLevel.INFO,
+            type = LogType.SYSTEM
+    )
     public Response<?> disabledByIdDocumentPatient(Long documentId) throws IOException {
         try{
             //Recupera la metadata del archivo.
@@ -417,11 +433,25 @@ public class AttachedFilesService implements IAttachedFilesService {
      * @throws IOException
      */
     @Override
-    public void deleteAttachedFiles(){
+    @LogAction(
+            value ="attachedFilesService.systemLogService.deleteAttachedFiles",
+            args =  {"#result.durationSeconds","#result.message", "#result.countInit","#result.countDeleted" },
+            type = LogType.SCHEDULED,
+            level = LogLevel.INFO
+    )
+    public SchedulerResultDTO deleteAttachedFiles(){
+        int countInit = 0;
+        int countDeleted = 0;
+        long start;
+        long end;
+        double durationSeconds;
+
+        //Inicia tarea programada
+        start = System.currentTimeMillis();
         try{
 
             //Obtiene el parámetro de días.
-            Long days = attachedFileConfigService.get().getDays();
+            Long days = systemParameterService.getByKey(SystemParameterKey.ATTACHMENT_MIN_DAYS);
 
             //Establece fecha límite.
             LocalDateTime deadline = LocalDate.now().minusDays(days).atStartOfDay();
@@ -429,23 +459,48 @@ public class AttachedFilesService implements IAttachedFilesService {
             //buscar los archivos adjuntos con estado 0 y que su fecha de baja sea mayor a la fecha límite.
             List<AttachedFile> attachedFiles = attachedFilesRepository.findDisabled(deadline);
 
+            //1. SI NO HAY REGISTROS PARA ELIMINAR
+            if (attachedFiles.isEmpty()) {
+                //Finaliza tarea programada
+                end = System.currentTimeMillis();
+                //Convierte milisegundos a segundos.
+                durationSeconds = (end - start) / 1000.0;
+
+                SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
+                        durationSeconds,
+                        "No se encontraron registros para eliminar",
+                        countInit,
+                        countDeleted);
+                return schedulerResultDTO;
+            }
+
+            //2. SI EXISTEN REGISTROS PARA ELIMINAR
             //Se obtiene total obtenido para loguear.
-            int countInit =  attachedFiles.size();
+            countInit =  attachedFiles.size();
 
             // Eliminar físicamente los registros.
             List<AttachedFile> physicallyDeleted = fileStorageService.delete(attachedFiles);
 
             //Actualiza en la base la acción de borrado físico.
-            int countFinal =  0;
             for (AttachedFile file : physicallyDeleted) {
                 file.setDeletedByScheduler(true);
                 file.setDeletedAtScheduler(LocalDateTime.now());
-                countFinal++;
+                countDeleted++;
             }
-
             attachedFilesRepository.saveAll(physicallyDeleted);
 
-            log.info("Tarea Programada: [Archivos adjuntos] - [Total Obtenidos:  {}] - [Total eliminados:  {}]", countInit, countFinal);
+            //Finaliza tarea programada
+            end = System.currentTimeMillis();
+
+            //Convierte milisegundos a segundos.
+            durationSeconds = (end - start) / 1000.0;
+
+            SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
+                    durationSeconds,
+                    "Registros eliminados correctamente",
+                    countInit,
+                    countDeleted);
+            return schedulerResultDTO;
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "AttachedFileService", null,null, "cleanOrphanDataAttachedFiles");

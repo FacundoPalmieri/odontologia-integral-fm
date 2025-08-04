@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.service.interfaces;
 
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.model.ContactEmail;
 import com.odontologiaintegralfm.model.Person;
 
@@ -22,6 +23,6 @@ public interface IContactEmailService {
      * Este método es invocado desde tareas programadas.
      * @return
      */
-    void deleteOrphan();
+    SchedulerResultDTO deleteOrphan();
 
 }

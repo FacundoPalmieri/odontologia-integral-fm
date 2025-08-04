@@ -1,6 +1,10 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.dto.ContactPhoneRequestDTO;
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.ContactPhone;
 import com.odontologiaintegralfm.repository.IContactPhoneRepository;
@@ -60,23 +64,60 @@ public class ContactPhoneService implements IContactPhoneService {
      */
     @Override
     @Transactional
-    public void deleteOrphan() {
+    @LogAction(
+            value ="contactPhoneService.systemLogService.deleteOrphan",
+            args =  {"#result.durationSeconds","#result.message", "#result.countInit","#result.countDeleted" },
+            type = LogType.SCHEDULED,
+            level = LogLevel.INFO
+    )
+    public SchedulerResultDTO deleteOrphan() {
+        int countInit = 0;
+        int countDeleted = 0;
+        long start;
+        long end;
+        double durationSeconds;
+
+        //Inicia tarea programada
+        start = System.currentTimeMillis();
 
         try{
             List<ContactPhone> orphanPhone = contactPhoneRepository.findOrphan();
 
+            //1. SI NO HAY REGISTROS PARA ELIMINAR
             if(orphanPhone.isEmpty()) {
-                log.info("Tarea Programada: [Teléfonos huérfanos] - No se encontraron registros para eliminar.");
-                return;
+                //Finaliza tarea programada
+                end = System.currentTimeMillis();
+                //Convierte milisegundos a segundos.
+                durationSeconds = (end - start) / 1000.0;
+
+                SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
+                        durationSeconds,
+                        "No se encontraron registros para eliminar",
+                        countInit,
+                        countDeleted);
+                return schedulerResultDTO;
             }
 
-            //Se obtiene total para loguear.
-            int count = orphanPhone.size();
+            //2. SI EXISTEN REGISTROS PARA ELIMINAR
 
-            //Se elimina
+            //Se obtiene total para loguear.
+             countInit = orphanPhone.size();
+
+            //Se eliminan registros.
             contactPhoneRepository.deleteAll(orphanPhone);
 
-            log.info("Tarea Programada: [Teléfonos huérfanos] - [Total eliminados:  {}]", count);
+            //Finaliza tarea programada
+            end = System.currentTimeMillis();
+
+            //Convierte milisegundos a segundos.
+            durationSeconds = (end - start) / 1000.0;
+
+            SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
+                    durationSeconds,
+                    "Registros eliminados correctamente",
+                    countInit,
+                    countDeleted);
+            return schedulerResultDTO;
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "ContactPhoneService", null,null, "deleteOrphan");

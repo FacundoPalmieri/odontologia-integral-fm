@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 /**
  * @author [Facundo Palmieri]
  */
-public record ScheduleConfigRequestDTO (
+public record ScheduleRequestDTO(
         @NotNull(message = "generic.id.empty")
         Long id,
 

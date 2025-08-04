@@ -1,7 +1,9 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.Role;
 import com.odontologiaintegralfm.model.RolePermissionAction;
@@ -224,6 +226,12 @@ public class RoleService implements IRoleService {
      */
     @Override
     @Transactional
+    @LogAction(
+            value = "roleService.systemLogService.create",
+            args = {"#roleRequestDto.name"},
+            level = LogLevel.INFO,
+            type = LogType.SYSTEM
+    )
     public Response<RoleFullResponseDTO> create(RoleRequestDTO roleRequestDto) {
         try{
             //Valída que el rol no exista en la base de datos.
@@ -266,6 +274,12 @@ public class RoleService implements IRoleService {
      */
     @Override
     @Transactional
+    @LogAction(
+            value = "roleService.systemLogService.update",
+            args = {"#roleRequestDto.name"},
+            level = LogLevel.INFO,
+            type = LogType.SYSTEM
+    )
     public Response<RoleFullResponseDTO> update(RoleRequestDTO roleRequestDto) {
         try{
             //Valída que el rol exista en la base de datos.

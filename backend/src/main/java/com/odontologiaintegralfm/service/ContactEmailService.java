@@ -1,6 +1,10 @@
 package com.odontologiaintegralfm.service;
 
 
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.ContactEmail;
 import com.odontologiaintegralfm.repository.IContactEmailRepository;
@@ -57,22 +61,59 @@ public class ContactEmailService implements IContactEmailService {
      */
     @Override
     @Transactional
-    public void deleteOrphan() {
+    @LogAction(
+            value ="contactEmailService.systemLogService.deleteOrphan",
+            args =  {"#result.durationSeconds","#result.message", "#result.countInit","#result.countDeleted" },
+            type = LogType.SCHEDULED,
+            level = LogLevel.INFO
+    )
+    public SchedulerResultDTO deleteOrphan() {
+        int countInit = 0;
+        int countDeleted = 0;
+        long start;
+        long end;
+        double durationSeconds;
+
+        //Inicia tarea programada
+        start = System.currentTimeMillis();
+
         try{
             List<ContactEmail> orphanEmails = contactEmailRepository.findOrphan();
 
+            //1. SI NO HAY REGISTROS PARA ELIMINAR
             if(orphanEmails.isEmpty()){
-                log.info("Tarea Programada: [Emails huérfanos] - No se encontraron registros para eliminar.");
-                return;
+                //Finaliza tarea programada
+                end = System.currentTimeMillis();
+                //Convierte milisegundos a segundos.
+                durationSeconds = (end - start) / 1000.0;
+                SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
+                        durationSeconds,
+                        "No se encontraron registros para eliminar",
+                        countInit,
+                        countDeleted);
+                return schedulerResultDTO;
             }
+
+            //2. SI EXISTEN REGISTROS PARA ELIMINAR
+
             //Se obtiene total para loguear.
             int count = orphanEmails.size();
 
-            //Se elimina
+            //Se eliminan registros.
             contactEmailRepository.deleteAll(orphanEmails);
 
-            log.info("Tarea Programada: [Emails huérfanos] - [Total eliminados:  {}]", count);
+            //Finaliza tarea programada
+            end = System.currentTimeMillis();
 
+            //Convierte milisegundos a segundos.
+            durationSeconds = (end - start) / 1000.0;
+
+            SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
+                    durationSeconds,
+                    "Registros eliminados correctamente",
+                    countInit,
+                    countDeleted);
+            return schedulerResultDTO;
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "ContactEmailService", null,null, "deleteOrphan");
         }

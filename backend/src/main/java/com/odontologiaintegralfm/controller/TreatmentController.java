@@ -30,7 +30,7 @@ public class TreatmentController {
     @Value("${pagination.default-size}")
     private int defaultSize;
 
-    @Value("${pagination.default.sortBy}")
+    @Value("${pagination.default-sortBy}")
     private String defaultTreatmenSortBy;
 
     @Value("${pagination.default-direction}")

@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.ContactPhoneRequestDTO;
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.model.ContactPhone;
 import com.odontologiaintegralfm.model.Person;
 
@@ -24,7 +25,7 @@ public interface IContactPhoneService {
      * Este método es invocado desde tareas programadas.
      * @return
      */
-    void deleteOrphan();
+    SchedulerResultDTO deleteOrphan();
 
 
 

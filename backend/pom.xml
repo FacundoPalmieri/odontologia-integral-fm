@@ -15,7 +15,9 @@
 	<description>API REST para la aplicación web de Odontología Integral FM</description>
 	<properties>
 		<java.version>17</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
 
 	<dependencies>
 		<!-- Dependencia para Spring Boot Web Starter -->

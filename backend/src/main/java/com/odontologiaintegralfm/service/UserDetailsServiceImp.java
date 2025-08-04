@@ -1,5 +1,7 @@
 package com.odontologiaintegralfm.service;
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.dto.*;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.exception.ForbiddenException;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.UnauthorizedException;
@@ -161,6 +163,13 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * @return Un objeto {@link AuthLoginResponseDTO} con el nombre de usuario, un mensaje de éxito, el token JWT y un estado de autenticación exitoso.
      * @throws UnauthorizedException  Si las credenciales son incorrectas, se lanza una excepción de tipo {@link UnauthorizedException }.
      */
+
+    @LogAction(
+            value = "userDetailServiceImpl.systemLogService.login",
+            args = {"#result.data.idUser", "#result.data.username"},
+            level = LogLevel.INFO,
+            type = LogType.SECURITY
+    )
     public Response<AuthLoginResponseDTO> loginUser (AuthLoginRequestDTO authLoginRequest){
         try {
             //Se recupera nombre de usuario y contraseña
@@ -192,8 +201,9 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Crea el RefreshToken
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
 
-            Set<RoleFullResponseDTO> roleSet = new HashSet<>();
             //Arma el árbol de roles, permisos y acciones.
+            Set<RoleFullResponseDTO> roleSet = new HashSet<>();
+
             for(Role role : userSec.getRolesList()) {
                 RoleFullResponseDTO roleFullResponseDTO = roleService.getFullByRoleId(role.getId());
                 roleSet.add(roleFullResponseDTO);
@@ -336,6 +346,13 @@ public class UserDetailsServiceImp implements UserDetailsService {
      *             <li><b>data</b>: null (ya que no se devuelve ningún dato adicional).</li>
      *         </ul>
      */
+
+    @LogAction(
+            value = "userDetailServiceImpl.systemLogService.logout",
+            args = {"#refreshTokenRequestDTO.idUser"},
+            type = LogType.SECURITY,
+            level = LogLevel.INFO
+    )
     public Response<String> logout(RefreshTokenRequestDTO refreshTokenRequestDTO){
 
         //Elimina el refresh token del usuario

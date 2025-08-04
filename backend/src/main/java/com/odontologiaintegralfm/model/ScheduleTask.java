@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.model;
 
+import com.odontologiaintegralfm.enums.ScheduledTaskKey;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,14 +11,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "schedule_config")
-public class ScheduleConfig {
+@Table(name = "schedule_task")
+public class ScheduleTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 50, updatable = false)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private ScheduledTaskKey keyName;
 
     @Column(nullable = false, length = 150)
     private String label;

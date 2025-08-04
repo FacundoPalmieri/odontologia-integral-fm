@@ -1,7 +1,11 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.dto.AddressRequestDTO;
 import com.odontologiaintegralfm.dto.AddressResponseDTO;
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.Address;
 import com.odontologiaintegralfm.repository.IAddressRepository;
@@ -116,27 +120,64 @@ public class AddressService implements IAddressService {
      */
     @Override
     @Transactional
-    public void deleteOrphan() {
-        try{
-            List<Address> orphanAddresses  = addressRepository.findOrphan();
+    @LogAction(
+            value ="addressService.systemLogService.deleteOrphan",
+            args =  {"#result.durationSeconds","#result.message", "#result.countInit","#result.countDeleted" },
+            type = LogType.SCHEDULED,
+            level = LogLevel.INFO
+    )
+    public SchedulerResultDTO deleteOrphan() {
+        int countInit = 0;
+        int countDeleted = 0;
+        long start;
+        long end;
+        double durationSeconds;
 
+        //Inicia tarea programada
+        start = System.currentTimeMillis();
+
+
+        try{
+            List<Long> orphanAddresses  = addressRepository.findOrphan();
+
+            //1. SI NO HAY REGISTROS PARA ELIMINAR
             if (orphanAddresses.isEmpty()) {
-                log.info("Tarea Programada: [Domicilios huérfanos] - No se encontraron registros para eliminar.");
-                return;
+                //Finaliza tarea programada
+                end = System.currentTimeMillis();
+                //Convierte milisegundos a segundos.
+                durationSeconds = (end - start) / 1000.0;
+
+                SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
+                        durationSeconds,
+                        "No se encontraron registros para eliminar",
+                        countInit,
+                        countDeleted);
+                return schedulerResultDTO;
             }
 
+            //2. SI EXISTEN REGISTROS PARA ELIMINAR
+
             //Se obtiene total para loguear.
-            int count = orphanAddresses.size();
+             countInit = orphanAddresses.size();
 
-            //Se elimina
-            addressRepository.deleteAll(orphanAddresses);
+            //Se eliminan registros.
+           countDeleted = addressRepository.deleteAll(orphanAddresses);
 
-            log.info("Tarea Programada: [Domicilios huérfanos] - [Total eliminados:  {}]", count);
+            //Finaliza tarea programada
+            end = System.currentTimeMillis();
+
+            //Convierte milisegundos a segundos.
+            durationSeconds = (end - start) / 1000.0;
+
+            SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
+                    durationSeconds,
+                    "Registros eliminados correctamente",
+                    countInit,
+                    countDeleted);
+            return schedulerResultDTO;
 
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "AddressService",null,null, "deleteOrphan");
         }
-
     }
-
 }
