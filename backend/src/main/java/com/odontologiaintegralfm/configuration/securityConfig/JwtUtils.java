@@ -5,8 +5,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.SystemParameterKey;
 import com.odontologiaintegralfm.exception.UnauthorizedException;
-import com.odontologiaintegralfm.service.interfaces.ITokenConfigService;
+import com.odontologiaintegralfm.service.SystemParameterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +15,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.security.core.Authentication;
-
 import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 
 
 /**
@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 public class JwtUtils {
 
     private final MessageSource messageSource;
+
     //Con estas configuraciones aseguramos la autenticidad del token a crear
     @Value("${security.jwt.private.key}")
     private String privateKey;
@@ -46,7 +47,8 @@ public class JwtUtils {
     private String userGenerator;
 
     @Autowired
-    private ITokenConfigService tokenService;
+    private SystemParameterService systemParameterService;
+
 
     public JwtUtils(@Qualifier("messageSource") MessageSource messageSource) {
         this.messageSource = messageSource;
@@ -79,8 +81,16 @@ public class JwtUtils {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        // Obtener y convertir el tiempo de expiración a un objeto Date antes de crear el Token.
-        Date expirationDate = new Date(System.currentTimeMillis() + tokenService.getExpiration());
+        // Obtener el valor parametrizado en la base.
+        Long expirationInMinutes = systemParameterService.getByKey(SystemParameterKey.JWT_EXPIRATION);
+
+        //Convertilo a milisegundos.
+        Long expirationInMillis = expirationInMinutes * 60 * 1000;
+
+        //Se convierte en formato correcto para crear el token
+        Date expirationDate = new Date(System.currentTimeMillis() +expirationInMillis);
+
+
 
         //Se genera el token
         String jwtToken = JWT.create()

@@ -1,17 +1,19 @@
 package com.odontologiaintegralfm.service;
 
 
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.dto.*;
-import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.enums.LogLevel;
-import com.odontologiaintegralfm.exception.NotFoundException;
-import com.odontologiaintegralfm.model.AttachedFileConfig;
+import com.odontologiaintegralfm.enums.LogType;
+import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.MessageConfig;
-import com.odontologiaintegralfm.model.ScheduleConfig;
+import com.odontologiaintegralfm.model.ScheduleTask;
+import com.odontologiaintegralfm.model.SystemParameter;
 import com.odontologiaintegralfm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +30,8 @@ import java.util.List;
  * </ul>
  * <p>
  * Este servicio proporciona métodos para obtener y actualizar configuraciones como los intentos fallidos de inicio de sesión,
- * la expiración del token y los mensajes almacenados. Utiliza los servicios {@link IMessageService}, {@link IFailedLoginAttemptsService},
- * , {@link ITokenConfigService}  y  {@link IRefreshTokenConfigService} para interactuar con las configuraciones subyacentes, construyendo respuestas que incluyen mensajes
+ * la expiración del token y los mensajes almacenados. Utiliza los servicios {@link IMessageService}, {@link },
+ * , {@link }  y  {@link } para interactuar con las configuraciones subyacentes, construyendo respuestas que incluyen mensajes
  * para el usuario y los valores actualizados de las configuraciones.
  * </p>
  */
@@ -39,20 +41,16 @@ public class ConfigService implements IConfigService {
     @Autowired
     private IMessageService messageService;
 
-    @Autowired
-    private IFailedLoginAttemptsService failedLoginAttemptsService;
 
     @Autowired
-    private ITokenConfigService tokenService;
+    private IScheduleService scheduleConfigService;
+
 
     @Autowired
-    private IRefreshTokenConfigService refreshTokenConfigService;
+    private ISystemParameterService systemParameterService;
 
     @Autowired
-    private IScheduleConfigService scheduleConfigService;
-
-    @Autowired
-    private IAttachedFileConfigService attachedFileConfigService;
+    private SystemLogService systemLogService;
 
 
     /**
@@ -103,167 +101,74 @@ public class ConfigService implements IConfigService {
             return new Response<>(true, userMessage,message);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configRepository", messageRequestDto.id(), "", "updateMessage");
+            throw new DataBaseException(e, "configService", messageRequestDto.id(), "", "updateMessage");
         }
 
     }
 
     /**
-     * Obtiene el número de intentos fallidos de inicio de sesión.
-     *<p>
-     * Este método consulta el servicio {@link IFailedLoginAttemptsService} para obtener el número actual
-     * de intentos fallidos de inicio de sesión. Luego, se construye un mensaje para el usuario y se
-     * retorna una respuesta con el valor obtenido y el mensaje correspondiente.
-     *</p>
-     * @return Una respuesta que contiene el número de intentos fallidos y un mensaje de éxito para el usuario.
+     * Obtiene todas las parametrizaciones del sistema.
+     *
+     * @return SystemParameterResponseDTO
      */
     @Override
-    public Response<Integer> getAttempts() {
+    @Transactional(readOnly = true)
+    public Response<List<SystemParameterResponseDTO>> getSystemParameter() {
+        try{
+            List<SystemParameter> systemParameters = systemParameterService.getAll();
+            List<SystemParameterResponseDTO> systemParameterResponseDTO = systemParameters
+                    .stream()
+                    .map(systemParameter -> new SystemParameterResponseDTO(
+                            systemParameter.getId(),
+                            systemParameter.getValue(),
+                            systemParameter.getDescription()
+                    ))
+                    .toList();
 
-        //Obtiene el valor.
-        Integer attempts = failedLoginAttemptsService.get();
-
-        //Se construye Mensaje para usuario.
-        String userMessage = messageService.getMessage("config.getAttempts.ok", null, LocaleContextHolder.getLocale());
-        return new Response<>(true, userMessage,attempts);
-
-    }
-
-
-
-    /**
-     * Actualiza el número de intentos fallidos de inicio de sesión.
-     *<p>
-     * Este método recibe un DTO con el valor a actualizar, utiliza el servicio
-     * {@link IFailedLoginAttemptsService} para actualizar el número de intentos fallidos
-     * y luego recupera el valor actualizado. Posteriormente, se construye un mensaje para el usuario
-     * y se retorna una respuesta con el valor actualizado y el mensaje correspondiente.
-     *</p>
-     * @param failedLoginAttemptsRequestDTO El DTO que contiene el nuevo valor de intentos fallidos a actualizar.
-     * @return Una respuesta que contiene el número actualizado de intentos fallidos y un mensaje de éxito para el usuario.
-     */
-    @Override
-    public Response<Integer> updateAttempts(FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO) {
-
-        //Actualiza valor
-        failedLoginAttemptsService.update(failedLoginAttemptsRequestDTO.value());
-
-        //Recupera valor actualizado.
-        Integer attempts = failedLoginAttemptsService.get();
-
-        //Se construye Mensaje para usuario.
-        String userMessage = messageService.getMessage("config.updateAttempts.ok", new Object[]{attempts}, LocaleContextHolder.getLocale());
-        return new Response<>(true, userMessage,attempts);
-
-    }
-
-    /**
-     * Obtiene la expiración del token en minutos.
-     *<p>
-     * Este método obtiene la configuración de expiración del token en milisegundos
-     * utilizando el servicio {@link ITokenConfigService}, la convierte a minutos y construye
-     * un mensaje para el usuario. Luego retorna una respuesta con el valor de expiración
-     * en minutos y el mensaje correspondiente.
-     *</p>
-     * @return Una respuesta que contiene el valor de la expiración del token en minutos y un mensaje de éxito para el usuario.
-     */
-    @Override
-    public Response<Long> getTokenExpiration() {
-
-        // Obtener el valor en milisegundos
-        Long expiration = tokenService.getExpiration();
-
-        //Convertir a minutos
-        Long expirationMinutes = (expiration / 1000) / 60;
-
-        //Se construye Mensaje para usuario.
-        String userMessage = messageService.getMessage("config.getExpirationToken.ok", null, LocaleContextHolder.getLocale());
-        return new Response<>(true, userMessage,expirationMinutes);
-
-    }
+            return new Response<>(true, null, systemParameterResponseDTO);
 
 
-    /**
-     * Actualiza la expiración del token en minutos.
-     *<p>
-     * Este método convierte la expiración proporcionada en minutos a milisegundos,
-     * actualiza el valor de expiración utilizando el servicio {@link ITokenConfigService},
-     * recupera el valor actualizado, lo convierte de nuevo a minutos y construye
-     * un mensaje para el usuario. Luego retorna una respuesta con el valor actualizado
-     * de la expiración en minutos y el mensaje correspondiente.
-     *</p>
-     * @param tokenConfigRequestDTO Objeto que contiene el valor de la expiración en minutos a actualizar.
-     * @return Una respuesta que contiene el valor actualizado de la expiración del token en minutos y un mensaje de éxito para el usuario.
-     */
-    @Override
-    public Response<Long> updateTokenExpiration(TokenConfigRequestDTO tokenConfigRequestDTO) {
-
-        //Convertir minutos a milisegundos
-        Long milliseconds = (tokenConfigRequestDTO.expiration() * 60) * 1000;
-
-        //Actualizar tiempo de expiración.
-        int filasAfectadas = tokenService.updateExpiration(milliseconds);
-
-        if(filasAfectadas > 0){
-
-            //Se construye Mensaje para usuario.
-            String userMessage = messageService.getMessage("config.updateExpirationToken.ok", new Object[]{tokenConfigRequestDTO.expiration()}, LocaleContextHolder.getLocale());
-            return new Response<>(true, userMessage, tokenConfigRequestDTO.expiration());
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "ConfigService",null, null, "getSystemParameter");
         }
-
-        throw new NotFoundException("exception.tokenConfigNotFoundException.user",null,"exception.tokenConfigNotFoundException.log",new Object[]{"ConfigService", "updateTokenExpiration"} , LogLevel.ERROR);
     }
 
-
     /**
-     * Obtiene la expiración del Refresh token en minutos.
-     *<p>
-     * Este método obtiene la configuración de expiración del Refresh token en días.
-     * utilizando el servicio {@link IRefreshTokenConfigService}, obtiene el dato y construye
-     * un mensaje para el usuario. Luego retorna una respuesta con el valor de expiración
-     * y el mensaje correspondiente.
-     *</p>
-     * @return Una respuesta que contiene el valor de la expiración del token en días y un mensaje de éxito para el usuario.
+     * Actualiza valor de un parámetro del sistema.
+     *
+     * @param systemParameterRequestDTO
+     * @return
      */
     @Override
-    public Response<Long> getRefreshTokenExpiration() {
+    public Response<SystemParameterResponseDTO> updateSystemParameter(SystemParameterRequestDTO systemParameterRequestDTO) {
+        try{
+            //Obtiene el objeto de la base de datos.
+            SystemParameter systemParameter= systemParameterService.getById(systemParameterRequestDTO.id());
 
-        //Obtiene el valor.
-        Long expiration = refreshTokenConfigService.getExpiration();
+            //Actualiza el Objeto con los valores del DTO.
+            systemParameter.setValue(systemParameterRequestDTO.value());
+            systemParameterService.update(systemParameter);
 
-        //Construye respuesta.
-        String userMessege = messageService.getMessage("config.getExpirationRefreshToken.ok", null, LocaleContextHolder.getLocale());
-        return new Response<>(true, userMessege,expiration);
-    }
+            //Construye DTO respuesta
+            SystemParameterResponseDTO systemParameterResponseDTO = new SystemParameterResponseDTO(
+                    systemParameter.getId(),
+                    systemParameter.getValue(),
+                    systemParameter.getDescription()
+                    );
 
 
+            //Obtiene mensaje de respuesta
+            String messageUser= messageService.getMessage("config.update.ok",null,LocaleContextHolder.getLocale());
+
+            //Elabora la respuesta.
+            return new Response<>(true, messageUser,systemParameterResponseDTO);
 
 
-
-    /**
-     * Actualiza la expiración del Refresh token en días.
-     *<p>
-     * Este método actualiza el valor de expiración utilizando el servicio {@link IRefreshTokenConfigService}, y construye
-     * un mensaje para el usuario. Luego retorna una respuesta con el valor actualizado
-     * de la expiración en días y el mensaje correspondiente.
-     *</p>
-     * @param refreshTokenConfigRequestDTO Objeto que contiene el valor de la expiración en días a actualizar.
-     * @return Una respuesta que contiene el valor actualizado de la expiración del token en días y un mensaje de éxito para el usuario.
-     */
-    @Override
-    public Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO) {
-
-        // Llama al servicio de refresh Token y actualiza el valor
-        int filasAfectadas = refreshTokenConfigService.updateExpiration(refreshTokenConfigRequestDTO);
-
-        if(filasAfectadas > 0){
-            // Construye respuesta
-            String userMessage = messageService.getMessage("config.updateExpirationRefreshToken.ok", new Object[]{refreshTokenConfigRequestDTO.expiration()}, LocaleContextHolder.getLocale());
-            return new Response<>(true, userMessage, refreshTokenConfigRequestDTO.expiration());
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "ConfigService",null, null, "updateSystemParameter");
         }
-
-        throw new NotFoundException("exception.refreshTokenConfigNotFoundException.user",null, "exception.refreshTokenConfigNotFoundException.log",new Object[]{"ConfigService","updateRefreshTokenExpiration"},LogLevel.ERROR);
     }
+
 
     /**
      * Obtiene la regla que define cuándo se ejecutará la tarea programada.
@@ -282,7 +187,7 @@ public class ConfigService implements IConfigService {
      * @return {@link Response} que contiene la expresión cron actual configurada.
      */
     @Override
-    public Response<List<ScheduleConfigResponseDTO>> getAllSchedule() {
+    public Response<List<ScheduleResponseDTO>> getAllSchedule() {
        return new Response<>(true, null, scheduleConfigService.getAll());
     }
 
@@ -292,7 +197,7 @@ public class ConfigService implements IConfigService {
      * Actualiza la regla que define cuándo se ejecutará la tarea programada.
      * El método realiza lógica de validación y llama al servicio correspondiente para actualizar.
      *
-     * @param scheduleConfigRequestDTO regla expresada en:
+     * @param scheduleRequestDTO regla expresada en:
      *                       <ul>
      *                           <li><b>Segundo</b> (0-59)</li>
      *                           <li><b>Minuto</b> (0-59)</li>
@@ -305,74 +210,57 @@ public class ConfigService implements IConfigService {
      * @return {@link Response}
      */
     @Override
-    public Response<ScheduleConfigResponseDTO> updateSchedule(ScheduleConfigRequestDTO scheduleConfigRequestDTO) {
+    @LogAction(
+            value = "config.systemLogService.updateSchedule",
+            args = {"#scheduleRequestDTO.id"},
+            type = LogType.SCHEDULED,
+            level = LogLevel.INFO
+    )
+    public Response<ScheduleResponseDTO> updateSchedule(ScheduleRequestDTO scheduleRequestDTO) {
         try{
             //Validar que la tarea exista
-            ScheduleConfigResponseDTO scheduleConfigDTO = scheduleConfigService.getById(scheduleConfigRequestDTO.id());
+            ScheduleResponseDTO scheduleConfigDTO = scheduleConfigService.getById(scheduleRequestDTO.id());
 
             //Actualiza la entidad para guardar en bd.
-            ScheduleConfig scheduleConfig = new ScheduleConfig();
-            scheduleConfig.setId(scheduleConfigRequestDTO.id());
-            scheduleConfig.setName(scheduleConfigDTO.name());
-            scheduleConfig.setLabel(scheduleConfigDTO.label());
-            scheduleConfig.setCronExpression(scheduleConfigRequestDTO.cronExpression());
+            ScheduleTask scheduleTask = new ScheduleTask();
+            scheduleTask.setId(scheduleRequestDTO.id());
+            scheduleTask.setLabel(scheduleConfigDTO.label());
+            scheduleTask.setCronExpression(scheduleRequestDTO.cronExpression());
 
             //Persiste
-            scheduleConfig = scheduleConfigService.update(scheduleConfig);
+            scheduleTask = scheduleConfigService.update(scheduleTask);
 
             //Carga el objeto Response.
-            ScheduleConfigResponseDTO scheduleConfigResponseDTO = new ScheduleConfigResponseDTO(
-                    scheduleConfig.getId(),
-                    scheduleConfig.getName(),
-                    scheduleConfig.getLabel(),
-                    scheduleConfig.getCronExpression()
+            ScheduleResponseDTO scheduleResponseDTO = new ScheduleResponseDTO(
+                    scheduleTask.getId(),
+                    scheduleTask.getLabel(),
+                    scheduleTask.getCronExpression()
             );
 
-            String userMessage = messageService.getMessage("config.updateSchedule.ok", new Object[]{scheduleConfigRequestDTO.cronExpression()}, LocaleContextHolder.getLocale());
-            return new Response<>(true, userMessage,scheduleConfigResponseDTO);
+            String userMessage = messageService.getMessage("config.updateSchedule.ok", new Object[]{scheduleRequestDTO.cronExpression()}, LocaleContextHolder.getLocale());
+            return new Response<>(true, userMessage, scheduleResponseDTO);
 
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configService", scheduleConfigRequestDTO.id(), "", "updateSchedule");
+            throw new DataBaseException(e, "configService", scheduleRequestDTO.id(), "", "updateSchedule");
         }
     }
 
     /**
-     * Método para obtener la configuración de días "minimos" permitidos para un archivo adjunto antes de su baja física.
+     * Se comunica con el servicio de {@link SystemLogService} para obtener los logs.
      *
+     * @param pageValue
+     * @param sizeValue
+     * @param sortByValue
+     * @param directionValue
      * @return
      */
     @Override
-    public Response<AttachedFileConfig> getAttachedFileConfig() {
+    public Response<Page<SystemLogResponseDTO>> getLogs(int pageValue, int sizeValue, String sortByValue, String directionValue) {
         try{
-            return new Response<>(true,null, attachedFileConfigService.get());
-
+            return new Response<>(true, null, systemLogService.getAll(pageValue,sizeValue,sortByValue,directionValue));
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configService", null, null, "getAttachedFileConfig");
-        }
-    }
-
-    /**
-     * Método para actualizar la configuración de días "mínimos" permitidos para un archivo adjunto antes de su baja física.
-     *
-     * @param attachedFileConfigRequestDTO
-     * @return
-     */
-    @Override
-    public Response<AttachedFileConfig> updateAttachedFileConfig(AttachedFileConfigRequestDTO attachedFileConfigRequestDTO) {
-        try{
-
-            //Convierte el DTO a la entidad para luego persistirla.
-            AttachedFileConfig attachedFileConfig = new AttachedFileConfig(
-                    attachedFileConfigRequestDTO.id(),
-                    attachedFileConfigRequestDTO.days()
-            );
-
-            String messageUser = messageService.getMessage("config.updateAttachedFileConfig.ok",new Object[]{attachedFileConfigRequestDTO.days()}, LocaleContextHolder.getLocale());
-            return new Response<>(true,messageUser, attachedFileConfigService.update(attachedFileConfig));
-
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configService", null, null, "getAttachedFileConfig");
+            throw new DataBaseException(e, "configService", null, null, "getAllLogs");
         }
     }
 

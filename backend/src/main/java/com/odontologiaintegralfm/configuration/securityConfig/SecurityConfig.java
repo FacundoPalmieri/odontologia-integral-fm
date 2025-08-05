@@ -4,6 +4,7 @@ import com.odontologiaintegralfm.configuration.securityConfig.filter.JwtTokenVal
 import com.odontologiaintegralfm.configuration.securityConfig.filter.OAuth2UserFilter;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
+import com.odontologiaintegralfm.service.interfaces.ISystemLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,9 @@ public class SecurityConfig {
 
     @Autowired
     private IRefreshTokenService refreshTokenService;
+
+    @Autowired
+    private ISystemLogService systemLogService;
 
 
 
@@ -80,7 +84,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 //Se agregan filtros Personalizados.
-                .addFilterBefore(new JwtTokenValidator(jwtUtils, messageService),UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenValidator(jwtUtils, messageService, systemLogService),UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new OAuth2UserFilter(jwtUtils,userRepository,messageService,refreshTokenService), BasicAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                       .defaultSuccessUrl("/holaseg",true))//Redirección luego de autenticación.

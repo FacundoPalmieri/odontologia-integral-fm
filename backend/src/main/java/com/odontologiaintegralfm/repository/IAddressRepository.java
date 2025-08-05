@@ -3,10 +3,10 @@ package com.odontologiaintegralfm.repository;
 import com.odontologiaintegralfm.model.Address;
 import com.odontologiaintegralfm.model.Locality;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +32,7 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {
 
 
     @Query("""
-     SELECT a
+     SELECT a.id
      FROM Address a
      WHERE NOT EXISTS(
         SELECT p
@@ -40,6 +40,14 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {
         WHERE p.address = a
         )
      """)
-    List<Address> findOrphan();
+    List<Long> findOrphan();
+
+
+    @Modifying
+    @Query("""
+    DELETE FROM Address  a
+    WHERE a.id IN : ids
+    """)
+    int deleteAll(@Param("ids") List <Long> ids);
 
 }

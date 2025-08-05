@@ -4,13 +4,44 @@
 Este es un proyecto de gestión interna para un **consultorio odontológico**.
 
 ## Seguridad
-El proyecto implementa autenticación y autorización basada en roles utilizando credenciales, JWT y OAuth2. Permite la creación y actualización de usuarios, roles y permisos, además de ofrecer funcionalidades como el restablecimiento de contraseñas con envío de correos electrónicos.
+El proyecto implementa autenticación y autorización basada en roles. permisos y acciones utilizando credenciales, JWT y OAuth2. Permite la creación y actualización de usuarios, roles y permisos, además de ofrecer funcionalidades como el restablecimiento de contraseñas con envío de correos electrónicos.
 
 Cuenta con **endpoints de parametrización** disponibles exclusivamente para usuarios con rol de tipo "desarrollador", lo que permite actualizar de manera ágil:
 - Mensajes personalizados para usuarios.
 - Logs configurables mediante pares clave-valor.
 - Límites de intentos de inicio de sesión fallidos.
 - Tiempo de expiración del token JWT.
+- Tiempo de expiración de refresh Token.
+
+
+## Logs
+
+La aplicación cuenta con tipos y niveles de logs.
+
+## Tipos:
+
+- EXCEPTION
+- SCHEDULED
+- SECURITY
+- SYSTEM
+
+## Niveles:
+- NONE
+- INFO
+- WARN
+- ERROR
+
+## Loguea:
+- Inicio sesión.
+- Cierre sesión.
+- Creación de Rol.
+- Actualización de Rol.
+- Creación Usuario.
+- Actualización de Usuario.
+- Eliminación lógica de documento de Usuarios y pacientes.
+- Envío de emails.
+- Todos los tipos de exception que arroja la aplicación (Contraseña incorrecta, bloqueo de cuenta, etc)
+
 
 ## Auditoría
 
@@ -31,6 +62,8 @@ Cada tabla de auditoría contiene:
    - `1` = UPDATE
    - `2` = DELETE
 - `...otros campos...`: Una copia de los atributos auditados de la entidad original.
+
+## Tareas Programadas
 
 
 ## Gestión

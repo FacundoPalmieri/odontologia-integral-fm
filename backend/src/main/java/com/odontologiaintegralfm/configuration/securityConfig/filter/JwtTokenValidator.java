@@ -5,10 +5,14 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.exception.UnauthorizedException;
+import com.odontologiaintegralfm.service.SystemLogService;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
+import com.odontologiaintegralfm.service.interfaces.ISystemLogService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collection;
@@ -51,10 +56,12 @@ import java.util.Collection;
 public class JwtTokenValidator extends OncePerRequestFilter {
     private JwtUtils jwtUtils;
     private IMessageService messageService;
+    private ISystemLogService systemLogService;
 
-    public JwtTokenValidator(JwtUtils jwtUtils, IMessageService messageService) {
+    public JwtTokenValidator(JwtUtils jwtUtils, IMessageService messageService, ISystemLogService systemLogService) {
         this.jwtUtils = jwtUtils;
         this.messageService = messageService;
+        this.systemLogService = systemLogService;
     }
 
 
@@ -119,16 +126,27 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     }
 
 
-
     private void handleTokenNullException(Exception ex,HttpServletRequest request, HttpServletResponse response) throws IOException{
         // Cargar el mensaje de error desde properties
         String logMessage = messageService.getMessage("exception.authenticationRequired.log", new Object[]{"Token nulo",request.getServletPath(),"JWT Token Validator","handleTokenInvalidException"}, LocaleContextHolder.getLocale());
-        log.error(logMessage,ex);
 
         // Crear mensaje genérico para el usuario
         String userMessage = messageService.getMessage("exception.authenticationRequired.user", null, LocaleContextHolder.getLocale());
 
+        // log en consola
+        log.error(logMessage,ex);
 
+        // Guardar log en base de datos
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.ERROR,                      // level
+                LogType.EXCEPTION,                   // type
+                userMessage,                         // userMessage
+                logMessage,                          // technicalMessage
+                "LogActionAspect",
+                "No autenticado",
+                null,    // metadata como Map<String, Object>
+                systemLogService.getStackTraceAsString(ex)           // stacktrace como texto
+        ));
 
         // Capturamos la excepción y devolvemos una respuesta personalizada
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -156,14 +174,29 @@ public class JwtTokenValidator extends OncePerRequestFilter {
      * @param response La respuesta HTTP que se enviará al cliente.
      * @throws IOException Si ocurre un error al escribir la respuesta JSON en el cuerpo de la respuesta HTTP.
      */
+
     private void handleTokenInvalidException(Exception ex,HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // Cargar el mensaje de error desde properties
         String logMessage = messageService.getMessage("exception.validateToken.log", new Object[]{request.getHeader(HttpHeaders.AUTHORIZATION),request.getServletPath(),"JWT Token Validator","handleTokenInvalidException"}, LocaleContextHolder.getLocale());
-        log.error(logMessage,ex);
 
         // Crear mensaje genérico para el usuario
          String userMessage = messageService.getMessage("exception.validateToken.user", null, LocaleContextHolder.getLocale());
+
+        // log en consola
+        log.error(logMessage,ex);
+
+        // Guardar log en base de datos
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.ERROR,                      // level
+                LogType.EXCEPTION,                   // type
+                userMessage,                         // userMessage
+                logMessage,                          // technicalMessage
+                "LogActionAspect",// username
+                "No autenticado",
+                null,    // metadata como Map<String, Object>
+                systemLogService.getStackTraceAsString(ex)           // stacktrace como texto
+        ));
 
         // Capturamos la excepción y devolvemos una respuesta personalizada
         response.setStatus(HttpStatus.UNAUTHORIZED.value());

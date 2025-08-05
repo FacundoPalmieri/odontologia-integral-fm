@@ -1,9 +1,12 @@
 package com.odontologiaintegralfm.configuration.appConfig;
 
-import com.odontologiaintegralfm.dto.ScheduleConfigResponseDTO;
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
+import com.odontologiaintegralfm.dto.ScheduleResponseDTO;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
+import com.odontologiaintegralfm.enums.ScheduledTaskKey;
 import com.odontologiaintegralfm.scheduler.CleanupService;
-import com.odontologiaintegralfm.service.interfaces.IScheduleConfigService;
+import com.odontologiaintegralfm.service.interfaces.IScheduleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +51,7 @@ public class SchedulerInitializerConfig implements SchedulingConfigurer {
     @Autowired
     private CleanupService cleanupService;
     @Autowired
-    private IScheduleConfigService scheduleConfigService;
+    private IScheduleService scheduleConfigService;
 
     /**
      * Método obligatorio al implementar SchedulingConfigurer.
@@ -58,22 +61,24 @@ public class SchedulerInitializerConfig implements SchedulingConfigurer {
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
 
         // Registrar tareas programadas dinámicamente
-        registerTask(taskRegistrar, 1L, () -> cleanupService.cleanOrphanDataAddress());
-        registerTask(taskRegistrar, 2L, () -> cleanupService.cleanOrphanDataContactEmail());
-        registerTask(taskRegistrar, 3L, () -> cleanupService.cleanOrphanDataContactPhone());
-        registerTask(taskRegistrar, 4L, () -> cleanupService.cleanAttachedFileConfig());
+        registerTask(taskRegistrar, ScheduledTaskKey.CLEAN_ORPHAN_ADDRESS, () -> cleanupService.cleanOrphanDataAddress());
+        registerTask(taskRegistrar, ScheduledTaskKey.CLEAN_ORPHAN_EMAIL, () -> cleanupService.cleanOrphanDataContactEmail());
+        registerTask(taskRegistrar, ScheduledTaskKey.CLEAN_ORPHAN_PHONE, () -> cleanupService.cleanOrphanDataContactPhone());
+        registerTask(taskRegistrar, ScheduledTaskKey.CLEAN_ATTACHED_FILE_DISABLED, () -> cleanupService.cleanAttachedFileDisabled());
+        registerTask(taskRegistrar,ScheduledTaskKey.CLEAN_LOGS, () -> cleanupService.cleanLogs());
     }
 
-    private void registerTask(ScheduledTaskRegistrar registrar, Long id, Runnable task) {
+
+    private void registerTask(ScheduledTaskRegistrar registrar, ScheduledTaskKey key, Runnable task) {
         registrar.addTriggerTask(
                 task,
                 triggerContext -> {
                     try {
                         // 1. Obtener la expresión cron actual desde el servicio
-                        ScheduleConfigResponseDTO config = scheduleConfigService.getById(id);
+                        String cron = scheduleConfigService.getByKeyName(key);
 
                         // 2. Crear un CronTrigger con esa expresión
-                        CronTrigger trigger = new CronTrigger(config.cron());
+                        CronTrigger trigger = new CronTrigger(cron);
 
                         // 3. Calcular la próxima fecha de ejecución (devuelve Date, aunque esté deprecated)
                         Date nextExec = trigger.nextExecutionTime(triggerContext);
@@ -81,7 +86,7 @@ public class SchedulerInitializerConfig implements SchedulingConfigurer {
                         // 4. Retornar la fecha convertida a Instant ya que lo pide Spring
                         return (nextExec != null) ? nextExec.toInstant() : null;
                     } catch (Exception e) {
-                        log.warn("Error al obtener cron para tarea ID: " + id);
+                        log.warn("Error al obtener cron para tarea: " + key);
                         e.printStackTrace();
                         return null;
                     }

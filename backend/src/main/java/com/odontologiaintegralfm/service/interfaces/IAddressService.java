@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.AddressRequestDTO;
 import com.odontologiaintegralfm.dto.AddressResponseDTO;
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.model.Address;
 
 public interface IAddressService {
@@ -40,5 +41,5 @@ public interface IAddressService {
      * Este método es invocado desde tareas programadas.
      * @return
      */
-     void deleteOrphan();
+    SchedulerResultDTO deleteOrphan();
 }

@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.AttachedFileResponseDTO;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -103,6 +104,6 @@ public interface IAttachedFilesService {
      * Elimina todos los archivos adjuntos con baja lógica de mas de "x" cantidad de días.
      * @throws IOException
      */
-     void deleteAttachedFiles();
+    SchedulerResultDTO deleteAttachedFiles();
 
 }

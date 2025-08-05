@@ -1,14 +1,16 @@
 package com.odontologiaintegralfm.service;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
+import com.odontologiaintegralfm.enums.SystemParameterKey;
 import com.odontologiaintegralfm.exception.*;
 import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IUserRepository;
 import com.odontologiaintegralfm.service.interfaces.IEmailService;
-import com.odontologiaintegralfm.service.interfaces.IFailedLoginAttemptsService;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
@@ -91,9 +93,6 @@ public class UserService implements IUserService {
     private IMessageService messageService;
 
     @Autowired
-    private IFailedLoginAttemptsService failedLoginAttemptsService;
-
-    @Autowired
     private DentistService dentistService;
 
     @Autowired
@@ -102,6 +101,8 @@ public class UserService implements IUserService {
     @Autowired
     @Lazy
     private AuthenticatedUserService authenticatedUserService;
+    @Autowired
+    private SystemParameterService systemParameterService;
 
 
     /**
@@ -120,7 +121,6 @@ public class UserService implements IUserService {
     @Override
     public Response<Page<UserSecResponseDTO>> getAll(int page, int size, String sortBy, String direction) {
         try {
-
             //Define criterio de ordenamiento
             Sort sort = direction.equalsIgnoreCase("desc") ?
                     Sort.by(sortBy).descending()
@@ -317,6 +317,12 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
+    @LogAction(
+            value ="userService.systemLogService.create",
+            args = {"#result.data.id", "#result.data.username"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
     public Response<UserSecResponseDTO> create(UserSecCreateDTO userSecCreateDto) {
         try{
             //Valída que el usuario no exista en la base de datos.
@@ -391,6 +397,12 @@ public class UserService implements IUserService {
      */
     @Transactional
     @Override
+    @LogAction(
+            value ="userService.systemLogService.update",
+            args = {"#result.data.id", "#result.data.username"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
     public Response<UserSecResponseDTO> update(UserSecUpdateDTO userSecUpdateDto) {
         try {
             //Se obtiene el usuario desde la base de datos para realizar validaciones
@@ -611,7 +623,7 @@ public class UserService implements IUserService {
      */
     protected boolean verifyAttempts(String username){
         try{
-            int configAttempts = failedLoginAttemptsService.get();
+            int configAttempts = systemParameterService.getByKey(SystemParameterKey.FAILED_LOGIN_ATTEMPTS).intValue();
             int userAttempts = userRepository.findFailedLoginAttemptsByUsername(username);
             if(userAttempts >= configAttempts){
                 return false;

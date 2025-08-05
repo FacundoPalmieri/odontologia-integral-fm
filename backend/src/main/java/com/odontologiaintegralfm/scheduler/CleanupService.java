@@ -1,5 +1,9 @@
 package com.odontologiaintegralfm.scheduler;
 
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
+import com.odontologiaintegralfm.dto.internal.SchedulerResultDTO;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,15 +33,16 @@ public class CleanupService {
     @Autowired
     private IAttachedFilesService attachedFileService;
 
+    @Autowired
+    private ISystemLogService systemLogService;
+
 
     /**
      * Método que se ejecuta cuando es programado por Spring.
      * Elimina todos los domicilios huérfanos de la base.
      */
     @Transactional
-    public void cleanOrphanDataAddress() {
-            addressService.deleteOrphan();
-    }
+    public void cleanOrphanDataAddress() {addressService.deleteOrphan();}
 
     /**
      * Método que se ejecuta cuando es programado por Spring.
@@ -59,10 +64,19 @@ public class CleanupService {
 
     /**
      * Método que se ejecuta cuando es programado por Spring.
-     * Elimina todos los archivos adjuntos con baja lógica que posean una antigüedad mayor a la parametrizada en {@link com.odontologiaintegralfm.model.AttachedFileConfig}.
+     * Elimina todos los archivos adjuntos con baja lógica que posean una antigüedad mayor a la parametrizada.
      */
-    public void cleanAttachedFileConfig() {
+    public void cleanAttachedFileDisabled() {
         attachedFileService.deleteAttachedFiles();
+    }
+
+
+    /**
+     * Método que se ejecuta cuando es programado por Spring.
+     * Elimina logs que posean una antigüedad mayor a la parametrizada.
+     */
+    public void cleanLogs(){
+        systemLogService.delete();
     }
 
 }

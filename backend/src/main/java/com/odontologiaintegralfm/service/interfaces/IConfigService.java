@@ -1,8 +1,8 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.*;
-import com.odontologiaintegralfm.model.AttachedFileConfig;
 import com.odontologiaintegralfm.model.MessageConfig;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -26,56 +26,40 @@ public interface IConfigService {
     Response<MessageConfig> updateMessage(MessageRequestDTO messageRequestDto);
 
 
-    /**
-     * Obtiene el número de intentos fallidos de inicio de sesión permitidos.
-     * @return Una respuesta que contiene el número máximo de intentos de inicio de sesión.
-     */
-    Response<Integer> getAttempts();
 
-    /**
-     * Actualiza el número de intentos fallidos de inicio de sesión permitidos.
-     *
-     * @param failedLoginAttemptsRequestDTO El objeto {@link FailedLoginAttemptsRequestDTO} que contiene la nueva configuración de intentos fallidos.
-     * @return Una respuesta que contiene el número actualizado de intentos permitidos.
-     */
-    Response<Integer> updateAttempts(FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO);
 
-    /**
-     * Obtiene la duración en minutos del tiempo de expiración del token de autenticación.
-     * @return Una respuesta que contiene la duración del token en minutos.
-     */
-    Response<Long> getTokenExpiration();
 
-    /**
-     * Actualiza la duración de expiración del token de autenticación.
-     *
-     * @param tokenConfigRequestDTO El objeto {@link TokenConfigRequestDTO} que contiene la nueva configuración de expiración del token.
-     * @return Una respuesta que contiene el nuevo valor de expiración del token en minutos.
-     */
-    Response<Long> updateTokenExpiration(TokenConfigRequestDTO tokenConfigRequestDTO);
+
 
 
 
     /**
-     * Obtiene la duración en días del tiempo de expiración del Refresh Token
-     * @return Una respuesta que contiene la duración del token en días
+     * Obtiene todas las parametrizaciones del sistema.
+     * @return SystemParameterResponseDTO
      */
-    Response<Long> getRefreshTokenExpiration();
-
+    Response<List<SystemParameterResponseDTO>> getSystemParameter();
 
     /**
-     * Actualiza la duración de expiración del Refresh Token
-     * @param refreshTokenConfigRequestDTO
-     * @return Una respuesta que contiene el nuevo valor de expiración del token en días.
+     * Actualiza valor de un parámetro del sistema.
+     * @param systemParameterRequestDTO
+     * @return
      */
-    Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO);
+    Response<SystemParameterResponseDTO> updateSystemParameter(SystemParameterRequestDTO systemParameterRequestDTO);
+
+
+
+
+
+
+
+
 
 
 
     /**
      * Obtiene un listado de todas las tareas programadas con su expresión cron.
 
-     * Este método se comunica con el servicio de {@link IScheduleConfigService}
+     * Este método se comunica con el servicio de {@link IScheduleService}
      * <p>
      * La expresión se representa en el siguiente formato cron de 6 campos:
      * <ul>
@@ -90,7 +74,7 @@ public interface IConfigService {
      *
      * @return {@link Response} que contiene la expresión cron actual configurada.
      */
-    Response<List<ScheduleConfigResponseDTO>> getAllSchedule();
+    Response<List<ScheduleResponseDTO>> getAllSchedule();
 
 
 
@@ -99,7 +83,7 @@ public interface IConfigService {
     /**
      * Actualiza la regla que define cuándo se ejecutará la tarea programada.
      *
-     * @param scheduleConfigRequestDTO regla expresada en:
+     * @param scheduleRequestDTO regla expresada en:
      *                        <ul>
      *                            <li><b>Segundo</b> (0-59)</li>
      *                            <li><b>Minuto</b> (0-59)</li>
@@ -112,27 +96,20 @@ public interface IConfigService {
      *
      * @return {@link Response}
      */
-    Response<ScheduleConfigResponseDTO> updateSchedule(ScheduleConfigRequestDTO scheduleConfigRequestDTO);
+    Response<ScheduleResponseDTO> updateSchedule(ScheduleRequestDTO scheduleRequestDTO);
 
 
 
 
 
     /**
-     * Método para obtener la configuración de días "mínimos" permitidos para un archivo adjunto antes de su baja física.
+     * Se comunica con el servicio de {@link com.odontologiaintegralfm.service.SystemLogService} para obtener los logs.
+     * @param pageValue
+     * @param sizeValue
+     * @param sortByValue
+     * @param directionValue
      * @return
      */
-    Response<AttachedFileConfig> getAttachedFileConfig();
-
-
-
-    /**
-     * Método para actualizar la configuración de días "mínimos" permitidos para un archivo adjunto antes de su baja física.
-     * @return
-     */
-    Response<AttachedFileConfig> updateAttachedFileConfig(AttachedFileConfigRequestDTO attachedFileConfigRequestDTO);
-
-
-
+    Response<Page<SystemLogResponseDTO>> getLogs(int pageValue, int sizeValue, String sortByValue, String directionValue);
 
 }
