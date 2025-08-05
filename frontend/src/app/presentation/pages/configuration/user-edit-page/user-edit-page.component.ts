@@ -311,8 +311,20 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   }
 
   removeAvatar(): void {
-    this.avatarUrl.set(null);
-    this.userForm.markAsDirty();
+    this.personDataService.removeAvatar(this.personId).subscribe(() => {
+      this.personDataService
+        .getAvatar(this.personId)
+        .subscribe((avatar: string) => {
+          this.avatarUrl.set(avatar);
+        });
+      this.snackbarService.openSnackbar(
+        "Imagen de perfil eliminada.",
+        6000,
+        "center",
+        "top",
+        SnackbarTypeEnum.Success
+      );
+    });
   }
 
   save() {
@@ -472,5 +484,9 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       });
     }
     this.userForm.markAsPristine();
+  }
+
+  get personId(): number {
+    return this.userForm.get("person.id")?.value;
   }
 }

@@ -153,6 +153,12 @@ export class PersonDataService {
     );
   }
 
+  removeAvatar(id: number): Observable<ApiResponseInterface<string>> {
+    return this.http.delete<ApiResponseInterface<string>>(
+      `${this.apiUrl}/person/${id}/avatar`
+    );
+  }
+
   uploadFile(
     personId: number,
     file: File

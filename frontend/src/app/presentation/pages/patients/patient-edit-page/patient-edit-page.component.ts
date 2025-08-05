@@ -268,8 +268,20 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   }
 
   removeAvatar(): void {
-    this.avatarUrl.set(null);
-    this.patientForm.markAsDirty();
+    this.personDataService.removeAvatar(this.patientId!).subscribe(() => {
+      this.personDataService
+        .getAvatar(this.patientId!)
+        .subscribe((avatar: string) => {
+          this.avatarUrl.set(avatar);
+        });
+      this.snackbarService.openSnackbar(
+        "Imagen de perfil eliminada.",
+        6000,
+        "center",
+        "top",
+        SnackbarTypeEnum.Success
+      );
+    });
   }
 
   //QUITAR
