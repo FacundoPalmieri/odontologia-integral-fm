@@ -109,4 +109,10 @@ export class PatientService {
       responseType: "blob",
     });
   }
+
+  deleteFile(fileId: number): Observable<ApiResponseInterface<string>> {
+    return this.http.delete<ApiResponseInterface<string>>(
+      `${this.apiUrl}/files/patient/${fileId}`
+    );
+  }
 }

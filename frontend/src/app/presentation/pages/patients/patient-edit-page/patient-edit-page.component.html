@@ -645,6 +645,14 @@
                 >
                   <i-tabler name="download"></i-tabler>
                 </button>
+                <button
+                  mat-icon-button
+                  matTooltip="Eliminar"
+                  matTooltipPosition="right"
+                  (click)="deleteFile(element.id)"
+                >
+                  <i-tabler class="text-red-500" name="xbox-x"></i-tabler>
+                </button>
               </td>
             </ng-container>
             <tr

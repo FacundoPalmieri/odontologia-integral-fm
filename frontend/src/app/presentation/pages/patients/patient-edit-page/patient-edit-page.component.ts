@@ -58,7 +58,6 @@ import {
   ActionsEnum,
   PermissionsEnum,
 } from "../../../../utils/enums/permissions.enum";
-import { response } from "express";
 
 //QUITAR
 interface OdontogramInterface {
@@ -356,6 +355,21 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  deleteFile(fileId: number): void {
+    this.patientService
+      .deleteFile(fileId)
+      .subscribe((response: ApiResponseInterface<string>) => {
+        this.snackbarService.openSnackbar(
+          response.message,
+          6000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Success
+        );
+        this._getPatientFiles(this.patientId!);
+      });
+  }
+
   private _loadPermissionsFlags() {
     this.canUpdate.set(
       this.accessControlService.can(
@@ -472,15 +486,16 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             .subscribe((avatar: string) => {
               this.avatarUrl.set(avatar);
             });
-
-          this.patientService
-            .getFilesMetadata(response.data.person.id)
-            .subscribe(
-              (response: ApiResponseInterface<FileMetadataInterface[]>) => {
-                this.filesMetadata.set(response.data);
-              }
-            );
+          this._getPatientFiles(response.data.person.id);
         }
+      });
+  }
+
+  private _getPatientFiles(id: number) {
+    this.patientService
+      .getFilesMetadata(id)
+      .subscribe((response: ApiResponseInterface<FileMetadataInterface[]>) => {
+        this.filesMetadata.set(response.data);
       });
   }
 
@@ -590,15 +605,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             SnackbarTypeEnum.Success
           );
         },
-        error: () => {
-          this.snackbarService.openSnackbar(
-            "Error al subir el estudio.",
-            6000,
-            "center",
-            "bottom",
-            SnackbarTypeEnum.Error
-          );
-        },
+        error: () => {},
       });
   }
 }

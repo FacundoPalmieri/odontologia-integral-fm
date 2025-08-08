@@ -137,7 +137,8 @@ export class SystemComponent implements OnDestroy {
     effect(() => {
       if (this.systemParameters()) {
         this.systemParametersDataSource.data = this.systemParameters();
-        this.systemParametersDataSource.paginator = this.schedulePaginator;
+        this.systemParametersDataSource.paginator =
+          this.systemParametersPaginator;
         this.systemParametersDataSource.sort = this.scheduleSort;
       }
     });
