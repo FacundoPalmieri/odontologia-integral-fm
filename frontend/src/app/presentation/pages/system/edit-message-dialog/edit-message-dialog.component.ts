@@ -13,7 +13,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
-import { MessageInterface } from "../../../../domain/interfaces/message.interface";
+import { MessageInterface } from "../../../../domain/interfaces/config.interface";
 
 @Component({
   selector: "app-edit-message-dialog",

@@ -25,17 +25,24 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
-import { MessageInterface } from "../../../domain/interfaces/message.interface";
+import {
+  MessageInterface,
+  ScheduleInterface,
+  SystemParameterInterface,
+} from "../../../domain/interfaces/config.interface";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { EditMessageDialogComponent } from "./edit-message-dialog/edit-message-dialog.component";
 import { Subject, takeUntil } from "rxjs";
-import { MessageCreateDtoInterface } from "../../../domain/dto/message.dto";
-import { ScheduleInterface } from "../../../domain/interfaces/schedule.interface";
-import { ScheduleUpdateDtoInterface } from "../../../domain/dto/schedule.dto";
+import {
+  MessageUpdateDtoInterface,
+  ScheduleUpdateDtoInterface,
+  SystemParameterUpdateDtoInterface,
+} from "../../../domain/dto/config.dto";
 import { EditScheduleDialogComponent } from "./edit-schedule-dialog/edit-schedule-dialog.component";
+import { EditSystemParameterDialogComponent } from "./edit-system-parameter-dialog/edit-system-parameter-dialog.component";
 
 @Component({
   selector: "app-system",
@@ -69,16 +76,39 @@ export class SystemComponent implements OnDestroy {
   messagesFilter = new FormControl("");
   messagesDataSource: MatTableDataSource<MessageInterface> =
     new MatTableDataSource();
+  messagesDisplayedColumns: string[] = [
+    "id",
+    "key",
+    "value",
+    "locale",
+    "action",
+  ];
 
   schedules = signal<any[]>([]);
   schedulesFilter = new FormControl("");
   schedulesDataSource: MatTableDataSource<any> = new MatTableDataSource();
+  schedulesDisplayedColumns: string[] = ["id", "label", "cron", "action"];
+
+  systemParameters = signal<any[]>([]);
+  systemParametersFilter = new FormControl("");
+  systemParametersDataSource: MatTableDataSource<any> =
+    new MatTableDataSource();
+  systemParametersDisplayedColumns: string[] = [
+    "id",
+    "description",
+    "value",
+    "action",
+  ];
 
   @ViewChild("messagesPaginator") messagesPaginator!: MatPaginator;
   @ViewChild("messagesSort") messagesSort!: MatSort;
 
   @ViewChild("schedulePaginator") schedulePaginator!: MatPaginator;
   @ViewChild("scheduleSort") scheduleSort!: MatSort;
+
+  @ViewChild("systemParametersPaginator")
+  systemParametersPaginator!: MatPaginator;
+  @ViewChild("systemParametersSort") systemParametersSort!: MatSort;
 
   constructor() {
     this.tokenForm = new FormGroup({
@@ -103,6 +133,14 @@ export class SystemComponent implements OnDestroy {
         this.schedulesDataSource.sort = this.scheduleSort;
       }
     });
+
+    effect(() => {
+      if (this.systemParameters()) {
+        this.systemParametersDataSource.data = this.systemParameters();
+        this.systemParametersDataSource.paginator = this.schedulePaginator;
+        this.systemParametersDataSource.sort = this.scheduleSort;
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -111,66 +149,10 @@ export class SystemComponent implements OnDestroy {
   }
 
   loadInitialData() {
-    this._getFailedAttempts();
+    this._getSystemParameters();
     this._getMessages();
-    this._getTokenExpirationTime();
-    this._getRefreshTokenExpirationTime();
     this._getSchedules();
     this._setupFilters();
-  }
-
-  updateTokenExpirationTime() {
-    const time = this.tokenForm.value.jwtExpiration;
-
-    this.configService
-      .updateTokenExpirationTime(time)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<number>) => {
-        this.snackbarService.openSnackbar(
-          response.message,
-          3000,
-          "center",
-          "top",
-          SnackbarTypeEnum.Success
-        );
-        this._getTokenExpirationTime();
-      });
-  }
-
-  updateFailedAttempts() {
-    const attempts = this.tokenForm.value.attempts;
-
-    this.configService
-      .updateFailedAttempts(attempts)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<number>) => {
-        this.snackbarService.openSnackbar(
-          response.message,
-          3000,
-          "center",
-          "top",
-          SnackbarTypeEnum.Success
-        );
-        this._getFailedAttempts();
-      });
-  }
-
-  updateRefreshTokenExpirationTime() {
-    const refreshTokenExpiration = this.tokenForm.value.refreshTokenExpiration;
-
-    this.configService
-      .updateRefreshTokenExpirationTime(refreshTokenExpiration)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<number>) => {
-        this.snackbarService.openSnackbar(
-          response.message,
-          3000,
-          "center",
-          "top",
-          SnackbarTypeEnum.Success
-        );
-        this._getRefreshTokenExpirationTime();
-      });
   }
 
   editMessage(message: MessageInterface) {
@@ -180,7 +162,7 @@ export class SystemComponent implements OnDestroy {
       });
       dialogRef.afterClosed().subscribe((message: MessageInterface) => {
         if (message) {
-          const messageDto: MessageCreateDtoInterface = {
+          const messageDto: MessageUpdateDtoInterface = {
             id: message.id,
             key: message.key,
             locale: message.locale,
@@ -245,43 +227,40 @@ export class SystemComponent implements OnDestroy {
       );
   }
 
-  private _getTokenExpirationTime() {
-    this.configService
-      .getTokenExpirationTime()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<number>) => {
-        if (response.success) {
-          this.tokenForm.patchValue({
-            jwtExpiration: response.data,
-          });
-        }
+  editSystemParameter(systemParameter: SystemParameterInterface) {
+    if (systemParameter != null) {
+      const dialogRef = this.dialog.open(EditSystemParameterDialogComponent, {
+        data: { systemParameter: systemParameter },
       });
-  }
-
-  private _getRefreshTokenExpirationTime() {
-    this.configService
-      .getRefreshTokenExpirationTime()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<number>) => {
-        if (response.success) {
-          this.tokenForm.patchValue({
-            refreshTokenExpiration: response.data,
-          });
-        }
-      });
-  }
-
-  private _getFailedAttempts() {
-    this.configService
-      .getFailedAttempts()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<number>) => {
-        if (response.success) {
-          this.tokenForm.patchValue({
-            attempts: response.data,
-          });
-        }
-      });
+      dialogRef
+        .afterClosed()
+        .subscribe(
+          (systemParameterUpdateDto: SystemParameterUpdateDtoInterface) => {
+            if (systemParameterUpdateDto) {
+              this.configService
+                .updateSystemParameter(systemParameterUpdateDto)
+                .pipe(takeUntil(this._destroy$))
+                .subscribe((response: ApiResponseInterface<string>) => {
+                  this.snackbarService.openSnackbar(
+                    response.message,
+                    3000,
+                    "center",
+                    "top",
+                    SnackbarTypeEnum.Success
+                  );
+                  this._getSystemParameters();
+                });
+            }
+          }
+        );
+    } else
+      this.snackbarService.openSnackbar(
+        "Ocurrió un error el editar el elemento",
+        3000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
   }
 
   private _getSchedules() {
@@ -291,6 +270,17 @@ export class SystemComponent implements OnDestroy {
       .subscribe((response: ApiResponseInterface<ScheduleInterface[]>) => {
         this.schedules.set(response.data);
       });
+  }
+
+  private _getSystemParameters() {
+    this.configService
+      .getSystemParameters()
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(
+        (response: ApiResponseInterface<SystemParameterInterface[]>) => {
+          this.systemParameters.set(response.data);
+        }
+      );
   }
 
   private _getMessages() {
@@ -316,6 +306,16 @@ export class SystemComponent implements OnDestroy {
 
       if (this.schedulesDataSource.paginator) {
         this.schedulesDataSource.paginator.firstPage();
+      }
+    });
+
+    this.systemParametersFilter.valueChanges.subscribe((filterValue) => {
+      this.systemParametersDataSource.filter = filterValue
+        ?.trim()
+        .toLowerCase()!;
+
+      if (this.systemParametersDataSource.paginator) {
+        this.systemParametersDataSource.paginator.firstPage();
       }
     });
   }

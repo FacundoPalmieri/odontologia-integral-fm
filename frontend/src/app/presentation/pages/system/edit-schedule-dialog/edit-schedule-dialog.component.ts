@@ -13,8 +13,8 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
-import { ScheduleInterface } from "../../../../domain/interfaces/schedule.interface";
-import { ScheduleUpdateDtoInterface } from "../../../../domain/dto/schedule.dto";
+import { ScheduleUpdateDtoInterface } from "../../../../domain/dto/config.dto";
+import { ScheduleInterface } from "../../../../domain/interfaces/config.interface";
 
 @Component({
   selector: "app-edit-schedule-dialog",
@@ -36,9 +36,6 @@ export class EditScheduleDialogComponent {
     this.data = inject(MAT_DIALOG_DATA);
     this.scheduleForm = new FormGroup({
       id: new FormControl<number>(this.data.schedule.id, [Validators.required]),
-      name: new FormControl<string>(this.data.schedule.name, [
-        Validators.required,
-      ]),
       label: new FormControl<string>(this.data.schedule.label, [
         Validators.required,
       ]),

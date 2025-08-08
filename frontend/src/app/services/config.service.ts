@@ -3,71 +3,40 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { map, Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
-import { MessageInterface } from "../domain/interfaces/message.interface";
 import {
-  MessageCreateDtoInterface,
-  MessageDtoInterface,
-} from "../domain/dto/message.dto";
+  MessageInterface,
+  ScheduleInterface,
+  SystemParameterInterface,
+} from "../domain/interfaces/config.interface";
 import { MessageSerializer } from "../domain/serializers/message.serializer";
-import { ScheduleInterface } from "../domain/interfaces/schedule.interface";
 import {
+  MessageDtoInterface,
+  MessageUpdateDtoInterface,
   ScheduleDtoInterface,
   ScheduleUpdateDtoInterface,
-} from "../domain/dto/schedule.dto";
+  SystemParameterDtoInterface,
+  SystemParameterUpdateDtoInterface,
+} from "../domain/dto/config.dto";
 
 @Injectable({ providedIn: "root" })
 export class ConfigService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
-  getTokenExpirationTime(): Observable<ApiResponseInterface<number>> {
-    return this.http.get<ApiResponseInterface<number>>(
-      `${this.apiUrl}/config/token`
+  getSystemParameters(): Observable<
+    ApiResponseInterface<SystemParameterInterface[]>
+  > {
+    return this.http.get<ApiResponseInterface<SystemParameterDtoInterface[]>>(
+      `${this.apiUrl}/config/system-parameters`
     );
   }
 
-  updateTokenExpirationTime(
-    time: number
-  ): Observable<ApiResponseInterface<number>> {
-    return this.http.patch<ApiResponseInterface<number>>(
-      `${this.apiUrl}/config/token`,
-      {
-        expiration: time,
-      }
-    );
-  }
-
-  getRefreshTokenExpirationTime(): Observable<ApiResponseInterface<number>> {
-    return this.http.get<ApiResponseInterface<number>>(
-      `${this.apiUrl}/config/token/refresh`
-    );
-  }
-
-  updateRefreshTokenExpirationTime(
-    time: number
-  ): Observable<ApiResponseInterface<number>> {
-    return this.http.patch<ApiResponseInterface<number>>(
-      `${this.apiUrl}/config/token/refresh`,
-      {
-        expiration: time,
-      }
-    );
-  }
-
-  getFailedAttempts(): Observable<ApiResponseInterface<number>> {
-    return this.http.get<ApiResponseInterface<number>>(
-      `${this.apiUrl}/config/session`
-    );
-  }
-
-  updateFailedAttempts(
-    attemtps: number
-  ): Observable<ApiResponseInterface<number>> {
-    return this.http.patch<ApiResponseInterface<number>>(
-      `${this.apiUrl}/config/session`,
-      {
-        value: attemtps,
-      }
+  updateSystemParameter(
+    systemParameter: SystemParameterUpdateDtoInterface
+  ): Observable<ApiResponseInterface<string>> {
+    return this.http.patch<ApiResponseInterface<string>>(
+      `${this.apiUrl}/config/system-parameters`,
+      systemParameter
     );
   }
 
@@ -102,7 +71,7 @@ export class ConfigService {
   }
 
   updateMessage(
-    message: MessageCreateDtoInterface
+    message: MessageUpdateDtoInterface
   ): Observable<ApiResponseInterface<MessageInterface>> {
     return this.http
       .patch<ApiResponseInterface<MessageDtoInterface>>(

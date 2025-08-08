@@ -1,12 +1,12 @@
 import {
-  MessageCreateDtoInterface,
   MessageDtoInterface,
-} from "../dto/message.dto";
-import { MessageInterface } from "../interfaces/message.interface";
+  MessageUpdateDtoInterface,
+} from "../dto/config.dto";
+import { MessageInterface } from "../interfaces/config.interface";
 
 export class MessageSerializer {
-  static toUpdateDto(message: MessageInterface): MessageCreateDtoInterface {
-    const messageDto: MessageCreateDtoInterface = {
+  static toUpdateDto(message: MessageInterface): MessageUpdateDtoInterface {
+    const messageDto: MessageUpdateDtoInterface = {
       id: message.id,
       key: message.key,
       value: message.value,
