@@ -12,7 +12,7 @@ public abstract class AppException extends RuntimeException {
   private final String userMessageKey;
   private final Object[] userArgs;
   private final String logMessageKey;
-  private final Object[] logArgs; // <-- Nuevo campo dinámico
+  private final Object[] logArgs;
   private final LogLevel logLevel;
 
 

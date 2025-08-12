@@ -623,7 +623,7 @@ public class UserService implements IUserService {
      */
     protected boolean verifyAttempts(String username){
         try{
-            int configAttempts = systemParameterService.getByKey(SystemParameterKey.FAILED_LOGIN_ATTEMPTS).intValue();
+            int configAttempts = Integer.parseInt(systemParameterService.getByKey(SystemParameterKey.FAILED_LOGIN_ATTEMPTS));
             int userAttempts = userRepository.findFailedLoginAttemptsByUsername(username);
             if(userAttempts >= configAttempts){
                 return false;

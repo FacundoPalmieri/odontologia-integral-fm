@@ -36,16 +36,12 @@ public class Consultation extends Auditable {
     @Column(nullable = false)
     private LocalDateTime dateTime;
 
-    @Lob
-    @Column(nullable = false)
-    private String observations;
-
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = PaymentMethod.class)
     @JoinColumn(name = "payment_method_id")
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private PaymentMethod paymentMethod;
 
     @Column(nullable = false)
-    private BigDecimal amount;
+    private BigDecimal price;
 
 }

@@ -67,7 +67,7 @@ public class PersonService implements IPersonService {
     private IContactPhoneService contactPhoneService;
 
     @Autowired
-    private IFileStorageService fileStorageService;
+    private IAvatarService avatarService;
 
     @Autowired
     private MessageService messageService;
@@ -233,8 +233,8 @@ public class PersonService implements IPersonService {
         //Obtiene la persona
         Person person = getById(personId);
 
-        //Llama al FileStorageService para crear/actualizar imagen
-        person.setAvatarUrl(fileStorageService.saveImage(file, person));
+        //Llama al avatarService para crear/actualizar imagen
+        person.setAvatarUrl(avatarService.saveImage(file, person));
         personRepository.save(person);
 
         String messageUser = messageService.getMessage("personService.saveAvatar.user.ok", null, LocaleContextHolder.getLocale());
@@ -255,7 +255,7 @@ public class PersonService implements IPersonService {
         try{
             //Obtiene la persona
             Person person = getById(personId);
-            return  fileStorageService.getImage(person);
+            return  avatarService.getImage(person);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "PersonService", personId,"<-  Id de la persona", "getAvatar");
@@ -276,7 +276,7 @@ public class PersonService implements IPersonService {
         try{
             //Obtiene la persona
             Person person = getById(personId);
-            fileStorageService.deleteImage(person);
+            avatarService.deleteImage(person);
 
             String messageUser = messageService.getMessage("personService.deleteAvatar.user.ok",null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser,null);

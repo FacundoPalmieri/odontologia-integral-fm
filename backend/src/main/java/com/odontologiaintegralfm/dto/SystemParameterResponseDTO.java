@@ -5,7 +5,7 @@ package com.odontologiaintegralfm.dto;
  */
 public record SystemParameterResponseDTO(
         Long id,
-        Long value,
+        String value,
         String description
 
 ) {

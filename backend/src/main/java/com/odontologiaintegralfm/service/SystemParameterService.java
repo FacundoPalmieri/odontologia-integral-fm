@@ -62,7 +62,7 @@ public class SystemParameterService implements ISystemParameterService {
      * @return
      */
     @Override
-    public Long getByKey(SystemParameterKey keyName) {
+    public String getByKey(SystemParameterKey keyName) {
         try{
 
             return systemParameterRepository.findValueByKeyName(keyName);

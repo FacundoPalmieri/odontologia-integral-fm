@@ -22,7 +22,8 @@ public class SystemParameter {
     @Enumerated(EnumType.STRING)
     private SystemParameterKey keyName;
 
-    private Long value;
+    @Column(nullable = false, length = 20)
+    private String value;
 
     @Column(nullable = false)
     private String description;

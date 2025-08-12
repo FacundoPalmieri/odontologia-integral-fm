@@ -82,10 +82,10 @@ public class JwtUtils {
                 .collect(Collectors.joining(","));
 
         // Obtener el valor parametrizado en la base.
-        Long expirationInMinutes = systemParameterService.getByKey(SystemParameterKey.JWT_EXPIRATION);
+        int expirationInMinutes = Integer.parseInt(systemParameterService.getByKey(SystemParameterKey.JWT_EXPIRATION));
 
         //Convertilo a milisegundos.
-        Long expirationInMillis = expirationInMinutes * 60 * 1000;
+        int expirationInMillis = expirationInMinutes * 60 * 1000;
 
         //Se convierte en formato correcto para crear el token
         Date expirationDate = new Date(System.currentTimeMillis() +expirationInMillis);
