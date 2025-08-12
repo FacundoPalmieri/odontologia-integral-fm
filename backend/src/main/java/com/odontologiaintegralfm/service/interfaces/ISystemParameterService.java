@@ -30,7 +30,7 @@ public interface ISystemParameterService {
      * @param key
      * @return
      */
-    Long getByKey(SystemParameterKey key);
+    String getByKey(SystemParameterKey key);
 
     /**
      * Actualiza valor de un parámetro del sistema.

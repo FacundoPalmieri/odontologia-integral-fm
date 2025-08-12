@@ -5,6 +5,8 @@ import com.odontologiaintegralfm.model.Person;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -18,34 +20,43 @@ public interface IFileStorageService {
     /**
      * Método para actualizar una imagen
      * @param file
-     * @param person
+     * @param filename
      * @return
      */
-    String saveImage(MultipartFile file, Person person) throws IOException;
+    String saveImage(MultipartFile file, String filename) throws IOException;
 
-    /**
-     * Método para obtener una imagen.
-     * @param person Id de la persona.
-     * @return
-     * @throws IOException
-     */
-    UrlResource getImage(Person person) throws IOException;
 
     /**
      * Método para eliminar una imagen
-     * @param person Id de la persona.
+     * @param filename nombre archivo.
      * @throws IOException
      */
-    void deleteImage(Person person) throws IOException;
+    void deleteImage(String filename) throws IOException;
+
+    /**
+     * Obtiene la ruta completa (Estructura carpetas + nombre archivo) de la imágen.
+     * @param avatarUrl
+     * @return
+     * @throws IOException
+     */
+    UrlResource getImage(String avatarUrl) throws IOException;
+
+    /**
+     * Obtiene una imágen por defecto.
+     * @param defaultFilename
+     * @return
+     * @throws IOException
+     */
+    UrlResource getDefaultImage(String defaultFilename) throws IOException;
 
     /**
      * Método para guardar un documento en formato PDF.
      * @param file
-     * @param person
+     * @param
      * @return
      * @throws IOException
      */
-    String saveDocument(MultipartFile file, Person person) throws IOException;
+    void saveDocument(MultipartFile file, String filename) throws IOException;
 
     /**
      * Método para obtener el documento físico en formato PDF.
@@ -56,20 +67,6 @@ public interface IFileStorageService {
     UrlResource getDocument(AttachedFile file) throws IOException;
 
 
-    /**
-     * Método para validar la extensión de un archivo.
-     * @param filename
-     * @return
-     */
-    void extensionVerificationImage(String filename);
-
-
-
-    /**
-     * Método para validar el tamaño de un archivo.
-     * @param file
-     */
-    void sizeVerification(MultipartFile file);
 
     /**
      * Eliminación física de archivos adjuntos.
@@ -77,6 +74,8 @@ public interface IFileStorageService {
      * @param files
      */
     List<AttachedFile>  delete(List<AttachedFile> files);
+
+
 
 
 }

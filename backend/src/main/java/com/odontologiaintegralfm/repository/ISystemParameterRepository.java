@@ -16,5 +16,5 @@ public interface ISystemParameterRepository extends JpaRepository<SystemParamete
     WHERE sp.keyName = :keyName
 
     """)
-    Long findValueByKeyName(@Param("keyName") SystemParameterKey keyName);
+    String findValueByKeyName(@Param("keyName") SystemParameterKey keyName);
 }

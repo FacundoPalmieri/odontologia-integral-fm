@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.service;
 
+import com.mysql.cj.log.Log;
 import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.AttachedFileResponseDTO;
@@ -19,6 +20,7 @@ import com.odontologiaintegralfm.service.interfaces.IFileStorageService;
 import com.odontologiaintegralfm.service.interfaces.IPersonService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
@@ -30,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,10 +45,8 @@ import java.util.Objects;
  * Incluye operaciones de almacenamiento, recuperación y obtención de metadatos,
  * pero no accede directamente al sistema de archivos.
  *
- * Todo lo relacionado con los archivos físicos está encapsulado en {@link FileStorageService}.
+ * Todo lo relacionado con los archivos físicos está encapsulado en {@link FileStorageService}
  * Esa clase es responsable de determinar la ubicación de los archivos, validar su existencia y manejar errores de acceso.
- *
- * @author Facundo Palmieri
  */
 
 
@@ -52,6 +54,9 @@ import java.util.Objects;
 @Service
 @Slf4j
 public class AttachedFilesService implements IAttachedFilesService {
+
+    @Autowired
+    private SystemParameterService systemParameterService;
 
     @Autowired
     private IFileStorageService fileStorageService;
@@ -73,8 +78,7 @@ public class AttachedFilesService implements IAttachedFilesService {
 
     @Autowired
     private PatientService patientService;
-    @Autowired
-    private SystemParameterService systemParameterService;
+
 
 
     /**
@@ -87,12 +91,24 @@ public class AttachedFilesService implements IAttachedFilesService {
      */
     @Override
     @Transactional
+    @LogAction(
+            value = "attachedFilesService.systemLogService.saveDocumentUser",
+            args = {"#id, #filename"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
     public Response<String> saveDocumentUser(MultipartFile file, Long id) throws IOException {
 
         //Verifica si existe el archivo.
         if(file.isEmpty()){
             return null;
         }
+
+        //Verifica extensión del documento.
+        extensionVerificationDocument(file.getOriginalFilename());
+
+        //Verifica tamaño del documento
+        sizeVerification(file);
 
         //Valída que Id recibido corresponda a un usuario.
         UserSec userSec = userService.getByIdInternal(id);
@@ -101,12 +117,21 @@ public class AttachedFilesService implements IAttachedFilesService {
             //Obtiene la persona.
             Person person = personService.getById(userSec.getPerson().getId());
 
-            //Guarda documento.
-            String storedFileName = fileStorageService.saveDocument(file, person);
 
+            // Sanitiza el nombre original Ej: "mi archivo (versión 2).pdf" → "mi_archivo__versi_n_2_.pdf"
+            String originalFilename = Paths.get(file.getOriginalFilename()).getFileName().toString();
+            String sanitizedOriginalName = originalFilename.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+
+            // Crea nombre único
+            String filename = person.getId() + "-" + person.getLastName()+person.getFirstName() + "-" + sanitizedOriginalName;
+
+            //Guarda documento físico.
+            fileStorageService.saveDocument(file, filename);
+
+            //Persiste metadatos en la base.
             AttachedFile attachedFile = new AttachedFile();
             attachedFile.setFileName(file.getOriginalFilename());
-            attachedFile.setStoredFileName(storedFileName);
+            attachedFile.setStoredFileName(filename);
             attachedFile.setFileType(file.getContentType());
             attachedFile.setPerson(person);
             attachedFile.setCreatedAt(LocalDateTime.now());
@@ -141,6 +166,12 @@ public class AttachedFilesService implements IAttachedFilesService {
      */
     @Override
     @Transactional
+    @LogAction(
+            value = "attachedFilesService.systemLogService.saveDocumentPatient",
+            args = {"#id, #filename"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
     public Response<String> saveDocumentPatient(MultipartFile file, Long id) throws IOException {
 
         //Verifica si existe el archivo.
@@ -148,18 +179,32 @@ public class AttachedFilesService implements IAttachedFilesService {
             return null;
         }
 
+        //Verifica extensión del documento.
+        extensionVerificationDocument(file.getOriginalFilename());
+
+        //Verifica tamaño del documento
+        sizeVerification(file);
+
         //Valída que Id recibido corresponda a un paciente.
         Patient patient = patientService.getByIdInternal(id);
 
         //Obtiene la persona.
         Person person = personService.getById(patient.getId());
 
-        //Guarda documento.
-        String storedFileName = fileStorageService.saveDocument(file, person);
+        // Sanitiza el nombre original
+        String originalFilename = Paths.get(file.getOriginalFilename()).getFileName().toString();
+        String sanitizedOriginalName = originalFilename.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+
+        // Crea nombre único
+        String filename = person.getId() + "-" + person.getLastName()+person.getFirstName() + "-" + sanitizedOriginalName;
+
+
+        //Guarda documento físico.
+        fileStorageService.saveDocument(file, filename);
 
         AttachedFile attachedFile = new AttachedFile();
         attachedFile.setFileName(file.getOriginalFilename());
-        attachedFile.setStoredFileName(storedFileName);
+        attachedFile.setStoredFileName(filename);
         attachedFile.setFileType(file.getContentType());
         attachedFile.setPerson(person);
         attachedFile.setCreatedAt(LocalDateTime.now());
@@ -451,7 +496,7 @@ public class AttachedFilesService implements IAttachedFilesService {
         try{
 
             //Obtiene el parámetro de días.
-            Long days = systemParameterService.getByKey(SystemParameterKey.ATTACHMENT_MIN_DAYS);
+            int days = Integer.parseInt(systemParameterService.getByKey(SystemParameterKey.ATTACHMENT_MIN_DAYS));
 
             //Establece fecha límite.
             LocalDateTime deadline = LocalDate.now().minusDays(days).atStartOfDay();
@@ -557,5 +602,42 @@ public class AttachedFilesService implements IAttachedFilesService {
                 .toList();
 
         return attachedFileResponseDTOS;
+    }
+
+
+    /**
+     * Método para validar la extensión de un documento.
+     * @param filename
+     */
+    public void extensionVerificationDocument(String filename){
+        if (filename == null || !filename.contains(".")) {
+            throw new ConflictException("exception.file.conflictExtensionDocument.user", null,"exception.file.conflictExtensionDocument.log", new Object[]{filename, "FileStorageService","saveDocument"}, LogLevel.ERROR);
+
+        }
+        //Obtener extensiones desde la base de datos.
+        String extensionSystemParameter = systemParameterService.getByKey(SystemParameterKey.EXTENSION_DOCUMENTS);
+
+        //Comparar extensión del archivo recibido vs. base de datos.
+        String extensionDocument =  filename.substring(filename.lastIndexOf('.') + 1);
+        if (!extensionSystemParameter.contains(extensionDocument.toLowerCase())) {
+            throw new ConflictException("exception.file.conflictExtensionDocument.user", null,"exception.file.conflictExtensionDocument.log", new Object[]{filename, "FileStorageService","saveDocument"}, LogLevel.ERROR);
+        }
+
+    }
+
+    /**
+     * Método para validar el tamaño de un archivo.
+     *
+     * @param file
+     */
+    private void sizeVerification(MultipartFile file) {
+        //Obtiene tamaño máximo parametrizado de la BD
+        long maxSizeMb = Long.parseLong(systemParameterService.getByKey(SystemParameterKey.SIZE_FILE));
+        long maxSizeBytes = maxSizeMb * 1024 * 1024;
+
+        if (file.getSize() > maxSizeBytes) {
+            throw new ConflictException("exception.file.tooLarge.user", null, "exception.file.tooLarge.log",
+                    new Object[]{file.getOriginalFilename(), "FileStorageService", "saveAvatar"}, LogLevel.ERROR);
+        }
     }
 }

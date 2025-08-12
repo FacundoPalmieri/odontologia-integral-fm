@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 /**
@@ -37,6 +38,12 @@ public class Treatment extends Auditable {
             uniqueConstraints = @UniqueConstraint(columnNames = {"treatment_id","condition_id"})
     )
     private Set<TreatmentCondition> condition;
+
+/*
+    @Column(precision = 10, scale = 2, nullable = false)
+    private BigDecimal price;
+
+ */
 
 
 }

@@ -159,7 +159,7 @@ public class SystemLogService implements ISystemLogService {
 
         try{
             //Obtiene el parámetro de días.
-            Long days = systemParameterService.getByKey(SystemParameterKey.LOGS_MIN_DAYS);
+            int days = Integer.parseInt( systemParameterService.getByKey(SystemParameterKey.LOGS_MIN_DAYS));
 
             //Establece fecha límite.
             LocalDateTime deadline = LocalDate.now().minusDays(days).atStartOfDay();

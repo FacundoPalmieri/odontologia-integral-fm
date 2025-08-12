@@ -1,12 +1,14 @@
 package com.odontologiaintegralfm.service;
 
 import com.odontologiaintegralfm.dto.RefreshTokenRequestDTO;
+import com.odontologiaintegralfm.enums.SystemParameterKey;
 import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.enums.LogLevel;
 import com.odontologiaintegralfm.exception.UnauthorizedException;
 import com.odontologiaintegralfm.model.RefreshToken;
 import com.odontologiaintegralfm.repository.IRefreshTokenRepository;
 import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
+import com.odontologiaintegralfm.service.interfaces.ISystemParameterService;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -21,10 +23,13 @@ import java.util.UUID;
 public class RefreshTokenService implements IRefreshTokenService {
 
     @Autowired
-    IRefreshTokenRepository refreshTokenRepository;
+    private IRefreshTokenRepository refreshTokenRepository;
 
     @Autowired
-    IUserService userService;
+    private IUserService userService;
+
+    @Autowired
+    private ISystemParameterService systemParameterService;
 
 
     /**
@@ -40,12 +45,12 @@ public class RefreshTokenService implements IRefreshTokenService {
      */
     @Override
     public RefreshToken createRefreshToken(String username) {
-
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setRefreshToken(UUID.randomUUID().toString());
         refreshToken.setUser(userService.getByUsername(username));
         refreshToken.setCreatedDate(LocalDateTime.now());
-        refreshToken.setExpirationDate(LocalDateTime.now().plusDays(15));
+        refreshToken.setExpirationDate(LocalDateTime.now()
+                .plusDays(Integer.parseInt(systemParameterService.getByKey(SystemParameterKey.REFRESH_TOKEN_EXPIRATION))));
         return refreshTokenRepository.save(refreshToken);
     }
 

@@ -15,9 +15,9 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "consultation_details")
+@Table(name = "consultation_odontogram")
 @Audited
-public class ConsultationDetail extends Auditable {
+public class ConsultationOdontogram extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +42,10 @@ public class ConsultationDetail extends Auditable {
     @JoinColumn(name = "treatment_id")
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Treatment treatment;
+
+    @Lob
+    @Column(nullable = false)
+    private String observations;
 
 
 }

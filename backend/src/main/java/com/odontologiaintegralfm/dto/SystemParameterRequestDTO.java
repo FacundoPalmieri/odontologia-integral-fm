@@ -8,6 +8,6 @@ import jakarta.validation.constraints.NotNull;
 public record SystemParameterRequestDTO(
         @NotNull(message = "generic.id.empty")
         Long id,
-        Long value
+        String value
 ) {
 }
