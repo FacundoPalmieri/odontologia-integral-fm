@@ -90,7 +90,7 @@ public class AvatarService implements IAvatarService {
     }
 
 
-        /**
+    /**
          * Devuelve la imagen correspondiente al avatar de una persona.
          * <p>
          * Si la persona tiene un avatar personalizado y el archivo existe, se devuelve ese archivo.
@@ -103,25 +103,30 @@ public class AvatarService implements IAvatarService {
          * @throws IOException si ocurre un error al acceder al sistema de archivos.
          * @throws NotFoundException si la persona con el ID dado no existe.
          */
-        @Override
-        public UrlResource getImage(Person person) throws IOException {
-            if (person.getAvatarUrl() != null) {
+    @Override
+    public UrlResource getImage(Person person) throws IOException {
+        if (person.getAvatarUrl() != null) {
+            try{
                 return fileStorageService.getImage(person.getAvatarUrl());
             }
-
-            // Si no tiene avatar o el archivo no existe
-            switch (person.getGender().getAlias()){
-                case 'M':
-                    return fileStorageService.getDefaultImage("default-avatar-m.svg");
-
-                case 'F':
-                    return fileStorageService.getDefaultImage("default-avatar-f.svg");
-
-                default:
-                    return fileStorageService.getDefaultImage("default-avatar-x.svg");
-
+            catch(IOException | NotFoundException e){
+                    //Se deja continuar al switch
             }
+
         }
+
+        // Si no tiene avatar o el archivo no existe
+        switch (person.getGender().getAlias()){
+            case 'M':
+                return fileStorageService.getDefaultImage("default-avatar-m.svg");
+
+            case 'F':
+               return fileStorageService.getDefaultImage("default-avatar-f.svg");
+
+            default:
+                return fileStorageService.getDefaultImage("default-avatar-x.svg");
+        }
+    }
 
 
 
