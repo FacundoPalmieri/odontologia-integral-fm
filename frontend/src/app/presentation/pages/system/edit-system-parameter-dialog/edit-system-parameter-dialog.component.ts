@@ -42,7 +42,7 @@ export class EditSystemParameterDialogComponent {
         this.data.systemParameter.description,
         [Validators.required]
       ),
-      value: new FormControl<number>(this.data.systemParameter.value, [
+      value: new FormControl<string>(this.data.systemParameter.value, [
         Validators.required,
       ]),
     });

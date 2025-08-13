@@ -7,7 +7,7 @@ export interface MessageInterface {
 
 export interface SystemParameterInterface {
   id: number;
-  value: number;
+  value: string;
   description: string;
 }
 

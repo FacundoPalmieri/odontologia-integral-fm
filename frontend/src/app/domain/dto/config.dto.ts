@@ -11,13 +11,13 @@ export interface ScheduleUpdateDtoInterface {
 
 export interface SystemParameterDtoInterface {
   id: number;
-  value: number;
+  value: string;
   description: string;
 }
 
 export interface SystemParameterUpdateDtoInterface {
   id: number;
-  value: number;
+  value: string;
 }
 
 export interface MessageDtoInterface {

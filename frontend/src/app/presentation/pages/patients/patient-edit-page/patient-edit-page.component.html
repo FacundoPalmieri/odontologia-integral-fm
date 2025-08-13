@@ -597,7 +597,7 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
 
-          @if(!odontogramData?.length) {
+          @if(!odontogramData!.length) {
           <div class="flex flex-col items-center justify-center gap-4 mt-4">
             <span>Aún no tienes odontogramas cargados.</span>
             <button mat-flat-button>
