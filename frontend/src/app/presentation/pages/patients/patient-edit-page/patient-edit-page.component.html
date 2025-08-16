@@ -527,18 +527,21 @@
         <div class="p-4">
           <div class="p-4 flex flex-col items-center justify-center gap-2">
             @if(medicalRisks().length > 0){
-            <mat-list class="w-full">
+            <ul class="flex flex-col gap-2 w-full">
               @for(risk of medicalRisks(); track $index){
-              <mat-list-item>
-                <div class="flex w-full">
-                  <div class="flex-1 font-semibold">{{ risk.name }}</div>
-                  <div class="flex-1 text-sm">
-                    {{ risk.observation }}
-                  </div>
+              <li
+                class="flex flex-col w-full p-3 rounded-2xl"
+                style="
+                  background: var(--mat-sys-home-sidenav-content-background);
+                "
+              >
+                <div class="font-semibold">{{ risk.name }}</div>
+                <div class="text-sm mt-1 break-words whitespace-normal">
+                  {{ risk.observation }}
                 </div>
-              </mat-list-item>
+              </li>
               }
-            </mat-list>
+            </ul>
             } @else {
             <span>El paciente aún no registra antecedes clínicos.</span>
             }
@@ -546,6 +549,7 @@
               mat-flat-button
               (click)="openAddMedicalRiskDialog()"
               [disabled]="!canUpdate()"
+              class="mt-2"
             >
               <div class="flex items-center gap-2">
                 <i-tabler name="medical-cross"></i-tabler>

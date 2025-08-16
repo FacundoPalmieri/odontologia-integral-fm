@@ -276,6 +276,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     }
 
     const reader = new FileReader();
+    const oldAvatar = this.avatarUrl();
     reader.onload = (e) => {
       this.avatarUrl.set(e.target?.result as string);
       this.userForm.markAsDirty();
@@ -298,13 +299,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
             );
           },
           error: () => {
-            this.snackbarService.openSnackbar(
-              "Error al actualizar la imagen de perfil.",
-              6000,
-              "center",
-              "bottom",
-              SnackbarTypeEnum.Error
-            );
+            this.avatarUrl.set(oldAvatar);
           },
         });
     }

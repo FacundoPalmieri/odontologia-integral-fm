@@ -25,7 +25,6 @@ import { MatInputModule } from "@angular/material/input";
     MatToolbarModule,
     PageToolbarComponent,
     MatCardModule,
-    PatientSearchComponent,
     MatTableModule,
     MatPaginatorModule,
     MatButtonModule,

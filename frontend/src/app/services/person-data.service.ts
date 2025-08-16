@@ -158,16 +158,4 @@ export class PersonDataService {
       `${this.apiUrl}/person/${id}/avatar`
     );
   }
-
-  uploadFile(
-    personId: number,
-    file: File
-  ): Observable<ApiResponseInterface<string>> {
-    const formData = new FormData();
-    formData.append("file", file);
-    return this.http.post<ApiResponseInterface<string>>(
-      `${this.apiUrl}/files/${personId}`,
-      formData
-    );
-  }
 }

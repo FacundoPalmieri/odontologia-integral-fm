@@ -9,7 +9,6 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { OdontogramComponent } from "../../components/odontogram/odontogram.component";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatDialog } from "@angular/material/dialog";
@@ -39,9 +38,6 @@ import { mockOdontogram1 } from "../../../utils/mocks/odontogram.mock";
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    OdontogramComponent,
-    PatientSearchComponent,
-    PaymentRegisterComponent,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,

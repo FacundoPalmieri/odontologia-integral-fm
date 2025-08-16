@@ -83,36 +83,4 @@ export class PatientService {
       medicalRisks
     );
   }
-
-  uploadFile(
-    patientId: number,
-    file: File
-  ): Observable<ApiResponseInterface<string>> {
-    const formData = new FormData();
-    formData.append("file", file);
-    return this.http.post<ApiResponseInterface<string>>(
-      `${this.apiUrl}/files/patient/${patientId}`,
-      formData
-    );
-  }
-
-  getFilesMetadata(
-    patientId: number
-  ): Observable<ApiResponseInterface<FileMetadataInterface[]>> {
-    return this.http.get<ApiResponseInterface<FileMetadataInterface[]>>(
-      `${this.apiUrl}/files/patient/all/${patientId}/metadata`
-    );
-  }
-
-  downloadFile(fileId: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/files/patient/${fileId}/download`, {
-      responseType: "blob",
-    });
-  }
-
-  deleteFile(fileId: number): Observable<ApiResponseInterface<string>> {
-    return this.http.delete<ApiResponseInterface<string>>(
-      `${this.apiUrl}/files/patient/${fileId}`
-    );
-  }
 }

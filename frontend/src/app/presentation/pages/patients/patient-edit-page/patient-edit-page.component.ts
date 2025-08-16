@@ -50,7 +50,6 @@ import { mockOdontogram1 } from "../../../../utils/mocks/odontogram.mock";
 import { MatTableModule } from "@angular/material/table";
 import { CommonModule } from "@angular/common";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatListModule } from "@angular/material/list";
 import { MatDialog } from "@angular/material/dialog";
 import { AddMedicalRiskDialogComponent } from "./add-medical-risk-dialog/add-medical-risk-dialog.component";
 import { AccessControlService } from "../../../../services/access-control.service";
@@ -58,6 +57,7 @@ import {
   ActionsEnum,
   PermissionsEnum,
 } from "../../../../utils/enums/permissions.enum";
+import { FileService } from "../../../../services/file.service";
 
 //QUITAR
 interface OdontogramInterface {
@@ -85,7 +85,6 @@ interface OdontogramInterface {
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
-    MatListModule,
   ],
 })
 export class PatientEditPageComponent implements OnInit, OnDestroy {
@@ -96,6 +95,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly accessControlService = inject(AccessControlService);
+  private readonly fileService = inject(FileService);
   personDataService = inject(PersonDataService);
 
   private selectedAvatarFile: File | null = null;
@@ -338,7 +338,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   }
 
   downloadFile(fileId: number, fileName: string): void {
-    this.patientService.downloadFile(fileId).subscribe((blob: Blob) => {
+    this.fileService.downloadPatientFile(fileId).subscribe((blob: Blob) => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -349,15 +349,15 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   }
 
   viewFile(fileId: number): void {
-    this.patientService.downloadFile(fileId).subscribe((blob: Blob) => {
+    this.fileService.downloadPatientFile(fileId).subscribe((blob: Blob) => {
       const url = window.URL.createObjectURL(blob);
       window.open(url, "_blank");
     });
   }
 
   deleteFile(fileId: number): void {
-    this.patientService
-      .deleteFile(fileId)
+    this.fileService
+      .deletePatientFile(fileId)
       .subscribe((response: ApiResponseInterface<string>) => {
         this.snackbarService.openSnackbar(
           response.message,
@@ -492,8 +492,8 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   }
 
   private _getPatientFiles(id: number) {
-    this.patientService
-      .getFilesMetadata(id)
+    this.fileService
+      .getPatientFilesMetadata(id)
       .subscribe((response: ApiResponseInterface<FileMetadataInterface[]>) => {
         this.filesMetadata.set(response.data);
       });
@@ -585,13 +585,13 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    this.patientService
-      .uploadFile(personId, file)
+    this.fileService
+      .uploadPatientFile(personId, file)
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: () => {
-          this.patientService
-            .getFilesMetadata(personId)
+          this.fileService
+            .getPatientFilesMetadata(personId)
             .subscribe(
               (response: ApiResponseInterface<FileMetadataInterface[]>) => {
                 this.filesMetadata.set(response.data);
