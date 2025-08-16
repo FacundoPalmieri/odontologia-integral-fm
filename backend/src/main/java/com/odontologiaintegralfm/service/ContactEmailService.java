@@ -96,9 +96,6 @@ public class ContactEmailService implements IContactEmailService {
 
             //2. SI EXISTEN REGISTROS PARA ELIMINAR
 
-            //Se obtiene total para loguear.
-            int count = orphanEmails.size();
-
             //Se eliminan registros.
             contactEmailRepository.deleteAll(orphanEmails);
 

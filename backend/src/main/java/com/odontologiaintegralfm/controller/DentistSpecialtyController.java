@@ -27,7 +27,7 @@ public class DentistSpecialtyController {
 
     /**
      * Lista todas las especialidades de los odontólogos "habilitadas".
-     * <p>Requiere rol <b>AdmistratorAndSecretary</b> para acceder.</p>
+     * <p>Requiere permiso de <b>Configuración lectura</b> para acceder.</p>
      * @return ResponseEntity con:
      * <ul>
      *     <li><b>200 OK</b> Lista de especialidades recuperadas exitosamente.</li>

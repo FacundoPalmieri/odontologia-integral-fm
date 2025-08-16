@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAuthority('PERMISO_CONSULTATION_RECORD_READ')")
-public @interface OnlyAccessConsultationRecordRead {
+@PreAuthorize("hasAuthority('PERMISO_CONSULTATION_READ')")
+public @interface OnlyAccessConsultationRead {
 }

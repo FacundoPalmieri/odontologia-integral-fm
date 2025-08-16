@@ -8,7 +8,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
 /**
- * Entidad para representar los detalles de las consultas
+ * Entidad para representar los detalles de las consultas (Odontograma)
  */
 
 @Entity
@@ -42,10 +42,4 @@ public class ConsultationOdontogram extends Auditable {
     @JoinColumn(name = "treatment_id")
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Treatment treatment;
-
-    @Lob
-    @Column(nullable = false)
-    private String observations;
-
-
 }

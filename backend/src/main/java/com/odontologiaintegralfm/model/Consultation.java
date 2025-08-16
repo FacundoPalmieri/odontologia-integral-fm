@@ -7,6 +7,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 /**
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "consultations_registration")
+@Table(name = "consultations")
 @Audited
 public class Consultation extends Auditable {
 
@@ -33,15 +34,19 @@ public class Consultation extends Auditable {
     @JoinColumn(name = "dentist_id")
     private Dentist dentist;
 
-    @Column(nullable = false)
-    private LocalDateTime dateTime;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = PaymentMethod.class)
-    @JoinColumn(name = "payment_method_id")
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    private PaymentMethod paymentMethod;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "status_id")
+    private ConsultationStatus status;
 
     @Column(nullable = false)
     private BigDecimal price;
+
+    @Lob
+    private String observation;
 
 }

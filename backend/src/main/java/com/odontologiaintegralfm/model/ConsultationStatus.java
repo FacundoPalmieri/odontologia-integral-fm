@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.model;
 
+import com.odontologiaintegralfm.enums.ConsultationStatusName;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,21 +15,18 @@ import org.hibernate.envers.Audited;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Audited
-@Table(name = "consultation_statuses")
-public class ConsultationStatus extends Auditable {
+@Table(name = "consultation_status")
+public class ConsultationStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String name;        //Ej: Iniciado, en Proceso
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, unique = true,updatable = false, length = 50)
+    private ConsultationStatusName nameKey; //Ej: Iniciado, en Proceso
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String description; // Ej Consulta iniciada por recepción
-
-    @Column(name ="`order`" )
-    private Integer order;      // Para orden visual en combos
-
+    @Column(unique = true, nullable = false, length = 50)
+    private String label;
 }

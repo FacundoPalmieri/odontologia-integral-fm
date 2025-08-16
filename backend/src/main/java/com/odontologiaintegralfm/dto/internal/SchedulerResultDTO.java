@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.dto.internal;
 
 /**
- * @author [Facundo Palmieri]
+ * DTO interno del backend. No tiene interacción con el cliente.
  */
 public record SchedulerResultDTO(
         double durationSeconds,

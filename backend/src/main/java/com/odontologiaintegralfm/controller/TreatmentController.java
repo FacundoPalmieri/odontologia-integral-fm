@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConsultationRecordRead;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.dto.TreatmentResponseDTO;
 import com.odontologiaintegralfm.service.interfaces.ITreatmentService;
@@ -56,7 +56,7 @@ public class TreatmentController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @OnlyAccessConsultationRecordRead
+    @OnlyAccessConsultationRead
     public ResponseEntity<Response<Page<TreatmentResponseDTO>>> getAll(@RequestParam (required = false) Integer page,
                                                                       @RequestParam (required = false) Integer size,
                                                                       @RequestParam (required = false) String sortBy,

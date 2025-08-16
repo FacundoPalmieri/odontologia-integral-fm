@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConsultationRecordRead;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.dto.Response;
 import com.odontologiaintegralfm.model.TreatmentCondition;
 import com.odontologiaintegralfm.service.interfaces.ITreatmentConditionService;
@@ -55,7 +55,7 @@ public class TreatmentConditionController {
     })
 
     @GetMapping("/all")
-    @OnlyAccessConsultationRecordRead
+    @OnlyAccessConsultationRead
     public ResponseEntity<Response<Page<TreatmentCondition>>> getAll(@RequestParam (required = false) Integer page,
                                                                      @RequestParam (required = false) Integer size,
                                                                      @RequestParam (required = false) String SortBy,

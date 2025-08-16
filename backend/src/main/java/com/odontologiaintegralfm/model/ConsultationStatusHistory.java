@@ -18,12 +18,11 @@ public class ConsultationStatusHistory extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consultation_id")
     private Consultation consultation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consultation_status")
+    @JoinColumn(name = "consultation_status_id")
     private ConsultationStatus consultationStatus;
 }
