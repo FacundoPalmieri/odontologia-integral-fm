@@ -23,7 +23,7 @@ public interface IFileStorageService {
      * @param filename
      * @return
      */
-    String saveImage(MultipartFile file, String filename) throws IOException;
+    void saveImage(MultipartFile file, String filename) throws IOException;
 
 
     /**
@@ -31,7 +31,7 @@ public interface IFileStorageService {
      * @param filename nombre archivo.
      * @throws IOException
      */
-    void deleteImage(String filename) throws IOException;
+    String deleteImage(String filename) throws IOException;
 
     /**
      * Obtiene la ruta completa (Estructura carpetas + nombre archivo) de la imágen.

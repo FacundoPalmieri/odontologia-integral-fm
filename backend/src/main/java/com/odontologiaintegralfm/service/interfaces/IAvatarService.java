@@ -36,6 +36,6 @@ public interface IAvatarService {
      * @param person
      * @throws IOException
      */
-    void deleteImage(Person person) throws IOException;
+    String deleteImage(Person person) throws IOException;
 
 }
