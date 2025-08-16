@@ -93,7 +93,7 @@ public class AttachedFilesService implements IAttachedFilesService {
     @Transactional
     @LogAction(
             value = "attachedFilesService.systemLogService.saveDocumentUser",
-            args = {"#id, #filename"},
+            args = {"#id", "#filename"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
     )

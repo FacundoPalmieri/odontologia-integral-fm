@@ -64,7 +64,7 @@ public class FileStorageService implements IFileStorageService {
      * @throws IOException Si ocurre un error al escribir el archivo en el sistema de archivos.
      */
     @Override
-    public String saveImage(MultipartFile file, String filename) throws IOException {
+    public void saveImage(MultipartFile file, String filename) throws IOException {
 
         //Crea directorio si no existe.
         Path uploadPath = Paths.get(uploadDirImage);
@@ -82,10 +82,6 @@ public class FileStorageService implements IFileStorageService {
                 .toFile(filePath.toFile());
 
 
-        // Guardar ruta en la entidad
-        String avatarUrl = "/avatars/" + filename;
-        return avatarUrl;
-
     }
 
 
@@ -95,10 +91,14 @@ public class FileStorageService implements IFileStorageService {
      * @throws IOException
      */
     @Override
-    public void deleteImage(String filename) throws IOException {
+    public String deleteImage(String filename) throws IOException {
         Path path = Paths.get(uploadDirImage, filename);
         Files.deleteIfExists(path);
+
+        //Retorna ruta vacía para registro lógico.
+        return null;
     }
+
 
     /**
      * Obtiene la ruta completa (Estructura carpetas + nombre archivo) de la imágen.

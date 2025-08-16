@@ -276,7 +276,8 @@ public class PersonService implements IPersonService {
         try{
             //Obtiene la persona
             Person person = getById(personId);
-            avatarService.deleteImage(person);
+            person.setAvatarUrl(avatarService.deleteImage(person));
+            personRepository.save(person);
 
             String messageUser = messageService.getMessage("personService.deleteAvatar.user.ok",null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser,null);
