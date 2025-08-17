@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.service;
 
-import com.mysql.cj.log.Log;
+
 import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.AttachedFileResponseDTO;
@@ -20,7 +20,6 @@ import com.odontologiaintegralfm.service.interfaces.IFileStorageService;
 import com.odontologiaintegralfm.service.interfaces.IPersonService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -168,7 +166,7 @@ public class AttachedFilesService implements IAttachedFilesService {
     @Transactional
     @LogAction(
             value = "attachedFilesService.systemLogService.saveDocumentPatient",
-            args = {"#id, #filename"},
+            args = {"#id", "#filename"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
     )
