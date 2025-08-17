@@ -81,12 +81,10 @@ public class AvatarService implements IAvatarService {
         // Generar nombre único del archivo
         String filename = person.getId()+"-"+person.getLastName()+"-"+person.getFirstName() + ".jpg";
 
-        // Guardar imagen redimensionada
-        fileStorageService.saveImage( file, filename);
+        // Guardar imagen redimensionada y retorna ruta para guardado lógico.
+         fileStorageService.saveImage( file, filename);
 
-        // Retornar la ruta que se debe guardar en person.avatarUrl
-        return "/avatars/" + filename;
-
+         return filename;
     }
 
 
@@ -136,11 +134,14 @@ public class AvatarService implements IAvatarService {
      * @throws IOException
      */
     @Override
-    public void deleteImage(Person person) throws IOException {
+    public String deleteImage(Person person) throws IOException {
         String previousAvatar = person.getAvatarUrl();
-        if (previousAvatar != null) {
-            fileStorageService.deleteImage(previousAvatar);
+        if (previousAvatar == null) {
+            return null;
         }
+
+        return fileStorageService.deleteImage(previousAvatar);
+
     }
 
 
