@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 /**
  * Entidad que representa una localidad.
@@ -14,6 +15,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "localities")
+@Where(clause = "enabled = true")
 public class Locality extends Auditable {
 
     @Id

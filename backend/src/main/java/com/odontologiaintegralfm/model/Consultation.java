@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.model;
 
+import com.odontologiaintegralfm.enums.ConsultationStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -39,8 +40,7 @@ public class Consultation extends Auditable {
     private Appointment appointment;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id")
+    @Enumerated(EnumType.STRING)
     private ConsultationStatus status;
 
     @Column(nullable = false)

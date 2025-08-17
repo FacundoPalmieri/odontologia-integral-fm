@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.model;
 
+import com.odontologiaintegralfm.enums.ConsultationStatus;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +23,6 @@ public class ConsultationStatusHistory extends Auditable {
     @JoinColumn(name = "consultation_id")
     private Consultation consultation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consultation_status_id")
+    @Enumerated(EnumType.STRING)
     private ConsultationStatus consultationStatus;
 }

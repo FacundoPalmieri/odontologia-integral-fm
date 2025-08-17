@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * Entidad que representa los Odontólogos
@@ -36,5 +37,14 @@ public class Dentist extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = DentistSpecialty.class)
     @JoinColumn(name = "dentist_specialty_id")
     private DentistSpecialty dentistSpecialty;
+
+    @Column(nullable = false)
+    private LocalTime startTime;
+
+    @Column(nullable = false)
+    private LocalTime endTime;
+
+    @Column(nullable = false)
+    private int appointmentDuration;
 
 }
