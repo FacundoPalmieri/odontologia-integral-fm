@@ -43,6 +43,9 @@ import {
 } from "../../../../domain/interfaces/person-data.interface";
 import { DentistSpecialtyInterface } from "../../../../domain/interfaces/dentist.interface";
 import { UserDtoInterface } from "../../../../domain/dto/user.dto";
+import { FileMetadataInterface } from "../../../../domain/interfaces/patient.interface";
+import { FileService } from "../../../../services/file.service";
+import { MatTableModule } from "@angular/material/table";
 
 @Component({
   selector: "app-user-edit-page",
@@ -59,6 +62,7 @@ import { UserDtoInterface } from "../../../../domain/dto/user.dto";
     MatSelectModule,
     MatDatepickerModule,
     MatIconModule,
+    MatTableModule,
   ],
 })
 export class UserEditPageComponent implements OnInit, OnDestroy {
@@ -69,9 +73,12 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly roleService = inject(RoleService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly fileService = inject(FileService);
   personDataSerializer = inject(PersonDataService);
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("resourceFileInput")
+  resourceFileInput!: ElementRef<HTMLInputElement>;
 
   userForm: FormGroup = new FormGroup({
     id: new FormControl<number>(0, [Validators.required]),
@@ -152,6 +159,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
   roles = signal<RoleInterface[]>([]);
+  filesMetadata = signal<FileMetadataInterface[]>([]);
 
   constructor() {
     this.userForm
@@ -305,6 +313,94 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  viewFile(fileId: number): void {
+    this.fileService.downloadUserFile(fileId).subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    });
+  }
+
+  downloadFile(fileId: number, fileName: string): void {
+    this.fileService.downloadUserFile(fileId).subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  deleteFile(fileId: number): void {
+    this.fileService
+      .deleteUserFile(fileId)
+      .subscribe((response: ApiResponseInterface<string>) => {
+        this.snackbarService.openSnackbar(
+          response.message,
+          6000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Success
+        );
+        this._getUserFiles(this.userId!);
+      });
+  }
+
+  triggerResourceFileInput(): void {
+    this.resourceFileInput.nativeElement.click();
+  }
+
+  onStudyFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      this.snackbarService.openSnackbar(
+        "El archivo debe ser PDF o Word (doc, docx)",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+      return;
+    }
+
+    this.fileService
+      .uploadUserFile(this.userId!, file)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: () => {
+          this.fileService
+            .getUserFilesMetadata(this.userId!)
+            .subscribe(
+              (response: ApiResponseInterface<FileMetadataInterface[]>) => {
+                this.filesMetadata.set(response.data);
+              }
+            );
+          this.snackbarService.openSnackbar(
+            "Archivo subido correctamente.",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success
+          );
+        },
+        error: () => {},
+      });
+  }
+
+  private _getUserFiles(id: number) {
+    this.fileService
+      .getUserFilesMetadata(id)
+      .subscribe((response: ApiResponseInterface<FileMetadataInterface[]>) => {
+        this.filesMetadata.set(response.data);
+      });
+  }
+
   removeAvatar(): void {
     this.personDataService.removeAvatar(this.personId).subscribe(() => {
       this.personDataService
@@ -414,6 +510,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
               this.avatarUrl.set(response);
             });
         }
+        this._getUserFiles(this.userId!);
         this._populateForm(user);
       });
   }

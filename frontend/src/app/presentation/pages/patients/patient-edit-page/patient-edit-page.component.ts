@@ -585,6 +585,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       );
       return;
     }
+
     this.fileService
       .uploadPatientFile(personId, file)
       .pipe(takeUntil(this._destroy$))

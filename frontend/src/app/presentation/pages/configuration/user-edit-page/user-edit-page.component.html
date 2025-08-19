@@ -555,6 +555,78 @@
           </div>
         </mat-card-content>
       </mat-card>
+
+      <mat-card appearance="outlined" class="w-full">
+        <mat-card-header>
+          <mat-card-title>Adjuntos</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="p-4 flex flex-col items-center justify-center gap-4">
+            @if(filesMetadata().length > 0) {
+            <table mat-table [dataSource]="filesMetadata()" class="w-full">
+              <ng-container matColumnDef="originalFileName">
+                <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                <td mat-cell *matCellDef="let element">
+                  {{ element.originalFileName }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef>Acción</th>
+                <td mat-cell *matCellDef="let element">
+                  <button
+                    mat-icon-button
+                    matTooltip="Ver"
+                    matTooltipPosition="left"
+                    (click)="viewFile(element.id)"
+                  >
+                    <i-tabler name="eye"></i-tabler>
+                  </button>
+                  <button
+                    mat-icon-button
+                    matTooltip="Descargar"
+                    matTooltipPosition="right"
+                    (click)="downloadFile(element.id, element.originalFileName)"
+                  >
+                    <i-tabler name="download"></i-tabler>
+                  </button>
+                  <button
+                    mat-icon-button
+                    matTooltip="Eliminar"
+                    matTooltipPosition="right"
+                    (click)="deleteFile(element.id)"
+                  >
+                    <i-tabler class="text-red-500" name="xbox-x"></i-tabler>
+                  </button>
+                </td>
+              </ng-container>
+              <tr
+                mat-header-row
+                *matHeaderRowDef="['originalFileName', 'action']"
+              ></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: ['originalFileName', 'action']"
+              ></tr>
+            </table>
+            } @else {
+            <span>Aún no tiene adjuntos cargados.</span>
+            }
+            <button mat-flat-button (click)="triggerResourceFileInput()">
+              <div class="flex items-center gap-2">
+                <i-tabler name="search"></i-tabler>
+                <span>Subir adjunto</span>
+              </div>
+            </button>
+            <input
+              #resourceFileInput
+              type="file"
+              class="hidden"
+              accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              (change)="onStudyFileSelected($event)"
+            />
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   </form>
 </div>
