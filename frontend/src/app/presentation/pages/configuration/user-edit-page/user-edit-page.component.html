@@ -558,7 +558,7 @@
 
       <mat-card appearance="outlined" class="w-full">
         <mat-card-header>
-          <mat-card-title>Adjuntos</mat-card-title>
+          <mat-card-title>Archivos adjuntos</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="p-4 flex flex-col items-center justify-center gap-4">
@@ -589,14 +589,6 @@
                   >
                     <i-tabler name="download"></i-tabler>
                   </button>
-                  <button
-                    mat-icon-button
-                    matTooltip="Eliminar"
-                    matTooltipPosition="right"
-                    (click)="deleteFile(element.id)"
-                  >
-                    <i-tabler class="text-red-500" name="xbox-x"></i-tabler>
-                  </button>
                 </td>
               </ng-container>
               <tr
@@ -609,12 +601,12 @@
               ></tr>
             </table>
             } @else {
-            <span>Aún no tiene adjuntos cargados.</span>
+            <span>Aún no tiene archivos subidos.</span>
             }
             <button mat-flat-button (click)="triggerResourceFileInput()">
               <div class="flex items-center gap-2">
-                <i-tabler name="search"></i-tabler>
-                <span>Subir adjunto</span>
+                <i-tabler name="file-import"></i-tabler>
+                <span>Subir archivo</span>
               </div>
             </button>
             <input

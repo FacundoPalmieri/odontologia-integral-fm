@@ -331,21 +331,6 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteFile(fileId: number): void {
-    this.fileService
-      .deleteUserFile(fileId)
-      .subscribe((response: ApiResponseInterface<string>) => {
-        this.snackbarService.openSnackbar(
-          response.message,
-          6000,
-          "center",
-          "top",
-          SnackbarTypeEnum.Success
-        );
-        this._getUserFiles(this.userId!);
-      });
-  }
-
   triggerResourceFileInput(): void {
     this.resourceFileInput.nativeElement.click();
   }

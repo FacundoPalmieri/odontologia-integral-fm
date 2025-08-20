@@ -669,7 +669,7 @@
             ></tr>
           </table>
           } @else {
-          <span>Aún no tienes adjuntos cargados.</span>
+          <span>Aún no tiene archivos subidos.</span>
           }
           <button
             mat-flat-button
@@ -677,8 +677,8 @@
             [disabled]="!canUpload()"
           >
             <div class="flex items-center gap-2">
-              <i-tabler name="search"></i-tabler>
-              <span>Subir adjunto</span>
+              <i-tabler name="file-import"></i-tabler>
+              <span>Subir archivo</span>
             </div>
           </button>
           <input
