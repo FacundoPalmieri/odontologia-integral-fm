@@ -217,6 +217,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         String path = request.getServletPath();
         return  path.equals("/api/auth/login") ||
                 path.equals("/api/auth/register") ||
+                path.equals("/api/auth/token/refresh") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/swagger-ui") ||
                 path.equals("/swagger-ui.html");

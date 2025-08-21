@@ -7,13 +7,13 @@ import lombok.Getter;
  */
 @Getter
 public enum DayName {
-    LUNES("Lunes"),
-    MARTES("Martes"),
-    MIERCOLES("Miércoles"),
-    JUEVES("Jueves"),
-    VIERNES("Viernes"),
-    SABADO("Sábado"),
-    DOMINGO("Domingo");
+    MONDAY("Lunes"),
+    TUESDAY("Martes"),
+    WEDNESDAY("Miércoles"),
+    THURSDAY("Jueves"),
+    FRIDAY("Viernes"),
+    SATURDAY("Sábado"),
+    SUNDAY("Domingo");
 
     private final String label;
 

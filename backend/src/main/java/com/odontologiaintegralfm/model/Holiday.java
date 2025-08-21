@@ -32,8 +32,9 @@ public class Holiday extends Auditable{
     @Column(nullable = false)
     private LocalDate date;
 
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false, length = 50)
     private String description;
-
-    private Boolean isOptional;
 }

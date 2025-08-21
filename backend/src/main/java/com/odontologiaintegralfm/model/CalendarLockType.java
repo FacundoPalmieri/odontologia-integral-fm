@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Entidad que representa los tipos de bloqueo de calendario.
+ * Entidad que representa los tipos de bloqueos de calendario.
+ * No representa bloqueo por calendario o turnos,
+ * sino por eventos propios del profesional.
  */
 
 @Entity
