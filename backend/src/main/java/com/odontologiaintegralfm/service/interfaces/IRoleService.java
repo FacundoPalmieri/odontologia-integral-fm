@@ -1,12 +1,15 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.dto.RoleFullResponseDTO;
 import com.odontologiaintegralfm.dto.RoleRequestDTO;
-import com.odontologiaintegralfm.dto.RoleResponseDTO;
+import com.odontologiaintegralfm.dto.RoleSimpleResponseDTO;
 import com.odontologiaintegralfm.model.Role;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 /**
  * Interfaz que define los métodos para el servicio de gestión de roles.
  * Proporciona métodos para obtener, guardar y buscar roles en el sistema.
@@ -17,19 +20,42 @@ public interface IRoleService {
      * @return Un objeto {@link Response} que contiene una lista de objetos {@link Role}
      *         con todos los roles disponibles en el sistema.
      */
-    Response<List<Role>> getAll();
-
+    Response<Set<RoleSimpleResponseDTO>> getAll();
 
 
 
     /**
-     * Obtiene un rol por su ID.
+     * Método para obtener los permisos y acciones asociados a un Rol específico.
+     * A partir del Id de un rol del usuario, este método obtiene todas las combinaciones
+     * {@code RolePermissionAction} asociadas a cada rol, y agrupa las acciones por permiso
+     * y los permisos por rol. El resultado es una lista de {@code RoleFullResponseDTO}, donde cada
+     * rol contiene sus permisos y cada permiso contiene sus acciones correspondientes.
      *
-     * @param id El ID del rol que se desea obtener.
-     * @return Un objeto {@link Response} que contiene el rol correspondiente al ID especificado
-     *         como un {@link RoleResponseDTO}.
+     * <p>Ejemplo de estructura devuelta:</p>
+     * <pre>
+     * [
+     *   {
+     *     "id": 1,
+     *     "name": "ADMIN",
+     *     "permissionsList": [
+     *       {
+     *         "id": 10,
+     *         "permission": "USERS",
+     *         "name": "Gestión de usuarios",
+     *         "actions": [
+     *           { "id": 100, "action": "READ" },
+     *           { "id": 101, "action": "WRITE" }
+     *         ]
+     *       }
+     *     ]
+     *   }
+     * ]
+     * </pre>
+     *
+     * @param idRole
+     * @return
      */
-    Response<RoleResponseDTO> getById(Long id);
+    RoleFullResponseDTO getFullByRoleId(Long idRole);
 
 
 
@@ -49,9 +75,9 @@ public interface IRoleService {
      *
      * @param roleRequestDto El objeto {@link RoleRequestDTO} que contiene los datos del rol a guardar.
      * @return Un objeto {@link Response} que contiene el rol guardado o actualizado como un
-     *         {@link RoleResponseDTO}.
+     *         {@link RoleFullResponseDTO}.
      */
-    Response<RoleResponseDTO> save(RoleRequestDTO roleRequestDto);
+    Response<RoleFullResponseDTO> create(RoleRequestDTO roleRequestDto);
 
 
 
@@ -60,9 +86,9 @@ public interface IRoleService {
      * Actualiza la lista de permisos para el rol.
      *
      * @param roleRequestDto {@link RoleRequestDTO} que contiene la lista de permisos.
-     * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleResponseDTO}
+     * @return Un objeto {@link Response} que contiene el rol actualizado como un{@link RoleFullResponseDTO}
      */
-    Response<RoleResponseDTO> update (RoleRequestDTO roleRequestDto);
+    Response<RoleFullResponseDTO> update (RoleRequestDTO roleRequestDto);
 
 
 

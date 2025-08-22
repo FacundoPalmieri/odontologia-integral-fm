@@ -1,19 +1,21 @@
 package com.odontologiaintegralfm.controller;
 
-import com.odontologiaintegralfm.configuration.appConfig.UserRolesConfig;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessSystemRead;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.OnlyAccessSystemUpdate;
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.model.MessageConfig;
-import com.odontologiaintegralfm.service.ConfigService;
+import com.odontologiaintegralfm.service.interfaces.IConfigService;
+import com.odontologiaintegralfm.service.interfaces.ISystemLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 /**
@@ -54,19 +56,37 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/config")
-@PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
 public class ConfigController {
-    @Autowired
-    private UserRolesConfig userRolesConfig;
 
     @Autowired
-    private ConfigService configService;
+    private IConfigService configService;
 
+    @Autowired
+    private ISystemLogService systemLogService;
+
+    @Value("${pagination.default-page}")
+    private int defaultPage;
+
+    @Value("${pagination.default-size}")
+    private int defaultSize;
+
+    @Value("${pagination.default-sortBy}")
+    private String defaultSortBy;
+
+    @Value("${pagination.default-direction}")
+    private String defaultDirection;
+
+
+
+
+//////////////////////////////////////////////
+// Sección: Configuración de Mensajes
+//////////////////////////////////////////////
 
     /**
      * Obtiene la configuración de mensajes.
      * <p>
-     * Requiere rol <b>Desarrollador</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
      * @return ResponseEntity con:
@@ -83,6 +103,7 @@ public class ConfigController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/message")
+    @OnlyAccessSystemRead
     public ResponseEntity<Response<List<MessageConfig>>> getMessage() {
         Response<List<MessageConfig>> response = configService.getMessage();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -92,7 +113,7 @@ public class ConfigController {
     /**
      * Actualiza la configuración de un mensaje.
      * <p>
-     * Requiere rol <b>Desarrollador</b> para acceder.
+     * Requiere b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
      * @param messageRequestDTO Objeto con los datos del mensaje a actualizar.
@@ -112,176 +133,195 @@ public class ConfigController {
             @ApiResponse(responseCode = "404", description = "Mensaje no encontrado para actualizar.")
     })
     @PatchMapping("/message")
+    @OnlyAccessSystemUpdate
     public ResponseEntity<Response<MessageConfig>> updateMessage(@Valid @RequestBody MessageRequestDTO messageRequestDTO) {
         Response<MessageConfig> response =  configService.updateMessage(messageRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
-
+//////////////////////////////////////////////
+// Sección: Configuración de parametrizaciones
+/////////////////////////////////////////////
 
     /**
-     * Obtiene la cantidad de intentos fallidos de sesión.
+     * Obtiene todas las parametrizaciones del sistema-
      * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
      * @return ResponseEntity con:
      *         <ul>
-     *         <li><b>200 OK</b>: Cantidad de intentos fallidos recuperada exitosamente.</li>
+     *         <li><b>200 OK</b>: Parametrizaciones recuperadas exitosamente.</li>
      *         <li><b>401 Unauthorized</b>: No autenticado.</li>
      *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
      *         </ul>
      */
-    @Operation(summary = "Obtener intentos fallidos de sesión", description = "Obtiene la cantidad de intentos fallidos de sesión.")
+    @Operation(summary = "Obtener parametrizaciones del sistema", description = "Obtiene todas las parametrizaciones del sistema.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Cantidad de intentos fallidos recuperada exitosamente."),
+            @ApiResponse(responseCode = "200", description = "Parametrizaciones recuperadas exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @GetMapping("/session")
-    public ResponseEntity<Response<Integer>> getAttempts() {
-        Response<Integer> response =  configService.getAttempts();
+    @GetMapping("/system-parameters")
+    @OnlyAccessSystemRead
+    public ResponseEntity<Response<List<SystemParameterResponseDTO>>> getSystemParameters() {
+       Response<List<SystemParameterResponseDTO>> response =  configService.getSystemParameter();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
     /**
-     * Actualiza la cantidad de intentos fallidos de sesión.
+     * Actualiza valores de parámetro de sistema
      * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
      *
-     * @param failedLoginAttemptsRequestDTO Datos para actualizar los intentos fallidos de sesión.
+     * @param systemParameterRequestDTO Datos para actualizar el valor del parámetro.
      * @return ResponseEntity con:
      *         <ul>
-     *         <li><b>200 OK</b>: Cantidad de intentos fallidos actualizada exitosamente.</li>
-     *         <li><b>400 Bad Resquest</b>: Datos inválidos para actualizar la cantidad de intentos fallidos de sesión.</li>
+     *         <li><b>200 OK</b>: Parámetro actualizado exitosamente.</li>
+     *         <li><b>400 Bad Resquest</b>: Datos inválidos para actualizar valores.</li>
      *         <li><b>401 Unauthorized</b>: No autenticado.</li>
      *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
      *         </ul>
      */
-    @Operation(summary = "Actualizar intentos fallidos de sesión", description = "Actualiza la cantidad de intentos fallidos de sesión.")
+    @Operation(summary = "Actualizar valores de parámetro de sistema.", description = "Actualiza el valor de un parámetros de sistema.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Cantidad de intentos fallidos actualizada exitosamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos para actualizar la cantidad de intentos fallidos de sesión."),
+            @ApiResponse(responseCode = "200", description = "Valor actualizado exitosamente."),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos para actualizar valores."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @PatchMapping("/session")
-    public ResponseEntity<Response<Integer>> updateAttempts(@Valid @RequestBody FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO) {
-        Response<Integer> response = configService.updateAttempts(failedLoginAttemptsRequestDTO);
+    @PatchMapping("/system-parameters")
+    @OnlyAccessSystemUpdate
+    public ResponseEntity<Response<SystemParameterResponseDTO>> updateSystemParameter(@Valid @RequestBody SystemParameterRequestDTO systemParameterRequestDTO) {
+        Response<SystemParameterResponseDTO> response = configService.updateSystemParameter(systemParameterRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
+
+
+
+
+
+
+//////////////////////////////////////////////
+// Sección: Configuración de Tareas programadas
+/////////////////////////////////////////////
+
     /**
-     * Obtiene la expiración del token.
+     * Actualiza la expresión Cron de las tareas programadas
      * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
+     *   Requiere  <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
      * </p>
-     *
+     * @param scheduleRequestDTO con la expresión Cron
      * @return ResponseEntity con:
      *         <ul>
-     *         <li><b>200 OK</b>: Expiración del token recuperada exitosamente.</li>
+     *         <li><b>200 OK</b>: Expresión Cron actualizada exitosamente.</li>
+     *         <li><b>400 Bad Request</b>: Datos inválidos para actualizar la expresión cron.</li>
      *         <li><b>401 Unauthorized</b>: No autenticado.</li>
      *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
      *         </ul>
      */
-    @Operation(summary = "Obtener expiración del token", description = "Obtiene la expiración del token.")
+    @Operation(summary = "Actualizar expresión Cron de las tareas programadas", description = "Actualiza la expresión Cron de las tareas programadas.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Expiración del token recuperada exitosamente."),
+            @ApiResponse(responseCode = "200", description = "Expresión Cron actualizada exitosamente."),
+            @ApiResponse(responseCode = "404", description = "Datos inválidos para actualizar la expresión cron."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @GetMapping ("/token")
-    public ResponseEntity<Response<Long>> getTokenExpiration() {
-        Response<Long> response = configService.getTokenExpiration();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    /**
-     * Actualiza la expiración del token.
-     * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
-     * </p>
-     *
-     * @param tokenConfigRequestDTO Datos para actualizar la expiración del token.
-     * @return ResponseEntity con:
-     *         <ul>
-     *         <li><b>200 OK</b>: Expiración del token actualizada exitosamente.</li>
-     *         <li><b>400 Bad Request</b>: Datos inválidos para actualizar la expiración del token.</li>
-     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
-     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
-     *         </ul>
-     */
-    @Operation(summary = "Actualizar expiración del token", description = "Actualiza la expiración del token.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Expiración del token actualizada exitosamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos para actualizar la expiración del token."),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
-    })
-    @PatchMapping("/token")
-    public ResponseEntity<Response<Long>> updateTokenExpiration(@Valid @RequestBody TokenConfigRequestDTO tokenConfigRequestDTO) {
-         Response<Long> response = configService.updateTokenExpiration(tokenConfigRequestDTO);
-         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-
-    /**
-     * Obtiene la expiración del Refresh token.
-     * <p>
-     * Requiere el rol <b>Desarrollador</b> para acceder.
-     * </p>
-     *
-     * @return ResponseEntity con:
-     *         <ul>
-     *         <li><b>200 OK</b>: Expiración del Refresh token recuperada exitosamente.</li>
-     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
-     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
-     *         </ul>
-     */
-    @Operation(summary = "Obtener expiración del Refresh token", description = "Obtiene la expiración del Refresh token.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Expiración del Refresh token recuperada exitosamente."),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
-    })
-    @GetMapping ("/token/refresh")
-    public ResponseEntity<Response<Long>> getRefreshTokenExpiration() {
-        Response<Long> response = configService.getRefreshTokenExpiration();
+    @PatchMapping("/schedule")
+    @OnlyAccessSystemUpdate
+    public ResponseEntity<Response<ScheduleResponseDTO>> updateSchedule(@Valid @RequestBody ScheduleRequestDTO scheduleRequestDTO) {
+        Response<ScheduleResponseDTO> response = configService.updateSchedule(scheduleRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
+
+
     /**
-     * Actualiza la expiración del Refresh Token.
+     * Obtiene todas las expresiones Cron de las tareas programadas
      * <p>
-     * Requiere el rol <b>DEV</b> para acceder.
+     * Requiere <b>PERMISO_SYSTEM_READ</b> para acceder.
      * </p>
      *
-     * @param refreshTokenConfigRequestDTO con el tiempo de expiración en días
      * @return ResponseEntity con:
      *         <ul>
-     *         <li><b>200 OK</b>: Expiración del Refresh token actualizada exitosamente.</li>
-     *         <li><b>400 Bad Request</b>: Datos inválidos para actualizar la expiración del RefreshToken.</li>
+     *         <li><b>200 OK</b>:  Expresiones cron recuperadas exitosamente.</li>
      *         <li><b>401 Unauthorized</b>: No autenticado.</li>
      *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
      *         </ul>
      */
-    @Operation(summary = "Actualizar expiración del Refresh Token", description = "Actualiza la expiración del Refresh Token.")
+    @Operation(summary = "Obtener listado de tareas programadas", description = "Obtiene la expresión cron de tareas programadas.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Expiración del Refresh token actualizada exitosamente."),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos para actualizar la expiración del Refresh Token."),
+            @ApiResponse(responseCode = "200", description = "expresiones cron recuperadas exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso.")
     })
-    @PatchMapping("/token/refresh")
-    public ResponseEntity<Response<Long>> updateRefreshTokenExpiration(@Valid @RequestBody RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO) {
-        Response<Long> response = configService.updateRefreshTokenExpiration(refreshTokenConfigRequestDTO);
+    @GetMapping("/all/schedule")
+    @OnlyAccessSystemRead
+    public ResponseEntity<Response<List<ScheduleResponseDTO>>> getAllSchedule() {
+        Response<List<ScheduleResponseDTO>> response = configService.getAllSchedule();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////
+// Sección: Logs
+/////////////////////////////////////////////
+
+    /**
+     * Obtiene la lista de logs del sistema
+     * <p>
+     * Requiere PERMISO_SYSTEM_READ
+     * </p>
+
+     * @return ResponseEntity con:
+     *         <ul>
+     *         <li><b>200 Ok</b>:logs recuperados  exitosamente.</li>
+     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
+     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
+     *         </ul>
+     */
+
+    @Operation(summary = "Listar logs", description = "Listar los log del sistema.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Logs recuperados exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @GetMapping("/logs")
+    @OnlyAccessSystemRead
+    public ResponseEntity<Response<Page<SystemLogResponseDTO>>> getLogs(@RequestParam (required = false) Integer page,
+                                                              @RequestParam (required = false) Integer size,
+                                                              @RequestParam (required = false) String sortBy,
+                                                              @RequestParam (required = false) String direction
+                                                              ){
+        int pageValue = (page != null) ? page : defaultPage;
+        int sizeValue = (size != null) ? size : defaultSize;
+        String sortByValue = (sortBy != null) ? sortBy : defaultSortBy;
+        String directionValue = (direction != null) ? direction : defaultDirection;
+
+        Response<Page<SystemLogResponseDTO>> response = configService.getLogs(pageValue,sizeValue,sortByValue,directionValue);
+        return new ResponseEntity<>(response,HttpStatus.OK);
 
     }
+
+
 
 }

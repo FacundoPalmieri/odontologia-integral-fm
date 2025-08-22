@@ -5,8 +5,14 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.dto.SystemLogResponseDTO;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
+import com.odontologiaintegralfm.exception.UnauthorizedException;
+import com.odontologiaintegralfm.service.SystemLogService;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
-import com.odontologiaintegralfm.utils.JwtUtils;
+import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
+import com.odontologiaintegralfm.service.interfaces.ISystemLogService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collection;
@@ -49,10 +56,12 @@ import java.util.Collection;
 public class JwtTokenValidator extends OncePerRequestFilter {
     private JwtUtils jwtUtils;
     private IMessageService messageService;
+    private ISystemLogService systemLogService;
 
-    public JwtTokenValidator(JwtUtils jwtUtils, IMessageService messageService) {
+    public JwtTokenValidator(JwtUtils jwtUtils, IMessageService messageService, ISystemLogService systemLogService) {
         this.jwtUtils = jwtUtils;
         this.messageService = messageService;
+        this.systemLogService = systemLogService;
     }
 
 
@@ -82,8 +91,6 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
             if (jwtToken != null) {
-
-
                 //en el encabezado antes del token viene la palabra bearer (esquema de autenticación)
                 //por lo que debemos sacarlo
                 jwtToken = jwtToken.substring(7); //son 7 letras + 1 espacio
@@ -91,6 +98,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
                 //si el token es válido, le concedemos el acceso
                 String username = jwtUtils.extractUsername(decodedJWT);
+
                 //me devuelve claim, necesito pasarlo a String
                 String authorities = jwtUtils.getSpecificClaim(decodedJWT, "authorities").asString();
 
@@ -104,46 +112,45 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 context.setAuthentication(authentication);
                 SecurityContextHolder.setContext(context);
 
+            }else{
+                handleTokenNullException(new UnauthorizedException("exception.jwtUtils.validateToken.error.user", null, "exception.jwtUtils.validateToken.error.log", new Object[]{"Jwt Token Validator","doFilterInternal"}, LogLevel.ERROR), request, response);
+                return;
             }
 
             // Continuar con el siguiente filtro
             filterChain.doFilter(request, response);
-        }catch (TokenExpiredException ex){
-            handleTokenExpiredException(ex, response);
-        }catch (JWTVerificationException ex) {
-            handleTokenInvalidException(ex,response);
+
+        }catch (JWTVerificationException | UnauthorizedException ex) {
+            handleTokenInvalidException(ex,request,response);
         }
     }
 
 
-
-    /**
-     * Maneja la excepción de un token JWT expirado.
-     * <p>
-     * Este método captura la excepción de un token expirado, registra un mensaje de error en el log,
-     * y proporciona una respuesta personalizada al cliente informando que el token ha expirado.
-     * Se realiza dentro de esta clase ya que el filtro no permite que el manejador global capture la excepción.
-     * </p>
-     *
-     * @param ex La excepción que indica que el token ha expirado.
-     * @param response La respuesta HTTP que se enviará al cliente.
-     * @throws IOException Si ocurre un error al escribir la respuesta JSON en el cuerpo de la respuesta HTTP.
-     */
-    private void handleTokenExpiredException(TokenExpiredException ex, HttpServletResponse response) throws IOException {
-        // Comprobar si hay una autenticación en el contexto
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = (authentication != null) ? authentication.getName() : "Anónimo";  // Valor por defecto si no se encuentra autenticación
-
-        String logMessage = messageService.getMessage("exception.expiredToken.log", null, LocaleContextHolder.getLocale());
-        log.error(logMessage, username);
+    private void handleTokenNullException(Exception ex,HttpServletRequest request, HttpServletResponse response) throws IOException{
+        // Cargar el mensaje de error desde properties
+        String logMessage = messageService.getMessage("exception.authenticationRequired.log", new Object[]{"Token nulo",request.getServletPath(),"JWT Token Validator","handleTokenInvalidException"}, LocaleContextHolder.getLocale());
 
         // Crear mensaje genérico para el usuario
-        String userMessage = messageService.getMessage("exception.expiredToken.user", null, LocaleContextHolder.getLocale());
+        String userMessage = messageService.getMessage("exception.authenticationRequired.user", null, LocaleContextHolder.getLocale());
+
+        // log en consola
+        log.error(logMessage,ex);
+
+        // Guardar log en base de datos
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.ERROR,                      // level
+                LogType.EXCEPTION,                   // type
+                userMessage,                         // userMessage
+                logMessage,                          // technicalMessage
+                "LogActionAspect",
+                "No autenticado",
+                null,    // metadata como Map<String, Object>
+                systemLogService.getStackTraceAsString(ex)           // stacktrace como texto
+        ));
 
         // Capturamos la excepción y devolvemos una respuesta personalizada
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType("application/json");
-
+        response.setContentType("application/json; charset=UTF-8");
         // Crear la respuesta con el formato adecuado
         Response<String> customResponse = new Response<>(false, userMessage, null);
 
@@ -152,12 +159,12 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         // Escribir la respuesta JSON en el cuerpo de la respuesta HTTP
         response.getWriter().write(jsonResponse);
+
+
     }
 
-
-
     /**
-     * Maneja la excepción cuando un token JWT es inválido.
+     * Maneja la excepción cuando un token JWT es inválido (Error en el JWT o expirado).
      * <p>
      * Este método captura la excepción que indica que el token JWT es inválido, registra un mensaje de error en el log,
      * y proporciona una respuesta personalizada al cliente informando que el token es inválido.
@@ -167,22 +174,33 @@ public class JwtTokenValidator extends OncePerRequestFilter {
      * @param response La respuesta HTTP que se enviará al cliente.
      * @throws IOException Si ocurre un error al escribir la respuesta JSON en el cuerpo de la respuesta HTTP.
      */
-    private void handleTokenInvalidException(JWTVerificationException ex, HttpServletResponse response) throws IOException {
 
-        // Comprobar si hay una autenticación en el contexto
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = (authentication != null) ? authentication.getName() : "Unknown User";  // Default value if no authentication is found
+    private void handleTokenInvalidException(Exception ex,HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // Cargar el mensaje de error desde properties
-        String logMessage = messageService.getMessage("exception.validateToken.log", new Object[]{username}, LocaleContextHolder.getLocale());
-        log.error(logMessage, username,ex);
+        String logMessage = messageService.getMessage("exception.validateToken.log", new Object[]{request.getHeader(HttpHeaders.AUTHORIZATION),request.getServletPath(),"JWT Token Validator","handleTokenInvalidException"}, LocaleContextHolder.getLocale());
 
         // Crear mensaje genérico para el usuario
-        String userMessage = messageService.getMessage("exception.validateToken.user", null, LocaleContextHolder.getLocale());
+         String userMessage = messageService.getMessage("exception.validateToken.user", null, LocaleContextHolder.getLocale());
+
+        // log en consola
+        log.error(logMessage,ex);
+
+        // Guardar log en base de datos
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.ERROR,                      // level
+                LogType.EXCEPTION,                   // type
+                userMessage,                         // userMessage
+                logMessage,                          // technicalMessage
+                "LogActionAspect",// username
+                "No autenticado",
+                null,    // metadata como Map<String, Object>
+                systemLogService.getStackTraceAsString(ex)           // stacktrace como texto
+        ));
 
         // Capturamos la excepción y devolvemos una respuesta personalizada
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType("application/json");
+        response.setContentType("application/json; charset=UTF-8");
         // Crear la respuesta con el formato adecuado
         Response<String> customResponse = new Response<>(false, userMessage, null);
 
@@ -191,6 +209,18 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         // Escribir la respuesta JSON en el cuerpo de la respuesta HTTP
         response.getWriter().write(jsonResponse);
+    }
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return  path.equals("/api/auth/login") ||
+                path.equals("/api/auth/register") ||
+                path.equals("/api/auth/token/refresh") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-ui") ||
+                path.equals("/swagger-ui.html");
     }
 }
 

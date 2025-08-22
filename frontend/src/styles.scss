@@ -24,10 +24,28 @@ body {
     border: none;
   }
 
+  label {
+    display: inline-flex !important;
+  }
+
+  .mat-mdc-checkbox {
+    .mdc-checkbox {
+      border-radius: 6px;
+      width: 20px;
+      height: 20px;
+
+      .mdc-checkbox__background {
+        border-radius: 6px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
   .snackbar-success {
     @include mat.snack-bar-overrides(
       (
-        container-color: #22c55e,
+        container-color: rgba(16, 185, 129),
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -35,10 +53,11 @@ body {
       )
     );
   }
+
   .snackbar-error {
     @include mat.snack-bar-overrides(
       (
-        container-color: #ef4444,
+        container-color: rgb(245, 101, 101),
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -50,7 +69,7 @@ body {
   .snackbar-warning {
     @include mat.snack-bar-overrides(
       (
-        container-color: #f97315,
+        container-color: rgb(251, 146, 60),
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -62,7 +81,7 @@ body {
   .snackbar-info {
     @include mat.snack-bar-overrides(
       (
-        container-color: #0ca5e9,
+        container-color: rgb(56, 189, 248),
         supporting-text-color: white,
         button-color: #ffffff,
         supporting-text-size: 16px,
@@ -82,12 +101,13 @@ body {
   }
 
   .active-link {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
     @include mat.list-overrides(
       (
         list-item-container-color: var(--mat-sys-secondary),
       )
     );
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 
   @include mat.button-overrides(
@@ -111,6 +131,7 @@ body {
     (
       container-color: var(--mat-sys-content-container-color),
       outlined-outline-width: 0,
+      outlined-container-elevation: var(--mat-sys-level1),
     )
   );
 
@@ -159,4 +180,20 @@ body {
       container-color: var(--mat-sys-content-toolbar-container-color),
     )
   );
+
+  @include mat.dialog-overrides(
+    (
+      container-max-width: 1200px,
+    )
+  );
+
+  @include mat.expansion-overrides(
+    (
+      container-background-color: var(--mat-sys-content-container-color),
+    )
+  );
+
+  mat-expansion-panel {
+    box-shadow: var(--mat-sys-level1) !important;
+  }
 }

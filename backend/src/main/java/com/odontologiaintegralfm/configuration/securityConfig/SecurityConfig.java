@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.configuration.securityConfig.filter.JwtTokenVal
 import com.odontologiaintegralfm.configuration.securityConfig.filter.OAuth2UserFilter;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
-import com.odontologiaintegralfm.utils.JwtUtils;
+import com.odontologiaintegralfm.service.interfaces.ISystemLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,10 +15,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
@@ -36,6 +38,10 @@ public class SecurityConfig {
 
     @Autowired
     private IRefreshTokenService refreshTokenService;
+
+    @Autowired
+    private ISystemLogService systemLogService;
+
 
 
     /**
@@ -55,14 +61,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
+                //Rutas que se excluyen del filtro de Spring(Pero ingresar a los filtros de JWT)
+                .authorizeHttpRequests(auth -> auth.requestMatchers(
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/api/auth/login",
+                        "/api/auth/token/refresh",
+                        "/api/auth/logout",
+                        "/api/auth/password/reset-request",
+                        "/api/auth/password/reset"
+                        )
+                        .permitAll()
+                        .anyRequest().authenticated()
+                )
                 .csrf(csrf -> csrf.disable())
+                /*
                 .formLogin(form -> form
                         .defaultSuccessUrl("/holaseg",true)) //Redirección luego de autenticación.
-                //sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtTokenValidator(jwtUtils, messageService), BasicAuthenticationFilter.class)
+
+                 */
+
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                //Se agregan filtros Personalizados.
+                .addFilterBefore(new JwtTokenValidator(jwtUtils, messageService, systemLogService),UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new OAuth2UserFilter(jwtUtils,userRepository,messageService,refreshTokenService), BasicAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                       .defaultSuccessUrl("/holaseg",true))//Redirección luego de autenticación.
+
                 .build();
     }
 

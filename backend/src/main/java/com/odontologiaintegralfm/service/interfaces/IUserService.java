@@ -1,10 +1,11 @@
 package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.*;
+import com.odontologiaintegralfm.exception.ConflictException;
+import com.odontologiaintegralfm.exception.DataBaseException;
 import com.odontologiaintegralfm.model.UserSec;
 import jakarta.servlet.http.HttpServletRequest;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * Interfaz que define los métodos para el servicio de gestión de usuarios.
@@ -16,14 +17,28 @@ public interface IUserService {
       * Obtiene todos los usuarios.
       * @return Una respuesta que contiene una lista de objetos {@link UserSecResponseDTO} representando los usuarios.
       */
-     Response<List<UserSecResponseDTO>> findAll();
+     Response<Page<UserSecResponseDTO>> getAll(int page, int size, String sortBy, String direction);
 
      /**
       * Obtiene un usuario por su ID.
       * @param id El ID del usuario a recuperar.
       * @return Una respuesta que contiene el objeto {@link UserSecResponseDTO} correspondiente al usuario.
       */
-     Response<UserSecResponseDTO> findById(Long id);
+     Response<UserSecResponseDTO> getById(Long id);
+
+     /**
+      * Obtiene un usuario por su ID.
+      * @param id El ID del usuario a recuperar.
+      * @return La entidad recuperada
+      */
+      UserSec getByIdInternal(Long id);
+
+     /**
+      * Realiza baja lógica de un usuario, con todos las entidades relacionadas (ej: Archivos adjuntos)
+      * @param id
+      * @return
+      */
+     // UserSecResponseDTO disableById(Long id);
 
 
 
@@ -36,11 +51,18 @@ public interface IUserService {
 
 
      /**
-      * Guarda un nuevo usuario.
-      * @param userSecCreateDto El DTO con la información del usuario a guardar.
-      * @return Una respuesta que contiene el objeto {@link UserSecResponseDTO} del usuario recién creado.
+      * Guarda un nuevo usuario junto con su información personal y, opcionalmente, su rol como dentista.
+      * <p>
+      * Este método realiza validaciones sobre el nombre de usuario, roles asignados y coincidencia de contraseñas.
+      * También gestiona la creación de la persona asociada y, si corresponde, del dentista.
+      * </p>
+      *
+      * @param userSecCreateDto Objeto {@link UserSecCreateDTO} con los datos del usuario, persona y dentista (opcional).
+      * @return Una {@link Response} con los datos del usuario creado, incluyendo la persona y el dentista si aplica.
+      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
+      * @throws ConflictException Si no se puede crear la persona asociada.
       */
-     Response<UserSecResponseDTO> save(UserSecCreateDTO userSecCreateDto);
+     Response<UserSecResponseDTO> create(UserSecCreateDTO userSecCreateDto);
 
 
      /**

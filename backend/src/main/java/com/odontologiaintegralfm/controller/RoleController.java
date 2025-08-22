@@ -1,9 +1,9 @@
 package com.odontologiaintegralfm.controller;
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.*;
 import com.odontologiaintegralfm.dto.Response;
+import com.odontologiaintegralfm.dto.RoleFullResponseDTO;
 import com.odontologiaintegralfm.dto.RoleRequestDTO;
-import com.odontologiaintegralfm.dto.RoleResponseDTO;
-import com.odontologiaintegralfm.model.Role;
-import com.odontologiaintegralfm.service.interfaces.IPermissionService;
+import com.odontologiaintegralfm.dto.RoleSimpleResponseDTO;
 import com.odontologiaintegralfm.service.interfaces.IRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,10 +12,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -28,8 +26,8 @@ import java.util.List;
  * <p>
  * Los métodos disponibles son:
  * <ul>
- *   <li><b>GET /api/role/all</b>: Obtiene el listado completo de roles.</li>
- *   <li><b>GET /api/role/{id}</b>: Obtiene un rol específico por su ID.</li>
+ *   <li><b>GET /api/name/all</b>: Obtiene el listado completo de roles.</li>
+ *   <li><b>GET /api/name/{id}</b>: Obtiene un rol específico por su ID.</li>
  *   <li><b>POST/api/roles</b>: Crea un nuevo rol en el sistema.</li>
  *   <li><b>PATCH/api/roles</b>: Actualiza un rol en el sistema..</li>
  * </ul>
@@ -40,19 +38,14 @@ import java.util.List;
  */
 
 @RestController
-@PreAuthorize("denyAll()")
 @RequestMapping("/api/role")
 public class RoleController {
 
     @Autowired
     private IRoleService roleService;
 
-    @Autowired
-    private IPermissionService permiService;
-
-
     /**
-     * Lista todos los roles disponibles en el sistema.
+     * Lista los roles disponibles en el sistema, excluyendo el rol "Desarrollador".
      * <p>
      * Requiere el rol <b>DEV</b> para acceder.
      * </p>
@@ -72,19 +65,18 @@ public class RoleController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
-    public ResponseEntity<Response<List<Role>>> getAllRoles() {
-        Response<List<Role>> response = roleService.getAll();
+    @OnlyAccessConfigurationRead
+    public ResponseEntity<Response<Set<RoleSimpleResponseDTO>>> getAll() {
+        Response<Set<RoleSimpleResponseDTO>> response = roleService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
     /**
-     * Obtiene un rol por su ID.
+     * Obtiene un rol por su ID, junto con sus permisos y acciones.
      * <p>
      * Requiere el rol <b>DEV</b> para acceder.
      * </p>
-     *
      * @param id ID del rol a buscar.
      * @return ResponseEntity con:
      *         <ul>
@@ -93,6 +85,9 @@ public class RoleController {
      *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
      *         <li><b>404 Not Found</b>: Rol no encontrado.</li>
      *         </ul>
+     *
+     * Se arma el objeto Response aquí, porque el método getFullByRoleId(id), es consumido también por el método
+     * loadUserByUsername de UserDetailServiceImpl
      */
 
     @Operation(summary = "Obtener Rol", description = "Obtiene un Rol por su ID")
@@ -103,10 +98,10 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Rol no encontrado."),
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole)")
-    public ResponseEntity<Response<RoleResponseDTO>> getRoleById(@Valid @PathVariable Long id) {
-        Response<RoleResponseDTO> response = roleService.getById(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    @OnlyAccessConfigurationRead
+    public ResponseEntity<Response<RoleFullResponseDTO>> getById(@Valid @PathVariable Long id) {
+        RoleFullResponseDTO roleFullResponseDTO = roleService.getFullByRoleId(id);
+        return new ResponseEntity<>(new Response<>(true, null, roleFullResponseDTO), HttpStatus.OK);
     }
 
 
@@ -136,9 +131,9 @@ public class RoleController {
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
     @PostMapping
-    @PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
-    public ResponseEntity<Response<RoleResponseDTO>>createRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
-        Response<RoleResponseDTO> response = roleService.save(roleRequestDto);
+    @OnlyAccessConfigurationCreate
+    public ResponseEntity<Response<RoleFullResponseDTO>>createRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
+        Response<RoleFullResponseDTO> response = roleService.create(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -171,9 +166,9 @@ public class RoleController {
             @ApiResponse(responseCode = "409", description = "Rol existente en el sistema.")
     })
     @PatchMapping
-    @PreAuthorize("hasRole(@userRolesConfig.desarrolladorRole)")
-    public ResponseEntity<Response<RoleResponseDTO>> updateRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
-        Response<RoleResponseDTO> response = roleService.update(roleRequestDto);
+    @OnlyAccessConfigurationUpdate
+    public ResponseEntity<Response<RoleFullResponseDTO>> updateRole(@Valid @RequestBody RoleRequestDTO roleRequestDto) {
+        Response<RoleFullResponseDTO> response = roleService.update(roleRequestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

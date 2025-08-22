@@ -3,8 +3,13 @@
   <div class="mt-1">
     <form [formGroup]="roleForm" class="mt-1">
       <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Rol</mat-label>
-        <input matInput formControlName="role" />
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Alias</mat-label>
+        <input matInput formControlName="label" />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-full">
@@ -16,7 +21,7 @@
           [compareWith]="comparePermissions"
         >
           @for(permission of permissions; track $index){
-          <mat-option [value]="permission">{{ permission.name }}</mat-option>
+          <mat-option [value]="permission">{{ permission.label }}</mat-option>
           }
         </mat-select>
       </mat-form-field>

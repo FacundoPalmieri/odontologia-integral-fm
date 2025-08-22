@@ -1,0 +1,111 @@
+<app-page-toolbar [title]="'Pacientes'"></app-page-toolbar>
+<mat-card appearance="outlined" class="mt-4">
+  <mat-card-content>
+    <div class="flex w-full justify-end gap-4">
+      @if(canRead()){
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Buscar paciente</mat-label>
+        <input type="text" matInput [formControl]="patientsFilter" />
+        <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+      </mat-form-field>
+      }
+      <button
+        mat-flat-button
+        [matTooltip]="
+          !canCreate()
+            ? 'No tienes permisos para crear pacientes'
+            : 'Crear paciente'
+        "
+        matTooltipPosition="left"
+        class="mt-1"
+        (click)="create()"
+        [disabled]="!canCreate()"
+      >
+        <i-tabler class="mt-1" name="plus"></i-tabler>
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      @if(patientsDataSource.data.length === 0) {
+      <div class="flex flex-col items-center justify-center py-8">
+        <mat-chip>No se encontraron pacientes</mat-chip>
+      </div>
+      } @else { @if(canRead()){
+      <table mat-table [dataSource]="patientsDataSource" matSort>
+        <ng-container matColumnDef="avatar">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element">
+            <img
+              [src]="element.avatarUrl"
+              class="h-10 w-10 min-w-10 min-h-10 max-w-10 max-h-10 rounded-full object-cover shadow-md"
+              alt="Avatar"
+            />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="person.firstName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.person.firstName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="person.lastName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.person.lastName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="person.dni">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>DNI</th>
+          <td mat-cell *matCellDef="let element">{{ element.person.dni }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="person.contactEmails">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Mail</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.person.contactEmails[0] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="person.phone">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Teléfono</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.person.contactPhone[0].phone }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>Acción</th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              mat-icon-button
+              matTooltip="Ver perfil"
+              matTooltipPosition="left"
+              (click)="viewFile(element)"
+            >
+              <i-tabler name="report-search"></i-tabler>
+            </button>
+            <button
+              mat-icon-button
+              matTooltip="Ver odontograma"
+              matTooltipPosition="right"
+              (click)="openOdontogram(element)"
+            >
+              <i-tabler name="dental"></i-tabler>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+      } }
+      <mat-paginator
+        [pageSizeOptions]="[10, 15, 20]"
+        showFirstLastButtons="true"
+        aria-label="Seleccionar página de pacientes"
+      ></mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>

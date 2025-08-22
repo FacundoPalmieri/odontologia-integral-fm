@@ -1,20 +1,20 @@
 package com.odontologiaintegralfm.controller;
-import com.odontologiaintegralfm.configuration.appConfig.UserRolesConfig;
-import com.odontologiaintegralfm.dto.Response;
-import com.odontologiaintegralfm.dto.UserSecCreateDTO;
-import com.odontologiaintegralfm.dto.UserSecResponseDTO;
-import com.odontologiaintegralfm.dto.UserSecUpdateDTO;
+
+import com.odontologiaintegralfm.configuration.securityConfig.annotations.*;
+import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 
 
 /**
@@ -40,17 +40,23 @@ import java.util.List;
 @RequestMapping("/api/user")
 public class UserController {
     @Autowired
-    private UserRolesConfig userRolesConfig;
-
-    @Autowired
     private IUserService userService;
 
+    @Value("${pagination.default-page}")
+    private int defaultPage;
 
+    @Value("${pagination.default-size}")
+    private int defaultSize;
 
+    @Value("${pagination.default.user-sortBy}")
+    private String defaultSortBy;
+
+    @Value("${pagination.default-direction}")
+    private String defaultDirection;
 
 
     /**
-     * Lista todos los usuarios.
+     * Lista todos los usuarios Excluyendo a los Desarrolladores.
      * <p>Requiere rol <b>ADMIN</b> para acceder.</p>
      * @return ResponseEntity con:
      * <ul>
@@ -66,9 +72,17 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole,@userRolesConfig.administradorRole)")
-    public ResponseEntity<Response<List<UserSecResponseDTO>>> getAllUsers() {
-        Response<List<UserSecResponseDTO>> response = userService.findAll();
+    @OnlyAccessConfigurationRead
+    public ResponseEntity<Response<Page<UserSecResponseDTO>>> getAll(@RequestParam(required = false)  Integer page,
+                                                                     @RequestParam(required = false)  Integer size,
+                                                                     @RequestParam(required = false) String  sortBy,
+                                                                     @RequestParam(required = false) String  direction){
+        int pageValue = (page != null) ? page : defaultPage;
+        int sizeValue = (size != null) ? size : defaultSize;
+        String sortByValue = (sortBy != null) ? sortBy : defaultSortBy;
+        String directionValue = (direction != null) ? direction : defaultDirection;
+
+        Response<Page<UserSecResponseDTO>> response = userService.getAll(pageValue, sizeValue,sortByValue,directionValue);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -98,20 +112,12 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole,@userRolesConfig.administradorRole)")
-    public ResponseEntity<Response<UserSecResponseDTO>> getUserById(@PathVariable Long id) {
-        Response<UserSecResponseDTO>response = userService.findById(id);
+    @OnlyAccessUserProfile
+    public ResponseEntity<Response<UserSecResponseDTO>> getById(@PathVariable Long id) {
+        Response<UserSecResponseDTO>response = userService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -142,16 +148,11 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "Usuario existente en el sistema.")
     })
     @PostMapping
-    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole,@userRolesConfig.administradorRole)")
-    public  ResponseEntity<Response<UserSecResponseDTO>> createUser(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
-        Response<UserSecResponseDTO>response = userService.save(userSecCreateDto);
+    @OnlyAccessConfigurationCreate
+    public  ResponseEntity<Response<UserSecResponseDTO>> create(@Valid @RequestBody UserSecCreateDTO userSecCreateDto) {
+        Response<UserSecResponseDTO>response = userService.create(userSecCreateDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
-
-
-
-
 
 
 
@@ -179,13 +180,23 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "Usuario existente en el sistema o se intenta actualizar a un rol DEV.")
     })
     @PatchMapping
-    @PreAuthorize("hasAnyRole(@userRolesConfig.desarrolladorRole,@userRolesConfig.administradorRole)")
+    @OnlyAccessConfigurationUpdate
     public ResponseEntity<Response<UserSecResponseDTO>> updateUser(@Valid @RequestBody UserSecUpdateDTO userSecUpdateDto) {
        Response<UserSecResponseDTO> response =  userService.update(userSecUpdateDto);
        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
+/*
+    @DeleteMapping("/{id}")
+    @OnlyAccessConfigurationDelete
+    public ResponseEntity<Response<UserSecResponseDTO>> delete(@PathVariable @Param("id") Long id){
+        Response<UserSecResponseDTO> response = userService.disabled(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
+
+
+ */
 
 }

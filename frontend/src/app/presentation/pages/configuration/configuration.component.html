@@ -6,20 +6,44 @@
     <div class="flex w-full justify-end">
       <button
         mat-flat-button
-        matTooltip="Agregar usuario"
+        [matTooltip]="
+          !canCreate()
+            ? 'No tienes permisos para crear usuarios'
+            : 'Crear usuario'
+        "
         matTooltipPosition="left"
         (click)="createUser()"
+        [disabled]="!canCreate()"
       >
         <i-tabler class="mt-1" name="plus"></i-tabler>
       </button>
     </div>
   </mat-card-header>
   <mat-card-content>
+    @if(canRead()){
+    <div class="w-1/2 flex mt-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Buscar usuario</mat-label>
+        <input type="text" matInput [formControl]="userFilter" />
+        <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+      </mat-form-field>
+    </div>
     <div class="overflow-x-auto">
+      @if(usersDataSource.data.length === 0) {
+      <div class="flex flex-col items-center justify-center py-8">
+        <mat-chip>No se encontraron usuarios</mat-chip>
+      </div>
+      } @else {
       <table mat-table [dataSource]="usersDataSource" matSort>
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
-          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        <ng-container matColumnDef="avatar">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element">
+            <img
+              [src]="element.avatarUrl"
+              class="h-10 w-10 min-w-10 min-h-10 max-w-10 max-h-10 rounded-full object-cover shadow-md"
+              [alt]="element.username"
+            />
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="username">
@@ -33,7 +57,7 @@
             @if (element.rolesList && element.rolesList.length > 0) {
             <mat-chip-set>
               @for (role of element.rolesList; track $index) {
-              <mat-chip>{{ role.role }}</mat-chip>
+              <mat-chip>{{ role.label }}</mat-chip>
               }
             </mat-chip-set>
             } @else {
@@ -63,6 +87,7 @@
           </td>
         </ng-container>
 
+        @if(canUpdate()){
         <ng-container matColumnDef="action">
           <th mat-header-cell *matHeaderCellDef>Acción</th>
           <td mat-cell *matCellDef="let element">
@@ -74,8 +99,8 @@
             >
               <i-tabler name="edit"></i-tabler>
             </button>
-          </td>
-        </ng-container>
+          </td> </ng-container
+        >}
 
         <tr mat-header-row *matHeaderRowDef="userDisplayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: userDisplayedColumns"></tr>
@@ -85,53 +110,51 @@
         showFirstLastButtons="true"
         aria-label="Seleccionar página de usuarios"
       ></mat-paginator>
+      }
     </div>
+    } @else {
+    <div class="flex items-center justify-center">
+      <mat-chip>No tienes permisos para acceder a este recurso.</mat-chip>
+    </div>
+    }
   </mat-card-content>
 </mat-card>
 
 <mat-card appearance="outlined" class="mt-4">
   <mat-card-header>
     <mat-card-title>Roles</mat-card-title>
-    <div class="flex w-full justify-end">
-      <button
-        mat-flat-button
-        matTooltip="Agregar rol"
-        matTooltipPosition="left"
-        (click)="createRole()"
-      >
-        <i-tabler class="mt-1" name="plus"></i-tabler>
-      </button>
-    </div>
   </mat-card-header>
   <mat-card-content>
+    <div class="w-1/2 flex mt-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Buscar rol</mat-label>
+        <input type="text" matInput [formControl]="roleFilter" />
+        <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+      </mat-form-field>
+    </div>
     <div class="overflow-x-auto">
+      @if(canRead()){ @if(rolesDataSource.data.length === 0) {
+      <div class="flex flex-col items-center justify-center py-8">
+        <mat-chip>No se encontraron roles</mat-chip>
+      </div>
+      } @else {
       <table mat-table [dataSource]="rolesDataSource" matSort>
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
           <td mat-cell *matCellDef="let element">{{ element.id }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="role">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Rol</th>
-          <td mat-cell *matCellDef="let element">{{ element.role }}</td>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="permissionsList">
-          <th mat-header-cell *matHeaderCellDef>Permisos</th>
-          <td mat-cell *matCellDef="let element">
-            @if (element.permissionsList && element.permissionsList.length > 0)
-            {
-            <mat-chip-set>
-              @for (permission of element.permissionsList; track $index) {
-              <mat-chip>{{ permission.name }}</mat-chip>
-              }
-            </mat-chip-set>
-            } @else {
-            <p>Sin permisos asignados</p>
-            }
-          </td>
+        <ng-container matColumnDef="label">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Alias</th>
+          <td mat-cell *matCellDef="let element">{{ element.label }}</td>
         </ng-container>
 
+        @if(canUpdate()){
         <ng-container matColumnDef="action">
           <th mat-header-cell *matHeaderCellDef>Acción</th>
           <td mat-cell *matCellDef="let element">
@@ -145,6 +168,7 @@
             </button>
           </td>
         </ng-container>
+        }
 
         <tr mat-header-row *matHeaderRowDef="roleDisplayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: roleDisplayedColumns"></tr>
@@ -154,6 +178,11 @@
         showFirstLastButtons="true"
         aria-label="Seleccionar página de usuarios"
       ></mat-paginator>
+      } } @else {
+      <div class="flex items-center justify-center">
+        <mat-chip>No tienes permisos para acceder a este recurso. </mat-chip>
+      </div>
+      }
     </div>
   </mat-card-content>
 </mat-card>

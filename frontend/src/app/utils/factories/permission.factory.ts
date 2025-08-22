@@ -1,4 +1,4 @@
-import { PermissionsEnum } from "../enums/permission.enum";
+import { PermissionsEnum } from "../enums/permissions.enum";
 
 interface PermissionItem {
   permissionEnum: PermissionsEnum;
@@ -11,55 +11,55 @@ export class PermissionFactory {
   static createPermissions(): PermissionItem[] {
     return [
       {
-        permissionEnum: PermissionsEnum.Dashboard,
+        permissionEnum: PermissionsEnum.DASHBOARD,
         route: "/dashboard",
         icon: "chart-bar",
         label: "Dashboard",
       },
       {
-        permissionEnum: PermissionsEnum.RegistroDeConsultas,
+        permissionEnum: PermissionsEnum.CONSULTATION_RECORD,
         route: "/consultation",
         icon: "folder-plus",
         label: "Registro de Consultas",
       },
       {
-        permissionEnum: PermissionsEnum.GestionDeTurnos,
+        permissionEnum: PermissionsEnum.APPOINTMENT_MANAGEMENT,
         route: "/appointments",
         icon: "calendar-plus",
         label: "Gestion de Turnos",
       },
       {
-        permissionEnum: PermissionsEnum.HistoriaClinica,
-        route: "/medical-record",
-        icon: "folder-search",
-        label: "Historia Clínica",
+        permissionEnum: PermissionsEnum.PATIENTS,
+        route: "/patients",
+        icon: "friends",
+        label: "Pacientes",
       },
       {
-        permissionEnum: PermissionsEnum.Insumos,
+        permissionEnum: PermissionsEnum.SUPPLIES,
         route: "/inventory",
         icon: "packages",
         label: "Insumos",
       },
       {
-        permissionEnum: PermissionsEnum.Finanzas,
+        permissionEnum: PermissionsEnum.FINANCE,
         route: "/finances",
         icon: "file-dollar",
         label: "Finanzas",
       },
       {
-        permissionEnum: PermissionsEnum.Reportes,
+        permissionEnum: PermissionsEnum.REPORTS,
         route: "/reports",
         icon: "chart-histogram",
         label: "Reportes",
       },
       {
-        permissionEnum: PermissionsEnum.Configuracion,
+        permissionEnum: PermissionsEnum.CONFIGURATION,
         route: "/configuration",
         icon: "settings",
         label: "Configuración",
       },
       {
-        permissionEnum: PermissionsEnum.Sistema,
+        permissionEnum: PermissionsEnum.SYSTEM,
         route: "/system",
         icon: "device-desktop-cog",
         label: "Sistema",

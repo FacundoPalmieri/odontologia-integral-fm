@@ -1,5 +1,8 @@
 package com.odontologiaintegralfm.service;
 
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
 import com.odontologiaintegralfm.service.interfaces.IEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -28,6 +31,12 @@ public class EmailService implements IEmailService {
      * @param subject El asunto del correo.
      * @param body El cuerpo del correo.
      */
+    @LogAction(
+            value = "emailService.systemLogService.sendEmail",
+            args = {"#to", "#subject", "#body"},
+            level = LogLevel.INFO,
+            type = LogType.SYSTEM
+    )
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

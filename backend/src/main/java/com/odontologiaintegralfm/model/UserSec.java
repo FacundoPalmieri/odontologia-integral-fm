@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,17 +15,18 @@ import java.util.Set;
 /**
  * Entidad que representar el Usuario securizado
  */
+@Audited
 @Entity
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Table(name="users")
-public class UserSec {
+public class UserSec extends Auditable {
 
     /**Identificador único del usuario.*/
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     /**Nombre de usuario representado por el email.*/
@@ -43,16 +46,6 @@ public class UserSec {
     /**Fecha y hora de bloqueo de usuario.*/
     private LocalDateTime locktime;
 
-    /**Fecha y hora de creación del usuario.*/
-    private LocalDateTime creationDateTime;
-
-    /**Fecha y hora de la última actualización del usuario.*/
-    private LocalDateTime lastUpdateDateTime;
-
-    /**Indica si la cuenta está activada.*/
-    @Column(nullable = false, columnDefinition = "boolean default true")
-    private boolean enabled;
-
     /**Indica si la cuenta no está expirada.*/
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean accountNotExpired;
@@ -69,11 +62,62 @@ public class UserSec {
      * Se utiliza Set porque no permite repetidos.
      */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) //el eager carga todos los roles
-    @JoinTable (name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns=@JoinColumn(name = "role_id"))
+    @JoinTable (
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns=@JoinColumn(name = "role_id")
+    )
     private Set<Role> rolesList = new HashSet<>();
 
     /**Token para restablecimiento de contraseña.*/
     @Column(length = 500)
     private String resetPasswordToken;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "person_id")
+    private Person person;
+
+
+    /** Constructor con campos heredados. */
+    public UserSec(
+            String username,
+            String password,
+            int failedLoginAttempts,
+            LocalDateTime locktime,
+            boolean accountNotExpired,
+            boolean accountNotLocked,
+            boolean credentialNotExpired,
+            Set<Role> rolesList,
+            String resetPasswordToken,
+            Person person,
+
+            //Heredados.
+            LocalDateTime createdAt,
+            UserSec createdBy,
+            LocalDateTime updatedAt,
+            UserSec updatedBy,
+            boolean enabled,
+            LocalDateTime disabledAt,
+            UserSec disabledBy
+    ) {
+        this.username = username;
+        this.password = password;
+        this.failedLoginAttempts = failedLoginAttempts;
+        this.locktime = locktime;
+        this.accountNotExpired = accountNotExpired;
+        this.accountNotLocked = accountNotLocked;
+        this.credentialNotExpired = credentialNotExpired;
+        this.rolesList = rolesList;
+        this.resetPasswordToken = resetPasswordToken;
+        this.person = person;
+
+        // Heredados
+        this.setCreatedAt(createdAt);
+        this.setCreatedBy(createdBy);
+        this.setUpdatedAt(updatedAt);
+        this.setUpdatedBy(updatedBy);
+        this.setEnabled(enabled);
+        this.setDisabledAt(disabledAt);
+        this.setDisabledBy(disabledBy);
+    }
 }

@@ -10,11 +10,17 @@ import { UserDataInterface } from "../domain/interfaces/user-data.interface";
 import { LogoutInterface } from "../domain/interfaces/logout.interface";
 import { RefreshTokenDataDto } from "../domain/dto/refresh-token-data.dto";
 import { Router } from "@angular/router";
+import { UserService } from "./user.service";
+import { UserInterface } from "../domain/interfaces/user.interface";
+import { RoleInterface } from "../domain/interfaces/role.interface";
+import { AccessControlService } from "./access-control.service";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
   http = inject(HttpClient);
+  userService = inject(UserService);
   router = inject(Router);
+  accessControlService = inject(AccessControlService);
   apiUrl = environment.apiUrl;
 
   refreshTokenInProgress = false;
@@ -45,7 +51,7 @@ export class AuthService {
   ): Observable<ApiResponseInterface<AuthUserInterface>> {
     this.refreshTokenInProgress = true;
     this.refreshTokenSubject.next(null);
-
+    let roles: RoleInterface[];
     return this.http
       .post<ApiResponseInterface<AuthUserInterface>>(
         `${this.apiUrl}/auth/token/refresh`,
@@ -54,6 +60,7 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.doLogin(response.data);
+          this.updateRoles(response.data.idUser);
           this.refreshTokenSubject.next(response.data.jwt);
           this.refreshTokenInProgress = false;
         }),
@@ -65,6 +72,19 @@ export class AuthService {
           return throwError(() => error);
         })
       );
+  }
+
+  updateRoles(id: number) {
+    let userData = this.getUserData();
+    this.userService
+      .getById(id)
+      .subscribe((response: ApiResponseInterface<UserInterface>) => {
+        userData = {
+          ...userData!,
+          roles: response.data.rolesList,
+        };
+        this.doLogin(userData);
+      });
   }
 
   resetPasswordRequest(
@@ -95,9 +115,11 @@ export class AuthService {
       refreshToken: authUserData.refreshToken,
       roles: authUserData.roles,
       username: authUserData.username,
+      person: authUserData.person,
     };
 
     localStorage.setItem("userData", JSON.stringify(userData));
+    this.accessControlService.initializePermissions();
   }
 
   dologout(): void {

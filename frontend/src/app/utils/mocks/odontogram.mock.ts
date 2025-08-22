@@ -1,146 +1,533 @@
 import { OdontogramInterface } from "../../domain/interfaces/odontogram.interface";
-import { TreatmentFactory } from "../factories/treatment.factory";
+import {
+  TreatmentEnum,
+  TreatmentTypeEnum,
+} from "../../utils/enums/treatment.enum";
+import { ToothFaceEnum } from "../../utils/factories/tooth-face.factory";
 
-export const mockOdontogram: OdontogramInterface = {
+export const mockOdontogram1: OdontogramInterface = {
   upperTeethLeft: [
     {
       number: 18,
-      centerTreatment: TreatmentFactory.createTreatments()[0],
-      topTreatment: TreatmentFactory.createTreatments()[1],
-      leftTreatment: TreatmentFactory.createTreatments()[2],
+      treatments: [
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.OCLUSAL, ToothFaceEnum.DISTAL],
+        },
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
     },
     {
       number: 17,
-      topTreatment: TreatmentFactory.createTreatments()[1],
-      rightTreatment: TreatmentFactory.createTreatments()[3],
+      treatments: [
+        {
+          name: TreatmentEnum.TRAT_DE_CONDUCTO,
+          label: "Tratamiento de Conducto",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
     },
     {
       number: 16,
-      bottomTreatment: TreatmentFactory.createTreatments()[2],
-      centerTreatment: TreatmentFactory.createTreatments()[4],
+      treatments: [
+        {
+          name: TreatmentEnum.CORONA,
+          label: "Corona",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
     },
     {
       number: 15,
-      leftTreatment: TreatmentFactory.createTreatments()[3],
-      topTreatment: TreatmentFactory.createTreatments()[5],
     },
     {
       number: 14,
-      rightTreatment: TreatmentFactory.createTreatments()[4],
-      bottomTreatment: TreatmentFactory.createTreatments()[6],
     },
     {
       number: 13,
-      centerTreatment: TreatmentFactory.createTreatments()[5],
-      leftTreatment: TreatmentFactory.createTreatments()[7],
     },
     {
       number: 12,
-      topTreatment: TreatmentFactory.createTreatments()[6],
-      rightTreatment: TreatmentFactory.createTreatments()[8],
     },
     {
       number: 11,
-      bottomTreatment: TreatmentFactory.createTreatments()[7],
-      centerTreatment: TreatmentFactory.createTreatments()[9],
+      treatments: [
+        {
+          name: TreatmentEnum.PUENTE,
+          label: "Puente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+          bridgeStart: 11,
+          bridgeEnd: 21,
+        },
+      ],
     },
   ],
   upperTeethRight: [
     {
       number: 21,
-      centerTreatment: TreatmentFactory.createTreatments()[8],
-      topTreatment: TreatmentFactory.createTreatments()[10],
+      treatments: [
+        {
+          name: TreatmentEnum.IMPLANTES,
+          label: "Implante",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+      ],
     },
     {
       number: 22,
-      topTreatment: TreatmentFactory.createTreatments()[9],
-      bottomTreatment: TreatmentFactory.createTreatments()[11],
+      treatments: [
+        {
+          name: TreatmentEnum.OBT_COMPOSITE,
+          label: "Diente Ausente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
     },
     {
       number: 23,
-      bottomTreatment: TreatmentFactory.createTreatments()[10],
-      leftTreatment: TreatmentFactory.createTreatments()[12],
+      treatments: [
+        {
+          name: TreatmentEnum.DIENTE_AUSENTE,
+          label: "Diente Ausente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+      ],
     },
     {
       number: 24,
-      leftTreatment: TreatmentFactory.createTreatments()[11],
-      rightTreatment: TreatmentFactory.createTreatments()[13],
     },
     {
       number: 25,
-      rightTreatment: TreatmentFactory.createTreatments()[12],
-      centerTreatment: TreatmentFactory.createTreatments()[14],
     },
     {
       number: 26,
-      centerTreatment: TreatmentFactory.createTreatments()[13],
-      topTreatment: TreatmentFactory.createTreatments()[15],
     },
     {
       number: 27,
-      topTreatment: TreatmentFactory.createTreatments()[14],
-      bottomTreatment: TreatmentFactory.createTreatments()[16],
     },
     {
       number: 28,
-      bottomTreatment: TreatmentFactory.createTreatments()[15],
-      leftTreatment: TreatmentFactory.createTreatments()[17],
     },
   ],
   lowerTeethLeft: [
     {
       number: 48,
-      centerTreatment: TreatmentFactory.createTreatments()[16],
-      rightTreatment: TreatmentFactory.createTreatments()[0],
     },
-    { number: 47, topTreatment: TreatmentFactory.createTreatments()[1] },
-    { number: 46, bottomTreatment: TreatmentFactory.createTreatments()[2] },
-    { number: 45, leftTreatment: TreatmentFactory.createTreatments()[3] },
-    { number: 44, rightTreatment: TreatmentFactory.createTreatments()[4] },
-    { number: 43, centerTreatment: TreatmentFactory.createTreatments()[5] },
-    { number: 42, topTreatment: TreatmentFactory.createTreatments()[6] },
-    { number: 41, bottomTreatment: TreatmentFactory.createTreatments()[7] },
+    { number: 47 },
+    { number: 46 },
+    { number: 45 },
+    { number: 44 },
+    { number: 43 },
+    { number: 42 },
+    { number: 41 },
   ],
   lowerTeethRight: [
     {
       number: 31,
-      centerTreatment: TreatmentFactory.createTreatments()[17],
-      leftTreatment: TreatmentFactory.createTreatments()[8],
     },
-    { number: 32, topTreatment: TreatmentFactory.createTreatments()[9] },
-    { number: 33, bottomTreatment: TreatmentFactory.createTreatments()[10] },
-    { number: 34, leftTreatment: TreatmentFactory.createTreatments()[11] },
-    { number: 35, rightTreatment: TreatmentFactory.createTreatments()[12] },
-    { number: 36, centerTreatment: TreatmentFactory.createTreatments()[13] },
-    { number: 37, topTreatment: TreatmentFactory.createTreatments()[14] },
-    { number: 38, bottomTreatment: TreatmentFactory.createTreatments()[15] },
+    {
+      number: 32,
+    },
+    {
+      number: 33,
+    },
+    {
+      number: 34,
+    },
+    {
+      number: 35,
+    },
+    {
+      number: 36,
+      treatments: [
+        {
+          name: TreatmentEnum.PUENTE,
+          label: "Puente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+          bridgeStart: 36,
+          bridgeEnd: 33,
+        },
+      ],
+    },
+    {
+      number: 37,
+    },
+    {
+      number: 38,
+    },
   ],
   temporaryUpperLeft: [
-    { number: 55, topTreatment: TreatmentFactory.createTreatments()[0] },
-    { number: 54, bottomTreatment: TreatmentFactory.createTreatments()[1] },
-    { number: 53, leftTreatment: TreatmentFactory.createTreatments()[2] },
-    { number: 52, rightTreatment: TreatmentFactory.createTreatments()[3] },
-    { number: 51, centerTreatment: TreatmentFactory.createTreatments()[4] },
+    { number: 55 },
+    { number: 54 },
+    { number: 53 },
+    { number: 52 },
+    { number: 51 },
   ],
   temporaryUpperRight: [
-    { number: 61, centerTreatment: TreatmentFactory.createTreatments()[5] },
-    { number: 62, topTreatment: TreatmentFactory.createTreatments()[6] },
-    { number: 63, bottomTreatment: TreatmentFactory.createTreatments()[7] },
-    { number: 64, leftTreatment: TreatmentFactory.createTreatments()[8] },
-    { number: 65, rightTreatment: TreatmentFactory.createTreatments()[9] },
+    { number: 61 },
+    { number: 62 },
+    { number: 63 },
+    { number: 64 },
+    { number: 65 },
   ],
   temporaryLowerLeft: [
-    { number: 85, rightTreatment: TreatmentFactory.createTreatments()[10] },
-    { number: 84, centerTreatment: TreatmentFactory.createTreatments()[11] },
-    { number: 83, topTreatment: TreatmentFactory.createTreatments()[12] },
-    { number: 82, bottomTreatment: TreatmentFactory.createTreatments()[13] },
-    { number: 81, leftTreatment: TreatmentFactory.createTreatments()[14] },
+    { number: 85 },
+    { number: 84 },
+    { number: 83 },
+    { number: 82 },
+    { number: 81 },
   ],
   temporaryLowerRight: [
-    { number: 71, leftTreatment: TreatmentFactory.createTreatments()[15] },
-    { number: 72, rightTreatment: TreatmentFactory.createTreatments()[16] },
-    { number: 73, centerTreatment: TreatmentFactory.createTreatments()[17] },
-    { number: 74, topTreatment: TreatmentFactory.createTreatments()[0] },
-    { number: 75, bottomTreatment: TreatmentFactory.createTreatments()[1] },
+    { number: 71 },
+    { number: 72 },
+    { number: 73 },
+    { number: 74 },
+    { number: 75 },
+  ],
+};
+
+export const mockOdontogram2: OdontogramInterface = {
+  upperTeethLeft: [
+    {
+      number: 18,
+      treatments: [
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.OCLUSAL, ToothFaceEnum.DISTAL],
+        },
+      ],
+    },
+    {
+      number: 17,
+      treatments: [
+        {
+          name: TreatmentEnum.TRAT_DE_CONDUCTO,
+          label: "Tratamiento de Conducto",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
+    },
+    {
+      number: 16,
+      treatments: [
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
+    },
+    {
+      number: 15,
+    },
+    {
+      number: 14,
+    },
+    {
+      number: 13,
+    },
+    {
+      number: 12,
+    },
+    {
+      number: 11,
+    },
+  ],
+  upperTeethRight: [
+    {
+      number: 21,
+      treatments: [
+        {
+          name: TreatmentEnum.IMPLANTES,
+          label: "Implante",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+      ],
+    },
+    {
+      number: 22,
+    },
+    {
+      number: 23,
+      treatments: [
+        {
+          name: TreatmentEnum.DIENTE_AUSENTE,
+          label: "Diente Ausente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+      ],
+    },
+    {
+      number: 24,
+    },
+    {
+      number: 25,
+    },
+    {
+      number: 26,
+    },
+    {
+      number: 27,
+    },
+    {
+      number: 28,
+    },
+  ],
+  lowerTeethLeft: [
+    {
+      number: 48,
+    },
+    { number: 47 },
+    { number: 46 },
+    { number: 45 },
+    { number: 44 },
+    { number: 43 },
+    { number: 42 },
+    { number: 41 },
+  ],
+  lowerTeethRight: [
+    {
+      number: 31,
+    },
+    {
+      number: 32,
+    },
+    {
+      number: 33,
+    },
+    {
+      number: 34,
+    },
+    {
+      number: 35,
+    },
+    {
+      number: 36,
+      treatments: [
+        {
+          name: TreatmentEnum.PUENTE,
+          label: "Puente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+          bridgeStart: 36,
+          bridgeEnd: 33,
+        },
+      ],
+    },
+    {
+      number: 37,
+    },
+    {
+      number: 38,
+    },
+  ],
+  temporaryUpperLeft: [
+    { number: 55 },
+    { number: 54 },
+    { number: 53 },
+    { number: 52 },
+    { number: 51 },
+  ],
+  temporaryUpperRight: [
+    { number: 61 },
+    { number: 62 },
+    { number: 63 },
+    { number: 64 },
+    { number: 65 },
+  ],
+  temporaryLowerLeft: [
+    { number: 85 },
+    { number: 84 },
+    { number: 83 },
+    { number: 82 },
+    { number: 81 },
+  ],
+  temporaryLowerRight: [
+    { number: 71 },
+    { number: 72 },
+    { number: 73 },
+    { number: 74 },
+    { number: 75 },
+  ],
+};
+
+export const mockOdontogram3: OdontogramInterface = {
+  upperTeethLeft: [
+    {
+      number: 18,
+      treatments: [
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.OCLUSAL, ToothFaceEnum.DISTAL],
+        },
+      ],
+    },
+    {
+      number: 17,
+      treatments: [
+        {
+          name: TreatmentEnum.CARIES,
+          label: "Caries",
+          treatmentType: TreatmentTypeEnum.REQUIRED,
+          faces: [ToothFaceEnum.LINGUAL],
+        },
+      ],
+    },
+    {
+      number: 16,
+    },
+    {
+      number: 15,
+    },
+    {
+      number: 14,
+    },
+    {
+      number: 13,
+    },
+    {
+      number: 12,
+    },
+    {
+      number: 11,
+    },
+  ],
+  upperTeethRight: [
+    {
+      number: 21,
+    },
+    {
+      number: 22,
+    },
+    {
+      number: 23,
+      treatments: [
+        {
+          name: TreatmentEnum.DIENTE_AUSENTE,
+          label: "Diente Ausente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+        },
+      ],
+    },
+    {
+      number: 24,
+    },
+    {
+      number: 25,
+    },
+    {
+      number: 26,
+    },
+    {
+      number: 27,
+    },
+    {
+      number: 28,
+    },
+  ],
+  lowerTeethLeft: [
+    {
+      number: 48,
+    },
+    { number: 47 },
+    { number: 46 },
+    { number: 45 },
+    { number: 44 },
+    { number: 43 },
+    { number: 42 },
+    { number: 41 },
+  ],
+  lowerTeethRight: [
+    {
+      number: 31,
+    },
+    {
+      number: 32,
+    },
+    {
+      number: 33,
+    },
+    {
+      number: 34,
+    },
+    {
+      number: 35,
+    },
+    {
+      number: 36,
+      treatments: [
+        {
+          name: TreatmentEnum.PUENTE,
+          label: "Puente",
+          treatmentType: TreatmentTypeEnum.EXISTING,
+          bridgeStart: 36,
+          bridgeEnd: 33,
+        },
+      ],
+    },
+    {
+      number: 37,
+    },
+    {
+      number: 38,
+    },
+  ],
+  temporaryUpperLeft: [
+    { number: 55 },
+    { number: 54 },
+    { number: 53 },
+    { number: 52 },
+    { number: 51 },
+  ],
+  temporaryUpperRight: [
+    { number: 61 },
+    { number: 62 },
+    { number: 63 },
+    { number: 64 },
+    { number: 65 },
+  ],
+  temporaryLowerLeft: [
+    { number: 85 },
+    { number: 84 },
+    { number: 83 },
+    { number: 82 },
+    { number: 81 },
+  ],
+  temporaryLowerRight: [
+    { number: 71 },
+    { number: 72 },
+    { number: 73 },
+    { number: 74 },
+    { number: 75 },
   ],
 };

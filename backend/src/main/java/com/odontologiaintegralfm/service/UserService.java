@@ -1,21 +1,29 @@
 package com.odontologiaintegralfm.service;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
+import com.odontologiaintegralfm.configuration.securityConfig.AuthenticatedUserService;
 import com.odontologiaintegralfm.dto.*;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.enums.LogType;
+import com.odontologiaintegralfm.enums.SystemParameterKey;
 import com.odontologiaintegralfm.exception.*;
-import com.odontologiaintegralfm.model.Role;
-import com.odontologiaintegralfm.model.UserSec;
+import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IUserRepository;
 import com.odontologiaintegralfm.service.interfaces.IEmailService;
-import com.odontologiaintegralfm.service.interfaces.IFailedLoginAttemptsService;
 import com.odontologiaintegralfm.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.service.interfaces.IUserService;
-import com.odontologiaintegralfm.utils.JwtUtils;
+import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,9 +47,9 @@ import java.util.stream.Collectors;
 
  * Métodos disponibles:
  * <ul>
- *   <li>{@link UserService#findAll()}: Recupera la lista de todos los usuarios del sistema.</li>
- *   <li>{@link UserService#findById(Long)}: Busca un usuario por su identificador único.</li>
- *   <li>{@link UserService#save(UserSecCreateDTO)}: Guarda un nuevo usuario en la base de datos.</li>
+ *   <li>{@link IUserService#getAll(int, int, String, String)}: Recupera la lista de todos los usuarios del sistema.</li>
+ *   <li>{@link IUserService#getById(Long)}: Busca un usuario por su identificador único.</li>
+ *   <li>{@link IUserService#create(UserSecCreateDTO)}: Guarda un nuevo usuario en la base de datos.</li>
  *   <li>{@link UserService#update(UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
  *   <li>{@link UserService#encriptPassword(String)}: Encripta una contraseña utilizando el algoritmo BCrypt.</li>
  *   <li>{@link UserService#createTokenResetPasswordForUser(String)}: Crea un token de restablecimiento de contraseña y envía un correo electrónico.</li>
@@ -85,11 +93,20 @@ public class UserService implements IUserService {
     private IMessageService messageService;
 
     @Autowired
-    private IFailedLoginAttemptsService failedLoginAttemptsService;
+    private DentistService dentistService;
+
+    @Autowired
+    private PersonService personService;
+
+    @Autowired
+    @Lazy
+    private AuthenticatedUserService authenticatedUserService;
+    @Autowired
+    private SystemParameterService systemParameterService;
 
 
     /**
-     * Recupera la lista de todos los usuarios del sistema.
+     * Recupera la lista de todos los usuarios del sistema EXCLUIDOS los desarrolladores.
      * <p>
      * Este método obtiene todos los usuarios desde el repositorio {@link IUserRepository},
      * los convierte a objetos {@link UserSecResponseDTO} y los retorna dentro de un objeto {@link Response}.
@@ -102,21 +119,52 @@ public class UserService implements IUserService {
      * @throws DataBaseException Si ocurre un error en la consulta a la base de datos.
      */
     @Override
-    public Response<List<UserSecResponseDTO>>findAll() {
-        try{
-            List<UserSec> userList = userRepository.findAll();
+    public Response<Page<UserSecResponseDTO>> getAll(int page, int size, String sortBy, String direction) {
+        try {
+            //Define criterio de ordenamiento
+            Sort sort = direction.equalsIgnoreCase("desc") ?
+                    Sort.by(sortBy).descending()
+                    : Sort.by(sortBy).ascending();
 
-            List<UserSecResponseDTO> userSecResponseDTOList = new ArrayList<>();
-            for(UserSec userSec : userList) {
-                userSecResponseDTOList.add(convertToDTO(userSec));
+            //Se define paginación con n°página, cantidad elementos y ordenamiento.
+            Pageable pageable = PageRequest.of(page, size, sort);
+
+            //Obtiene listado de usuarios.
+            Page<UserSec> userList = userRepository.findAllExcludingDevelopers(1L, pageable);
+
+            if (!userList.isEmpty()) {
+                Page<UserSecResponseDTO> userSecResponseDTOList = userList
+                        .map(user -> {
+                            PersonResponseDTO personDTO = personService.convertToDTO(personService.getById(user.getPerson().getId()));
+
+                            Optional<Dentist> dentist = dentistService.getById(user.getPerson().getId());
+
+                            DentistResponseDTO dentistDTO = null;
+                            if (dentist.isPresent()) {
+                                dentistDTO = dentistService.convertToDTO(dentist.get());
+                            }
+                            return new UserSecResponseDTO(
+                                    user.getId(),
+                                    user.getUsername(),
+                                    user.getRolesList(),
+                                    user.isEnabled(),
+                                    personDTO,
+                                    dentistDTO
+                            );
+                        });
+
+                String messageUser = messageService.getMessage("userService.getAll.ok.user", null, LocaleContextHolder.getLocale());
+                return new Response<>(true, messageUser, userSecResponseDTOList);
+
             }
-            String messageUser = messageService.getMessage("userService.findAll.ok", null, LocaleContextHolder.getLocale());
-            return new Response<>(true, messageUser, userSecResponseDTOList);
 
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", 0L, "", "findAll");
+            String messageUser = messageService.getMessage("userService.getAll.empty.user", null, LocaleContextHolder.getLocale());
+            return new Response<>(true, messageUser, null);
+        } catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "userService", 0L, "", "getAll");
         }
     }
+
 
 
 
@@ -126,7 +174,7 @@ public class UserService implements IUserService {
      * <p>
      * Este método consulta la base de datos para obtener un usuario con el ID proporcionado.
      * Si el usuario es encontrado, se convierte en un objeto {@link UserSecResponseDTO} y se devuelve dentro
-     * de un objeto {@link Response}. Si no se encuentra, se lanza una excepción {@link UserNotFoundException}.
+     * de un objeto {@link Response}. Si no se encuentra, se lanza una excepción {@link NotFoundException}.
      * </p>
      * <p>
      * En caso de error en la consulta a la base de datos, se lanza una excepción {@link DataBaseException}.
@@ -134,34 +182,96 @@ public class UserService implements IUserService {
      *
      * @param id Identificador único del usuario a buscar.
      * @return Un objeto {@link Response} que contiene los datos del usuario encontrado.
-     * @throws UserNotFoundException Si no se encuentra un usuario con el ID proporcionado.
+     * @throws NotFoundException Si no se encuentra un usuario con el ID proporcionado.
      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
      */
     @Override
-    public Response<UserSecResponseDTO> findById (Long id) {
+    public Response<UserSecResponseDTO> getById(Long id) {
         try{
              Optional<UserSec> user = userRepository.findById(id);
              if(user.isPresent()){
-                 UserSecResponseDTO dto = convertToDTO(user.get());
+                 PersonResponseDTO personDTO = null;
+                 DentistResponseDTO dentistDTO = null;
 
-                 String messageUser = messageService.getMessage("userService.findById.ok.user", null, LocaleContextHolder.getLocale());
+                 if (user.get().getPerson() != null) {
+                     personDTO = personService.convertToDTO(personService.getById(user.get().getPerson().getId()));
 
-                 return new Response<>(true, messageUser, dto);
+
+                     Optional<Dentist> dentist = dentistService.getById(user.get().getPerson().getId());
+                     if(dentist.isPresent()){
+                         dentistDTO = dentistService.convertToDTO(dentist.get());
+                     }
+
+
+                 }
+
+                   UserSecResponseDTO userSecResponseDTO = new UserSecResponseDTO(
+                         user.get().getId(),
+                         user.get().getUsername(),
+                         user.get().getRolesList(),
+                         user.get().isEnabled(),
+                         personDTO,
+                         dentistDTO
+                 );
+
+                 String messageUser = messageService.getMessage("userService.getById.ok.user", null, LocaleContextHolder.getLocale());
+
+                 return new Response<>(true, messageUser, userSecResponseDTO);
              }else{
-                 throw new UserNotFoundException("","UserService", "FindById", id);
+                 throw new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{id,"UserService", "getById"}, LogLevel.ERROR );
              }
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", id, "", "findById");
+            throw new DataBaseException(e, "userService", id, "", "getById");
         }
     }
+
+    /**
+     * Obtiene un usuario por su ID.
+     *
+     * @param id El ID del usuario a recuperar.
+     * @return La entidad recuperada
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public UserSec getByIdInternal(Long id) {
+        try {
+            return userRepository.findByIdAndEnabledTrue(id).orElseThrow(() -> new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log",new Object[]{id,"UserService", "getByIdInternal"}, LogLevel.ERROR ));
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "userService", id, "", "getByIdInternal");
+        }
+    }
+
+    /**
+     * Realiza baja lógica de un usuario, con todos las entidades relacionadas (ej: Archivos adjuntos)
+     *
+     * @param
+     * @return
+     */
+    /*
+    @Override
+    public UserSecResponseDTO disableById(Long id) {
+        try{
+            //Valída que exista el usuario.
+
+            //Valída que no tenga turnos próximos.
+
+            // NO ELIMINAR ODONTOGRAMA
+
+
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "userService", id, null, "disableById");
+        }
+    }
+
+     */
 
     @Override
     public UserSec getByUsername(String username) {
         try {
-            return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UserNotFoundException("", "UserService", "findByUsername", 0L));
-
+            return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new NotFoundException("userService.getByUsername.error.user", null, "userService.getByUsername.error.log",new Object[]{username,"UserService", "getByUsername"}, LogLevel.ERROR ));
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", 0L, "", "findByUsername");
+            throw new DataBaseException(e, "userService", 0L, "", "getByUsername");
         }
     }
 
@@ -170,59 +280,101 @@ public class UserService implements IUserService {
 
 
     /**
-     * Guarda un nuevo usuario en la base de datos.
+     * Guarda un nuevo usuario en la base de datos junto con su información personal y, si corresponde, como dentista.
      * <p>
      * Este método realiza varias validaciones antes de persistir el usuario:
      * <ul>
      *     <li>Verifica que el nombre de usuario no exista previamente en la base de datos.</li>
+     *     <li>Valida que no se asigne un rol de desarrollador (DEV) al nuevo usuario.</li>
      *     <li>Valida que las contraseñas ingresadas coincidan.</li>
-     *     <li>Construye el objeto {@link UserSec} a partir del DTO recibido.</li>
-     *     <li>Asigna los roles correspondientes al usuario.</li>
+     *     <li>Construye el objeto {@link UserSec} a partir del DTO recibido y lo persiste.</li>
      * </ul>
      * </p>
+     *
      * <p>
-     * Una vez realizadas las validaciones y asignaciones, se guarda el usuario en la base de datos.
-     * Si la operación es exitosa, se devuelve un {@link Response} conteniendo el usuario guardado en formato DTO.
-     * En caso de error en la transacción, se lanza una {@link DataBaseException}.
+     * Posteriormente, se realiza la creación de una entidad {@link Person} asociada al usuario:
+     * <ul>
+     *     <li>La persona es obligatoria y se crea mediante el {@link PersonService}.</li>
+     *     <li>La persona puede representar a una secretaria o un dentista, dependiendo del DTO recibido.</li>
+     * </ul>
      * </p>
      *
-     * @param userSecCreateDto Objeto {@link UserSecCreateDTO} con la información del usuario a guardar.
-     * @return Un {@link Response} con los datos del usuario guardado.
+     * <p>
+     * Si se incluye un {@link DentistCreateRequestDTO}, se crea también un {@link Dentist} asociado a la persona.
+     * </p>
+     *
+     * <p>
+     * Si la operación es exitosa, se devuelve un {@link Response} conteniendo el usuario guardado, junto con los datos de persona y dentista (si aplica), en formato {@link UserSecResponseDTO}.
+     * En caso de error en la transacción, se lanza una {@link DataBaseException}.
+     * Si no se proporciona información de persona, se lanza una {@link ConflictException}.
+     * </p>
+     *
+     * @param userSecCreateDto Objeto {@link UserSecCreateDTO} con la información del usuario, persona y dentista (opcional) a guardar.
+     * @return Un {@link Response} con los datos del usuario guardado, incluyendo la persona y el dentista si corresponde.
      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
+     * @throws ConflictException Si no se puede crear la persona asociada al usuario.
      */
+
     @Override
     @Transactional
-    public Response<UserSecResponseDTO>save(UserSecCreateDTO userSecCreateDto) {
-
-        //Valída que el usuario no exista en la base de datos.
-        validateUsername(userSecCreateDto.getUsername());
-
-        //Valida que no se asigne un rol DEV al nuevo usuario.
-        validateNotDevRole(userSecCreateDto);
-
-        //Valída que las pass sean coincidentes.
-        validatePasswords(userSecCreateDto.getPassword1(), userSecCreateDto.getPassword2(), userSecCreateDto.getUsername());
-
-        //Construye objeto model
-        UserSec userSec = buildUserSec(userSecCreateDto);
-
-        //Asigna Roles.
-        userSec.setRolesList(getRolesForUser(userSecCreateDto.getRolesList()));
-
+    @LogAction(
+            value ="userService.systemLogService.create",
+            args = {"#result.data.id", "#result.data.username"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
+    public Response<UserSecResponseDTO> create(UserSecCreateDTO userSecCreateDto) {
         try{
-            //Guarda el objeto en la base de datos.
+            //Valída que el usuario no exista en la base de datos.
+            validateUsername(userSecCreateDto.getUsername());
+
+            //Valida que no se asigne un rol DEV al nuevo usuario.
+            validateNotDevRole(userSecCreateDto);
+
+            //Valída que las pass sean coincidentes.
+            validatePasswords(userSecCreateDto.getPassword1(), userSecCreateDto.getPassword2(), userSecCreateDto.getUsername());
+
+            //Construye la entidad para persistirla.
+            UserSec userSec = buildUserSec(userSecCreateDto);
+
+            //Guarda el usuario en la base de datos.
             UserSec userSecSaved = userRepository.save(userSec);
 
-            //Conviente la entidad a un DTO
-            UserSecResponseDTO UserSecResponse = convertToDTO(userSecSaved);
+            //Setea valores del UserSec persistido en la respuesta.
+            UserSecResponseDTO userSecResponse = new UserSecResponseDTO();
+            userSecResponse.setId(userSecSaved.getId());
+            userSecResponse.setUsername(userSecSaved.getUsername());
+            userSecResponse.setRolesList(userSecSaved.getRolesList());
+            userSecResponse.setEnabled(userSecSaved.isEnabled());
 
             //Se construye Mensaje para usuario.
             String userMessage = messageService.getMessage("userService.save.ok", null, LocaleContextHolder.getLocale());
-            return new Response<>(true, userMessage,UserSecResponse);
 
+            Person person;
+
+            //Creación de la Persona (Puede ser Secretaría o Dentista)
+            if(userSecCreateDto.getPerson() != null) {
+                person = personService.create(userSecCreateDto.getPerson());
+                PersonResponseDTO personResponseDTO = personService.convertToDTO(person);
+                userSec.setPerson(person);
+
+                //Se agrega PersonaDTO a la respuesta final
+                userSecResponse.setPerson(personResponseDTO);
+
+                //Creación de Dentista
+                if(userSecCreateDto.getDentist() != null) {
+                    Dentist dentist = dentistService.create(person,userSecCreateDto.getDentist());
+                    DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist);
+
+                    //Se agrega DentistaDTO  a la respuesta final
+                    userSecResponse.setDentist(dentistResponseDTO);
+                }
+            }
+
+            return new Response<>(true, userMessage,userSecResponse);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", userSec.getId(), userSec.getUsername(), "save");
+            throw new DataBaseException(e, "userService", null, userSecCreateDto.getUsername(), "create");
         }
     }
 
@@ -239,17 +391,23 @@ public class UserService implements IUserService {
      *
      * @param userSecUpdateDto DTO que contiene los datos actualizados del usuario.
      * @return {@link Response} que contiene el {@link UserSecResponseDTO} con los datos actualizados.
-     * @throws UserNotFoundException Si el usuario a actualizar no se encuentra en la base de datos.
-     * @throws UserUpdateException Si ocurre un error durante la actualización.
+     * @throws NotFoundException  Si el usuario a actualizar no se encuentra en la base de datos.
+     * @throws ConflictException  Si ocurre un error durante la actualización.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos.
      */
     @Transactional
     @Override
+    @LogAction(
+            value ="userService.systemLogService.update",
+            args = {"#result.data.id", "#result.data.username"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
     public Response<UserSecResponseDTO> update(UserSecUpdateDTO userSecUpdateDto) {
         try {
             //Se obtiene el usuario desde la base de datos para realizar validaciones
             UserSec userSec = userRepository.findById(userSecUpdateDto.getId())
-                    .orElseThrow(() -> new UserNotFoundException("", "UserService", "Update", userSecUpdateDto.getId()));
+                    .orElseThrow(() -> new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{userSecUpdateDto.getId(), "UserService", "Update"},LogLevel.ERROR));
 
             //Valída que el ID del UserSecUpdate no sea el mismo de quien está autenticado y recibe el usuario de la BD.
             validateSelfUpdate(userSecUpdateDto.getId());
@@ -257,8 +415,10 @@ public class UserService implements IUserService {
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
             validateNotDevRole(userSec, userSecUpdateDto);
 
-            //Valída cambio que haya al menos una actualización de datos.
-            validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
+            //Valída que haya al menos una actualización de datos de usuario (No persona)
+            if(userSecUpdateDto.getPerson() == null) {
+                validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
+            }
 
             //Actualiza datos en el UserSec
             UserSec userSecAux = updateUserSec(userSec, userSecUpdateDto);
@@ -267,12 +427,38 @@ public class UserService implements IUserService {
             UserSec userSaved = userRepository.save(userSecAux);
 
             //Convierte la entidad a un DTO.
-            UserSecResponseDTO UserSecResponse = convertToDTO(userSaved);
+            UserSecResponseDTO userSecResponse = convertToDTO(userSaved);
 
             //Se construye Mensaje para usuario.
             String userMessage = messageService.getMessage("userService.update.ok", null, LocaleContextHolder.getLocale());
 
-            return new Response<>(true, userMessage, UserSecResponse);
+            //Actualizar datos de la Persona.
+            if(userSecUpdateDto.getPerson() != null) {
+                Person person = personService.getById(userSecUpdateDto.getPerson().id());
+                person = personService.update(person,userSecUpdateDto.getPerson());
+
+                userSec.setPerson(person);
+                PersonResponseDTO personResponseDTO = personService.convertToDTO(person);
+
+                //Se agrega PersonaDTO a la respuesta final
+                userSecResponse.setPerson(personResponseDTO);
+
+                // Verifica si se actualizan datos de Dentista.
+                if(userSecUpdateDto.getDentist() != null) {
+                    Optional <Dentist> dentist = dentistService.getById(userSecUpdateDto.getPerson().id());
+                    dentist = Optional.ofNullable(dentistService.update(dentist.get(), userSecUpdateDto.getDentist()));
+
+                    DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist.get());
+
+                    //Se agrega DentistResponseDTO a la respuesta final
+                    userSecResponse.setDentist(dentistResponseDTO);
+                }
+
+            }
+
+
+
+            return new Response<>(true, userMessage, userSecResponse);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", userSecUpdateDto.getId(), "", "Update");
@@ -307,7 +493,7 @@ public class UserService implements IUserService {
      *
      * @param email El correo electrónico (nombre de usuario) del usuario que solicita el restablecimiento de contraseña.
      * @return Un mensaje indicando si el proceso de creación del token fue exitoso.
-     * @throws UserNameNotFoundException Si no se encuentra un usuario con el correo electrónico proporcionado.
+     * @throws UnauthorizedException  Si no se encuentra un usuario con el correo electrónico proporcionado.
      * @throws DataBaseException Si ocurre un error en la base de datos durante el proceso.
      */
     @Override
@@ -316,14 +502,14 @@ public class UserService implements IUserService {
         try {
             Optional<UserSec> userOptional = userRepository.findUserEntityByUsername(email);
             if (userOptional.isEmpty()) {
-                throw new UserNameNotFoundException(email);
+                throw new UnauthorizedException("exception.usernameNotFound.user",null,"exception.usernameNotFound.log",new Object[]{email,"UserService", "validateToken"},LogLevel.ERROR);
             }
 
             UserSec user = userOptional.get();
 
             // Crear los authorities manualmente desde el usuario
             List<GrantedAuthority> authorities = user.getRolesList().stream()
-                    .map(role -> new SimpleGrantedAuthority(role.getRole()))
+                    .map(role -> new SimpleGrantedAuthority(role.getName()))
                     .collect(Collectors.toList());
 
 
@@ -437,7 +623,7 @@ public class UserService implements IUserService {
      */
     protected boolean verifyAttempts(String username){
         try{
-            int configAttempts = failedLoginAttemptsService.get();
+            int configAttempts = Integer.parseInt(systemParameterService.getByKey(SystemParameterKey.FAILED_LOGIN_ATTEMPTS));
             int userAttempts = userRepository.findFailedLoginAttemptsByUsername(username);
             if(userAttempts >= configAttempts){
                 return false;
@@ -459,7 +645,7 @@ public class UserService implements IUserService {
      *
      * @param username El nombre de usuario cuya cuenta será bloqueada.
      * @return El objeto {@link UserSec} con la cuenta bloqueada.
-     * @throws UserNameNotFoundException Si el usuario no existe en la base de datos.
+     * @throws UnauthorizedException  Si el usuario no existe en la base de datos.
      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
      */
     @Transactional
@@ -468,7 +654,7 @@ public class UserService implements IUserService {
         try{
             Optional<UserSec>userSec = userRepository.findUserEntityByUsername(username);
             if(userSec.isEmpty()){
-                throw new UserNameNotFoundException(username);
+                throw new UnauthorizedException("exception.usernameNotFound.user", null, "exception.usernameNotFound.log",new Object[]{username,"UserService", "blockAccount"}, LogLevel.ERROR);
             }
 
             //Obtener id Usuario para exception
@@ -477,7 +663,7 @@ public class UserService implements IUserService {
             UserSec user = userSec.get();
             user.setAccountNotLocked(false);
             user.setLocktime(LocalDateTime.now());
-            user.setLastUpdateDateTime(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now());
             return userRepository.save(user);
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService",userId, username, "blockAccount");
@@ -502,7 +688,7 @@ public class UserService implements IUserService {
             user.setAccountNotLocked(true);
             user.setFailedLoginAttempts(0);
             user.setLocktime(null);
-            user.setLastUpdateDateTime(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService",user.getId(), user.getUsername(), "blockAccount");
@@ -528,7 +714,7 @@ public class UserService implements IUserService {
         if(userSec.isPresent()) {
             UserSec userSecOK = userSec.get();
             userSecOK.setFailedLoginAttempts(userSecOK.getFailedLoginAttempts() + 1);
-            userSecOK.setLastUpdateDateTime(LocalDateTime.now());
+            userSecOK.setUpdatedAt(LocalDateTime.now());
             try {
                 userRepository.save(userSecOK);
             }catch (DataAccessException | CannotCreateTransactionException e) {
@@ -554,7 +740,7 @@ public class UserService implements IUserService {
         if(userSec.isPresent()) {
             UserSec userSecOK = userSec.get();
             userSecOK.setFailedLoginAttempts(0);
-            userSecOK.setLastUpdateDateTime(LocalDateTime.now());
+            userSecOK.setUpdatedAt(LocalDateTime.now());
             try{
                 userRepository.save(userSecOK);
             }catch (DataAccessException | CannotCreateTransactionException e) {
@@ -569,11 +755,11 @@ public class UserService implements IUserService {
      * Verifica si la cuenta de un usuario está habilitada en el sistema.
      * <p>
      * Si el usuario existe en la base de datos, se comprueba si su cuenta está habilitada.
-     * En caso de que no lo esté, se lanza una excepción {@code UserNameNotFoundException}.
+     * En caso de que no lo esté, se lanza una excepción {@code UnauthorizedException}.
      * </p>
      *
      * @param username El nombre de usuario cuya cuenta se desea verificar.
-     * @throws UserNameNotFoundException Si la cuenta del usuario no está habilitada.
+     * @throws UnauthorizedException Si la cuenta del usuario no está habilitada.
      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
      */
     protected void enableAccount(String username){
@@ -584,7 +770,7 @@ public class UserService implements IUserService {
                 UserSec userSecOK = userSec.get();
                 id = userSecOK.getId();
                 if(!userSecOK.isEnabled()) {
-                    throw new UserNameNotFoundException(username);
+                    throw new UnauthorizedException("exception.usernameNotFound.user", null, "exception.usernameNotFound.log",new Object[]{username,"UserService", "enableAccount"}, LogLevel.ERROR);
                 }
             }
         }catch(DataAccessException | CannotCreateTransactionException e) {
@@ -600,12 +786,11 @@ public class UserService implements IUserService {
      * Valída que no se pueda crear un nuevo usuario con el rol "DEV".
      * <p>
      * Este método recorre la lista de roles del usuario y verifica si alguno de ellos
-     * corresponde al rol "DEV". Si es así, se lanza una {@link UserSaveNotDevRoleException}.
+     * corresponde al rol "DEV". Si es así, se lanza una {@link ConflictException}.
      * </p>
      *
      * @param userSecCreateDto DTO que contiene la lista de roles del usuario.
-     * @throws RoleNotFoundException Si alguno de los roles asociados no se encuentra en la base de datos.
-     * @throws UserSaveNotDevRoleException Si se intenta asignar el rol "DEV" al usuario.
+     * @throws ConflictException Si se intenta asignar el rol "DEV" al usuario.
      */
     private void validateNotDevRole(UserSecCreateDTO userSecCreateDto) {
         //Obtener los roles mediante el ID del DTO
@@ -613,8 +798,8 @@ public class UserService implements IUserService {
             Role role = roleService.getByIdInternal(id);
 
             //Valída que la creación no sea a un rol DEV
-            if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
-                throw new UserSaveNotDevRoleException("", "UserService", "validateNotDevRole", role.getId());
+            if (role.getName().equals("Developer") || role.getName().equals("DEVELOPER")) {
+                throw new ConflictException("exception.save.validateNotDevRole.user", null,"exception.save.validateNotDevRole.log",new Object[]{role.getId(),"UserService", "validateNotDevRole"},LogLevel.ERROR);
             }
         }
     }
@@ -623,12 +808,12 @@ public class UserService implements IUserService {
      * Valida que el usuario autenticado no intente actualizar sus propios datos.
      * <p>
      * Este método compara el ID del usuario autenticado con el ID proporcionado en la solicitud de actualización.
-     * Si ambos IDs coinciden, se lanza una excepción {@link UserUpdateSelfUpdateException}.
+     * Si ambos IDs coinciden, se lanza una excepción {@link ConflictException}.
      * </p>
      *
      * @param id ID del usuario cuyo dato se está intentando actualizar.
-     * @throws UserNotFoundException Si no se encuentra al usuario autenticado en la base de datos.
-     * @throws UserUpdateSelfUpdateException Si el usuario autenticado intenta actualizar sus propios datos.
+     * @throws NotFoundException  Si no se encuentra al usuario autenticado en la base de datos.
+     * @throws ConflictException Si el usuario autenticado intenta actualizar sus propios datos.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos.
      */
     private void validateSelfUpdate(Long id) {
@@ -644,11 +829,11 @@ public class UserService implements IUserService {
            }
 
            //Obtener el ID del usuario autenticado.
-           UserSec userSec = userRepository.findUserEntityByUsername(authenticatedUsername).orElseThrow(() -> new UserNotFoundException("", "UserService", "validateSelfUpdate", 0L));
+           UserSec userSec = userRepository.findUserEntityByUsername(authenticatedUsername).orElseThrow(() -> new NotFoundException("userService.getById.error.user",null,"userService.getById.error.log",new Object[]{authenticatedUsername,"UserService", "validateSelfUpdate"},LogLevel.ERROR));
 
            //Comparar el ID del usuario autenticado con el ID de la solicitud.
            if (userSec.getId().equals(id)) {
-               throw new UserUpdateSelfUpdateException("", "UserService", "validateSelfUpdate", id);
+               throw new ConflictException("exception.validateSelfUpdate.user",null,"exception.validateSelfUpdate.log",new Object[]{id,"UserService", "validateSelfUpdate"},LogLevel.INFO);
            }
        } catch (DataAccessException | CannotCreateTransactionException e) {
            throw new DataBaseException(e, "userService", id, "", "validateSelfUpdate");
@@ -661,19 +846,18 @@ public class UserService implements IUserService {
      * <p>
      * Este método primero valida que el usuario que se está actualizando no tenga el rol "DEV" en su lista de roles.
      * Luego, revisa si los roles que se están intentando asignar al usuario incluyen el rol "DEV". Si alguno de estos roles
-     * es "DEV", se lanza una excepción {@link UserUpdateNotDevRoleException}.
+     * es "DEV", se lanza una excepción {@link ConflictException}.
      * </p>
      *
      * @param userSec Objeto que representa el usuario actual con sus roles.
      * @param userSecUpdateDto DTO que contiene los roles que se quieren asignar al usuario.
-     * @throws UserUpdateNotDevRoleException Si el usuario tiene el rol "DEV" o se intenta asignar el rol "DEV".
-     * @throws RoleNotFoundException Si alguno de los roles proporcionados en el DTO no se encuentra en la base de datos.
+     * @throws ConflictException  Si el usuario tiene el rol "DEV" o se intenta asignar el rol "DEV".
      */
     private void validateNotDevRole(UserSec userSec, UserSecUpdateDTO userSecUpdateDto) {
         //Valída que no pueda realizar ningún tipo de actualización a un usuario de tipo DEV
         for (Role role : userSec.getRolesList()) {
-            if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
-                throw new UserUpdateNotDevRoleException("", "UserService", "validateNotDevRole", role.getId());
+            if (role.getName().equals("Developer") || role.getName().equals("DEVELOPER")) {
+                throw new ConflictException("exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",new Object[]{ role.getId(),"UserService", "validateNotDevRole"},LogLevel.INFO);
             }
         }
 
@@ -688,24 +872,24 @@ public class UserService implements IUserService {
             Role role = roleService.getByIdInternal(id);
 
             //Valída que la actualización no sea a un rol DEV
-            if (role.getRole().equals("Dev") || role.getRole().equals("DEV")) {
-                throw new UserUpdateNotDevRoleException("", "UserService", "validateNotDevRole", role.getId());
+            if (role.getName().equals("Dev") || role.getName().equals("DEV")) {
+                throw new ConflictException("exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",new Object[]{ role.getId(),"UserService", "validateNotDevRole"},LogLevel.INFO);
             }
         }
     }
 
 
     /**
-     * Valída que no se intente realizar una actualización que no cambie el estado de la cuenta del usuario y la lista de roles.
+     * Valída que no se intente realizar una actualización que no cambie el estado del usuario (habilitado / deshabilitado) y la lista de roles.
      * <p>
      * Este método compara el estado de la cuenta actual del usuario (habilitado o deshabilitado) con el estado que se quiere
-     * asignar en el DTO de actualización. A su vez, compara la lista de roles actuales con la que recibe mediante el DTO. Si no hay modificaciones, se lanza una excepción {@link UserUpdateException}.
+     * asignar en el DTO de actualización. A su vez, compara la lista de roles actuales con la que recibe mediante el DTO. Si no hay modificaciones, se lanza una excepción {@link ConflictException}.
      * </p>
      *
      * @param userSec Objeto que representa al usuario con su estado actual de cuenta.
      * @param userSecUpdateDto DTO que contiene el nuevo estado de la cuenta.
      * @param roleList Lista de roles del usuario obtenida desde la base de datos.
-     * @throws UserUpdateException Si el estado de la cuenta no cambia (es igual al actual).
+     * @throws ConflictException  Si el estado de la cuenta no cambia (es igual al actual).
      */
     private void validateUpdate (UserSec userSec, UserSecUpdateDTO userSecUpdateDto,Set<Role>roleList){
         boolean validateAccount = false;
@@ -736,7 +920,7 @@ public class UserService implements IUserService {
         }
 
         if(validateAccount && validateRole){
-            throw new UserUpdateException("", "UserService", "validateUpdate", userSec.getId());
+            throw new ConflictException("exception.validateUpdateUser.user",null,"exception.validateUpdateUser.log",new Object[]{userSec.getId(),"UserService","validateUpdate"},LogLevel.ERROR);
         }
 
 
@@ -751,19 +935,18 @@ public class UserService implements IUserService {
      * Actualiza los datos del usuario con la información proporcionada en el DTO de actualización.
      * <p>
      * Este método actualiza el estado de habilitación del usuario y agrega los roles nuevos desde el DTO a la lista de roles
-     * del usuario. Si alguno de los roles proporcionados no se encuentra en la base de datos, se lanza una excepción {@link RoleNotFoundException}.
+     * del usuario. Si alguno de los roles proporcionados no se encuentra en la base de datos, se lanza una excepción {@link NotFoundException}.
      * </p>
      *
      * @param userSec Objeto que representa al usuario a ser actualizado.
      * @param userSecUpdateDTO DTO que contiene la información para actualizar al usuario.
      * @return El objeto {@link UserSec} actualizado con los nuevos valores.
-     * @throws RoleNotFoundException Si alguno de los roles proporcionados en el DTO no se encuentra en la base de datos.
+     * @throws NotFoundException Si alguno de los roles proporcionados en el DTO no se encuentra en la base de datos.
      */
     private UserSec updateUserSec(UserSec userSec, UserSecUpdateDTO userSecUpdateDTO){
         if(userSecUpdateDTO.getEnabled() != null){
             userSec.setEnabled(userSecUpdateDTO.getEnabled());
         }
-
 
         //Obtener los roles mediante el ID del DTO
         Set<Role> roleList = new HashSet<>();
@@ -776,6 +959,10 @@ public class UserService implements IUserService {
             userSec.getRolesList().clear();
             userSec.getRolesList().addAll(roleList);
         }
+
+        userSec.setUpdatedAt(LocalDateTime.now());
+        userSec.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+
         return userSec;
     }
 
@@ -786,42 +973,22 @@ public class UserService implements IUserService {
      * Valída que el nombre de usuario no exista en la base de datos.
      * <p>
      * Este método verifica si el nombre de usuario proporcionado ya está registrado en la base de datos.
-     * Si el nombre de usuario existe, lanza una {@link UserNameExistingException}.
+     * Si el nombre de usuario existe, lanza una {@link ConflictException}.
      * </p>
      *
      * @param username El nombre de usuario a verificar.
-     * @throws UserNameExistingException Si el nombre de usuario ya existe en la base de datos.
+     * @throws ConflictException Si el nombre de usuario ya existe en la base de datos.
      */
     private void validateUsername(String username) {
         Optional<UserSec>user = userRepository.findUserEntityByUsername(username);
         if(user.isPresent()){
             UserSec userSec = user.get();
             if(userSec.getUsername().equals(username)) {
-                throw new UserNameExistingException(username, "UserService", "Save");
+                throw new ConflictException("exception.usernameExisting.user",new Object[]{username}, "exception.usernameExisting.log",new Object[]{username,"UserService", "Save"},LogLevel.ERROR);
             }
         }
     }
 
-
-
-    /**
-     * Convierte una entidad {@link UserSec} a un objeto {@link UserSecResponseDTO}.
-     * <p>
-     * Este método toma una entidad {@link UserSec} y la convierte en un objeto DTO ({@link UserSecResponseDTO}),
-     * copiando sus propiedades principales como el ID, el nombre de usuario y la lista de roles.
-     * </p>
-     *
-     * @param userSec La entidad {@link UserSec} que se va a convertir.
-     * @return Un objeto {@link UserSecResponseDTO} que contiene los datos de la entidad {@link UserSec}.
-     */
-    private UserSecResponseDTO convertToDTO(UserSec userSec) {
-        UserSecResponseDTO userSecResponseDTO = new UserSecResponseDTO();
-        userSecResponseDTO.setId(userSec.getId());
-        userSecResponseDTO.setUsername(userSec.getUsername());
-        userSecResponseDTO.setRolesList(userSec.getRolesList());
-        userSecResponseDTO.setEnabled(userSec.isEnabled());
-        return userSecResponseDTO;
-    }
 
 
 
@@ -836,7 +1003,7 @@ public class UserService implements IUserService {
      * </p>
      *
      * @param token El token de restablecimiento de contraseña que se desea validar.
-     * @throws TokenInvalidException Si el token no es válido o no pertenece al usuario correcto.
+     * @throws UnauthorizedException  Si el token no es válido o no pertenece al usuario correcto.
      * @throws DataBaseException Si ocurre un error al acceder a la base de datos.
      */
     private void validateTokenResetPassword(String token) {
@@ -845,7 +1012,7 @@ public class UserService implements IUserService {
             String username = jwtUtils.extractUsername(decodedJWT);
             UserSec usuario = userRepository.findByResetPasswordToken(token);
             if(usuario == null || !usuario.getUsername().equals(username)){
-                throw new TokenInvalidException("",usuario.getUsername());
+                throw new UnauthorizedException("exception.validateToken.user",null,"exception.validateToken.log",new Object[]{usuario.getUsername(),"UserService", "validateToken"},LogLevel.ERROR);
             }
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "validatePasswordReset");
@@ -866,11 +1033,11 @@ public class UserService implements IUserService {
      * @param password1 La primera contraseña ingresada.
      * @param password2 La segunda contraseña ingresada (confirmación).
      * @param username  El nombre de usuario asociado a la operación de cambio de contraseña.
-     * @throws PasswordMismatchException Si las contraseñas no coinciden.
+     * @throws ConflictException  Si las contraseñas no coinciden.
      */
     private void validatePasswords(String password1, String password2, String username) {
         if(!password1.equals(password2)){
-            throw new PasswordMismatchException(username);
+            throw new ConflictException("exception.passwordNotEquals.user",null,"exception.passwordNotEquals.log", new Object[]{username, "UserService","validatePasswords"},LogLevel.NONE);
         }
     }
 
@@ -879,12 +1046,11 @@ public class UserService implements IUserService {
      * Obtiene y valida los roles de un usuario a partir de una lista de roles proporcionada.
      * <p>
      * Recorre la lista de roles y busca cada uno en el servicio de roles. Si un rol no es encontrado,
-     * se lanza una excepción de tipo {@code RoleNotFoundUserCreationException}.
+     * se lanza una excepción de tipo {@code BadRequestException}.
      * </p>
      *
      * @param rolesList Conjunto de roles asociados al usuario.
      * @return Un conjunto de roles válidos obtenidos desde el servicio de roles.
-     * @throws RoleNotFoundUserCreationException Si alguno de los roles no existe en el sistema.
      */
     private Set<Role> getRolesForUser(Set<Long> rolesList) {
         Set<Role> validRoles = new HashSet<>();
@@ -893,6 +1059,29 @@ public class UserService implements IUserService {
             validRoles.add(foundRole);
         }
         return validRoles;
+    }
+
+
+
+    /**
+     * Convierte una entidad {@link UserSec} a un objeto {@link UserSecResponseDTO}.
+     * <p>
+     * Este método toma una entidad {@link UserSec} y la convierte en un objeto DTO ({@link UserSecResponseDTO}),
+     * copiando sus propiedades principales como el ID, el nombre de usuario y la lista de roles.
+     * </p>
+     *
+     * @param userSec La entidad {@link UserSec} que se va a convertir.
+     * @return Un objeto {@link UserSecResponseDTO} que contiene los datos de la entidad {@link UserSec}.
+     */
+    private UserSecResponseDTO convertToDTO(UserSec userSec) {
+        return new UserSecResponseDTO(
+                userSec.getId(),
+                userSec.getUsername(),
+                userSec.getRolesList(),
+                userSec.isEnabled(),
+                null,
+                null
+        );
     }
 
 
@@ -909,18 +1098,27 @@ public class UserService implements IUserService {
      * @return Un nuevo objeto {@code UserSec} con los valores especificados en el DTO.
      */
     private UserSec buildUserSec(UserSecCreateDTO userSecCreateDto) {
-        return UserSec.builder()
-                .username(userSecCreateDto.getUsername())
-                .password(encriptPassword(userSecCreateDto.getPassword1()))
-                .failedLoginAttempts(0)
-                .locktime(null)
-                .creationDateTime(LocalDateTime.now())
-                .lastUpdateDateTime(LocalDateTime.now())
-                .enabled(true)
-                .accountNotExpired(true)
-                .accountNotLocked(true)
-                .credentialNotExpired(true)
-                .build();
+        return new UserSec(
+                userSecCreateDto.getUsername(),
+                encriptPassword(userSecCreateDto.getPassword1()),
+                0, // failedLoginAttempts
+                null, // locktime
+                true, // accountNotExpired
+                true, // accountNotLocked
+                true, // credentialNotExpired
+                getRolesForUser(userSecCreateDto.getRolesList()),
+                null, // resetPasswordToken
+                null, //Person
+
+                // Campos heredados de Auditable
+                LocalDateTime.now(), // createdAt
+                authenticatedUserService.getAuthenticatedUser(), // createdBy
+                null, // updatedAt
+                null, // updatedBy
+                true, // enabled
+                null, // disabledAt
+                null  // disabledBy
+        );
     }
 }
 

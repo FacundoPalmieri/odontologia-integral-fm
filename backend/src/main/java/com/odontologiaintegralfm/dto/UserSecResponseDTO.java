@@ -1,15 +1,20 @@
 package com.odontologiaintegralfm.dto;
 
 import com.odontologiaintegralfm.model.Role;
-import lombok.Data;
-
+import lombok.*;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserSecResponseDTO {
 
     private Long id;
     private String username;
     private Set<Role> rolesList;
     private boolean enabled;
+
+    private PersonResponseDTO person;   //Optional
+    private DentistResponseDTO dentist; //Optional
 }

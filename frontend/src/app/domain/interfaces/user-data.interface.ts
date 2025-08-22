@@ -1,3 +1,4 @@
+import { PersonDtoInterface } from "../dto/person.dto";
 import { RoleInterface } from "./role.interface";
 
 export interface UserDataInterface {
@@ -6,4 +7,5 @@ export interface UserDataInterface {
   refreshToken: string;
   roles: RoleInterface[];
   username: string;
+  person: PersonDtoInterface;
 }

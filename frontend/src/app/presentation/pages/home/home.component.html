@@ -1,7 +1,7 @@
 <mat-drawer-container class="drawer-container" autosize>
   <mat-drawer #drawer class="sidenav" mode="side" opened>
     <div class="flex justify-center pt-2">
-      <img src="img/login-logo.jpg" alt="Logo" class="sidenav-logo" />
+      <img src="img/logo.jpg" alt="Logo" class="sidenav-logo" />
     </div>
 
     <mat-nav-list>
@@ -38,9 +38,10 @@
       </button>
       <h1>Odontología Integral FM</h1>
       <span class="spacer"></span>
-      <button mat-icon-button>
-        <i-tabler name="search"></i-tabler></button
-      ><button
+      <!-- <button mat-icon-button matBadge="4">
+        <i-tabler name="bell"></i-tabler>
+      </button> -->
+      <button
         mat-icon-button
         (click)="fullScreenService.toggleFullscreen()"
         matTooltip="Pantalla completa"
@@ -59,7 +60,11 @@
 
       <button mat-button [matMenuTriggerFor]="menu">
         <div class="flex items-center gap-1">
-          <img src="img/doctor-avatar.svg" alt="Avatar" class="avatar-icon" />
+          <img
+            [src]="avatar ? avatar : 'img/doctor-avatar.png'"
+            alt="Avatar"
+            class="avatar-icon"
+          />
           <i-tabler name="chevron-down"></i-tabler>
         </div>
       </button>
@@ -67,23 +72,33 @@
       <mat-menu #menu="matMenu">
         <div class="flex items-center p-4">
           <img
-            src="img/doctor-avatar.svg"
+            src="img/doctor-avatar.png"
             alt="Avatar"
             class="avatar-icon-menu"
           />
           <div class="ml-1 gap-3 overflow-hidden text-ellipsis">
-            <span class="text-lg">Nombre y Apellido</span>
+            <span class="text-lg"
+              >{{ userData?.person?.firstName }}
+              {{ userData?.person?.lastName }}</span
+            >
             <span> {{ userData?.username }} </span>
-            <span class="text-blue-500 uppercase"> {{ obtenerRole() }} </span>
+            <span class="text-blue-500 uppercase"> {{ getRoles() }} </span>
           </div>
         </div>
         <mat-divider class="custom-divider"></mat-divider>
         <button mat-menu-item>
           <div class="flex items-center">
             <i-tabler name="user-circle"></i-tabler>
-            <span class="ml-1">Mis datos</span>
+            <span class="ml-1">Mi cuenta</span>
           </div>
         </button>
+        <button mat-menu-item>
+          <div class="flex items-center">
+            <i-tabler name="settings"></i-tabler>
+            <span class="ml-1">Configuración</span>
+          </div>
+        </button>
+        <mat-divider class="custom-divider"></mat-divider>
         <button mat-menu-item (click)="logout()">
           <div class="flex items-center">
             <i-tabler name="logout-2"></i-tabler>

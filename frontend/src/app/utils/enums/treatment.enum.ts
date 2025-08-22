@@ -1,0 +1,17 @@
+export enum TreatmentEnum {
+  TRAT_DE_CONDUCTO = "TRAT_DE_CONDUCTO",
+  OBT_COMPOSITE = "OBT_COMPOSITE",
+  DIENTE_AUSENTE = "DIENTE_AUSENTE",
+  CORONA = "CORONA",
+  PUENTE = "PUENTE",
+  CARIES = "CARIES",
+  EXTRACCION = "EXTRACCION",
+  IMPLANTES = "IMPLANTES",
+  DUAL_TREATMENT = "DUAL_TREATMENT",
+}
+
+export enum TreatmentTypeEnum {
+  EXISTING = "existing",
+  REQUIRED = "required",
+  DONE = "DONE",
+}

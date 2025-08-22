@@ -1,0 +1,49 @@
+<div class="w-full flex items-center gap-4">
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Buscar paciente</mat-label>
+    <input
+      type="text"
+      placeholder="Buscar paciente"
+      aria-label="Buscar paciente"
+      matInput
+      [formControl]="patientSearchControl"
+      [matAutocomplete]="auto"
+    />
+    <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+    <mat-autocomplete
+      autoActiveFirstOption
+      #auto="matAutocomplete"
+      [displayWith]="displayFn"
+      (optionSelected)="onPatientSelected($event.option.value)"
+    >
+      @for(patient of filteredPatients | async; track $index){
+      <mat-option [value]="patient">
+        <div class="flex">
+          <div class="items-center justify-center">
+            <i-tabler name="user-square-rounded" class="mr-2"></i-tabler>
+          </div>
+          <div class="flex flex-col">
+            <span>
+              <b class="mb-1"
+                >{{ patient.person.firstName }} {{ patient.person.lastName }}</b
+              >
+            </span>
+            <span>
+              <small class="text-gray-500"> DNI {{ patient.person.dni }}</small>
+            </span>
+          </div>
+        </div>
+      </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+  <button
+    mat-icon-button
+    matTooltip="Crear paciente"
+    matTooltipPosition="above"
+    (click)="create()"
+    class="mb-5"
+  >
+    <i-tabler class="mb-1" name="plus"></i-tabler>
+  </button>
+</div>

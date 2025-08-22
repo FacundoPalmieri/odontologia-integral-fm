@@ -1,0 +1,595 @@
+<app-page-toolbar
+  [title]="'Crear usuario'"
+  [showBackButton]="true"
+  (back)="goBack()"
+></app-page-toolbar>
+
+<div class="pt-4">
+  <form [formGroup]="userForm" class="w-full">
+    <div class="grid grid-cols-1 gap-4">
+      <mat-card appearance="outlined" class="w-full">
+        <mat-card-header>
+          <mat-card-title> Datos del usuario </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="p-4">
+            <div class="flex flex-col">
+              <div class="flex flex-col md:flex-row gap-4">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="user-circle"></i-tabler>
+                    <span class="font-bold">Username (email)</span>
+                  </mat-label>
+                  <input matInput formControlName="username" />
+                  @if(userForm.get('username')?.hasError('required') &&
+                  userForm.get('username')?.touched){
+                  <mat-error>El username es requerido</mat-error>
+                  } @if(userForm.get('username')?.hasError('email') &&
+                  userForm.get('username')?.touched){
+                  <mat-error>El username debe ser un email válido</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="user-cog"></i-tabler>
+                    <span class="font-bold">Rol</span>
+                  </mat-label>
+                  <mat-select
+                    name="rolesSelect"
+                    formControlName="rolesList"
+                    multiple
+                    [compareWith]="compare"
+                  >
+                    @for(role of roles(); track $index){
+                    <mat-option [value]="role">{{ role.label }}</mat-option>
+                    }
+                  </mat-select>
+                  @if(userForm.get('rolesList')?.hasError('required') &&
+                  userForm.get('rolesList')?.touched){
+                  <mat-error>Campo requerido</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="flex flex-col md:flex-row gap-6">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="password"></i-tabler>
+                    <span class="font-bold">Contraseña</span>
+                  </mat-label>
+                  <input
+                    matInput
+                    [type]="hidePassword() ? 'password' : 'text'"
+                    formControlName="password1"
+                  />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    (click)="togglePasswordVisibility()"
+                    type="button"
+                  >
+                    <mat-icon>{{
+                      hidePassword() ? "visibility_off" : "visibility"
+                    }}</mat-icon>
+                  </button>
+                  @if(userForm.get('password1')?.hasError('required') &&
+                  userForm.get('password1')?.touched){
+                  <mat-error>Campo requerido</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label class="items-center flex gap-1">
+                    <i-tabler name="password"></i-tabler>
+                    <span class="font-bold">Confirmar contraseña</span>
+                  </mat-label>
+                  <input
+                    matInput
+                    [type]="hidePassword() ? 'password' : 'text'"
+                    formControlName="password2"
+                  />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    (click)="togglePasswordVisibility()"
+                    type="button"
+                  >
+                    <mat-icon>{{
+                      hidePassword() ? "visibility_off" : "visibility"
+                    }}</mat-icon>
+                  </button>
+                  @if(userForm.get('password2')?.hasError('required') &&
+                  userForm.get('password2')?.touched){
+                  <mat-error
+                    >La confirmación de contraseña es requerida</mat-error
+                  >
+                  }
+                  @if(userForm.get('password2')?.hasError('passwordsMismatch')){
+                  <mat-error>Las contraseñas no coinciden</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="w-full">
+        <mat-card-header>
+          <mat-card-title>Datos Personales</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="p-4">
+            <div class="flex flex-col">
+              <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex flex-col items-center justify-center">
+                  <div class="relative group">
+                    <div
+                      class="w-64 h-64 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden"
+                    >
+                      <img
+                        [src]="avatarUrl() ? avatarUrl() : 'img/men-avatar.png'"
+                        class="w-full h-full object-cover"
+                        alt="Avatar masculino por defecto"
+                      />
+                    </div>
+                    <div
+                      class="absolute inset-0 bg-black/80 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4 transition-opacity shadow-md"
+                    >
+                      <button mat-icon-button (click)="triggerFileInput()">
+                        <i-tabler name="edit" class="text-white"></i-tabler>
+                      </button>
+                    </div>
+                    <input
+                      #fileInput
+                      type="file"
+                      class="hidden"
+                      accept="image/*"
+                      (change)="onFileSelected($event)"
+                    />
+                  </div>
+                </div>
+
+                <div class="flex-1 flex flex-col" [formGroupName]="'person'">
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="user-circle"></i-tabler>
+                        <span class="font-bold">Nombre</span>
+                      </mat-label>
+                      <input type="text" matInput formControlName="firstName" />
+                      @if(userForm.get('person.firstName')?.hasError('required')
+                      && userForm.get('person.firstName')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('person.firstName')?.hasError('maxlength')){
+                      <mat-error>
+                        El nombre no puede superar los 30 caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="user-circle"></i-tabler>
+                        <span class="font-bold">Apellido</span>
+                      </mat-label>
+                      <input type="text" matInput formControlName="lastName" />
+                      @if(userForm.get('person.lastName')?.hasError('required')
+                      && userForm.get('person.lastName')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('person.lastName')?.hasError('maxlength')){
+                      <mat-error>
+                        El apellido no puede superar los 30 caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="id"></i-tabler>
+                        <span class="font-bold">Tipo doc.</span>
+                      </mat-label>
+                      <mat-select
+                        name="dniTypeSelect"
+                        formControlName="dniType"
+                        [compareWith]="compare"
+                      >
+                        @for(dniType of personDataservice.dniTypes(); track
+                        $index){
+                        <mat-option [value]="dniType">{{
+                          dniType.dni
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('person.dniType')?.hasError('required')
+                      && userForm.get('person.dniType')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="id"></i-tabler>
+                        <span class="font-bold">DNI</span>
+                      </mat-label>
+                      <input type="text" matInput formControlName="dni" />
+                      @if(userForm.get('person.dni')?.hasError('required') &&
+                      userForm.get('person.dni')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      } @if(userForm.get('person.dni')?.hasError('maxlength')){
+                      <mat-error>
+                        El valor del dni no puede superar los 30 caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label
+                        ><span class="font-bold"
+                          >Fecha de nacimiento</span
+                        ></mat-label
+                      >
+                      <input
+                        matInput
+                        [matDatepicker]="picker"
+                        [max]="maxDate"
+                        formControlName="birthDate"
+                      />
+                      <mat-datepicker-toggle
+                        matIconSuffix
+                        [for]="picker"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker touchUi #picker></mat-datepicker>
+                      @if(userForm.get('person.birthDate')?.hasError('required')
+                      && userForm.get('person.birthDate')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="gender-bigender"></i-tabler>
+                        <span class="font-bold">Género</span>
+                      </mat-label>
+                      <mat-select
+                        name="genderSelect"
+                        formControlName="gender"
+                        [compareWith]="compare"
+                      >
+                        @for(gender of personDataservice.genders(); track
+                        $index){
+                        <mat-option [value]="gender">{{
+                          gender.name
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('person.gender')?.hasError('required') &&
+                      userForm.get('person.gender')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="user-pin"></i-tabler>
+                        <span class="font-bold">Nacionalidad</span>
+                      </mat-label>
+                      <mat-select
+                        name="nationalitySelect"
+                        formControlName="nationality"
+                        [compareWith]="compare"
+                      >
+                        @for(nationality of personDataservice.nationalities();
+                        track $index){
+                        <mat-option [value]="nationality">{{
+                          nationality.name
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('person.nationality')?.hasError('required')
+                      && userForm.get('person.nationality')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4" [formGroupName]="'person'">
+                <h3 class="text-lg font-semibold mb-4">Datos de Contacto</h3>
+                <div class="flex flex-col">
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="mail"></i-tabler>
+                        <span class="font-bold">Email</span>
+                      </mat-label>
+                      <input
+                        type="mail"
+                        matInput
+                        formControlName="contactEmails"
+                      />
+                      @if(userForm.get('person.contactEmails')?.hasError('required')
+                      && userForm.get('person.contactEmails')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('person.contactEmails')?.hasError('contactEmails')
+                      && userForm.get('person.contactEmails')?.touched){
+                      <mat-error>El Email no es válido</mat-error>
+                      }
+                      @if(userForm.get('person.contactEmails')?.hasError('maxlength')){
+                      <mat-error>
+                        El email no puede tener más de 50 caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="phone"></i-tabler>
+                        <span class="font-bold">Tipo de Teléfono</span>
+                      </mat-label>
+                      <mat-select
+                        name="phoneTypesSelect"
+                        formControlName="phoneType"
+                        [compareWith]="compare"
+                      >
+                        @for(phoneType of personDataservice.phoneTypes(); track
+                        $index){
+                        <mat-option [value]="phoneType">{{
+                          phoneType.name
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('person.phoneType')?.hasError('required')
+                      && userForm.get('person.phoneType')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="phone"></i-tabler>
+                        <span class="font-bold">Nro. Teléfono</span>
+                      </mat-label>
+                      <input type="string" matInput formControlName="phone" />
+                      @if(userForm.get('person.phone')?.hasError('required') &&
+                      userForm.get('person.phone')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('person.phone')?.hasError('maxlength')){
+                      <mat-error>
+                        El número de teléfono no puede tener más de 20
+                        caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4" [formGroupName]="'person'">
+                <h3 class="text-lg font-semibold mb-4">Datos de Ubicación</h3>
+                <div class="flex flex-col">
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="map-2"></i-tabler>
+                        <span class="font-bold">País</span>
+                      </mat-label>
+                      <mat-select
+                        name="countrySelect"
+                        formControlName="country"
+                        [compareWith]="compare"
+                      >
+                        @for(country of personDataservice.countries(); track
+                        $index){
+                        <mat-option [value]="country">{{
+                          country.name
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('person.country')?.hasError('required')
+                      && userForm.get('person.country')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="map-2"></i-tabler>
+                        <span class="font-bold">Provincia</span>
+                      </mat-label>
+                      <mat-select
+                        name="provinceSelect"
+                        formControlName="province"
+                        [compareWith]="compare"
+                      >
+                        @for(province of provinces(); track $index){
+                        <mat-option [value]="province">{{
+                          province.name
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('person.province')?.hasError('required')
+                      && userForm.get('person.province')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="map-2"></i-tabler>
+                        <span class="font-bold">Localidad</span>
+                      </mat-label>
+                      <mat-select
+                        name="localitySelect"
+                        formControlName="locality"
+                        [compareWith]="compare"
+                      >
+                        @for(locality of localities(); track $index){
+                        <mat-option [value]="locality">{{
+                          locality.name
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('person.locality')?.hasError('required')
+                      && userForm.get('person.locality')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="map-pin"></i-tabler>
+                        <span class="font-bold">Calle</span>
+                      </mat-label>
+                      <input type="string" matInput formControlName="street" />
+                      @if(userForm.get('person.street')?.hasError('required') &&
+                      userForm.get('person.street')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('person.street')?.hasError('maxlength')){
+                      <mat-error>
+                        El nombre de la calle no puede tener más de 30
+                        caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="map-pin"></i-tabler>
+                        <span class="font-bold">Altura</span>
+                      </mat-label>
+                      <input type="number" matInput formControlName="number" />
+                      @if(userForm.get('person.number')?.hasError('required') &&
+                      userForm.get('person.number')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="building"></i-tabler>
+                        <span class="font-bold">Piso</span>
+                      </mat-label>
+                      <input type="number" matInput formControlName="floor" />
+                      @if(userForm.get('person.floor')?.hasError('min') ||
+                      userForm.get('person.floor')?.hasError('max')){
+                      <mat-error>
+                        El piso no puede tener más de 2 caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="building"></i-tabler>
+                        <span class="font-bold">Departamento</span>
+                      </mat-label>
+                      <input
+                        type="string"
+                        matInput
+                        formControlName="apartment"
+                      />
+                      @if(userForm.get('person.apartment')?.hasError('maxlength')){
+                      <mat-error>
+                        El departamento no puede tener más de 2 caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
+              @if(showProfessionalData()) {
+              <div class="mt-4" [formGroupName]="'dentist'">
+                <h3 class="text-lg font-semibold mb-4">
+                  Datos del profesional
+                </h3>
+                <div class="flex flex-col">
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="certificate"></i-tabler>
+                        <span class="font-bold">Número de Licencia</span>
+                      </mat-label>
+                      <input
+                        type="text"
+                        matInput
+                        formControlName="licenseNumber"
+                      />
+                      @if(userForm.get('dentist.licenseNumber')?.hasError('required')
+                      && userForm.get('dentist.licenseNumber')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                      @if(userForm.get('dentist.licenseNumber')?.hasError('maxlength')){
+                      <mat-error>
+                        El número de licencia no puede tener más de 30
+                        caracteres.
+                      </mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full !mb-0">
+                      <mat-label class="items-center flex gap-1">
+                        <i-tabler name="stethoscope"></i-tabler>
+                        <span class="font-bold">Especialidad</span>
+                      </mat-label>
+                      <mat-select
+                        name="dentistSpecialtySelect"
+                        formControlName="dentistSpecialty"
+                        [compareWith]="compare"
+                      >
+                        @for(dentistSpecialty of
+                        personDataservice.dentistSpecialties(); track $index){
+                        <mat-option [value]="dentistSpecialty">{{
+                          dentistSpecialty.name
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                      @if(userForm.get('dentist.dentistSpecialty')?.hasError('required')
+                      && userForm.get('dentist.dentistSpecialty')?.touched){
+                      <mat-error>Campo requerido</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+              }
+              <div class="flex justify-end">
+                <button
+                  mat-flat-button
+                  [disabled]="!userForm.valid"
+                  (click)="create()"
+                >
+                  <div class="flex items-center">
+                    <span>Crear</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </form>
+</div>

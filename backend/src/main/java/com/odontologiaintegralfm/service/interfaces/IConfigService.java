@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.service.interfaces;
 
 import com.odontologiaintegralfm.dto.*;
 import com.odontologiaintegralfm.model.MessageConfig;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -25,48 +26,90 @@ public interface IConfigService {
     Response<MessageConfig> updateMessage(MessageRequestDTO messageRequestDto);
 
 
-    /**
-     * Obtiene el número de intentos fallidos de inicio de sesión permitidos.
-     * @return Una respuesta que contiene el número máximo de intentos de inicio de sesión.
-     */
-    Response<Integer> getAttempts();
+
+
+
+
+
+
 
     /**
-     * Actualiza el número de intentos fallidos de inicio de sesión permitidos.
+     * Obtiene todas las parametrizaciones del sistema.
+     * @return SystemParameterResponseDTO
+     */
+    Response<List<SystemParameterResponseDTO>> getSystemParameter();
+
+    /**
+     * Actualiza valor de un parámetro del sistema.
+     * @param systemParameterRequestDTO
+     * @return
+     */
+    Response<SystemParameterResponseDTO> updateSystemParameter(SystemParameterRequestDTO systemParameterRequestDTO);
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Obtiene un listado de todas las tareas programadas con su expresión cron.
+
+     * Este método se comunica con el servicio de {@link IScheduleService}
+     * <p>
+     * La expresión se representa en el siguiente formato cron de 6 campos:
+     * <ul>
+     *     <li><b>Segundo</b> (0-59)</li>
+     *     <li><b>Minuto</b> (0-59)</li>
+     *     <li><b>Hora</b> (0-23)</li>
+     *     <li><b>Día del mes</b> (1-31)</li>
+     *     <li><b>Mes</b> (1-12 o JAN-DEC)</li>
+     *     <li><b>Día de la semana</b> (0-6 o SUN-SAT)</li>
+     * </ul>
+     * Por ejemplo: {@code "0 0 21 1 * *"} ejecuta la tarea el día 1 de cada mes a las 21:00 hs.
      *
-     * @param failedLoginAttemptsRequestDTO El objeto {@link FailedLoginAttemptsRequestDTO} que contiene la nueva configuración de intentos fallidos.
-     * @return Una respuesta que contiene el número actualizado de intentos permitidos.
+     * @return {@link Response} que contiene la expresión cron actual configurada.
      */
-    Response<Integer> updateAttempts(FailedLoginAttemptsRequestDTO failedLoginAttemptsRequestDTO);
+    Response<List<ScheduleResponseDTO>> getAllSchedule();
+
+
+
+
 
     /**
-     * Obtiene la duración en minutos del tiempo de expiración del token de autenticación.
-     * @return Una respuesta que contiene la duración del token en minutos.
-     */
-    Response<Long> getTokenExpiration();
-
-    /**
-     * Actualiza la duración de expiración del token de autenticación.
+     * Actualiza la regla que define cuándo se ejecutará la tarea programada.
      *
-     * @param tokenConfigRequestDTO El objeto {@link TokenConfigRequestDTO} que contiene la nueva configuración de expiración del token.
-     * @return Una respuesta que contiene el nuevo valor de expiración del token en minutos.
+     * @param scheduleRequestDTO regla expresada en:
+     *                        <ul>
+     *                            <li><b>Segundo</b> (0-59)</li>
+     *                            <li><b>Minuto</b> (0-59)</li>
+     *                            <li><b>Hora</b> (0-23)</li>
+     *                            <li><b>Día del mes</b> (1-31)</li>
+     *                            <li><b>Mes</b> (1-12 o JAN-DEC)</li>
+     *                            <li><b>Día de la semana</b> (0-6 o SUN-SAT)</li>
+     *                        </ul>
+     *                        Por ejemplo: {@code "0 0 21 1 * *"} ejecuta la tarea el día 1 de cada mes a las 21:00 hs.
+     *
+     * @return {@link Response}
      */
-    Response<Long> updateTokenExpiration(TokenConfigRequestDTO tokenConfigRequestDTO);
+    Response<ScheduleResponseDTO> updateSchedule(ScheduleRequestDTO scheduleRequestDTO);
+
+
 
 
 
     /**
-     * Obtiene la duración en días del tiempo de expiración del Refresh Token
-     * @return Una respuesta que contiene la duración del token en días
+     * Se comunica con el servicio de {@link com.odontologiaintegralfm.service.SystemLogService} para obtener los logs.
+     * @param pageValue
+     * @param sizeValue
+     * @param sortByValue
+     * @param directionValue
+     * @return
      */
-    Response<Long> getRefreshTokenExpiration();
-
-
-    /**
-     * Actualiza la duración de expiración del Refresh Token
-     * @param refreshTokenConfigRequestDTO
-     * @return Una respuesta que contiene el nuevo valor de expiración del token en días.
-     */
-    Response<Long> updateRefreshTokenExpiration(RefreshTokenConfigRequestDTO refreshTokenConfigRequestDTO);
+    Response<Page<SystemLogResponseDTO>> getLogs(int pageValue, int sizeValue, String sortByValue, String directionValue);
 
 }

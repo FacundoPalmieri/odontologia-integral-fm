@@ -1,11 +1,11 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { RoleInterface } from "../domain/interfaces/role.interface";
-import { RoleUpdateDto } from "../domain/dto/role-update.dto";
-import { RoleCreateDto } from "../domain/dto/role-create.dto";
+import { RoleDtoInterface } from "../domain/dto/role.dto";
+import { RoleSerializer } from "../domain/serializers/role.serializer";
 
 @Injectable({ providedIn: "root" })
 export class RoleService {
@@ -13,28 +13,54 @@ export class RoleService {
   apiUrl = environment.apiUrl;
 
   getAll(): Observable<ApiResponseInterface<RoleInterface[]>> {
-    return this.http.get<ApiResponseInterface<RoleInterface[]>>(
-      `${this.apiUrl}/role/all`
-    );
+    return this.http
+      .get<ApiResponseInterface<RoleDtoInterface[]>>(`${this.apiUrl}/role/all`)
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: response.data.map((role) => RoleSerializer.toView(role)),
+        }))
+      );
   }
 
   getById(id: number): Observable<ApiResponseInterface<RoleInterface>> {
-    return this.http.get<ApiResponseInterface<RoleInterface>>(
-      `${this.apiUrl}/role/${id}`
-    );
+    return this.http
+      .get<ApiResponseInterface<RoleDtoInterface>>(`${this.apiUrl}/role/${id}`)
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: RoleSerializer.toView(response.data),
+        }))
+      );
   }
 
-  create(role: RoleCreateDto): Observable<ApiResponseInterface<RoleInterface>> {
-    return this.http.post<ApiResponseInterface<RoleInterface>>(
-      `${this.apiUrl}/role`,
-      role
-    );
+  create(role: RoleInterface): Observable<ApiResponseInterface<RoleInterface>> {
+    const roleCreateDto = RoleSerializer.toCreateDto(role);
+    return this.http
+      .post<ApiResponseInterface<RoleDtoInterface>>(
+        `${this.apiUrl}/role`,
+        roleCreateDto
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: RoleSerializer.toView(response.data),
+        }))
+      );
   }
 
-  update(role: RoleUpdateDto): Observable<ApiResponseInterface<RoleInterface>> {
-    return this.http.patch<ApiResponseInterface<RoleInterface>>(
-      `${this.apiUrl}/role`,
-      role
-    );
+  update(role: RoleInterface): Observable<ApiResponseInterface<RoleInterface>> {
+    const roleUpdateDto = RoleSerializer.toUpdateDto(role);
+    return this.http
+      .patch<ApiResponseInterface<RoleDtoInterface>>(
+        `${this.apiUrl}/role`,
+        roleUpdateDto
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: RoleSerializer.toView(response.data),
+        }))
+      );
   }
 }

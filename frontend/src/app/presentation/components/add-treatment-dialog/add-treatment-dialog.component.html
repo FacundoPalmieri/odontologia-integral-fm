@@ -1,0 +1,169 @@
+<h2 mat-dialog-title>
+  Nuevo tratamiento en <b>pieza {{ data.toothNumber }}</b>
+</h2>
+<mat-dialog-content class="w-full">
+  <div
+    class="w-full p-4"
+    style="
+      background: var(--mat-sys-content-toolbar-container-color);
+      border-radius: var(--mat-sys-corner-large);
+    "
+  >
+    <form [formGroup]="treatmentForm" class="flex flex-col gap-4 w-full">
+      <div class="flex flex-row gap-4 w-full">
+        <div class="flex flex-col gap-2 w-full">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label class="items-center flex gap-1">
+              <span class="font-bold">Tratamiento</span>
+            </mat-label>
+            <mat-select formControlName="treatment">
+              @for(treatment of treatments; track treatment.name) {
+              <mat-option [value]="treatment.name">{{
+                treatment.label
+              }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="flex gap-2 w-full items-center">
+          <mat-radio-group
+            formControlName="treatmentType"
+            class="flex flex-row gap-2 mb-4"
+          >
+            <mat-radio-button
+              [value]="TreatmentTypeEnum.EXISTING"
+              [disabled]="!isTypeAvailable(TreatmentTypeEnum.EXISTING)"
+            >
+              Prestación existente
+            </mat-radio-button>
+            <mat-radio-button
+              [value]="TreatmentTypeEnum.REQUIRED"
+              [disabled]="!isTypeAvailable(TreatmentTypeEnum.REQUIRED)"
+            >
+              Prestación requerida
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </div>
+
+      @if(selectedTreatment.name === TreatmentEnum.PUENTE) {
+      <div class="flex flex-row gap-4 w-full">
+        <div class="flex flex-col gap-2 flex-1">
+          <mat-form-field appearance="outline">
+            <mat-label class="items-center flex gap-1">
+              <i-tabler name="corner-up-right"></i-tabler>
+              <span class="font-bold">Desde pieza</span>
+            </mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="bridgeStart"
+              readonly
+            />
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-2 flex-1">
+          <mat-form-field appearance="outline">
+            <mat-label class="items-center flex gap-1">
+              <i-tabler name="corner-up-left"></i-tabler>
+              <span class="font-bold">Hasta pieza</span>
+            </mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="bridgeEnd"
+              min="11"
+              max="85"
+              placeholder="Ingrese número de diente (11-85)"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      } @if(selectedTreatment.name === TreatmentEnum.CARIES ||
+      selectedTreatment.name === TreatmentEnum.OBT_COMPOSITE) {
+      <div class="flex flex-col w-full">
+        <div class="mb-2">Caras afectadas:</div>
+        <div class="flex flex-row gap-2 justify-center">
+          <mat-checkbox formControlName="allFaces" class="mb-2">
+            Todas las caras
+          </mat-checkbox>
+          @for (face of toothFaces; track face.face) {
+          <mat-checkbox
+            [formControlName]="'face_' + face.face"
+            (change)="onFaceChange(face.face, $event.checked)"
+          >
+            {{ face.label }}
+          </mat-checkbox>
+          }
+        </div>
+      </div>
+      }
+    </form>
+    <div class="flex justify-center">
+      <button mat-button (click)="addTreatment()">
+        <div class="flex items-center gap-2">
+          <i-tabler name="plus"></i-tabler>
+          <span>Agregar tratamiento</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Treatment List Table -->
+    <div class="mt-4">
+      <table mat-table [dataSource]="treatmentsList" class="w-full">
+        <!-- Treatment Column -->
+        <ng-container matColumnDef="treatment">
+          <th mat-header-cell *matHeaderCellDef>Tratamiento</th>
+          <td mat-cell *matCellDef="let element">{{ element.label }}</td>
+        </ng-container>
+
+        <!-- Observations Column -->
+        <ng-container matColumnDef="observations">
+          <th mat-header-cell *matHeaderCellDef>Observaciones</th>
+          <td mat-cell *matCellDef="let element">
+            @if(element.name === TreatmentEnum.PUENTE) { Desde pieza
+            {{ element.bridgeStart }} hasta pieza {{ element.bridgeEnd }} }
+            @else if(element.name === TreatmentEnum.CARIES || element.name ===
+            TreatmentEnum.OBT_COMPOSITE && element.faces?.length) { Caras:
+            {{ element.faces.join(", ") }}
+            }
+          </td>
+        </ng-container>
+
+        <!-- Treatment Type Column -->
+        <ng-container matColumnDef="treatmentType">
+          <th mat-header-cell *matHeaderCellDef>Tipo de prestación</th>
+          <td mat-cell *matCellDef="let element">
+            {{
+              element.treatmentType === TreatmentTypeEnum.EXISTING
+                ? "Existente"
+                : "Requerida"
+            }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element; let i = index">
+            <button
+              mat-icon-button
+              matTooltip="Eliminar"
+              matTooltipPosition="left"
+              (click)="removeTreatment(i)"
+            >
+              <i-tabler class="text-red-500" name="xbox-x"></i-tabler>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-flat-button [mat-dialog-close]="treatmentsList">Confirmar</button>
+</mat-dialog-actions>

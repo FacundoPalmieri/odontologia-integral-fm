@@ -1,15 +1,14 @@
 package com.odontologiaintegralfm.service;
+import com.odontologiaintegralfm.configuration.appConfig.annotations.LogAction;
 import com.odontologiaintegralfm.dto.*;
-import com.odontologiaintegralfm.exception.BlockAccountException;
-import com.odontologiaintegralfm.exception.CredentialsException;
-import com.odontologiaintegralfm.exception.UserNameNotFoundException;
-import com.odontologiaintegralfm.model.RefreshToken;
-import com.odontologiaintegralfm.model.Role;
-import com.odontologiaintegralfm.model.UserSec;
+import com.odontologiaintegralfm.enums.LogType;
+import com.odontologiaintegralfm.exception.ForbiddenException;
+import com.odontologiaintegralfm.enums.LogLevel;
+import com.odontologiaintegralfm.exception.UnauthorizedException;
+import com.odontologiaintegralfm.model.*;
 import com.odontologiaintegralfm.repository.IUserRepository;
-import com.odontologiaintegralfm.service.interfaces.IMessageService;
-import com.odontologiaintegralfm.service.interfaces.IRefreshTokenService;
-import com.odontologiaintegralfm.utils.JwtUtils;
+import com.odontologiaintegralfm.service.interfaces.*;
+import com.odontologiaintegralfm.configuration.securityConfig.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -26,9 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 
 /**
@@ -85,28 +82,33 @@ public class UserDetailsServiceImp implements UserDetailsService {
     @Autowired
     private IRefreshTokenService refreshTokenService;
 
+    @Autowired
+    private PersonService personService;
+
+    @Autowired
+    private IRoleService roleService;
+
+
 
     /**
      * Carga un usuario por su nombre de usuario y lo convierte en un objeto {@link UserDetails} de Spring Security.
      * <p>
      * Este método busca el usuario en la base de datos y, si no lo encuentra, lanza una excepción
-     * {@link UserNameNotFoundException}. Luego, obtiene los roles y permisos del usuario,
+     * {@link UnauthorizedException}. Luego, obtiene los roles y permisos del usuario,
      * los convierte en una lista de {@link SimpleGrantedAuthority} y devuelve un objeto {@link User}
      * con los datos del usuario y sus permisos.
      * </p>
      *
      * @param username El nombre de usuario del usuario a cargar.
      * @return Un objeto {@link UserDetails} con los datos del usuario y sus permisos.
-     * @throws UsernameNotFoundException Si el usuario no se encuentra en la base de datos.
+     * @throws UnauthorizedException Si el usuario no se encuentra en la base de datos.
      */
     @Override
-    public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
-
-
+        public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
         //Se cuenta con usuario de tipo Usersec y se necesita devolver un tipo UserDetails
         //Se recupera el usuario de la bd
         UserSec userSec = userRepo.findUserEntityByUsername(username)
-                .orElseThrow(()-> new UserNameNotFoundException(username));
+                .orElseThrow(()-> new UnauthorizedException("exception.usernameNotFound.user", null,"exception.usernameNotFound.log",new Object[]{username,"UserDetailServiceImp", "loadUserByUsername"},LogLevel.WARN));
 
         //Spring Security maneja permisos con GrantedAuthority
         //Se crea una lista de SimpleGrantedAuthority para almacenar los permisos
@@ -114,14 +116,24 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
 
         //Se obtiene roles y los convertimos en SimpleGrantedAuthority para poder agregarlos a la authorityList
-        userSec.getRolesList()
-                .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getRole()))));
+        for (Role role : userSec.getRolesList()) {
 
+            // Arma el árbol de respuesta entre rol, permisos y acciones.
+            RoleFullResponseDTO roleFullResponseDTO = roleService.getFullByRoleId(role.getId());
 
-        //Se obtiene los permisos y los agregamos a la lista.
-        userSec.getRolesList().stream()
-                .flatMap(role -> role.getPermissionsList().stream()) //acá recorro los permisos de los roles
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermission())));
+            // 1. Agregamos el rol como autoridad
+            authorityList.add(new SimpleGrantedAuthority("ROLE_" + roleFullResponseDTO.getName()));
+
+            // 2. Por cada permiso y su lista de acciones, agregamos cada combinación como autoridad
+            roleFullResponseDTO.getPermissionsList().forEach(permissionDTO -> {
+                String permission = permissionDTO.getName().toUpperCase();
+
+                permissionDTO.getActions().forEach(actionDTO -> {
+                    String action = actionDTO.getName().toUpperCase();
+                    authorityList.add(new SimpleGrantedAuthority("PERMISO_" + permission + "_" + action));
+                });
+            });
+        }
 
         //Se retorna el usuario en formato Spring Security con los datos del userSec
         return new User(
@@ -137,7 +149,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
 
 
-
     /**
      * Autentica a un usuario y genera un token JWT si las credenciales son correctas.
      * <p>
@@ -150,8 +161,15 @@ public class UserDetailsServiceImp implements UserDetailsService {
      *
      * @param authLoginRequest Un objeto {@link AuthLoginRequestDTO} que contiene las credenciales del usuario.
      * @return Un objeto {@link AuthLoginResponseDTO} con el nombre de usuario, un mensaje de éxito, el token JWT y un estado de autenticación exitoso.
-     * @throws CredentialsException Si las credenciales son incorrectas, se lanza una excepción de tipo {@link CredentialsException}.
+     * @throws UnauthorizedException  Si las credenciales son incorrectas, se lanza una excepción de tipo {@link UnauthorizedException }.
      */
+
+    @LogAction(
+            value = "userDetailServiceImpl.systemLogService.login",
+            args = {"#result.data.idUser", "#result.data.username"},
+            level = LogLevel.INFO,
+            type = LogType.SECURITY
+    )
     public Response<AuthLoginResponseDTO> loginUser (AuthLoginRequestDTO authLoginRequest){
         try {
             //Se recupera nombre de usuario y contraseña
@@ -164,12 +182,18 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //si es autenticado correctamente se almacena la información SecurityContextHolder.
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            //Obtiene Datos del usuario desde la base de datos.
+            //Obtiene datos del usuario desde la base de datos.
             UserSec userSec = userService.getByUsername(username);
+
+
+            //
+            PersonResponseDTO personResponseDTO = null;
+            if (userSec.getPerson() != null) {
+                personResponseDTO = personService.convertToDTO(userSec.getPerson());
+            }
 
             // Elimina el RefreshToken anterior.
             refreshTokenService.deleteRefreshToken(userSec.getId());
-
 
             //Crea el JWT
             String accessToken = jwtUtils.createToken(authentication);
@@ -177,22 +201,27 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Crea el RefreshToken
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(username);
 
+            //Arma el árbol de roles, permisos y acciones.
+            Set<RoleFullResponseDTO> roleSet = new HashSet<>();
+
+            for(Role role : userSec.getRolesList()) {
+                RoleFullResponseDTO roleFullResponseDTO = roleService.getFullByRoleId(role.getId());
+                roleSet.add(roleFullResponseDTO);
+            }
 
             //Construye el DTO para respuesta
             AuthLoginResponseDTO authLoginResponseDTO = AuthLoginResponseDTO.builder()
                     .idUser(userSec.getId())
                     .username(userSec.getUsername())
-                    .roles(userSec.getRolesList().stream()
-                            .map(role -> new Role(role.getId(), role.getRole(), role.getPermissionsList()))
-                            .collect(Collectors.toSet())
-                    )
+                    .roles(roleSet)
                     .jwt(accessToken)
                     .refreshToken(refreshToken.getRefreshToken())
+                    .person(personResponseDTO)
                     .build();
 
             return new Response<> (true,"", authLoginResponseDTO);
         }catch (BadCredentialsException ex) {
-            throw new CredentialsException(authLoginRequest.username());
+            throw new UnauthorizedException("exception.badCredentials.user",null, "exception.badCredentials.log",new Object[]{authLoginRequest.username(),"UserDetailServiceImp", "loginUser"}, LogLevel.WARN);
         }
     }
 
@@ -210,18 +239,17 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * @param username Nombre de usuario del usuario que intenta autenticarse.
      * @param password Contraseña proporcionada por el usuario.
      * @return Un objeto {@link Authentication} que representa la autenticación del usuario si las credenciales son correctas.
-     * @throws UserNameNotFoundException Si el usuario no es encontrado en la base de datos.
-     * @throws CredentialsException Si la contraseña es incorrecta.
-     * @throws BlockAccountException Si la cuenta ha sido bloqueada debido a intentos fallidos de inicio de sesión.
+     * @throws UnauthorizedException Si el usuario no es encontrado en la base de datos o Si la contraseña es incorrecta.
+     * @throws ForbiddenException Si la cuenta ha sido bloqueada debido a intentos fallidos de inicio de sesión.
      */
     public Authentication authenticate (String username, String password) {
-        //Se recupera información del usuario por el username
+        //Se recupera información de todos los detalles del usuario por el username
         UserDetails userDetails = this.loadUserByUsername(username);
 
         // En caso que sea nulo, se informa que no se pudo encontrar al usuario.
         if (userDetails == null) {
             String logMessage = messageService.getMessage("exception.UsernameNotFound.log", new Object[]{username}, LocaleContextHolder.getLocale());
-            throw new UserNameNotFoundException(username);
+            throw new UnauthorizedException("exception.usernameNotFound.user", null,"exception.usernameNotFound.log",new Object[]{username,"UserDetailServiceImp", "authenticate"}, LogLevel.WARN);
         }
 
         //En caso que no coincidan las credenciales se informa que la password es incorrecta
@@ -236,9 +264,9 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Se bloquea en caso de igualar o exceder el limite.
             if(!status){
                 UserSec userSec = userService.blockAccount(username);
-                throw new BlockAccountException("",userSec.getId(), userSec.getUsername());
+                throw new ForbiddenException("exception.blockAccount.user",null,"exception.blockAccount.log",new Object[]{userSec.getId(), userSec.getUsername(), "UserDetailServiceImp", "authenticate"},LogLevel.WARN);
             }
-            throw new CredentialsException(username);
+            throw new UnauthorizedException("exception.badCredentials.user",null, "exception.badCredentials.log", new Object[]{username,"UserDetailServiceImp", "authenticate"},LogLevel.WARN);
         }
 
         //Verifica si está activa la cuenta.
@@ -246,6 +274,8 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
         //Resetea intentos fallidos a 0.
         userService.resetFailedAttempts(username);
+
+
         return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
     }
 
@@ -316,6 +346,13 @@ public class UserDetailsServiceImp implements UserDetailsService {
      *             <li><b>data</b>: null (ya que no se devuelve ningún dato adicional).</li>
      *         </ul>
      */
+
+    @LogAction(
+            value = "userDetailServiceImpl.systemLogService.logout",
+            args = {"#refreshTokenRequestDTO.idUser"},
+            type = LogType.SECURITY,
+            level = LogLevel.INFO
+    )
     public Response<String> logout(RefreshTokenRequestDTO refreshTokenRequestDTO){
 
         //Elimina el refresh token del usuario
@@ -326,7 +363,5 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
         return new Response<>(true,message ,null);
     }
-
-
 
 }
