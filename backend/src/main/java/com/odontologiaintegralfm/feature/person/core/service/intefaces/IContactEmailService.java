@@ -1,0 +1,27 @@
+package com.odontologiaintegralfm.feature.person.core.service.intefaces;
+
+import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
+import com.odontologiaintegralfm.feature.person.core.model.ContactEmail;
+
+import java.util.Set;
+
+/**
+ * @author [Facundo Palmieri]
+ */
+public interface IContactEmailService {
+
+    /**
+     * Método para buscar o crear un contacto email y persistirlo en la base de datos.
+     * @param email a agregar
+     * @return {@link ContactEmail}
+     */
+    Set<ContactEmail> findOrCreate(Set<String> email);
+
+    /**
+     * Realiza una eliminación física de los emails huérfanos.
+     * Este método es invocado desde tareas programadas.
+     * @return
+     */
+    SchedulerResultDTO deleteOrphan();
+
+}
