@@ -1,0 +1,80 @@
+<app-page-toolbar [title]="'Mi perfil'"></app-page-toolbar>
+
+<mat-card appearance="outlined" class="mt-4">
+  <mat-card-header class="mt-[0px] !p-0 h-[200px]">
+    <img
+      src="img/profile-banner.jpg"
+      alt="banner"
+      class="rounded-t-[var(--mat-sys-corner-medium)] object-cover overflow-hidden"
+    />
+  </mat-card-header>
+  <mat-card-content class="mt-[-60px]">
+    <div class="flex flex-col items-center">
+      <div class="avatar-gradient flex items-center justify-center mb-2">
+        <img
+          [src]="avatar() ? avatar() : 'img/men-avatar.jpg'"
+          alt="Avatar"
+          class="rounded-[50%] h-[120px] w-[120px] object-cover border-2 border-white"
+        />
+      </div>
+      <span class="font-bold text-xl"
+        >{{ user()!.person!.firstName }} {{ user()!.person!.lastName }}</span
+      >
+      <div class="flex flex-row gap-2">
+        @if(user() && user()!.rolesList && user()!.rolesList.length > 0){
+        @for(role of user()!.rolesList; track $index){
+        <mat-chip>{{ role.label }}</mat-chip>
+        } } @else { <mat-chip color="warn">Sin roles</mat-chip>
+        }
+      </div>
+    </div>
+  </mat-card-content>
+  <div
+    class="w-full mt-4 bg-[var(--mat-sys-home-sidenav-content-background)] rounded-tabs"
+  >
+    <div class="justify-end items-end">
+      <mat-tab-group
+        mat-stretch-tabs="false"
+        mat-align-tabs="end"
+        animationDuration="300ms"
+        (selectedIndexChange)="selectedTabIndex.set($event)"
+      >
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <i-tabler class="mr-1" name="user-circle"></i-tabler>
+            Datos
+          </ng-template>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <i-tabler class="mr-1" name="settings"></i-tabler>
+            Preferencias
+          </ng-template>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <i-tabler class="mr-1" name="file"></i-tabler>
+            Adjuntos
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</mat-card>
+<mat-card class="mt-4">
+  <ng-container *ngIf="selectedTabIndex() === 0">
+    <!-- <mat-card appearance="outlined">
+      <mat-card-content> </mat-card-content>
+    </mat-card> -->
+  </ng-container>
+  <ng-container *ngIf="selectedTabIndex() === 1">
+    <!-- <mat-card appearance="outlined">
+      <div>Preferencias</div>
+    </mat-card> -->
+  </ng-container>
+  <ng-container *ngIf="selectedTabIndex() === 2">
+    <!-- <mat-card appearance="outlined">
+      <div>Adjuntos</div>
+    </mat-card> -->
+  </ng-container>
+</mat-card>

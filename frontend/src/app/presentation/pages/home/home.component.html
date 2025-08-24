@@ -63,20 +63,20 @@
           <img
             [src]="avatar ? avatar : 'img/doctor-avatar.png'"
             alt="Avatar"
-            class="avatar-icon"
+            class="avatar-icon object-cover"
           />
           <i-tabler name="chevron-down"></i-tabler>
         </div>
       </button>
 
       <mat-menu #menu="matMenu">
-        <div class="flex items-center p-4">
+        <div class="flex flex-col items-center justify-center p-4">
           <img
-            src="img/doctor-avatar.png"
+            [src]="avatar ? avatar : 'img/doctor-avatar.png'"
             alt="Avatar"
-            class="avatar-icon-menu"
+            class="avatar-icon-menu object-cover"
           />
-          <div class="ml-1 gap-3 overflow-hidden text-ellipsis">
+          <div class="overflow-hidden text-ellipsis flex flex-col items-center">
             <span class="text-lg"
               >{{ userData?.person?.firstName }}
               {{ userData?.person?.lastName }}</span
@@ -86,19 +86,12 @@
           </div>
         </div>
         <mat-divider class="custom-divider"></mat-divider>
-        <button mat-menu-item>
+        <button mat-menu-item (click)="goToProfile()">
           <div class="flex items-center">
             <i-tabler name="user-circle"></i-tabler>
-            <span class="ml-1">Mi cuenta</span>
+            <span class="ml-1">Mi perfil</span>
           </div>
         </button>
-        <button mat-menu-item>
-          <div class="flex items-center">
-            <i-tabler name="settings"></i-tabler>
-            <span class="ml-1">Configuración</span>
-          </div>
-        </button>
-        <mat-divider class="custom-divider"></mat-divider>
         <button mat-menu-item (click)="logout()">
           <div class="flex items-center">
             <i-tabler name="logout-2"></i-tabler>

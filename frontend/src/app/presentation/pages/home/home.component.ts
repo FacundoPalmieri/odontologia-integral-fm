@@ -128,4 +128,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     const newTheme = this.currentTheme().id === "light" ? "dark" : "light";
     this.themeService.setTheme(newTheme);
   }
+
+  goToProfile() {
+    this.router.navigate(["/profile"]);
+  }
 }

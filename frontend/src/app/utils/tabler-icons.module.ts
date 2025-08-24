@@ -84,10 +84,10 @@ import {
   IconUserCog,
   IconCheck,
   IconDownload,
-  IconSquareCheck,
   IconHourglass,
   IconCircleX,
   IconFileImport,
+  IconFile,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -176,6 +176,7 @@ const ICONS = {
   IconHourglass,
   IconCircleX,
   IconFileImport,
+  IconFile,
 } as const;
 
 @NgModule({

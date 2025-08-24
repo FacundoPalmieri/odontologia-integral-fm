@@ -18,6 +18,7 @@ import { UserCreatePageComponent } from "./pages/configuration/user-create-page/
 import { UserEditPageComponent } from "./pages/configuration/user-edit-page/user-edit-page.component";
 import { PatientCreatePageComponent } from "./pages/patients/patient-create-page/patient-create-page.component";
 import { PatientEditPageComponent } from "./pages/patients/patient-edit-page/patient-edit-page.component";
+import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
 
 export const routes: Routes = [
   {
@@ -84,6 +85,10 @@ export const routes: Routes = [
       {
         path: "system",
         component: SystemComponent,
+      },
+      {
+        path: "profile",
+        component: UserProfileComponent,
       },
     ],
   },
