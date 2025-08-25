@@ -94,6 +94,10 @@ public class PersonController {
 
         UrlResource avatar = personService.getAvatar(id);
 
+        if(avatar == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         //Detecta automáticamente el tipo MIME del archivo
         String contentType = Files.probeContentType(Paths.get(avatar.getFile().getAbsolutePath()));
 
