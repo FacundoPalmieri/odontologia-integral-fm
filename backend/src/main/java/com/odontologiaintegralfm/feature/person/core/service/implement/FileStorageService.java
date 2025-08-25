@@ -113,7 +113,7 @@ public class FileStorageService implements IFileStorageService {
 
         Path filePath = Paths.get(uploadDirImage).resolve(filename);
         if (!Files.exists(filePath)) {
-            throw new NotFoundException(null,null,"exception.file.notFoundImage.log",new Object[]{avatarUrl,"FileStorageService","getImage"},LogLevel.WARN);
+            return null;
         }
         return new UrlResource(filePath.toUri());
     }

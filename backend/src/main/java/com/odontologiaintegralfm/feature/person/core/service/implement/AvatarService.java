@@ -101,26 +101,12 @@ public class AvatarService implements IAvatarService {
     @Override
     public UrlResource getImage(Person person) throws IOException {
         if (person.getAvatarUrl() != null) {
-            try{
-                return fileStorageService.getImage(person.getAvatarUrl());
-            }
-            catch(IOException | NotFoundException e){
-                    //Se deja continuar al switch
-            }
-
+            return fileStorageService.getImage(person.getAvatarUrl());
         }
 
-        // Si no tiene avatar o el archivo no existe
-        switch (person.getGender().getAlias()){
-            case 'M':
-                return fileStorageService.getDefaultImage("default-avatar-m.svg");
+        return null;
 
-            case 'F':
-               return fileStorageService.getDefaultImage("default-avatar-f.svg");
 
-            default:
-                return fileStorageService.getDefaultImage("default-avatar-x.svg");
-        }
     }
 
 

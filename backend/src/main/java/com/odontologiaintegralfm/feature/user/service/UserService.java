@@ -425,9 +425,6 @@ public class UserService implements IUserService {
             UserSec userSec = userRepository.findById(userSecUpdateDto.getId())
                     .orElseThrow(() -> new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{userSecUpdateDto.getId(), "UserService", "Update"},LogLevel.ERROR));
 
-            //Valída que el ID del UserSecUpdate no sea el mismo de quien está autenticado y recibe el usuario de la BD.
-            validateSelfUpdate(userSecUpdateDto.getId());
-
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
             validateNotDevRole(userSec, userSecUpdateDto);
 
@@ -436,7 +433,7 @@ public class UserService implements IUserService {
                 validateUpdate(userSec, userSecUpdateDto, userSec.getRolesList());
             }
 
-            //Actualiza datos en el UserSec
+            //Actualiza datos en el UserSec - Valída que el ID del UserSecUpdate no sea el mismo de quien está autenticado.
             UserSec userSecAux = updateUserSec(userSec, userSecUpdateDto);
 
             //Guarda en base de datos.
@@ -821,10 +818,10 @@ public class UserService implements IUserService {
     }
 
     /**
-     * Valida que el usuario autenticado no intente actualizar sus propios datos.
+     * Valída que el usuario autenticado no intente actualizar datos de usuario (Enabled o Roles).
      * <p>
      * Este método compara el ID del usuario autenticado con el ID proporcionado en la solicitud de actualización.
-     * Si ambos IDs coinciden, se lanza una excepción {@link ConflictException}.
+     * Si ambos IDs coinciden retorna TRUE, si son diferentes retorna FALSE.
      * </p>
      *
      * @param id ID del usuario cuyo dato se está intentando actualizar.
@@ -832,24 +829,15 @@ public class UserService implements IUserService {
      * @throws ConflictException Si el usuario autenticado intenta actualizar sus propios datos.
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos.
      */
-    private void validateSelfUpdate(Long id) {
+    private Boolean validateSelfUpdate(Long id) {
        try {
-           //Obtener el username del usuario autenticado
-           Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-           String authenticatedUsername;
-
-           if (principal instanceof UserDetails) {
-               authenticatedUsername = ((UserDetails) principal).getUsername();
-           } else {
-               authenticatedUsername = principal.toString();
-           }
-
-           //Obtener el ID del usuario autenticado.
-           UserSec userSec = userRepository.findUserEntityByUsername(authenticatedUsername).orElseThrow(() -> new NotFoundException("userService.getById.error.user",null,"userService.getById.error.log",new Object[]{authenticatedUsername,"UserService", "validateSelfUpdate"},LogLevel.ERROR));
+         UserSec userAuth =  authenticatedUserService.getAuthenticatedUser();
 
            //Comparar el ID del usuario autenticado con el ID de la solicitud.
-           if (userSec.getId().equals(id)) {
-               throw new ConflictException("exception.validateSelfUpdate.user",null,"exception.validateSelfUpdate.log",new Object[]{id,"UserService", "validateSelfUpdate"},LogLevel.INFO);
+           if (userAuth.getId().equals(id)) {
+                return true;
+           }else {
+               return false;
            }
        } catch (DataAccessException | CannotCreateTransactionException e) {
            throw new DataBaseException(e, "userService", id, "", "validateSelfUpdate");
@@ -960,25 +948,32 @@ public class UserService implements IUserService {
      * @throws NotFoundException Si alguno de los roles proporcionados en el DTO no se encuentra en la base de datos.
      */
     private UserSec updateUserSec(UserSec userSec, UserSecUpdateDTO userSecUpdateDTO){
-        if(userSecUpdateDTO.getEnabled() != null){
-            userSec.setEnabled(userSecUpdateDTO.getEnabled());
+
+        //Valída que el usuario autenticado no sea el mismo que se va a actualizar.
+        Boolean selfUpdate =  validateSelfUpdate(userSecUpdateDTO.getId());
+
+        //Si son distinto (Solo Admin podría ser) se actualiza
+        if(!selfUpdate){
+            if(userSecUpdateDTO.getEnabled() != null){
+                userSec.setEnabled(userSecUpdateDTO.getEnabled());
+            }
+
+            //Obtener los roles mediante el ID del DTO
+            Set<Role> roleList = new HashSet<>();
+            for(Long id : userSecUpdateDTO.getRolesList()) {
+                Role role = roleService.getByIdInternal(id);
+                roleList.add(role);
+            }
+
+            if(!userSecUpdateDTO.getRolesList().isEmpty()){
+                userSec.getRolesList().clear();
+                userSec.getRolesList().addAll(roleList);
+            }
+
+            userSec.setUpdatedAt(LocalDateTime.now());
+            userSec.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+
         }
-
-        //Obtener los roles mediante el ID del DTO
-        Set<Role> roleList = new HashSet<>();
-        for(Long id : userSecUpdateDTO.getRolesList()) {
-            Role role = roleService.getByIdInternal(id);
-            roleList.add(role);
-        }
-
-        if(!userSecUpdateDTO.getRolesList().isEmpty()){
-            userSec.getRolesList().clear();
-            userSec.getRolesList().addAll(roleList);
-        }
-
-        userSec.setUpdatedAt(LocalDateTime.now());
-        userSec.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
-
         return userSec;
     }
 
