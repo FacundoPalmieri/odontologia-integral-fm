@@ -13,10 +13,10 @@ public class UserSecUpdateDTO {
     @NotNull(message = "generic.id.empty")
     private Long id;
 
-    @NotNull(message = "userSecUpdateDTO.enabled.Empty")
+ //   @NotNull(message = "userSecUpdateDTO.enabled.Empty")
     private Boolean enabled;
 
-    @NotEmpty (message = "userSecUpdateDTO.rolesList.Empty")
+  //  @NotEmpty (message = "userSecUpdateDTO.rolesList.Empty")
     private Set<Long> rolesList = new HashSet<>();
 
     //Opcional
