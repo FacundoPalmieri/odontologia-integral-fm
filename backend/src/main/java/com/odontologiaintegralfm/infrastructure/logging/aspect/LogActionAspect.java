@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.infrastructure.logging.aspect;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedSystemService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
@@ -28,6 +29,9 @@ public class LogActionAspect {
     private AuthenticatedUserService authenticatedUserService;
 
     @Autowired
+    private AuthenticatedSystemService authenticatedSystemService;
+
+    @Autowired
     private ISystemLogService systemLogService;
 
     @Autowired
@@ -37,6 +41,13 @@ public class LogActionAspect {
 
     @Around("@annotation(logAction)")
     public Object logMethod(ProceedingJoinPoint pjp, LogAction logAction) throws Throwable {
+
+
+        //Obtiene le usuario autenticado
+        String userAuth = authenticatedUserService.getAuthenticatedUser().getUsername();
+        if(userAuth.equalsIgnoreCase("No autenticado")){
+            userAuth = authenticatedSystemService.getAuthenticatedUserSystem().getUsername();
+        }
 
         //Obtiene los argumentos del método principal.
         MethodSignature signature = (MethodSignature) pjp.getSignature();
@@ -76,7 +87,7 @@ public class LogActionAspect {
                     null,
                    "Error al ejecutar el método principal en LogActionAspect.",
                     "LogActionAspect",
-                    authenticatedUserService.getAuthenticatedUser().getUsername(),
+                    userAuth,
                     null,
                     systemLogService.getStackTraceAsString(ex)
             ));
@@ -108,7 +119,7 @@ public class LogActionAspect {
                 null,
                 message,
                 "LogActionAspect",
-                authenticatedUserService.getAuthenticatedUser().getUsername(),
+                userAuth,
                 null,
                 null
         ));

@@ -62,6 +62,7 @@ public class SchedulerInitializerConfig implements SchedulingConfigurer {
         registerTask(taskRegistrar, ScheduledTaskKey.CLEAN_ORPHAN_PHONE, () -> cleanupService.cleanOrphanDataContactPhone());
         registerTask(taskRegistrar, ScheduledTaskKey.CLEAN_ATTACHED_FILE_DISABLED, () -> cleanupService.cleanAttachedFileDisabled());
         registerTask(taskRegistrar,ScheduledTaskKey.CLEAN_LOGS, () -> cleanupService.cleanLogs());
+        registerTask(taskRegistrar,ScheduledTaskKey.LOAD_HOLIDAYS, () -> cleanupService.loadHoliday());
     }
 
 

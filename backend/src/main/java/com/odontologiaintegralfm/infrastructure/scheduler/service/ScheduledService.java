@@ -36,6 +36,7 @@ public class ScheduledService implements IScheduleService {
     private SystemLogService systemLogService;
 
 
+
     /**
      * Obtiene la regla que define cuándo se ejecutará la tarea programada.
      * <p>

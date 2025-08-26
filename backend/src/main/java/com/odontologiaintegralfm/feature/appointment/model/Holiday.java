@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.model;
 
+import com.odontologiaintegralfm.feature.appointment.enums.HolidayType;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,8 +35,12 @@ public class Holiday extends Auditable {
     private LocalDate date;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private HolidayType type;
+
+    @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(nullable = false, length = 50)
-    private String description;
+    @Column(nullable = false)
+    private Integer year; // Para filtros rápidos.
 }

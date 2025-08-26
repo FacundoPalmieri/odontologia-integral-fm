@@ -2,6 +2,8 @@ package com.odontologiaintegralfm.feature.appointment.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 /**
  * Tipos de feriados.
  * Los mismos son tomados del servicio:
@@ -19,5 +21,12 @@ public enum HolidayType {
 
     HolidayType(String label){
         this.label = label;
+    }
+
+    public static HolidayType fromLabel(String label){
+        return Arrays.stream(values())
+                .filter(e -> e.label.equalsIgnoreCase(label))
+                .findFirst()
+                .orElse(null);
     }
 }

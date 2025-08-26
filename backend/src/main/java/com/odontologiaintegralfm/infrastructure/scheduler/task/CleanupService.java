@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.infrastructure.scheduler.task;
 
+import com.odontologiaintegralfm.feature.appointment.service.IHolidayService;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAddressService;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IContactEmailService;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IContactPhoneService;
@@ -8,6 +9,8 @@ import com.odontologiaintegralfm.infrastructure.logging.service.ISystemLogServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Year;
 
 /**
  * Servicio que contiene la lógica de limpieza de datos huérfanos:
@@ -35,6 +38,9 @@ public class CleanupService {
 
     @Autowired
     private ISystemLogService systemLogService;
+
+    @Autowired
+    private IHolidayService holidayService;
 
 
     /**
@@ -77,6 +83,17 @@ public class CleanupService {
      */
     public void cleanLogs(){
         systemLogService.delete();
+    }
+
+
+
+    /**
+     * Método que se ejecuta cuando es programado por Spring.
+     * Carga todos los feriados del próximo año mediante una api externa.
+     */
+    public void loadHoliday(){
+        int yearNext = Year.now().getValue() +1;
+        holidayService.loadHolidays(2025);
     }
 
 }
