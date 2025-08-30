@@ -46,6 +46,8 @@ import { UserDtoInterface } from "../../../../domain/dto/user.dto";
 import { FileMetadataInterface } from "../../../../domain/interfaces/patient.interface";
 import { FileService } from "../../../../services/file.service";
 import { MatTableModule } from "@angular/material/table";
+import { AttachedFileComponent } from "../../../components/attached-file/attached-file.component";
+import { EntityTypeEnum } from "../../../../utils/enums/entity-type.enum";
 
 @Component({
   selector: "app-user-edit-page",
@@ -63,18 +65,18 @@ import { MatTableModule } from "@angular/material/table";
     MatDatepickerModule,
     MatIconModule,
     MatTableModule,
+    AttachedFileComponent,
   ],
 })
 export class UserEditPageComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly snackbarService = inject(SnackbarService);
-  private readonly personDataService = inject(PersonDataService);
   private readonly userService = inject(UserService);
   private readonly _destroy$ = new Subject<void>();
   private readonly roleService = inject(RoleService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly fileService = inject(FileService);
-  personDataSerializer = inject(PersonDataService);
+  personDataService = inject(PersonDataService);
 
   @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild("resourceFileInput")
@@ -152,6 +154,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
 
   userId: number | null = null;
   maxDate = new Date();
+  entityTypeEnum = EntityTypeEnum;
 
   avatarUrl = signal<string | null>(null);
   showProfessionalData = signal(false);

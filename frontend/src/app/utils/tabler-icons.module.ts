@@ -88,6 +88,8 @@ import {
   IconCircleX,
   IconFileImport,
   IconFile,
+  IconLayoutGrid,
+  IconListDetails,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -177,6 +179,8 @@ const ICONS = {
   IconCircleX,
   IconFileImport,
   IconFile,
+  IconListDetails,
+  IconLayoutGrid,
 } as const;
 
 @NgModule({

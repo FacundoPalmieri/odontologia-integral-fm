@@ -41,7 +41,6 @@ import {
 } from "../../../../domain/interfaces/person-data.interface";
 import { PatientService } from "../../../../services/patient.service";
 import {
-  FileMetadataInterface,
   MedicalHistoryRiskInterface,
   PatientInterface,
 } from "../../../../domain/interfaces/patient.interface";
@@ -57,7 +56,8 @@ import {
   ActionsEnum,
   PermissionsEnum,
 } from "../../../../utils/enums/permissions.enum";
-import { FileService } from "../../../../services/file.service";
+import { EntityTypeEnum } from "../../../../utils/enums/entity-type.enum";
+import { AttachedFileComponent } from "../../../components/attached-file/attached-file.component";
 
 //QUITAR
 interface OdontogramInterface {
@@ -85,6 +85,7 @@ interface OdontogramInterface {
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
+    AttachedFileComponent,
   ],
 })
 export class PatientEditPageComponent implements OnInit, OnDestroy {
@@ -95,27 +96,15 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly accessControlService = inject(AccessControlService);
-  private readonly fileService = inject(FileService);
   personDataService = inject(PersonDataService);
 
   private selectedAvatarFile: File | null = null;
 
+  @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
+
   patientForm: FormGroup = new FormGroup({});
   maxDate = new Date();
   patientId: number | null = null;
-  patient = signal<PatientInterface>({} as PatientInterface);
-  medicalRisks = signal<MedicalHistoryRiskInterface[]>([]);
-  filesMetadata = signal<FileMetadataInterface[]>([]);
-
-  @ViewChild("fileInput") fileInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("studyFileInput") studyFileInput!: ElementRef<HTMLInputElement>;
-
-  avatarUrl = signal<string | null>(null);
-  showAdditionalInfo = signal(false);
-
-  localities = signal<LocalityInterface[]>([]);
-  provinces = signal<ProvinceInterface[]>([]);
-
   displayedColumns: string[] = ["creationDate", "lastModified", "actions"];
   odontogramData: OdontogramInterface[] = [
     {
@@ -125,7 +114,14 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       odontogram: mockOdontogram1,
     },
   ];
+  entityTypeEnum = EntityTypeEnum;
 
+  avatarUrl = signal<string | null>(null);
+  showAdditionalInfo = signal(false);
+  patient = signal<PatientInterface>({} as PatientInterface);
+  medicalRisks = signal<MedicalHistoryRiskInterface[]>([]);
+  localities = signal<LocalityInterface[]>([]);
+  provinces = signal<ProvinceInterface[]>([]);
   canUpdate = signal<boolean>(false);
   canUpload = signal<boolean>(false);
 
@@ -186,10 +182,6 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
 
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
-  }
-
-  triggerStudyFileInput(): void {
-    this.studyFileInput.nativeElement.click();
   }
 
   compare = (
@@ -337,39 +329,6 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  downloadFile(fileId: number, fileName: string): void {
-    this.fileService.downloadPatientFile(fileId).subscribe((blob: Blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    });
-  }
-
-  viewFile(fileId: number): void {
-    this.fileService.downloadPatientFile(fileId).subscribe((blob: Blob) => {
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
-    });
-  }
-
-  deleteFile(fileId: number): void {
-    this.fileService
-      .deletePatientFile(fileId)
-      .subscribe((response: ApiResponseInterface<string>) => {
-        this.snackbarService.openSnackbar(
-          response.message,
-          6000,
-          "center",
-          "top",
-          SnackbarTypeEnum.Success
-        );
-        this._getPatientFiles(this.patientId!);
-      });
-  }
-
   private _loadPermissionsFlags() {
     this.canUpdate.set(
       this.accessControlService.can(
@@ -486,16 +445,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             .subscribe((avatar: string) => {
               this.avatarUrl.set(avatar);
             });
-          this._getPatientFiles(response.data.person.id);
         }
-      });
-  }
-
-  private _getPatientFiles(id: number) {
-    this.fileService
-      .getPatientFilesMetadata(id)
-      .subscribe((response: ApiResponseInterface<FileMetadataInterface[]>) => {
-        this.filesMetadata.set(response.data);
       });
   }
 
@@ -553,60 +503,6 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<LocalityInterface[]>) => {
         this.localities.set(response.data);
-      });
-  }
-
-  onStudyFileSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    const allowedTypes = [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      this.snackbarService.openSnackbar(
-        "El archivo debe ser PDF o Word (doc, docx)",
-        6000,
-        "center",
-        "bottom",
-        SnackbarTypeEnum.Error
-      );
-      return;
-    }
-    const personId = this.patientForm.get("person.id")?.value;
-    if (!personId) {
-      this.snackbarService.openSnackbar(
-        "No se encontró el ID del paciente.",
-        6000,
-        "center",
-        "bottom",
-        SnackbarTypeEnum.Error
-      );
-      return;
-    }
-
-    this.fileService
-      .uploadPatientFile(personId, file)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe({
-        next: () => {
-          this.fileService
-            .getPatientFilesMetadata(personId)
-            .subscribe(
-              (response: ApiResponseInterface<FileMetadataInterface[]>) => {
-                this.filesMetadata.set(response.data);
-              }
-            );
-          this.snackbarService.openSnackbar(
-            "Archivo subido correctamente.",
-            6000,
-            "center",
-            "top",
-            SnackbarTypeEnum.Success
-          );
-        },
-        error: () => {},
       });
   }
 }

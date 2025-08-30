@@ -1,6 +1,4 @@
-<app-page-toolbar [title]="'Mi perfil'"></app-page-toolbar>
-
-<mat-card appearance="outlined" class="mt-4">
+<mat-card appearance="outlined">
   <mat-card-header class="mt-[0px] !p-0 h-[200px]">
     <img
       src="img/profile-banner.jpg"
@@ -8,19 +6,41 @@
       class="rounded-t-[var(--mat-sys-corner-medium)] object-cover overflow-hidden"
     />
   </mat-card-header>
-  <mat-card-content class="mt-[-60px]">
+  <mat-card-content class="mt-[-75px]">
     <div class="flex flex-col items-center">
-      <div class="avatar-gradient flex items-center justify-center mb-2">
-        <img
-          [src]="avatar() ? avatar() : 'img/men-avatar.jpg'"
-          alt="Avatar"
-          class="rounded-[50%] h-[120px] w-[120px] object-cover border-2 border-white"
-        />
+      <div class="relative group">
+        <div class="avatar-gradient flex items-center justify-center mb-2">
+          <img
+            [src]="avatar()"
+            alt="Avatar"
+            class="rounded-[50%] h-[140px] w-[140px] object-cover border-2 border-white"
+          />
+          <div
+            class="absolute bg-black/30 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity"
+          >
+            <button mat-icon-button (click)="triggerFileInput()">
+              <i-tabler name="edit" class="text-white"></i-tabler>
+            </button>
+            @if(avatar()) {
+            <button mat-icon-button (click)="removeAvatar()">
+              <i-tabler name="trash" class="text-red-500"></i-tabler>
+            </button>
+            }
+          </div>
+          <input
+            #inputAvatar
+            type="file"
+            class="hidden"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+          />
+        </div>
       </div>
+
       <span class="font-bold text-xl"
-        >{{ user()!.person!.firstName }} {{ user()!.person!.lastName }}</span
+        >{{ user()?.person?.firstName }} {{ user()?.person?.lastName }}</span
       >
-      <div class="flex flex-row gap-2">
+      <div class="flex flex-row gap-2 mt-1">
         @if(user() && user()!.rolesList && user()!.rolesList.length > 0){
         @for(role of user()!.rolesList; track $index){
         <mat-chip>{{ role.label }}</mat-chip>
@@ -63,18 +83,31 @@
 </mat-card>
 <mat-card class="mt-4">
   <ng-container *ngIf="selectedTabIndex() === 0">
-    <!-- <mat-card appearance="outlined">
-      <mat-card-content> </mat-card-content>
-    </mat-card> -->
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <div class="p-4">
+          <app-person-data-form
+            [person]="user()?.person!"
+          ></app-person-data-form>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </ng-container>
   <ng-container *ngIf="selectedTabIndex() === 1">
-    <!-- <mat-card appearance="outlined">
-      <div>Preferencias</div>
-    </mat-card> -->
+    <mat-card appearance="outlined">
+      <div class="p-4">Preferencias</div>
+    </mat-card>
   </ng-container>
   <ng-container *ngIf="selectedTabIndex() === 2">
-    <!-- <mat-card appearance="outlined">
-      <div>Adjuntos</div>
-    </mat-card> -->
+    <mat-card appearance="outlined">
+      <div class="p-4">
+        <app-attached-file
+          [attachedFileEntity]="{
+            id: user()?.id!,
+            entity: entityTypeEnum.USER
+          }"
+        ></app-attached-file>
+      </div>
+    </mat-card>
   </ng-container>
 </mat-card>

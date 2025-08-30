@@ -95,7 +95,7 @@
                       />
                     </div>
                     <div
-                      class="absolute inset-0 bg-black/80 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4 transition-opacity"
+                      class="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4 transition-opacity"
                     >
                       <button mat-icon-button (click)="triggerFileInput()">
                         <i-tabler name="edit" class="text-white"></i-tabler>
@@ -164,7 +164,7 @@
                         formControlName="dniType"
                         [compareWith]="compare"
                       >
-                        @for(dniType of personDataSerializer.dniTypes(); track
+                        @for(dniType of personDataService.dniTypes(); track
                         $index){
                         <mat-option [value]="dniType">{{
                           dniType.dni
@@ -228,7 +228,7 @@
                         formControlName="gender"
                         [compareWith]="compare"
                       >
-                        @for(gender of personDataSerializer.genders(); track
+                        @for(gender of personDataService.genders(); track
                         $index){
                         <mat-option [value]="gender">{{
                           gender.name
@@ -253,8 +253,8 @@
                         formControlName="nationality"
                         [compareWith]="compare"
                       >
-                        @for(nationality of
-                        personDataSerializer.nationalities(); track $index){
+                        @for(nationality of personDataService.nationalities();
+                        track $index){
                         <mat-option [value]="nationality">{{
                           nationality.name
                         }}</mat-option>
@@ -308,8 +308,8 @@
                         formControlName="phoneType"
                         [compareWith]="compare"
                       >
-                        @for(phoneType of personDataSerializer.phoneTypes();
-                        track $index){
+                        @for(phoneType of personDataService.phoneTypes(); track
+                        $index){
                         <mat-option [value]="phoneType">{{
                           phoneType.name
                         }}</mat-option>
@@ -358,7 +358,7 @@
                         formControlName="country"
                         [compareWith]="compare"
                       >
-                        @for(country of personDataSerializer.countries(); track
+                        @for(country of personDataService.countries(); track
                         $index){
                         <mat-option [value]="country">{{
                           country.name
@@ -484,6 +484,7 @@
                   </div>
                 </div>
               </div>
+
               @if(showProfessionalData()) {
               <div class="mt-4" [formGroupName]="'dentist'">
                 <h3 class="text-lg font-semibold mb-4">
@@ -524,8 +525,7 @@
                         [compareWith]="compare"
                       >
                         @for(dentistSpecialty of
-                        personDataSerializer.dentistSpecialties(); track
-                        $index){
+                        personDataService.dentistSpecialties(); track $index){
                         <mat-option [value]="dentistSpecialty">{{
                           dentistSpecialty.name
                         }}</mat-option>
@@ -561,62 +561,12 @@
           <mat-card-title>Archivos adjuntos</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="p-4 flex flex-col items-center justify-center gap-4">
-            @if(filesMetadata().length > 0) {
-            <table mat-table [dataSource]="filesMetadata()" class="w-full">
-              <ng-container matColumnDef="originalFileName">
-                <th mat-header-cell *matHeaderCellDef>Nombre</th>
-                <td mat-cell *matCellDef="let element">
-                  {{ element.originalFileName }}
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="action">
-                <th mat-header-cell *matHeaderCellDef>Acción</th>
-                <td mat-cell *matCellDef="let element">
-                  <button
-                    mat-icon-button
-                    matTooltip="Ver"
-                    matTooltipPosition="left"
-                    (click)="viewFile(element.id)"
-                  >
-                    <i-tabler name="eye"></i-tabler>
-                  </button>
-                  <button
-                    mat-icon-button
-                    matTooltip="Descargar"
-                    matTooltipPosition="right"
-                    (click)="downloadFile(element.id, element.originalFileName)"
-                  >
-                    <i-tabler name="download"></i-tabler>
-                  </button>
-                </td>
-              </ng-container>
-              <tr
-                mat-header-row
-                *matHeaderRowDef="['originalFileName', 'action']"
-              ></tr>
-              <tr
-                mat-row
-                *matRowDef="let row; columns: ['originalFileName', 'action']"
-              ></tr>
-            </table>
-            } @else {
-            <span>Aún no tiene archivos subidos.</span>
-            }
-            <button mat-flat-button (click)="triggerResourceFileInput()">
-              <div class="flex items-center gap-2">
-                <i-tabler name="file-import"></i-tabler>
-                <span>Subir archivo</span>
-              </div>
-            </button>
-            <input
-              #resourceFileInput
-              type="file"
-              class="hidden"
-              accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              (change)="onStudyFileSelected($event)"
-            />
-          </div>
+          <app-attached-file
+            [attachedFileEntity]="{
+              id: userId!,
+              entity: entityTypeEnum.USER
+            }"
+          ></app-attached-file>
         </mat-card-content>
       </mat-card>
     </div>

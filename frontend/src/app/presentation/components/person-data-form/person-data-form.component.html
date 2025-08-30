@@ -1,0 +1,317 @@
+<form [formGroup]="personForm">
+  <div class="flex-1 flex flex-col">
+    <h3 class="text-lg font-semibold mb-4">Datos personales</h3>
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="user-circle"></i-tabler>
+          <span class="font-bold">Nombre</span>
+        </mat-label>
+        <input type="text" matInput formControlName="firstName" />
+        @if(personForm.get('firstName')?.hasError('required') &&
+        personForm.get('firstName')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        } @if(personForm.get('person.firstName')?.hasError('maxlength')){
+        <mat-error> El nombre no puede superar los 30 caracteres. </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="user-circle"></i-tabler>
+          <span class="font-bold">Apellido</span>
+        </mat-label>
+        <input type="text" matInput formControlName="lastName" />
+        @if(personForm.get('lastName')?.hasError('required') &&
+        personForm.get('lastName')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        } @if(personForm.get('person.lastName')?.hasError('maxlength')){
+        <mat-error> El apellido no puede superar los 30 caracteres. </mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="id"></i-tabler>
+          <span class="font-bold">Tipo doc.</span>
+        </mat-label>
+        <mat-select
+          name="dniTypeSelect"
+          formControlName="dniType"
+          [compareWith]="compare"
+        >
+          @for(dniType of personDataService.dniTypes(); track $index){
+          <mat-option [value]="dniType">{{ dniType.dni }}</mat-option>
+          }
+        </mat-select>
+        @if(personForm.get('dniType')?.hasError('required') &&
+        personForm.get('dniType')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="id"></i-tabler>
+          <span class="font-bold">DNI</span>
+        </mat-label>
+        <input type="text" matInput formControlName="dni" />
+        @if(personForm.get('dni')?.hasError('required') &&
+        personForm.get('dni')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        } @if(personForm.get('person.dni')?.hasError('maxlength')){
+        <mat-error> El dni no puede superar los 30 caracteres. </mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label
+          ><span class="font-bold">Fecha de nacimiento</span></mat-label
+        >
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [max]="maxDate"
+          formControlName="birthDate"
+        />
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker touchUi #picker></mat-datepicker>
+        @if(personForm.get('birthDate')?.hasError('required') &&
+        personForm.get('birthDate')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="gender-bigender"></i-tabler>
+          <span class="font-bold">Género</span>
+        </mat-label>
+        <mat-select
+          name="genderSelect"
+          formControlName="gender"
+          [compareWith]="compare"
+        >
+          @for(gender of personDataService.genders(); track $index){
+          <mat-option [value]="gender">{{ gender.name }}</mat-option>
+          }
+        </mat-select>
+        @if(personForm.get('gender')?.hasError('required') &&
+        personForm.get('gender')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="user-pin"></i-tabler>
+          <span class="font-bold">Nacionalidad</span>
+        </mat-label>
+        <mat-select
+          name="nationalitySelect"
+          formControlName="nationality"
+          [compareWith]="compare"
+        >
+          @for(nationality of personDataService.nationalities(); track $index){
+          <mat-option [value]="nationality">{{ nationality.name }}</mat-option>
+          }
+        </mat-select>
+        @if(personForm.get('nationality')?.hasError('required') &&
+        personForm.get('nationality')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="flex flex-col">
+    <h3 class="text-lg font-semibold mb-4">Datos de Contacto</h3>
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="mail"></i-tabler>
+          <span class="font-bold">Email</span>
+        </mat-label>
+        <input type="mail" matInput formControlName="contactEmails" />
+        @if(personForm.get('person.contactEmails')?.hasError('required') &&
+        personForm.get('person.contactEmails')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        } @if(personForm.get('person.contactEmails')?.hasError('email') &&
+        personForm.get('person.contactEmails')?.touched){
+        <mat-error>El Email no es válido</mat-error>
+        } @if(personForm.get('person.contactEmails')?.hasError('maxlength')){
+        <mat-error> El email no puede tener más de 50 caracteres. </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="phone"></i-tabler>
+          <span class="font-bold">Tipo de Teléfono</span>
+        </mat-label>
+        <mat-select
+          name="phoneTypeSelect"
+          formControlName="phoneType"
+          [compareWith]="compare"
+        >
+          @for(phoneType of personDataService.phoneTypes(); track $index){
+          <mat-option [value]="phoneType">{{ phoneType.name }}</mat-option>
+          }
+        </mat-select>
+        @if(personForm.get('person.phoneType')?.hasError('required') &&
+        personForm.get('person.phoneType')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="phone"></i-tabler>
+          <span class="font-bold">Nro. Teléfono</span>
+        </mat-label>
+        <input type="string" matInput formControlName="phone" />
+        @if(personForm.get('person.phone')?.hasError('required') &&
+        personForm.get('person.phone')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        } @if(personForm.get('person.phone')?.hasError('maxlength')){
+        <mat-error>
+          El número de teléfono no puede tener más de 20 caracteres.
+        </mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="flex flex-col">
+    <h3 class="text-lg font-semibold mb-4">Datos de Ubicación</h3>
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="map-2"></i-tabler>
+          <span class="font-bold">País</span>
+        </mat-label>
+        <mat-select
+          name="countrySelect"
+          formControlName="country"
+          [compareWith]="compare"
+        >
+          @for(country of personDataService.countries(); track $index){
+          <mat-option [value]="country">{{ country.name }}</mat-option>
+          }
+        </mat-select>
+        @if(personForm.get('person.country')?.hasError('required') &&
+        personForm.get('person.country')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="map-2"></i-tabler>
+          <span class="font-bold">Provincia</span>
+        </mat-label>
+        <mat-select
+          name="provinceSelect"
+          formControlName="province"
+          [compareWith]="compare"
+        >
+          @for(province of provinces(); track $index){
+          <mat-option [value]="province">{{ province.name }}</mat-option>
+          }
+        </mat-select>
+        @if(personForm.get('person.province')?.hasError('required') &&
+        personForm.get('person.province')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="map-2"></i-tabler>
+          <span class="font-bold">Localidad</span>
+        </mat-label>
+        <mat-select
+          name="localitySelect"
+          formControlName="locality"
+          [compareWith]="compare"
+        >
+          @for(locality of localities(); track $index){
+          <mat-option [value]="locality">{{ locality.name }}</mat-option>
+          }
+        </mat-select>
+        @if(personForm.get('person.locality')?.hasError('required') &&
+        personForm.get('person.locality')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="map-pin"></i-tabler>
+          <span class="font-bold">Calle</span>
+        </mat-label>
+        <input type="string" matInput formControlName="street" />
+        @if(personForm.get('person.street')?.hasError('required') &&
+        personForm.get('person.street')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        } @if(personForm.get('person.street')?.hasError('maxlength')){
+        <mat-error>
+          El nombre de la calle no puede tener más de 30 caracteres.
+        </mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="map-pin"></i-tabler>
+          <span class="font-bold">Altura</span>
+        </mat-label>
+        <input type="number" matInput formControlName="number" />
+        @if(personForm.get('person.number')?.hasError('required') &&
+        personForm.get('person.number')?.touched){
+        <mat-error>Campo requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="building"></i-tabler>
+          <span class="font-bold">Piso</span>
+        </mat-label>
+        <input type="number" matInput formControlName="floor" />
+        @if(personForm.get('person.floor')?.hasError('min') ||
+        personForm.get('person.floor')?.hasError('max')){
+        <mat-error> El piso no puede tener más de 2 caracteres. </mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4">
+      <mat-form-field appearance="outline" class="w-full !mb-0">
+        <mat-label class="items-center flex gap-1">
+          <i-tabler name="building"></i-tabler>
+          <span class="font-bold">Departamento</span>
+        </mat-label>
+        <input type="string" matInput formControlName="apartment" />
+        @if(personForm.get('person.apartment')?.hasError('maxlength')){
+        <mat-error>
+          El departamento no puede tener más de 2 caracteres.
+        </mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+</form>

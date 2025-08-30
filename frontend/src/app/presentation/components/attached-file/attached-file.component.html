@@ -1,0 +1,155 @@
+<div class="p-4 flex flex-col items-center justify-center gap-4">
+  <!-- View Controls -->
+  <div
+    class="inline-flex items-end justify-end bg-[var(--mat-sys-home-sidenav-content-background)] rounded-full"
+  >
+    <button
+      mat-icon-button
+      matTooltip="Vista de listado"
+      [class.text-blue-500]="viewMode() === 'list'"
+      (click)="viewMode.set('list')"
+    >
+      <i-tabler class="mb-1" name="list-details"></i-tabler>
+    </button>
+    <button
+      mat-icon-button
+      matTooltip="Vista de grilla"
+      [class.text-blue-500]="viewMode() === 'grid'"
+      (click)="viewMode.set('grid')"
+    >
+      <i-tabler class="mb-1" name="layout-grid"></i-tabler>
+    </button>
+  </div>
+
+  <!-- List View -->
+  <ng-container *ngIf="viewMode() === 'list'">
+    @if(filesMetadata().length > 0) {
+    <table mat-table [dataSource]="filesMetadata()" class="w-full">
+      <ng-container matColumnDef="originalFileName">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.originalFileName }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Acción</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-icon-button
+            matTooltip="Ver"
+            matTooltipPosition="left"
+            (click)="viewFile(element.id)"
+          >
+            <i-tabler name="eye"></i-tabler>
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Descargar"
+            matTooltipPosition="right"
+            (click)="downloadFile(element.id, element.originalFileName)"
+          >
+            <i-tabler name="download"></i-tabler>
+          </button>
+          <button
+            mat-icon-button
+            matTooltip="Eliminar"
+            matTooltipPosition="right"
+            (click)="deleteFile(element.id)"
+          >
+            <i-tabler class="text-red-500" name="xbox-x"></i-tabler>
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['originalFileName', 'action']"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['originalFileName', 'action']"
+      ></tr>
+    </table>
+    } @else {
+    <span>Aún no tienes archivos subidos.</span>
+    }
+  </ng-container>
+
+  <!-- Grid View -->
+  <ng-container *ngIf="viewMode() === 'grid'">
+    @if(filesMetadata().length > 0) {
+    <div class="flex flex-wrap justify-center gap-4 w-full">
+      @for(file of filesMetadata(); track file.id) {
+      <div
+        class="bg-[var(--mat-sys-file-container-background)] rounded-[var(--mat-sys-corner-large)] p-4 shadow-sm w-48"
+      >
+        <div class="flex flex-col items-center text-center">
+          <!-- File Icon -->
+          <div class="w-16 h-16 flex items-center justify-center mb-3">
+            @if(getFileExtension(file.originalFileName).toLowerCase() === 'pdf')
+            {
+            <img src="img/pdf-icon.svg" alt="PDF" class="w-12 h-12" />
+            } @else if(getFileExtension(file.originalFileName).toLowerCase() ===
+            'doc' || getFileExtension(file.originalFileName).toLowerCase() ===
+            'docx') {
+            <img src="img/docs-icon.svg" alt="Word" class="w-14 h-14" />
+
+            } @else {
+            <i-tabler name="file" class="scale-345 mt-4"></i-tabler>
+            }
+          </div>
+
+          <!-- File Name -->
+          <div class="text-sm font-medium mb-3 w-full line-clamp-2 text-center">
+            {{ file.originalFileName }}
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-1">
+            <button
+              mat-icon-button
+              matTooltip="Ver"
+              matTooltipPosition="above"
+              (click)="viewFile(file.id)"
+            >
+              <i-tabler name="eye" class="w-4 h-4"></i-tabler>
+            </button>
+            <button
+              mat-icon-button
+              matTooltip="Descargar"
+              matTooltipPosition="above"
+              (click)="downloadFile(file.id, file.originalFileName)"
+            >
+              <i-tabler name="download" class="w-4 h-4"></i-tabler>
+            </button>
+            <button
+              mat-icon-button
+              matTooltip="Eliminar"
+              matTooltipPosition="above"
+              (click)="deleteFile(file.id)"
+            >
+              <i-tabler class="text-red-500 w-4 h-4" name="xbox-x"></i-tabler>
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    } @else {
+    <span>Aún no tienes archivos subidos.</span>
+    }
+  </ng-container>
+
+  <!-- Upload Button -->
+  <button mat-flat-button (click)="triggerAttachedFileInput()">
+    <div class="flex items-center gap-2">
+      <i-tabler name="file-import"></i-tabler>
+      <span>Subir archivo</span>
+    </div>
+  </button>
+
+  <!-- Hidden File Input -->
+  <input
+    #attachedFileInput
+    type="file"
+    class="hidden"
+    accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    (change)="onStudyFileSelected($event)"
+  />
+</div>

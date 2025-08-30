@@ -272,7 +272,6 @@
     0px 2px 14px -1px var(--mat-sys-penumbra-color),
     0px 1px 16px -2px var(--mat-sys-ambient-color);
 
-
   /* SHAPE SYSTEM VARIABLES */
   --mat-sys-corner-extra-large: 28px;
   --mat-sys-corner-extra-large-top: 28px 28px 0 0;
@@ -311,5 +310,10 @@
   --mat-sys-odontogram-container-background: light-dark(
     transparent,
     rgb(55, 47, 52, 1)
+  );
+
+  --mat-sys-file-container-background: light-dark(
+    rgb(204, 204, 204, 0.3),
+    rgb(75, 67, 72, 1)
   );
 }
