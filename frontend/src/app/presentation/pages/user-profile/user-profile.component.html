@@ -86,9 +86,11 @@
     <mat-card appearance="outlined">
       <mat-card-content>
         <div class="p-4">
-          <app-person-data-form
-            [person]="user()?.person!"
-          ></app-person-data-form>
+          <app-person-form [person]="user()?.person!"></app-person-form>
+          @if(user()?.dentist!.licenseNumber ||
+          user()?.dentist!.dentistSpecialty){
+          <app-dentist-form [dentist]="user()?.dentist!"></app-dentist-form>
+          }
         </div>
       </mat-card-content>
     </mat-card>

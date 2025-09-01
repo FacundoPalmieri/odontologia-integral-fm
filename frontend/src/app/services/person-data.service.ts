@@ -5,7 +5,6 @@ import { forkJoin, Observable, switchMap, tap } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import {
   CountryInterface,
-  DentistSpecialtyInterface,
   DniTypeInterface,
   GenderInterface,
   HealthPlanInterface,
@@ -15,6 +14,7 @@ import {
   ProvinceInterface,
 } from "../domain/interfaces/person-data.interface";
 import { MedicalHistoryRiskInterface } from "../domain/interfaces/patient.interface";
+import { DentistSpecialtyInterface } from "../domain/interfaces/dentist.interface";
 
 @Injectable({ providedIn: "root" })
 export class PersonDataService {

@@ -26,9 +26,10 @@ import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { MatTabsModule } from "@angular/material/tabs";
 import { PersonDataService } from "../../../services/person-data.service";
 import { MatButtonModule } from "@angular/material/button";
-import { PersonDataFormComponent } from "../../components/person-data-form/person-data-form.component";
 import { AttachedFileComponent } from "../../components/attached-file/attached-file.component";
 import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
+import { PersonFormComponent } from "../../components/person-form/person-form.component";
+import { DentistFormComponent } from "../../components/dentist-form/dentist-form.component";
 
 @Component({
   selector: "app-user-profile",
@@ -44,8 +45,9 @@ import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
     MatChipsModule,
     MatTabsModule,
     MatButtonModule,
-    PersonDataFormComponent,
     AttachedFileComponent,
+    PersonFormComponent,
+    DentistFormComponent,
   ],
 })
 export class UserProfileComponent implements OnInit, OnDestroy {

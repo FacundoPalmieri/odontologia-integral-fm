@@ -26,8 +26,8 @@ import { Subject, takeUntil } from "rxjs";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 
 @Component({
-  selector: "app-person-data-form",
-  templateUrl: "./person-data-form.component.html",
+  selector: "app-person-form",
+  templateUrl: "./person-form.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -39,7 +39,7 @@ import { ApiResponseInterface } from "../../../domain/interfaces/api-response.in
     MatDatepickerModule,
   ],
 })
-export class PersonDataFormComponent implements OnInit {
+export class PersonFormComponent implements OnInit {
   private readonly _destroy$ = new Subject<void>();
 
   private _person!: PersonInterface;
@@ -49,6 +49,14 @@ export class PersonDataFormComponent implements OnInit {
     this._person = value;
     if (value) {
       this.personForm.patchValue(value);
+
+      if (value.country) {
+        this._getProvincesByCountryId(value.country.id);
+      }
+
+      if (value.province) {
+        this._getLocalitiesByProvinceId(value.province.id);
+      }
     }
   }
 

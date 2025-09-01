@@ -34,4 +34,3 @@ export interface NationalityInterface extends BaseInterface {}
 export interface LocalityInterface extends BaseInterface {}
 export interface CountryInterface extends BaseInterface {}
 export interface PhoneTypeInterface extends BaseInterface {}
-export interface DentistSpecialtyInterface extends BaseInterface {}
