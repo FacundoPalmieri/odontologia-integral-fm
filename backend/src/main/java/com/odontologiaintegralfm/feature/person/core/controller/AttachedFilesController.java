@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.person.core.controller;
 
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPatientsUpload;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfile;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationRead;
 import com.odontologiaintegralfm.feature.person.core.dto.AttachedFileResponseDTO;
 import com.odontologiaintegralfm.shared.response.Response;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAttachedFilesService;
@@ -57,7 +57,7 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "409", description = "Error en la extensión o tamaño del archivo.")
     })
     @PostMapping(value = "/user/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @OnlyAccessUserProfile
+    @OnlyAccessUserProfileOrConfigurationRead
     public ResponseEntity<Response<String>> saveDocumentUser(@PathVariable Long id,
                                                              @RequestParam("file") MultipartFile file) throws IOException {
         Response<String> response = attachedFilesService.saveDocumentUser(file, id);
@@ -209,7 +209,7 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "404", description = "Persona o documento no encontrados."),
     })
     @GetMapping("/user/all/{id}/metadata")
-    @OnlyAccessUserProfile
+    @OnlyAccessUserProfileOrConfigurationRead
     public ResponseEntity<Response<List<AttachedFileResponseDTO>>> getAllDocumentsMetadataByIdUser(@PathVariable("id") Long id) throws IOException {
         Response<List<AttachedFileResponseDTO>> response= attachedFilesService.getAllDocumentsMetadataByIdUser(id);
          return new ResponseEntity<>(response, HttpStatus.OK);

@@ -93,7 +93,7 @@ public class CleanupService {
      */
     public void loadHoliday(){
         int yearNext = Year.now().getValue() +1;
-        holidayService.loadHolidays(2025);
+        holidayService.loadHolidays(yearNext);
     }
 
 }

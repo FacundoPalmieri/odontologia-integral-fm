@@ -23,8 +23,7 @@ public class AuthenticatedSystemService {
         UserSec systemUser = userService.getByIdInternal(SystemUserId.SYSTEM.getId());
 
         // Creo un authentication válido con el usuario de sistema
-        UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken(systemUser, null, null);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(systemUser, null, null);
 
         // Lo seteo en el contexto de seguridad
         SecurityContextHolder.getContext().setAuthentication(auth);

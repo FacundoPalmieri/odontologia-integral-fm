@@ -1,8 +1,6 @@
-package com.odontologiaintegralfm.infrastructure.externalapi;
+package com.odontologiaintegralfm.infrastructure.externalapi.dto;
 
-/**
- * @author [Facundo Palmieri]
- */
+
 public record HolidayApiResponseDTO(
         String fecha,
         String tipo,

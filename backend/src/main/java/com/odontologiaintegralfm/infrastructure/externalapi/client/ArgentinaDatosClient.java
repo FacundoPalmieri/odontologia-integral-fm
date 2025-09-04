@@ -1,9 +1,9 @@
-package com.odontologiaintegralfm.infrastructure.externalapi;
+package com.odontologiaintegralfm.infrastructure.externalapi.client;
 
+import com.odontologiaintegralfm.infrastructure.externalapi.dto.HolidayApiResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import java.util.List;
 
 /**

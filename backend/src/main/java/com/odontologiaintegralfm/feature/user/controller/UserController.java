@@ -114,7 +114,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
     @GetMapping("/{id}")
-    @OnlyAccessUserProfile
+    @OnlyAccessUserProfileOrConfigurationRead
     public ResponseEntity<Response<UserSecResponseDTO>> getById(@PathVariable Long id) {
         Response<UserSecResponseDTO>response = userService.getById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

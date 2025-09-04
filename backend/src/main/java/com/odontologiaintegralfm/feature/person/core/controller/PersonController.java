@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.person.core.controller;
 
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfile;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationRead;
 import com.odontologiaintegralfm.shared.response.Response;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IPersonService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,7 +53,7 @@ public class PersonController {
             @ApiResponse(responseCode = "409", description = "Error en la extensión o tamaño del archivo.")
     })
     @PostMapping(value = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @OnlyAccessUserProfile
+    @OnlyAccessUserProfileOrConfigurationRead
     public ResponseEntity<Response<String>> uploadAvatar(@PathVariable Long id,
                                                          @RequestParam("file") MultipartFile file) throws IOException {
         Response<String> response = personService.saveAvatar(file, id);
@@ -88,7 +88,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
     })
     @GetMapping("/{id}/avatar")
-    @OnlyAccessUserProfile
+    @OnlyAccessUserProfileOrConfigurationRead
 
     public ResponseEntity<UrlResource> getAvatar(@PathVariable Long id) throws IOException {
 
@@ -132,7 +132,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
     })
     @DeleteMapping("/{id}/avatar")
-    @OnlyAccessUserProfile
+    @OnlyAccessUserProfileOrConfigurationRead
     public ResponseEntity<Response<String>> deleteAvatar(@PathVariable Long id) throws IOException {
         Response<String> response = personService.deleteAvatar(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

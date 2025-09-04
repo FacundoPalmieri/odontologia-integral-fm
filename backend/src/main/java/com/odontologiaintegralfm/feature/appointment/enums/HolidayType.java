@@ -27,6 +27,8 @@ public enum HolidayType {
         return Arrays.stream(values())
                 .filter(e -> e.label.equalsIgnoreCase(label))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Tipo de feriado inválido: " + label
+                ));
     }
 }

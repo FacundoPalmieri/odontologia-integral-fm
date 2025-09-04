@@ -98,7 +98,7 @@ public class LogActionAspect {
         // Evaluar expresiones definidas en la anotación
         List<Object> resolvedArgs = new ArrayList<>();
         ExpressionParser parser = new SpelExpressionParser();
-
+    try {
         // Itera sobre los args declarados en @LogAction.args()
         for (String argExpr : logAction.args()) {
             Object value = parser.parseExpression(argExpr).getValue(context); //Evalúa cada expresión pasada en LogAction contra el contexto cargado de todos los argumentos del método principal, resolviendo el valor real de cada una. Ej Anotación Cuando el parser ve #usuario.nombre busca el objeto usuario y llama a su método getNombre() para devolver "Juan".
@@ -123,6 +123,19 @@ public class LogActionAspect {
                 null,
                 null
         ));
+    }catch (Exception spELEx) {
+        // Capturar cualquier error de SpEL sin afectar el flujo principal
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.WARN,
+                type,
+                null,
+                "Error evaluando expresiones en LogAction: " + spELEx.getMessage(),
+                "LogActionAspect",
+                userAuth,
+                null,
+                systemLogService.getStackTraceAsString(spELEx)
+        ));
+    }
 
         return result; //Devuelve el resultado al método original para que continue el flujo.
     }

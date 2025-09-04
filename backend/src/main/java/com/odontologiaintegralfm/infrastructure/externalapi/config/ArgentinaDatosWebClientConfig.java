@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.configuration.appconfig;
+package com.odontologiaintegralfm.infrastructure.externalapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * Configura el cliente HTTP para comunicarse con APIs externas.
  */
 @Configuration
-public class WebClientConfig {
+public class ArgentinaDatosWebClientConfig {
 
     @Bean
     public WebClient argentinaDatosWebClient() {
