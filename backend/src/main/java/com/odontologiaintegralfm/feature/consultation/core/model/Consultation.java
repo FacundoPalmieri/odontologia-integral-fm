@@ -1,8 +1,8 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
-import com.odontologiaintegralfm.feature.appointment.enums.ConsultationStatus;
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.ConsultationStatus;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
-import com.odontologiaintegralfm.feature.appointment.model.Appointment;
+import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import jakarta.persistence.*;

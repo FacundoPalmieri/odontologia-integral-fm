@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.infrastructure.scheduler.task;
 
-import com.odontologiaintegralfm.feature.appointment.service.IHolidayService;
+import com.odontologiaintegralfm.feature.appointment.catalogs.service.IHolidayService;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAddressService;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IContactEmailService;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IContactPhoneService;
