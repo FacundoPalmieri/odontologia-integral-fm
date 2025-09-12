@@ -44,8 +44,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -146,7 +144,7 @@ public class UserService implements IUserService {
             Pageable pageable = PageRequest.of(page, size, sort);
 
             //Obtiene listado de usuarios.
-            Page<UserSec> userList = userRepository.findAllExcludingDevelopers(1L, pageable);
+            Page<UserSec> userList = userRepository.findAllExcludingDevelopers( pageable);
 
             if (!userList.isEmpty()) {
                 Page<UserSecResponseDTO> userSecResponseDTOList = userList
@@ -259,9 +257,6 @@ public class UserService implements IUserService {
 
     /**
      * Realiza baja lógica de un usuario, con todos las entidades relacionadas (ej: Archivos adjuntos)
-     *
-     * @param
-     * @return
      */
     /*
     @Override

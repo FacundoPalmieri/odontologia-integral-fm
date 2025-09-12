@@ -22,7 +22,6 @@ import java.time.LocalTime;
         @UniqueConstraint(columnNames = "licenseNumber")
 })
 public class Dentist extends Auditable {
-
     @Id
     private Long id;
 
@@ -37,14 +36,4 @@ public class Dentist extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = DentistSpecialty.class)
     @JoinColumn(name = "dentist_specialty_id")
     private DentistSpecialty dentistSpecialty;
-
-    @Column(nullable = false)
-    private LocalTime startTime;
-
-    @Column(nullable = false)
-    private LocalTime endTime;
-
-    @Column(nullable = false)
-    private int appointmentDuration;
-
 }

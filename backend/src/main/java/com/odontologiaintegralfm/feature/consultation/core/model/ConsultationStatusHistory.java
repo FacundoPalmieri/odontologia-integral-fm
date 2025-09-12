@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
-import com.odontologiaintegralfm.feature.appointment.enums.ConsultationStatus;
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.ConsultationStatus;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
