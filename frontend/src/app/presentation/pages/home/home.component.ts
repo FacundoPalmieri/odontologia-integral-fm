@@ -132,4 +132,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   goToProfile() {
     this.router.navigate(["/profile"]);
   }
+
+  isDeveloper(): boolean {
+    if (!this.userData?.roles) return false;
+    return this.userData.roles.some(
+      (role) =>
+        role.name.toLowerCase().includes("developer") ||
+        role.label.toLowerCase().includes("desarrollador")
+    );
+  }
 }
