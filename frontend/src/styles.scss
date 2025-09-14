@@ -91,11 +91,9 @@ body {
   }
 
   .list-item-menu {
-    text-align: center;
-
     @include mat.list-overrides(
       (
-        active-indicator-shape: 10px,
+        active-indicator-shape: var(--mat-sys-corner-large),
       )
     );
   }

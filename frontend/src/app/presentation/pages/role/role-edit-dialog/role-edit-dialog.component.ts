@@ -26,12 +26,10 @@ import { ActionService } from "../../../../services/action.service";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { MatIconModule } from "@angular/material/icon";
 import { RoleService } from "../../../../services/role.service";
-import { RoleCreateDtoInterface } from "../../../../domain/dto/role.dto";
-import { Action } from "rxjs/internal/scheduler/Action";
 
 @Component({
-  selector: "app-edit-role-dialog",
-  templateUrl: "./edit-role-dialog.component.html",
+  selector: "app-role-edit-dialog",
+  templateUrl: "./role-edit-dialog.component.html",
   standalone: true,
   imports: [
     MatDialogModule,
@@ -44,8 +42,8 @@ import { Action } from "rxjs/internal/scheduler/Action";
     MatIconModule,
   ],
 })
-export class EditRoleDialogComponent {
-  dialogRef = inject(MatDialogRef<EditRoleDialogComponent>);
+export class RoleEditDialogComponent {
+  dialogRef = inject(MatDialogRef<RoleEditDialogComponent>);
   permissionService = inject(PermissionService);
   actionService = inject(ActionService);
   roleService = inject(RoleService);

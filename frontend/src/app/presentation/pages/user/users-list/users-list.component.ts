@@ -1,7 +1,6 @@
 import {
   Component,
   inject,
-  QueryList,
   ViewChildren,
   signal,
   effect,
@@ -9,45 +8,40 @@ import {
   AfterViewInit,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { IconsModule } from "../../../utils/tabler-icons.module";
-import { MatToolbarModule } from "@angular/material/toolbar";
-import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar.component";
 import { MatCardModule } from "@angular/material/card";
-import { UserService } from "../../../services/user.service";
-import { RoleService } from "../../../services/role.service";
-import { PermissionService } from "../../../services/permission.service";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { RoleInterface } from "../../../domain/interfaces/role.interface";
-import {
-  ApiResponseInterface,
-  PagedDataInterface,
-} from "../../../domain/interfaces/api-response.interface";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
-import { MatDialog, MatDialogModule } from "@angular/material/dialog";
-import { SnackbarService } from "../../../services/snackbar.service";
-import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
-import { EditRoleDialogComponent } from "./edit-role-dialog/edit-role-dialog.component";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { Subject, takeUntil } from "rxjs";
 import { Router } from "@angular/router";
-import { UserDtoInterface } from "../../../domain/dto/user.dto";
-import { PersonDataService } from "../../../services/person-data.service";
-import { LoaderService } from "../../../services/loader.service";
-import { AccessControlService } from "../../../services/access-control.service";
+import { IconsModule } from "../../../../utils/tabler-icons.module";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
+import { LoaderService } from "../../../../services/loader.service";
+import { AccessControlService } from "../../../../services/access-control.service";
+import { UserService } from "../../../../services/user.service";
+import { PersonDataService } from "../../../../services/person-data.service";
+import { SnackbarService } from "../../../../services/snackbar.service";
+import { UserDtoInterface } from "../../../../domain/dto/user.dto";
 import {
   ActionsEnum,
   PermissionsEnum,
-} from "../../../utils/enums/permissions.enum";
+} from "../../../../utils/enums/permissions.enum";
+import {
+  ApiResponseInterface,
+  PagedDataInterface,
+} from "../../../../domain/interfaces/api-response.interface";
+import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
 
 @Component({
-  selector: "app-configuration",
-  templateUrl: "./configuration.component.html",
+  selector: "app-users-list",
+  templateUrl: "./users-list.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -61,27 +55,21 @@ import {
     MatChipsModule,
     MatPaginatorModule,
     MatSortModule,
-    MatDialogModule,
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
   ],
 })
-export class ConfigurationComponent implements OnDestroy, AfterViewInit {
+export class UsersListComponent implements OnDestroy, AfterViewInit {
   private readonly _destroy$ = new Subject<void>();
   private readonly loaderService = inject(LoaderService);
   private readonly router = inject(Router);
   private readonly accessControlService = inject(AccessControlService);
-  readonly dialog = inject(MatDialog);
-
-  userService = inject(UserService);
-  personDataService = inject(PersonDataService);
-  roleService = inject(RoleService);
-  permissionService = inject(PermissionService);
-  snackbarService = inject(SnackbarService);
+  private readonly userService = inject(UserService);
+  private readonly personDataService = inject(PersonDataService);
+  private readonly snackbarService = inject(SnackbarService);
 
   users = signal<UserDtoInterface[]>([]);
-  roles = signal<RoleInterface[]>([]);
 
   usersPageSize = signal(5);
   usersPageIndex = signal(0);
@@ -91,11 +79,9 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
 
   userFilter = new FormControl("");
   usersDataSource = new MatTableDataSource<UserDtoInterface>([]);
-  roleFilter = new FormControl("");
-  rolesDataSource = new MatTableDataSource<RoleInterface>([]);
 
-  @ViewChildren(MatPaginator) paginators!: QueryList<MatPaginator>;
-  @ViewChildren(MatSort) sorts!: QueryList<MatSort>;
+  @ViewChildren(MatPaginator) paginator!: MatPaginator;
+  @ViewChildren(MatSort) sort!: MatSort;
 
   userDisplayedColumns: string[] = [
     "avatar",
@@ -103,7 +89,6 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
     "rolesList",
     "enabled",
   ];
-  roleDisplayedColumns: string[] = ["id", "name", "label"];
 
   canCreate = signal<boolean>(false);
   canRead = signal<boolean>(false);
@@ -116,34 +101,23 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
     effect(() => {
       if (this.users()) {
         this.usersDataSource.data = this.users();
-        if (this.paginators && this.paginators.length > 0) {
-          this.paginators.toArray()[0].length = this.usersTotalElements();
-        }
-      }
-    });
-
-    effect(() => {
-      if (this.roles()) {
-        this.rolesDataSource.data = this.roles();
-        if (this.paginators && this.sorts) {
-          this.rolesDataSource.paginator = this.paginators.toArray()[1];
-          this.rolesDataSource.sort = this.sorts.toArray()[1];
+        if (this.paginator) {
+          this.paginator.length = this.usersTotalElements();
         }
       }
     });
 
     effect(() => {
       if (this.canUpdate()) {
-        this.roleDisplayedColumns.push("action");
         this.userDisplayedColumns.push("action");
       }
     });
   }
 
   ngAfterViewInit(): void {
-    if (this.paginators.length > 0 && this.sorts.length > 0) {
-      const userPaginator = this.paginators.toArray()[0];
-      const userSort = this.sorts.toArray()[0];
+    if (this.paginator.length > 0) {
+      const userPaginator = this.paginator;
+      const userSort = this.sort;
 
       userPaginator.page.pipe(takeUntil(this._destroy$)).subscribe((event) => {
         this.usersPageIndex.set(event.pageIndex);
@@ -160,7 +134,6 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
         this.usersPageIndex.set(0);
         this.usersSortBy.set(sort.active);
         this.usersSortDirection.set(sort.direction);
-        // Load users with new sort parameters
         this._loadUsers(
           this.usersPageIndex(),
           this.usersPageSize(),
@@ -184,42 +157,6 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
     this.router.navigate(["/configuration/users/edit", user.id]);
   }
 
-  editRole(role: RoleInterface) {
-    if (role != null) {
-      this.roleService
-        .getById(role.id)
-        .subscribe((response: ApiResponseInterface<RoleInterface>) => {
-          const dialogRef = this.dialog.open(EditRoleDialogComponent, {
-            data: { role: response.data },
-          });
-          dialogRef.afterClosed().subscribe((role: RoleInterface) => {
-            if (role) {
-              this.roleService
-                .update(role)
-                .pipe(takeUntil(this._destroy$))
-                .subscribe((response: ApiResponseInterface<RoleInterface>) => {
-                  this.snackbarService.openSnackbar(
-                    response.message,
-                    6000,
-                    "center",
-                    "top",
-                    SnackbarTypeEnum.Success
-                  );
-                  this._loadRoles();
-                });
-            }
-          });
-        });
-    } else {
-      this.snackbarService.openSnackbar(
-        "Ocurrió un error el editar el elemento",
-        6000,
-        "center",
-        "bottom",
-        SnackbarTypeEnum.Error
-      );
-    }
-  }
   private _loadInitialData() {
     this._loadUsers(
       this.usersPageIndex(),
@@ -227,7 +164,6 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
       this.usersSortBy(),
       this.usersSortDirection()
     );
-    this._loadRoles();
     this._loadPermissionsFlags();
   }
 
@@ -298,26 +234,9 @@ export class ConfigurationComponent implements OnDestroy, AfterViewInit {
       );
   }
 
-  private _loadRoles() {
-    this.roleService
-      .getAll()
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<RoleInterface[]>) => {
-        this.roles.set(response.data);
-      });
-  }
-
   private _setupFilters() {
     this.userFilter.valueChanges.subscribe((filterValue) => {
       this.usersDataSource.filter = filterValue?.trim().toLowerCase()!;
-
-      if (this.usersDataSource.paginator) {
-        this.usersDataSource.paginator.firstPage();
-      }
-    });
-
-    this.roleFilter.valueChanges.subscribe((filterValue) => {
-      this.rolesDataSource.filter = filterValue?.trim().toLowerCase()!;
 
       if (this.usersDataSource.paginator) {
         this.usersDataSource.paginator.firstPage();

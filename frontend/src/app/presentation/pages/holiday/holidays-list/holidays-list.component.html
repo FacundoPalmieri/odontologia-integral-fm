@@ -1,0 +1,94 @@
+<app-page-toolbar [title]="'Feriados'"></app-page-toolbar>
+
+<mat-card appearance="outlined" class="mt-4">
+  <mat-card-header>
+    <div class="flex w-full justify-end gap-2 mb-4">
+      <button
+        mat-flat-button
+        (click)="createHoliday()"
+        [disabled]="!canCreate()"
+      >
+        <div class="flex items-center justify-center gap-2">
+          <i-tabler name="plus"></i-tabler>
+          <span>Agregar feriado</span>
+        </div>
+      </button>
+    </div>
+  </mat-card-header>
+  <mat-card-content>
+    @if(canRead()){ @if(holidays().length > 0) {
+    <div class="w-full space-y-8">
+      @for(monthGroup of getHolidaysByMonth(); track monthGroup.monthName) {
+      <div class="w-full">
+        <!-- Month Header -->
+        <div class="flex items-center mb-4">
+          <h3 class="text-lg font-semibold mr-3">
+            {{ monthGroup.monthName }}
+          </h3>
+          <div class="flex-1 h-px bg-gray-300"></div>
+          <span
+            class="ml-3 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+          >
+            {{ monthGroup.holidays.length }} feriado{{
+              monthGroup.holidays.length !== 1 ? "s" : ""
+            }}
+          </span>
+        </div>
+
+        <!-- Holidays Grid for this month -->
+        <div class="flex flex-wrap justify-center gap-4">
+          @for(holiday of monthGroup.holidays; track holiday.name) {
+          <div
+            class="bg-[var(--mat-sys-file-container-background)] rounded-[var(--mat-sys-corner-large)] p-4 shadow-sm w-54"
+          >
+            <div class="flex flex-col items-center text-center">
+              <!-- Holiday Icon -->
+
+              <!-- Holiday Name -->
+              <div class="font-medium mb-2 w-full line-clamp-2 text-center">
+                {{ holiday.name }}
+              </div>
+
+              <!-- Holiday Date -->
+              <div class="text-sm mb-2">
+                {{ holiday.date | date : "dd/MM/yyyy" }}
+              </div>
+
+              <!-- Holiday Type -->
+              <div class="text-xs mb-3">
+                <span [class]="getHolidayTypeClass(holiday.type)">
+                  {{ holiday.type }}
+                </span>
+              </div>
+
+              <!-- Actions -->
+              @if(canUpdate()) {
+              <div class="flex gap-1">
+                <button
+                  mat-icon-button
+                  matTooltip="Editar"
+                  matTooltipPosition="right"
+                  (click)="editHoliday(holiday)"
+                >
+                  <i-tabler name="edit" class="w-4 h-4"></i-tabler>
+                </button>
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="flex flex-col items-center justify-center py-8">
+      <mat-chip>No se encontraron feriados</mat-chip>
+    </div>
+    } } @else {
+    <div class="flex items-center justify-center">
+      <mat-chip>No tienes permisos para acceder a este recurso.</mat-chip>
+    </div>
+    }
+  </mat-card-content>
+</mat-card>

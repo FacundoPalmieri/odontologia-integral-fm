@@ -5,7 +5,6 @@ import { HomeComponent } from "./pages/home/home.component";
 import { AuthGuard } from "../utils/guards/auth.guard";
 import { LoginGuard } from "../utils/guards/login.guard";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
-import { ConfigurationComponent } from "./pages/configuration/configuration.component";
 import { AppointmentsComponent } from "./pages/appointments/appointments.component";
 import { FinanceComponent } from "./pages/finance/finance.component";
 import { SystemComponent } from "./pages/system/system.component";
@@ -14,11 +13,14 @@ import { ConsultationRegisterComponent } from "./pages/consultation-register/con
 import { ReportsComponent } from "./pages/reports/reports.component";
 import { PatientsListComponent } from "./pages/patients/patients-list/patients-list.component";
 import { OdontogramEditComponent } from "./pages/patients/odontogram-edit/odontogram-edit.component";
-import { UserCreatePageComponent } from "./pages/configuration/user-create-page/user-create-page.component";
-import { UserEditPageComponent } from "./pages/configuration/user-edit-page/user-edit-page.component";
 import { PatientCreatePageComponent } from "./pages/patients/patient-create-page/patient-create-page.component";
 import { PatientEditPageComponent } from "./pages/patients/patient-edit-page/patient-edit-page.component";
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
+import { UsersListComponent } from "./pages/user/users-list/users-list.component";
+import { UserCreatePageComponent } from "./pages/user/user-create-page/user-create-page.component";
+import { UserEditPageComponent } from "./pages/user/user-edit-page/user-edit-page.component";
+import { RolesListComponent } from "./pages/role/roles-list/roles-list.component";
+import { HolidaysListComponent } from "./pages/holiday/holidays-list/holidays-list.component";
 
 export const routes: Routes = [
   {
@@ -67,8 +69,8 @@ export const routes: Routes = [
         component: ReportsComponent,
       },
       {
-        path: "configuration",
-        component: ConfigurationComponent,
+        path: "configuration/users",
+        component: UsersListComponent,
       },
       {
         path: "configuration/users/create",
@@ -79,8 +81,12 @@ export const routes: Routes = [
         component: UserEditPageComponent,
       },
       {
-        path: "users/:id",
-        component: ConfigurationComponent,
+        path: "configuration/roles",
+        component: RolesListComponent,
+      },
+      {
+        path: "configuration/holidays",
+        component: HolidaysListComponent,
       },
       {
         path: "system",

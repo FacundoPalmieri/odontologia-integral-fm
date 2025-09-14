@@ -12,7 +12,6 @@ import {
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar.component";
 import { MatCardModule } from "@angular/material/card";
 import { UserService } from "../../../services/user.service";
 import { AuthService } from "../../../services/auth.service";
@@ -40,7 +39,6 @@ import { DentistFormComponent } from "../../components/dentist-form/dentist-form
     CommonModule,
     IconsModule,
     MatToolbarModule,
-    PageToolbarComponent,
     MatCardModule,
     MatChipsModule,
     MatTabsModule,

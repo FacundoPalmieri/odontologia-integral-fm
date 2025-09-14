@@ -229,7 +229,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(["/configuration"]);
+    this.router.navigate(["/configuration/users"]);
   }
 
   triggerFileInput(): void {

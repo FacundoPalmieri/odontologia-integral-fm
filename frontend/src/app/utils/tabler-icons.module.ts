@@ -90,6 +90,14 @@ import {
   IconFile,
   IconLayoutGrid,
   IconListDetails,
+  IconUserShield,
+  IconUser,
+  IconMessageReport,
+  IconAdjustmentsHorizontal,
+  IconClockCog,
+  IconChevronRight,
+  IconChevronUp,
+  IconCalendarCancel,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -181,6 +189,13 @@ const ICONS = {
   IconFile,
   IconListDetails,
   IconLayoutGrid,
+  IconUserShield,
+  IconUser,
+  IconMessageReport,
+  IconAdjustmentsHorizontal,
+  IconClockCog,
+  IconChevronUp,
+  IconCalendarCancel,
 } as const;
 
 @NgModule({

@@ -16,8 +16,8 @@ import { PermissionService } from "../../../../services/permission.service";
 import { PermissionInterface } from "../../../../domain/interfaces/role.interface";
 
 @Component({
-  selector: "app-create-role-dialog",
-  templateUrl: "./create-role-dialog.component.html",
+  selector: "app-role-create-dialog",
+  templateUrl: "./role-create-dialog.component.html",
   standalone: true,
   imports: [
     MatDialogModule,
@@ -29,8 +29,8 @@ import { PermissionInterface } from "../../../../domain/interfaces/role.interfac
     MatIconModule,
   ],
 })
-export class CreateRoleDialogComponent {
-  dialogRef = inject(MatDialogRef<CreateRoleDialogComponent>);
+export class RoleCreateDialogComponent {
+  dialogRef = inject(MatDialogRef<RoleCreateDialogComponent>);
   permissionService = inject(PermissionService);
   roleForm: FormGroup = new FormGroup({});
   permissions: PermissionInterface[] = [];

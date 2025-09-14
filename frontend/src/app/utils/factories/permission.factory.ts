@@ -1,14 +1,8 @@
 import { PermissionsEnum } from "../enums/permissions.enum";
-
-interface PermissionItem {
-  permissionEnum: PermissionsEnum;
-  route: string;
-  icon: string;
-  label: string;
-}
+import { MenuItemInterface } from "../../domain/interfaces/menu-item.interface";
 
 export class PermissionFactory {
-  static createPermissions(): PermissionItem[] {
+  static createPermissions(): MenuItemInterface[] {
     return [
       {
         permissionEnum: PermissionsEnum.DASHBOARD,
@@ -17,7 +11,7 @@ export class PermissionFactory {
         label: "Dashboard",
       },
       {
-        permissionEnum: PermissionsEnum.CONSULTATION_RECORD,
+        permissionEnum: PermissionsEnum.CONSULTATION,
         route: "/consultation",
         icon: "folder-plus",
         label: "Registro de Consultas",
@@ -57,12 +51,52 @@ export class PermissionFactory {
         route: "/configuration",
         icon: "settings",
         label: "Configuración",
+        children: [
+          {
+            permissionEnum: PermissionsEnum.CONFIGURATION,
+            route: "/configuration/users",
+            icon: "user",
+            label: "Usuarios",
+          },
+          {
+            permissionEnum: PermissionsEnum.CONFIGURATION,
+            route: "/configuration/roles",
+            icon: "user-shield",
+            label: "Roles",
+          },
+          {
+            permissionEnum: PermissionsEnum.CONFIGURATION,
+            route: "/configuration/holidays",
+            icon: "calendar-cancel",
+            label: "Feriados",
+          },
+        ],
       },
       {
         permissionEnum: PermissionsEnum.SYSTEM,
         route: "/system",
         icon: "device-desktop-cog",
         label: "Sistema",
+        children: [
+          {
+            permissionEnum: PermissionsEnum.SYSTEM,
+            route: "/system/messages",
+            icon: "message-report",
+            label: "Mensajes",
+          },
+          {
+            permissionEnum: PermissionsEnum.SYSTEM,
+            route: "/system/parameters",
+            icon: "adjustments-horizontal",
+            label: "Parámetros",
+          },
+          {
+            permissionEnum: PermissionsEnum.SYSTEM,
+            route: "/system/schedule",
+            icon: "clock-cog",
+            label: "Tareas programadas",
+          },
+        ],
       },
     ];
   }

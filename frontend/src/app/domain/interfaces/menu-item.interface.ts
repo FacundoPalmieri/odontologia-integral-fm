@@ -5,4 +5,5 @@ export interface MenuItemInterface {
   icon: string;
   route: string;
   permissionEnum: PermissionsEnum;
+  children?: MenuItemInterface[];
 }
