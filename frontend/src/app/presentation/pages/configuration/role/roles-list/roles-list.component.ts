@@ -5,6 +5,7 @@ import {
   OnDestroy,
   signal,
   ViewChild,
+  OnInit,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -27,6 +28,12 @@ import { SnackbarTypeEnum } from "../../../../../utils/enums/snackbar-type.enum"
 import { RoleService } from "../../../../../services/role.service";
 import { RoleInterface } from "../../../../../domain/interfaces/role.interface";
 import { RoleEditDialogComponent } from "../role-edit-dialog/role-edit-dialog.component";
+import { AccessControlService } from "../../../../../services/access-control.service";
+import {
+  ActionsEnum,
+  PermissionsEnum,
+} from "../../../../../utils/enums/permissions.enum";
+import { MatChipsModule } from "@angular/material/chips";
 
 @Component({
   selector: "app-roles-list",
@@ -47,26 +54,28 @@ import { RoleEditDialogComponent } from "../role-edit-dialog/role-edit-dialog.co
     MatPaginatorModule,
     MatTooltipModule,
     MatDialogModule,
+    MatChipsModule,
   ],
 })
-export class RolesListComponent implements OnDestroy {
+export class RolesListComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly dialog = inject(MatDialog);
   private readonly roleService = inject(RoleService);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly accessControlService = inject(AccessControlService);
 
   roles = signal<any[]>([]);
   rolesFilter = new FormControl("");
   rolesDataSource: MatTableDataSource<any> = new MatTableDataSource();
-  rolesDisplayedColumns: string[] = ["id", "label", "name", "action"];
+  canRead = false;
+  canUpdate = false;
+  rolesDisplayedColumns: string[] = [];
 
   @ViewChild("rolesPaginator")
   rolesPaginator!: MatPaginator;
   @ViewChild("rolesSort") rolesSort!: MatSort;
 
   constructor() {
-    this.loadInitialData();
-
     effect(() => {
       if (this.roles()) {
         this.rolesDataSource.data = this.roles();
@@ -76,12 +85,28 @@ export class RolesListComponent implements OnDestroy {
     });
   }
 
+  ngOnInit() {
+    this.canRead = this.accessControlService.can(
+      PermissionsEnum.CONFIGURATION,
+      ActionsEnum.READ
+    );
+    this.canUpdate = this.accessControlService.can(
+      PermissionsEnum.CONFIGURATION,
+      ActionsEnum.UPDATE
+    );
+    this.rolesDisplayedColumns = ["id", "label", "name"];
+    if (this.canUpdate) {
+      this.rolesDisplayedColumns.push("action");
+    }
+    this._loadInitialData();
+  }
+
   ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
   }
 
-  loadInitialData() {
+  private _loadInitialData() {
     this._loadRoles();
     this._setupFilters();
   }
