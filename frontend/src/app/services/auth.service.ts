@@ -59,8 +59,9 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
+          const userData = this.getUserData();
           this.doLogin(response.data);
-          this.updateRoles(response.data.idUser);
+          this.updateRoles(userData?.roles!);
           this.refreshTokenSubject.next(response.data.jwt);
           this.refreshTokenInProgress = false;
         }),
@@ -74,17 +75,13 @@ export class AuthService {
       );
   }
 
-  updateRoles(id: number) {
+  updateRoles(roles: RoleInterface[]) {
     let userData = this.getUserData();
-    this.userService
-      .getById(id)
-      .subscribe((response: ApiResponseInterface<UserInterface>) => {
-        userData = {
-          ...userData!,
-          roles: response.data.rolesList,
-        };
-        this.doLogin(userData);
-      });
+    userData = {
+      ...userData!,
+      roles: roles,
+    };
+    this.doLogin(userData);
   }
 
   resetPasswordRequest(
