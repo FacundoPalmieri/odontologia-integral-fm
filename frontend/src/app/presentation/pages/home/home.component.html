@@ -7,21 +7,65 @@
     <mat-nav-list>
       <div class="space-y-4 mt-4 p-3">
         @for(menu of filteredMenuItems; track menu.label){
-        <mat-list-item
-          class="list-item-menu"
-          [matTooltip]="menu.label"
-          matTooltipPosition="right"
-          [routerLink]="menu.route"
-          routerLinkActive="active-link"
+        <ng-container
+          *ngIf="menu.children && menu.children.length > 0; else noChildren"
         >
-          <div class="flex items-center justify-center">
-            <i-tabler [name]="menu.icon"></i-tabler>
-            <span
-              class="block text-center whitespace-normal break-words w-full text-sm"
-              >{{ menu.label }}</span
+          <mat-list-item
+            class="list-item-menu cursor-pointer"
+            [matTooltip]="menu.label"
+            matTooltipPosition="right"
+            (click)="toggleSubmenu(menu.label)"
+          >
+            <div class="flex flex-row items-center">
+              <i-tabler [name]="menu.icon"></i-tabler>
+              <span
+                class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+                >{{ menu.label }}</span
+              >
+              <i-tabler
+                name="chevron-down"
+                class="ml-2 text-sm transition-transform duration-200"
+                [ngClass]="{ 'rotate-180': expandedMenus[menu.label] }"
+              ></i-tabler>
+            </div>
+          </mat-list-item>
+          <div class="pl-4" *ngIf="expandedMenus[menu.label]">
+            @for(child of menu.children; track child.label){
+            <mat-list-item
+              class="list-item-menu mb-1"
+              [matTooltip]="child.label"
+              matTooltipPosition="right"
+              [routerLink]="child.route"
+              routerLinkActive="active-link"
             >
+              <div class="flex flex-row items-center">
+                <i-tabler [name]="child.icon"></i-tabler>
+                <span
+                  class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+                  >{{ child.label }}</span
+                >
+              </div>
+            </mat-list-item>
+            }
           </div>
-        </mat-list-item>
+        </ng-container>
+        <ng-template #noChildren>
+          <mat-list-item
+            class="list-item-menu"
+            [matTooltip]="menu.label"
+            matTooltipPosition="right"
+            [routerLink]="menu.route"
+            routerLinkActive="active-link"
+          >
+            <div class="flex flex-row items-center">
+              <i-tabler [name]="menu.icon"></i-tabler>
+              <span
+                class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+                >{{ menu.label }}</span
+              >
+            </div>
+          </mat-list-item>
+        </ng-template>
         }
       </div>
     </mat-nav-list>
@@ -44,9 +88,6 @@
       </button>
       <h1>Odontología Integral FM</h1>
       <span class="spacer"></span>
-      <!-- <button mat-icon-button matBadge="4">
-        <i-tabler name="bell"></i-tabler>
-      </button> -->
       <button
         mat-icon-button
         (click)="fullScreenService.toggleFullscreen()"

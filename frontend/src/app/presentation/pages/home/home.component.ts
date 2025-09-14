@@ -69,6 +69,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private menuItems = PermissionFactory.createPermissions();
   filteredMenuItems: MenuItemInterface[] = [];
   avatar: string | null = null;
+  expandedMenus: { [label: string]: boolean } = {};
   @ViewChildren("menuTemplate") menuTemplates!: QueryList<MatMenu>;
 
   constructor() {
@@ -156,6 +157,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         role.name.toLowerCase().includes("developer") ||
         role.label.toLowerCase().includes("desarrollador")
     );
+  }
+
+  toggleSubmenu(label: string) {
+    this.expandedMenus[label] = !this.expandedMenus[label];
   }
 
   getMenuForItem(label: string): MatMenu | null {
