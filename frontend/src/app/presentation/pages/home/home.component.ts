@@ -1,4 +1,12 @@
-import { Component, computed, inject, OnDestroy, OnInit } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChildren,
+  QueryList,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Router, RouterModule } from "@angular/router";
 import { MatIconModule } from "@angular/material/icon";
@@ -7,7 +15,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatListModule } from "@angular/material/list";
 import { MatSidenavModule } from "@angular/material/sidenav";
-import { MatMenuModule } from "@angular/material/menu";
+import { MatMenuModule, MatMenu } from "@angular/material/menu";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { ThemeService } from "../../../services/theme.service";
 import { AuthService } from "../../../services/auth.service";
@@ -61,6 +69,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private menuItems = PermissionFactory.createPermissions();
   filteredMenuItems: MenuItemInterface[] = [];
   avatar: string | null = null;
+  @ViewChildren("menuTemplate") menuTemplates!: QueryList<MatMenu>;
 
   constructor() {
     if (this.authService.isLoggedIn()) {
@@ -99,9 +108,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private filterMenuItems(): MenuItemInterface[] {
-    return this.menuItems.filter((item) =>
-      this.permissions.includes(item.permissionEnum)
-    );
+    return this.menuItems
+      .filter((item) => this.permissions.includes(item.permissionEnum))
+      .map((item) => ({
+        ...item,
+        children: item.children
+          ? item.children.filter((child) =>
+              this.permissions.includes(child.permissionEnum)
+            )
+          : undefined,
+      }));
   }
 
   logout() {
@@ -140,5 +156,21 @@ export class HomeComponent implements OnInit, OnDestroy {
         role.name.toLowerCase().includes("developer") ||
         role.label.toLowerCase().includes("desarrollador")
     );
+  }
+
+  getMenuForItem(label: string): MatMenu | null {
+    if (!this.menuTemplates) {
+      return null;
+    }
+
+    const menus = this.menuTemplates.toArray();
+    const menusWithChildren = this.filteredMenuItems.filter(
+      (item) => item.children && item.children.length > 0
+    );
+
+    const menuIndex = menusWithChildren.findIndex(
+      (item) => item.label === label
+    );
+    return menus[menuIndex] || null;
   }
 }

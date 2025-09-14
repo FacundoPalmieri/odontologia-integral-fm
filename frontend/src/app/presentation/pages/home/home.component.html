@@ -14,7 +14,13 @@
           [routerLink]="menu.route"
           routerLinkActive="active-link"
         >
-          <i-tabler class="mt-1" [name]="menu.icon"></i-tabler>
+          <div class="flex items-center justify-center">
+            <i-tabler [name]="menu.icon"></i-tabler>
+            <span
+              class="block text-center whitespace-normal break-words w-full text-sm"
+              >{{ menu.label }}</span
+            >
+          </div>
         </mat-list-item>
         }
       </div>
