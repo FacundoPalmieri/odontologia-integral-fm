@@ -92,7 +92,7 @@ export class PermissionFactory {
           },
           {
             permissionEnum: PermissionsEnum.SYSTEM,
-            route: "/system/schedule",
+            route: "/system/schedules",
             icon: "clock-cog",
             label: "Tareas programadas",
           },

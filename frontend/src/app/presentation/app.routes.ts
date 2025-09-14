@@ -7,7 +7,6 @@ import { LoginGuard } from "../utils/guards/login.guard";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 import { AppointmentsComponent } from "./pages/appointments/appointments.component";
 import { FinanceComponent } from "./pages/finance/finance.component";
-import { SystemComponent } from "./pages/system/system.component";
 import { InventoryComponent } from "./pages/inventory/inventory.component";
 import { ConsultationRegisterComponent } from "./pages/consultation-register/consultation-register.component";
 import { ReportsComponent } from "./pages/reports/reports.component";
@@ -16,11 +15,14 @@ import { OdontogramEditComponent } from "./pages/patients/odontogram-edit/odonto
 import { PatientCreatePageComponent } from "./pages/patients/patient-create-page/patient-create-page.component";
 import { PatientEditPageComponent } from "./pages/patients/patient-edit-page/patient-edit-page.component";
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
-import { UsersListComponent } from "./pages/user/users-list/users-list.component";
-import { UserCreatePageComponent } from "./pages/user/user-create-page/user-create-page.component";
-import { UserEditPageComponent } from "./pages/user/user-edit-page/user-edit-page.component";
-import { RolesListComponent } from "./pages/role/roles-list/roles-list.component";
-import { HolidaysListComponent } from "./pages/holiday/holidays-list/holidays-list.component";
+import { UsersListComponent } from "./pages/configuration/user/users-list/users-list.component";
+import { UserCreatePageComponent } from "./pages/configuration/user/user-create-page/user-create-page.component";
+import { UserEditPageComponent } from "./pages/configuration/user/user-edit-page/user-edit-page.component";
+import { HolidaysListComponent } from "./pages/configuration/holiday/holidays-list/holidays-list.component";
+import { RolesListComponent } from "./pages/configuration/role/roles-list/roles-list.component";
+import { ParametersListComponent } from "./pages/system/parameters/parameters-list/parameters-list.component";
+import { SchedulesListComponent } from "./pages/system/schedule/schedules-list/schedules-list.component";
+import { MessagesListComponent } from "./pages/system/messages/messages-list/messages-list.component";
 
 export const routes: Routes = [
   {
@@ -89,8 +91,16 @@ export const routes: Routes = [
         component: HolidaysListComponent,
       },
       {
-        path: "system",
-        component: SystemComponent,
+        path: "system/parameters",
+        component: ParametersListComponent,
+      },
+      {
+        path: "system/schedules",
+        component: SchedulesListComponent,
+      },
+      {
+        path: "system/messages",
+        component: MessagesListComponent,
       },
       {
         path: "profile",

@@ -7,7 +7,7 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
-import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
+import { PageToolbarComponent } from "../../../../components/page-toolbar/page-toolbar.component";
 import { Router, ActivatedRoute } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import {
@@ -16,22 +16,22 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { IconsModule } from "../../../../utils/tabler-icons.module";
-import { SnackbarService } from "../../../../services/snackbar.service";
-import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
+import { IconsModule } from "../../../../../utils/tabler-icons.module";
+import { SnackbarService } from "../../../../../services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../../../utils/enums/snackbar-type.enum";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
 import { MatSelectModule } from "@angular/material/select";
 import { Subject, takeUntil } from "rxjs";
-import { PersonDataService } from "../../../../services/person-data.service";
-import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
+import { PersonDataService } from "../../../../../services/person-data.service";
+import { ApiResponseInterface } from "../../../../../domain/interfaces/api-response.interface";
 import { MatDatepickerModule } from "@angular/material/datepicker";
-import { RoleInterface } from "../../../../domain/interfaces/role.interface";
+import { RoleInterface } from "../../../../../domain/interfaces/role.interface";
 import { MatIconModule } from "@angular/material/icon";
-import { RoleService } from "../../../../services/role.service";
-import { UserInterface } from "../../../../domain/interfaces/user.interface";
-import { UserService } from "../../../../services/user.service";
+import { RoleService } from "../../../../../services/role.service";
+import { UserInterface } from "../../../../../domain/interfaces/user.interface";
+import { UserService } from "../../../../../services/user.service";
 import {
   CountryInterface,
   DniTypeInterface,
@@ -40,14 +40,14 @@ import {
   NationalityInterface,
   PhoneTypeInterface,
   ProvinceInterface,
-} from "../../../../domain/interfaces/person-data.interface";
-import { DentistSpecialtyInterface } from "../../../../domain/interfaces/dentist.interface";
-import { UserDtoInterface } from "../../../../domain/dto/user.dto";
-import { FileMetadataInterface } from "../../../../domain/interfaces/patient.interface";
-import { FileService } from "../../../../services/file.service";
+} from "../../../../../domain/interfaces/person-data.interface";
+import { DentistSpecialtyInterface } from "../../../../../domain/interfaces/dentist.interface";
+import { UserDtoInterface } from "../../../../../domain/dto/user.dto";
+import { FileMetadataInterface } from "../../../../../domain/interfaces/patient.interface";
+import { FileService } from "../../../../../services/file.service";
 import { MatTableModule } from "@angular/material/table";
-import { AttachedFileComponent } from "../../../components/attached-file/attached-file.component";
-import { EntityTypeEnum } from "../../../../utils/enums/entity-type.enum";
+import { AttachedFileComponent } from "../../../../components/attached-file/attached-file.component";
+import { EntityTypeEnum } from "../../../../../utils/enums/entity-type.enum";
 
 @Component({
   selector: "app-user-edit-page",

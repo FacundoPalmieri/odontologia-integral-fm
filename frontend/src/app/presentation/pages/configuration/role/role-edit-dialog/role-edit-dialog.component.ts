@@ -15,17 +15,15 @@ import {
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import {
-  ActionInterface,
-  PermissionInterface,
-  RoleInterface,
-} from "../../../../domain/interfaces/role.interface";
-import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
-import { PermissionService } from "../../../../services/permission.service";
-import { ActionService } from "../../../../services/action.service";
-import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { MatIconModule } from "@angular/material/icon";
-import { RoleService } from "../../../../services/role.service";
+import { IconsModule } from "../../../../../utils/tabler-icons.module";
+import { PermissionService } from "../../../../../services/permission.service";
+import { ActionService } from "../../../../../services/action.service";
+import { RoleService } from "../../../../../services/role.service";
+import { RoleInterface } from "../../../../../domain/interfaces/role.interface";
+import { PermissionInterface } from "../../../../../domain/interfaces/role.interface";
+import { ActionInterface } from "../../../../../domain/interfaces/role.interface";
+import { ApiResponseInterface } from "../../../../../domain/interfaces/api-response.interface";
 
 @Component({
   selector: "app-role-edit-dialog",

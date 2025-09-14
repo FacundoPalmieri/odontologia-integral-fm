@@ -10,10 +10,10 @@ import {
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { MatIconModule } from "@angular/material/icon";
-import { PermissionService } from "../../../../services/permission.service";
-import { PermissionInterface } from "../../../../domain/interfaces/role.interface";
+import { PermissionService } from "../../../../../services/permission.service";
+import { PermissionInterface } from "../../../../../domain/interfaces/role.interface";
+import { ApiResponseInterface } from "../../../../../domain/interfaces/api-response.interface";
 
 @Component({
   selector: "app-role-create-dialog",

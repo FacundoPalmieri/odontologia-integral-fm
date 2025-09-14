@@ -20,19 +20,19 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { Subject, takeUntil } from "rxjs";
-import { IconsModule } from "../../../../utils/tabler-icons.module";
-import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
-import { AccessControlService } from "../../../../services/access-control.service";
-import { RoleService } from "../../../../services/role.service";
-import { SnackbarService } from "../../../../services/snackbar.service";
-import { RoleInterface } from "../../../../domain/interfaces/role.interface";
+import { IconsModule } from "../../../../../utils/tabler-icons.module";
+import { PageToolbarComponent } from "../../../../components/page-toolbar/page-toolbar.component";
+import { AccessControlService } from "../../../../../services/access-control.service";
+import { RoleService } from "../../../../../services/role.service";
+import { SnackbarService } from "../../../../../services/snackbar.service";
+import { RoleInterface } from "../../../../../domain/interfaces/role.interface";
 import {
   ActionsEnum,
   PermissionsEnum,
-} from "../../../../utils/enums/permissions.enum";
-import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
+} from "../../../../../utils/enums/permissions.enum";
+import { ApiResponseInterface } from "../../../../../domain/interfaces/api-response.interface";
 import { RoleEditDialogComponent } from "../role-edit-dialog/role-edit-dialog.component";
-import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
+import { SnackbarTypeEnum } from "../../../../../utils/enums/snackbar-type.enum";
 
 @Component({
   selector: "app-roles-list",

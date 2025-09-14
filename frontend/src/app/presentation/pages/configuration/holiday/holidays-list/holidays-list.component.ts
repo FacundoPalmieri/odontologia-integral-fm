@@ -5,24 +5,23 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
 import { Subject, takeUntil } from "rxjs";
-import { Router } from "@angular/router";
-import { IconsModule } from "../../../../utils/tabler-icons.module";
+import { IconsModule } from "../../../../../utils/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
-import { LoaderService } from "../../../../services/loader.service";
-import { AccessControlService } from "../../../../services/access-control.service";
-import { SnackbarService } from "../../../../services/snackbar.service";
+import { PageToolbarComponent } from "../../../../components/page-toolbar/page-toolbar.component";
+import { LoaderService } from "../../../../../services/loader.service";
+import { AccessControlService } from "../../../../../services/access-control.service";
+import { SnackbarService } from "../../../../../services/snackbar.service";
 import {
   ActionsEnum,
   PermissionsEnum,
-} from "../../../../utils/enums/permissions.enum";
+} from "../../../../../utils/enums/permissions.enum";
 import {
   ApiResponseInterface,
   PagedDataInterface,
-} from "../../../../domain/interfaces/api-response.interface";
-import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
-import { HolidayService } from "../../../../services/holiday.service";
-import { HolidayInterface } from "../../../../domain/interfaces/holiday.interface";
+} from "../../../../../domain/interfaces/api-response.interface";
+import { SnackbarTypeEnum } from "../../../../../utils/enums/snackbar-type.enum";
+import { HolidayService } from "../../../../../services/holiday.service";
+import { HolidayInterface } from "../../../../../domain/interfaces/holiday.interface";
 
 @Component({
   selector: "app-holidays-list",

@@ -13,11 +13,11 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
-import { MessageInterface } from "../../../../domain/interfaces/config.interface";
+import { MessageInterface } from "../../../../../domain/interfaces/config.interface";
 
 @Component({
-  selector: "app-edit-message-dialog",
-  templateUrl: "./edit-message-dialog.component.html",
+  selector: "app-message-edit-dialog",
+  templateUrl: "./message-edit-dialog.component.html",
   imports: [
     MatDialogModule,
     MatButtonModule,
@@ -26,10 +26,10 @@ import { MessageInterface } from "../../../../domain/interfaces/config.interface
     MatInputModule,
   ],
 })
-export class EditMessageDialogComponent {
+export class MessageEditDialogComponent {
   messageForm: FormGroup;
   data: { message: MessageInterface };
-  dialogRef = inject(MatDialogRef<EditMessageDialogComponent>);
+  dialogRef = inject(MatDialogRef<MessageEditDialogComponent>);
 
   constructor() {
     this.data = inject(MAT_DIALOG_DATA);

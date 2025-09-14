@@ -20,24 +20,24 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
 import { Subject, takeUntil } from "rxjs";
 import { Router } from "@angular/router";
-import { IconsModule } from "../../../../utils/tabler-icons.module";
+import { IconsModule } from "../../../../../utils/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { PageToolbarComponent } from "../../../components/page-toolbar/page-toolbar.component";
-import { LoaderService } from "../../../../services/loader.service";
-import { AccessControlService } from "../../../../services/access-control.service";
-import { UserService } from "../../../../services/user.service";
-import { PersonDataService } from "../../../../services/person-data.service";
-import { SnackbarService } from "../../../../services/snackbar.service";
-import { UserDtoInterface } from "../../../../domain/dto/user.dto";
+import { PageToolbarComponent } from "../../../../components/page-toolbar/page-toolbar.component";
+import { LoaderService } from "../../../../../services/loader.service";
+import { AccessControlService } from "../../../../../services/access-control.service";
+import { UserService } from "../../../../../services/user.service";
+import { PersonDataService } from "../../../../../services/person-data.service";
+import { SnackbarService } from "../../../../../services/snackbar.service";
+import { UserDtoInterface } from "../../../../../domain/dto/user.dto";
 import {
   ActionsEnum,
   PermissionsEnum,
-} from "../../../../utils/enums/permissions.enum";
+} from "../../../../../utils/enums/permissions.enum";
 import {
   ApiResponseInterface,
   PagedDataInterface,
-} from "../../../../domain/interfaces/api-response.interface";
-import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
+} from "../../../../../domain/interfaces/api-response.interface";
+import { SnackbarTypeEnum } from "../../../../../utils/enums/snackbar-type.enum";
 
 @Component({
   selector: "app-users-list",

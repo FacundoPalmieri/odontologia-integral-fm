@@ -13,12 +13,12 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
-import { SystemParameterUpdateDtoInterface } from "../../../../domain/dto/config.dto";
-import { SystemParameterInterface } from "../../../../domain/interfaces/config.interface";
+import { SystemParameterInterface } from "../../../../../domain/interfaces/config.interface";
+import { SystemParameterUpdateDtoInterface } from "../../../../../domain/dto/config.dto";
 
 @Component({
-  selector: "app-edit-system-parameter-dialog",
-  templateUrl: "./edit-system-parameter-dialog.component.html",
+  selector: "app-parameter-edit-dialog",
+  templateUrl: "./parameter-edit-dialog.component.html",
   imports: [
     MatDialogModule,
     MatButtonModule,
@@ -27,10 +27,10 @@ import { SystemParameterInterface } from "../../../../domain/interfaces/config.i
     MatInputModule,
   ],
 })
-export class EditSystemParameterDialogComponent {
+export class ParametersEditDialogComponent {
   systemParameterForm: FormGroup;
   data: { systemParameter: SystemParameterInterface };
-  dialogRef = inject(MatDialogRef<EditSystemParameterDialogComponent>);
+  dialogRef = inject(MatDialogRef<ParametersEditDialogComponent>);
 
   constructor() {
     this.data = inject(MAT_DIALOG_DATA);

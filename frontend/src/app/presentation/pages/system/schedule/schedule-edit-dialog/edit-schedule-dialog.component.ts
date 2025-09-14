@@ -13,8 +13,8 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
-import { ScheduleUpdateDtoInterface } from "../../../../domain/dto/config.dto";
-import { ScheduleInterface } from "../../../../domain/interfaces/config.interface";
+import { ScheduleInterface } from "../../../../../domain/interfaces/config.interface";
+import { ScheduleUpdateDtoInterface } from "../../../../../domain/dto/config.dto";
 
 @Component({
   selector: "app-edit-schedule-dialog",
@@ -27,10 +27,10 @@ import { ScheduleInterface } from "../../../../domain/interfaces/config.interfac
     MatInputModule,
   ],
 })
-export class EditScheduleDialogComponent {
+export class ScheduleEditDialogComponent {
   scheduleForm: FormGroup;
   data: { schedule: ScheduleInterface };
-  dialogRef = inject(MatDialogRef<EditScheduleDialogComponent>);
+  dialogRef = inject(MatDialogRef<ScheduleEditDialogComponent>);
 
   constructor() {
     this.data = inject(MAT_DIALOG_DATA);
