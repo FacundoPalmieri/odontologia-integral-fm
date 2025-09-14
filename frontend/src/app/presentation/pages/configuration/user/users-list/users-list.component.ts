@@ -1,11 +1,12 @@
 import {
   Component,
   inject,
-  ViewChildren,
   signal,
   effect,
   OnDestroy,
   AfterViewInit,
+  ViewChild,
+  OnInit,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
@@ -60,7 +61,7 @@ import { SnackbarTypeEnum } from "../../../../../utils/enums/snackbar-type.enum"
     MatInputModule,
   ],
 })
-export class UsersListComponent implements OnDestroy, AfterViewInit {
+export class UsersListComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly _destroy$ = new Subject<void>();
   private readonly loaderService = inject(LoaderService);
   private readonly router = inject(Router);
@@ -80,8 +81,20 @@ export class UsersListComponent implements OnDestroy, AfterViewInit {
   userFilter = new FormControl("");
   usersDataSource = new MatTableDataSource<UserDtoInterface>([]);
 
-  @ViewChildren(MatPaginator) paginator!: MatPaginator;
-  @ViewChildren(MatSort) sort!: MatSort;
+  permissionsReady = signal(false);
+
+  private _usersPaginator: MatPaginator | undefined;
+  @ViewChild("usersPaginator")
+  set usersPaginator(paginator: MatPaginator | undefined) {
+    this._usersPaginator = paginator;
+    if (paginator) {
+      this.usersDataSource.paginator = paginator;
+    }
+  }
+  get usersPaginator() {
+    return this._usersPaginator;
+  }
+  @ViewChild("usersSort") usersSort!: MatSort;
 
   userDisplayedColumns: string[] = [
     "avatar",
@@ -95,14 +108,11 @@ export class UsersListComponent implements OnDestroy, AfterViewInit {
   canUpdate = signal<boolean>(false);
 
   constructor() {
-    this._loadInitialData();
-    this._setupFilters();
-
     effect(() => {
       if (this.users()) {
         this.usersDataSource.data = this.users();
-        if (this.paginator) {
-          this.paginator.length = this.usersTotalElements();
+        if (this.usersPaginator) {
+          this.usersPaginator.length = this.usersTotalElements();
         }
       }
     });
@@ -114,22 +124,18 @@ export class UsersListComponent implements OnDestroy, AfterViewInit {
     });
   }
 
+  ngOnInit() {
+    this._loadPermissionsFlags();
+    this.permissionsReady.set(true);
+    if (this.canRead()) {
+      this._loadInitialData();
+      this._setupFilters();
+    }
+  }
+
   ngAfterViewInit(): void {
-    if (this.paginator.length > 0) {
-      const userPaginator = this.paginator;
-      const userSort = this.sort;
-
-      userPaginator.page.pipe(takeUntil(this._destroy$)).subscribe((event) => {
-        this.usersPageIndex.set(event.pageIndex);
-        this.usersPageSize.set(event.pageSize);
-        this._loadUsers(
-          this.usersPageIndex(),
-          this.usersPageSize(),
-          this.usersSortBy(),
-          this.usersSortDirection()
-        );
-      });
-
+    if (this.usersSort) {
+      const userSort = this.usersSort;
       userSort.sortChange.pipe(takeUntil(this._destroy$)).subscribe((sort) => {
         this.usersPageIndex.set(0);
         this.usersSortBy.set(sort.active);
@@ -164,7 +170,6 @@ export class UsersListComponent implements OnDestroy, AfterViewInit {
       this.usersSortBy(),
       this.usersSortDirection()
     );
-    this._loadPermissionsFlags();
   }
 
   private _loadPermissionsFlags() {
@@ -203,7 +208,6 @@ export class UsersListComponent implements OnDestroy, AfterViewInit {
         ) => {
           const users = response.data?.content;
           this.users.set(users);
-          this.usersTotalElements.set(response.data?.totalElements);
 
           if (this.users()?.length > 0) {
             users.forEach((user) => {
