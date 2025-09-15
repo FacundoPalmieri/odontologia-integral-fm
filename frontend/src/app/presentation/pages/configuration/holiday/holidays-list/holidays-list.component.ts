@@ -22,6 +22,8 @@ import {
 import { SnackbarTypeEnum } from "../../../../../utils/enums/snackbar-type.enum";
 import { HolidayService } from "../../../../../services/holiday.service";
 import { HolidayInterface } from "../../../../../domain/interfaces/holiday.interface";
+import { MatDialog } from "@angular/material/dialog";
+import { HolidayEditDialogComponent } from "../holiday-edit-dialog/holiday-edit-dialog.component";
 
 @Component({
   selector: "app-holidays-list",
@@ -44,6 +46,7 @@ export class HolidaysListComponent implements OnDestroy {
   private readonly accessControlService = inject(AccessControlService);
   private readonly holidayService = inject(HolidayService);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly dialog = inject(MatDialog);
 
   holidays = signal<HolidayInterface[]>([]);
 
@@ -66,8 +69,26 @@ export class HolidaysListComponent implements OnDestroy {
   }
 
   editHoliday(holiday: HolidayInterface) {
-    // TODO: Implementar navegación a editar feriado
-    console.log("Editar feriado:", holiday);
+    const dialogRef = this.dialog.open(HolidayEditDialogComponent, {
+      data: { holiday },
+    });
+    dialogRef.afterClosed().subscribe((holiday: HolidayInterface) => {
+      if (holiday) {
+        this.holidayService
+          .update(holiday)
+          .pipe(takeUntil(this._destroy$))
+          .subscribe((response: ApiResponseInterface<HolidayInterface>) => {
+            this.snackbarService.openSnackbar(
+              response.message,
+              6000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Success
+            );
+            this._loadHolidays();
+          });
+      }
+    });
   }
 
   getHolidayTypeClass(type: string): string {

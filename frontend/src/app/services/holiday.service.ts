@@ -30,4 +30,22 @@ export class HolidayService {
       ApiResponseInterface<PagedDataInterface<HolidayInterface[]>>
     >(`${this.apiUrl}/holiday/all`, { params });
   }
+
+  create(
+    holiday: HolidayInterface
+  ): Observable<ApiResponseInterface<HolidayInterface>> {
+    return this.http.post<ApiResponseInterface<HolidayInterface>>(
+      `${this.apiUrl}/holiday`,
+      holiday
+    );
+  }
+
+  update(
+    holiday: HolidayInterface
+  ): Observable<ApiResponseInterface<HolidayInterface>> {
+    return this.http.patch<ApiResponseInterface<HolidayInterface>>(
+      `${this.apiUrl}/holiday`,
+      holiday
+    );
+  }
 }
