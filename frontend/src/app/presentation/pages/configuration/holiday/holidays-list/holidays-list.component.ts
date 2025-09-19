@@ -24,6 +24,7 @@ import { HolidayService } from "../../../../../services/holiday.service";
 import { HolidayInterface } from "../../../../../domain/interfaces/holiday.interface";
 import { MatDialog } from "@angular/material/dialog";
 import { HolidayEditDialogComponent } from "../holiday-edit-dialog/holiday-edit-dialog.component";
+import { HolidayCreateDialogComponent } from "../holiday-create-dialog/holiday-create-dialog.component";
 
 @Component({
   selector: "app-holidays-list",
@@ -66,8 +67,26 @@ export class HolidaysListComponent implements OnDestroy {
   }
 
   createHoliday() {
-    // TODO: Implementar navegación a crear feriado
-    console.log("Crear feriado");
+    const dialogRef = this.dialog.open(HolidayCreateDialogComponent);
+    dialogRef
+      .afterClosed()
+      .subscribe((holiday: Omit<HolidayInterface, "id">) => {
+        if (holiday) {
+          this.holidayService
+            .create(holiday)
+            .pipe(takeUntil(this._destroy$))
+            .subscribe((response: ApiResponseInterface<HolidayInterface>) => {
+              this.snackbarService.openSnackbar(
+                response.message,
+                6000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Success
+              );
+              this._loadHolidays();
+            });
+        }
+      });
   }
 
   toggleMonth(monthName: string) {
@@ -79,6 +98,7 @@ export class HolidaysListComponent implements OnDestroy {
   }
 
   editHoliday(holiday: HolidayInterface) {
+    console.log(holiday);
     const dialogRef = this.dialog.open(HolidayEditDialogComponent, {
       data: { holiday },
     });

@@ -32,7 +32,7 @@ export class HolidayService {
   }
 
   create(
-    holiday: HolidayInterface
+    holiday: Omit<HolidayInterface, "id">
   ): Observable<ApiResponseInterface<HolidayInterface>> {
     return this.http.post<ApiResponseInterface<HolidayInterface>>(
       `${this.apiUrl}/holiday`,

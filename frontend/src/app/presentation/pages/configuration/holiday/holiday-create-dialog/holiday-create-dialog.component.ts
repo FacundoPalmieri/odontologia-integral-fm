@@ -1,10 +1,6 @@
 import { Component, inject, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from "@angular/material/dialog";
+import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import {
   FormControl,
@@ -20,8 +16,8 @@ import { HolidayInterface } from "../../../../../domain/interfaces/holiday.inter
 import { MatDatepickerModule } from "@angular/material/datepicker";
 
 @Component({
-  selector: "app-holiday-edit-dialog",
-  templateUrl: "./holiday-edit-dialog.component.html",
+  selector: "app-holiday-create-dialog",
+  templateUrl: "./holiday-create-dialog.component.html",
   standalone: true,
   imports: [
     MatDialogModule,
@@ -35,44 +31,39 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
     MatDatepickerModule,
   ],
 })
-export class HolidayEditDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<HolidayEditDialogComponent>);
+export class HolidayCreateDialogComponent {
+  private readonly dialogRef = inject(
+    MatDialogRef<HolidayCreateDialogComponent>
+  );
 
   holidayForm: FormGroup = new FormGroup({});
-  data: { holiday: HolidayInterface };
   holidaysTypes = signal<string[]>(["Inamovible", "Puente", "Trasladable"]);
 
   constructor() {
-    this.data = inject(MAT_DIALOG_DATA);
     this._loadForm();
   }
 
   private _loadForm() {
-    const holidayDate =
-      typeof this.data.holiday.date === "string"
-        ? new Date(this.data.holiday.date + "T00:00:00")
-        : this.data.holiday.date;
-
     this.holidayForm = new FormGroup({
-      id: new FormControl<number>(this.data.holiday.id, [Validators.required]),
-      date: new FormControl<Date>(holidayDate, [Validators.required]),
-      type: new FormControl<string>(this.data.holiday.type, [
-        Validators.required,
-      ]),
-      name: new FormControl<string>(this.data.holiday.name, [
-        Validators.required,
-      ]),
+      date: new FormControl<Date | null>(null, [Validators.required]),
+      type: new FormControl<string>("", [Validators.required]),
+      name: new FormControl<string>("", [Validators.required]),
     });
   }
 
   save() {
-    const holiday: HolidayInterface = {
-      id: this.holidayForm.value.id,
-      name: this.holidayForm.value.name,
-      date: this.holidayForm.value.date,
-      type: this.holidayForm.value.type,
-    };
+    if (this.holidayForm.valid) {
+      const holiday: Omit<HolidayInterface, "id"> = {
+        name: this.holidayForm.value.name,
+        date: this.holidayForm.value.date,
+        type: this.holidayForm.value.type,
+      };
 
-    this.dialogRef.close(holiday);
+      this.dialogRef.close(holiday);
+    }
+  }
+
+  cancel() {
+    this.dialogRef.close();
   }
 }
