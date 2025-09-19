@@ -12,8 +12,12 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatIconModule } from "@angular/material/icon";
 import { IconsModule } from "../../../../../utils/tabler-icons.module";
-import { HolidayInterface } from "../../../../../domain/interfaces/holiday.interface";
+import {
+  HolidayInterface,
+  HolidayTypeInterface,
+} from "../../../../../domain/interfaces/holiday.interface";
 import { MatDatepickerModule } from "@angular/material/datepicker";
+import { HolidayTypeFactory } from "../../../../../utils/factories/holiday-type.factory";
 
 @Component({
   selector: "app-holiday-create-dialog",
@@ -37,7 +41,9 @@ export class HolidayCreateDialogComponent {
   );
 
   holidayForm: FormGroup = new FormGroup({});
-  holidaysTypes = signal<string[]>(["Inamovible", "Puente", "Trasladable"]);
+  holidaysTypes = signal<HolidayTypeInterface[]>(
+    HolidayTypeFactory.createHolidayTypes()
+  );
 
   constructor() {
     this._loadForm();
@@ -46,7 +52,9 @@ export class HolidayCreateDialogComponent {
   private _loadForm() {
     this.holidayForm = new FormGroup({
       date: new FormControl<Date | null>(null, [Validators.required]),
-      type: new FormControl<string>("", [Validators.required]),
+      type: new FormControl<HolidayTypeInterface | null>(null, [
+        Validators.required,
+      ]),
       name: new FormControl<string>("", [Validators.required]),
     });
   }
@@ -65,5 +73,12 @@ export class HolidayCreateDialogComponent {
 
   cancel() {
     this.dialogRef.close();
+  }
+
+  compareHolidayTypes(
+    type1: HolidayTypeInterface,
+    type2: HolidayTypeInterface
+  ): boolean {
+    return type1 && type2 ? type1.value === type2.value : type1 === type2;
   }
 }

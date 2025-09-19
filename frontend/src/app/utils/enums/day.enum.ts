@@ -7,3 +7,9 @@ export enum DayEnum {
   SATURDAY = "SATURDAY",
   SUNDAY = "SUNDAY",
 }
+
+export enum HolidayTypeEnum {
+  IMMOVABLE = "IMMOVABLE",
+  MOVEABLE = "MOVEABLE",
+  LONG_WEEKEND = "LONG_WEEKEND",
+}
