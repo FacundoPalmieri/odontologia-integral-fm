@@ -54,6 +54,8 @@ export class HolidaysListComponent implements OnDestroy {
   canRead = signal<boolean>(false);
   canUpdate = signal<boolean>(false);
 
+  collapsedMonths: { [monthName: string]: boolean } = {};
+
   constructor() {
     this._loadInitialData();
   }
@@ -66,6 +68,14 @@ export class HolidaysListComponent implements OnDestroy {
   createHoliday() {
     // TODO: Implementar navegación a crear feriado
     console.log("Crear feriado");
+  }
+
+  toggleMonth(monthName: string) {
+    this.collapsedMonths[monthName] = !this.collapsedMonths[monthName];
+  }
+
+  isMonthCollapsed(monthName: string): boolean {
+    return !!this.collapsedMonths[monthName];
   }
 
   editHoliday(holiday: HolidayInterface) {

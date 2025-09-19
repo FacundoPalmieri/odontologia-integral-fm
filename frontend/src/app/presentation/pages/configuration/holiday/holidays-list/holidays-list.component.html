@@ -27,15 +27,25 @@
           </h3>
           <div class="flex-1 h-px bg-gray-300"></div>
           <span
-            class="ml-3 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+            class="ml-3 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full cursor-pointer hover:bg-gray-200 transition-colors flex items-center gap-1"
+            (click)="toggleMonth(monthGroup.monthName)"
           >
             {{ monthGroup.holidays.length }} feriado{{
               monthGroup.holidays.length !== 1 ? "s" : ""
             }}
+            <i-tabler
+              [name]="
+                isMonthCollapsed(monthGroup.monthName)
+                  ? 'chevron-down'
+                  : 'chevron-up'
+              "
+              class="w-3 h-3"
+            ></i-tabler>
           </span>
         </div>
 
         <!-- Holidays Grid for this month -->
+        @if(!isMonthCollapsed(monthGroup.monthName)) {
         <div class="flex flex-wrap justify-center gap-4">
           @for(holiday of monthGroup.holidays; track holiday.name) {
           <div
@@ -78,6 +88,7 @@
           </div>
           }
         </div>
+        }
       </div>
       }
     </div>
