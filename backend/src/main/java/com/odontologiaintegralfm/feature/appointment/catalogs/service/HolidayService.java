@@ -102,7 +102,7 @@ public class HolidayService implements IHolidayService {
         validateNotBeforeDate(null, holidayCreateRequestDTO.name(), holidayCreateRequestDTO.date());
 
         // Valído que no exista un feriado para esa fecha
-        validateNotExistsHoliday(holidayCreateRequestDTO.date(), false);
+        validateNotExistsHoliday(holidayCreateRequestDTO.date(), null);
 
         // Mapeo el DTO a Holiday
         Holiday holiday = new Holiday();
@@ -152,7 +152,7 @@ public class HolidayService implements IHolidayService {
         validateNotBeforeDate(holidayUpdateRequestDTO.id(), holidayUpdateRequestDTO.name(), holidayUpdateRequestDTO.date());
 
         // Valído que no exista un feriado para esa fecha
-        validateNotExistsHoliday(holidayUpdateRequestDTO.date(), true);
+        validateNotExistsHoliday(holidayUpdateRequestDTO.date(), holidayUpdateRequestDTO.id());
 
         //Buscar el feriado en la base.
          Holiday holiday = holidayRepository.findById(holidayUpdateRequestDTO.id())
@@ -194,25 +194,26 @@ public class HolidayService implements IHolidayService {
      * Método privado obtener un feriado
      * @param date
      */
-    private void validateNotExistsHoliday(LocalDate date, boolean isUpdate){
+    private void validateNotExistsHoliday(LocalDate date, Long excludeId){
 
         Optional<Holiday> holiday = holidayRepository.findByDate(date);
-        if(holiday.isPresent()){
-            if(isUpdate){
-                throw new ConflictException(
-                        "exception.holidayOverlap.update.user",
-                        new Object[]{holiday.get().getDate(), holiday.get().getType(), holiday.get().getName()},
-                        "exception.holidayOverlap.update.log",
-                        new Object[]{holiday.get().getId(),holiday.get().getDate(), holiday.get().getType(), holiday.get().getName(),"HolidayService","getHolidayByDate"}
-                        , LogLevel.WARN
-                );
 
-            }else {
+        if(holiday.isPresent()){
+            if(excludeId == null){
                 throw new ConflictException(
                         "exception.holidayOverlap.create.user",
                         new Object[]{holiday.get().getDate(), holiday.get().getType(), holiday.get().getName()},
                         "exception.holidayOverlap.create.log",
                         new Object[]{holiday.get().getId(), holiday.get().getDate(), holiday.get().getType(), holiday.get().getName(), "HolidayService", "getHolidayByDate"}
+                        , LogLevel.WARN
+                );
+
+            }else if (!excludeId.equals(holiday.get().getId())){
+                throw new ConflictException(
+                        "exception.holidayOverlap.update.user",
+                        new Object[]{holiday.get().getDate(), holiday.get().getType(), holiday.get().getName()},
+                        "exception.holidayOverlap.update.log",
+                        new Object[]{holiday.get().getId(),holiday.get().getDate(), holiday.get().getType(), holiday.get().getName(),"HolidayService","getHolidayByDate"}
                         , LogLevel.WARN
                 );
             }
@@ -231,6 +232,13 @@ public class HolidayService implements IHolidayService {
             );
         }
     }
+
+
+
+
+
+
+
 
 
     /**
