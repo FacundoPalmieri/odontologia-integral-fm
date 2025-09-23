@@ -7,19 +7,17 @@ import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.Scheduler
 import com.odontologiaintegralfm.shared.response.Response;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 
 public interface IHolidayService {
 
     /**
      * Método para obtener la lista páginada de todos los feriados.
      * @param year      : Año a consultar.
-     * @param page      : Número de página
-     * @param size      : Tamaño a mostrar por página
-     * @param sortBy    : Columna de ordenamiento.
-     * @param direction : Dirección ascendente o descendente
      * @return
      */
-    Response<Page<HolidayResponseDTO>> getAll(int year, int page, int size, String sortBy, String direction);
+    Response<List<HolidayResponseDTO>> getAll(int year);
 
 
     /**

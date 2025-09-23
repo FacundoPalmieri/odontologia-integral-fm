@@ -60,32 +60,22 @@ public class HolidayService implements IHolidayService {
     /**
      * Método para obtener la lista páginada de todos los feriados.
      * @param year      : Año a consultar.
-     * @param page      : Número de página
-     * @param size      : Tamaño a mostrar por página
-     * @param sortBy    : Columna de ordenamiento.
-     * @param direction : Dirección ascendente o descendente
      * @return
      */
     @Override
-    public Response<Page<HolidayResponseDTO>> getAll(int year, int page, int size, String sortBy, String direction) {
+    public Response<List<HolidayResponseDTO>> getAll(int year) {
         try{
-            //Define criterio de ordenamiento
-            Sort sort = direction.equals("desc") ?
-                    Sort.by(sortBy).descending() :
-                    Sort.by(sortBy).ascending();
 
-            //Se define paginación con n°página, cantidad elementos y ordenamiento.
-            Pageable pageable = PageRequest.of(page, size, sort);
+            List<Holiday> holidays = holidayRepository.findAllByYear(year);
 
-            Page<Holiday> holidays = holidayRepository.findAllByYear(year, pageable);
-
-            Page<HolidayResponseDTO> holidayResponseDTOS = holidays
-                .map(holiday -> new HolidayResponseDTO(
-                        holiday.getId(),
-                        holiday.getDate(),
-                        holiday.getType().getLabel(),
-                        holiday.getName()
-                ));
+            List<HolidayResponseDTO> holidayResponseDTOS = holidays.stream()
+                    .map(holiday -> new HolidayResponseDTO(
+                            holiday.getId(),
+                            holiday.getDate(),
+                            holiday.getType().getLabel(),
+                            holiday.getName()
+                    ))
+                    .toList();
 
             return new Response<>(true, null, holidayResponseDTOS);
         }catch(CannotCreateTransactionException | DataAccessException e ) {
