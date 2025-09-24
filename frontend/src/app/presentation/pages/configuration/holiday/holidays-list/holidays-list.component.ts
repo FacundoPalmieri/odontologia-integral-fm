@@ -194,13 +194,11 @@ export class HolidaysListComponent implements OnDestroy {
 
   private _loadHolidays() {
     this.holidayService
-      .getAll(0, 1000, "date", "asc") // Cargar todos los feriados - temporal hasta quitar pagincación del lado del backend
+      .getAll()
       .pipe(takeUntil(this._destroy$))
       .subscribe(
-        (
-          response: ApiResponseInterface<PagedDataInterface<HolidayInterface[]>>
-        ) => {
-          const holidays = response.data?.content ?? [];
+        (response: ApiResponseInterface<HolidayInterface[]>) => {
+          const holidays = response.data ?? [];
           this.holidays.set(holidays);
           this.loaderService.hide();
         },

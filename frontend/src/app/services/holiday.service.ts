@@ -8,42 +8,27 @@ import {
 } from "../domain/interfaces/api-response.interface";
 import { HolidayInterface } from "../domain/interfaces/holiday.interface";
 import { HolidaySerializer } from "../domain/serializers/holiday.serializer";
-import {
-  HolidayCreateDtoInterface,
-  HolidayUpdateDtoInterface,
-} from "../domain/dto/holiday.dto";
+import { HolidayUpdateDtoInterface } from "../domain/dto/holiday.dto";
 
 @Injectable({ providedIn: "root" })
 export class HolidayService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
-  getAll(
-    page: number = 0,
-    size: number = 100,
-    sortBy: string = "",
-    direction: string = "asc"
-  ): Observable<ApiResponseInterface<PagedDataInterface<HolidayInterface[]>>> {
-    let params = new HttpParams()
-      .set("year", 2025)
-      .set("page", page)
-      .set("size", size)
-      .set("sortBy", sortBy)
-      .set("direction", direction);
+  getAll(): Observable<ApiResponseInterface<HolidayInterface[]>> {
+    let params = new HttpParams().set("year", 2025);
 
     return this.http
-      .get<
-        ApiResponseInterface<PagedDataInterface<HolidayUpdateDtoInterface[]>>
-      >(`${this.apiUrl}/holiday/all`, { params })
+      .get<ApiResponseInterface<HolidayUpdateDtoInterface[]>>(
+        `${this.apiUrl}/holiday/all`,
+        { params }
+      )
       .pipe(
         map((response) => ({
           ...response,
-          data: {
-            ...response.data,
-            content: response.data.content.map((holidayDto) =>
-              HolidaySerializer.toView(holidayDto)
-            ),
-          },
+          data: response.data.map((holidayDto) =>
+            HolidaySerializer.toView(holidayDto)
+          ),
         }))
       );
   }
