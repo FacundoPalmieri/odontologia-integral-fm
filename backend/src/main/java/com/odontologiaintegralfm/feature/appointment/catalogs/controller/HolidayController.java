@@ -17,7 +17,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author [Facundo Palmieri]
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/holiday")
+@Validated
 public class HolidayController {
 
     @Autowired
@@ -46,10 +50,6 @@ public class HolidayController {
     /**
      * Obtiene todos los feriados por año.
      * @param year      : Año a buscar
-     * @param page      : N° página
-     * @param size      : Tamaño de registros por página.
-     * @param sortBy    : Columna de ordenamiento
-     * @param direction :Dirección de ordenamiento.
      */
     @Operation(summary = "Obtiene todos los feriados por año", description = "Obtiene la lista de feriados por año")
     @ApiResponses(value = {
@@ -57,21 +57,10 @@ public class HolidayController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("/all/")
+    @GetMapping("/all")
     @OnlyAccessUserProfileOrConfigurationRead
-    public ResponseEntity<Response<Page<HolidayResponseDTO>>> getAll(@RequestParam int year,
-                                                                     @RequestParam(required = false) Integer page,
-                                                                     @RequestParam(required = false) Integer size,
-                                                                     @RequestParam(required = false) String sortBy,
-                                                                     @RequestParam(required = false) String direction
-                                                                             ) {
-
-        int pageValue = (page == null) ? defaultPage : page;
-        int sizeValue = (size == null) ? defaultSize : size;
-        String sortByValue = (sortBy == null) ? defaultHolidaySortBy : sortBy;
-        String directionValue = (direction == null) ? defaultDirection  : direction;
-
-        Response<Page<HolidayResponseDTO>> response = holidayService.getAll(year, pageValue, sizeValue, sortByValue, directionValue);
+    public ResponseEntity<Response<List<HolidayResponseDTO>>> getAll(@RequestParam int year) {
+        Response<List<HolidayResponseDTO>> response = holidayService.getAll(year);
         return ResponseEntity.ok(response);
 
     }

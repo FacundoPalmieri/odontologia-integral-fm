@@ -2,7 +2,6 @@ package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
-import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
@@ -10,6 +9,7 @@ import com.odontologiaintegralfm.feature.appointment.core.repository.IDentistAva
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistAvailabilityService;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
+import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
@@ -21,6 +21,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,19 +54,24 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
      * - Fin de jornada.
      * - Duración de turno.
      *
-     * @param dentistAvailabilityRequestDTO
-     * @return
+     * @param days
      */
+
+    @LogAction(
+            value = "dentistAvailabilityService.SystemLog.update",
+            args = {"#id"}
+    )
     @Override
-    public Response<DentistAvailabilityResponseDTO> update(DentistAvailabilityRequestDTO dentistAvailabilityRequestDTO) {
+    @Transactional
+    public Response<DentistAvailabilityResponseDTO> update(Long id, List<WorkingDayDTO> days) {
         try {
             //Valida que exista dentista
-            Dentist dentist = dentistService.getById(dentistAvailabilityRequestDTO.idDentist())
-                    .orElseThrow(() -> new ConflictException("exception.dentistNotFound.user", null, "exception.dentistNotFound.log", new Object[]{dentistAvailabilityRequestDTO.idDentist(), "Dentist Availability Service", "update"}, LogLevel.ERROR));
+            Dentist dentist = dentistService.getById(id)
+                    .orElseThrow(() -> new ConflictException("exception.dentistNotFound.user", null, "exception.dentistNotFound.log", new Object[]{id, "Dentist Availability Service", "update"}, LogLevel.ERROR));
 
 
             //Buscar si existe relación:
-            List<DentistAvailability> dentistAvailabilityExisting = dentistAvailabilityRepository.findAllByDentistId(dentistAvailabilityRequestDTO.idDentist());
+            List<DentistAvailability> dentistAvailabilityExisting = dentistAvailabilityRepository.findAllByDentistId(id);
 
             //Si la lista NO está vacía, existe relación previa entre dentista y disponibilidad entonces se limpia en la base.
             if (!dentistAvailabilityExisting.isEmpty()) {
@@ -72,7 +79,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
             }
 
             //Se persiste la nueva relación.
-            List<DentistAvailability> newAvailabilities = dentistAvailabilityRequestDTO.days().stream()
+            List<DentistAvailability> newAvailabilities = days.stream()
                     .map(dto -> new DentistAvailability(
                             dentist,
                             dto.dayName(),
@@ -88,7 +95,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
             List<DentistAvailability> dentistAvailabilitiesSaved = dentistAvailabilityRepository.saveAll(newAvailabilities);
 
             //Llamar al servicio de turnos para verificar si hay turnos existentes que se vean afectados.
-            List<AppointmentConflictResponseDTO> appointments = appointmentService.getConflict(dentistAvailabilityRequestDTO.idDentist(), dentistAvailabilityRequestDTO.days());
+            List<AppointmentConflictResponseDTO> appointments = appointmentService.getConflict(id, days);
 
 
             // Se arma la respuesta final.
@@ -110,7 +117,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
             return new Response<>(true, messageUser, dentistAvailabilityResponseDTO);
         } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "DentistAvailabilityService", dentistAvailabilityRequestDTO.idDentist(), null, "update");
+            throw new DataBaseException(e, "DentistAvailabilityService", id , null, "update");
         }
     }
 

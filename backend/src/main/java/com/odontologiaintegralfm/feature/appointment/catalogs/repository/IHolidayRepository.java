@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -26,10 +27,9 @@ public interface IHolidayRepository extends JpaRepository<Holiday, Long> {
     /**
      * Obtiene todos los feriados por año.
      * @param year
-     * @param pageable
      * @return
      */
-    Page<Holiday> findAllByYear(int year, Pageable pageable);
+    List<Holiday> findAllByYear(int year);
 
 
     /**
