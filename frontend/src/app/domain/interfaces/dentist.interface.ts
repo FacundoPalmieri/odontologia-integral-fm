@@ -10,21 +10,22 @@ export interface DentistSpecialtyInterface {
   name: string;
 }
 
-export interface DentistAvailabilityInterface {
-  idDentist: number;
-  days: DentistAvailabilityDayInterface[];
-  appointConflict?: AppointmentConflictInterface[];
+export interface AppointmentConflictInterface {
+  idAppointment: number;
 }
 
-export interface DentistAvailabilityDayInterface {
+export interface TimeInterface {
+  hour: number;
+  minute: number;
+  second: number;
+  nano: 0;
+}
+
+export interface DentistDayAvailabilityInterface {
   dayName: DayEnum;
   startTime: TimeInterface;
   endTime: TimeInterface;
   appointmentDuration: number;
-}
-
-export interface AppointmentConflictInterface {
-  idAppointment: number;
 }
 
 export interface TimeInterface {

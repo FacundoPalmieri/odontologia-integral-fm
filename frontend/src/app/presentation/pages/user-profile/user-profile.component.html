@@ -89,7 +89,10 @@
           <app-person-form [person]="user()?.person!"></app-person-form>
           @if(user()?.dentist!.licenseNumber ||
           user()?.dentist!.dentistSpecialty){
-          <app-dentist-form [dentist]="user()?.dentist!"></app-dentist-form>
+          <app-dentist-form
+            [dentist]="user()?.dentist!"
+            [readonly]="true"
+          ></app-dentist-form>
           }
         </div>
       </mat-card-content>
@@ -97,7 +100,9 @@
   </ng-container>
   <ng-container *ngIf="selectedTabIndex() === 1">
     <mat-card appearance="outlined">
-      <div class="p-4">Preferencias</div>
+      <div class="p-4">
+        <h2 class="text-lg">Franja horararia laboral</h2>
+      </div>
     </mat-card>
   </ng-container>
   <ng-container *ngIf="selectedTabIndex() === 2">

@@ -97,9 +97,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.permissions = [...new Set(this.permissions)];
       this.filteredMenuItems = this.filterMenuItems();
     }
-    // Revisar si es necesario para todos los roles.
-    if (this.personDataService.nationalities().length === 0) {
-      this.personDataService.loadAllCatalogs().subscribe();
+    // Cargar catálogos basados en el rol del usuario
+    if (
+      this.personDataService.nationalities().length === 0 &&
+      this.userData?.roles
+    ) {
+      this.personDataService
+        .loadCatalogsBasedOnRole(this.userData.roles)
+        .subscribe();
     }
   }
 

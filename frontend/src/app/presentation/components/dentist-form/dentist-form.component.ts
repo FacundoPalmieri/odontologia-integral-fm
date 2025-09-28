@@ -46,6 +46,8 @@ export class DentistFormComponent {
 
   private _dentist!: DentistInterface;
 
+  @Input() readonly = false;
+
   @Input({ required: true })
   set dentist(value: DentistInterface) {
     this._dentist = value;

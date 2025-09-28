@@ -15,6 +15,7 @@ import {
 } from "../domain/interfaces/person-data.interface";
 import { MedicalHistoryRiskInterface } from "../domain/interfaces/patient.interface";
 import { DentistSpecialtyInterface } from "../domain/interfaces/dentist.interface";
+import { RoleInterface } from "../domain/interfaces/role.interface";
 
 @Injectable({ providedIn: "root" })
 export class PersonDataService {
@@ -51,6 +52,82 @@ export class PersonDataService {
         this.dniTypes.set(results.dniTypes.data);
         this.phoneTypes.set(results.phoneTypes.data);
         this.dentistSpecialties.set(results.dentistSpecialties.data);
+        this.medicalHistoryRisks.set(results.medicalHistoryRisks.data);
+      })
+    );
+  }
+
+  loadCatalogsBasedOnRole(roles: RoleInterface[]) {
+    const isDentist = this.isDentistRole(roles);
+    const isSecretaria = this.isSecretaryRole(roles);
+    const isAdminOrDeveloper = this.isAdminOrDeveloperRole(roles);
+
+    if (isDentist || isSecretaria) {
+      return this.loadAllDentistCatalogs();
+    } else if (isAdminOrDeveloper) {
+      return this.loadAllCatalogs();
+    } else {
+      return this.loadBasicCatalogs();
+    }
+  }
+
+  loadBasicCatalogs() {
+    return forkJoin({
+      nationalities: this.getAllNationalities(),
+      countries: this.getAllCountries(),
+      genders: this.getAllGenders(),
+      dniTypes: this.getAllDNITypes(),
+      phoneTypes: this.getAllPhoneTypes(),
+    }).pipe(
+      tap((results) => {
+        this.nationalities.set(results.nationalities.data);
+        this.countries.set(results.countries.data);
+        this.genders.set(results.genders.data);
+        this.dniTypes.set(results.dniTypes.data);
+        this.phoneTypes.set(results.phoneTypes.data);
+      })
+    );
+  }
+
+  private isDentistRole(roles: RoleInterface[]): boolean {
+    return roles.some((role) => role.name === "DENTIST");
+  }
+
+  private isSecretaryRole(roles: RoleInterface[]): boolean {
+    return roles.some(
+      (role) =>
+        role.name.toLowerCase().includes("SECRETARY") ||
+        role.label.toLowerCase().includes("secretaria")
+    );
+  }
+
+  private isAdminOrDeveloperRole(roles: RoleInterface[]): boolean {
+    return roles.some(
+      (role) =>
+        role.name.toLowerCase().includes("ADMINISTRATOR") ||
+        role.label.toLowerCase().includes("administrador") ||
+        role.name.toLowerCase().includes("DEVELOPER") ||
+        role.label.toLowerCase().includes("desarrollador")
+    );
+  }
+
+  loadAllDentistCatalogs() {
+    return forkJoin({
+      nationalities: this.getAllNationalities(),
+      healthPlans: this.getAllHealthPlans(),
+      countries: this.getAllCountries(),
+      genders: this.getAllGenders(),
+      dniTypes: this.getAllDNITypes(),
+      phoneTypes: this.getAllPhoneTypes(),
+      medicalHistoryRisks: this.getAllMedicalHistoryRisks(),
+    }).pipe(
+      tap((results) => {
+        this.nationalities.set(results.nationalities.data);
+        this.healthPlans.set(results.healthPlans.data);
+        this.countries.set(results.countries.data);
+        this.genders.set(results.genders.data);
+        this.dniTypes.set(results.dniTypes.data);
+        this.phoneTypes.set(results.phoneTypes.data);
         this.medicalHistoryRisks.set(results.medicalHistoryRisks.data);
       })
     );
