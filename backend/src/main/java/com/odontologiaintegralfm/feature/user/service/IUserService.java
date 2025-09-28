@@ -13,6 +13,8 @@ import com.odontologiaintegralfm.shared.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 /**
  * Interfaz que define los métodos para el servicio de gestión de usuarios.
  * Proporciona operaciones para recuperar, guardar, actualizar y eliminar usuarios,
@@ -39,12 +41,13 @@ public interface IUserService {
       */
       UserSec getByIdInternal(Long id);
 
+
      /**
-      * Realiza baja lógica de un usuario, con todos las entidades relacionadas (ej: Archivos adjuntos)
-      * @param id
-      * @return
+      * Obtiene emails de usuarios por Rol
       */
-     // UserSecResponseDTO disableById(Long id);
+      List<String> getEmailByRole(List<String> roles);
+
+
 
 
 

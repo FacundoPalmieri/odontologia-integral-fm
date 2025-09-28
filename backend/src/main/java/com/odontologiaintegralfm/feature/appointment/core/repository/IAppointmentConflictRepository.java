@@ -22,4 +22,14 @@ public interface IAppointmentConflictRepository extends JpaRepository<Appointmen
     List<AppointmentConflict> findAllByIdDentist(@Param("idDentist") Long idDentist,
                                                  @Param("date") LocalDateTime date
     );
+
+
+    @Query("""
+            SELECT ac
+            FROM AppointmentConflict ac
+            JOIN ac.appointment ap
+            WHERE ac.appointment.dentist.id = :idDentist
+            AND ac.resolved = false
+            """)
+    List<AppointmentConflict> findByIdDentistAndResolvedFalse(@Param("idDentist") Long idDentist);
 }

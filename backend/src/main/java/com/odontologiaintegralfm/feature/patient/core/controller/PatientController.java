@@ -114,7 +114,7 @@ public class PatientController {
      *         </ul>
      */
 
-    @Operation(summary = "Listar Pacientes", description = "Listar los Paciente habilitdos en el sistema.")
+    @Operation(summary = "Listar Pacientes", description = "Listar los Paciente habilitados en el sistema.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista actualizada exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),

@@ -16,6 +16,11 @@ public interface IAppointmentConflictService {
      */
     List<AppointmentConflict> getAllByDentist(Long idDentist);
 
+    /**
+     * Obtiene la lista de turnos conflictivos NO RESUELTOS por id de dentista.
+     */
+    List<AppointmentConflict> getAllNotResolvedByDentist(Long idDentist);
+
 
     /**
      * Crea turnos en conflictos.

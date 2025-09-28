@@ -27,11 +27,22 @@ public class AppointmentConflictService implements IAppointmentConflictService {
     @Override
     public List<AppointmentConflict> getAllByDentist(Long idDentist) {
         try{
-
             return appointmentConflictRepository.findAllByIdDentist(idDentist, LocalDateTime.now());
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "AppointmentConflictService", idDentist,"<-- ID DENTISTA", "getAllByDentist");
+        }
+    }
+
+    /**
+     * Obtiene la lista de turnos conflictivos NO RESUELTOS por id de dentista.
+     */
+    @Override
+    public List<AppointmentConflict> getAllNotResolvedByDentist(Long idDentist) {
+        try{
+            return appointmentConflictRepository.findByIdDentistAndResolvedFalse(idDentist);
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "AppointmentConflictService", idDentist, null, "getAllNotResolvedByDentist");
         }
     }
 
@@ -50,7 +61,7 @@ public class AppointmentConflictService implements IAppointmentConflictService {
     }
 
     /**
-     * Actualiza  turnos conflictivo
+     * Actualiza turnos conflictivo
      * @param appointmentConflicts : Turno
      */
     @Override
