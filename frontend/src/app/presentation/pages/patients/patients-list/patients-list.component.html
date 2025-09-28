@@ -10,7 +10,7 @@
       </mat-form-field>
       }
       <button
-        mat-flat-button
+        mat-icon-button
         [matTooltip]="
           !canCreate()
             ? 'No tienes permisos para crear pacientes'
@@ -21,7 +21,7 @@
         (click)="create()"
         [disabled]="!canCreate()"
       >
-        <i-tabler class="mt-1" name="plus"></i-tabler>
+        <i-tabler class="mb-1" name="plus"></i-tabler>
       </button>
     </div>
     <div class="overflow-x-auto">

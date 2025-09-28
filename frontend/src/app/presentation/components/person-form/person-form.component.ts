@@ -1,4 +1,13 @@
-import { Component, inject, Input, OnInit, signal } from "@angular/core";
+import {
+  Component,
+  inject,
+  Input,
+  OnInit,
+  OnDestroy,
+  signal,
+  Output,
+  EventEmitter,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import {
@@ -39,7 +48,7 @@ import { ApiResponseInterface } from "../../../domain/interfaces/api-response.in
     MatDatepickerModule,
   ],
 })
-export class PersonFormComponent implements OnInit {
+export class PersonFormComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
 
   private _person!: PersonInterface;
@@ -59,6 +68,9 @@ export class PersonFormComponent implements OnInit {
       }
     }
   }
+
+  @Output() formValid = new EventEmitter<boolean>();
+  @Output() formValue = new EventEmitter<PersonInterface>();
 
   personDataService = inject(PersonDataService);
 
@@ -127,6 +139,20 @@ export class PersonFormComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
+    this.personForm.statusChanges
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(() => {
+        this.formValid.emit(this.personForm.valid);
+      });
+
+    this.personForm.valueChanges
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(() => {
+        if (this.personForm.valid) {
+          this.formValue.emit(this.personForm.value as PersonInterface);
+        }
+      });
+
     this.personForm
       .get("country")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
@@ -148,6 +174,11 @@ export class PersonFormComponent implements OnInit {
           this.localities.set([]);
         }
       });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 
   compare = (
@@ -175,6 +206,14 @@ export class PersonFormComponent implements OnInit {
 
   get person(): PersonInterface {
     return this._person;
+  }
+
+  get formData(): PersonInterface {
+    return this.personForm.value as PersonInterface;
+  }
+
+  get isFormValid(): boolean {
+    return this.personForm.valid;
   }
 
   private _getProvincesByCountryId(id: number) {

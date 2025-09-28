@@ -17,6 +17,7 @@ import { UserService } from "../../../services/user.service";
 import { AuthService } from "../../../services/auth.service";
 import { Subject, takeUntil } from "rxjs";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
+import { PersonInterface } from "../../../domain/interfaces/person.interface";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatChipsModule } from "@angular/material/chips";
 import { Router } from "@angular/router";
@@ -62,6 +63,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   user = signal<UserInterface | null>(null);
   selectedTabIndex = signal<number>(0);
   avatar = signal<string | null>(null);
+  isPersonFormValid = signal<boolean>(false);
+  updatedPersonData = signal<PersonInterface | null>(null);
+  isSaving = signal<boolean>(false);
 
   entityTypeEnum = EntityTypeEnum;
 
@@ -170,5 +174,69 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           },
         });
     }
+  }
+
+  isDentist(): boolean {
+    return (
+      this.user()?.rolesList?.some((role) => role.name === "DENTIST") || false
+    );
+  }
+
+  onPersonFormValidChange(isValid: boolean): void {
+    this.isPersonFormValid.set(isValid);
+  }
+
+  onPersonFormValueChange(personData: PersonInterface): void {
+    this.updatedPersonData.set(personData);
+  }
+
+  savePersonData(): void {
+    if (
+      !this.isPersonFormValid() ||
+      !this.updatedPersonData() ||
+      !this.user()
+    ) {
+      return;
+    }
+
+    this.isSaving.set(true);
+
+    const updatedUser: UserInterface = {
+      ...this.user()!,
+      person: this.updatedPersonData()!,
+    };
+
+    this.userService
+      .update(updatedUser)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (response) => {
+          this.snackbarService.openSnackbar(
+            "Datos personales actualizados correctamente.",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success
+          );
+
+          this.userService
+            .getById(this.userId())
+            .pipe(takeUntil(this._destroy$))
+            .subscribe((userResponse: ApiResponseInterface<UserInterface>) => {
+              this.user.set(userResponse.data);
+              this.isSaving.set(false);
+            });
+        },
+        error: (error) => {
+          this.snackbarService.openSnackbar(
+            "Error al actualizar los datos personales.",
+            6000,
+            "center",
+            "bottom",
+            SnackbarTypeEnum.Error
+          );
+          this.isSaving.set(false);
+        },
+      });
   }
 }
