@@ -1,7 +1,16 @@
 package com.odontologiaintegralfm.feature.appointment.core.dto;
 
-/**
- * @author [Facundo Palmieri]
- */
-public record DentistHolidayResponseDTO() {
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class DentistHolidayResponseDTO {
+    private Long idDentist;
+    private List<DentistHolidayListResponseDTO> holiday;
 }

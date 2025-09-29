@@ -3,9 +3,10 @@ package com.odontologiaintegralfm.feature.appointment.catalogs.service;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
+import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayListRequestDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.response.Response;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -13,11 +14,11 @@ import java.util.List;
 public interface IHolidayService {
 
     /**
-     * Método para obtener la lista páginada de todos los feriados.
-     * @param year      : Año a consultar.
-     * @return
+     * Método para obtener la lista de todos los feriados y devolverlos al cliente.
+     * @param year      : Año a consultar
      */
     Response<List<HolidayResponseDTO>> getAll(int year);
+
 
 
     /**
@@ -32,7 +33,12 @@ public interface IHolidayService {
      */
     Response<HolidayResponseDTO> update(HolidayUpdateRequestDTO holidayUpdateRequestDTO);
 
-
+    /**
+     * Método para validar si existen los feriados dentro de una lista.
+     * @param holidays: Lista de feriados a validar.
+     * @param year    : Año
+     */
+    List<Holiday> validateHolidaysExist(List<DentistHolidayListRequestDTO> holidays, int year);
 
 
     /**
