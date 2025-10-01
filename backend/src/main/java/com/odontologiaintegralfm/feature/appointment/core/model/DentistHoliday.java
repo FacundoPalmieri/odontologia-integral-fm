@@ -21,9 +21,9 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(
-        name = "holidays_dentists",
+        name = "dentists_holidays",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"holiday_id", "dentist_id"})
+                @UniqueConstraint(columnNames = {"dentist_id","holiday_id"})
         }
 )
 @Where(clause = "enabled = true")
@@ -33,12 +33,12 @@ public class DentistHoliday extends Auditable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "holiday_id", nullable = false, updatable = false)
-    private Holiday holiday;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dentist_id", nullable = false, updatable = false)
     private Dentist dentist;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "holiday_id", nullable = false, updatable = false)
+    private Holiday holiday;
 
     @Column(nullable = false)
     private LocalTime startTime;

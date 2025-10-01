@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.user.repository;
 
+import com.odontologiaintegralfm.feature.authentication.model.Role;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -29,5 +31,14 @@ public interface IUserRepository extends JpaRepository<UserSec, Long> {
     WHERE u.person.id IS NOT NULL
     """)
     Page<UserSec> findAllExcludingDevelopers (Pageable pageable);
+
+
+    @Query("""
+            SELECT u.username
+            FROM UserSec u
+            Join u.rolesList r
+            WHERE r.name IN :role
+            """)
+    List<String> findUsernameByRole(@Param("role") List<String> roles);
 
 }

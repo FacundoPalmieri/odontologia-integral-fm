@@ -235,7 +235,7 @@ public class UserService implements IUserService {
                  throw new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{id,"UserService", "getById"}, LogLevel.ERROR );
              }
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", id, "", "getById");
+            throw new DataBaseException(e, "userService", id, null, "getById");
         }
     }
 
@@ -251,38 +251,31 @@ public class UserService implements IUserService {
         try {
             return userRepository.findByIdAndEnabledTrue(id).orElseThrow(() -> new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log",new Object[]{id,"UserService", "getByIdInternal"}, LogLevel.ERROR ));
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", id, "", "getByIdInternal");
+            throw new DataBaseException(e, "userService", id, null, "getByIdInternal");
         }
     }
+
+
 
     /**
-     * Realiza baja lógica de un usuario, con todos las entidades relacionadas (ej: Archivos adjuntos)
+     * Obtiene emails de usuarios por Rol
      */
-    /*
     @Override
-    public UserSecResponseDTO disableById(Long id) {
+    public List<String> getEmailByRole(List<String> roles) {
         try{
-            //Valída que exista el usuario.
-
-            //Valída que no tenga turnos próximos.
-
-            // NO ELIMINAR ODONTOGRAMA
-
-
-
+            return userRepository.findUsernameByRole(roles);
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", id, null, "disableById");
+            throw new DataBaseException(e, "userService", null, null, "getEmailByRole");
         }
     }
 
-     */
 
     @Override
     public UserSec getByUsername(String username) {
         try {
             return userRepository.findUserEntityByUsername(username).orElseThrow(() -> new NotFoundException("userService.getByUsername.error.user", null, "userService.getByUsername.error.log",new Object[]{username,"UserService", "getByUsername"}, LogLevel.ERROR ));
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", 0L, "", "getByUsername");
+            throw new DataBaseException(e, "userService", null, null, "getByUsername");
         }
     }
 

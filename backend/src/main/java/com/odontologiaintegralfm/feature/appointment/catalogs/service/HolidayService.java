@@ -8,6 +8,7 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateR
 import com.odontologiaintegralfm.feature.appointment.catalogs.repository.IHolidayRepository;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.HolidayType;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
+import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayListRequestDTO;
 import com.odontologiaintegralfm.infrastructure.externalapi.client.ArgentinaDatosClient;
 import com.odontologiaintegralfm.infrastructure.externalapi.dto.HolidayApiResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
@@ -15,6 +16,7 @@ import com.odontologiaintegralfm.infrastructure.message.service.implement.Messag
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;
+import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
@@ -22,18 +24,13 @@ import com.odontologiaintegralfm.shared.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -82,6 +79,7 @@ public class HolidayService implements IHolidayService {
             throw new DataBaseException(e, "HolidayService",null,null, "getAll");
         }
     }
+
 
     /**
      * Método para crear un feriado.
@@ -191,7 +189,42 @@ public class HolidayService implements IHolidayService {
 
 
     /**
-     * Método privado obtener un feriado
+     * Método para validar si existen los feriados dentro de una lista.
+     *
+     * @param holidays : Lista de feriados a validar.
+     */
+    @Override
+    public List<Holiday> validateHolidaysExist(List<DentistHolidayListRequestDTO> holidays, int year) {
+
+        //Traemos en una sola consulta todos los feriados por año.
+        List<Holiday> holidaysDatabase =  holidayRepository.findAllByYear(year);
+
+        //Hacemos un maps de ID.
+        Map<Long,Holiday> holidaysMap = new HashMap<>();
+
+
+        //Verificamos contra la lista.
+        holidaysDatabase.forEach(holiday -> {
+            holidaysMap.put(holiday.getId(), holiday);
+        });
+
+        List<Holiday> holiday = new ArrayList<>();
+        holidays.forEach(h -> {
+                    Holiday holidayExist = holidaysMap.get(h.idHoliday());
+                    if (holidayExist == null) {
+                        throw new BadRequestException("holidayService.validateHolidaysExist.user", new Object[]{h.idHoliday()}, "holidayService.validateHolidaysExist.log", new Object[]{h.idHoliday(),"Holiday Service","validateHolidaysExist"}, LogLevel.ERROR);
+                    }
+                    holiday.add(holidayExist);
+                }
+        );
+
+        return holiday;
+
+    }
+
+
+    /**
+     * Método privado validar que no un feriado en una determinada fecha.
      * @param date
      */
     private void validateNotExistsHoliday(LocalDate date, Long excludeId){

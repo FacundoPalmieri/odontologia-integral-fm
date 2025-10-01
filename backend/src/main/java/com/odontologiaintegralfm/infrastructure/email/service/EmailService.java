@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 /**
  * Servicio encargado del envío de correos electrónicos.
  * <p>
@@ -36,11 +39,34 @@ public class EmailService implements IEmailService {
             level = LogLevel.INFO,
             type = LogType.SYSTEM
     )
+    public void sendEmail(List<String> to, String subject, String body) {
+        to.forEach(
+                destination -> {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setTo(destination);
+                    message.setSubject(subject);
+                    message.setText(body);
+                    mailSender.send(message);
+                });
+    }
+
+
+
+
+
+    /**
+     * Envía un correo electrónico a un solo destinatario.
+     * @param to La dirección de correo electrónico del destinatario.
+     * @param subject El asunto del correo electrónico.
+     * @param body El cuerpo del correo electrónico.
+     */
+    @Override
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
         mailSender.send(message);
+
     }
 }
