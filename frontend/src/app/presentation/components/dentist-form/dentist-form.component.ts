@@ -7,15 +7,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import {
-  CountryInterface,
-  DniTypeInterface,
-  GenderInterface,
-  LocalityInterface,
-  NationalityInterface,
-  PhoneTypeInterface,
-  ProvinceInterface,
-} from "../../../domain/interfaces/person-data.interface";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import { PersonDataService } from "../../../services/person-data.service";
@@ -42,8 +33,6 @@ import {
   ],
 })
 export class DentistFormComponent {
-  private readonly _destroy$ = new Subject<void>();
-
   private _dentist!: DentistInterface;
 
   @Input() readonly = false;

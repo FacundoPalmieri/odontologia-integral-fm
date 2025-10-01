@@ -85,14 +85,12 @@
   <ng-container *ngIf="selectedTabIndex() === 0">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <div class="p-4">
-          <app-person-form
-            [person]="user()?.person!"
-            (formValid)="onPersonFormValidChange($event)"
-            (formValue)="onPersonFormValueChange($event)"
-          >
-          </app-person-form>
-        </div>
+        <app-person-form
+          [person]="user()?.person!"
+          (formValid)="onPersonFormValidChange($event)"
+          (formValue)="onPersonFormValueChange($event)"
+        >
+        </app-person-form>
       </mat-card-content>
       <mat-card-actions class="flex justify-end">
         <button
@@ -109,7 +107,9 @@
     <mat-card appearance="outlined">
       <div class="p-4">
         @if(isDentist()) {
-        <h2 class="text-lg">Franja horararia laboral</h2>
+        <app-dentist-availability
+          [dentistAvailability]="getDentistAvailability()"
+        ></app-dentist-availability>
         } @else {
         <div class="text-center py-4">
           <i-tabler

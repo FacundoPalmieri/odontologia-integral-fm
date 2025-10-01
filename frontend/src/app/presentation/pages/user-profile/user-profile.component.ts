@@ -18,6 +18,7 @@ import { AuthService } from "../../../services/auth.service";
 import { Subject, takeUntil } from "rxjs";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { PersonInterface } from "../../../domain/interfaces/person.interface";
+import { DentistDayAvailabilityInterface } from "../../../domain/interfaces/dentist.interface";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatChipsModule } from "@angular/material/chips";
 import { Router } from "@angular/router";
@@ -29,7 +30,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { AttachedFileComponent } from "../../components/attached-file/attached-file.component";
 import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
 import { PersonFormComponent } from "../../components/person-form/person-form.component";
-import { DentistFormComponent } from "../../components/dentist-form/dentist-form.component";
+import { DentistAvailabilityComponent } from "../../components/dentist-availability/dentist-availability.component";
 
 @Component({
   selector: "app-user-profile",
@@ -46,7 +47,7 @@ import { DentistFormComponent } from "../../components/dentist-form/dentist-form
     MatButtonModule,
     AttachedFileComponent,
     PersonFormComponent,
-    DentistFormComponent,
+    DentistAvailabilityComponent,
   ],
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
@@ -182,6 +183,13 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     );
   }
 
+  getDentistAvailability(): DentistDayAvailabilityInterface[] {
+    // Por ahora retornamos un array vacío, esto se puede extender
+    // cuando tengamos la disponibilidad del dentista en la estructura del usuario
+    // return this.user()?.dentist?.availability || [];
+    return [];
+  }
+
   onPersonFormValidChange(isValid: boolean): void {
     this.isPersonFormValid.set(isValid);
   }
@@ -226,16 +234,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               this.user.set(userResponse.data);
               this.isSaving.set(false);
             });
-        },
-        error: (error) => {
-          this.snackbarService.openSnackbar(
-            "Error al actualizar los datos personales.",
-            6000,
-            "center",
-            "bottom",
-            SnackbarTypeEnum.Error
-          );
-          this.isSaving.set(false);
         },
       });
   }
