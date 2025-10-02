@@ -29,10 +29,10 @@ public interface IUserService {
 
      /**
       * Obtiene un usuario por su ID.
-      * @param id El ID del usuario a recuperar.
+      * @param idUser El ID del usuario a recuperar.
       * @return Una respuesta que contiene el objeto {@link UserSecResponseDTO} correspondiente al usuario.
       */
-     Response<UserSecResponseDTO> getById(Long id);
+     Response<UserSecResponseDTO> getById(Long idUser);
 
      /**
       * Obtiene un usuario por su ID.
@@ -112,7 +112,7 @@ public interface IUserService {
       * @throws ConflictException  Si ocurre un error durante la actualización.
       * @throws DataBaseException Si ocurre un error de acceso a la base de datos.
       */
-     Response<UserSecResponseDTO> update(UserSecUpdateDTO userSecUpdateDTO);
+     Response<UserSecResponseDTO> update(Long id, UserSecUpdateDTO userSecUpdateDTO);
 
      /**
       * Incrementa el contador de intentos fallidos de inicio de sesión de un usuario.

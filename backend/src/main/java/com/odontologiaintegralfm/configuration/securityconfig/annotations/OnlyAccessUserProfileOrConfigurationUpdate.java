@@ -1,19 +1,16 @@
 package com.odontologiaintegralfm.configuration.securityconfig.annotations;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Anotación para permitir acceso al perfil solo del usuario auténticado y al admin como lectura.
- */
-
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("#id == @authenticatedUserService.authenticatedUser.id or " +
               "#id == @authenticatedUserService.authenticatedUser.person.id or " +
-              "hasAuthority('PERMISO_CONFIGURATION_READ')")
-public @interface OnlyAccessUserProfileOrConfigurationRead {
+               "hasAuthority('PERMISO_CONFIGURATION_UPDATE')")
+public @interface OnlyAccessUserProfileOrConfigurationUpdate {
 }

@@ -407,11 +407,11 @@ public class UserService implements IUserService {
             type = LogType.SYSTEM,
             level = LogLevel.INFO
     )
-    public Response<UserSecResponseDTO> update(UserSecUpdateDTO userSecUpdateDto) {
+    public Response<UserSecResponseDTO> update(Long idUser, UserSecUpdateDTO userSecUpdateDto) {
         try {
             //Se obtiene el usuario desde la base de datos para realizar validaciones
-            UserSec userSec = userRepository.findById(userSecUpdateDto.getId())
-                    .orElseThrow(() -> new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{userSecUpdateDto.getId(), "UserService", "Update"},LogLevel.ERROR));
+            UserSec userSec = userRepository.findById(idUser)
+                    .orElseThrow(() -> new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{idUser, "UserService", "Update"},LogLevel.ERROR));
 
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
             validateNotDevRole(userSec, userSecUpdateDto);
@@ -462,7 +462,7 @@ public class UserService implements IUserService {
             return new Response<>(true, userMessage, userSecResponse);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", userSecUpdateDto.getId(), "", "Update");
+            throw new DataBaseException(e, "userService", idUser, "", "Update");
         }
     }
 
@@ -799,7 +799,7 @@ public class UserService implements IUserService {
             Role role = roleService.getByIdInternal(id);
 
             //Valída que la creación no sea a un rol DEV
-            if (role.getName().equals("Developer") || role.getName().equals("DEVELOPER")) {
+            if (role.getName().equals(com.odontologiaintegralfm.feature.authentication.enums.Role.DEVELOPER.name())){
                 throw new ConflictException("exception.save.validateNotDevRole.user", null,"exception.save.validateNotDevRole.log",new Object[]{role.getId(),"UserService", "validateNotDevRole"},LogLevel.ERROR);
             }
         }
@@ -848,7 +848,7 @@ public class UserService implements IUserService {
     private void validateNotDevRole(UserSec userSec, UserSecUpdateDTO userSecUpdateDto) {
         //Valída que no pueda realizar ningún tipo de actualización a un usuario de tipo DEV
         for (Role role : userSec.getRolesList()) {
-            if (role.getName().equals("Developer") || role.getName().equals("DEVELOPER")) {
+            if (role.getName().equals(com.odontologiaintegralfm.feature.authentication.enums.Role.DEVELOPER.name())) {
                 throw new ConflictException("exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",new Object[]{ role.getId(),"UserService", "validateNotDevRole"},LogLevel.INFO);
             }
         }
@@ -864,7 +864,7 @@ public class UserService implements IUserService {
             Role role = roleService.getByIdInternal(id);
 
             //Valída que la actualización no sea a un rol DEV
-            if (role.getName().equals("Dev") || role.getName().equals("DEV")) {
+            if (role.getName().equals(com.odontologiaintegralfm.feature.authentication.enums.Role.DEVELOPER.name())) {
                 throw new ConflictException("exception.update.validateNotDevRole.user",null,"exception.update.validateNotDevRole.log",new Object[]{ role.getId(),"UserService", "validateNotDevRole"},LogLevel.INFO);
             }
         }
