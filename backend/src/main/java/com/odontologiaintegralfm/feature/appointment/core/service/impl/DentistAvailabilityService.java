@@ -380,7 +380,8 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
             List<DentistAvailability> dentistAvailability= dentistAvailabilityRepository.findAllByDentistId(id);
 
             if(dentistAvailability.isEmpty()) {
-                throw new NotFoundException("dentistAvailabilityService.notFound.user",null,"dentistAvailabilityService.notFound.log",new Object[]{id, "Dentist Availability Service", "get"}, LogLevel.WARN);
+                String messageUser = messageService.getMessage("dentistAvailabilityService.notFound.user", null,LocaleContextHolder.getLocale());
+                return new Response<>(true, messageUser, null);
             }
 
             //Mapeo a un DTO
