@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -181,24 +182,12 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Roles y/o permisos requeridos no encontrados."),
             @ApiResponse(responseCode = "409", description = "Usuario existente en el sistema o se intenta actualizar a un rol DEV.")
     })
-    @PatchMapping
-    @OnlyAccessConfigurationUpdate
-    public ResponseEntity<Response<UserSecResponseDTO>> updateUser(@Valid @RequestBody UserSecUpdateDTO userSecUpdateDto) {
-       Response<UserSecResponseDTO> response =  userService.update(userSecUpdateDto);
+    @PatchMapping("/{idUser}")
+    @OnlyAccessUserProfileOrConfigurationUpdate
+    public ResponseEntity<Response<UserSecResponseDTO>> updateUser(@PathVariable("idUser") Long id,
+                                                                   @Valid @RequestBody UserSecUpdateDTO userSecUpdateDto) {
+       Response<UserSecResponseDTO> response =  userService.update(id,userSecUpdateDto);
        return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
-
-/*
-    @DeleteMapping("/{id}")
-    @OnlyAccessConfigurationDelete
-    public ResponseEntity<Response<UserSecResponseDTO>> delete(@PathVariable @Param("id") Long id){
-        Response<UserSecResponseDTO> response = userService.disabled(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-
-
- */
 
 }
