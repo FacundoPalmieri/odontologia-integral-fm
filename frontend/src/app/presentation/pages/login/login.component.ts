@@ -76,7 +76,7 @@ export class LoginComponent implements OnDestroy {
     });
 
     this.forgotPasswordForm = new FormGroup({
-      email: new FormControl<string>("matiasnicolasiglesiasseliman@gmail.com", [
+      email: new FormControl<string>("", [
         Validators.required,
         Validators.email,
       ]),

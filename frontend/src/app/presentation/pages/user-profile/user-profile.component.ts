@@ -249,7 +249,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   onPanelClosed(): void {
-    // Check if any panel is still expanded after a short delay
     setTimeout(() => {
       const expandedPanels = document.querySelectorAll(
         ".mat-expansion-panel.mat-expanded"

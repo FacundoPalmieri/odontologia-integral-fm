@@ -48,7 +48,7 @@ export class UserService {
   ): Observable<ApiResponseInterface<UserDtoInterface>> {
     const userSerialized = this.userSerializer.toCreateDto(user);
     return this.http.patch<ApiResponseInterface<UserDtoInterface>>(
-      `${this.apiUrl}/user`,
+      `${this.apiUrl}/user/${user.id}`,
       userSerialized
     );
   }

@@ -6,9 +6,7 @@
     <mat-card-content>
       <div class="flex flex-col items-center justify-center gap-2">
         <i-tabler class="scale-160" [name]="card.icon"></i-tabler>
-        <span class="text-lg">
-          {{ card.title }}
-        </span>
+        <span class="text-lg"> {{ card.title }} </span>
         <span class="text-lg font-bold">{{
           card.amount | currency : "USD"
         }}</span>

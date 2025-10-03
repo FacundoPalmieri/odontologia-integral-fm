@@ -98,6 +98,7 @@ import {
   IconChevronUp,
   IconCalendarCancel,
   IconClock,
+  IconInfoCircle,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -197,6 +198,7 @@ const ICONS = {
   IconChevronUp,
   IconCalendarCancel,
   IconClock,
+  IconInfoCircle,
 } as const;
 
 @NgModule({
