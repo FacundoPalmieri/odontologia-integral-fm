@@ -21,6 +21,11 @@ export interface TimeInterface {
   nano: 0;
 }
 
+export interface DentistAvailabilityInterface {
+  idDentist: number;
+  days: DentistDayAvailabilityInterface[];
+}
+
 export interface DentistDayAvailabilityInterface {
   dayName: DayEnum;
   startTime: TimeInterface;

@@ -27,6 +27,8 @@ import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { MatTabsModule } from "@angular/material/tabs";
 import { PersonDataService } from "../../../services/person-data.service";
 import { MatButtonModule } from "@angular/material/button";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { AttachedFileComponent } from "../../components/attached-file/attached-file.component";
 import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
 import { PersonFormComponent } from "../../components/person-form/person-form.component";
@@ -45,6 +47,8 @@ import { DentistAvailabilityComponent } from "../../components/dentist-availabil
     MatChipsModule,
     MatTabsModule,
     MatButtonModule,
+    MatExpansionModule,
+    MatTooltipModule,
     AttachedFileComponent,
     PersonFormComponent,
     DentistAvailabilityComponent,
@@ -67,6 +71,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   isPersonFormValid = signal<boolean>(false);
   updatedPersonData = signal<PersonInterface | null>(null);
   isSaving = signal<boolean>(false);
+  isAnyPanelExpanded = signal<boolean>(false);
+  selectedPreference = signal<string | null>(null);
 
   entityTypeEnum = EntityTypeEnum;
 
@@ -236,5 +242,27 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             });
         },
       });
+  }
+
+  onPanelOpened(): void {
+    this.isAnyPanelExpanded.set(true);
+  }
+
+  onPanelClosed(): void {
+    // Check if any panel is still expanded after a short delay
+    setTimeout(() => {
+      const expandedPanels = document.querySelectorAll(
+        ".mat-expansion-panel.mat-expanded"
+      );
+      this.isAnyPanelExpanded.set(expandedPanels.length > 0);
+    }, 100);
+  }
+
+  selectPreference(preference: string): void {
+    this.selectedPreference.set(preference);
+  }
+
+  clearSelection(): void {
+    this.selectedPreference.set(null);
   }
 }

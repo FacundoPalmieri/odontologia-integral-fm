@@ -95,9 +95,9 @@ import {
   IconMessageReport,
   IconAdjustmentsHorizontal,
   IconClockCog,
-  IconChevronRight,
   IconChevronUp,
   IconCalendarCancel,
+  IconClock,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -196,6 +196,7 @@ const ICONS = {
   IconClockCog,
   IconChevronUp,
   IconCalendarCancel,
+  IconClock,
 } as const;
 
 @NgModule({

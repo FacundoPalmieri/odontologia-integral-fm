@@ -81,7 +81,7 @@
     </div>
   </div>
 </mat-card>
-<mat-card class="mt-4">
+<div class="mt-4">
   <ng-container *ngIf="selectedTabIndex() === 0">
     <mat-card appearance="outlined">
       <mat-card-content>
@@ -104,27 +104,190 @@
     </mat-card>
   </ng-container>
   <ng-container *ngIf="selectedTabIndex() === 1">
-    <mat-card appearance="outlined">
-      <div class="p-4">
-        @if(isDentist()) {
-        <app-dentist-availability
-          [dentistAvailability]="getDentistAvailability()"
-        ></app-dentist-availability>
-        } @else {
-        <div class="text-center py-4">
-          <i-tabler
-            name="info-circle"
-            class="text-gray-400 mb-2"
-            size="48"
-          ></i-tabler>
-          <mat-chip
-            >Aún no posee configuraciones para realizar sobre su
-            perfil</mat-chip
+    @if(isDentist()) {
+    <div class="preferences-grid">
+      <!-- Grid de opciones -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <mat-card
+          class="preference-card cursor-pointer"
+          [class.selected]="selectedPreference() === 'availability'"
+          (click)="selectPreference('availability')"
+          appearance="outlined"
+        >
+          <mat-card-content class="text-center p-6">
+            <div class="mb-4 flex justify-center">
+              <div
+                class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"
+              >
+                <i-tabler name="clock" class="text-blue-600"></i-tabler>
+              </div>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Disponibilidad Horaria</h3>
+            <p class="text-sm">Configura tus horarios de atención</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card
+          class="preference-card cursor-pointer"
+          [class.selected]="selectedPreference() === 'holidays'"
+          (click)="selectPreference('holidays')"
+          appearance="outlined"
+        >
+          <mat-card-content class="text-center p-6">
+            <div class="mb-4 flex justify-center">
+              <div
+                class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center"
+              >
+                <i-tabler
+                  name="calendar-cancel"
+                  class="text-red-600"
+                ></i-tabler>
+              </div>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Días no Laborales</h3>
+            <p class="text-sm">Gestiona tus días de descanso</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card
+          class="preference-card cursor-pointer"
+          [class.selected]="selectedPreference() === 'conflicts'"
+          (click)="selectPreference('conflicts')"
+          appearance="outlined"
+        >
+          <mat-card-content class="text-center p-6">
+            <div class="mb-4 flex justify-center">
+              <div
+                class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center"
+              >
+                <i-tabler
+                  name="alert-triangle"
+                  class="text-orange-600"
+                ></i-tabler>
+              </div>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Conflictos de Turnos</h3>
+            <p class="text-sm">Resuelve conflictos de programación</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Contenido de la opción seleccionada -->
+      @if(selectedPreference()) {
+      <mat-card appearance="outlined" class="selected-content-card">
+        <mat-card-header>
+          <mat-card-title class="flex items-center gap-3 !mb-0">
+            @switch(selectedPreference()) { @case('availability') {
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center flex-shrink-0"
+              >
+                <i-tabler name="clock" class="text-blue-600"></i-tabler>
+              </div>
+              <span class="flex items-center">Disponibilidad Horaria</span>
+            </div>
+
+            } @case('holidays') {
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-red-100 rounded-md flex items-center justify-center flex-shrink-0"
+              >
+                <i-tabler
+                  name="calendar-cancel"
+                  class="text-red-600"
+                ></i-tabler>
+              </div>
+              <span class="flex items-center">Días no Laborales</span>
+            </div>
+            } @case('conflicts') {
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-orange-100 rounded-md flex items-center justify-center flex-shrink-0"
+              >
+                <i-tabler
+                  name="alert-triangle"
+                  class="text-orange-600"
+                ></i-tabler>
+              </div>
+              <span class="flex items-center">Conflictos de Turnos</span>
+            </div>
+            } }
+          </mat-card-title>
+          <button
+            mat-icon-button
+            class="ml-auto"
+            (click)="clearSelection()"
+            matTooltip="Cerrar"
           >
+            <i-tabler name="x" class="mb-2"></i-tabler>
+          </button>
+        </mat-card-header>
+        <mat-card-content>
+          @switch(selectedPreference()) { @case('availability') {
+          <app-dentist-availability
+            [dentistId]="user()?.person?.id!"
+            [dentistAvailability]="getDentistAvailability()"
+          ></app-dentist-availability>
+          } @case('holidays') {
+          <div class="text-center py-8">
+            <i-tabler
+              name="calendar-cancel"
+              class="text-gray-400 mb-4"
+              size="64"
+            ></i-tabler>
+            <h3 class="text-lg font-medium text-gray-700 mb-2">
+              Configuración de días no laborales
+            </h3>
+            <p class="text-gray-500 mb-4">
+              Esta funcionalidad estará disponible próximamente
+            </p>
+            <mat-chip color="accent">Próximamente</mat-chip>
+          </div>
+          } @case('conflicts') {
+          <div class="text-center py-8">
+            <i-tabler
+              name="alert-triangle"
+              class="text-gray-400 mb-4"
+            ></i-tabler>
+            <h3 class="text-lg font-medium text-gray-700 mb-2">
+              Gestión de conflictos de turnos
+            </h3>
+            <p class="text-gray-500 mb-4">
+              Esta funcionalidad estará disponible próximamente
+            </p>
+            <mat-chip color="accent">Próximamente</mat-chip>
+          </div>
+          } }
+        </mat-card-content>
+      </mat-card>
+      }
+    </div>
+    } @else {
+    <mat-card appearance="outlined">
+      <div class="p-8 text-center">
+        <div
+          class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4"
+        >
+          <i-tabler name="info-circle" class="text-gray-400"></i-tabler>
         </div>
-        }
+        <h3 class="text-lg font-medium text-gray-700 mb-2">
+          Sin configuraciones disponibles
+        </h3>
+        <p class="text-gray-500">
+          Las configuraciones de preferencias están disponibles únicamente para
+          usuarios con rol de dentista.
+        </p>
+        <mat-chip class="mt-4" color="accent">
+          <div
+            class="w-4 h-4 bg-blue-100 rounded flex items-center justify-center mr-1"
+          >
+            <i-tabler name="user" class="text-blue-600" size="12"></i-tabler>
+          </div>
+          Usuario estándar
+        </mat-chip>
       </div>
     </mat-card>
+    }
   </ng-container>
   <ng-container *ngIf="selectedTabIndex() === 2">
     <mat-card appearance="outlined">
@@ -138,4 +301,4 @@
       </div>
     </mat-card>
   </ng-container>
-</mat-card>
+</div>

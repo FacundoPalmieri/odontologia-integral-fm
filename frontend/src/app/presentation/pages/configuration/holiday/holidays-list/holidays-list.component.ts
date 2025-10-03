@@ -15,10 +15,7 @@ import {
   ActionsEnum,
   PermissionsEnum,
 } from "../../../../../utils/enums/permissions.enum";
-import {
-  ApiResponseInterface,
-  PagedDataInterface,
-} from "../../../../../domain/interfaces/api-response.interface";
+import { ApiResponseInterface } from "../../../../../domain/interfaces/api-response.interface";
 import { SnackbarTypeEnum } from "../../../../../utils/enums/snackbar-type.enum";
 import { HolidayService } from "../../../../../services/holiday.service";
 import { HolidayInterface } from "../../../../../domain/interfaces/holiday.interface";
@@ -98,7 +95,6 @@ export class HolidaysListComponent implements OnDestroy {
   }
 
   editHoliday(holiday: HolidayInterface) {
-    console.log(holiday);
     const dialogRef = this.dialog.open(HolidayEditDialogComponent, {
       data: { holiday },
     });

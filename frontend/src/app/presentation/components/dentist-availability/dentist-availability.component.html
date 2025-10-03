@@ -3,8 +3,6 @@
   [formGroup]="dentistAvailabilityForm"
   style="will-change: scroll-position; transform: translateZ(0)"
 >
-  <h3 class="text-lg font-semibold mb-4">Disponibilidad laboral</h3>
-
   <div formArrayName="availability" class="space-y-4">
     @for(control of availability.controls; track trackByIndex($index)) {
     <div
