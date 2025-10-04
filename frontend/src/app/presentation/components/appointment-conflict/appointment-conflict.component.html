@@ -1,0 +1,189 @@
+<div class="flex flex-col gap-4">
+  <!-- Actions Bar -->
+  @if (conflicts().length > 0) {
+  <div class="flex justify-between items-center">
+    <!-- Go to Calendar Button -->
+    <button mat-flat-button color="primary" (click)="goToCalendar.emit()">
+      <div class="flex items-center justify-center gap-2">
+        <span>Ir a mi agenda</span>
+        <i-tabler class="scale-90" name="arrow-right"></i-tabler>
+      </div>
+    </button>
+
+    <!-- View Mode Toggle -->
+    <div
+      class="inline-flex items-center justify-center bg-[var(--mat-sys-home-sidenav-content-background)] rounded-full shadow-sm"
+    >
+      <button
+        mat-icon-button
+        matTooltip="Vista de listado"
+        [class.text-blue-500]="viewMode() === 'list'"
+        (click)="viewMode.set('list')"
+      >
+        <i-tabler class="mb-1" name="list-details"></i-tabler>
+      </button>
+      <button
+        mat-icon-button
+        matTooltip="Vista de grilla"
+        [class.text-blue-500]="viewMode() === 'grid'"
+        (click)="viewMode.set('grid')"
+      >
+        <i-tabler class="mb-1" name="layout-grid"></i-tabler>
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- No Conflicts Message -->
+  @if (conflicts().length === 0) {
+  <div
+    class="flex flex-col items-center justify-center gap-6 p-10 bg-[rgba(16,185,129,0.2)] rounded-3xl border-2 border-[rgba(16,185,129,0.3)]"
+  >
+    <div
+      class="rounded-full bg-[rgba(16,185,129,0.2)] p-8 w-24 h-24 flex items-center justify-center"
+    >
+      <i-tabler
+        class="text-[#10b981] scale-[3.5]"
+        name="circle-check"
+      ></i-tabler>
+    </div>
+    <h2 class="text-3xl font-bold text-[#10b981] text-center">
+      ¡Felicitaciones!
+    </h2>
+    <p class="text-xl text-[#10b981] text-center font-medium">
+      No hay conflictos en los turnos programados
+    </p>
+  </div>
+  }
+
+  <!-- Grid View -->
+  @if (conflicts().length > 0 && viewMode() === 'grid') {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-center">
+    @for (conflict of conflicts(); track conflict.appointmentId) {
+    <mat-card
+      appearance="outlined"
+      class="!bg-[var(--mat-sys-file-container-background)]"
+    >
+      <mat-card-content>
+        <div class="flex flex-col gap-3">
+          <!-- Header with Icon -->
+          <div class="flex items-start justify-between">
+            <div
+              class="rounded-xl flex p-2"
+              [ngClass]="getReasonColor(conflict.reasonKey)"
+            >
+              <i-tabler
+                class="text-white scale-130"
+                [name]="getReasonIcon(conflict.reasonKey)"
+              ></i-tabler>
+            </div>
+            <span class="text-xs">#{{ conflict.appointmentId }}</span>
+          </div>
+
+          <!-- Patient Name -->
+          <div class="flex flex-col">
+            <span class="text-xs">Paciente</span>
+            <span class="font-bold text-lg">{{ conflict.patientName }}</span>
+          </div>
+
+          <!-- Date and Time -->
+          <div class="flex items-center gap-2 justify-center">
+            <i-tabler name="calendar" class="scale-90"></i-tabler>
+            <span class="text-sm">
+              {{ conflict.appointmentDateTime | date : "dd/MM/yyyy" }}
+            </span>
+            <i-tabler name="clock" class="scale-90 ml-2"></i-tabler>
+            <span class="text-sm font-bold">
+              {{ conflict.appointmentDateTime | date : "HH:mm" }}
+            </span>
+          </div>
+
+          <!-- Reason -->
+          <div class="mt-2">
+            <span
+              class="px-3 py-1.5 rounded-xl text-white text-sm font-medium inline-block"
+              [ngClass]="getReasonColor(conflict.reasonKey)"
+            >
+              {{ conflict.reasonLabel }}
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    }
+  </div>
+  }
+
+  <!-- List View -->
+  @if (conflicts().length > 0 && viewMode() === 'list') {
+  <mat-card
+    appearance="outlined"
+    class="!bg-[var(--mat-sys-file-container-background)]"
+  >
+    <mat-card-content>
+      <div class="overflow-x-auto">
+        <table mat-table [dataSource]="conflicts()" class="w-full">
+          <!-- Patient Name Column -->
+          <ng-container matColumnDef="patientName">
+            <th mat-header-cell *matHeaderCellDef>Paciente</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="flex items-center gap-2">
+                <i-tabler name="user" class="scale-90"></i-tabler>
+                <span class="font-medium">{{ element.patientName }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Fecha y Hora</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1">
+                  <i-tabler name="calendar" class="scale-90"></i-tabler>
+                  <span>{{
+                    element.appointmentDateTime | date : "dd/MM/yyyy"
+                  }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <i-tabler name="clock" class="scale-90"></i-tabler>
+                  <span class="font-bold">{{
+                    element.appointmentDateTime | date : "HH:mm"
+                  }}</span>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Reason Column -->
+          <ng-container matColumnDef="reason">
+            <th mat-header-cell *matHeaderCellDef>Motivo del Conflicto</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="flex items-center gap-2">
+                <div
+                  class="rounded-lg flex p-1.5"
+                  [ngClass]="getReasonColor(element.reasonKey)"
+                >
+                  <i-tabler
+                    class="text-white scale-100"
+                    [name]="getReasonIcon(element.reasonKey)"
+                  ></i-tabler>
+                </div>
+                <span
+                  class="px-3 py-1 rounded-xl text-white text-sm font-medium"
+                  [ngClass]="getReasonColor(element.reasonKey)"
+                >
+                  {{ element.reasonLabel }}
+                </span>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  }
+</div>

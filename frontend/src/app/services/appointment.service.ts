@@ -1,6 +1,9 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
+import { Observable } from "rxjs";
+import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
+import { AppointmentConflictInterface } from "../domain/interfaces/dentist.interface";
 
 @Injectable({ providedIn: "root" })
 export class AppointmentService {
@@ -147,5 +150,13 @@ export class AppointmentService {
 
   getCanceled(): any[] {
     return this.canceled_appointments;
+  }
+
+  getAppointmentConflicts(
+    dentistId: number
+  ): Observable<ApiResponseInterface<AppointmentConflictInterface[]>> {
+    return this.http.get<ApiResponseInterface<AppointmentConflictInterface[]>>(
+      `${this.apiUrl}/appointment/conflict/all/${dentistId}`
+    );
   }
 }

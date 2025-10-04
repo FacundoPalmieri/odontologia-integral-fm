@@ -244,18 +244,8 @@
             <mat-chip color="accent">Próximamente</mat-chip>
           </div>
           } @case('conflicts') {
-          <div class="text-center py-8">
-            <i-tabler
-              name="alert-triangle"
-              class="text-gray-400 mb-4"
-            ></i-tabler>
-            <h3 class="text-lg font-medium mb-2">
-              Gestión de conflictos de turnos
-            </h3>
-            <p class="mb-4">
-              Esta funcionalidad estará disponible próximamente
-            </p>
-            <mat-chip color="accent">Próximamente</mat-chip>
+          <div class="p-4">
+            <app-appointment-conflict></app-appointment-conflict>
           </div>
           } }
         </mat-card-content>

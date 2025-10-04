@@ -33,6 +33,7 @@ import { AttachedFileComponent } from "../../components/attached-file/attached-f
 import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
 import { PersonFormComponent } from "../../components/person-form/person-form.component";
 import { DentistAvailabilityComponent } from "../../components/dentist-availability/dentist-availability.component";
+import { AppointmentConflictComponent } from "../../components/appointment-conflict/appointment-conflict.component";
 
 @Component({
   selector: "app-user-profile",
@@ -52,6 +53,7 @@ import { DentistAvailabilityComponent } from "../../components/dentist-availabil
     AttachedFileComponent,
     PersonFormComponent,
     DentistAvailabilityComponent,
+    AppointmentConflictComponent,
   ],
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
