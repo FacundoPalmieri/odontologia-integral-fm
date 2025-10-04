@@ -1,19 +1,64 @@
 <div class="p-8 background-odontogram-container">
   <div class="flex items-center justify-between -mt-4">
-    <div
-      class="inline-flex items-center justify-center background-odontogram-utilities"
-    >
-      @if(showToolbox){
-      <button
-        mat-icon-button
-        (click)="treatmentReferencesSidenavService.toggleSidenav()"
-        matTooltip="Referencias"
-        matTooltipPosition="above"
+    <div class="flex items-center gap-4 flex-1">
+      <div
+        class="inline-flex items-center justify-center background-odontogram-utilities"
       >
-        <i-tabler class="mb-1" name="notebook"></i-tabler>
-      </button>
+        @if(showToolbox){
+        <button
+          mat-icon-button
+          (click)="toggleReferences()"
+          [matTooltip]="
+            referencesOpen ? 'Cerrar referencias' : 'Abrir referencias'
+          "
+          matTooltipPosition="above"
+        >
+          <i-tabler class="mb-1" name="notebook"></i-tabler>
+        </button>
+        }
+      </div>
+
+      @if(referencesOpen){
+      <div
+        class="references-breadcrumb background-odontogram-utilities flex justify-center items-center gap-2 px-3 py-1.5 flex-wrap flex-1"
+      >
+        @for(treatment of treatments; track $index){
+        <div class="flex items-center gap-0.5">
+          @if(treatment.name === treatmentEnum.PUENTE){
+          <i-tabler name="space" class="rotate-180 text-xs scale-75"></i-tabler>
+          } @else {
+          <div class="flex scale-[0.75]">
+            @for(icon of treatment.icons; track $index){
+            <i-tabler
+              [name]="icon"
+              [ngClass]="[calculateMargin($index, treatment.icons!.length)]"
+            ></i-tabler>
+            }
+          </div>
+          }
+          <span class="text-[10px] whitespace-nowrap">{{
+            treatment.label
+          }}</span>
+          @if($index < treatments.length - 1){
+          <span class="text-gray-400 mx-0.5 text-[10px]">•</span>
+          }
+        </div>
+        }
+
+        <div class="flex items-center gap-2 ml-1 pl-2 border-l">
+          <div class="flex items-center gap-0.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+            <span class="text-[10px]">Existente</span>
+          </div>
+          <div class="flex items-center gap-0.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+            <span class="text-[10px]">Requerida</span>
+          </div>
+        </div>
+      </div>
       }
     </div>
+
     @if(showDateSelector){
     <div class="background-odontogram-utilities">
       <mat-form-field appearance="outline" class="p-2 !-mb-5">
@@ -145,8 +190,7 @@
       } }
     </svg>
 
-    <span class="text-xl font-bold text-center mb-4"> {{ title }}</span>
-    <div class="flex justify-center">
+    <div class="flex justify-center mt-4">
       <div class="flex mb-2 mr-2">
         @for(tooth of odontogram.upperTeethLeft; track $index){
         <app-tooth

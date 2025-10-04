@@ -24,10 +24,9 @@ import { AppointmentConflictInterface } from "../../../domain/interfaces/appoint
 export class AppointmentConflictComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
 
-  // Output event for navigating to calendar
   goToCalendar = output<void>();
 
-  // View mode signal: 'grid' or 'list'
+  // TODO - waiting for creating the calendar component
   viewMode = signal<"grid" | "list">("grid");
 
   // Mock conflicts data (replace with actual data from service)
@@ -55,7 +54,6 @@ export class AppointmentConflictComponent implements OnDestroy {
     },
   ]);
 
-  // Table columns for list view
   displayedColumns = ["patientName", "date", "reason"];
 
   constructor() {}

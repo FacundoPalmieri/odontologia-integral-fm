@@ -25,7 +25,6 @@ import { PermissionFactory } from "../../../utils/factories/permission.factory";
 import { MenuItemInterface } from "../../../domain/interfaces/menu-item.interface";
 import { FullscreenService } from "../../../services/fullscreen.service";
 import { TreatmentService } from "../../../services/treatment.service";
-import { TreatmentReferencesComponent } from "../../components/treatment-references/treatment-references.component";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { Subject, takeUntil } from "rxjs";
 import { MatBadgeModule } from "@angular/material/badge";
@@ -49,7 +48,6 @@ import { AccessControlService } from "../../../services/access-control.service";
     MatDividerModule,
     RouterModule,
     IconsModule,
-    TreatmentReferencesComponent,
     MatBadgeModule,
   ],
 })
@@ -62,7 +60,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   router = inject(Router);
   fullScreenService = inject(FullscreenService);
-  treatmentReferencesService = inject(TreatmentService);
   currentTheme = computed(() => this.themeService.currentTheme());
   userData: UserDataInterface | null = this.authService.getUserData();
   permissions: string[] = [];

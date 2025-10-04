@@ -28,6 +28,8 @@ import {
   mockOdontogram3,
 } from "../../../utils/mocks/odontogram.mock";
 import { MatInputModule } from "@angular/material/input";
+import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
+import { ShowTreatmentInterface } from "../../../domain/interfaces/treatment.interface";
 
 interface BridgeConnectionInterface {
   startTooth: number;
@@ -121,20 +123,33 @@ export class OdontogramComponent implements OnChanges {
     },
   ];
 
-  @Input() title: string = "Odontograma";
   @Input() odontogram: OdontogramInterface = this.baseOdontogram;
   @Input() showTemporaries?: boolean = false;
   @Input() showToolbox: boolean = false;
   @Input() showDateSelector: boolean = false;
   treatmentTypeEnum = TreatmentTypeEnum;
+  treatmentEnum = TreatmentEnum;
 
   treatmentReferencesSidenavService = inject(TreatmentService);
 
   bridgeConnections: BridgeConnectionInterface[] = [];
   selectedDate: OdontogramDateInterface = this.odontogramDates[0];
   selectedOdontogram: OdontogramInterface = this.selectedDate.odontogram;
+  referencesOpen: boolean = false;
+  treatments: ShowTreatmentInterface[] = TreatmentFactory.createTreatments();
 
   constructor() {}
+
+  toggleReferences() {
+    this.referencesOpen = !this.referencesOpen;
+  }
+
+  calculateMargin(index: number, totalIcons: number): string {
+    if (totalIcons > 1 && index < totalIcons - 1) {
+      return "mr-[-18px]";
+    }
+    return "";
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["odontogram"]) {
