@@ -4,7 +4,6 @@ import com.odontologiaintegralfm.configuration.securityconfig.core.Authenticated
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.feature.appointment.catalogs.repository.IHolidayRepository;
-import com.odontologiaintegralfm.feature.appointment.catalogs.service.IHolidayService;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayListRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayListResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestDTO;
@@ -15,7 +14,7 @@ import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDe
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
@@ -27,7 +26,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
-
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -50,7 +48,7 @@ public class DentistHolidayService implements IDentistHolidayService {
     private AuthenticatedUserService authenticatedUserService;
 
     @Autowired
-    private MessageService messageService;
+    private MessageSource messageSource;
 
     @Autowired
     private IHolidayRepository holidayRepository;
@@ -147,7 +145,7 @@ public class DentistHolidayService implements IDentistHolidayService {
                     holidayListResponseDTOS
             );
 
-            String messageUser = messageService.getMessage("dentistHolidayService.update.user.ok", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("dentistHolidayService.update.user.ok", null, LocaleContextHolder.getLocale());
 
             return new Response<>(true,messageUser, dentistHolidayResponseDTO);
 

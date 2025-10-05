@@ -25,7 +25,7 @@ import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.authentication.model.RefreshToken;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.user.repository.IUserRepository;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.feature.authentication.service.interfaces.IRefreshTokenService;
 import com.odontologiaintegralfm.configuration.securityconfig.core.JwtUtils;
 import jakarta.servlet.FilterChain;
@@ -45,14 +45,14 @@ import java.util.Optional;
 public class OAuth2UserFilter extends OncePerRequestFilter {
 
         private JwtUtils jwtUtils;
-        private IMessageService messageService;
+        private MessageSource messageSource;
         private IUserRepository userRepository;
     private IRefreshTokenService refreshTokenService;
 
-        public OAuth2UserFilter(JwtUtils jwtUtils,IUserRepository userRepository, IMessageService messageService, IRefreshTokenService refreshTokenService) {
+        public OAuth2UserFilter(JwtUtils jwtUtils,IUserRepository userRepository, MessageSource messageSource, IRefreshTokenService refreshTokenService) {
             this.jwtUtils = jwtUtils;
             this.userRepository = userRepository;
-            this.messageService = messageService;
+            this.messageSource = messageSource;
             this.refreshTokenService = refreshTokenService;
         }
 
@@ -151,11 +151,11 @@ public class OAuth2UserFilter extends OncePerRequestFilter {
 
     private boolean handleEnableAccount(UserSec user, HttpServletResponse response) throws IOException {
             if(user == null || !user.isEnabled()) {
-                String logMessage = messageService.getMessage("exception.usernameNotFound.log", new Object[]{user != null ? user.getUsername() : "N/A"}, LocaleContextHolder.getLocale());
+                String logMessage = messageSource.getMessage("exception.usernameNotFound.log", new Object[]{user != null ? user.getUsername() : "N/A"}, LocaleContextHolder.getLocale());
                 log.error(logMessage);
 
                 // Crear mensaje genérico para el usuario
-                String messageUser = messageService.getMessage("exception.usernameNotFound.user", null, LocaleContextHolder.getLocale());
+                String messageUser = messageSource.getMessage("exception.usernameNotFound.user", null, LocaleContextHolder.getLocale());
 
                 // Capturamos la excepción y devolvemos una respuesta personalizada
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -194,11 +194,11 @@ public class OAuth2UserFilter extends OncePerRequestFilter {
     private boolean handleBlockAccount(UserSec user, HttpServletResponse response) throws IOException {
 
         if(!user.isAccountNotLocked()) {
-            String logMessage = messageService.getMessage("exception.blockAccount.log",new Object[]{user.getId(),user.getUsername()},LocaleContextHolder.getLocale());
+            String logMessage = messageSource.getMessage("exception.blockAccount.log",new Object[]{user.getId(),user.getUsername()},LocaleContextHolder.getLocale());
             log.error(logMessage);
 
             // Crear mensaje genérico para el usuario
-            String messageUser = messageService.getMessage("exception.blockAccount.user", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("exception.blockAccount.user", null, LocaleContextHolder.getLocale());
 
             // Capturamos la excepción y devolvemos una respuesta personalizada
             response.setStatus(HttpStatus.UNAUTHORIZED.value());

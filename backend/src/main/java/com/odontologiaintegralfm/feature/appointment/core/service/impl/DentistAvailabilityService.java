@@ -18,11 +18,10 @@ import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentis
 import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
-import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.shared.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -47,7 +46,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
     private IDentistAvailabilityRepository dentistAvailabilityRepository;
 
     @Autowired
-    private MessageService messageService;
+    private MessageSource messageSource;
 
     @Autowired
     private AuthenticatedUserService authenticatedUserService;
@@ -130,7 +129,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                     appointments
             );
 
-            String messageUser = messageService.getMessage("dentistAvailabilityService.update.ok", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("dentistAvailabilityService.update.ok", null, LocaleContextHolder.getLocale());
 
             return new Response<>(true, messageUser, dentistAvailabilityResponseDTO);
         } catch (DataAccessException | CannotCreateTransactionException e) {
@@ -213,10 +212,10 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         ));
 
         // Obtener el mensaje completo con la URL de restablecimiento
-        String body = messageService.getMessage("dentistAvailabilityService.notifyEmail.body", new Object[] {user}, LocaleContextHolder.getLocale());
+        String body = messageSource.getMessage("dentistAvailabilityService.notifyEmail.body", new Object[] {user}, LocaleContextHolder.getLocale());
 
         //Asunto del email
-        String subject = messageService.getMessage("dentistAvailabilityService.notifyEmail.subject", new Object[] {user}, LocaleContextHolder.getLocale());
+        String subject = messageSource.getMessage("dentistAvailabilityService.notifyEmail.subject", new Object[] {user}, LocaleContextHolder.getLocale());
 
         //Envío de email
         emailService.sendEmail(destination, subject, body);
@@ -380,7 +379,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
             List<DentistAvailability> dentistAvailability= dentistAvailabilityRepository.findAllByDentistId(id);
 
             if(dentistAvailability.isEmpty()) {
-                String messageUser = messageService.getMessage("dentistAvailabilityService.notFound.user", null,LocaleContextHolder.getLocale());
+                String messageUser = messageSource.getMessage("dentistAvailabilityService.notFound.user", null,LocaleContextHolder.getLocale());
                 return new Response<>(true, messageUser, null);
             }
 

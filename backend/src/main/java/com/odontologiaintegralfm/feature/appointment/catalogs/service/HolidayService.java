@@ -8,16 +8,14 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateR
 import com.odontologiaintegralfm.feature.appointment.catalogs.repository.IHolidayRepository;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.HolidayType;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
-import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayListRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.impl.DentistHolidayService;
 import com.odontologiaintegralfm.infrastructure.externalapi.client.ArgentinaDatosClient;
 import com.odontologiaintegralfm.infrastructure.externalapi.dto.HolidayApiResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;
-import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
@@ -53,7 +51,7 @@ public class HolidayService implements IHolidayService {
     private AuthenticatedUserService authenticatedUserService;
 
     @Autowired
-    private MessageService messageService;
+    private MessageSource messageSource;
 
 
     @Autowired
@@ -130,7 +128,7 @@ public class HolidayService implements IHolidayService {
         );
 
         //Obtengo mensaje
-        String  messageUser = messageService.getMessage("holidayService.create.user.ok",null, LocaleContextHolder.getLocale());
+        String  messageUser = messageSource.getMessage("holidayService.create.user.ok",null, LocaleContextHolder.getLocale());
 
         //Elaboro respuesta
         return new Response<>(true, messageUser, holidayResponseDTO);
@@ -184,7 +182,7 @@ public class HolidayService implements IHolidayService {
         );
 
         //Construyo mensaje
-        String messageUser = messageService.getMessage("holidayService.update.user.ok",null, LocaleContextHolder.getLocale());
+        String messageUser = messageSource.getMessage("holidayService.update.user.ok",null, LocaleContextHolder.getLocale());
 
         //Devuelvo respuesta.
         return new Response<>(true, messageUser, holidayResponseDTO);
@@ -270,7 +268,7 @@ public class HolidayService implements IHolidayService {
         if(loadedHolidays > 0){
             return new SchedulerResultDTO(
                     0,
-                    messageService.getMessage("holidayService.loadHoliday.cancel.log", null, LocaleContextHolder.getLocale()),
+                    messageSource.getMessage("holidayService.loadHoliday.cancel.log", null, LocaleContextHolder.getLocale()),
                     loadedHolidays,
                     0);
         }
@@ -311,7 +309,7 @@ public class HolidayService implements IHolidayService {
 
         SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
                 durationSeconds,
-                messageService.getMessage("holidayService.loadHoliday.ok.log", null, LocaleContextHolder.getLocale()),
+                messageSource.getMessage("holidayService.loadHoliday.ok.log", null, LocaleContextHolder.getLocale()),
                 count.intValue(),
                 0);
         return schedulerResultDTO;

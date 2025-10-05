@@ -10,20 +10,18 @@ import com.odontologiaintegralfm.feature.authentication.service.interfaces.IPerm
 import com.odontologiaintegralfm.feature.authentication.service.interfaces.IRolePermissionActionService;
 import com.odontologiaintegralfm.feature.authentication.service.interfaces.IRoleService;
 import com.odontologiaintegralfm.feature.authentication.repository.IRoleRepository;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.shared.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +41,7 @@ import java.util.stream.Collectors;
  * <ul>
  *   <li>{@link IRoleRepository} para la gestión de roles en la base de datos.</li>
  *   <li>{@link IPermissionService} para validar y asignar permisos a los roles.</li>
- *   <li>{@link IMessageService} para gestionar mensajes de éxito y error.</li>
+ *   <li>{@link org.springframework.context.MessageSource} para gestionar mensajes de éxito y error.</li>
  * </ul>
  * </p>
  *
@@ -65,7 +63,7 @@ public class RoleService implements IRoleService {
     private IPermissionService permissionService;
 
     @Autowired
-    private IMessageService messageService;
+    private MessageSource messageSource;
 
     @Autowired
     private IRolePermissionActionService rolePermissionActionService;
@@ -78,7 +76,7 @@ public class RoleService implements IRoleService {
      * Recupera todos los roles almacenados en la base de datos excpeto el rol DESARROLLADOR.
      * <p>
      * Este método obtiene la lista de roles desde el repositorio y la devuelve dentro de un objeto {@link Response}.
-     * Además, genera un mensaje de éxito utilizando el servicio de mensajes {@link MessageService}.
+     * Además, genera un mensaje de éxito utilizando el servicio de mensajes {@link MessageSource}.
      * </p>
      * <p>
      * En caso de error de acceso a la base de datos o de transacción, se lanza una excepción {@link DataBaseException}.
@@ -96,7 +94,7 @@ public class RoleService implements IRoleService {
            Set<RoleSimpleResponseDTO> roleSimpleResponseDTO = convertToSimpleDTO(roleSet);
 
 
-           String messageUser = messageService.getMessage("roleService.getAll.user.ok", null, LocaleContextHolder.getLocale());
+           String messageUser = messageSource.getMessage("roleService.getAll.user.ok", null, LocaleContextHolder.getLocale());
            return new Response<>(true, messageUser, roleSimpleResponseDTO);
 
        }catch(DataAccessException | CannotCreateTransactionException e){
@@ -264,7 +262,7 @@ public class RoleService implements IRoleService {
             // Arma el árbol de respuesta entre rol, permisos y acciones.
             RoleFullResponseDTO roleFullResponseDTO = this.getFullByRoleId(savedRole.getId());
 
-            String messageUser = messageService.getMessage("roleService.save.ok", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("roleService.save.ok", null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser, roleFullResponseDTO);
 
         }catch(DataAccessException | CannotCreateTransactionException e){
@@ -308,7 +306,7 @@ public class RoleService implements IRoleService {
             // Arma el árbol de respuesta entre rol, permisos y acciones.
             RoleFullResponseDTO roleFullResponseDTO = this.getFullByRoleId(role.getId());
 
-            String messageUser = messageService.getMessage("roleService.update.ok", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("roleService.update.ok", null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser, roleFullResponseDTO);
 
         }catch(DataAccessException | CannotCreateTransactionException e){

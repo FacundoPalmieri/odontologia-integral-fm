@@ -19,7 +19,6 @@ import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.feature.person.core.model.Person;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.person.core.repository.IAttachedFilesRepository;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.implement.SystemParameterService;
 import com.odontologiaintegralfm.feature.user.service.UserService;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAttachedFilesService;
@@ -27,6 +26,7 @@ import com.odontologiaintegralfm.feature.person.core.service.intefaces.IFileStor
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IPersonService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
@@ -79,7 +79,7 @@ public class AttachedFilesService implements IAttachedFilesService {
     private UserService userService;
 
     @Autowired
-    private MessageService messageService;
+    private MessageSource messageSource;
 
     @Autowired
     private PatientService patientService;
@@ -146,7 +146,7 @@ public class AttachedFilesService implements IAttachedFilesService {
             attachedFile = attachedFilesRepository.save(attachedFile);
 
 
-            String userMessage = messageService.getMessage("attachedFileService.saveDocument.ok.user", null, LocaleContextHolder.getLocale());
+            String userMessage = messageSource.getMessage("attachedFileService.saveDocument.ok.user", null, LocaleContextHolder.getLocale());
             return new Response<>(true, userMessage, attachedFile.getStoredFileName());
 
         }else{
@@ -218,7 +218,7 @@ public class AttachedFilesService implements IAttachedFilesService {
 
         attachedFile = attachedFilesRepository.save(attachedFile);
 
-        String userMessage = messageService.getMessage("attachedFileService.saveDocument.ok.user", null, LocaleContextHolder.getLocale());
+        String userMessage = messageSource.getMessage("attachedFileService.saveDocument.ok.user", null, LocaleContextHolder.getLocale());
         return new Response<>(true, userMessage, attachedFile.getStoredFileName());
     }
 
@@ -417,7 +417,7 @@ public class AttachedFilesService implements IAttachedFilesService {
             file.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
             attachedFilesRepository.save(file);
 
-            String messageUser = messageService.getMessage("attachedFileService.disabledDocument.ok.user",null,LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("attachedFileService.disabledDocument.ok.user",null,LocaleContextHolder.getLocale());
 
             return new Response<>(true, messageUser, null);
 
@@ -463,7 +463,7 @@ public class AttachedFilesService implements IAttachedFilesService {
                 file.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
                 attachedFilesRepository.save(file);
 
-                String messageUser = messageService.getMessage("attachedFileService.disabledDocument.ok.user",null,LocaleContextHolder.getLocale());
+                String messageUser = messageSource.getMessage("attachedFileService.disabledDocument.ok.user",null,LocaleContextHolder.getLocale());
 
                 return new Response<>(true, messageUser, null);
 

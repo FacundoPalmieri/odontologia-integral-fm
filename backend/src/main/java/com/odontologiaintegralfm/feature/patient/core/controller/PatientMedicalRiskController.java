@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientMedicalRiskRequestDTO;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientMedicalRiskResponseDTO;
 import com.odontologiaintegralfm.shared.response.Response;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.feature.patient.core.service.interfaces.IPatientMedicalRiskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,7 +22,7 @@ public class PatientMedicalRiskController {
     @Autowired
     IPatientMedicalRiskService patientMedicalRiskService;
     @Autowired
-    private MessageService messageService;
+    private MessageSource messageSource;
 
 
     /**
@@ -48,7 +48,7 @@ public class PatientMedicalRiskController {
 
        Set<PatientMedicalRiskResponseDTO> patientMedicalRiskResponseDTOS = patientMedicalRiskService.CreateOrUpdate(id,patientMedicalRiskRequestDTO);
 
-       String messageUser = messageService.getMessage("patientMedicalRiskController.createOrUpdate.user.ok", null, LocaleContextHolder.getLocale());
+       String messageUser = messageSource.getMessage("patientMedicalRiskController.createOrUpdate.user.ok", null, LocaleContextHolder.getLocale());
        return new ResponseEntity<>(new Response<>(true,messageUser, patientMedicalRiskResponseDTOS), HttpStatus.OK);
     }
 

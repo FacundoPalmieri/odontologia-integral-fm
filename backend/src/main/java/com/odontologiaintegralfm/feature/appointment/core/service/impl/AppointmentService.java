@@ -6,9 +6,9 @@ import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConfl
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentConflictService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
 import com.odontologiaintegralfm.shared.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -22,8 +22,9 @@ public class AppointmentService implements IAppointmentService {
 
     @Autowired
     private IAppointmentConflictService appointmentConflictService;
+
     @Autowired
-    private MessageService messageService;
+    private MessageSource messageSource;
 
     /**
      * Método protegido que sirve para obtener todos los turnos del dentista.
@@ -43,7 +44,7 @@ public class AppointmentService implements IAppointmentService {
         List<AppointmentConflict> appointmentConflicts = appointmentConflictService.getAllNotResolvedByDentist(idDentist);
 
         if ( appointmentConflicts == null || appointmentConflicts.isEmpty()) {
-            String messageUser = messageService.getMessage("appointmentService.getConflict.empty", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("appointmentService.getConflict.empty", null, LocaleContextHolder.getLocale());
             return new Response<>(false, messageUser, Collections.emptyList());
         }
 

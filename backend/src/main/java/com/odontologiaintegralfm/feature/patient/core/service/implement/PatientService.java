@@ -17,9 +17,9 @@ import com.odontologiaintegralfm.feature.patient.core.service.interfaces.IPatien
 import com.odontologiaintegralfm.feature.person.core.model.Person;
 import com.odontologiaintegralfm.feature.person.core.service.implement.PersonService;
 import com.odontologiaintegralfm.feature.patient.core.repository.IPatientRepository;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.shared.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -39,7 +39,7 @@ import java.util.Set;
 @Service
 public class PatientService implements IPatientService {
     @Autowired
-    private IMessageService messageService;
+    private MessageSource messageSource;
 
     @Autowired
     private IPatientRepository patientRepository;
@@ -108,7 +108,7 @@ public class PatientService implements IPatientService {
             PatientResponseDTO patientResponseDTO = buildResponseDTO(patient, patientMedicalRiskResponseDTOS);
 
             //Crear mensaje para el usuario.
-            String messageUser = messageService.getMessage("patientService.save.ok.user",null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("patientService.save.ok.user",null, LocaleContextHolder.getLocale());
 
 
             return new Response<>(true,messageUser, patientResponseDTO);
@@ -159,7 +159,7 @@ public class PatientService implements IPatientService {
             PatientResponseDTO patientResponseDTO = buildResponseDTO(patient,patientMedicalRiskResponseDTOS);
 
             //Crear mensaje para el usuario.
-            String messageUser = messageService.getMessage("patientService.update.ok.user",null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("patientService.update.ok.user",null, LocaleContextHolder.getLocale());
 
             return new Response<>(true,messageUser, patientResponseDTO);
 

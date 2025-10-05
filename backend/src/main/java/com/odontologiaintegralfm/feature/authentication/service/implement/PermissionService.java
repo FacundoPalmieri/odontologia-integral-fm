@@ -8,10 +8,9 @@ import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.feature.authentication.model.Permission;
 import com.odontologiaintegralfm.feature.authentication.repository.IPermissionRepository;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.feature.authentication.service.interfaces.IPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ import java.util.*;
  * y los datos son transferidos mediante objetos DTO como {@link PermissionFullResponseDTO}.
  * </p>
  * <p>
- * Además, se utiliza el servicio de mensajes {@link MessageService} para generar mensajes informativos
+ * Además, se utiliza el servicio de mensajes {@link MessageSource} para generar mensajes informativos
  * de éxito o error, los cuales son retornados dentro de un objeto {@link Response}.
  * </p>
  * <p>
@@ -43,7 +42,7 @@ public class PermissionService implements IPermissionService {
     private IPermissionRepository permissionRepository;
 
     @Autowired
-    private IMessageService messageService;
+    private MessageSource messageSource;
 
 
 
@@ -52,7 +51,7 @@ public class PermissionService implements IPermissionService {
      * <p>
      * Este método obtiene la lista de permisos desde el repositorio, los convierte a DTO y
      * los devuelve dentro de un objeto {@link Response}. Además, genera un mensaje de éxito
-     * utilizando el servicio de mensajes {@link MessageService}.
+     * utilizando el servicio de mensajes {@link MessageSource}.
      * </p>
      * <p>
      * En caso de error de acceso a la base de datos o de transacción, se lanza una excepción {@link DataBaseException}.
@@ -73,7 +72,7 @@ public class PermissionService implements IPermissionService {
                 permissionSimpleResponseDTOList.add(convertToSimpleDTO(permission));
             }
 
-            String messageUser = messageService.getMessage("permissionService.getAll.ok", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("permissionService.getAll.ok", null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser, permissionSimpleResponseDTOList);
 
         } catch (DataAccessException | CannotCreateTransactionException e) {

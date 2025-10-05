@@ -7,7 +7,7 @@ import com.odontologiaintegralfm.shared.response.Response;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.infrastructure.logging.service.ISystemLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +48,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @Autowired
-    private IMessageService messageService;
+    private MessageSource messageSource;
 
     @Autowired
     private ISystemLogService systemLogService;
@@ -75,13 +75,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Response<Void>> handleAppException(AppException e) {
 
         //Mensaje para el usuario.
-        String userMessage = messageService.getMessage(e.getUserMessageKey(), e.getUserArgs(), LocaleContextHolder.getLocale());
+        String userMessage = messageSource.getMessage(e.getUserMessageKey(), e.getUserArgs(), LocaleContextHolder.getLocale());
 
         //Verifica si corresponde loguear.
         if (e.getLogLevel() != LogLevel.NONE) {
 
             //Construye mensaje para el log
-            String logMessage = messageService.getMessage(e.getLogMessageKey(),e.getLogArgs(), LocaleContextHolder.getLocale());
+            String logMessage = messageSource.getMessage(e.getLogMessageKey(),e.getLogArgs(), LocaleContextHolder.getLocale());
 
             // Loguea en consola de acuerdo al nivel.
             switch (e.getLogLevel()) {
@@ -134,7 +134,7 @@ public class GlobalExceptionHandler {
 
         // Iteramos sobre los errores de cada campo que falló en la validación
         ex.getBindingResult().getFieldErrors().forEach(error ->{
-            String errorMessage = messageService.getMessage(error.getDefaultMessage(), null, LocaleContextHolder.getLocale());   // Guardamos el nombre del campo (error.getField()) y el mensaje de error correspondiente (error.getDefaultMessage()) en el mapa
+            String errorMessage = messageSource.getMessage(error.getDefaultMessage(), null, LocaleContextHolder.getLocale());   // Guardamos el nombre del campo (error.getField()) y el mensaje de error correspondiente (error.getDefaultMessage()) en el mapa
             errors.put(error.getField(), errorMessage);
 
             //Obtiene el usuario autenticado.
@@ -142,7 +142,7 @@ public class GlobalExceptionHandler {
             String username = (authentication != null) ? authentication.getName() : "Anónimo";
 
             //Construye mensaje para log
-            String logMessage = messageService.getMessage("exception.validation.log",new Object[]{error.getField(),errorMessage,username}, LocaleContextHolder.getLocale());
+            String logMessage = messageSource.getMessage("exception.validation.log",new Object[]{error.getField(),errorMessage,username}, LocaleContextHolder.getLocale());
 
             // Log tradicional en consola
             log.error(logMessage);
@@ -190,10 +190,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Response<Void>> handleDataBaseException(DataBaseException ex) {
 
         //Se construye en el mensaje para el usuario.
-        String userMessage = messageService.getMessage("exception.database.user", null, LocaleContextHolder.getLocale());
+        String userMessage = messageSource.getMessage("exception.database.user", null, LocaleContextHolder.getLocale());
 
         //Se construye en el mensaje para log.
-        String logMessage = messageService.getMessage(
+        String logMessage = messageSource.getMessage(
                 "exception.database.log",
                 new Object[]{ ex.getClase(),  ex.getEntityId(), ex.getEntityName(), ex.getMethod(), ex.getRootCause(), userMessage},
                 LocaleContextHolder.getLocale()
@@ -239,7 +239,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<Response<Void>> handleNotFound(Exception ex) {
-        String messageUser = messageService.getMessage("exception.notFound", null, LocaleContextHolder.getLocale());
+        String messageUser = messageSource.getMessage("exception.notFound", null, LocaleContextHolder.getLocale());
 
         // Log en consola (puede ser warn o info)
         log.warn("Recurso no encontrado: " + ex.getMessage(), ex);
@@ -288,7 +288,7 @@ public class GlobalExceptionHandler {
         String requestedUrl = request.getRequestURI();
 
         // Obtener el mensaje desde el archivo de propiedades y asignar datos
-        String logMessage = messageService.getMessage("exception.accessDenied.log", new Object[]{username, requestedUrl, ex.getMessage()}, LocaleContextHolder.getLocale());
+        String logMessage = messageSource.getMessage("exception.accessDenied.log", new Object[]{username, requestedUrl, ex.getMessage()}, LocaleContextHolder.getLocale());
 
         // Log en consola
         log.error(logMessage, ex);
@@ -297,7 +297,7 @@ public class GlobalExceptionHandler {
         systemLogService.save(new SystemLogResponseDTO(
                 LogLevel.ERROR,
                 LogType.EXCEPTION,
-                messageService.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale()),
+                messageSource.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale()),
                 logMessage,
                 username,
                 this.getClass().getSimpleName(),
@@ -307,7 +307,7 @@ public class GlobalExceptionHandler {
 
 
         // Mensaje para el usuario final
-        String messageUser = messageService.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale());
+        String messageUser = messageSource.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale());
         Response<Void> response = new Response<>(false, messageUser, null);
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
 
@@ -336,7 +336,7 @@ public class GlobalExceptionHandler {
         log.error("Error inesperado: " + e.getMessage(), e);
 
         // Respuesta genérica para cualquier excepción no capturada
-        String messageUser = messageService.getMessage("exception.generic", null, LocaleContextHolder.getLocale());
+        String messageUser = messageSource.getMessage("exception.generic", null, LocaleContextHolder.getLocale());
 
         // Guardar log en base de datos
         systemLogService.save(new SystemLogResponseDTO(
