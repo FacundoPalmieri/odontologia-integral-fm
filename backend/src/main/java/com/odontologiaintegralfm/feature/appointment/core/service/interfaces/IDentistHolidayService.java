@@ -1,8 +1,11 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
+import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayResponseDTO;
 import com.odontologiaintegralfm.shared.response.Response;
+
+import java.util.List;
 
 /**
  * @author [Facundo Palmieri]
@@ -10,9 +13,15 @@ import com.odontologiaintegralfm.shared.response.Response;
 public interface IDentistHolidayService {
 
     /**
-     * Método para la creación de la relación de un dentista con feriados.
+     * Método que crea las relaaciones entre dentistas y feriados.
+     * El mismo se ejecuta dentro de la tarea programada anual de carga de feriados.
      */
-    Response<DentistHolidayResponseDTO> createOrUpdate(Long idDentist,DentistHolidayRequestDTO dentistHolidayRequestDTO);
+   void create(int year,List<Holiday> holidayList);
+
+    /**
+     * Método para la actualización de la relación de un dentista con feriados.
+     */
+    Response<DentistHolidayResponseDTO> update(Long idDentist, DentistHolidayRequestDTO dentistHolidayRequestDTO);
 
 
     /**

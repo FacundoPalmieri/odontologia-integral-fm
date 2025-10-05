@@ -257,7 +257,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
         // En caso que sea nulo, se informa que no se pudo encontrar al usuario.
         if (userDetails == null) {
-            String logMessage = messageService.getMessage("exception.UsernameNotFound.log", new Object[]{username}, LocaleContextHolder.getLocale());
             throw new UnauthorizedException("exception.usernameNotFound.user", null,"exception.usernameNotFound.log",new Object[]{username,"UserDetailServiceImp", "authenticate"}, LogLevel.WARN);
         }
 

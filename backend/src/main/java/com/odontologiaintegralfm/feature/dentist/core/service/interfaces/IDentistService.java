@@ -8,6 +8,7 @@ import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.person.core.model.Person;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,10 +40,16 @@ public interface IDentistService {
     Dentist update(Dentist dentist, DentistUpdateRequestDTO dentistUpdateRequestDTO);
 
     /**
-     * Método para obtener un listado de pacientes habilitados en el sistema.
+     * Método para obtener un set de pacientes habilitados en el sistema.
      * @return Una respuesta que contiene una lista de objetos {@link DentistResponseDTO }
      */
     Response<Set<DentistResponseDTO>> getAll();
+
+    /**
+     * Método para obtener el listado de todos los dentistas habilitados.
+     * Este método es interno de la aplicación y se consume desde el método "create" de "DentistHolidayService" al momento de ejecutar la tarea programada anual de carga de feriados.
+     */
+    List<Dentist> getAllInternal();
 
     /**
      * Método para obtener un dentista por su Id. Retorna un Optional ya que al consultar por ID de Person, puede ser que la persona no sea un dentista.

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -122,6 +123,19 @@ public class DentistService implements IDentistService {
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistService",null,null, "getAll");
+        }
+    }
+
+    /**
+     * Método para obtener el listado de todos los dentistas habilitados.
+     * Este método es interno de la aplicación y se consume desde el método "create" de "DentistHolidayService" al momento de ejecutar la tarea programada anual de carga de feriados.
+     */
+    @Override
+    public List<Dentist> getAllInternal() {
+        try{
+            return dentistRepository.findAll();
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "DentistService",null,null, "getAllInternal");
         }
     }
 
