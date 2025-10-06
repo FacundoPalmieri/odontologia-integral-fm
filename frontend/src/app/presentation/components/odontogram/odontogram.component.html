@@ -89,9 +89,9 @@
       <!-- Línea horizontal principal -->
       <line
         [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.startTooth).y + 35"
+        [attr.y1]="getToothPosition(bridge.startTooth).y + 5"
         [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.endTooth).y + 35"
+        [attr.y2]="getToothPosition(bridge.endTooth).y + 5"
         [attr.stroke]="
           bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
             ? '#2b7fff'
@@ -105,9 +105,9 @@
       <!-- Línea vertical para el diente inicial -->
       <line
         [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.startTooth).y + 35"
+        [attr.y1]="getToothPosition(bridge.startTooth).y + 5"
         [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.startTooth).y + 50"
+        [attr.y2]="getToothPosition(bridge.startTooth).y + 20"
         [attr.stroke]="
           bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
             ? '#2b7fff'
@@ -121,9 +121,9 @@
       <!-- Línea vertical para el diente final -->
       <line
         [attr.x1]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.endTooth).y + 35"
+        [attr.y1]="getToothPosition(bridge.endTooth).y + 5"
         [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.endTooth).y + 50"
+        [attr.y2]="getToothPosition(bridge.endTooth).y + 20"
         [attr.stroke]="
           bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
             ? '#2b7fff'
@@ -142,9 +142,9 @@
       <!-- Línea horizontal principal -->
       <line
         [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.startTooth).y + 85"
+        [attr.y1]="getToothPosition(bridge.startTooth).y + 56"
         [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.endTooth).y + 85"
+        [attr.y2]="getToothPosition(bridge.endTooth).y + 56"
         [attr.stroke]="
           bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
             ? '#2b7fff'
@@ -158,9 +158,9 @@
       <!-- Línea vertical para el diente inicial -->
       <line
         [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.startTooth).y + 100"
+        [attr.y1]="getToothPosition(bridge.startTooth).y + 56"
         [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.startTooth).y + 85"
+        [attr.y2]="getToothPosition(bridge.startTooth).y + 70"
         [attr.stroke]="
           bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
             ? '#2b7fff'
@@ -174,9 +174,9 @@
       <!-- Línea vertical para el diente final -->
       <line
         [attr.x1]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.endTooth).y + 100"
+        [attr.y1]="getToothPosition(bridge.endTooth).y + 56"
         [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.endTooth).y + 85"
+        [attr.y2]="getToothPosition(bridge.endTooth).y + 70"
         [attr.stroke]="
           bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
             ? '#2b7fff'
