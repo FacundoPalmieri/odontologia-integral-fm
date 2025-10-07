@@ -42,13 +42,6 @@ public class LogActionAspect {
     @Around("@annotation(logAction)")
     public Object logMethod(ProceedingJoinPoint pjp, LogAction logAction) throws Throwable {
 
-
-        //Obtiene le usuario autenticado
-        String userAuth = authenticatedUserService.getAuthenticatedUser().getUsername();
-        if(userAuth.equalsIgnoreCase("No autenticado")){
-            userAuth = authenticatedSystemService.getAuthenticatedUserSystem().getUsername();
-        }
-
         //Obtiene los argumentos del método principal.
         MethodSignature signature = (MethodSignature) pjp.getSignature();
 
@@ -70,10 +63,18 @@ public class LogActionAspect {
         // Ejecuta el método original y capturar resultado o excepción
         Object result = null;
 
-
+        String userAuth = "";
         // Ejecuta el método original, si falla loguea la exception
         try {
             result = pjp.proceed(); // llama al método original anotado.
+
+            //Obtiene le usuario autenticado
+            userAuth = authenticatedUserService.getAuthenticatedUser().getUsername();
+            if(userAuth.equalsIgnoreCase("No autenticado")){
+                userAuth = authenticatedSystemService.getAuthenticatedUserSystem().getUsername();
+            }
+
+
             // Agregar resultado al contexto para evaluar en SpEL
             context.setVariable("result", result);
 

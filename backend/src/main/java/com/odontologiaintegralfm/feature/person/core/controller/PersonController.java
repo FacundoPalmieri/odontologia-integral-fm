@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.person.core.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrPatientsRead;
 import com.odontologiaintegralfm.shared.response.Response;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IPersonService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -88,8 +89,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
     })
     @GetMapping("/{id}/avatar")
-    @OnlyAccessUserProfileOrConfigurationRead
-
+    @OnlyAccessUserProfileOrPatientsRead
     public ResponseEntity<UrlResource> getAvatar(@PathVariable Long id) throws IOException {
 
         UrlResource avatar = personService.getAvatar(id);

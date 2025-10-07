@@ -86,18 +86,23 @@ public class RolePermissionActionService implements IRolePermissionActionService
     @Transactional
     public void buildRelationByRole(Role role, Set<PermissionActionRequestDTO> permissionActions) {
         try{
-            RolePermissionAction rolePermissionAction = new RolePermissionAction();
 
-            for (PermissionActionRequestDTO permissionAction: permissionActions) {
+
+            for (PermissionActionRequestDTO permissionAction : permissionActions) {
                 Permission permission = permissionService.getByIdInternal(permissionAction.getPermissionId());
-                rolePermissionAction.setRole(role);
-                rolePermissionAction.setPermission(permission);
-                for(Long idAction: permissionAction.getActionId()){
+
+                for (Long idAction : permissionAction.getActionId()) {
                     Action action = actionService.getById(idAction);
+
+                    RolePermissionAction rolePermissionAction = new RolePermissionAction();
+                    rolePermissionAction.setRole(role);
+                    rolePermissionAction.setPermission(permission);
                     rolePermissionAction.setAction(action);
+
                     this.create(rolePermissionAction);
                 }
             }
+
 
         }catch (DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "RolePermissionActionService",role.getId(), role.getName(), "buildRelationByRole");

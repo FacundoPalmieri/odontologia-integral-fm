@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.configuration.securityconfig.core;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.user.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class AuthenticatedUserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String username;
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken || !authentication.isAuthenticated()) {
             username = "No autenticado";
         } else {
             username = authentication.getName();

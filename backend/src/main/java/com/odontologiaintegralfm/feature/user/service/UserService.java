@@ -201,40 +201,40 @@ public class UserService implements IUserService {
      */
     @Override
     public Response<UserSecResponseDTO> getById(Long id) {
-        try{
-             Optional<UserSec> user = userRepository.findById(id);
-             if(user.isPresent()){
-                 PersonResponseDTO personDTO = null;
-                 DentistResponseDTO dentistDTO = null;
+        try {
+            Optional<UserSec> user = userRepository.findById(id);
+            if (user.isPresent()) {
+                PersonResponseDTO personDTO = null;
+                DentistResponseDTO dentistDTO = null;
 
-                 if (user.get().getPerson() != null) {
-                     personDTO = personService.convertToDTO(personService.getById(user.get().getPerson().getId()));
-
-
-                     Optional<Dentist> dentist = dentistService.getById(user.get().getPerson().getId());
-                     if(dentist.isPresent()){
-                         dentistDTO = dentistService.convertToDTO(dentist.get());
-                     }
+                if (user.get().getPerson() != null) {
+                    personDTO = personService.convertToDTO(personService.getById(user.get().getPerson().getId()));
 
 
-                 }
+                    Optional<Dentist> dentist = dentistService.getById(user.get().getPerson().getId());
+                    if (dentist.isPresent()) {
+                        dentistDTO = dentistService.convertToDTO(dentist.get());
+                    }
 
-                   UserSecResponseDTO userSecResponseDTO = new UserSecResponseDTO(
-                         user.get().getId(),
-                         user.get().getUsername(),
-                         user.get().getRolesList(),
-                         user.get().isEnabled(),
-                         personDTO,
-                         dentistDTO
-                 );
 
-                 String messageUser = messageSource.getMessage("userService.getById.ok.user", null, LocaleContextHolder.getLocale());
+                }
 
-                 return new Response<>(true, messageUser, userSecResponseDTO);
-             }else{
-                 throw new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{id,"UserService", "getById"}, LogLevel.ERROR );
-             }
-        }catch (DataAccessException | CannotCreateTransactionException e) {
+                UserSecResponseDTO userSecResponseDTO = new UserSecResponseDTO(
+                        user.get().getId(),
+                        user.get().getUsername(),
+                        user.get().getRolesList(),
+                        user.get().isEnabled(),
+                        personDTO,
+                        dentistDTO
+                );
+
+                String messageUser = messageSource.getMessage("userService.getById.ok.user", null, LocaleContextHolder.getLocale());
+
+                return new Response<>(true, messageUser, userSecResponseDTO);
+            } else {
+                throw new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log", new Object[]{id, "UserService", "getById"}, LogLevel.ERROR);
+            }
+        } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", id, null, "getById");
         }
     }
