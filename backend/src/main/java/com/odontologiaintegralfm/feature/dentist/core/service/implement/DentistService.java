@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.dentist.core.service.implement;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.dentist.catalogs.dto.DentistSpecialtyResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
@@ -115,7 +116,7 @@ public class DentistService implements IDentistService {
         try{
             Set<Dentist> dentists = dentistRepository.findAllByEnabledTrue();
             Set <DentistResponseDTO> dentistDTO = dentists.stream()
-                    .map(dentist -> new DentistResponseDTO(personService.convertToDTO(dentist.getPerson()), dentist.getLicenseNumber(), dentist.getDentistSpecialty().getName())
+                    .map(dentist -> new DentistResponseDTO(personService.convertToDTO(dentist.getPerson()), dentist.getLicenseNumber(), new DentistSpecialtyResponseDTO(dentist.getDentistSpecialty().getId(), dentist.getDentistSpecialty().getName()))
                             )
                     .collect(Collectors.toSet());
 
@@ -181,7 +182,10 @@ public class DentistService implements IDentistService {
         return new DentistResponseDTO(
                 personService.convertToDTO(dentist.getPerson()),
                 dentist.getLicenseNumber(),
-                dentist.getDentistSpecialty().getName()
+                new DentistSpecialtyResponseDTO(
+                        dentist.getDentistSpecialty().getId(),
+                        dentist.getDentistSpecialty().getName()
+                )
         );
     }
 }

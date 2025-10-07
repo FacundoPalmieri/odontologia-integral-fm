@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
  *   <li>{@link IUserService#getAll(int, int, String, String)}: Recupera la lista de todos los usuarios del sistema.</li>
  *   <li>{@link IUserService#getById(Long)}: Busca un usuario por su identificador único.</li>
  *   <li>{@link IUserService#create(UserSecCreateDTO)}: Guarda un nuevo usuario en la base de datos.</li>
- *   <li>{@link UserService#update(UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
+ *   <li>{@link UserService#update(Long, UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
  *   <li>{@link UserService#encriptPassword(String)}: Encripta una contraseña utilizando el algoritmo BCrypt.</li>
  *   <li>{@link UserService#createTokenResetPasswordForUser(String)}: Crea un token de restablecimiento de contraseña y envía un correo electrónico.</li>
  *   <li>{@link UserService#updatePassword(ResetPasswordRequestDTO, HttpServletRequest)}: Actualiza la contraseña de un usuario utilizando un token de restablecimiento válido.</li>
