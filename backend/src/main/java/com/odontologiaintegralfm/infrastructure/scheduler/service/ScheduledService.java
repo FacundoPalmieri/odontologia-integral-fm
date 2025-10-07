@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.infrastructure.scheduler.service;
 
 
+import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedSystemService;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -8,11 +9,11 @@ import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.enums.ScheduledTaskKey;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.infrastructure.scheduler.model.ScheduleTask;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.infrastructure.logging.service.SystemLogService;
 import lombok.extern.slf4j.Slf4j;
 import com.odontologiaintegralfm.infrastructure.scheduler.repository.IScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -31,10 +32,11 @@ public class ScheduledService implements IScheduleService {
     private IScheduleRepository scheduleRepository;
 
     @Autowired
-    private IMessageService messageService;
+    private MessageSource messageSource;
     @Autowired
     private SystemLogService systemLogService;
-
+    @Autowired
+    private AuthenticatedSystemService authenticatedSystemService;
 
 
     /**
@@ -113,7 +115,7 @@ public class ScheduledService implements IScheduleService {
             if(cron == null || cron.isBlank()){
                 cron = "0 0 21 1 * *";
 
-                String message = messageService.getMessage("scheduleService.getByKeyName.error",new Object[]{keyName, cron}, LocaleContextHolder.getLocale());
+                String message = messageSource.getMessage("scheduleService.getByKeyName.error",new Object[]{keyName, cron}, LocaleContextHolder.getLocale());
 
                 SystemLogResponseDTO dto = new SystemLogResponseDTO(
                         LogLevel.WARN,
@@ -121,7 +123,7 @@ public class ScheduledService implements IScheduleService {
                         null,
                         message,
                         "LogActionAspect",
-                        null,
+                        authenticatedSystemService.getAuthenticatedUserSystem().getUsername(),
                         null,
                         null
                 );
@@ -130,7 +132,7 @@ public class ScheduledService implements IScheduleService {
 
             }else{
                 //En caso de obtener la configuración solo se loguea como INFO.
-                String message = messageService.getMessage("scheduleService.getByKeyName.ok",new Object[]{keyName,cron}, LocaleContextHolder.getLocale());
+                String message = messageSource.getMessage("scheduleService.getByKeyName.ok",new Object[]{keyName,cron}, LocaleContextHolder.getLocale());
 
                 SystemLogResponseDTO dto = new SystemLogResponseDTO(
                         LogLevel.INFO,
@@ -138,7 +140,7 @@ public class ScheduledService implements IScheduleService {
                         null,
                         message,
                         "LogActionAspect",
-                        null,
+                        authenticatedSystemService.getAuthenticatedUserSystem().getUsername(),
                         null,
                         null
                 );

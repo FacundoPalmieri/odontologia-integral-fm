@@ -14,7 +14,7 @@ import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.user.repository.IUserRepository;
 import com.odontologiaintegralfm.feature.user.service.UserService;
 import com.odontologiaintegralfm.configuration.securityconfig.core.JwtUtils;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.feature.authentication.service.interfaces.IRefreshTokenService;
 import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.shared.response.Response;
@@ -61,7 +61,7 @@ import java.util.*;
  *     <li>{@link IUserRepository} para obtener los datos del usuario.</li>
  *     <li>{@link JwtUtils} para la generación de tokens JWT.</li>
  *     <li>{@link PasswordEncoder} para la verificación de contraseñas.</li>
- *     <li>{@link IMessageService} para la gestión de mensajes de error.</li>
+ *     <li>{@link MessageSource} para la gestión de mensajes de error.</li>
  *     <li>{@link UserService} para la administración de intentos fallidos y bloqueo de cuentas.</li>
  * </ul>
  * </p>
@@ -83,7 +83,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private IMessageService messageService;
+    private MessageSource messageSource;
 
     @Autowired
     private IUserService userService;
@@ -257,7 +257,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
         // En caso que sea nulo, se informa que no se pudo encontrar al usuario.
         if (userDetails == null) {
-            String logMessage = messageService.getMessage("exception.UsernameNotFound.log", new Object[]{username}, LocaleContextHolder.getLocale());
             throw new UnauthorizedException("exception.usernameNotFound.user", null,"exception.usernameNotFound.log",new Object[]{username,"UserDetailServiceImp", "authenticate"}, LogLevel.WARN);
         }
 
@@ -332,7 +331,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         refreshTokenResponse.setUsername(refreshTokenRequestDTO.getUsername());
 
         //Descifra la clave del mensaje.
-        String message = messageService.getMessage("userDetailServiceImpl.refreshToken.ok", null, LocaleContextHolder.getLocale());
+        String message = messageSource.getMessage("userDetailServiceImpl.refreshToken.ok", null, LocaleContextHolder.getLocale());
         return  new Response<>(true,message ,refreshTokenResponse);
     }
 
@@ -368,7 +367,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         refreshTokenService.deleteRefreshToken(refreshTokenRequestDTO.getRefreshToken());
 
         //Descifra la clave del mensaje
-        String message = messageService.getMessage("userDetailServiceImpl.logout.ok", null, LocaleContextHolder.getLocale());
+        String message = messageSource.getMessage("userDetailServiceImpl.logout.ok", null, LocaleContextHolder.getLocale());
 
         return new Response<>(true,message ,null);
     }

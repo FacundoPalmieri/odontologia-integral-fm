@@ -1,21 +1,19 @@
 package com.odontologiaintegralfm.feature.developer.service;
 
 
-import com.odontologiaintegralfm.infrastructure.message.dto.MessageRequestDTO;
 import com.odontologiaintegralfm.infrastructure.systemparameter.dto.SystemParameterRequestDTO;
 import com.odontologiaintegralfm.infrastructure.systemparameter.dto.SystemParameterResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
-import com.odontologiaintegralfm.infrastructure.message.model.MessageConfig;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleRequestDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleResponseDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.model.ScheduleTask;
 import com.odontologiaintegralfm.infrastructure.systemparameter.model.SystemParameter;
 import com.odontologiaintegralfm.infrastructure.logging.service.SystemLogService;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.infrastructure.scheduler.service.IScheduleService;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.interfaces.ISystemParameterService;
 import com.odontologiaintegralfm.shared.response.Response;
@@ -39,7 +37,7 @@ import java.util.List;
  * </ul>
  * <p>
  * Este servicio proporciona métodos para obtener y actualizar configuraciones como los intentos fallidos de inicio de sesión,
- * la expiración del token y los mensajes almacenados. Utiliza los servicios {@link IMessageService}, {@link },
+ * la expiración del token y los mensajes almacenados. Utiliza los servicios {@link MessageSource}, {@link },
  * , {@link }  y  {@link } para interactuar con las configuraciones subyacentes, construyendo respuestas que incluyen mensajes
  * para el usuario y los valores actualizados de las configuraciones.
  * </p>
@@ -48,7 +46,7 @@ import java.util.List;
 public class ConfigService implements IConfigService {
 
     @Autowired
-    private IMessageService messageService;
+    private MessageSource messageSource;
 
 
     @Autowired
@@ -62,58 +60,7 @@ public class ConfigService implements IConfigService {
     private SystemLogService systemLogService;
 
 
-    /**
-     * Obtiene un listado de configuraciones de mensajes.
-     * <p>Este método recupera una lista de configuraciones de mensajes desde el servicio {@link IMessageService},
-     *y construye un mensaje para el usuario usando la clave "config.getMessage.ok".</p>
-     * @return Una respuesta que contiene un mensaje de éxito y la lista de configuraciones de mensajes obtenida.
-     */
-    @Override
-    public Response<List<MessageConfig>>getMessage(){
 
-        //Obtiene el listado.
-        List<MessageConfig> listMessage = messageService.listMessage();
-
-        //Se construye Mensaje para usuario.
-        String userMessage = messageService.getMessage("config.getMessage.ok", null, LocaleContextHolder.getLocale());
-        return new Response<>(true, userMessage, listMessage);
-    }
-
-
-
-    /**
-     * Actualiza un mensaje en la base de datos.
-     *<p>
-     * Este método valida la existencia de un mensaje a partir del ID proporcionado en el DTO {@link MessageRequestDTO},
-     * luego actualiza la configuración de ese mensaje en la base de datos. Si la actualización es exitosa,
-     * se construye un mensaje para el usuario y se devuelve junto con el mensaje actualizado.
-     *</p>
-     * @param messageRequestDto El DTO que contiene la información para actualizar el mensaje.
-     * @return Una respuesta que contiene el mensaje actualizado y un mensaje de éxito para el usuario.
-     * @throws DataBaseException Si ocurre un error al acceder a la base de datos o durante la transacción.
-     */
-    @Override
-    @Transactional
-    public Response<MessageConfig> updateMessage(MessageRequestDTO messageRequestDto) {
-        try{
-            // valída y Obtiene mensaje de BD
-            MessageConfig message = messageService.getById(messageRequestDto.id());
-
-            //Actualiza campo
-            message.setValue(messageRequestDto.value());
-
-            message  = messageService.updateMessage(message);
-
-            //Prepara y envía respuesta.
-            String userMessage = messageService.getMessage("config.updateMessage.ok",null,LocaleContextHolder.getLocale());
-
-            return new Response<>(true, userMessage,message);
-
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "configService", messageRequestDto.id(), "", "updateMessage");
-        }
-
-    }
 
     /**
      * Obtiene todas las parametrizaciones del sistema.
@@ -167,7 +114,7 @@ public class ConfigService implements IConfigService {
 
 
             //Obtiene mensaje de respuesta
-            String messageUser= messageService.getMessage("config.update.ok",null,LocaleContextHolder.getLocale());
+            String messageUser= messageSource.getMessage("config.update.ok",null,LocaleContextHolder.getLocale());
 
             //Elabora la respuesta.
             return new Response<>(true, messageUser,systemParameterResponseDTO);
@@ -246,7 +193,7 @@ public class ConfigService implements IConfigService {
                     scheduleTask.getCronExpression()
             );
 
-            String userMessage = messageService.getMessage("config.updateSchedule.ok", new Object[]{scheduleRequestDTO.cronExpression()}, LocaleContextHolder.getLocale());
+            String userMessage = messageSource.getMessage("config.updateSchedule.ok", new Object[]{scheduleRequestDTO.cronExpression()}, LocaleContextHolder.getLocale());
             return new Response<>(true, userMessage, scheduleResponseDTO);
 
 

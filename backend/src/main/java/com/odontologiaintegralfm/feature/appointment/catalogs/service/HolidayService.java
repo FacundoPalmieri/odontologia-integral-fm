@@ -8,15 +8,14 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateR
 import com.odontologiaintegralfm.feature.appointment.catalogs.repository.IHolidayRepository;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.HolidayType;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
-import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayListRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.core.service.impl.DentistHolidayService;
 import com.odontologiaintegralfm.infrastructure.externalapi.client.ArgentinaDatosClient;
 import com.odontologiaintegralfm.infrastructure.externalapi.dto.HolidayApiResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;
-import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
@@ -24,9 +23,9 @@ import com.odontologiaintegralfm.shared.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
@@ -50,8 +49,13 @@ public class HolidayService implements IHolidayService {
 
     @Autowired
     private AuthenticatedUserService authenticatedUserService;
+
     @Autowired
-    private MessageService messageService;
+    private MessageSource messageSource;
+
+
+    @Autowired
+    private DentistHolidayService dentistHolidayService;
 
 
     /**
@@ -124,7 +128,7 @@ public class HolidayService implements IHolidayService {
         );
 
         //Obtengo mensaje
-        String  messageUser = messageService.getMessage("holidayService.create.user.ok",null, LocaleContextHolder.getLocale());
+        String  messageUser = messageSource.getMessage("holidayService.create.user.ok",null, LocaleContextHolder.getLocale());
 
         //Elaboro respuesta
         return new Response<>(true, messageUser, holidayResponseDTO);
@@ -178,48 +182,10 @@ public class HolidayService implements IHolidayService {
         );
 
         //Construyo mensaje
-        String messageUser = messageService.getMessage("holidayService.update.user.ok",null, LocaleContextHolder.getLocale());
+        String messageUser = messageSource.getMessage("holidayService.update.user.ok",null, LocaleContextHolder.getLocale());
 
         //Devuelvo respuesta.
         return new Response<>(true, messageUser, holidayResponseDTO);
-    }
-
-
-
-
-
-    /**
-     * Método para validar si existen los feriados dentro de una lista.
-     *
-     * @param holidays : Lista de feriados a validar.
-     */
-    @Override
-    public List<Holiday> validateHolidaysExist(List<DentistHolidayListRequestDTO> holidays, int year) {
-
-        //Traemos en una sola consulta todos los feriados por año.
-        List<Holiday> holidaysDatabase =  holidayRepository.findAllByYear(year);
-
-        //Hacemos un maps de ID.
-        Map<Long,Holiday> holidaysMap = new HashMap<>();
-
-
-        //Verificamos contra la lista.
-        holidaysDatabase.forEach(holiday -> {
-            holidaysMap.put(holiday.getId(), holiday);
-        });
-
-        List<Holiday> holiday = new ArrayList<>();
-        holidays.forEach(h -> {
-                    Holiday holidayExist = holidaysMap.get(h.idHoliday());
-                    if (holidayExist == null) {
-                        throw new BadRequestException("holidayService.validateHolidaysExist.user", new Object[]{h.idHoliday()}, "holidayService.validateHolidaysExist.log", new Object[]{h.idHoliday(),"Holiday Service","validateHolidaysExist"}, LogLevel.ERROR);
-                    }
-                    holiday.add(holidayExist);
-                }
-        );
-
-        return holiday;
-
     }
 
 
@@ -289,6 +255,7 @@ public class HolidayService implements IHolidayService {
             level = LogLevel.INFO
     )
     @Override
+    @Transactional
     public SchedulerResultDTO loadHolidays(int year) {
         AtomicInteger count = new AtomicInteger(0);
         long start;
@@ -297,10 +264,11 @@ public class HolidayService implements IHolidayService {
 
         //Consulta si ya se realizó la carga de feriados.
         int loadedHolidays = holidayRepository.countByYear(year);
+
         if(loadedHolidays > 0){
             return new SchedulerResultDTO(
                     0,
-                    "Tarea cancelada, feriados cargados previamente",
+                    messageSource.getMessage("holidayService.loadHoliday.cancel.log", null, LocaleContextHolder.getLocale()),
                     loadedHolidays,
                     0);
         }
@@ -330,8 +298,8 @@ public class HolidayService implements IHolidayService {
         // Persiste los feriados.
         holidayRepository.saveAll(holidays);
 
-        //Limpia contexto de seguridad.
-        SecurityContextHolder.clearContext();
+        //Establece relación de los feriados con los dentistas.
+        dentistHolidayService.create(year, holidays);
 
         //Finaliza tarea programada
         end = System.currentTimeMillis();
@@ -341,7 +309,7 @@ public class HolidayService implements IHolidayService {
 
         SchedulerResultDTO schedulerResultDTO = new SchedulerResultDTO(
                 durationSeconds,
-                "Feriados cargados exitosamente",
+                messageSource.getMessage("holidayService.loadHoliday.ok.log", null, LocaleContextHolder.getLocale()),
                 count.intValue(),
                 0);
         return schedulerResultDTO;

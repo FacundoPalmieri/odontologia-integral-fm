@@ -20,7 +20,6 @@ public interface IHolidayService {
     Response<List<HolidayResponseDTO>> getAll(int year);
 
 
-
     /**
      * Método para crear un feriado.
      * @param holidayCreateRequestDTO : DTO con el feriado a crear.
@@ -32,13 +31,6 @@ public interface IHolidayService {
      * @param holidayUpdateRequestDTO: DTO con el feriado a actualizar.
      */
     Response<HolidayResponseDTO> update(HolidayUpdateRequestDTO holidayUpdateRequestDTO);
-
-    /**
-     * Método para validar si existen los feriados dentro de una lista.
-     * @param holidays: Lista de feriados a validar.
-     * @param year    : Año
-     */
-    List<Holiday> validateHolidaysExist(List<DentistHolidayListRequestDTO> holidays, int year);
 
 
     /**

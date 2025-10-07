@@ -11,13 +11,13 @@ import com.odontologiaintegralfm.feature.person.core.model.Person;
 import com.odontologiaintegralfm.feature.person.core.dto.*;
 import com.odontologiaintegralfm.feature.person.core.repository.IPersonRepository;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.*;
-import com.odontologiaintegralfm.infrastructure.message.service.implement.MessageService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IDniTypeService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IGenderService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.INationalityService;
 import com.odontologiaintegralfm.shared.response.Response;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -74,7 +73,7 @@ public class PersonService implements IPersonService {
     private IAvatarService avatarService;
 
     @Autowired
-    private MessageService messageService;
+    private MessageSource messageSource;
 
     /**
      * Método para crear una Persona
@@ -241,7 +240,7 @@ public class PersonService implements IPersonService {
         person.setAvatarUrl(avatarService.saveImage(file, person));
         personRepository.save(person);
 
-        String messageUser = messageService.getMessage("personService.saveAvatar.user.ok", null, LocaleContextHolder.getLocale());
+        String messageUser = messageSource.getMessage("personService.saveAvatar.user.ok", null, LocaleContextHolder.getLocale());
         return new Response<>(true, messageUser,person.getAvatarUrl());
     }
 
@@ -283,7 +282,7 @@ public class PersonService implements IPersonService {
             person.setAvatarUrl(avatarService.deleteImage(person));
             personRepository.save(person);
 
-            String messageUser = messageService.getMessage("personService.deleteAvatar.user.ok",null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("personService.deleteAvatar.user.ok",null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser,null);
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "PersonService", personId,"<-  Id de la persona", "deleteAvatar");

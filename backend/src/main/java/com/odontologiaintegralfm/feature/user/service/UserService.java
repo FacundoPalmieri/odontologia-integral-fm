@@ -23,7 +23,6 @@ import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.user.repository.IUserRepository;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.implement.SystemParameterService;
 import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
 import com.odontologiaintegralfm.configuration.securityconfig.core.JwtUtils;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
@@ -34,6 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
  *   <li>{@link IUserService#getAll(int, int, String, String)}: Recupera la lista de todos los usuarios del sistema.</li>
  *   <li>{@link IUserService#getById(Long)}: Busca un usuario por su identificador único.</li>
  *   <li>{@link IUserService#create(UserSecCreateDTO)}: Guarda un nuevo usuario en la base de datos.</li>
- *   <li>{@link UserService#update(UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
+ *   <li>{@link UserService#update(Long, UserSecUpdateDTO)}: Actualiza la información de un usuario existente.</li>
  *   <li>{@link UserService#encriptPassword(String)}: Encripta una contraseña utilizando el algoritmo BCrypt.</li>
  *   <li>{@link UserService#createTokenResetPasswordForUser(String)}: Crea un token de restablecimiento de contraseña y envía un correo electrónico.</li>
  *   <li>{@link UserService#updatePassword(ResetPasswordRequestDTO, HttpServletRequest)}: Actualiza la contraseña de un usuario utilizando un token de restablecimiento válido.</li>
@@ -81,7 +81,7 @@ import java.util.stream.Collectors;
  *
  * <p>
  * Este servicio interactúa con la base de datos a través del repositorio {@link IUserRepository}, gestiona mensajes
- * y notificaciones a través de {@link IMessageService}, y utiliza {@link JwtUtils} para la creación de tokens
+ * y notificaciones a través de {@link MessageSource}, y utiliza {@link JwtUtils} para la creación de tokens
  * de autenticación. Además, se integra con {@link IEmailService} para el envío de correos electrónicos y
  * {@link RoleService} para la asignación de roles a los usuarios.
  * </p>
@@ -104,7 +104,7 @@ public class UserService implements IUserService {
     private RoleService roleService;
 
     @Autowired
-    private IMessageService messageService;
+    private MessageSource messageSource;
 
     @Autowired
     private DentistService dentistService;
@@ -167,12 +167,12 @@ public class UserService implements IUserService {
                             );
                         });
 
-                String messageUser = messageService.getMessage("userService.getAll.ok.user", null, LocaleContextHolder.getLocale());
+                String messageUser = messageSource.getMessage("userService.getAll.ok.user", null, LocaleContextHolder.getLocale());
                 return new Response<>(true, messageUser, userSecResponseDTOList);
 
             }
 
-            String messageUser = messageService.getMessage("userService.getAll.empty.user", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("userService.getAll.empty.user", null, LocaleContextHolder.getLocale());
             return new Response<>(true, messageUser, null);
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", 0L, "", "getAll");
@@ -201,40 +201,40 @@ public class UserService implements IUserService {
      */
     @Override
     public Response<UserSecResponseDTO> getById(Long id) {
-        try{
-             Optional<UserSec> user = userRepository.findById(id);
-             if(user.isPresent()){
-                 PersonResponseDTO personDTO = null;
-                 DentistResponseDTO dentistDTO = null;
+        try {
+            Optional<UserSec> user = userRepository.findById(id);
+            if (user.isPresent()) {
+                PersonResponseDTO personDTO = null;
+                DentistResponseDTO dentistDTO = null;
 
-                 if (user.get().getPerson() != null) {
-                     personDTO = personService.convertToDTO(personService.getById(user.get().getPerson().getId()));
-
-
-                     Optional<Dentist> dentist = dentistService.getById(user.get().getPerson().getId());
-                     if(dentist.isPresent()){
-                         dentistDTO = dentistService.convertToDTO(dentist.get());
-                     }
+                if (user.get().getPerson() != null) {
+                    personDTO = personService.convertToDTO(personService.getById(user.get().getPerson().getId()));
 
 
-                 }
+                    Optional<Dentist> dentist = dentistService.getById(user.get().getPerson().getId());
+                    if (dentist.isPresent()) {
+                        dentistDTO = dentistService.convertToDTO(dentist.get());
+                    }
 
-                   UserSecResponseDTO userSecResponseDTO = new UserSecResponseDTO(
-                         user.get().getId(),
-                         user.get().getUsername(),
-                         user.get().getRolesList(),
-                         user.get().isEnabled(),
-                         personDTO,
-                         dentistDTO
-                 );
 
-                 String messageUser = messageService.getMessage("userService.getById.ok.user", null, LocaleContextHolder.getLocale());
+                }
 
-                 return new Response<>(true, messageUser, userSecResponseDTO);
-             }else{
-                 throw new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{id,"UserService", "getById"}, LogLevel.ERROR );
-             }
-        }catch (DataAccessException | CannotCreateTransactionException e) {
+                UserSecResponseDTO userSecResponseDTO = new UserSecResponseDTO(
+                        user.get().getId(),
+                        user.get().getUsername(),
+                        user.get().getRolesList(),
+                        user.get().isEnabled(),
+                        personDTO,
+                        dentistDTO
+                );
+
+                String messageUser = messageSource.getMessage("userService.getById.ok.user", null, LocaleContextHolder.getLocale());
+
+                return new Response<>(true, messageUser, userSecResponseDTO);
+            } else {
+                throw new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log", new Object[]{id, "UserService", "getById"}, LogLevel.ERROR);
+            }
+        } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "userService", id, null, "getById");
         }
     }
@@ -352,7 +352,7 @@ public class UserService implements IUserService {
             userSecResponse.setEnabled(userSecSaved.isEnabled());
 
             //Se construye Mensaje para usuario.
-            String userMessage = messageService.getMessage("userService.save.ok", null, LocaleContextHolder.getLocale());
+            String userMessage = messageSource.getMessage("userService.save.ok", null, LocaleContextHolder.getLocale());
 
             Person person;
 
@@ -431,7 +431,7 @@ public class UserService implements IUserService {
             UserSecResponseDTO userSecResponse = convertToDTO(userSaved);
 
             //Se construye Mensaje para usuario.
-            String userMessage = messageService.getMessage("userService.update.ok", null, LocaleContextHolder.getLocale());
+            String userMessage = messageSource.getMessage("userService.update.ok", null, LocaleContextHolder.getLocale());
 
             //Actualizar datos de la Persona.
             if(userSecUpdateDto.getPerson() != null) {
@@ -525,22 +525,22 @@ public class UserService implements IUserService {
             userRepository.save(user);
 
             // Obtener la URL base desde el archivo properties.
-            String dominio = messageService.getMessage("userService.dominio", null, LocaleContextHolder.getLocale());
+            String dominio = messageSource.getMessage("userService.dominio", null, LocaleContextHolder.getLocale());
 
             // Construir la URL de restablecimiento de contraseña
             String resetUrl = dominio + "?token=" + token;
 
             // Obtener el mensaje completo con la URL de restablecimiento
-            String message = messageService.getMessage("userService.requestResetPassword.mensaje", new Object[] {resetUrl}, LocaleContextHolder.getLocale());
+            String message = messageSource.getMessage("userService.requestResetPassword.mensaje", new Object[] {resetUrl}, LocaleContextHolder.getLocale());
 
             //Asunto del email
-            String asunto = messageService.getMessage("userService.requestResetPassword.asunto", null, LocaleContextHolder.getLocale());
+            String asunto = messageSource.getMessage("userService.requestResetPassword.asunto", null, LocaleContextHolder.getLocale());
 
             //Envío de email
             emailService.sendEmail(user.getUsername(), asunto, message);
 
             //Elaborar respuesta para el controller.
-            String messageUser =  messageService.getMessage("userService.requestResetPassword.success", null, LocaleContextHolder.getLocale());
+            String messageUser =  messageSource.getMessage("userService.requestResetPassword.success", null, LocaleContextHolder.getLocale());
 
             return new Response <>(true, messageUser, user.getUsername());
 
@@ -588,8 +588,8 @@ public class UserService implements IUserService {
             userRepository.save(usuario);
 
             //Envía correo al usuario.
-            String message = messageService.getMessage("userService.resetPassword.success", null, LocaleContextHolder.getLocale());
-            String asunto = messageService.getMessage("userService.resetPassword.asunto", null, LocaleContextHolder.getLocale());
+            String message = messageSource.getMessage("userService.resetPassword.success", null, LocaleContextHolder.getLocale());
+            String asunto = messageSource.getMessage("userService.resetPassword.asunto", null, LocaleContextHolder.getLocale());
             emailService.sendEmail(usuario.getUsername(), asunto, message);
 
             //Obtener dirección IP
@@ -599,7 +599,7 @@ public class UserService implements IUserService {
             log.atInfo().log("[Mensaje: {}] - [USUARIO: {}] -[IP {}]", message,usuario.getUsername(), ipAddress);
 
             //Elabora Response a controller.
-            String messageUser = messageService.getMessage("userService.resetPassword.success", null, LocaleContextHolder.getLocale());
+            String messageUser = messageSource.getMessage("userService.resetPassword.success", null, LocaleContextHolder.getLocale());
 
             return new Response<>(true, messageUser, usuario.getUsername());
 

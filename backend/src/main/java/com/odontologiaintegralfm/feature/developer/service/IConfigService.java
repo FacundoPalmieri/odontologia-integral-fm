@@ -1,7 +1,5 @@
 package com.odontologiaintegralfm.feature.developer.service;
 
-import com.odontologiaintegralfm.infrastructure.message.dto.MessageRequestDTO;
-import com.odontologiaintegralfm.infrastructure.message.model.MessageConfig;
 import com.odontologiaintegralfm.infrastructure.systemparameter.dto.SystemParameterRequestDTO;
 import com.odontologiaintegralfm.infrastructure.systemparameter.dto.SystemParameterResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
@@ -20,26 +18,6 @@ import java.util.List;
  * intentos de inicio de sesión y expiración de tokens.
  */
 public interface IConfigService {
-    /**
-     * Obtiene la lista de configuraciones de mensajes.
-     * @return Una respuesta que contiene una lista de objetos {@link MessageConfig} con la configuración de mensajes.
-     */
-    Response<List<MessageConfig>> getMessage();
-
-    /**
-     * Actualiza la configuración de un mensaje.
-     * @param messageRequestDto El objeto {@link MessageRequestDTO} que contiene los detalles del mensaje a actualizar.
-     * @return Una respuesta que contiene el objeto {@link MessageConfig} actualizado.
-     */
-    Response<MessageConfig> updateMessage(MessageRequestDTO messageRequestDto);
-
-
-
-
-
-
-
-
 
     /**
      * Obtiene todas las parametrizaciones del sistema.

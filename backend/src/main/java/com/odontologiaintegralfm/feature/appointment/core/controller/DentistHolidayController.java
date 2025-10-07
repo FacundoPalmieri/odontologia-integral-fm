@@ -38,9 +38,9 @@ public class DentistHolidayController {
     })
     @PostMapping("/{idDentist}")
     @OnlyAccessUserProfileOrConfigurationCreate
-    public ResponseEntity<Response<DentistHolidayResponseDTO>> create (@PathVariable("idDentist") @NotNull(message = "generic.id.empty") Long id,
-                                                                       @Valid @RequestBody DentistHolidayRequestDTO dentistHolidayRequestDTO) {
-        Response<DentistHolidayResponseDTO> response = dentistHolidayService.createOrUpdate(id,dentistHolidayRequestDTO);
+    public ResponseEntity<Response<DentistHolidayResponseDTO>> update(@PathVariable("idDentist") @NotNull(message = "generic.id.empty") Long id,
+                                                                      @Valid @RequestBody DentistHolidayRequestDTO dentistHolidayRequestDTO) {
+        Response<DentistHolidayResponseDTO> response = dentistHolidayService.update(id,dentistHolidayRequestDTO);
         return ResponseEntity.ok(response);
     }
 

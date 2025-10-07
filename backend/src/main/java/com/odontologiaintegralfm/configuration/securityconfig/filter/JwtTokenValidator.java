@@ -8,7 +8,7 @@ import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.UnauthorizedException;
-import com.odontologiaintegralfm.infrastructure.message.service.interfaces.IMessageService;
+import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.configuration.securityconfig.core.JwtUtils;
 import com.odontologiaintegralfm.infrastructure.logging.service.ISystemLogService;
 import jakarta.servlet.FilterChain;
@@ -41,23 +41,23 @@ import java.util.Collection;
  * </p>
  *
  * <p>
- * Los mensajes de error y éxito se obtienen del servicio de mensajes {@link IMessageService}, lo que permite la internacionalización
+ * Los mensajes de error y éxito se obtienen del servicio de mensajes {@link MessageSource}, lo que permite la internacionalización
  * y personalización de los mensajes de respuesta.
  * </p>
  *
  * @see JwtUtils Utiliza este servicio para la validación del token y la extracción de datos del mismo.
- * @see IMessageService Servicio utilizado para obtener los mensajes de error y respuesta personalizados.
+ * @see MessageSource Servicio utilizado para obtener los mensajes de error y respuesta personalizados.
  */
 
 @Slf4j
 public class JwtTokenValidator extends OncePerRequestFilter {
     private JwtUtils jwtUtils;
-    private IMessageService messageService;
+    private MessageSource messageSource;
     private ISystemLogService systemLogService;
 
-    public JwtTokenValidator(JwtUtils jwtUtils, IMessageService messageService, ISystemLogService systemLogService) {
+    public JwtTokenValidator(JwtUtils jwtUtils, MessageSource messageSource, ISystemLogService systemLogService) {
         this.jwtUtils = jwtUtils;
-        this.messageService = messageService;
+        this.messageSource = messageSource;
         this.systemLogService = systemLogService;
     }
 
@@ -125,10 +125,10 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
     private void handleTokenNullException(Exception ex,HttpServletRequest request, HttpServletResponse response) throws IOException{
         // Cargar el mensaje de error desde properties
-        String logMessage = messageService.getMessage("exception.authenticationRequired.log", new Object[]{"Token nulo",request.getServletPath(),"JWT Token Validator","handleTokenInvalidException"}, LocaleContextHolder.getLocale());
+        String logMessage = messageSource.getMessage("exception.authenticationRequired.log", new Object[]{"Token nulo",request.getServletPath(),"JWT Token Validator","handleTokenInvalidException"}, LocaleContextHolder.getLocale());
 
         // Crear mensaje genérico para el usuario
-        String userMessage = messageService.getMessage("exception.authenticationRequired.user", null, LocaleContextHolder.getLocale());
+        String userMessage = messageSource.getMessage("exception.authenticationRequired.user", null, LocaleContextHolder.getLocale());
 
         // log en consola
         log.error(logMessage,ex);
@@ -175,10 +175,10 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private void handleTokenInvalidException(Exception ex,HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // Cargar el mensaje de error desde properties
-        String logMessage = messageService.getMessage("exception.validateToken.log", new Object[]{request.getHeader(HttpHeaders.AUTHORIZATION),request.getServletPath(),"JWT Token Validator","handleTokenInvalidException"}, LocaleContextHolder.getLocale());
+        String logMessage = messageSource.getMessage("exception.validateToken.log", new Object[]{request.getHeader(HttpHeaders.AUTHORIZATION),request.getServletPath(),"JWT Token Validator","handleTokenInvalidException"}, LocaleContextHolder.getLocale());
 
         // Crear mensaje genérico para el usuario
-         String userMessage = messageService.getMessage("exception.validateToken.user", null, LocaleContextHolder.getLocale());
+         String userMessage = messageSource.getMessage("exception.validateToken.user", null, LocaleContextHolder.getLocale());
 
         // log en consola
         log.error(logMessage,ex);

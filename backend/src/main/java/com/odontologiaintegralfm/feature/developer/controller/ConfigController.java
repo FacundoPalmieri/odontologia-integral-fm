@@ -2,15 +2,12 @@ package com.odontologiaintegralfm.feature.developer.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessSystemRead;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessSystemUpdate;
-import com.odontologiaintegralfm.infrastructure.message.dto.MessageRequestDTO;
-import com.odontologiaintegralfm.infrastructure.message.model.MessageConfig;
 import com.odontologiaintegralfm.feature.developer.service.IConfigService;
 import com.odontologiaintegralfm.infrastructure.systemparameter.dto.SystemParameterRequestDTO;
 import com.odontologiaintegralfm.infrastructure.systemparameter.dto.SystemParameterResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleRequestDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleResponseDTO;
-import com.odontologiaintegralfm.infrastructure.logging.service.ISystemLogService;
 import com.odontologiaintegralfm.shared.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -67,9 +64,6 @@ public class ConfigController {
     @Autowired
     private IConfigService configService;
 
-    @Autowired
-    private ISystemLogService systemLogService;
-
     @Value("${pagination.default-page}")
     private int defaultPage;
 
@@ -82,68 +76,6 @@ public class ConfigController {
     @Value("${pagination.default-direction}")
     private String defaultDirection;
 
-
-
-
-//////////////////////////////////////////////
-// Sección: Configuración de Mensajes
-//////////////////////////////////////////////
-
-    /**
-     * Obtiene la configuración de mensajes.
-     * <p>
-     * Requiere <b>PERMISO_SYSTEM_UPDATE</b> para acceder.
-     * </p>
-     *
-     * @return ResponseEntity con:
-     *         <ul>
-     *         <li><b>200 OK</b>: Listado de mensajes recuperado exitosamente.</li>
-     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
-     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
-     *         </ul>
-     */
-    @Operation(summary = "Obtener configuración de mensajes", description = "Obtiene la configuración de mensajes.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Listado de mensajes recuperado exitosamente."),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
-    })
-    @GetMapping("/message")
-    @OnlyAccessSystemRead
-    public ResponseEntity<Response<List<MessageConfig>>> getMessage() {
-        Response<List<MessageConfig>> response = configService.getMessage();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-
-    /**
-     * Actualiza la configuración de un mensaje.
-     * <p>
-     * Requiere b>PERMISO_SYSTEM_UPDATE</b> para acceder.
-     * </p>
-     *
-     * @param messageRequestDTO Objeto con los datos del mensaje a actualizar.
-     * @return ResponseEntity con:
-     *         <ul>
-     *         <li><b>200 OK</b>: Mensaje actualizado exitosamente.</li>
-     *         <li><b>401 Unauthorized</b>: No autenticado.</li>
-     *         <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
-     *         <li><b>404 Not Found</b>: Mensaje no encontrado para actualizar.</li>
-     *         </ul>
-     */
-    @Operation(summary = "Actualizar mensaje", description = "Actualiza la configuración de un mensaje.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Mensaje actualizado exitosamente."),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
-            @ApiResponse(responseCode = "404", description = "Mensaje no encontrado para actualizar.")
-    })
-    @PatchMapping("/message")
-    @OnlyAccessSystemUpdate
-    public ResponseEntity<Response<MessageConfig>> updateMessage(@Valid @RequestBody MessageRequestDTO messageRequestDTO) {
-        Response<MessageConfig> response =  configService.updateMessage(messageRequestDTO);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 
 
 //////////////////////////////////////////////
