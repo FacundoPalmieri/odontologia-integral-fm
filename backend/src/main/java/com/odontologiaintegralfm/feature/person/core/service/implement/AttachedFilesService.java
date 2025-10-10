@@ -97,7 +97,7 @@ public class AttachedFilesService implements IAttachedFilesService {
     @Override
     @Transactional
     @LogAction(
-            value = "attachedFilesService.systemLogService.saveDocumentUser",
+            value = "attachedFilesService.logAction.saveDocumentUser",
             args = {"#id", "#filename"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
@@ -172,7 +172,7 @@ public class AttachedFilesService implements IAttachedFilesService {
     @Override
     @Transactional
     @LogAction(
-            value = "attachedFilesService.systemLogService.saveDocumentPatient",
+            value = "attachedFilesService.logAction.saveDocumentPatient",
             args = {"#id", "#filename"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
@@ -382,7 +382,7 @@ public class AttachedFilesService implements IAttachedFilesService {
     @Override
     @Transactional
     @LogAction(
-            value = "attachedFileService.systemLogService.disabledByIdDocumentUser",
+            value = "attachedFileService.logAction.disabledByIdDocumentUser",
             args = {"#documentId"},
             level = LogLevel.INFO,
             type = LogType.SYSTEM
@@ -440,7 +440,7 @@ public class AttachedFilesService implements IAttachedFilesService {
      */
     @Override
     @LogAction(
-            value = "attachedFileService.systemLogService.disabledByIdDocumentPatient",
+            value = "attachedFileService.logAction.disabledByIdDocumentPatient",
             args = {"#documentId"},
             level = LogLevel.INFO,
             type = LogType.SYSTEM
@@ -484,7 +484,7 @@ public class AttachedFilesService implements IAttachedFilesService {
      */
     @Override
     @LogAction(
-            value ="attachedFilesService.systemLogService.deleteAttachedFiles",
+            value ="attachedFilesService.logAction.deleteAttachedFiles",
             args =  {"#result.durationSeconds","#result.message", "#result.countInit","#result.countDeleted" },
             type = LogType.SCHEDULED,
             level = LogLevel.INFO

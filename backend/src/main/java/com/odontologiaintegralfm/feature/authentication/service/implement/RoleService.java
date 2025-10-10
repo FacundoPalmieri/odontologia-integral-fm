@@ -238,7 +238,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional
     @LogAction(
-            value = "roleService.systemLogService.create",
+            value = "roleService.logAction.create",
             args = {"#roleRequestDto.name"},
             level = LogLevel.INFO,
             type = LogType.SYSTEM
@@ -286,7 +286,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional
     @LogAction(
-            value = "roleService.systemLogService.update",
+            value = "roleService.logAction.update",
             args = {"#roleRequestDto.name"},
             level = LogLevel.INFO,
             type = LogType.SYSTEM

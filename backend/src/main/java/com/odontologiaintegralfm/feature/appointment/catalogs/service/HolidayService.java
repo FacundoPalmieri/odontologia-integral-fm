@@ -92,7 +92,7 @@ public class HolidayService implements IHolidayService {
      * @return
      */
     @LogAction(
-            value = "holidayService.SystemLogService.createHoliday",
+            value = "holidayService.logAction.createHoliday",
             args = {"#result.data.id", "#result.data.date", "#result.data.type", "#result.data.name"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
@@ -141,7 +141,7 @@ public class HolidayService implements IHolidayService {
      * @param holidayUpdateRequestDTO : DTO con el feriado a actualizar.
      */
     @LogAction(
-            value = "holidayService.SystemLogService.updateHoliday",
+            value = "holidayService.logAction.updateHoliday",
             args = {"#result.data.id", "#result.data.date", "#result.data.type", "#result.data.name"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
@@ -249,7 +249,7 @@ public class HolidayService implements IHolidayService {
      */
 
     @LogAction(
-            value = "holidayService.systemLogService.loadHoliday",
+            value = "holidayService.logAction.loadHoliday",
             args = {"#result.durationSeconds", "#result.message", "#result.countInit"},
             type = LogType.SCHEDULED,
             level = LogLevel.INFO

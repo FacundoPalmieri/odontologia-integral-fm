@@ -65,7 +65,7 @@ public class ContactPhoneService implements IContactPhoneService {
     @Override
     @Transactional
     @LogAction(
-            value ="contactPhoneService.systemLogService.deleteOrphan",
+            value ="contactPhoneService.logAction.deleteOrphan",
             args =  {"#result.durationSeconds","#result.message", "#result.countInit","#result.countDeleted" },
             type = LogType.SCHEDULED,
             level = LogLevel.INFO

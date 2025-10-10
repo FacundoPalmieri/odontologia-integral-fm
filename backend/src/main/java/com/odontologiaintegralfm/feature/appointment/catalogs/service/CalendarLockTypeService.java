@@ -1,0 +1,171 @@
+package com.odontologiaintegralfm.feature.appointment.catalogs.service;
+
+import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeCreateRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeResponseDTO;
+import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeUpdateRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.catalogs.model.CalendarLockType;
+import com.odontologiaintegralfm.feature.appointment.catalogs.repository.ICalendarLockTypeRepository;
+import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
+import com.odontologiaintegralfm.shared.enums.LogLevel;
+import com.odontologiaintegralfm.shared.enums.LogType;
+import com.odontologiaintegralfm.shared.exception.ConflictException;
+import com.odontologiaintegralfm.shared.exception.DataBaseException;
+import com.odontologiaintegralfm.shared.exception.NotFoundException;
+import com.odontologiaintegralfm.shared.response.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.CannotCreateTransactionException;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class CalendarLockTypeService implements ICalendarLockTypeService {
+
+    @Autowired
+    private ICalendarLockTypeRepository calendarLockTypeRepository;
+
+
+    @Qualifier("messageSource")
+    @Autowired
+    private MessageSource messageSource;
+    @Autowired
+    private AuthenticatedUserService authenticatedUserService;
+
+
+    /**
+     * Obtener todos los tipos de bloqueos de agenda.
+     */
+    @Override
+    public Response<List<CalendarLockTypeResponseDTO>> getAll() {
+        try {
+            List<CalendarLockType> calendarLockTypes = calendarLockTypeRepository.findAllByEnabledTrueOrderByNameAsc();
+
+            List<CalendarLockTypeResponseDTO> calendarLockTypeResponseDTO = calendarLockTypes.stream()
+                    .map(calendarLockType -> new CalendarLockTypeResponseDTO(calendarLockType.getId(), calendarLockType.getName(), calendarLockType.isEnabled()))
+                    .toList();
+
+            return new Response<>(true, null, calendarLockTypeResponseDTO);
+
+        } catch (CannotCreateTransactionException | DataAccessException e) {
+            throw new DataBaseException(e, "CalendarLockTypeService", null, null, "getAll");
+        }
+    }
+
+
+
+    /**
+     * Obtiene un tipo de bloqueo por su ID.
+     */
+    @Override
+    public Response<CalendarLockTypeResponseDTO> getById(Long id) {
+        try{
+
+            CalendarLockType calendarLockType = calendarLockTypeRepository.findById(id)
+                    .orElseThrow(()-> new NotFoundException("exception.calendarLockType.notFound.user", null,"exception.calendarLockType.notFound.log",new Object[]{id,"CalendarLockTypeService","getById"}, LogLevel.ERROR));
+
+
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(calendarLockType.getId(), calendarLockType.getName(), calendarLockType.isEnabled());
+            return new Response<>(true, null, calendarLockTypeResponseDTO);
+
+        }catch (CannotCreateTransactionException | DataAccessException e) {
+            throw new DataBaseException(e, "CalendarLockTypeService", id, null, "getById");
+        }
+
+    }
+
+
+
+
+    /**
+     * Crear un nuevo tipo de bloqueo de agenda.
+     */
+    @Override
+    @LogAction(
+            value = "calendarLockTypeService.logAction.create",
+            args = {"#result.data.id", "#result.data.name", "#result.data.enabled"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
+    public Response<CalendarLockTypeResponseDTO> create(CalendarLockTypeCreateRequestDTO calendarLockTypeCreateRequestDTO) {
+        try {
+
+            CalendarLockType existing = calendarLockTypeRepository.findByName(calendarLockTypeCreateRequestDTO.name());
+
+            if (existing != null) {
+                throw new ConflictException("exception.calendarLockType.duplicate.user", null, "exception.calendarLockType.duplicate.log", new Object[]{calendarLockTypeCreateRequestDTO.name(), "CalendarLockTypeService", "create"}, LogLevel.ERROR);
+            }
+
+            CalendarLockType calendarLockType = new CalendarLockType();
+            calendarLockType.setName(calendarLockTypeCreateRequestDTO.name());
+            calendarLockType.setCreatedAt(LocalDateTime.now());
+            calendarLockType.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+            calendarLockType.setEnabled(true);
+
+            CalendarLockType calendarLockTypeSaved = calendarLockTypeRepository.save(calendarLockType);
+
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(calendarLockTypeSaved.getId(), calendarLockTypeSaved.getName(),calendarLockTypeSaved.isEnabled());
+
+            return new Response<>(
+                    true,
+                    messageSource.getMessage("calendarLockTypeService.create.ok.user", null, LocaleContextHolder.getLocale()),
+                    calendarLockTypeResponseDTO
+            );
+        } catch (CannotCreateTransactionException | DataAccessException e) {
+            throw new DataBaseException(e, "CalendarLockTypeService", null, calendarLockTypeCreateRequestDTO.name(), "create");
+        }
+
+    }
+
+    /**
+     * Actualizar un tipo de bloqueo de agenda.
+     */
+    @Override
+    @LogAction(
+            value = "calendarLockTypeService.logAction.update",
+            args = {"#result.data.id", "#result.data.name", "#result.data.enabled"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
+    public Response<CalendarLockTypeResponseDTO> update(Long id , CalendarLockTypeUpdateRequestDTO calendarLockTypeUpdateRequestDTO) {
+        try{
+
+            //Validar que exista el tipo de feriado
+            CalendarLockType calendarLockType = calendarLockTypeRepository.findById(id)
+                    .orElseThrow(()-> new NotFoundException("exception.calendarLockType.notFound.user", null,"exception.calendarLockType.notFound.log",new Object[]{id,"CalendarLockTypeService","getById"}, LogLevel.ERROR));
+
+
+            //Actualiza campos en el objeto recuperado desde BD.
+            calendarLockType.setName(calendarLockTypeUpdateRequestDTO.name());
+            calendarLockType.setEnabled(calendarLockTypeUpdateRequestDTO.enabled());
+            calendarLockType.setUpdatedAt(LocalDateTime.now());
+            calendarLockType.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+
+            //Persiste.
+            CalendarLockType calendarLockTypeSaved = calendarLockTypeRepository.save(calendarLockType);
+
+            //Mapea respuesta.
+
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(
+                    calendarLockTypeSaved.getId(),
+                    calendarLockTypeSaved.getName(),
+                    calendarLockTypeSaved.isEnabled()
+            );
+
+            return new Response<>(
+                    true,
+                    messageSource.getMessage("calendarLockTypeService.update.ok.user", null, LocaleContextHolder.getLocale()),
+                    calendarLockTypeResponseDTO
+            );
+
+
+        }catch (CannotCreateTransactionException | DataAccessException e) {
+            throw new DataBaseException(e, "CalendarLockTypeService", null, calendarLockTypeUpdateRequestDTO.name(), "create");
+        }
+    }
+}

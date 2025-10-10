@@ -322,7 +322,7 @@ public class UserService implements IUserService {
     @Override
     @Transactional
     @LogAction(
-            value ="userService.systemLogService.create",
+            value ="userService.logAction.create",
             args = {"#result.data.id", "#result.data.username"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
@@ -402,7 +402,7 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     @LogAction(
-            value ="userService.systemLogService.update",
+            value ="userService.logAction.update",
             args = {"#result.data.id", "#result.data.username"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
