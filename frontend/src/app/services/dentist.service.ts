@@ -10,13 +10,14 @@ import {
 } from "../domain/interfaces/dentist.interface";
 import { DentistAvailabilitySerializer } from "../domain/serializers/dentist-availability.serializer";
 import { DentistAvailabilityDtoInterface } from "../domain/dto/dentist.dto";
+import { DentistHolidayInterface } from "../domain/interfaces/holiday.interface";
 
 @Injectable({ providedIn: "root" })
 export class DentistService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
-  getDentistAvailability(
+  getAvailability(
     dentistId: number
   ): Observable<ApiResponseInterface<DentistAvailabilityInterface>> {
     return this.http
@@ -37,7 +38,7 @@ export class DentistService {
       );
   }
 
-  saveDentistAvailability(
+  saveAvailability(
     dentistId: number,
     days: DentistDayAvailabilityInterface[]
   ): Observable<ApiResponseInterface<any>> {
@@ -46,5 +47,14 @@ export class DentistService {
     return this.http.patch<
       ApiResponseInterface<DentistAvailabilitySaveResponseInterface>
     >(`${this.apiUrl}/dentist-availability/${dentistId}`, daysDto);
+  }
+
+  getHolidays(
+    dentistId: number
+  ): Observable<ApiResponseInterface<DentistHolidayInterface>> {
+    const year = new Date().getFullYear();
+    return this.http.get<ApiResponseInterface<DentistHolidayInterface>>(
+      `${this.apiUrl}/dentist-holidays/${dentistId}?year=${year}`
+    );
   }
 }

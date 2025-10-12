@@ -244,7 +244,9 @@
           </div>
           } @case('conflicts') {
           <div class="p-4">
-            <app-appointment-conflict></app-appointment-conflict>
+            <app-appointment-conflict
+              [dentistId]="user()?.person?.id!"
+            ></app-appointment-conflict>
           </div>
           } }
         </mat-card-content>

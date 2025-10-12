@@ -78,7 +78,7 @@ export class DentistAvailabilityComponent implements OnDestroy {
       const dentistId = this.dentistId();
       if (dentistId) {
         this.dentistService
-          .getDentistAvailability(dentistId)
+          .getAvailability(dentistId)
           .pipe(takeUntil(this._destroy$))
           .subscribe((response) => {
             this.dentistAvailability.set(response.data);
@@ -260,7 +260,7 @@ export class DentistAvailabilityComponent implements OnDestroy {
       }));
 
     this.dentistService
-      .saveDentistAvailability(dentistId, workingDays)
+      .saveAvailability(dentistId, workingDays)
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (

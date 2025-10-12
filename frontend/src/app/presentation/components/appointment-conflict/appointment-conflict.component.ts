@@ -1,12 +1,21 @@
-import { Component, OnDestroy, signal, output } from "@angular/core";
+import {
+  Component,
+  OnDestroy,
+  signal,
+  output,
+  inject,
+  input,
+  effect,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTableModule } from "@angular/material/table";
 import { AppointmentConflictInterface } from "../../../domain/interfaces/appointment.inteface";
+import { AppointmentService } from "../../../services/appointment.service";
 
 @Component({
   selector: "app-appointment-conflict",
@@ -22,7 +31,10 @@ import { AppointmentConflictInterface } from "../../../domain/interfaces/appoint
   ],
 })
 export class AppointmentConflictComponent implements OnDestroy {
+  dentistId = input<number | null>(null);
+
   private readonly _destroy$ = new Subject<void>();
+  private readonly appointmentService = inject(AppointmentService);
 
   goToCalendar = output<void>();
 
@@ -56,7 +68,19 @@ export class AppointmentConflictComponent implements OnDestroy {
 
   displayedColumns = ["patientName", "date", "reason"];
 
-  constructor() {}
+  constructor() {
+    effect(() => {
+      const dentistId = this.dentistId();
+      if (dentistId) {
+        this.appointmentService
+          .getAppointmentConflicts(dentistId)
+          .pipe(takeUntil(this._destroy$))
+          .subscribe((response) => {
+            this.conflicts.set(response.data);
+          });
+      }
+    });
+  }
 
   ngOnDestroy(): void {
     this._destroy$.next();
