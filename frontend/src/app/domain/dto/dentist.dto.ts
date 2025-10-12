@@ -1,3 +1,4 @@
+import { DayEnum } from "../../utils/enums/day.enum";
 import { PersonDtoInterface } from "./person.dto";
 
 export interface DentistDtoInterface {
@@ -20,3 +21,13 @@ export interface DentistSpecialtyDtoInterface {
   id: number;
   name: string;
 }
+
+export interface DentistDayAvailabilityDtoInterface {
+  dayName: DayEnum;
+  startTime: string;
+  endTime: string;
+  appointmentDuration: number;
+}
+
+export type DentistAvailabilityDtoInterface =
+  DentistDayAvailabilityDtoInterface[];

@@ -226,7 +226,6 @@
           @switch(selectedPreference()) { @case('availability') {
           <app-dentist-availability
             [dentistId]="user()?.person?.id!"
-            [dentistAvailability]="getDentistAvailability()"
           ></app-dentist-availability>
           } @case('holidays') {
           <div class="text-center py-8">

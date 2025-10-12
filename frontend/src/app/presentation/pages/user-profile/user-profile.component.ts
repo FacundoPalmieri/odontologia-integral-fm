@@ -15,10 +15,14 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
 import { UserService } from "../../../services/user.service";
 import { AuthService } from "../../../services/auth.service";
+import { DentistService } from "../../../services/dentist.service";
 import { Subject, takeUntil } from "rxjs";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { PersonInterface } from "../../../domain/interfaces/person.interface";
-import { DentistDayAvailabilityInterface } from "../../../domain/interfaces/dentist.interface";
+import {
+  DentistAvailabilityInterface,
+  DentistDayAvailabilityInterface,
+} from "../../../domain/interfaces/dentist.interface";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatChipsModule } from "@angular/material/chips";
 import { Router } from "@angular/router";
@@ -60,6 +64,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
+  private readonly dentistService = inject(DentistService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly router = inject(Router);
   private readonly personDataService = inject(PersonDataService);
@@ -75,6 +80,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   isSaving = signal<boolean>(false);
   isAnyPanelExpanded = signal<boolean>(false);
   selectedPreference = signal<string | null>(null);
+  dentistAvailability = signal<DentistAvailabilityInterface | null>(null);
+  isLoadingAvailability = signal<boolean>(false);
 
   entityTypeEnum = EntityTypeEnum;
 
@@ -189,13 +196,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     return (
       this.user()?.rolesList?.some((role) => role.name === "DENTIST") || false
     );
-  }
-
-  getDentistAvailability(): DentistDayAvailabilityInterface[] {
-    // Por ahora retornamos un array vacío, esto se puede extender
-    // cuando tengamos la disponibilidad del dentista en la estructura del usuario
-    // return this.user()?.dentist?.availability || [];
-    return [];
   }
 
   onPersonFormValidChange(isValid: boolean): void {

@@ -4,13 +4,12 @@
   style="will-change: scroll-position; transform: translateZ(0)"
 >
   <div formArrayName="availability" class="space-y-4">
-    @for(control of availability.controls; track trackByIndex($index)) {
+    @for(control of availability.controls; track $index) {
     <div
       [formGroupName]="$index"
       class="p-4 bg-[var(--mat-sys-home-sidenav-content-background)] rounded-[var(--mat-sys-corner-large)]"
       style="contain: layout style; will-change: transform"
     >
-      <!-- Checkbox para activar/desactivar día laboral -->
       <div class="flex items-center mb-4">
         <mat-checkbox formControlName="isWorking" class="mr-3">
           <span class="font-medium">
@@ -21,7 +20,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-        <!-- Día de la semana (oculto, solo para referencia) -->
         <div class="col-span-1 hidden">
           <mat-form-field appearance="outline" class="w-full">
             <mat-label>Día</mat-label>
@@ -33,15 +31,14 @@
           </mat-form-field>
         </div>
 
-        <!-- Hora de inicio -->
         <div class="col-span-1">
           <label class="block text-sm font-medium mb-2">Hora de inicio</label>
           <div formGroupName="startTime" class="flex gap-2">
             <mat-form-field appearance="outline" class="flex-1">
               <mat-label>Hora</mat-label>
               <mat-select formControlName="hour">
-                @for(hour of [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
-                track trackByValue($index, hour)) {
+                @for(hour of [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,
+                23]; track trackByValue($index, hour)) {
                 <mat-option [value]="hour">{{
                   hour.toString().padStart(2, "0")
                 }}</mat-option>
@@ -62,15 +59,15 @@
           </div>
         </div>
 
-        <!-- Hora de fin -->
         <div class="col-span-1">
           <label class="block text-sm font-medium mb-2">Hora de fin</label>
           <div formGroupName="endTime" class="flex gap-2">
             <mat-form-field appearance="outline" class="flex-1">
               <mat-label>Hora</mat-label>
               <mat-select formControlName="hour">
-                @for(hour of [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
-                track trackByValue($index, hour)) {
+                @for(hour of
+                [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; track
+                trackByValue($index, hour)) {
                 <mat-option [value]="hour">{{
                   hour.toString().padStart(2, "0")
                 }}</mat-option>
@@ -91,7 +88,6 @@
           </div>
         </div>
 
-        <!-- Duración de cita -->
         <div class="col-span-1">
           <mat-form-field appearance="outline" class="w-full">
             <mat-label>Duración de la cita</mat-label>
@@ -113,23 +109,21 @@
         </div>
       </div>
 
-      <!-- Validaciones de horario -->
       @if((control.get('startTime.hour')?.hasError('required') ||
       control.get('startTime.minute')?.hasError('required')) &&
       control.get('isWorking')?.value) {
       <div class="text-red-500 text-sm mt-2">
-        La hora de inicio es requerida
+        *La hora de inicio es requerida
       </div>
       } @if((control.get('endTime.hour')?.hasError('required') ||
       control.get('endTime.minute')?.hasError('required')) &&
       control.get('isWorking')?.value) {
-      <div class="text-red-500 text-sm mt-2">La hora de fin es requerida</div>
+      <div class="text-red-500 text-sm mt-2">*La hora de fin es requerida</div>
       }
     </div>
     }
   </div>
 
-  <!-- Botón de guardar -->
   <div class="flex justify-end mt-6">
     <button
       mat-flat-button

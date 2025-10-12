@@ -11,14 +11,16 @@ export interface DentistSpecialtyInterface {
 }
 
 export interface AppointmentConflictInterface {
-  idAppointment: number;
+  appointmentId: number;
+  appointmentDateTime: Date;
+  patientName: string;
+  reasonKey: string;
+  reasonLabel: string;
 }
 
 export interface TimeInterface {
   hour: number;
   minute: number;
-  second: number;
-  nano: 0;
 }
 
 export interface DentistAvailabilityInterface {
@@ -33,9 +35,7 @@ export interface DentistDayAvailabilityInterface {
   appointmentDuration: number;
 }
 
-export interface TimeInterface {
-  hour: number;
-  minute: number;
-  second: number;
-  nano: 0;
+export interface DentistAvailabilitySaveResponseInterface
+  extends DentistAvailabilityInterface {
+  appointmentConflict: AppointmentConflictInterface[];
 }
