@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.repository;
 
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +17,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
             FROM Appointment a
             WHERE a.dentist.id = :dentistId
             AND a.date > :date
+            AND a.status = :status
             """)
-    List<Appointment> findFutureAppointmentsByDentist(@Param("dentistId") Long dentistId, @Param("date") LocalDateTime date);
+    List<Appointment> findFutureAppointmentsReservedByDentist(@Param("dentistId") Long dentistId,
+                                                              @Param("date") LocalDateTime date,
+                                                              @Param("status") AppointmentStatus status
+    );
 
 }

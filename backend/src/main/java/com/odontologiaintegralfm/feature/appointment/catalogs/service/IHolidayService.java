@@ -3,11 +3,10 @@ package com.odontologiaintegralfm.feature.appointment.catalogs.service;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateRequestDTO;
-import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
-import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayListRequestDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.response.Response;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -31,6 +30,13 @@ public interface IHolidayService {
      * @param holidayUpdateRequestDTO: DTO con el feriado a actualizar.
      */
     Response<HolidayResponseDTO> update(HolidayUpdateRequestDTO holidayUpdateRequestDTO);
+
+
+    /**
+     * Método para validar si existe un feriado para un rango de fechas.
+     */
+    boolean validateExistsHoliday(LocalDate startDate, LocalDate endDate);
+
 
 
     /**

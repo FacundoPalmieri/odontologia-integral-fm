@@ -87,10 +87,8 @@ public class DentistHolidayService implements IDentistHolidayService {
 
             dentistHolidayRepository.saveAll(dentistHolidays);
 
-        } catch (Exception e) {
-
+        }catch (Exception e) {
             throw new ConflictException(null, null, "exception.dentistHolidayService.create.log", null,LogLevel.ERROR);
-
         }
     }
 

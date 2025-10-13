@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
@@ -27,11 +28,11 @@ public class AppointmentService implements IAppointmentService {
     private MessageSource messageSource;
 
     /**
-     * Método protegido que sirve para obtener todos los turnos del dentista.
+     * Método protegido que sirve para obtener todos los turnos del dentista en estado "Reservado"
      * Se utiliza para validación interna de la aplicación
      */
-    protected List<Appointment> getAppointmentsInternal(Long idDentist) {
-        return appointmentRepository.findFutureAppointmentsByDentist(idDentist, LocalDateTime.now());
+    protected List<Appointment> getAppointmentsReservedByDentistInternal(Long idDentist) {
+        return appointmentRepository.findFutureAppointmentsReservedByDentist(idDentist, LocalDateTime.now(), AppointmentStatus.RESERVED);
     }
 
 

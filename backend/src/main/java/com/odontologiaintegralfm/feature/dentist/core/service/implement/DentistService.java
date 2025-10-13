@@ -147,7 +147,7 @@ public class DentistService implements IDentistService {
      * @return Optional <Dentist>
      */
     @Override
-    public Optional <Dentist> getById(Long id) {
+    public Optional<Dentist> getById(Long id) {
         try{
             return dentistRepository.findById(id);
         }catch (DataAccessException | CannotCreateTransactionException e) {

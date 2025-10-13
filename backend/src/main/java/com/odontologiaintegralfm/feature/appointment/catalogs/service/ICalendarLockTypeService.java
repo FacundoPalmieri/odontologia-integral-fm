@@ -4,8 +4,10 @@ package com.odontologiaintegralfm.feature.appointment.catalogs.service;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeUpdateRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.catalogs.model.CalendarLockType;
 import com.odontologiaintegralfm.shared.response.Response;
 import java.util.List;
+import java.util.Optional;
 
 public interface ICalendarLockTypeService {
 
@@ -18,6 +20,12 @@ public interface ICalendarLockTypeService {
      * Obtiene un tipo de bloqueo por su ID.
      */
     Response<CalendarLockTypeResponseDTO> getById(Long id);
+
+    /**
+     * Obtiene un tipo de bloqueo por su ID.
+     * Método interno de validación. Este método es llamado desde el servicio de "DentistCalendarLockService" método "create"
+     */
+     CalendarLockType getByIdInternal(Long id);
 
 
     /**

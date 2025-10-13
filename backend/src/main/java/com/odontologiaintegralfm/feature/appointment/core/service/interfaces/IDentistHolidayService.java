@@ -16,7 +16,7 @@ public interface IDentistHolidayService {
      * Método que crea las relaaciones entre dentistas y feriados.
      * El mismo se ejecuta dentro de la tarea programada anual de carga de feriados.
      */
-   void create(int year,List<Holiday> holidayList);
+    void create(int year, List<Holiday> holidayList);
 
     /**
      * Método para la actualización de la relación de un dentista con feriados.
@@ -26,6 +26,7 @@ public interface IDentistHolidayService {
 
     /**
      * Método para obtener la relación entre un dentista y los feriados.
+     *
      * @param idDentist : Id Dentista
      * @param year      : Año consultado
      */

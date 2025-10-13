@@ -23,6 +23,7 @@ import org.springframework.transaction.CannotCreateTransactionException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CalendarLockTypeService implements ICalendarLockTypeService {
@@ -79,7 +80,19 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
 
     }
 
-
+    /**
+     * Obtiene un tipo de bloqueo por su ID.
+     * Método interno de validación.
+     */
+    @Override
+    public CalendarLockType getByIdInternal(Long id) {
+        try{
+            return calendarLockTypeRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("exception.calendarLockType.notFound.user", null, "exception.calendarLockType.notFound.log", new Object[]{id, "DentistCalendarLockService", "create"}, LogLevel.ERROR));
+        }catch (CannotCreateTransactionException | DataAccessException e) {
+            throw new DataBaseException(e, "CalendarLockTypeService", id, null, "getByIdInternal");
+        }
+    }
 
 
     /**

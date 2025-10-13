@@ -87,7 +87,6 @@ public class HolidayService implements IHolidayService {
 
     /**
      * Método para crear un feriado.
-     *
      * @param holidayCreateRequestDTO
      * @return
      */
@@ -104,7 +103,8 @@ public class HolidayService implements IHolidayService {
         validateNotBeforeDate(null, holidayCreateRequestDTO.name(), holidayCreateRequestDTO.date());
 
         // Valído que no exista un feriado para esa fecha
-        validateNotExistsHoliday(holidayCreateRequestDTO.date(), null);
+        validateHolidayCreate(holidayCreateRequestDTO.date());
+
 
         // Mapeo el DTO a Holiday
         Holiday holiday = new Holiday();
@@ -135,6 +135,7 @@ public class HolidayService implements IHolidayService {
 
     }
 
+
     /**
      * Método para actualiza datos de un feriado.
      *
@@ -154,7 +155,7 @@ public class HolidayService implements IHolidayService {
         validateNotBeforeDate(holidayUpdateRequestDTO.id(), holidayUpdateRequestDTO.name(), holidayUpdateRequestDTO.date());
 
         // Valído que no exista un feriado para esa fecha
-        validateNotExistsHoliday(holidayUpdateRequestDTO.date(), holidayUpdateRequestDTO.id());
+        validateHolidayUpdate(holidayUpdateRequestDTO.date());
 
         //Buscar el feriado en la base.
          Holiday holiday = holidayRepository.findById(holidayUpdateRequestDTO.id())
@@ -189,33 +190,54 @@ public class HolidayService implements IHolidayService {
     }
 
 
+
+
+
     /**
-     * Método privado validar que no un feriado en una determinada fecha.
+     * Método para validar si existe un feriado para una fecha determinada.
+     */
+    public boolean validateExistsHoliday(LocalDate startDate, LocalDate endDate){
+        return holidayRepository.existsByDateBetween(startDate,endDate);
+    }
+
+
+
+
+
+    /**
+     * Método privado que valida si antes de crear un nuevo feriado, no existe otro para esa misma fecha.
      * @param date
      */
-    private void validateNotExistsHoliday(LocalDate date, Long excludeId){
+    private void validateHolidayCreate(LocalDate date) {
+        Optional<Holiday> holidayOptional = holidayRepository.findByDate(date);
+        if (holidayOptional.isPresent()) {
+            throw new ConflictException(
+                    "exception.validateHolidayCreate.user",
+                    new Object[]{holidayOptional.get().getDate(), holidayOptional.get().getType(), holidayOptional.get().getName()},
+                    "exception.validateHolidayCreate.log",
+                    new Object[]{holidayOptional.get().getId(), holidayOptional.get().getDate(), holidayOptional.get().getType(), holidayOptional.get().getName(), "HolidayService", "validateHolidayCreate"},
+                    LogLevel.WARN);
+        }
 
-        Optional<Holiday> holiday = holidayRepository.findByDate(date);
+    }
 
-        if(holiday.isPresent()){
-            if(excludeId == null){
-                throw new ConflictException(
-                        "exception.holidayOverlap.create.user",
-                        new Object[]{holiday.get().getDate(), holiday.get().getType(), holiday.get().getName()},
-                        "exception.holidayOverlap.create.log",
-                        new Object[]{holiday.get().getId(), holiday.get().getDate(), holiday.get().getType(), holiday.get().getName(), "HolidayService", "getHolidayByDate"}
-                        , LogLevel.WARN
-                );
 
-            }else if (!excludeId.equals(holiday.get().getId())){
-                throw new ConflictException(
-                        "exception.holidayOverlap.update.user",
-                        new Object[]{holiday.get().getDate(), holiday.get().getType(), holiday.get().getName()},
-                        "exception.holidayOverlap.update.log",
-                        new Object[]{holiday.get().getId(),holiday.get().getDate(), holiday.get().getType(), holiday.get().getName(),"HolidayService","getHolidayByDate"}
-                        , LogLevel.WARN
-                );
-            }
+
+
+    /**
+     * Método privado que valida si antes de actualizar un nuevo feriado, no existe otro para esa misma fecha.
+     * @param date
+     */
+    private void validateHolidayUpdate(LocalDate date) {
+        Optional<Holiday> holidayOptional = holidayRepository.findByDate(date);
+        if (holidayOptional.isPresent()) {
+            throw new ConflictException(
+                    "exception.validateHolidayUpdate.user",
+                    new Object[]{holidayOptional.get().getDate(), holidayOptional.get().getType(), holidayOptional.get().getName()},
+                    "exception.validateHolidayUpdate.log",
+                    new Object[]{holidayOptional.get().getId(), holidayOptional.get().getDate(), holidayOptional.get().getType(), holidayOptional.get().getName(), "HolidayService", "validateHolidayUpdate"}
+                    , LogLevel.WARN
+            );
         }
     }
 
@@ -231,10 +253,6 @@ public class HolidayService implements IHolidayService {
             );
         }
     }
-
-
-
-
 
 
 
