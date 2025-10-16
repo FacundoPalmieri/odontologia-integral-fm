@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
-
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAppointmentsManagementReadOrConfiguration;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
 import com.odontologiaintegralfm.shared.response.Response;
@@ -33,7 +32,7 @@ public class AppointmentController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/conflict/all/{idDentist}")
-    @OnlyAccessUserProfileAppointmentsManagementReadOrConfiguration
+    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
     public ResponseEntity<Response<List<AppointmentConflictResponseDTO>>> getConflictAll(@PathVariable Long idDentist){
         Response<List<AppointmentConflictResponseDTO>> response = appointmentService.getConflict(idDentist);
         return ResponseEntity.ok(response);

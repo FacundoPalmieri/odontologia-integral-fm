@@ -12,6 +12,7 @@ import com.odontologiaintegralfm.feature.appointment.core.service.impl.DentistHo
 import com.odontologiaintegralfm.infrastructure.externalapi.client.ArgentinaDatosClient;
 import com.odontologiaintegralfm.infrastructure.externalapi.dto.HolidayApiResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
+import lombok.extern.java.Log;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -54,10 +55,6 @@ public class HolidayService implements IHolidayService {
     private MessageSource messageSource;
 
 
-    @Autowired
-    private DentistHolidayService dentistHolidayService;
-
-
     /**
      * Método para obtener la lista páginada de todos los feriados.
      * @param year      : Año a consultar.
@@ -81,6 +78,21 @@ public class HolidayService implements IHolidayService {
             return new Response<>(true, null, holidayResponseDTOS);
         }catch(CannotCreateTransactionException | DataAccessException e ) {
             throw new DataBaseException(e, "HolidayService",null,null, "getAll");
+        }
+    }
+
+    /**
+     * Método interno de la aplicación para valida la existencia de un feriado.
+     *
+     * @param id : id del feriado.
+     */
+    @Override
+    public Holiday getByIdInternal(Long id) {
+        try{
+            return holidayRepository.findById(id)
+                    .orElseThrow(()-> new NotFoundException("exception.holidayNotFound.user",null,"exception.holidayNotFound.log", new Object[]{id,"HolidayService","getByIdInternal"},LogLevel.ERROR));
+        }catch(CannotCreateTransactionException | DataAccessException e ) {
+            throw new DataBaseException(e, "HolidayService",id,null, "getByIdInternal");
         }
     }
 
@@ -315,9 +327,6 @@ public class HolidayService implements IHolidayService {
 
         // Persiste los feriados.
         holidayRepository.saveAll(holidays);
-
-        //Establece relación de los feriados con los dentistas.
-        dentistHolidayService.create(year, holidays);
 
         //Finaliza tarea programada
         end = System.currentTimeMillis();

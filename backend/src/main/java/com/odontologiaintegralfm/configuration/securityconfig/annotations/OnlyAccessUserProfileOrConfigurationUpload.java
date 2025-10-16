@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAuthority('PERMISO_CONFIGURATION_DELETE')")
-public @interface OnlyAccessConfigurationDelete {
+@PreAuthorize("#id == @authenticatedUserService.authenticatedUser.id or " +
+               "hasAuthority('PERMISO_CONFIGURATION_UPLOAD')")
+public @interface OnlyAccessUserProfileOrConfigurationUpload {
 }

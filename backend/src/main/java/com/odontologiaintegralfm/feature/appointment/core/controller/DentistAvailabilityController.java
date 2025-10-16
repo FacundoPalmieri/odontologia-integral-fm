@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
 
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.impl.DentistAvailabilityService;
@@ -40,7 +41,7 @@ public class DentistAvailabilityController {
             @ApiResponse(responseCode = "404", description = "Dentista no encontrado.")
     })
     @PatchMapping("/{id}")
-    @OnlyAccessUserProfileOrConfigurationRead
+    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate
     public ResponseEntity<Response<DentistAvailabilityResponseDTO>> update(@Validated @PathVariable Long id,
                                                                            @Valid @RequestBody List<WorkingDayDTO> days ) {
 
@@ -65,7 +66,7 @@ public class DentistAvailabilityController {
             @ApiResponse(responseCode = "404", description = "Dentista no encontrado.")
     })
     @GetMapping("/{id}")
-    @OnlyAccessUserProfileOrConfigurationRead
+    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
     public ResponseEntity<Response<DentistAvailabilityResponseDTO>> get(@PathVariable Long id){
         Response<DentistAvailabilityResponseDTO> response = dentistAvailabilityService.get(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
 
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrAppointmentsManagementCreateOrConfiguration;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationCreate;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistLockCalendarService;
@@ -35,7 +35,7 @@ public class DentistCalendarLockController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @PostMapping("/{id}")
-    @OnlyAccessUserProfileOrAppointmentsManagementCreateOrConfiguration
+    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationCreate
     public ResponseEntity<Response<DentistCalendarLockResponseDTO>>create(@PathVariable("id")Long idDentist,
                                                                           @Valid @RequestBody DentistCalendarLockCreateRequestDTO dentistCalendarLockCreateRequestDTO) {
 

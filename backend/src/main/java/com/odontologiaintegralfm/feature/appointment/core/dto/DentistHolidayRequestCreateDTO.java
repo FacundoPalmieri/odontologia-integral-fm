@@ -1,13 +1,14 @@
 package com.odontologiaintegralfm.feature.appointment.core.dto;
 
+
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
 
-/**
- * DTO que se usa dentro de la lista en {@link DentistHolidayRequestDTO}
- */
-public record DentistHolidayListRequestDTO(
+public record DentistHolidayRequestCreateDTO(
+
+        @NotNull
+        Integer year,
 
         @NotNull(message = "generic.id.empty")
         Long idHoliday,

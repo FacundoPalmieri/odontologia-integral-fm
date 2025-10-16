@@ -1,8 +1,8 @@
 package com.odontologiaintegralfm.feature.appointment.catalogs.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationCreate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationReadOrAppointmentsManagement;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationUpdate;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationRead;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateRequestDTO;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -58,7 +57,7 @@ public class HolidayController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @OnlyAccessUserProfileOrConfigurationRead
+    @OnlyAccessConfigurationReadOrAppointmentsManagement
     public ResponseEntity<Response<List<HolidayResponseDTO>>> getAll(@RequestParam int year) {
         Response<List<HolidayResponseDTO>> response = holidayService.getAll(year);
         return ResponseEntity.ok(response);

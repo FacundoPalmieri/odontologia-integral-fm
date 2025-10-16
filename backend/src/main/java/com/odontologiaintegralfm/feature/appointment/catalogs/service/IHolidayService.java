@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.appointment.catalogs.service;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.response.Response;
 
@@ -18,6 +19,11 @@ public interface IHolidayService {
      */
     Response<List<HolidayResponseDTO>> getAll(int year);
 
+    /**
+     * Método interno de la aplicación para valida la existencia de un feriado.
+     * @param id: id del feriado.
+     */
+    Holiday getByIdInternal(Long id);
 
     /**
      * Método para crear un feriado.

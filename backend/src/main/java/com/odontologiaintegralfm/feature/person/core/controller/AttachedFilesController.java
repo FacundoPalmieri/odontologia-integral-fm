@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.person.core.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPatientsUpload;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationUpload;
 import com.odontologiaintegralfm.feature.person.core.dto.AttachedFileResponseDTO;
 import com.odontologiaintegralfm.shared.response.Response;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAttachedFilesService;
@@ -33,10 +34,10 @@ public class AttachedFilesController {
     /**
      * Guarda un documento asociado a un usuario.
      * <p>
-     * Requiere "PERMISO_CONFIGURATION_READ o bien se el mismo usuario autenticado" para acceder.
+     * Requiere "PERMISO_CONFIGURATION_UPLOAD o bien se el mismo usuario autenticado" para acceder.
      * </p>
      *
-     * @param id de persona.
+     * @param id de usuario.
      * @param file documento.
      * @return ResponseEntity con:
      *         <ul>
@@ -57,7 +58,7 @@ public class AttachedFilesController {
             @ApiResponse(responseCode = "409", description = "Error en la extensión o tamaño del archivo.")
     })
     @PostMapping(value = "/user/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @OnlyAccessUserProfileOrConfigurationRead
+    @OnlyAccessUserProfileOrConfigurationUpload
     public ResponseEntity<Response<String>> saveDocumentUser(@PathVariable Long id,
                                                              @RequestParam("file") MultipartFile file) throws IOException {
         Response<String> response = attachedFilesService.saveDocumentUser(file, id);
@@ -188,7 +189,7 @@ public class AttachedFilesController {
     /**
      * Obtiene los datos de todos los documento de un usuario.
      * <p>
-     * Requiere permisos <b>CONFIGURATION_UPLOAD ó bien ser el mismo usuario</b> para acceder.
+     * Requiere permisos <b>CONFIGURATION_READ ó bien ser el mismo usuario</b> para acceder.
      * </p>
      *
      * @param id de la persona.
