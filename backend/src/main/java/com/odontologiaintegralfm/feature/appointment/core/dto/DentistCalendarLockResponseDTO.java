@@ -3,14 +3,17 @@ package com.odontologiaintegralfm.feature.appointment.core.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-public record DentistHolidayResponseDTO(
+
+public record DentistCalendarLockResponseDTO(
         Long id,
         Long idDentist,
-        Long idHoliday,
-        LocalDate date,
-        String name,
+        String lockType,
+        String recurrence,
+        LocalDate startDate,
+        LocalDate endDate,
         LocalTime startTime,
         LocalTime endTime,
-        boolean enabled
+        String observation,
+        boolean conflictAppointments
 ) {
 }

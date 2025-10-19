@@ -154,7 +154,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
     private List<AppointmentConflictResponseDTO> detectConflicts(Long idDentist, List<WorkingDayDTO> days) {
 
         //Se obtienen los turnos futuros para el dentista.
-        List<Appointment> appointments = appointmentService.getAppointmentsInternal(idDentist);
+        List<Appointment> appointments = appointmentService.getAppointmentsReservedByDentistInternal(idDentist);
 
         // Se obtiene los turnos conflictivos previos al cambio.
         List<AppointmentConflict> appointmentConflictsExisting = appointmentConflictService.getAllByDentist(idDentist);
@@ -400,11 +400,29 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
             return new Response<>(true, null, dentistAvailabilityResponseDTO);
 
-        } catch (DataAccessException | CannotCreateTransactionException e) {
+        }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistAvailabilityService", id, null, "get");
         }
     }
 
+    /**
+     * Método para obtener la jornada laboral de un dentista.
+     */
+    @Override
+    public List<DayName> getByIdInternal(Long idDentist) {
+        try{
+
+            List<DayName> dayNameList = dentistAvailabilityRepository.findAllByDentistId(idDentist)
+                    .stream()
+                    .map(DentistAvailability::getKeyName)
+                    .toList();
+
+            return dayNameList;
+
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "DentistAvailabilityService", idDentist, null, "getByIdInternal");
+        }
+    }
 
 
 }

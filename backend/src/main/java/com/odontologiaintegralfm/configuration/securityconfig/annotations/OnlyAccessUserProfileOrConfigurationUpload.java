@@ -7,8 +7,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD, ElementType.TYPE}) //Destino
-@Retention(RetentionPolicy.RUNTIME)             //Permanencia
-@PreAuthorize("hasAuthority('PERMISO_APPOINTMENT_MANAGEMENT_READ')")
-public @interface OnlyAccesAppointmentsManagementRead {
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("#id == @authenticatedUserService.authenticatedUser.id or " +
+               "hasAuthority('PERMISO_CONFIGURATION_UPLOAD')")
+public @interface OnlyAccessUserProfileOrConfigurationUpload {
 }

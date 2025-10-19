@@ -121,7 +121,7 @@ public class AddressService implements IAddressService {
     @Override
     @Transactional
     @LogAction(
-            value ="addressService.systemLogService.deleteOrphan",
+            value ="addressService.logAction.deleteOrphan",
             args =  {"#result.durationSeconds","#result.message", "#result.countInit","#result.countDeleted" },
             type = LogType.SCHEDULED,
             level = LogLevel.INFO

@@ -143,7 +143,7 @@ public class SystemLogService implements ISystemLogService {
      */
     @Override
     @LogAction(
-            value ="systemLogService.systemLogService.delete",
+            value ="systemLogService.logAction.delete",
             args =  {"#result.durationSeconds","#result.message","#result.countDeleted" },
             type = LogType.SCHEDULED,
             level = LogLevel.INFO

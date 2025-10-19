@@ -1,10 +1,12 @@
 package com.odontologiaintegralfm.feature.appointment.catalogs.model;
 
+import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 /**
  * Entidad que representa los tipos de bloqueos de calendario.
@@ -18,7 +20,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "calendar_lock_type")
-public class CalendarLockType {
+@Where(clause = "enabled = true")
+public class CalendarLockType extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

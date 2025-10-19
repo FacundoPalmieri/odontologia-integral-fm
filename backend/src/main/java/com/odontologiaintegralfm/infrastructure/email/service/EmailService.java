@@ -34,7 +34,7 @@ public class EmailService implements IEmailService {
      * @param body El cuerpo del correo.
      */
     @LogAction(
-            value = "emailService.systemLogService.sendEmail",
+            value = "emailService.logAction.sendEmail",
             args = {"#to", "#subject", "#body"},
             level = LogLevel.INFO,
             type = LogType.SYSTEM

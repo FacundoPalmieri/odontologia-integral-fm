@@ -167,7 +167,7 @@ public class ConfigService implements IConfigService {
      */
     @Override
     @LogAction(
-            value = "config.systemLogService.updateSchedule",
+            value = "config.logAction.updateSchedule",
             args = {"#scheduleRequestDTO.id"},
             type = LogType.SCHEDULED,
             level = LogLevel.INFO

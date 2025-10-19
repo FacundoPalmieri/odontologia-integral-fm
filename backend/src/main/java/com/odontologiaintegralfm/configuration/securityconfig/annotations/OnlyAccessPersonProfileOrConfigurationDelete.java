@@ -12,9 +12,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("" +
-        "#id == @authenticatedUserService.authenticatedUser.id or " +
-        "#id == @authenticatedUserService.authenticatedUser.person.id or " +
-        "hasAuthority('PERMISO_CONFIGURATION_CREATE')")
-public @interface OnlyAccessUserProfileOrConfigurationCreate {
+@PreAuthorize("#id == @authenticatedUserService.authenticatedUser.person.id or " +
+              " hasAuthority('PERMISO_CONFIGURATION_DELETE')")
+public @interface OnlyAccessPersonProfileOrConfigurationDelete {
 }

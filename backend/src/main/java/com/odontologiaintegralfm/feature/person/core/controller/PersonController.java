@@ -1,7 +1,8 @@
 package com.odontologiaintegralfm.feature.person.core.controller;
 
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationRead;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrPatientsRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileOrConfigurationDelete;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileOrConfigurationUpload;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileOrPatientsRead;
 import com.odontologiaintegralfm.shared.response.Response;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IPersonService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +55,7 @@ public class PersonController {
             @ApiResponse(responseCode = "409", description = "Error en la extensión o tamaño del archivo.")
     })
     @PostMapping(value = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @OnlyAccessUserProfileOrConfigurationRead
+    @OnlyAccessPersonProfileOrConfigurationUpload
     public ResponseEntity<Response<String>> uploadAvatar(@PathVariable Long id,
                                                          @RequestParam("file") MultipartFile file) throws IOException {
         Response<String> response = personService.saveAvatar(file, id);
@@ -89,7 +90,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
     })
     @GetMapping("/{id}/avatar")
-    @OnlyAccessUserProfileOrPatientsRead
+    @OnlyAccessPersonProfileOrPatientsRead
     public ResponseEntity<UrlResource> getAvatar(@PathVariable Long id) throws IOException {
 
         UrlResource avatar = personService.getAvatar(id);
@@ -109,11 +110,7 @@ public class PersonController {
 
 
     /**
-     * Elimina la imágen de perfil de la persona.
-     * <p>
-     * Requiere el rol <b>AdmistratorAndSecretary</b> para acceder.
-     * </p>
-     *
+     * Elimina la imágen de perfil de la persona.*
      * @param id de la persona.
      * @return ResponseEntity con:
      *         <ul>
@@ -132,7 +129,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
     })
     @DeleteMapping("/{id}/avatar")
-    @OnlyAccessUserProfileOrConfigurationRead
+    @OnlyAccessPersonProfileOrConfigurationDelete
     public ResponseEntity<Response<String>> deleteAvatar(@PathVariable Long id) throws IOException {
         Response<String> response = personService.deleteAvatar(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

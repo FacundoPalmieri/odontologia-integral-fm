@@ -174,7 +174,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
      */
 
     @LogAction(
-            value = "userDetailServiceImpl.systemLogService.login",
+            value = "userDetailServiceImpl.logAction.login",
             args = {"#result.data.idUser", "#result.data.username"},
             level = LogLevel.INFO,
             type = LogType.SECURITY
@@ -356,7 +356,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
      */
 
     @LogAction(
-            value = "userDetailServiceImpl.systemLogService.logout",
+            value = "userDetailServiceImpl.logAction.logout",
             args = {"#refreshTokenRequestDTO.idUser"},
             type = LogType.SECURITY,
             level = LogLevel.INFO

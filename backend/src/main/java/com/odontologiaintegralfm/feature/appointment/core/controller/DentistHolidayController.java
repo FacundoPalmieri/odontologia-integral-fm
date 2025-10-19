@@ -1,9 +1,11 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
 
 
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationCreate;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationRead;
-import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestDTO;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationCreate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate;
+import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestCreateDTO;
+import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistHolidayService;
 import com.odontologiaintegralfm.shared.response.Response;
@@ -30,36 +32,38 @@ public class DentistHolidayController {
     private IDentistHolidayService dentistHolidayService;
 
 
-    @Operation(summary = "Actualizar relación Dentista-Feriado", description = "Permite crear o actualizar la relación entre un dentista y una lista de feriados.")
+    @Operation(summary = "Crear relación Dentista-Feriado", description = "Permite crear la relación entre un dentista y un feriado feriados.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Relaciones actualizadas exitosamente."),
+            @ApiResponse(responseCode = "200", description = "Relación creada exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @PostMapping("/{idDentist}")
-    @OnlyAccessUserProfileOrConfigurationCreate
-    public ResponseEntity<Response<DentistHolidayResponseDTO>> update(@PathVariable("idDentist") @NotNull(message = "generic.id.empty") Long id,
-                                                                      @Valid @RequestBody DentistHolidayRequestDTO dentistHolidayRequestDTO) {
-        Response<DentistHolidayResponseDTO> response = dentistHolidayService.update(id,dentistHolidayRequestDTO);
+    @PostMapping("/{idUser}")
+    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationCreate
+    public ResponseEntity<Response<DentistHolidayResponseDTO>> create(@PathVariable("idUser") @NotNull(message = "generic.id.empty") Long id,
+                                                                      @Valid @RequestBody DentistHolidayRequestCreateDTO dentistHolidayRequestCreateDTO) {
+        Response<DentistHolidayResponseDTO> response = dentistHolidayService.create(id, dentistHolidayRequestCreateDTO);
         return ResponseEntity.ok(response);
     }
 
 
 
 
-    @Operation(summary = "Recuperar relación Dentista-Feriado", description = "Permite obtener un listado de relaciones entre un dentista y una lista de feriados.")
+
+
+
+    @Operation(summary = "Actualizar relación Dentista-Feriado", description = "Permite actualizar la relación entre un dentista y un feriado.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Relaciones listadas exitosamente."),
+            @ApiResponse(responseCode = "200", description = "Relación actualizada exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("{idDentist}")
-    @OnlyAccessUserProfileOrConfigurationRead
-    public ResponseEntity<Response<DentistHolidayResponseDTO>> get(@PathVariable("idDentist") @NotNull(message = "generic.id.empty") Long id,
-                                                                   @RequestParam @NotNull(message = "dentistHolidayRequestDTO.year.empty") Integer year){
-
-
-        Response<DentistHolidayResponseDTO> response = dentistHolidayService.get(id,year);
+    @PatchMapping("/{idUser}")
+    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate
+    public ResponseEntity<Response<DentistHolidayResponseDTO>> update(@PathVariable("idUser") @NotNull(message = "generic.id.empty") Long id,
+                                                                      @Valid @RequestBody DentistHolidayRequestUpdateDTO dentistHolidayRequestUpdateDTO) {
+        Response<DentistHolidayResponseDTO> response = dentistHolidayService.update(dentistHolidayRequestUpdateDTO);
         return ResponseEntity.ok(response);
     }
+
 }

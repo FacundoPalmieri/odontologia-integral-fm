@@ -62,7 +62,7 @@ public class ContactEmailService implements IContactEmailService {
     @Override
     @Transactional
     @LogAction(
-            value ="contactEmailService.systemLogService.deleteOrphan",
+            value ="contactEmailService.logAction.deleteOrphan",
             args =  {"#result.durationSeconds","#result.message", "#result.countInit","#result.countDeleted" },
             type = LogType.SCHEDULED,
             level = LogLevel.INFO

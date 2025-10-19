@@ -12,6 +12,7 @@ import com.odontologiaintegralfm.feature.appointment.core.service.impl.DentistHo
 import com.odontologiaintegralfm.infrastructure.externalapi.client.ArgentinaDatosClient;
 import com.odontologiaintegralfm.infrastructure.externalapi.dto.HolidayApiResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
+import lombok.extern.java.Log;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -54,10 +55,6 @@ public class HolidayService implements IHolidayService {
     private MessageSource messageSource;
 
 
-    @Autowired
-    private DentistHolidayService dentistHolidayService;
-
-
     /**
      * Método para obtener la lista páginada de todos los feriados.
      * @param year      : Año a consultar.
@@ -84,15 +81,29 @@ public class HolidayService implements IHolidayService {
         }
     }
 
+    /**
+     * Método interno de la aplicación para valida la existencia de un feriado.
+     *
+     * @param id : id del feriado.
+     */
+    @Override
+    public Holiday getByIdInternal(Long id) {
+        try{
+            return holidayRepository.findById(id)
+                    .orElseThrow(()-> new NotFoundException("exception.holidayNotFound.user",null,"exception.holidayNotFound.log", new Object[]{id,"HolidayService","getByIdInternal"},LogLevel.ERROR));
+        }catch(CannotCreateTransactionException | DataAccessException e ) {
+            throw new DataBaseException(e, "HolidayService",id,null, "getByIdInternal");
+        }
+    }
+
 
     /**
      * Método para crear un feriado.
-     *
      * @param holidayCreateRequestDTO
      * @return
      */
     @LogAction(
-            value = "holidayService.SystemLogService.createHoliday",
+            value = "holidayService.logAction.createHoliday",
             args = {"#result.data.id", "#result.data.date", "#result.data.type", "#result.data.name"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
@@ -104,7 +115,8 @@ public class HolidayService implements IHolidayService {
         validateNotBeforeDate(null, holidayCreateRequestDTO.name(), holidayCreateRequestDTO.date());
 
         // Valído que no exista un feriado para esa fecha
-        validateNotExistsHoliday(holidayCreateRequestDTO.date(), null);
+        validateHolidayCreate(holidayCreateRequestDTO.date());
+
 
         // Mapeo el DTO a Holiday
         Holiday holiday = new Holiday();
@@ -135,13 +147,14 @@ public class HolidayService implements IHolidayService {
 
     }
 
+
     /**
      * Método para actualiza datos de un feriado.
      *
      * @param holidayUpdateRequestDTO : DTO con el feriado a actualizar.
      */
     @LogAction(
-            value = "holidayService.SystemLogService.updateHoliday",
+            value = "holidayService.logAction.updateHoliday",
             args = {"#result.data.id", "#result.data.date", "#result.data.type", "#result.data.name"},
             type = LogType.SYSTEM,
             level = LogLevel.INFO
@@ -154,7 +167,7 @@ public class HolidayService implements IHolidayService {
         validateNotBeforeDate(holidayUpdateRequestDTO.id(), holidayUpdateRequestDTO.name(), holidayUpdateRequestDTO.date());
 
         // Valído que no exista un feriado para esa fecha
-        validateNotExistsHoliday(holidayUpdateRequestDTO.date(), holidayUpdateRequestDTO.id());
+        validateHolidayUpdate(holidayUpdateRequestDTO.date());
 
         //Buscar el feriado en la base.
          Holiday holiday = holidayRepository.findById(holidayUpdateRequestDTO.id())
@@ -189,33 +202,54 @@ public class HolidayService implements IHolidayService {
     }
 
 
+
+
+
     /**
-     * Método privado validar que no un feriado en una determinada fecha.
+     * Método para validar si existe un feriado para una fecha determinada.
+     */
+    public boolean validateExistsHoliday(LocalDate startDate, LocalDate endDate){
+        return holidayRepository.existsByDateBetween(startDate,endDate);
+    }
+
+
+
+
+
+    /**
+     * Método privado que valida si antes de crear un nuevo feriado, no existe otro para esa misma fecha.
      * @param date
      */
-    private void validateNotExistsHoliday(LocalDate date, Long excludeId){
+    private void validateHolidayCreate(LocalDate date) {
+        Optional<Holiday> holidayOptional = holidayRepository.findByDate(date);
+        if (holidayOptional.isPresent()) {
+            throw new ConflictException(
+                    "exception.validateHolidayCreate.user",
+                    new Object[]{holidayOptional.get().getDate(), holidayOptional.get().getType(), holidayOptional.get().getName()},
+                    "exception.validateHolidayCreate.log",
+                    new Object[]{holidayOptional.get().getId(), holidayOptional.get().getDate(), holidayOptional.get().getType(), holidayOptional.get().getName(), "HolidayService", "validateHolidayCreate"},
+                    LogLevel.WARN);
+        }
 
-        Optional<Holiday> holiday = holidayRepository.findByDate(date);
+    }
 
-        if(holiday.isPresent()){
-            if(excludeId == null){
-                throw new ConflictException(
-                        "exception.holidayOverlap.create.user",
-                        new Object[]{holiday.get().getDate(), holiday.get().getType(), holiday.get().getName()},
-                        "exception.holidayOverlap.create.log",
-                        new Object[]{holiday.get().getId(), holiday.get().getDate(), holiday.get().getType(), holiday.get().getName(), "HolidayService", "getHolidayByDate"}
-                        , LogLevel.WARN
-                );
 
-            }else if (!excludeId.equals(holiday.get().getId())){
-                throw new ConflictException(
-                        "exception.holidayOverlap.update.user",
-                        new Object[]{holiday.get().getDate(), holiday.get().getType(), holiday.get().getName()},
-                        "exception.holidayOverlap.update.log",
-                        new Object[]{holiday.get().getId(),holiday.get().getDate(), holiday.get().getType(), holiday.get().getName(),"HolidayService","getHolidayByDate"}
-                        , LogLevel.WARN
-                );
-            }
+
+
+    /**
+     * Método privado que valida si antes de actualizar un nuevo feriado, no existe otro para esa misma fecha.
+     * @param date
+     */
+    private void validateHolidayUpdate(LocalDate date) {
+        Optional<Holiday> holidayOptional = holidayRepository.findByDate(date);
+        if (holidayOptional.isPresent()) {
+            throw new ConflictException(
+                    "exception.validateHolidayUpdate.user",
+                    new Object[]{holidayOptional.get().getDate(), holidayOptional.get().getType(), holidayOptional.get().getName()},
+                    "exception.validateHolidayUpdate.log",
+                    new Object[]{holidayOptional.get().getId(), holidayOptional.get().getDate(), holidayOptional.get().getType(), holidayOptional.get().getName(), "HolidayService", "validateHolidayUpdate"}
+                    , LogLevel.WARN
+            );
         }
     }
 
@@ -236,10 +270,6 @@ public class HolidayService implements IHolidayService {
 
 
 
-
-
-
-
     /**
      * Método que consume ArgentinaDatosClient.
      * Mapea la respuesta recibida de la API a la entidad y persiste en BD.
@@ -249,7 +279,7 @@ public class HolidayService implements IHolidayService {
      */
 
     @LogAction(
-            value = "holidayService.systemLogService.loadHoliday",
+            value = "holidayService.logAction.loadHoliday",
             args = {"#result.durationSeconds", "#result.message", "#result.countInit"},
             type = LogType.SCHEDULED,
             level = LogLevel.INFO
@@ -297,9 +327,6 @@ public class HolidayService implements IHolidayService {
 
         // Persiste los feriados.
         holidayRepository.saveAll(holidays);
-
-        //Establece relación de los feriados con los dentistas.
-        dentistHolidayService.create(year, holidays);
 
         //Finaliza tarea programada
         end = System.currentTimeMillis();

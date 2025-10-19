@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.shared.response.Response;
@@ -20,6 +21,8 @@ public interface IDentistAvailabilityService {
      */
     Response<DentistAvailabilityResponseDTO> update(Long id, List<WorkingDayDTO> days);
 
+
+
     /**
      * Método para obtener la disponibilidad de un dentista.
      * - Inicio de jornada.
@@ -28,4 +31,12 @@ public interface IDentistAvailabilityService {
      * @param id: Id del dentista
      */
     Response<DentistAvailabilityResponseDTO> get(Long id);
+
+
+    /**
+     * Método para obtener la jornada laboral de un dentista.
+     * @param idDentist
+     * @return
+     */
+    List<DayName> getByIdInternal(Long idDentist);
 }

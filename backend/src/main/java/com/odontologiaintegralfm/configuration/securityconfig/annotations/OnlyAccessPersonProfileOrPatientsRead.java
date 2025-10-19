@@ -7,9 +7,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Anotación para permitir acceso al perfil solo del usuario auténticado y al admin como escritura.
+ */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("#id == @authenticatedUserService.authenticatedUser.id or " +
-               "hasAuthority('PERMISO_CONFIGURATION_UPDATE')")
-public @interface OnlyAccessUserProfileOrConfigurationUpdate {
+@PreAuthorize("" +
+        "#id == @authenticatedUserService.authenticatedUser.person.id or " +
+        "hasAuthority('PERMISO_PATIENTS_READ')")
+public @interface OnlyAccessPersonProfileOrPatientsRead {
 }
