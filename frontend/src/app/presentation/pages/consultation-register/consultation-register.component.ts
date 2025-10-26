@@ -16,6 +16,7 @@ import { PatientSearchComponent } from "../../components/patient-search/patient-
 import { PaymentRegisterComponent } from "../../components/payment-register/payment-register.component";
 import { MatInputModule } from "@angular/material/input";
 import { mockOdontogram1 } from "../../../utils/mocks/odontogram.mock";
+import { CalendarComponent } from "../../components/calendar/calendar.component";
 
 @Component({
   selector: "app-consultation-register",
@@ -41,6 +42,7 @@ import { mockOdontogram1 } from "../../../utils/mocks/odontogram.mock";
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    CalendarComponent,
   ],
 })
 export class ConsultationRegisterComponent implements OnInit {

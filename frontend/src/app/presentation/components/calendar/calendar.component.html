@@ -1,0 +1,340 @@
+<!-- Google Calendar Layout -->
+<div class="google-calendar p-4">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <!-- Create Button -->
+    <button mat-fab extended class="!w-full !mb-4" (click)="createEvent()">
+      <div class="flex items-center gap-2">
+        <i-tabler name="plus"></i-tabler>
+        <span>Crear evento</span>
+      </div>
+    </button>
+
+    <!-- Mini Calendar -->
+    <div class="mini-calendar mb-4">
+      <div class="mini-calendar-header">
+        <button mat-icon-button (click)="navigateDate('prev')" class="nav-btn">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="month-year"
+          >{{ months[selectedDate.getMonth()] }}
+          {{ selectedDate.getFullYear() }}</span
+        >
+        <button mat-icon-button (click)="navigateDate('next')" class="nav-btn">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <div class="mini-calendar-body">
+        <div class="weekdays">
+          <span *ngFor="let day of weekDays" class="weekday">{{
+            day.charAt(0)
+          }}</span>
+        </div>
+        <div class="days">
+          <div
+            *ngFor="let date of getMonthDates().slice(0, 35)"
+            class="day"
+            [class.today]="isToday(date)"
+            [class.selected]="
+              date.toDateString() === selectedDate.toDateString()
+            "
+            (click)="selectDate(date)"
+          >
+            {{ date.getDate() }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div>
+      <mat-form-field appearance="outline">
+        <mat-label>Buscar personas</mat-label>
+        <input matInput />
+        <mat-icon matSuffix>person</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- My Calendars -->
+    <div class="calendars-section">
+      <div class="section-header">
+        <span>Mis calendarios</span>
+        <mat-icon>keyboard_arrow_up</mat-icon>
+      </div>
+      <div class="calendar-list">
+        <div class="calendar-item">
+          <mat-checkbox checked color="primary"></mat-checkbox>
+          <span class="calendar-name">Yo</span>
+        </div>
+        <div class="calendar-item">
+          <mat-checkbox></mat-checkbox>
+          <span class="calendar-name">Matías Iglesias</span>
+        </div>
+        <div class="calendar-item">
+          <mat-checkbox></mat-checkbox>
+          <span class="calendar-name">Facundo Palmieri</span>
+        </div>
+        <div class="calendar-item">
+          <mat-checkbox></mat-checkbox>
+          <span class="calendar-name">Emmanuel Quintans</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other Calendars -->
+    <div class="calendars-section">
+      <div class="section-header">
+        <span>Otros calendarios</span>
+        <mat-icon>add</mat-icon>
+      </div>
+      <div class="calendar-list">
+        <div class="calendar-item">
+          <mat-checkbox></mat-checkbox>
+          <span class="calendar-name">Festivos en Argentina</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="calendar-header">
+      <div class="header-content">
+        <!-- Left side -->
+        <div class="header-left">
+          <button
+            mat-icon-button
+            (click)="navigateDate('prev')"
+            matTooltip="Anterior"
+          >
+            <div class="flex items-center gap-2">
+              <i-tabler name="chevron-left"></i-tabler>
+            </div>
+          </button>
+          <button
+            mat-icon-button
+            (click)="navigateDate('next')"
+            matTooltip="Siguiente"
+          >
+            <div class="flex items-center gap-2">
+              <i-tabler name="chevron-right"></i-tabler>
+            </div>
+          </button>
+          <button mat-button (click)="goToToday()" class="today-btn">
+            <mat-icon>today</mat-icon>
+            Hoy
+          </button>
+        </div>
+
+        <!-- Center -->
+        <div class="header-center">
+          <h1 class="current-date">
+            <!-- Vista de mes -->
+            <span *ngIf="currentView === 'month'">
+              {{ months[selectedDate.getMonth()] }}
+              {{ selectedDate.getFullYear() }}
+            </span>
+
+            <!-- Vista de semana -->
+            <span *ngIf="currentView === 'week'">
+              {{
+                getWeekDates()[0].toLocaleDateString("es-ES", {
+                  day: "numeric",
+                  month: "short"
+                })
+              }}
+              -
+              {{
+                getWeekDates()[6].toLocaleDateString("es-ES", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric"
+                })
+              }}
+            </span>
+
+            <!-- Vista de día -->
+            <span *ngIf="currentView === 'day'">
+              {{
+                selectedDate.toLocaleDateString("es-ES", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric"
+                })
+              }}
+            </span>
+          </h1>
+        </div>
+
+        <!-- Right side -->
+        <div class="header-right">
+          <button
+            mat-button
+            [class.active]="currentView === 'day'"
+            (click)="setView('day')"
+            class="view-btn"
+          >
+            <mat-icon>view_day</mat-icon>
+            Día
+          </button>
+          <button
+            mat-button
+            [class.active]="currentView === 'week'"
+            (click)="setView('week')"
+            class="view-btn"
+          >
+            <mat-icon>view_week</mat-icon>
+            Semana
+          </button>
+          <button
+            mat-button
+            [class.active]="currentView === 'month'"
+            (click)="setView('month')"
+            class="view-btn"
+          >
+            <mat-icon>view_module</mat-icon>
+            Mes
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Calendar Views -->
+    <div class="calendar-views">
+      <!-- Day View -->
+      <div *ngIf="currentView === 'day'" class="day-view">
+        <div class="day-grid">
+          <div class="time-column" #timeColumn>
+            <div class="time-header">
+              <span class="timezone"></span>
+            </div>
+            <div *ngFor="let timeSlot of timeSlots" class="time-slot">
+              <span class="time-label">{{ timeSlot }}</span>
+            </div>
+          </div>
+          <div class="events-column" #eventsColumn>
+            <div class="events-header">
+              <span>Eventos</span>
+            </div>
+            <div class="events-container">
+              <div *ngFor="let timeSlot of timeSlots" class="time-row">
+                <div class="time-content">
+                  <div
+                    *ngFor="
+                      let event of getEventsForTimeSlot(selectedDate, timeSlot)
+                    "
+                    class="event"
+                    [style.background-color]="event.color"
+                    (click)="onEventClick(event)"
+                    [matTooltip]="event.title"
+                  >
+                    <span class="event-title">{{ event.title }}</span>
+                    <span class="event-time">
+                      {{
+                        event.start.toLocaleTimeString("es-ES", {
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })
+                      }}
+                      -
+                      {{
+                        event.end.toLocaleTimeString("es-ES", {
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Week View -->
+      <div *ngIf="currentView === 'week'" class="week-view">
+        <table class="week-table">
+          <thead>
+            <tr class="week-header-row">
+              <th class="time-header-cell"></th>
+              <th
+                *ngFor="let day of weekDays; let i = index"
+                class="day-header-cell"
+              >
+                <div class="day-info">
+                  <span class="day-name">{{ day }}</span>
+                  <span class="day-number">{{
+                    getWeekDates()[i].getDate()
+                  }}</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let timeSlot of timeSlots" class="week-row">
+              <td class="time-cell">{{ timeSlot }}</td>
+              <td *ngFor="let date of getWeekDates()" class="day-cell">
+                <div
+                  *ngFor="let event of getEventsForTimeSlot(date, timeSlot)"
+                  class="week-event"
+                  [style.background-color]="event.color"
+                  (click)="onEventClick(event)"
+                  [matTooltip]="event.title"
+                >
+                  {{ event.title }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Month View -->
+      <div *ngIf="currentView === 'month'" class="month-view">
+        <div class="month-grid">
+          <div class="month-header">
+            <div *ngFor="let day of weekDays" class="month-day-header">
+              {{ day }}
+            </div>
+          </div>
+          <div class="month-body">
+            <div
+              *ngFor="let date of getMonthDates()"
+              class="month-day"
+              [class.other-month]="!isCurrentMonth(date)"
+              [class.today]="isToday(date)"
+              [class.selected]="
+                date.toDateString() === selectedDate.toDateString()
+              "
+              (click)="selectDate(date)"
+            >
+              <div class="day-number">{{ date.getDate() }}</div>
+              <div class="day-events">
+                <div
+                  *ngFor="let event of getEventsForDate(date).slice(0, 3)"
+                  class="month-event"
+                  [style.background-color]="event.color"
+                  (click)="onEventClick(event); $event.stopPropagation()"
+                  [matTooltip]="event.title"
+                >
+                  {{ event.title }}
+                </div>
+                <div
+                  *ngIf="getEventsForDate(date).length > 3"
+                  class="more-events"
+                  (click)="selectDate(date); $event.stopPropagation()"
+                >
+                  +{{ getEventsForDate(date).length - 3 }} más
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

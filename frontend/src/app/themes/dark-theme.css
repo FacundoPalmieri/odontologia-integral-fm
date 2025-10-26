@@ -316,4 +316,14 @@
     rgb(204, 204, 204, 0.3),
     rgb(75, 67, 72, 1)
   );
+
+  --mat-sys-calendar-container-background: light-dark(
+    rgb(204, 204, 204, 0.3),
+    rgb(40, 32, 36, 1)
+  );
+
+  --mat-sys-calendar-event-background: light-dark(
+    rgb(240, 235, 235),
+    rgb(40, 32, 36, 1)
+  );
 }

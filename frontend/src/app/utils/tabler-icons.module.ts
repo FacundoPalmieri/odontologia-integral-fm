@@ -100,6 +100,9 @@ import {
   IconClock,
   IconInfoCircle,
   IconArrowRight,
+  IconColumns3,
+  IconChevronLeft,
+  IconChevronRight,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -201,6 +204,9 @@ const ICONS = {
   IconClock,
   IconInfoCircle,
   IconArrowRight,
+  IconColumns3,
+  IconChevronLeft,
+  IconChevronRight,
 } as const;
 
 @NgModule({
