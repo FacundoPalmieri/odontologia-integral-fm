@@ -74,6 +74,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   selectedDate = new Date();
   currentView: CalendarView = "month";
 
+  // Estados de expansión de secciones
+  myCalendarsExpanded = true;
+  otherCalendarsExpanded = true;
+
   // Configuración de horarios de trabajo
   workStartHour = 0; // 12:00 AM (medianoche)
   workEndHour = 24; // 12:00 AM (medianoche del día siguiente)
@@ -243,6 +247,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       current.setDate(current.getDate() + 1);
     }
 
+    console.log("getMonthDates() returning:", dates.length, "dates");
+    console.log(
+      "First few dates:",
+      dates.slice(0, 5).map((d) => d.toDateString())
+    );
     return dates;
   }
 
@@ -404,6 +413,15 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         this.scrollHandler = eventsScrollHandler;
       }
     }, 300); // Aumentar timeout para asegurar que los elementos estén listos
+  }
+
+  // Métodos para alternar expansión de secciones
+  toggleMyCalendars() {
+    this.myCalendarsExpanded = !this.myCalendarsExpanded;
+  }
+
+  toggleOtherCalendars() {
+    this.otherCalendarsExpanded = !this.otherCalendarsExpanded;
   }
 
   createEvent() {}

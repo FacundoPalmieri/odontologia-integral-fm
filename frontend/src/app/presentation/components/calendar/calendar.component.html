@@ -1,5 +1,5 @@
 <!-- Google Calendar Layout -->
-<div class="google-calendar p-4">
+<div class="calendar p-4">
   <!-- Sidebar -->
   <aside class="sidebar">
     <!-- Create Button -->
@@ -39,6 +39,7 @@
             [class.selected]="
               date.toDateString() === selectedDate.toDateString()
             "
+            [class.other-month]="!isCurrentMonth(date)"
             (click)="selectDate(date)"
           >
             {{ date.getDate() }}
@@ -58,10 +59,13 @@
 
     <!-- My Calendars -->
     <div class="calendars-section">
-      <div class="section-header">
+      <div class="section-header" (click)="toggleMyCalendars()">
         <span>Mis calendarios</span>
-        <mat-icon>keyboard_arrow_up</mat-icon>
+        <mat-icon>{{
+          myCalendarsExpanded ? "keyboard_arrow_up" : "keyboard_arrow_down"
+        }}</mat-icon>
       </div>
+      @if (myCalendarsExpanded) {
       <div class="calendar-list">
         <div class="calendar-item">
           <mat-checkbox checked color="primary"></mat-checkbox>
@@ -80,20 +84,25 @@
           <span class="calendar-name">Emmanuel Quintans</span>
         </div>
       </div>
+      }
     </div>
 
     <!-- Other Calendars -->
     <div class="calendars-section">
-      <div class="section-header">
+      <div class="section-header" (click)="toggleOtherCalendars()">
         <span>Otros calendarios</span>
-        <mat-icon>add</mat-icon>
+        <mat-icon>{{
+          otherCalendarsExpanded ? "keyboard_arrow_up" : "keyboard_arrow_down"
+        }}</mat-icon>
       </div>
+      @if (otherCalendarsExpanded) {
       <div class="calendar-list">
         <div class="calendar-item">
           <mat-checkbox></mat-checkbox>
           <span class="calendar-name">Festivos en Argentina</span>
         </div>
       </div>
+      }
     </div>
   </aside>
 
@@ -132,13 +141,16 @@
         <div class="header-center">
           <h1 class="current-date">
             <!-- Vista de mes -->
-            <span *ngIf="currentView === 'month'">
+            @if (currentView === 'month') {
+            <span>
               {{ months[selectedDate.getMonth()] }}
               {{ selectedDate.getFullYear() }}
             </span>
+            }
 
             <!-- Vista de semana -->
-            <span *ngIf="currentView === 'week'">
+            @if (currentView === 'week') {
+            <span>
               {{
                 getWeekDates()[0].toLocaleDateString("es-ES", {
                   day: "numeric",
@@ -154,9 +166,11 @@
                 })
               }}
             </span>
+            }
 
             <!-- Vista de día -->
-            <span *ngIf="currentView === 'day'">
+            @if (currentView === 'day') {
+            <span>
               {{
                 selectedDate.toLocaleDateString("es-ES", {
                   weekday: "long",
@@ -166,6 +180,7 @@
                 })
               }}
             </span>
+            }
           </h1>
         </div>
 
@@ -205,27 +220,30 @@
     <!-- Calendar Views -->
     <div class="calendar-views">
       <!-- Day View -->
-      <div *ngIf="currentView === 'day'" class="day-view">
+      @if (currentView === 'day') {
+      <div class="day-view">
         <div class="day-grid">
           <div class="time-column" #timeColumn>
             <div class="time-header">
               <span class="timezone"></span>
             </div>
-            <div *ngFor="let timeSlot of timeSlots" class="time-slot">
+            @for (timeSlot of timeSlots; track timeSlot) {
+            <div class="time-slot">
               <span class="time-label">{{ timeSlot }}</span>
             </div>
+            }
           </div>
           <div class="events-column" #eventsColumn>
             <div class="events-header">
               <span>Eventos</span>
             </div>
             <div class="events-container">
-              <div *ngFor="let timeSlot of timeSlots" class="time-row">
+              @for (timeSlot of timeSlots; track timeSlot) {
+              <div class="time-row">
                 <div class="time-content">
+                  @for (event of getEventsForTimeSlot(selectedDate, timeSlot);
+                  track event.id) {
                   <div
-                    *ngFor="
-                      let event of getEventsForTimeSlot(selectedDate, timeSlot)
-                    "
                     class="event"
                     [style.background-color]="event.color"
                     (click)="onEventClick(event)"
@@ -248,23 +266,25 @@
                       }}
                     </span>
                   </div>
+                  }
                 </div>
               </div>
+              }
             </div>
           </div>
         </div>
       </div>
+      }
 
       <!-- Week View -->
-      <div *ngIf="currentView === 'week'" class="week-view">
+      @if (currentView === 'week') {
+      <div class="week-view">
         <table class="week-table">
           <thead>
             <tr class="week-header-row">
               <th class="time-header-cell"></th>
-              <th
-                *ngFor="let day of weekDays; let i = index"
-                class="day-header-cell"
-              >
+              @for (day of weekDays; track day; let i = $index) {
+              <th class="day-header-cell">
                 <div class="day-info">
                   <span class="day-name">{{ day }}</span>
                   <span class="day-number">{{
@@ -272,14 +292,18 @@
                   }}</span>
                 </div>
               </th>
+              }
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let timeSlot of timeSlots" class="week-row">
+            @for (timeSlot of timeSlots; track timeSlot) {
+            <tr class="week-row">
               <td class="time-cell">{{ timeSlot }}</td>
-              <td *ngFor="let date of getWeekDates()" class="day-cell">
+              @for (date of getWeekDates(); track date) {
+              <td class="day-cell">
+                @for (event of getEventsForTimeSlot(date, timeSlot); track
+                event.id) {
                 <div
-                  *ngFor="let event of getEventsForTimeSlot(date, timeSlot)"
                   class="week-event"
                   [style.background-color]="event.color"
                   (click)="onEventClick(event)"
@@ -287,14 +311,19 @@
                 >
                   {{ event.title }}
                 </div>
+                }
               </td>
+              }
             </tr>
+            }
           </tbody>
         </table>
       </div>
+      }
 
       <!-- Month View -->
-      <div *ngIf="currentView === 'month'" class="month-view">
+      @if(currentView === 'month') {
+      <div class="month-view">
         <div class="month-grid">
           <div class="month-header">
             <div *ngFor="let day of weekDays" class="month-day-header">
@@ -335,6 +364,7 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </main>
 </div>
