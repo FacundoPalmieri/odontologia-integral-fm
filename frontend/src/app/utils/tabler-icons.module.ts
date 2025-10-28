@@ -103,6 +103,14 @@ import {
   IconColumns3,
   IconChevronLeft,
   IconChevronRight,
+  IconCancel,
+  IconBeach,
+  IconSchool,
+  IconBriefcaseOff,
+  IconDots,
+  IconUsers,
+  IconUserCheck,
+  IconFileText,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -207,6 +215,14 @@ const ICONS = {
   IconColumns3,
   IconChevronLeft,
   IconChevronRight,
+  IconCancel,
+  IconBeach,
+  IconSchool,
+  IconBriefcaseOff,
+  IconDots,
+  IconUsers,
+  IconUserCheck,
+  IconFileText,
 } as const;
 
 @NgModule({

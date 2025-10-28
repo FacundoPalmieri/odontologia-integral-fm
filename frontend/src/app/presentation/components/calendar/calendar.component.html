@@ -2,13 +2,60 @@
 <div class="calendar p-4">
   <!-- Sidebar -->
   <aside class="sidebar">
-    <!-- Create Button -->
-    <button mat-fab extended class="!w-full !mb-4" (click)="createEvent()">
+    <!-- Create Event Menu -->
+    <button
+      mat-fab
+      extended
+      class="!w-full !mb-4"
+      [matMenuTriggerFor]="createEventMenu"
+    >
       <div class="flex items-center gap-2">
         <i-tabler name="plus"></i-tabler>
         <span>Crear evento</span>
       </div>
     </button>
+
+    <mat-menu #createEventMenu="matMenu">
+      <button mat-menu-item (click)="createAppointment()">
+        <div class="flex items-center gap-2">
+          <i-tabler name="calendar-plus"></i-tabler>
+          <span>Cita</span>
+        </div>
+      </button>
+      <button mat-menu-item [matMenuTriggerFor]="blockMenu">
+        <div class="flex items-center gap-2">
+          <i-tabler name="cancel"></i-tabler>
+          <span>Bloqueo de Agenda</span>
+        </div>
+      </button>
+    </mat-menu>
+
+    <mat-menu #blockMenu="matMenu">
+      <button mat-menu-item (click)="createBlock('vacation')">
+        <div class="flex items-center gap-2">
+          <i-tabler name="beach"></i-tabler>
+          <span>Vacaciones</span>
+        </div>
+      </button>
+      <button mat-menu-item (click)="createBlock('course')">
+        <div class="flex items-center gap-2">
+          <i-tabler name="school"></i-tabler>
+          <span>Estudio</span>
+        </div>
+      </button>
+      <button mat-menu-item (click)="createBlock('license')">
+        <div class="flex items-center gap-2">
+          <i-tabler name="briefcase-off"></i-tabler>
+          <span>Licencia</span>
+        </div>
+      </button>
+      <button mat-menu-item (click)="createBlock('other')">
+        <div class="flex items-center gap-2">
+          <i-tabler name="dots"></i-tabler>
+          <span>Otros</span>
+        </div>
+      </button>
+    </mat-menu>
 
     <!-- Mini Calendar -->
     <div class="mini-calendar mb-4">
@@ -220,30 +267,27 @@
     <!-- Calendar Views -->
     <div class="calendar-views">
       <!-- Day View -->
-      @if (currentView === 'day') {
-      <div class="day-view">
+      <div *ngIf="currentView === 'day'" class="day-view">
         <div class="day-grid">
           <div class="time-column" #timeColumn>
             <div class="time-header">
               <span class="timezone"></span>
             </div>
-            @for (timeSlot of timeSlots; track timeSlot) {
-            <div class="time-slot">
+            <div *ngFor="let timeSlot of timeSlots" class="time-slot">
               <span class="time-label">{{ timeSlot }}</span>
             </div>
-            }
           </div>
           <div class="events-column" #eventsColumn>
             <div class="events-header">
               <span>Eventos</span>
             </div>
             <div class="events-container">
-              @for (timeSlot of timeSlots; track timeSlot) {
-              <div class="time-row">
+              <div *ngFor="let timeSlot of timeSlots" class="time-row">
                 <div class="time-content">
-                  @for (event of getEventsForTimeSlot(selectedDate, timeSlot);
-                  track event.id) {
                   <div
+                    *ngFor="
+                      let event of getEventsForTimeSlot(selectedDate, timeSlot)
+                    "
                     class="event"
                     [style.background-color]="event.color"
                     (click)="onEventClick(event)"
@@ -266,25 +310,23 @@
                       }}
                     </span>
                   </div>
-                  }
                 </div>
               </div>
-              }
             </div>
           </div>
         </div>
       </div>
-      }
 
       <!-- Week View -->
-      @if (currentView === 'week') {
-      <div class="week-view">
+      <div *ngIf="currentView === 'week'" class="week-view">
         <table class="week-table">
           <thead>
             <tr class="week-header-row">
               <th class="time-header-cell"></th>
-              @for (day of weekDays; track day; let i = $index) {
-              <th class="day-header-cell">
+              <th
+                *ngFor="let day of weekDays; let i = index"
+                class="day-header-cell"
+              >
                 <div class="day-info">
                   <span class="day-name">{{ day }}</span>
                   <span class="day-number">{{
@@ -292,18 +334,14 @@
                   }}</span>
                 </div>
               </th>
-              }
             </tr>
           </thead>
           <tbody>
-            @for (timeSlot of timeSlots; track timeSlot) {
-            <tr class="week-row">
+            <tr *ngFor="let timeSlot of timeSlots" class="week-row">
               <td class="time-cell">{{ timeSlot }}</td>
-              @for (date of getWeekDates(); track date) {
-              <td class="day-cell">
-                @for (event of getEventsForTimeSlot(date, timeSlot); track
-                event.id) {
+              <td *ngFor="let date of getWeekDates()" class="day-cell">
                 <div
+                  *ngFor="let event of getEventsForTimeSlot(date, timeSlot)"
                   class="week-event"
                   [style.background-color]="event.color"
                   (click)="onEventClick(event)"
@@ -311,19 +349,14 @@
                 >
                   {{ event.title }}
                 </div>
-                }
               </td>
-              }
             </tr>
-            }
           </tbody>
         </table>
       </div>
-      }
 
       <!-- Month View -->
-      @if(currentView === 'month') {
-      <div class="month-view">
+      <div *ngIf="currentView === 'month'" class="month-view">
         <div class="month-grid">
           <div class="month-header">
             <div *ngFor="let day of weekDays" class="month-day-header">
@@ -364,7 +397,6 @@
           </div>
         </div>
       </div>
-      }
     </div>
   </main>
 </div>
