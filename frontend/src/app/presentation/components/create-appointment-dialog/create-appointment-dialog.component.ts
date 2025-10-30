@@ -14,8 +14,8 @@ import { FormsModule } from "@angular/forms";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 
 @Component({
-  selector: "app-create-event-dialog",
-  templateUrl: "./create-event-dialog.component.html",
+  selector: "app-create-appointment-dialog",
+  templateUrl: "./create-appointment-dialog.component.html",
   standalone: true,
   imports: [
     MatDialogModule,
@@ -33,13 +33,33 @@ import { IconsModule } from "../../../utils/tabler-icons.module";
     IconsModule,
   ],
 })
-export class CreateEventDialogComponent {
-  dialogRef = inject(MatDialogRef<CreateEventDialogComponent>);
+export class CreateAppointmentDialogComponent {
+  dialogRef = inject(MatDialogRef<CreateAppointmentDialogComponent>);
 
   // Mock data for demonstration
   isAllDay = false;
   selectedPatients: any[] = [];
   selectedProfessional: any = null;
+  startTime: string = "";
+  endTime: string = "";
+
+  timeSlots: string[] = [];
+
+  constructor() {
+    this.generateTimeSlots();
+  }
+
+  private generateTimeSlots(): void {
+    this.timeSlots = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute
+          .toString()
+          .padStart(2, "0")}`;
+        this.timeSlots.push(timeString);
+      }
+    }
+  }
 
   // Mock data
   patients = [

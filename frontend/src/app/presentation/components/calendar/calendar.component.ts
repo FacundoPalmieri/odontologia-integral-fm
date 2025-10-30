@@ -19,12 +19,12 @@ import { MatDialogModule, MatDialog } from "@angular/material/dialog";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { LoaderService } from "../../../services/loader.service";
 import { IconsModule } from "../../../utils/tabler-icons.module";
-import { CreateEventDialogComponent } from "../create-event-dialog/create-event-dialog.component";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
+import { CreateAppointmentDialogComponent } from "../create-appointment-dialog/create-appointment-dialog.component";
 
 export interface CalendarEvent {
   id: string;
@@ -1004,11 +1004,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       current.setDate(current.getDate() + 1);
     }
 
-    console.log("getMonthDates() returning:", dates.length, "dates");
-    console.log(
-      "First few dates:",
-      dates.slice(0, 5).map((d) => d.toDateString())
-    );
     return dates;
   }
 
@@ -1186,9 +1181,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   createAppointment() {
-    console.log("Crear nueva cita");
-
-    const dialogRef = this.dialog.open(CreateEventDialogComponent, {
+    const dialogRef = this.dialog.open(CreateAppointmentDialogComponent, {
       width: "600px",
       data: {
         selectedDate: this.selectedDate,

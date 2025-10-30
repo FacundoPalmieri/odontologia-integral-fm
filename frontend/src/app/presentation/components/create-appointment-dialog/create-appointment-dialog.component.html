@@ -1,11 +1,8 @@
-<h2 mat-dialog-title>
-  <i-tabler name="calendar-plus" class="mr-2"></i-tabler>
-  Nueva cita
-</h2>
+<h2 mat-dialog-title>Nueva cita</h2>
 
 <mat-dialog-content class="w-full">
   <div
-    class="flex flex-col w-full bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)] p-4"
+    class="flex flex-col w-full bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)] pt-2 px-4"
   >
     <!-- Title Section -->
     <div class="flex flex-col gap-2 mt-2">
@@ -50,33 +47,26 @@
         <div class="flex flex-row gap-4 items-end">
           <mat-form-field appearance="outline" class="w-32">
             <mat-label>Inicio</mat-label>
-            <input matInput type="time" [disabled]="isAllDay" />
+            <mat-select [(ngModel)]="startTime" [disabled]="isAllDay">
+              @for (time of timeSlots; track time) {
+              <mat-option [value]="time">
+                {{ time }}
+              </mat-option>
+              }
+            </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="w-32">
             <mat-label>Fin</mat-label>
-            <input matInput type="time" [disabled]="isAllDay" />
+            <mat-select [(ngModel)]="endTime" [disabled]="isAllDay">
+              @for (time of timeSlots; track time) {
+              <mat-option [value]="time">
+                {{ time }}
+              </mat-option>
+              }
+            </mat-select>
           </mat-form-field>
         </div>
-      </div>
-
-      <!-- All Day Checkbox -->
-      <div class="flex items-center mt-1">
-        <mat-checkbox [(ngModel)]="isAllDay"> Todo el día </mat-checkbox>
-      </div>
-
-      <!-- Recurrence -->
-      <div class="flex flex-col gap-2 mt-4">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Repetición</mat-label>
-          <mat-select>
-            <mat-option value="none">No se repite</mat-option>
-            <mat-option value="daily">Diariamente</mat-option>
-            <mat-option value="weekly">Semanalmente</mat-option>
-            <mat-option value="monthly">Mensualmente</mat-option>
-            <mat-option value="yearly">Anualmente</mat-option>
-          </mat-select>
-        </mat-form-field>
       </div>
     </div>
 
@@ -84,7 +74,7 @@
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <i-tabler name="users"></i-tabler>
-        <span class="font-medium">Pacientes</span>
+        <span class="font-medium">Paciente</span>
       </div>
 
       <!-- Patient Search -->
@@ -96,10 +86,12 @@
       <!-- Selected Patients Chips -->
       <div class="flex flex-wrap gap-2">
         <mat-chip-set>
-          <mat-chip *ngFor="let patient of selectedPatients" [removable]="true">
+          @for (patient of selectedPatients; track $index) {
+          <mat-chip [removable]="true">
             {{ patient.name }}
             <mat-icon matChipRemove>cancel</mat-icon>
           </mat-chip>
+          }
         </mat-chip-set>
       </div>
     </div>
@@ -114,13 +106,12 @@
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Seleccionar profesional</mat-label>
         <mat-select>
-          <mat-option
-            *ngFor="let professional of professionals"
-            [value]="professional"
-          >
+          @for (professional of professionals; track professional.id) {
+          <mat-option [value]="professional">
             {{ professional.name }}
             <span class="text-sm ml-2"> - {{ professional.specialty }} </span>
           </mat-option>
+          }
         </mat-select>
       </mat-form-field>
 
@@ -142,19 +133,6 @@
           </span>
         </div>
       </div>
-    </div>
-
-    <!-- Additional Details Section -->
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="map-pin"></i-tabler>
-        <span class="font-medium">Ubicación</span>
-      </div>
-
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Ubicación (opcional)</mat-label>
-        <input matInput placeholder="Ej: Consultorio 1, Clínica Central..." />
-      </mat-form-field>
     </div>
 
     <!-- Description Section -->
