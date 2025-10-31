@@ -11,7 +11,12 @@
       style="contain: layout style; will-change: transform"
     >
       <div class="flex items-center mb-4">
-        <mat-checkbox formControlName="isWorking" class="mr-3">
+        <mat-checkbox
+          class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
+          [disableRipple]="true"
+          formControlName="isWorking"
+          class="mr-3"
+        >
           <span class="font-medium">
             Trabajo el
             {{ getDayLabel(control.get("dayName")?.value).toLowerCase() }}

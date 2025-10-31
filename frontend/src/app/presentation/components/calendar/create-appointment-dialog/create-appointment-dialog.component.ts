@@ -11,7 +11,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { FormsModule } from "@angular/forms";
-import { IconsModule } from "../../../utils/tabler-icons.module";
+import { IconsModule } from "../../../../utils/tabler-icons.module";
 
 @Component({
   selector: "app-create-appointment-dialog",

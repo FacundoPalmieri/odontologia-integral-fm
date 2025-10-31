@@ -24,7 +24,8 @@ import { MatInputModule } from "@angular/material/input";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
-import { CreateAppointmentDialogComponent } from "../create-appointment-dialog/create-appointment-dialog.component";
+import { CreateAppointmentDialogComponent } from "./create-appointment-dialog/create-appointment-dialog.component";
+import { CreateCalendarLockDialogComponent } from "./create-calendar-lock-dialog/create-calendar-lock-dialog.component";
 
 export interface CalendarEvent {
   id: string;
@@ -1205,19 +1206,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     return `${hour}:${minute}`;
   }
 
-  createBlock(type: "vacation" | "course" | "license" | "other") {
-    console.log(`Crear bloqueo de agenda: ${type}`);
-
-    const blockTypes = {
-      vacation: "Vacaciones",
-      course: "Curso",
-      license: "Licencia",
-      other: "Otros",
-    };
-
-    console.log(`Tipo de bloqueo: ${blockTypes[type]}`);
-
-    // Aquí puedes abrir un diálogo específico para crear el bloqueo
-    // Por ejemplo: this.dialog.open(CreateBlockDialogComponent, { data: { type } });
+  createCalendarLock() {
+    const dialogRef = this.dialog.open(CreateCalendarLockDialogComponent, {
+      width: "600px",
+    });
   }
 }

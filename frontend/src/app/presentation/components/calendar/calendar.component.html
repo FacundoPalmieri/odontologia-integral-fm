@@ -22,37 +22,10 @@
           <span>Cita</span>
         </div>
       </button>
-      <button mat-menu-item [matMenuTriggerFor]="blockMenu">
+      <button mat-menu-item (click)="createCalendarLock()">
         <div class="flex items-center gap-2">
           <i-tabler name="cancel"></i-tabler>
           <span>Bloqueo de Agenda</span>
-        </div>
-      </button>
-    </mat-menu>
-
-    <mat-menu #blockMenu="matMenu">
-      <button mat-menu-item (click)="createBlock('vacation')">
-        <div class="flex items-center gap-2">
-          <i-tabler name="beach"></i-tabler>
-          <span>Vacaciones</span>
-        </div>
-      </button>
-      <button mat-menu-item (click)="createBlock('course')">
-        <div class="flex items-center gap-2">
-          <i-tabler name="school"></i-tabler>
-          <span>Estudio</span>
-        </div>
-      </button>
-      <button mat-menu-item (click)="createBlock('license')">
-        <div class="flex items-center gap-2">
-          <i-tabler name="briefcase-off"></i-tabler>
-          <span>Licencia</span>
-        </div>
-      </button>
-      <button mat-menu-item (click)="createBlock('other')">
-        <div class="flex items-center gap-2">
-          <i-tabler name="dots"></i-tabler>
-          <span>Otros</span>
         </div>
       </button>
     </mat-menu>
@@ -115,20 +88,35 @@
       @if (myCalendarsExpanded) {
       <div class="calendar-list">
         <div class="calendar-item">
-          <mat-checkbox checked color="primary"></mat-checkbox>
-          <span class="calendar-name">Yo</span>
+          <mat-checkbox
+            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
+            [disableRipple]="true"
+            checked
+            ><span class="calendar-name">Yo</span></mat-checkbox
+          >
         </div>
         <div class="calendar-item">
-          <mat-checkbox></mat-checkbox>
-          <span class="calendar-name">Matías Iglesias</span>
+          <mat-checkbox
+            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
+            [disableRipple]="true"
+            ><span class="calendar-name">Matías Iglesias</span></mat-checkbox
+          >
         </div>
         <div class="calendar-item">
-          <mat-checkbox></mat-checkbox>
-          <span class="calendar-name">Facundo Palmieri</span>
+          <mat-checkbox
+            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
+            [disableRipple]="true"
+          >
+            <span class="calendar-name">Facundo Palmieri</span>
+          </mat-checkbox>
         </div>
         <div class="calendar-item">
-          <mat-checkbox></mat-checkbox>
-          <span class="calendar-name">Emmanuel Quintans</span>
+          <mat-checkbox
+            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
+            [disableRipple]="true"
+          >
+            <span class="calendar-name">Emmanuel Quintans</span>
+          </mat-checkbox>
         </div>
       </div>
       }
@@ -145,8 +133,12 @@
       @if (otherCalendarsExpanded) {
       <div class="calendar-list">
         <div class="calendar-item">
-          <mat-checkbox></mat-checkbox>
-          <span class="calendar-name">Festivos en Argentina</span>
+          <mat-checkbox
+            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
+            [disableRipple]="true"
+          >
+            <span class="calendar-name">Festivos en Argentina</span>
+          </mat-checkbox>
         </div>
       </div>
       }

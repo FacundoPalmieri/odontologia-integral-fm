@@ -84,11 +84,17 @@
       <div class="flex flex-col w-full">
         <div class="mb-2">Caras afectadas:</div>
         <div class="flex flex-row gap-2 justify-center">
-          <mat-checkbox formControlName="allFaces" class="mb-2">
+          <mat-checkbox
+            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)] mb-2"
+            [disableRipple]="true"
+            formControlName="allFaces"
+          >
             Todas las caras
           </mat-checkbox>
           @for (face of toothFaces; track face.face) {
           <mat-checkbox
+            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
+            [disableRipple]="true"
             [formControlName]="'face_' + face.face"
             (change)="onFaceChange(face.face, $event.checked)"
           >
