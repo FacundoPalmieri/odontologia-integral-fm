@@ -33,7 +33,9 @@
             <input
               matInput
               [matDatepicker]="picker"
+              (click)="openDatePicker()"
               placeholder="Seleccionar fecha"
+              readonly
             />
             <mat-datepicker-toggle
               matIconSuffix
@@ -116,10 +118,8 @@
       </mat-form-field>
 
       <!-- Selected Professional Info -->
-      <div
-        *ngIf="selectedProfessional"
-        class="flex items-center gap-2 p-3 bg-blue-50 rounded-lg"
-      >
+      @if(selectedProfessional){
+      <div class="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
         <div
           class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
         >
@@ -133,6 +133,7 @@
           </span>
         </div>
       </div>
+      }
     </div>
 
     <!-- Description Section -->

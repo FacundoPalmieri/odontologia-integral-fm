@@ -1,9 +1,12 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ViewChild } from "@angular/core";
 import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { MatDatepickerModule } from "@angular/material/datepicker";
+import {
+  MatDatepicker,
+  MatDatepickerModule,
+} from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -36,6 +39,8 @@ import { IconsModule } from "../../../../utils/tabler-icons.module";
 export class CreateAppointmentDialogComponent {
   dialogRef = inject(MatDialogRef<CreateAppointmentDialogComponent>);
 
+  @ViewChild("picker") picker!: MatDatepicker<Date>;
+
   // Mock data for demonstration
   isAllDay = false;
   selectedPatients: any[] = [];
@@ -47,6 +52,10 @@ export class CreateAppointmentDialogComponent {
 
   constructor() {
     this.generateTimeSlots();
+  }
+
+  openDatePicker(): void {
+    this.picker.open();
   }
 
   private generateTimeSlots(): void {
