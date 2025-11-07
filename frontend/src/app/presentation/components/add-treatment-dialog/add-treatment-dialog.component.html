@@ -85,7 +85,7 @@
         <div class="mb-2">Caras afectadas:</div>
         <div class="flex flex-row gap-2 justify-center">
           <mat-checkbox
-            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)] mb-2"
+            class="checkbox-item"
             [disableRipple]="true"
             formControlName="allFaces"
           >
@@ -93,7 +93,7 @@
           </mat-checkbox>
           @for (face of toothFaces; track face.face) {
           <mat-checkbox
-            class="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
+            class="checkbox-item"
             [disableRipple]="true"
             [formControlName]="'face_' + face.face"
             (change)="onFaceChange(face.face, $event.checked)"
@@ -105,7 +105,7 @@
       </div>
       }
     </form>
-    <div class="flex justify-center">
+    <div class="flex justify-center mt-2">
       <button mat-button (click)="addTreatment()">
         <div class="flex items-center gap-2">
           <i-tabler name="plus"></i-tabler>

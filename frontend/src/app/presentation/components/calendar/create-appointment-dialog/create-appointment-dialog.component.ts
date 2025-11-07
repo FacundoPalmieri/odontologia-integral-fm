@@ -88,7 +88,6 @@ export class CreateAppointmentDialogComponent {
   }
 
   onSave() {
-    console.log("Guardar cita");
     this.dialogRef.close();
   }
 }

@@ -76,7 +76,23 @@
       <button mat-icon-button (click)="drawer.toggle()">
         <i-tabler name="menu"></i-tabler>
       </button>
-      <h1>Odontología Integral FM</h1>
+      <mat-nav-list>
+        <mat-list-item
+          class="list-item-menu"
+          matTooltipPosition="right"
+          [routerLink]="'/calendar'"
+          routerLinkActive="active-link"
+        >
+          <div class="flex flex-row items-center">
+            <i-tabler name="calendar"></i-tabler>
+            <span
+              class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+              >Mi agenda</span
+            >
+          </div>
+        </mat-list-item>
+      </mat-nav-list>
+
       <span class="spacer"></span>
       <button
         mat-icon-button

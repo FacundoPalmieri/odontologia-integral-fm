@@ -178,7 +178,6 @@ export class CreateCalendarLockDialogComponent {
   }
 
   onSave() {
-    console.log("Guardar bloqueo de agenda");
     this.dialogRef.close();
   }
 }

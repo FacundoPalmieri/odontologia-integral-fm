@@ -23,6 +23,7 @@ import { ParametersListComponent } from "./pages/system/parameters/parameters-li
 import { SchedulesListComponent } from "./pages/system/schedule/schedules-list/schedules-list.component";
 import { MessagesListComponent } from "./pages/system/messages/messages-list/messages-list.component";
 import { RolesListComponent } from "./pages/configuration/role/roles-list/roles-list.component";
+import { CalendarComponent } from "./components/calendar/calendar.component";
 
 export const routes: Routes = [
   {
@@ -105,6 +106,10 @@ export const routes: Routes = [
       {
         path: "profile",
         component: UserProfileComponent,
+      },
+      {
+        path: "calendar",
+        component: CalendarComponent,
       },
     ],
   },

@@ -194,4 +194,48 @@ body {
   mat-expansion-panel {
     box-shadow: var(--mat-sys-level1) !important;
   }
+
+  .checkbox-item {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    padding: 0rem 1rem 0rem 0rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition-property: color, background-color, border-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    color: var(--mat-sys-on-surface);
+    background-color: var(--mat-sys-surface-container-low);
+
+    &:hover {
+      background-color: var(--mat-sys-surface-container-high);
+    }
+
+    .mdc-checkbox {
+      .mdc-checkbox__ripple {
+        display: none;
+      }
+
+      &:hover .mdc-checkbox__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+
+      .mdc-checkbox__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+    }
+
+    &:hover .mdc-checkbox {
+      .mdc-checkbox__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+    }
+  }
 }

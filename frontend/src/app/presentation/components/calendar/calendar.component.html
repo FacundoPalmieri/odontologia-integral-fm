@@ -1,5 +1,5 @@
 <!-- Google Calendar Layout -->
-<div class="calendar p-4">
+<div class="calendar">
   <!-- Sidebar -->
   <aside class="sidebar">
     <!-- Create Event Menu -->
@@ -88,33 +88,22 @@
       @if (myCalendarsExpanded) {
       <div class="calendar-list">
         <div class="calendar-item">
-          <mat-checkbox
-            class="inline-flex self-start items-center gap-2 px-2 py-1 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
-            [disableRipple]="true"
-            checked
+          <mat-checkbox class="checkbox-item" [disableRipple]="true" checked
             ><span class="calendar-name">Yo</span></mat-checkbox
           >
         </div>
         <div class="calendar-item">
-          <mat-checkbox
-            class="inline-flex self-start items-center gap-2 px-2 py-1 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
-            [disableRipple]="true"
+          <mat-checkbox class="checkbox-item" [disableRipple]="true"
             ><span class="calendar-name">Matías Iglesias</span></mat-checkbox
           >
         </div>
         <div class="calendar-item">
-          <mat-checkbox
-            class="inline-flex self-start items-center gap-2 px-2 py-1 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
-            [disableRipple]="true"
-          >
+          <mat-checkbox class="checkbox-item" [disableRipple]="true">
             <span class="calendar-name">Facundo Palmieri</span>
           </mat-checkbox>
         </div>
         <div class="calendar-item">
-          <mat-checkbox
-            class="inline-flex self-start items-center gap-2 px-2 py-1 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
-            [disableRipple]="true"
-          >
+          <mat-checkbox class="checkbox-item" [disableRipple]="true">
             <span class="calendar-name">Emmanuel Quintans</span>
           </mat-checkbox>
         </div>
@@ -133,10 +122,7 @@
       @if (otherCalendarsExpanded) {
       <div class="calendar-list">
         <div class="calendar-item">
-          <mat-checkbox
-            class="inline-flex self-start items-center gap-2 px-2 py-1 rounded-full cursor-pointer border transition-colors text-[var(--mat-sys-on-surface)] border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface-container-low)] hover:bg-[var(--mat-sys-surface-container-high)]"
-            [disableRipple]="true"
-          >
+          <mat-checkbox class="checkbox-item" [disableRipple]="true">
             <span class="calendar-name">Festivos en Argentina</span>
           </mat-checkbox>
         </div>

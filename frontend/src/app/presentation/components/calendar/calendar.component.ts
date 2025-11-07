@@ -1084,7 +1084,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   onEventClick(event: CalendarEvent) {
-    console.log("Event clicked:", event);
     // Aquí puedes abrir un diálogo o navegar a los detalles del evento
   }
 
@@ -1192,7 +1191,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log("Appointment created:", result);
         // Here you can handle the appointment creation
         // For example: this.appointmentService.create(result);
       }
@@ -1208,7 +1206,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   createCalendarLock() {
     const dialogRef = this.dialog.open(CreateCalendarLockDialogComponent, {
-      width: "600px",
+      width: "800px",
     });
   }
 }
