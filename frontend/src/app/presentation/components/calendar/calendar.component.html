@@ -33,15 +33,19 @@
     <!-- Mini Calendar -->
     <div class="mini-calendar mb-4">
       <div class="mini-calendar-header">
-        <button mat-icon-button (click)="navigateDate('prev')" class="nav-btn">
-          <mat-icon>chevron_left</mat-icon>
+        <button mat-icon-button (click)="navigateDate('prev')">
+          <div class="flex items-center">
+            <i-tabler class="scale-80" name="chevron-left"></i-tabler>
+          </div>
         </button>
         <span class="month-year"
           >{{ months[selectedDate.getMonth()] }}
           {{ selectedDate.getFullYear() }}</span
         >
-        <button mat-icon-button (click)="navigateDate('next')" class="nav-btn">
-          <mat-icon>chevron_right</mat-icon>
+        <button mat-icon-button (click)="navigateDate('next')">
+          <div class="flex items-center">
+            <i-tabler class="scale-80" name="chevron-right"></i-tabler>
+          </div>
         </button>
       </div>
 
