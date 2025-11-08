@@ -273,18 +273,18 @@
     0px 1px 16px -2px var(--mat-sys-ambient-color);
 
   /* SHAPE SYSTEM VARIABLES */
-  --mat-sys-corner-extra-large: 28px;
-  --mat-sys-corner-extra-large-top: 28px 28px 0 0;
-  --mat-sys-corner-extra-small: 4px;
-  --mat-sys-corner-extra-small-top: 4px 4px 0 0;
+  --mat-sys-corner-extra-large: 26px;
+  --mat-sys-corner-extra-large-top: 26px 26px 0 0;
+  --mat-sys-corner-extra-small: 12px;
+  --mat-sys-corner-extra-small-top: 12px 12px 0 0;
   --mat-sys-corner-full: 9999px;
-  --mat-sys-corner-large: 16px;
-  --mat-sys-corner-large-end: 0 16px 16px 0;
-  --mat-sys-corner-large-start: 16px 0 0 16px;
-  --mat-sys-corner-large-top: 16px 16px 0 0;
-  --mat-sys-corner-medium: 12px;
+  --mat-sys-corner-large: 20px;
+  --mat-sys-corner-large-end: 0 20px 20px 0;
+  --mat-sys-corner-large-start: 20px 0 0 20px;
+  --mat-sys-corner-large-top: 20px 20px 0 0;
+  --mat-sys-corner-medium: 16px;
+  --mat-sys-corner-small: 12px;
   --mat-sys-corner-none: 0;
-  --mat-sys-corner-small: 8px;
 
   /* STATE SYSTEM VARIABLES */
   --mat-sys-dragged-state-layer-opacity: 0.16;
@@ -295,7 +295,7 @@
   /* CUSTOMS VARIABLES */
   --mat-toolbar-standard-height: 70px;
   --mat-sys-home-sidenav-content-background: light-dark(
-    rgb(204, 204, 204, 0.3),
+    rgb(255, 180, 163, 0.3),
     rgb(40, 32, 36, 1)
   );
   --mat-sys-content-container-color: light-dark(

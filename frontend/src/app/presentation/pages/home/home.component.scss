@@ -5,6 +5,7 @@
 .sidenav {
   background: var(--mat-sys-home-sidenav-content-background);
   width: 220px;
+  border-radius: var(--mat-sys-corner-extra-large);
 }
 
 .references-sidenav {
@@ -20,13 +21,7 @@
 
 .content-background {
   background: var(--mat-sys-home-sidenav-content-background);
-  border-radius: 20px;
-}
-
-.sidenav-logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  border-radius: var(--mat-sys-corner-extra-large);
 }
 
 .spacer {
@@ -66,4 +61,18 @@
   word-break: break-word;
   text-align: center;
   width: 100%;
+}
+
+.avatar-gradient {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(
+    from 180deg at 50% 50%,
+    #693853 0deg,
+    #f6957e 120deg,
+    #da695c 240deg,
+    #693853 360deg
+  );
+  padding: 3px;
 }
