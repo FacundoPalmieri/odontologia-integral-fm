@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.model;
 
-import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentConflictReason;
+import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
@@ -28,17 +28,22 @@ public class AppointmentConflict extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Appointment appointment;
 
+    /**Id de la tabla DentistAvailability o DentistCalendarLock */
+    @Column(nullable = false)
+    private Long idOriginConflict;
+
     @Enumerated(EnumType.STRING)
-    private AppointmentConflictReason appointmentConflictReason;
+    private OriginConflict originConflict;
 
     @Column(nullable = false)
     private boolean resolved;
 
 
-    public AppointmentConflict(Long id, Appointment appointment, AppointmentConflictReason appointmentConflictReason, boolean resolved, LocalDateTime createAt, UserSec createBy, boolean enabled) {
+    public AppointmentConflict(Long id, Appointment appointment,Long idOriginConflict,String originConflict, LocalDateTime createAt, UserSec createBy, boolean enabled) {
         this.id = id;
         this.appointment = appointment;
-        this.appointmentConflictReason = appointmentConflictReason;
+        this.idOriginConflict = idOriginConflict;
+        this.originConflict = OriginConflict.valueOf(originConflict);
         this.resolved = false;
         this.setCreatedAt(createAt);
         this.setCreatedBy(createBy);

@@ -16,6 +16,7 @@ import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentis
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.user.service.UserService;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
@@ -28,7 +29,11 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
+
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 
@@ -53,9 +58,35 @@ public class DentistHolidayService implements IDentistHolidayService {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private DentistAvailabilityService dentistAvailabilityService;
 
     /**
-     * Método que crea relación entre dentista y feriado.
+     * Crea una relación entre un dentista y un feriado específico.
+     *
+     * <p>Este método realiza las siguientes acciones:</p>
+     * <ol>
+     *     <li>Valida que el usuario exista.</li>
+     *     <li>Obtiene el dentista asociado al usuario.</li>
+     *     <li>Obtiene el feriado por su ID.</li>
+     *     <li>Valida que no exista una relación previa entre el dentista y el feriado.</li>
+     *     <li>Verifica que el feriado sea posterior a la fecha actual.</li>
+     *     <li>Valida que la hora de inicio sea anterior a la hora de fin.</li>
+     *     <li>Valida que la duración del bloqueo cubra al menos la duración mínima de un turno del dentista.</li>
+     *     <li>Persiste la nueva relación {@link DentistHoliday} en la base de datos.</li>
+     *     <li>Construye y retorna un {@link DentistHolidayResponseDTO} con los datos de la relación creada.</li>
+     * </ol>
+     *
+     * @param id ID del usuario asociado al dentista. No puede ser {@code null}.
+     * @param dentistHolidayRequestCreateDTO DTO que contiene los datos del feriado y las horas de inicio y fin.
+     * @return {@link Response} con un {@link DentistHolidayResponseDTO} que contiene:
+     * <ul>
+     *     <li>ID de la relación creada.</li>
+     *     <li>ID del dentista.</li>
+     *     <li>ID del feriado y detalles como nombre y fecha.</li>
+     *     <li>Horas de inicio y fin del feriado para ese dentista.</li>
+     *     <li>Indicador de habilitación.</li>
+     * </ul>
      */
     @Override
     public Response<DentistHolidayResponseDTO> create(Long id, DentistHolidayRequestCreateDTO dentistHolidayRequestCreateDTO) {
@@ -65,7 +96,7 @@ public class DentistHolidayService implements IDentistHolidayService {
 
             //Obtiene el dentista
             Dentist dentists = dentistService.getById(userSec.getPerson().getId())
-                    .orElseThrow(()-> new NotFoundException("exception.dentistNotFound.user", null,"exception.dentistNotFound.log",new Object[]{id,"DentistHolidayService","create"},LogLevel.ERROR));
+                    .orElseThrow(()-> new NotFoundException("exception.dentistNotFound.user", null,"exception.dentistNotFound.log",new Object[]{userSec.getPerson().getId(),"DentistHolidayService","create"},LogLevel.ERROR));
 
 
             //Obtiene el feriado.
@@ -76,6 +107,23 @@ public class DentistHolidayService implements IDentistHolidayService {
             if(dentistHolidays.isPresent()) {
                 throw new ConflictException("exception.dentistHolidayService.create.user",null,"exception.dentistHolidayService.create.log",new Object[]{id,holiday.getId(),"Dentist Holiday Service","create"},LogLevel.ERROR);
             }
+
+            //Valída que el feriado no sea anterior a la fecha actual.
+            if(!holiday.getDate().isAfter(LocalDate.now())){
+                throw new ConflictException("exception.dentistHolidayService.create.validateHolidayBeforeNow.user",null,"exception.dentistHolidayService.create.validateHolidayBeforeNow.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),"Dentist Holiday Service","create"},LogLevel.ERROR);
+            }
+
+            //Valída que la hora de inicio sea anterior a la de fin.
+            if(!dentistHolidayRequestCreateDTO.startTime().isBefore(dentistHolidayRequestCreateDTO.endTime())){
+                throw new ConflictException("exception.dentistHolidayService.create.validateStartTimeBeforeEndTime.user",null,"exception.dentistHolidayService.create.validateStartTimeBeforeEndTime.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist Holiday Service","create"},LogLevel.ERROR);
+            }
+
+            //Valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
+            if(!validateDurationLessThanAppointmentDuration(dentists.getId(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime())){
+                throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist Holiday Service","create"},LogLevel.ERROR);
+            }
+
+
 
             //Persiste la relación.
             DentistHoliday dentistHoliday = new DentistHoliday();
@@ -111,6 +159,20 @@ public class DentistHolidayService implements IDentistHolidayService {
         }catch (CannotCreateTransactionException | DataAccessException e) {
             throw new DataBaseException(e, "DentistHolidayService", id, null, "create");
         }
+    }
+
+
+    /**
+     * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
+     * @param idDentist: Id Dentista
+     * @param startTime: Hora inicio jornada de feriado
+     * @param endTime  : Hora fin jornada de feriado
+     */
+    private boolean validateDurationLessThanAppointmentDuration(Long idDentist, LocalTime startTime,LocalTime endTime) {
+        Integer appointmentDuration = dentistAvailabilityService.getAppointmentDuration(idDentist);
+        long holidayDurationMinutes = Duration.between(startTime, endTime).toMinutes();
+
+        return holidayDurationMinutes >= appointmentDuration;
     }
 
     /**

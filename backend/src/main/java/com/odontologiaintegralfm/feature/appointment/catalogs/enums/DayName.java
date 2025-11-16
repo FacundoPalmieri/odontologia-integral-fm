@@ -29,4 +29,17 @@ public enum DayName {
         return DayName.valueOf(dayOfWeek.name());
     }
 
+    public DayOfWeek toDayOfWeek() {
+        return switch (this) {
+            case MONDAY -> DayOfWeek.MONDAY;
+            case TUESDAY -> DayOfWeek.TUESDAY;
+            case WEDNESDAY -> DayOfWeek.WEDNESDAY;
+            case THURSDAY -> DayOfWeek.THURSDAY;
+            case FRIDAY -> DayOfWeek.FRIDAY;
+            case SATURDAY -> DayOfWeek.SATURDAY;
+            case SUNDAY -> DayOfWeek.SUNDAY;
+        };
+    }
+
+
 }

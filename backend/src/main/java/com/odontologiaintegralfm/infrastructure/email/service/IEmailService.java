@@ -1,5 +1,7 @@
 package com.odontologiaintegralfm.infrastructure.email.service;
 
+import org.springframework.scheduling.annotation.Async;
+
 import java.util.List;
 
 /** Interfaz que proporciona un método para enviar un correo electrónico a un destinatario con un asunto y cuerpo especificados.*/

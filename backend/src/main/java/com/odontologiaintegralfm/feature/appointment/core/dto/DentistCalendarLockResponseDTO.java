@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.appointment.core.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public record DentistCalendarLockResponseDTO(
         Long id,
@@ -14,6 +15,7 @@ public record DentistCalendarLockResponseDTO(
         LocalTime startTime,
         LocalTime endTime,
         String observation,
-        boolean conflictAppointments
+        String observationUpdate,
+        List<AppointmentConflictResponseDTO> appointmentConflict
 ) {
 }

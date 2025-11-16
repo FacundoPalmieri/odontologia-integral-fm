@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
+import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentConflictService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
 import com.odontologiaintegralfm.shared.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,9 @@ public class AppointmentController {
     @Autowired
     private IAppointmentService appointmentService;
 
+    @Autowired
+    private IAppointmentConflictService appointmentConflictService;
+
     @Operation(summary = "Listar turnos en conflicto por dentista", description = "Lista los turnos en conflictos por Id de dentista")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista recuperada exitosamente."),
@@ -34,7 +38,7 @@ public class AppointmentController {
     @GetMapping("/conflict/all/{idDentist}")
     @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
     public ResponseEntity<Response<List<AppointmentConflictResponseDTO>>> getConflictAll(@PathVariable Long idDentist){
-        Response<List<AppointmentConflictResponseDTO>> response = appointmentService.getConflict(idDentist);
+        Response<List<AppointmentConflictResponseDTO>> response = appointmentConflictService.getConflict(idDentist);
         return ResponseEntity.ok(response);
     }
 }

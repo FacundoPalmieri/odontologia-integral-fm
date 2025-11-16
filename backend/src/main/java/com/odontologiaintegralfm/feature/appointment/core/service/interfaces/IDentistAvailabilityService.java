@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
+import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
 import com.odontologiaintegralfm.shared.response.Response;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public interface IDentistAvailabilityService {
      * - Duración de turno.
      * @param days : DTO con datos de parametrización de la jornada.
      */
-    Response<DentistAvailabilityResponseDTO> update(Long id, List<WorkingDayDTO> days);
+    Response<DentistAvailabilityResponseDTO> create(Long id, List<WorkingDayDTO> days);
 
 
 
@@ -38,5 +39,11 @@ public interface IDentistAvailabilityService {
      * @param idDentist
      * @return
      */
-    List<DayName> getByIdInternal(Long idDentist);
+    List<DentistAvailability> getByIdInternal(Long idDentist);
+
+
+    /**
+     * Método para obtener el tiempo de duración de un turno por ID de dentista.
+     */
+    Integer getAppointmentDuration(Long idDentist);
 }

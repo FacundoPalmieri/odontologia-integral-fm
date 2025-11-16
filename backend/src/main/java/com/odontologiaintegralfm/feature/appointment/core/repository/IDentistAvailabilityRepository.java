@@ -7,8 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 
+
 @Repository
 public interface IDentistAvailabilityRepository extends JpaRepository<DentistAvailability,Long> {
 
-   List<DentistAvailability> findAllByDentistId(Long id);
+   List<DentistAvailability> findAllByDentistIdAndEnabledTrue(Long id);
+
+   Integer findAppointmentDurationByDentistId(Long id);
 }

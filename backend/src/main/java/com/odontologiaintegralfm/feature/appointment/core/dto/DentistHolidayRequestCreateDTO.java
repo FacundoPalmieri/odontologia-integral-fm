@@ -7,7 +7,7 @@ import java.time.LocalTime;
 
 public record DentistHolidayRequestCreateDTO(
 
-        @NotNull
+        @NotNull(message = "dentistHolidayRequestCreateDTO.year.empty")
         Integer year,
 
         @NotNull(message = "generic.id.empty")
