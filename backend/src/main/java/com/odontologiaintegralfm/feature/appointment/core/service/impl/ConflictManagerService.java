@@ -126,8 +126,8 @@ public class ConflictManagerService implements IConflictManagerService {
         //Notificación por mail.
         emailService.sendEmail(
                 userService.getEmailByRole(List.of(Role.SECRETARY.toString(), Role.ADMINISTRATOR.toString())),
-                messageSource.getMessage("dentistAvailabilityService.notifyEmail.subject", new Object[]{authenticatedUserService.getAuthenticatedUser().getUsername()}, LocaleContextHolder.getLocale()),
-                messageSource.getMessage("dentistAvailabilityService.notifyEmail.body", new Object[]{authenticatedUserService.getAuthenticatedUser().getUsername()}, LocaleContextHolder.getLocale())
+                messageSource.getMessage("conflictManagerService.dentistAvailability.notifyEmail.subject", new Object[]{authenticatedUserService.getAuthenticatedUser().getUsername()}, LocaleContextHolder.getLocale()),
+                messageSource.getMessage("conflictManagerService.dentistAvailability.notifyEmail.body", new Object[]{authenticatedUserService.getAuthenticatedUser().getUsername()}, LocaleContextHolder.getLocale())
         );
 
         return conflictsResponseDTO;
@@ -171,8 +171,15 @@ public class ConflictManagerService implements IConflictManagerService {
 
        List <AppointmentConflict> appointmentConflict = appointmentConflictService.update(appointmentConflicts);
 
-        //Mapea conflictos y devuelve
+        //Notificación por mail.
+        emailService.sendEmail(
+                userService.getEmailByRole(List.of(Role.SECRETARY.toString(), Role.ADMINISTRATOR.toString())),
+                messageSource.getMessage("conflictManagerService.dentistLockCalendar.notifyEmail.subject", new Object[]{authenticatedUserService.getAuthenticatedUser().getUsername()}, LocaleContextHolder.getLocale()),
+                messageSource.getMessage("conflictManagerService.dentistLockCalendar.notifyEmail.body", new Object[]{authenticatedUserService.getAuthenticatedUser().getUsername()}, LocaleContextHolder.getLocale())
+        );
 
+
+        //Mapea conflictos y devuelve
         return appointmentConflict.stream()
                 .map(ac -> new AppointmentConflictResponseDTO(
                         ac.getAppointment().getId(),

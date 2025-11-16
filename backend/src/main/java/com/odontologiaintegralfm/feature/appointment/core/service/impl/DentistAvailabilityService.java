@@ -14,6 +14,7 @@ import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentis
 import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
+import com.odontologiaintegralfm.shared.enums.LogType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -89,7 +90,9 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
     @LogAction(
             value = "dentistAvailabilityService.SystemLog.update",
-            args = {"#id"}
+            args = {"#id"},
+            type  = LogType.SYSTEM,
+            level = LogLevel.INFO
     )
     @Override
     @Transactional
