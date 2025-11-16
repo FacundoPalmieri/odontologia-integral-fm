@@ -39,6 +39,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -110,16 +111,6 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
             Dentist dentists = dentistService.getById(idPerson)
                     .orElseThrow(()-> new NotFoundException("exception.dentistNotFound.user", null,"exception.dentistNotFound.log",new Object[]{idPerson,"DentistHolidayService","create"},LogLevel.ERROR));
 
-
-            //Validar Evento
-            CalendarLockType calendarLockType = calendarLockTypeService.getByIdInternal(dentistCalendarLockRequestCreateDTO.getIdLockType());
-
-
-            //Validar Jornada laboral.
-            validateDentistAvailability(idPerson,dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), dentistCalendarLockRequestCreateDTO.getStartTime(), dentistCalendarLockRequestCreateDTO.getEndTime(),dentistCalendarLockRequestCreateDTO.getDays(), dentistCalendarLockRequestCreateDTO.getRecurrence());
-
-
-
             //Valída que el inicio no sea anterior al día actual.
             if(dentistCalendarLockRequestCreateDTO.getStartDate().isBefore(LocalDate.now())){
                 throw new ConflictException("exception.dentistLockCalendarService.validateStarDateBeforeNow.user",null,"exception.dentistLockCalendarService.validateStarDateBeforeNow.log",new Object[]{dentists.getId(),dentistCalendarLockRequestCreateDTO.getStartDate(),"Dentist Calendar Lock Service","create" },LogLevel.ERROR);
@@ -130,8 +121,18 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
                 throw new ConflictException("exception.dentistLockCalendarService.validateEndDateBeforeStartDate.user",null,"exception.dentistLockCalendarService.validateEndDateBeforeStartDate.log",new Object[]{dentists.getId(),dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate(),"Dentist Calendar Lock Service","create"},LogLevel.ERROR);
             }
 
-            //Valida que si son vacaciones, comiencen un día lunes.
 
+            //Validar Evento
+            CalendarLockType calendarLockType = calendarLockTypeService.getByIdInternal(dentistCalendarLockRequestCreateDTO.getIdLockType());
+
+            //Validación de recurrencia
+            validateRecurrenceRange(dentistCalendarLockRequestCreateDTO.getRecurrence(),dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate());
+
+            //Valída casos diarios (que no envíe días y recurrencia).
+            CalendarLockRecurrenceName recurrenceName = validateRecurrenceDays(dentistCalendarLockRequestCreateDTO.getRecurrence(),dentistCalendarLockRequestCreateDTO.getDays());
+
+            //Validar Jornada laboral.
+            validateDentistAvailability(idPerson,dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), dentistCalendarLockRequestCreateDTO.getStartTime(), dentistCalendarLockRequestCreateDTO.getEndTime(),dentistCalendarLockRequestCreateDTO.getDays(), dentistCalendarLockRequestCreateDTO.getRecurrence());
 
 
             //Crea el bloqueo.
@@ -142,7 +143,7 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
             dentistCalendarLock.setStartTime(dentistCalendarLockRequestCreateDTO.getStartTime());
             dentistCalendarLock.setEndTime(dentistCalendarLockRequestCreateDTO.getEndTime());
             dentistCalendarLock.setType(calendarLockType);
-            dentistCalendarLock.setRecurrence(dentistCalendarLockRequestCreateDTO.getRecurrence());
+            dentistCalendarLock.setRecurrence(recurrenceName);
 
             //Creo el detalle del bloqueo, si corresponde
             if(dentistCalendarLockRequestCreateDTO.getDays() != null){
@@ -203,11 +204,65 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
         }
     }
 
+    private CalendarLockRecurrenceName validateRecurrenceDays(CalendarLockRecurrenceName recurrence, List<DayName> days) {
+
+        boolean noDays = (days == null || days.isEmpty());
+
+        // Caso 1: NO hay días → solo se acepta DAILY
+        if (noDays) {
+            if (recurrence != null && recurrence != CalendarLockRecurrenceName.DAILY) {
+                throw new BadRequestException("exception.dentistCalendarLockService.daysEmptyRecurrenceInvalid.user", null,"exception.dentistCalendarLockService.daysEmptyRecurrenceInvalid.log", new Object[]{days,recurrence,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
+            }
+
+            // Si no vino recurrencia → asumimos DAILY
+            return recurrence == null ? CalendarLockRecurrenceName.DAILY : recurrence;
+        }
+
+        //  Caso 2: HAY días → DAILY es inválido
+        if (recurrence == CalendarLockRecurrenceName.DAILY) {
+            throw new BadRequestException("exception.dentistCalendarLockService.daysNotEmptyRecurrenceDaily.user", null,"exception.dentistCalendarLockService.daysNotEmptyRecurrenceDaily.log", new Object[]{days,recurrence,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
+        }
+
+        //  Caso 3: HAY días pero no vino recurrencia
+        if (recurrence == null) {
+            throw new BadRequestException("exception.dentistCalendarLockService.daysNotEmptyRecurrenceNull.user", null,"exception.dentistCalendarLockService.daysNotEmptyRecurrenceNull.log", new Object[]{days,recurrence,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
+        }
+
+        return recurrence;
+    }
 
 
 
 
+    private void validateRecurrenceRange(CalendarLockRecurrenceName recurrence, LocalDate startDate, LocalDate endDate) {
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
 
+        switch (recurrence) {
+
+            case WEEKLY -> {
+                if (daysBetween < 7) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.recurrenceInvalid.weekly.user", null,"exception.dentistCalendarLockService.recurrenceInvalid.weekly.log", new Object[]{recurrence, startDate, endDate,"Dentist Calendar LockService","validateRecurrenceRange"}, LogLevel.ERROR);
+                }
+            }
+            case BIWEEKLY -> {
+                if (daysBetween < 14) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.recurrenceInvalid.biweekly.user", null,"exception.dentistCalendarLockService.recurrenceInvalid.biweekly.log", new Object[]{recurrence, startDate, endDate,"Dentist Calendar LockService","validateRecurrenceRange"}, LogLevel.ERROR);
+                }
+            }
+            case MONTHLY -> {
+                if (startDate.plusMonths(1).isAfter(endDate)){
+                    throw new BadRequestException("exception.dentistCalendarLockService.recurrenceInvalid.monthly.user", null,"exception.dentistCalendarLockService.recurrenceInvalid.monthly.log", new Object[]{recurrence, startDate, endDate,"Dentist Calendar LockService","validateRecurrenceRange"}, LogLevel.ERROR);
+                }
+            }
+            case YEARLY -> {
+                if (startDate.plusYears(1).isAfter(endDate)){
+                    throw new BadRequestException("exception.dentistCalendarLockService.recurrenceInvalid.yearly.user", null,"exception.dentistCalendarLockService.recurrenceInvalid.yearly.log", new Object[]{recurrence, startDate, endDate,"Dentist Calendar LockService","validateRecurrenceRange"}, LogLevel.ERROR);
+                }
+            }
+        }
+
+
+    }
 
 
     /**
