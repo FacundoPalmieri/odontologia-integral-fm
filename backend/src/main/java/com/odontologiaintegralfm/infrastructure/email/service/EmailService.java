@@ -6,6 +6,7 @@ import com.odontologiaintegralfm.shared.enums.LogType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class EmailService implements IEmailService {
             level = LogLevel.INFO,
             type = LogType.SYSTEM
     )
+    @Async("mailExecutor")
     public void sendEmail(List<String> to, String subject, String body) {
         to.forEach(
                 destination -> {
@@ -61,6 +63,7 @@ public class EmailService implements IEmailService {
      * @param body El cuerpo del correo electrónico.
      */
     @Override
+    @Async("mailExecutor")
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

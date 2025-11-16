@@ -12,6 +12,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Representa la relación entre todos los bloqueos de agenda de un dentista
@@ -21,7 +23,7 @@ import java.time.LocalTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "calendar_lock_dentist")
+@Table(name = "dentist_calendar_lock")
 public class DentistCalendarLock extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,12 +46,19 @@ public class DentistCalendarLock extends Auditable {
     private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "type_id", nullable = false)
     private CalendarLockType type;
 
     @Enumerated(EnumType.STRING)
     private CalendarLockRecurrenceName recurrence;
 
+    @OneToMany(mappedBy = "lock", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DentistCalendarLockDetail> days = new ArrayList<>();
+
     @Lob
     private String observation;
+
+    @Lob
+    private String observationUpdate;
+
 }

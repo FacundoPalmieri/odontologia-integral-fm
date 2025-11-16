@@ -1,25 +1,48 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
+import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
+import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
+import com.odontologiaintegralfm.shared.response.Response;
 
 import java.util.List;
 
-/**
- * @author [Facundo Palmieri]
- */
+
 public interface IAppointmentConflictService {
 
 
     /**
-     * Obtiene la lista de turnos conflictivos por ID de dentista.
+     * Obtiene la lista de turnos conflictivos (Resueltos o no) por ID de dentista y afectados por jornada laboral.
      * @param idDentist: id Dentista.
      */
-    List<AppointmentConflict> getAllByDentist(Long idDentist);
+    List<AppointmentConflict> getAllByDentistIdAndAvailabilityConflict(Long idDentist, OriginConflict originConflict);
+
 
     /**
-     * Obtiene la lista de turnos conflictivos NO RESUELTOS por id de dentista.
+     *
+     * Obtiene la lista de turnos conflictivos NO RESUELTOS por ID de dentista y por ID de bloqueo de agenda.
+     * @param idDentist     : id Dentista.
+     * @param lockConflictId: id bloqueo de agenda.
      */
-    List<AppointmentConflict> getAllNotResolvedByDentist(Long idDentist);
+    List<AppointmentConflict> getAllByDentistIdAndCalendarLockConflictId(Long idDentist, Long lockConflictId);
+
+
+
+    /**
+     * Obtiene la lista de turnos conflictivos NO RESUELTOS por Id de dentista.
+     */
+    List<AppointmentConflict> getNotResolved(Long idDentist);
+
+
+
+
+
+    /**
+     * Devuelve una Response con Lista todos los conflictos del dentista.
+     */
+    Response<List<AppointmentConflictResponseDTO>> getConflict(Long idDentist);
+
+
 
 
     /**
@@ -28,11 +51,16 @@ public interface IAppointmentConflictService {
      */
     List<AppointmentConflict> create(List<AppointmentConflict> appointmentConflicts);
 
+
+
+
     /**
      * Actualiza  turnos conflictivo
      * @param appointmentConflicts: Turno
      */
     List<AppointmentConflict> update(List<AppointmentConflict> appointmentConflicts);
+
+
 
 
 

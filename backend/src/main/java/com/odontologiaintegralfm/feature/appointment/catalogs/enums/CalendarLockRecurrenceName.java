@@ -12,10 +12,11 @@ import java.util.Arrays;
 @Getter
 public enum CalendarLockRecurrenceName {
     NONE("Sin repetición"),
-    DAILY("Diario"), //Bloquea todos los días
-    WEEKLY("Semanal"), // Bloquea el día de inicio y su repetición semanal (EJ. todos los jueves)
-    MONTHLY("Mensual"), //Bloquea por Número de día (Ej todos los 21)
-    YEARLY("Anual"); // Bloquea cada fecha fija por año (Cumpleaños)
+    DAILY("Diario"),        // Todos los días
+    WEEKLY("Semanal"),      // Día de inicio y su repetición semanal (EJ. todos los jueves)
+    BIWEEKLY ("Quincenal"), // Día de inicio y su repetición quincenal (EJ. Jueves por medio)
+    MONTHLY("Mensual"),     // Por Número de día (Ej. Segundo martes del mes)
+    YEARLY("Anual");        // Fecha fija por año (Mismo número de día)
 
     private final String label;
     CalendarLockRecurrenceName(String label) {

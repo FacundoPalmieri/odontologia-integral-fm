@@ -1,22 +1,17 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
-
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
-
+import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import java.util.List;
 
-/**
- * @author [Facundo Palmieri]
- */
+
 public interface IAppointmentService {
 
     /**
-     * Método que lista todos los conflictos del dentista.
+     * Método para obtener turnos en estado "Reservado"
+     * @param idDentist : id Dentista.
+     * @return : Lista de turnos.
      */
-    Response<List<AppointmentConflictResponseDTO>> getConflict(Long idDentist);
-
-
+    List<Appointment> getAppointmentsReservedByDentistInternal(Long idDentist);
 
 
 

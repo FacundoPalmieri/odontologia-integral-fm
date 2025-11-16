@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
 
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationUpdate;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.impl.DentistAvailabilityService;
@@ -41,11 +41,11 @@ public class DentistAvailabilityController {
             @ApiResponse(responseCode = "404", description = "Dentista no encontrado.")
     })
     @PatchMapping("/{id}")
-    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate
+    @OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationUpdate
     public ResponseEntity<Response<DentistAvailabilityResponseDTO>> update(@Validated @PathVariable Long id,
                                                                            @Valid @RequestBody List<WorkingDayDTO> days ) {
 
-        Response<DentistAvailabilityResponseDTO> response  =  dentistAvailabilityService.update(id, days);
+        Response<DentistAvailabilityResponseDTO> response  =  dentistAvailabilityService.create(id, days);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
@@ -55,7 +55,7 @@ public class DentistAvailabilityController {
 
     /**
      * Endpoint para la visualización de disponibilidad de jornada laboral de un dentista.
-     * @param id Id del dentista
+     * @param idPerson Id del dentista
      */
 
     @Operation(summary = "Visualizar disponibilidad de dentista", description = "Permite visualizar la disponibilidad de un dentista")
@@ -65,10 +65,10 @@ public class DentistAvailabilityController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "Dentista no encontrado.")
     })
-    @GetMapping("/{id}")
-    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
-    public ResponseEntity<Response<DentistAvailabilityResponseDTO>> get(@PathVariable Long id){
-        Response<DentistAvailabilityResponseDTO> response = dentistAvailabilityService.get(id);
+    @GetMapping("/{idPerson}")
+    @OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationRead
+    public ResponseEntity<Response<DentistAvailabilityResponseDTO>> get(@PathVariable Long idPerson){
+        Response<DentistAvailabilityResponseDTO> response = dentistAvailabilityService.get(idPerson);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
