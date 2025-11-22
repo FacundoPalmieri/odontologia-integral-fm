@@ -9,13 +9,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalTime;
+
+import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 
 /**
  * Entidad que representa la relación entre un Dentista y un día Feriado o no laborable
  */
 @Entity
+@Audited
 @Getter
 @Setter
 @AllArgsConstructor
@@ -38,6 +42,7 @@ public class DentistHoliday extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "holiday_id", nullable = false, updatable = false)
+    @Audited(targetAuditMode = NOT_AUDITED)
     private Holiday holiday;
 
     @Column(nullable = false)

@@ -42,7 +42,7 @@ public class AppointmentConflictService implements IAppointmentConflictService {
     }
 
     /**
-     * Obtiene la lista de turnos conflictivos NO RESUELTOS  por ID de dentista y por ID de bloqueo de agenda.
+     * Obtiene la lista de turnos conflictivos NO RESUELTOS por ID de dentista y por ID de bloqueo de agenda.
      *
      * @param idDentist      : id Dentista.
      * @param lockConflictId : id bloqueo de agenda.

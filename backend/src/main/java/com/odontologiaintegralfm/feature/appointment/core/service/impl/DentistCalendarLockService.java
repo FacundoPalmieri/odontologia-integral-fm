@@ -16,7 +16,7 @@ import com.odontologiaintegralfm.feature.appointment.core.model.DentistCalendarL
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistCalendarLockDetail;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IDentistCalendarLockRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IConflictManagerService;
-import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistLockCalendarService;
+import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistCalendarLockService;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
@@ -40,12 +40,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 
 @Service
-public class DentistCalendarLockService implements IDentistLockCalendarService {
+public class DentistCalendarLockService implements IDentistCalendarLockService {
 
     @Autowired
     private IDentistService dentistService;
@@ -72,6 +71,8 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
     @Qualifier("messageSource")
     @Autowired
     private MessageSource messageSource;
+    @Autowired
+    private DentistCalendarLockDetailService dentistCalendarLockDetailService;
 
     /**
      * Crea un nuevo bloqueo en el calendario de un dentista y valida posibles conflictos con turnos existentes.
@@ -111,6 +112,7 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
             Dentist dentists = dentistService.getById(idPerson)
                     .orElseThrow(()-> new NotFoundException("exception.dentistNotFound.user", null,"exception.dentistNotFound.log",new Object[]{idPerson,"DentistHolidayService","create"},LogLevel.ERROR));
 
+
             //Valída que el inicio no sea anterior al día actual.
             if(dentistCalendarLockRequestCreateDTO.getStartDate().isBefore(LocalDate.now())){
                 throw new ConflictException("exception.dentistLockCalendarService.validateStarDateBeforeNow.user",null,"exception.dentistLockCalendarService.validateStarDateBeforeNow.log",new Object[]{dentists.getId(),dentistCalendarLockRequestCreateDTO.getStartDate(),"Dentist Calendar Lock Service","create" },LogLevel.ERROR);
@@ -126,14 +128,20 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
             CalendarLockType calendarLockType = calendarLockTypeService.getByIdInternal(dentistCalendarLockRequestCreateDTO.getIdLockType());
 
             //Validación de recurrencia
-            validateRecurrenceRange(dentistCalendarLockRequestCreateDTO.getRecurrence(),dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate());
+            if(dentistCalendarLockRequestCreateDTO.getRecurrence() != null){
+                validateRecurrenceRange(dentistCalendarLockRequestCreateDTO.getRecurrence(),dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate());
+            }
 
             //Valída casos diarios (que no envíe días y recurrencia).
-            CalendarLockRecurrenceName recurrenceName = validateRecurrenceDays(dentistCalendarLockRequestCreateDTO.getRecurrence(),dentistCalendarLockRequestCreateDTO.getDays());
+            dentistCalendarLockRequestCreateDTO.setRecurrence(validateRecurrenceDays(dentistCalendarLockRequestCreateDTO.getRecurrence(),dentistCalendarLockRequestCreateDTO.getDays()));
 
             //Validar Jornada laboral.
             validateDentistAvailability(idPerson,dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), dentistCalendarLockRequestCreateDTO.getStartTime(), dentistCalendarLockRequestCreateDTO.getEndTime(),dentistCalendarLockRequestCreateDTO.getDays(), dentistCalendarLockRequestCreateDTO.getRecurrence());
 
+
+
+            //Valída que no exista otro bloqueo que sea misma Fecha inicio - fin - recurrencia - dias.
+            validateLock(idPerson, dentistCalendarLockRequestCreateDTO);
 
             //Crea el bloqueo.
             DentistCalendarLock dentistCalendarLock = new DentistCalendarLock();
@@ -143,30 +151,30 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
             dentistCalendarLock.setStartTime(dentistCalendarLockRequestCreateDTO.getStartTime());
             dentistCalendarLock.setEndTime(dentistCalendarLockRequestCreateDTO.getEndTime());
             dentistCalendarLock.setType(calendarLockType);
-            dentistCalendarLock.setRecurrence(recurrenceName);
-
-            //Creo el detalle del bloqueo, si corresponde
-            if(dentistCalendarLockRequestCreateDTO.getDays() != null){
-                for (DayName day : dentistCalendarLockRequestCreateDTO.getDays()){
-                    DentistCalendarLockDetail detail = new DentistCalendarLockDetail();
-                    detail.setDayName(day);
-                    detail.setLock(dentistCalendarLock);
-
-                    dentistCalendarLock.getDays().add(detail);
-                }
-            }
-
-
+            dentistCalendarLock.setRecurrence(dentistCalendarLockRequestCreateDTO.getRecurrence());
             dentistCalendarLock.setObservation( dentistCalendarLockRequestCreateDTO.getObservation());
             dentistCalendarLock.setCreatedAt(LocalDateTime.now());
             dentistCalendarLock.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
             dentistCalendarLock.setEnabled(true);
 
+            DentistCalendarLock dentistCalendarLockSaved = dentistLockCalendarRepository.save(dentistCalendarLock);
+
+            //Creo el detalle del bloqueo, si corresponde
+            if (dentistCalendarLockRequestCreateDTO.getDays() != null && !dentistCalendarLockRequestCreateDTO.getDays().isEmpty()) {
+                List<DentistCalendarLockDetail> dentistCalendarLockDetails = new ArrayList<>();
+                for (DayName day : dentistCalendarLockRequestCreateDTO.getDays()){
+                    DentistCalendarLockDetail detail = new DentistCalendarLockDetail();
+                    detail.setDayName(day);
+                    detail.setDentistCalendarLock(dentistCalendarLockSaved);
+                    dentistCalendarLockDetails.add(detail);
+                }
+
+                dentistCalendarLockDetailService.saveAll(dentistCalendarLockDetails);
+            }
 
 
-            DentistCalendarLock dentistCalendarLockSaved = dentistLockCalendarRepository.saveAndFlush(dentistCalendarLock);
 
-            //Seteo id y origen de posible conflicto en el DTO.
+            //Seteo recurrencia, id y origen de posible conflicto en el DTO.
             dentistCalendarLockRequestCreateDTO.setIdOriginConflict(dentistCalendarLockSaved.getId());
             dentistCalendarLockRequestCreateDTO.setOriginConflict(OriginConflict.DENTIST_CALENDAR_LOCK);
 
@@ -204,28 +212,111 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
         }
     }
 
+    /**
+     * Valída que no exista ya un bloqueo de agenda con la misma configuración
+     * (fecha inicio/fin, recurrencia y al menos un día en común).
+     *
+     * <p>La lógica funciona así:
+     * <ul>
+     *   <li>Obtiene todos los bloqueos vigentes del dentista.</li>
+     *   <li>Compara la cabecera de cada bloqueo existente (startDate, endDate, recurrence)
+     *       contra los valores enviados en la request.</li>
+     *   <li>Si la cabecera no coincide, se ignora ese lock (continue).</li>
+     *   <li>Si la cabecera coincide, se revisan los días asociados al lock.</li>
+     *   <li>Si el bloqueo existente comparte al menos un día con el solicitado,
+     *       se considera duplicado y se lanza una ConflictException.</li>
+     * </ul>
+
+     *
+     * @param idPerson id del dentista que intenta crear el bloqueo
+     * @param dentistCalendarLockRequestCreateDTO DTO con los datos del bloqueo solicitado
+     * @throws ConflictException si ya existe otro bloqueo equivalente
+     */
+
+    private void validateLock(Long idPerson, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO) {
+
+
+        // Obtener todos los locks actuales del dentista
+        List<DentistCalendarLock> dentistCalendarLocks = dentistLockCalendarRepository.findAllCurrentByDentistId(idPerson);
+
+        // Conjunto de días que enviaron en la request
+        Set<DayName> requestDays = new HashSet<>(dentistCalendarLockRequestCreateDTO.getDays());
+
+        for (DentistCalendarLock lock : dentistCalendarLocks) {
+
+            // Coincidencia con la cabecera del bloqueo
+            boolean match =
+                    lock.getStartDate().equals(dentistCalendarLockRequestCreateDTO.getStartDate()) &&
+                            lock.getEndDate().equals(dentistCalendarLockRequestCreateDTO.getEndDate()) &&
+                            lock.getRecurrence().equals(dentistCalendarLockRequestCreateDTO.getRecurrence());
+
+            if (!match) {
+                continue;
+            }
+
+            // Obtener los detalles del lock existente
+            List<DayName> lockDays = dentistCalendarLockDetailService.getAllByDentistCalendarLock(lock.getId())
+                    .stream()
+                    .map(DentistCalendarLockDetail::getDayName)
+                    .toList();
+
+            // Verificar si comparten al menos un día
+            boolean overlap = lockDays.stream().anyMatch(requestDays::contains);
+
+            if (overlap) {
+                throw new ConflictException("exception.dentistCalendarLock.exist.user", null, "exception.dentistCalendarLock.exist.log", new Object[]{idPerson, lock.getId(),},LogLevel.ERROR
+                );
+            }
+        }
+    }
+
+
+
+    /**
+     * Valída la coherencia entre los días enviados y la recurrencia seleccionada para un bloqueo de agenda.
+     *
+     * <p>Reglas aplicadas:
+     * <ul>
+     *   <li><b>Si NO se envían días:</b>
+     *       <ul>
+     *         <li>Solo se permite recurrencia DAILY.</li>
+     *         <li>Si no se envió recurrencia, se asigna DAILY por defecto.</li>
+     *       </ul>
+     *   </li>
+     *   <li><b>Si se envían días:</b>
+     *       <ul>
+     *         <li>La recurrencia DAILY es inválida.</li>
+     *         <li>Si no se envió recurrencia, se asigna NONE por defecto.</li>
+     *       </ul>
+     *   </li>
+     * </ul>
+     * @param recurrence recurrencia enviada en la request (puede ser null)
+     * @param days lista de días enviados en la request (puede ser vacía o null)
+     * @return la recurrencia final válida luego de aplicar las reglas
+     * @throws BadRequestException si la combinación días/recurrencia es inválida
+     */
     private CalendarLockRecurrenceName validateRecurrenceDays(CalendarLockRecurrenceName recurrence, List<DayName> days) {
 
         boolean noDays = (days == null || days.isEmpty());
 
-        // Caso 1: NO hay días → solo se acepta DAILY
+        // Caso 1: NO hay días -> solo se acepta DAILY
         if (noDays) {
             if (recurrence != null && recurrence != CalendarLockRecurrenceName.DAILY) {
                 throw new BadRequestException("exception.dentistCalendarLockService.daysEmptyRecurrenceInvalid.user", null,"exception.dentistCalendarLockService.daysEmptyRecurrenceInvalid.log", new Object[]{days,recurrence,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
             }
 
-            // Si no vino recurrencia → asumimos DAILY
+            // Si no vino recurrencia -> asumimos DAILY
             return recurrence == null ? CalendarLockRecurrenceName.DAILY : recurrence;
         }
 
-        //  Caso 2: HAY días → DAILY es inválido
+        //  Caso 2: HAY días -> DAILY es inválido
         if (recurrence == CalendarLockRecurrenceName.DAILY) {
             throw new BadRequestException("exception.dentistCalendarLockService.daysNotEmptyRecurrenceDaily.user", null,"exception.dentistCalendarLockService.daysNotEmptyRecurrenceDaily.log", new Object[]{days,recurrence,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
         }
 
         //  Caso 3: HAY días pero no vino recurrencia
         if (recurrence == null) {
-            throw new BadRequestException("exception.dentistCalendarLockService.daysNotEmptyRecurrenceNull.user", null,"exception.dentistCalendarLockService.daysNotEmptyRecurrenceNull.log", new Object[]{days,recurrence,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
+            return CalendarLockRecurrenceName.NONE;
         }
 
         return recurrence;
@@ -233,7 +324,24 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
 
 
 
-
+    /**
+     * Valída que el rango de fechas enviado (startDate - endDate) sea compatible con la recurrencia seleccionada para un bloqueo de agenda.
+     * <p>Reglas:
+     * <ul>
+     *   <li><b>WEEKLY:</b> el rango debe cubrir al menos 7 días.</li>
+     *   <li><b>BIWEEKLY:</b> el rango debe cubrir al menos 14 días.</li>
+     *   <li><b>MONTHLY:</b> endDate debe ser al menos un mes posterior a startDate.</li>
+     *   <li><b>YEARLY:</b> endDate debe ser al menos un año posterior a startDate.</li>
+     * </ul>
+     *
+     * <p>Si el rango no cumple con la duración mínima requerida para la recurrencia,
+     * se lanza una {@link BadRequestException}.
+     *
+     * @param recurrence tipo de recurrencia seleccionada (se asume no nulo)
+     * @param startDate fecha de inicio del bloqueo
+     * @param endDate fecha de fin del bloqueo
+     * @throws BadRequestException si el rango de fechas es incompatible con la recurrencia
+     */
     private void validateRecurrenceRange(CalendarLockRecurrenceName recurrence, LocalDate startDate, LocalDate endDate) {
         long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
 
@@ -263,6 +371,12 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
 
 
     }
+
+
+
+
+
+
 
 
     /**
@@ -334,6 +448,26 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
     }
 
 
+
+
+
+
+
+    /**
+     * Método para obtener todos los bloqueos de calendario por Id dentista.
+     *
+     * @param idDentist : id dentista
+     */
+    @Override
+    public List<DentistCalendarLock> getAllCurrentByDentistId(Long idDentist) {
+        try{
+            return dentistLockCalendarRepository.findAllCurrentByDentistId(idDentist);
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "DentistCalendarLockService", idDentist, null, "getAllByDentistId");
+        }
+    }
+
+
     /**
      * Actualiza un bloqueo existente estableciendo su finalización al momento actual y registrando la observación de actualización.
      * <p>
@@ -394,7 +528,7 @@ public class DentistCalendarLockService implements IDentistLockCalendarService {
      * <p>El método obtiene las disponibilidades del dentista y verifica si las fechas y horarios del bloqueo
      * están completamente cubiertos según la recurrencia.</p>
      *
-     * @param idDentist ID del dentista cuyo calendario se valida.
+     * @param idDentist Id del dentista cuyo calendario se valida.
      * @param startDateBlock Semana de inicio del bloqueo.
      * @param endDateBlock Semana de fin del bloqueo.
      * @param starTimeBlock Hora de inicio del bloqueo.

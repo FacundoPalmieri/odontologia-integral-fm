@@ -1,17 +1,14 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
-import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
-import java.util.List;
+import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateResponseDTO;
+import com.odontologiaintegralfm.shared.response.Response;
 
 
 public interface IAppointmentService {
 
-    /**
-     * Método para obtener turnos en estado "Reservado"
-     * @param idDentist : id Dentista.
-     * @return : Lista de turnos.
-     */
-    List<Appointment> getAppointmentsReservedByDentistInternal(Long idDentist);
+
+    Response<AppointmentCreateResponseDTO> create(AppointmentCreateRequestDTO appointmentCreateRequestDTO);
 
 
 

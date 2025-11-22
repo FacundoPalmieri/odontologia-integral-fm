@@ -40,9 +40,4 @@ public interface IHolidayRepository extends JpaRepository<Holiday, Long> {
     Optional<Holiday> findByDate(LocalDate date);
 
 
-    /**
-     * Busca si existe algún feriado con fecha dentro del rango
-     */
-    boolean existsByDateBetween(LocalDate startDate, LocalDate endDate);
-
 }

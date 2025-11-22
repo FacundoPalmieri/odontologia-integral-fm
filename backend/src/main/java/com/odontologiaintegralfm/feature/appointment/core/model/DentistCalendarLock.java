@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.appointment.core.model;
 
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.CalendarLockType;
+import com.odontologiaintegralfm.feature.dentist.catalogs.model.DentistSpecialty;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
@@ -9,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,6 +22,7 @@ import java.util.List;
  * Representa la relación entre todos los bloqueos de agenda de un dentista
  */
 @Entity
+@Audited
 @Getter
 @Setter
 @AllArgsConstructor
@@ -47,13 +51,11 @@ public class DentistCalendarLock extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id", nullable = false)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private CalendarLockType type;
 
     @Enumerated(EnumType.STRING)
     private CalendarLockRecurrenceName recurrence;
-
-    @OneToMany(mappedBy = "lock", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DentistCalendarLockDetail> days = new ArrayList<>();
 
     @Lob
     private String observation;

@@ -206,10 +206,10 @@ public class HolidayService implements IHolidayService {
 
 
     /**
-     * Método para validar si existe un feriado para una fecha determinada.
+     * Método para validar si existe un feriado en una fecha determinada.
      */
-    public boolean validateExistsHoliday(LocalDate startDate, LocalDate endDate){
-        return holidayRepository.existsByDateBetween(startDate,endDate);
+    public Optional<Holiday> getByDate(LocalDate date){
+        return holidayRepository.findByDate(date);
     }
 
 

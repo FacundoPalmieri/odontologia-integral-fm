@@ -2,12 +2,10 @@ package com.odontologiaintegralfm.feature.appointment.core.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationCreate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationUpdate;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationCreate;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockRequestCreateDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockResponseDTO;
-import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistLockCalendarService;
+import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistCalendarLockService;
 import com.odontologiaintegralfm.shared.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class DentistCalendarLockController {
 
     @Autowired
-    private IDentistLockCalendarService dentistCalendarService;
+    private IDentistCalendarLockService dentistCalendarService;
 
 
     @Operation(summary = "Crear bloqueo de Agenda", description = "Permite crear un bloqueo de agenda para un dentista.")
