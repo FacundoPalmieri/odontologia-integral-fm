@@ -5,7 +5,9 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilit
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
 import com.odontologiaintegralfm.shared.response.Response;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -46,4 +48,14 @@ public interface IDentistAvailabilityService {
      * Método para obtener el tiempo de duración de un turno por ID de dentista.
      */
     Integer getAppointmentDuration(Long idDentist);
+
+
+
+    /**
+     * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
+     * @param idDentist: Id Dentista
+     * @param startTime: Hora inicio jornada de feriado
+     * @param endTime  : Hora fin jornada de feriado
+     */
+    boolean validateDurationLessThanAppointmentDuration(Long idDentist, LocalTime startTime, LocalTime endTime);
 }

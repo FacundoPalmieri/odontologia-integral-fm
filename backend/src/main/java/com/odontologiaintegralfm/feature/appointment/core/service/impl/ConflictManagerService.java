@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentConflictMap;
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
@@ -11,8 +12,8 @@ import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
+import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentConflictService;
-import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IConflictManagerService;
 import com.odontologiaintegralfm.feature.authentication.enums.Role;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
@@ -47,7 +48,7 @@ public class ConflictManagerService implements IConflictManagerService {
     private IAppointmentConflictService appointmentConflictService;
 
     @Autowired
-    private IAppointmentService appointmentService;
+    private IAppointmentRepository appointmentRepository;
 
     @Qualifier("messageSource")
     @Autowired
@@ -85,7 +86,7 @@ public class ConflictManagerService implements IConflictManagerService {
     public List<AppointmentConflictResponseDTO> verifyConflictsByDentistAvailability(Long idDentist, List<WorkingDayDTO> days) {
 
         //Se obtienen los turnos futuros para el dentista.
-        List<Appointment> appointments = appointmentService.getAppointmentsReservedByDentistInternal(idDentist);
+        List<Appointment> appointments = appointmentRepository.findFutureAppointmentsReservedByDentist(idDentist, LocalDateTime.now(), AppointmentStatus.RESERVED);
 
         // Se obtiene los turnos conflictivos previos al cambio, y que el origen del conflicto fue la jornada laboral del dentista.
         List<AppointmentConflict> appointmentConflictsExisting = appointmentConflictService.getAllByDentistIdAndAvailabilityConflict(idDentist, OriginConflict.DENTIST_AVAILABILITIES);
@@ -158,7 +159,7 @@ public class ConflictManagerService implements IConflictManagerService {
 
     public List<AppointmentConflictResponseDTO> verifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists) {
         //Obtiene turno por dentista.
-        List<Appointment> appointments = appointmentService.getAppointmentsReservedByDentistInternal(dentists.getId());
+        List<Appointment> appointments = appointmentRepository.findFutureAppointmentsReservedByDentist(dentists.getId(), LocalDateTime.now(), AppointmentStatus.RESERVED);
 
         // Identificar si hay turnos en conflictos.
         List<AppointmentConflict> appointmentConflicts = conflictDetectorByDentistCalendarLock(appointments, dentistCalendarLockRequestCreateDTO,dentists,dentistCalendarLockRequestCreateDTO.getRecurrence());
@@ -519,8 +520,10 @@ public class ConflictManagerService implements IConflictManagerService {
 
 
         // Verificar rango de fechas para jornada específicas.
-        if (appointmentDate.isBefore(startDate) || appointmentDate.isAfter(endDate)) {
-            return false;
+        if (day == null && recurrence == null) {
+            if (appointmentDate.isBefore(startDate) || appointmentDate.isAfter(endDate)) {
+                return false;
+            }
         }
 
 

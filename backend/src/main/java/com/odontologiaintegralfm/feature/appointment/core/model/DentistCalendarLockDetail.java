@@ -4,11 +4,16 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author [Facundo Palmieri]
  */
 @Entity
+@Audited
 @Getter
 @Setter
 @Table(name = "dentist_calendar_lock_details")
@@ -19,8 +24,8 @@ public class DentistCalendarLockDetail {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lock_id", nullable = false)
-    private DentistCalendarLock lock;
+    @JoinColumn(name = "dentist_calendar_lock_id", nullable = false)
+    private DentistCalendarLock dentistCalendarLock;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

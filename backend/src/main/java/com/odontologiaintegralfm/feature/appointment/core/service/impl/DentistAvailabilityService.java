@@ -28,8 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -268,9 +270,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
     @Override
     public List<DentistAvailability> getByIdInternal(Long idDentist) {
         try{
-
             return dentistAvailabilityRepository.findAllByDentistIdAndEnabledTrue(idDentist);
-
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistAvailabilityService", idDentist, null, "getByIdInternal");
         }
@@ -289,5 +289,20 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         return dentistAvailabilityRepository.findAppointmentDurationByDentistId(idDentist);
     }
 
+
+
+
+    /**
+     * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
+     * @param idDentist: Id Dentista
+     * @param startTime: Hora inicio jornada de feriado
+     * @param endTime  : Hora fin jornada de feriado
+     */
+    public boolean validateDurationLessThanAppointmentDuration(Long idDentist, LocalTime startTime, LocalTime endTime) {
+        Integer appointmentDuration = getAppointmentDuration(idDentist);
+        long holidayDurationMinutes = Duration.between(startTime, endTime).toMinutes();
+
+        return holidayDurationMinutes >= appointmentDuration;
+    }
 
 }

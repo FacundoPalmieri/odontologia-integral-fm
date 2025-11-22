@@ -26,4 +26,5 @@ public interface IDentistHolidayRepository extends JpaRepository<DentistHoliday,
 
 
    Optional<DentistHoliday> findByDentistIdAndHolidayId(Long dentistId, Long holidayId);
+
 }

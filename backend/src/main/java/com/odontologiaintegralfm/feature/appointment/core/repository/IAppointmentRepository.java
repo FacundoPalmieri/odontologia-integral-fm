@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IAppointmentRepository extends JpaRepository<Appointment, Long> {
@@ -23,5 +24,8 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
                                                               @Param("date") LocalDateTime date,
                                                               @Param("status") AppointmentStatus status
     );
+
+
+    Optional<Appointment> findByDentistIdAndDate(Long dentistId, LocalDateTime dateTime);
 
 }

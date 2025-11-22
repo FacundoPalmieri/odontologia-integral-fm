@@ -1,22 +1,20 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
-import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedSystemService;
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
-import com.odontologiaintegralfm.feature.appointment.catalogs.repository.IHolidayRepository;
 import com.odontologiaintegralfm.feature.appointment.catalogs.service.HolidayService;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestCreateDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistHoliday;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IDentistHolidayRepository;
+import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistAvailabilityService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistHolidayService;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.user.service.UserService;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
@@ -29,11 +27,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
-
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 
 
@@ -58,8 +53,9 @@ public class DentistHolidayService implements IDentistHolidayService {
 
     @Autowired
     private UserService userService;
+
     @Autowired
-    private DentistAvailabilityService dentistAvailabilityService;
+    private IDentistAvailabilityService dentistAvailabilityService;
 
     /**
      * Crea una relación entre un dentista y un feriado específico.
@@ -119,7 +115,7 @@ public class DentistHolidayService implements IDentistHolidayService {
             }
 
             //Valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-            if(!validateDurationLessThanAppointmentDuration(dentists.getId(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime())){
+            if(! dentistAvailabilityService.validateDurationLessThanAppointmentDuration(dentists.getId(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime())){
                 throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist Holiday Service","create"},LogLevel.ERROR);
             }
 
@@ -162,18 +158,8 @@ public class DentistHolidayService implements IDentistHolidayService {
     }
 
 
-    /**
-     * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-     * @param idDentist: Id Dentista
-     * @param startTime: Hora inicio jornada de feriado
-     * @param endTime  : Hora fin jornada de feriado
-     */
-    private boolean validateDurationLessThanAppointmentDuration(Long idDentist, LocalTime startTime,LocalTime endTime) {
-        Integer appointmentDuration = dentistAvailabilityService.getAppointmentDuration(idDentist);
-        long holidayDurationMinutes = Duration.between(startTime, endTime).toMinutes();
 
-        return holidayDurationMinutes >= appointmentDuration;
-    }
+
 
     /**
      * Método para la actualización de la relación de un dentista con feriados.
@@ -220,12 +206,37 @@ public class DentistHolidayService implements IDentistHolidayService {
         }
     }
 
+    /**
+     * Obtiene las relaciones entre dentista y feriados.
+     *
+     * @param idDentist : id dentista
+     * @param year      : año a consultar
+     * @return : Lista
+     */
+    @Override
+    public List<DentistHoliday> getAll(Long idDentist, int year) {
+        try{
+            return dentistHolidayRepository.findAllByDentistId(idDentist, year);
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "DentistHolidayService", idDentist, null, "get");
+        }
 
+    }
 
-
-
-
-
+    /**
+     * Obtiene la relación entre dentista y feriado.
+     *
+     * @param idDentist : id dentista
+     * @param idHoliday : id feriado.
+     */
+    @Override
+    public Optional<DentistHoliday> getByDentistIdAndHolidayId(Long idDentist, Long idHoliday) {
+        try{
+            return dentistHolidayRepository.findByDentistIdAndHolidayId(idDentist, idHoliday);
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "DentistHolidayService", idDentist, null, "getByDentistIdAndHolidayId");
+        }
+    }
 
 
 }

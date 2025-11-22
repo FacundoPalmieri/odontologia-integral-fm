@@ -6,9 +6,9 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateR
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.response.Response;
-
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface IHolidayService {
@@ -39,9 +39,9 @@ public interface IHolidayService {
 
 
     /**
-     * Método para validar si existe un feriado para un rango de fechas.
+     * Método para validar si existe un feriado por fecha
      */
-    boolean validateExistsHoliday(LocalDate startDate, LocalDate endDate);
+    Optional<Holiday> getByDate(LocalDate date);
 
 
 

@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.appointment.core.model;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
+import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Audited
 @Table(name = "appointments")
 @Where(clause = "enabled = true")
@@ -37,5 +39,16 @@ public class Appointment extends Auditable {
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
+
+
+   public Appointment(Patient patient, Dentist dentist, LocalDateTime date, AppointmentStatus status, UserSec createBy, LocalDateTime createAt, boolean enabled) {
+        this.patient = patient;
+        this.dentist = dentist;
+        this.date = date;
+        this.status = status;
+        this.setCreatedBy(createBy);
+        this.setCreatedAt(createAt);
+        this.setEnabled(enabled);
+    }
 
 }

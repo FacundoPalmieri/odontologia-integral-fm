@@ -8,8 +8,8 @@ import java.time.LocalTime;
  */
 public record SlotResponseDTO(
         LocalTime starTime,
-        LocalTime endTime //,
-       // AppointmentResponseDTO appointment,
-       // CalendarLockDentistResponseDTO calendarLock
+        LocalTime endTime,
+        //AppointmentCreateResponseDTO appointment,
+        DentistCalendarLockResponseDTO calendarLock
 ) {
 }
