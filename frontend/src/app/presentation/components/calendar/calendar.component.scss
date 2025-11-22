@@ -151,13 +151,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-
-    .today-btn {
-      margin-left: 8px;
-      border-radius: 4px;
-      text-transform: none;
-      font-weight: 500;
-    }
   }
 
   .header-center {
@@ -177,11 +170,6 @@
     gap: 4px;
 
     .view-btn {
-      border-radius: 4px;
-      text-transform: none;
-      font-weight: 500;
-      min-width: 80px;
-
       &.active {
         background: var(--mat-sys-primary-container);
         color: var(--mat-sys-on-primary-container);

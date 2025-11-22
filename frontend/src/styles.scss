@@ -110,10 +110,10 @@ body {
 
   @include mat.button-overrides(
     (
-      filled-container-shape: 10px,
-      outlined-container-shape: 10px,
-      protected-container-shape: 10px,
-      text-container-shape: 10px,
+      filled-container-shape: var(--mat-sys-corner-large),
+      outlined-container-shape: var(--mat-sys-corner-large),
+      protected-container-shape: var(--mat-sys-corner-large),
+      text-container-shape: var(--mat-sys-corner-large),
     )
   );
 
