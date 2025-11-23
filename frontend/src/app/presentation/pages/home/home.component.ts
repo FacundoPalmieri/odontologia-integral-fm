@@ -24,7 +24,6 @@ import { MatDividerModule } from "@angular/material/divider";
 import { PermissionFactory } from "../../../utils/factories/permission.factory";
 import { MenuItemInterface } from "../../../domain/interfaces/menu-item.interface";
 import { FullscreenService } from "../../../services/fullscreen.service";
-import { TreatmentService } from "../../../services/treatment.service";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { Subject, takeUntil } from "rxjs";
 import { MatBadgeModule } from "@angular/material/badge";
@@ -88,13 +87,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.personDataService
           .getAvatar(this.userData.person.id)
           .subscribe((avatar) => {
-            this.avatar = avatar;
+            if (avatar) {
+              this.avatar = avatar;
+            } else {
+              this.avatar = "img/doctor-avatar.png";
+            }
           });
       }
       this.permissions = [...new Set(this.permissions)];
       this.filteredMenuItems = this.filterMenuItems();
     }
-    // Cargar catálogos basados en el rol del usuario
     if (
       this.personDataService.nationalities().length === 0 &&
       this.userData?.roles

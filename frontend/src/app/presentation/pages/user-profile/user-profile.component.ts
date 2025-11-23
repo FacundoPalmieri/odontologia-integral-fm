@@ -19,10 +19,7 @@ import { DentistService } from "../../../services/dentist.service";
 import { Subject, takeUntil } from "rxjs";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { PersonInterface } from "../../../domain/interfaces/person.interface";
-import {
-  DentistAvailabilityInterface,
-  DentistDayAvailabilityInterface,
-} from "../../../domain/interfaces/dentist.interface";
+import { DentistAvailabilityInterface } from "../../../domain/interfaces/dentist.interface";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatChipsModule } from "@angular/material/chips";
 import { Router } from "@angular/router";
@@ -64,7 +61,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
-  private readonly dentistService = inject(DentistService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly router = inject(Router);
   private readonly personDataService = inject(PersonDataService);
@@ -75,6 +71,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   user = signal<UserInterface | null>(null);
   selectedTabIndex = signal<number>(0);
   avatar = signal<string | null>(null);
+  canDeleteAvatar = signal<boolean>(false);
   isPersonFormValid = signal<boolean>(false);
   updatedPersonData = signal<PersonInterface | null>(null);
   isSaving = signal<boolean>(false);
@@ -112,8 +109,17 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       if (this.user()) {
         this.personDataService
           .getAvatar(this.user()?.person?.id!)
-          .subscribe((avatar: string) => {
-            this.avatar.set(avatar);
+          .subscribe((avatar: string | null) => {
+            if (avatar) {
+              this.avatar.set(avatar);
+              this.canDeleteAvatar.set(true);
+            } else {
+              const gender = this.user()?.person?.gender?.name.toLowerCase();
+              this.avatar.set(
+                gender === "femenino" ? "img/women-avatar.png" : "img/men-avatar.png"
+              );
+              this.canDeleteAvatar.set(false);
+            }
           });
       }
     });
@@ -138,8 +144,17 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.personDataService
           .getAvatar(this.user()?.person?.id!)
-          .subscribe((avatar: string) => {
-            this.avatar.set(avatar);
+          .subscribe((avatar: string | null) => {
+            if (avatar) {
+              this.avatar.set(avatar);
+              this.canDeleteAvatar.set(true);
+            } else {
+              const gender = this.user()?.person?.gender?.name.toLowerCase();
+              this.avatar.set(
+                gender === "femenino" ? "img/women-avatar.png" : "img/men-avatar.png"
+              );
+              this.canDeleteAvatar.set(false);
+            }
           });
         this.snackbarService.openSnackbar(
           "Imagen de perfil eliminada.",
@@ -184,6 +199,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               "top",
               SnackbarTypeEnum.Success
             );
+            this.canDeleteAvatar.set(true);
           },
           error: () => {
             this.avatar.set(oldAvatar);

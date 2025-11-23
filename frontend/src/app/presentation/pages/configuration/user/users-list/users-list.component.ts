@@ -214,8 +214,15 @@ export class UsersListComponent implements OnInit, OnDestroy, AfterViewInit {
               if (user.person?.id) {
                 this.personDataService
                   .getAvatar(user.person.id)
-                  .subscribe((avatar: any) => {
-                    user.avatarUrl = avatar;
+                  .subscribe((avatar: string | null) => {
+                    if (avatar) {
+                      user.avatarUrl = avatar;
+                    } else {
+                      const gender = user.person?.gender?.toLowerCase();
+                      user.avatarUrl = gender === "femenino" 
+                        ? "img/women-avatar.png" 
+                        : "img/men-avatar.png";
+                    }
                     this.users.set([...this.users()]);
                   });
               }

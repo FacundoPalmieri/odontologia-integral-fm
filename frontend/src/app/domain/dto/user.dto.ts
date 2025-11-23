@@ -12,7 +12,7 @@ export interface UserDtoInterface {
   enabled: boolean;
   person: PersonDtoInterface;
   dentist: DentistDataDtoInterface;
-  avatarUrl?: Blob; //Sólo necesaria para mostrar en la grilla
+  avatarUrl?: string;
 }
 
 export interface UserCreateDtoInterface {

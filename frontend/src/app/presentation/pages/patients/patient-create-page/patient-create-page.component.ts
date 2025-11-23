@@ -82,6 +82,14 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
 
+  defaultAvatar = (() => {
+    const gender = this.patientForm.get("person.gender")?.value;
+    const genderName = gender?.name?.toLowerCase();
+    return genderName === "femenino" 
+      ? "img/women-avatar.png" 
+      : "img/men-avatar.png";
+  });
+
   constructor() {
     this._loadForm();
   }

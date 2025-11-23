@@ -157,6 +157,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   entityTypeEnum = EntityTypeEnum;
 
   avatarUrl = signal<string | null>(null);
+  canDeleteAvatar = signal<boolean>(false);
   showProfessionalData = signal(false);
   countries = signal<CountryInterface[]>([]);
   localities = signal<LocalityInterface[]>([]);
@@ -308,6 +309,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
               "top",
               SnackbarTypeEnum.Success
             );
+            this.canDeleteAvatar.set(true);
           },
           error: () => {
             this.avatarUrl.set(oldAvatar);
@@ -391,10 +393,22 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
 
   removeAvatar(): void {
     this.personDataService.removeAvatar(this.personId).subscribe(() => {
+      const gender = this.userForm.get("person.gender")?.value;
       this.personDataService
         .getAvatar(this.personId)
-        .subscribe((avatar: string) => {
-          this.avatarUrl.set(avatar);
+        .subscribe((avatar: string | null) => {
+          if (avatar) {
+            this.avatarUrl.set(avatar);
+            this.canDeleteAvatar.set(true);
+          } else {
+            const genderName = gender?.name?.toLowerCase();
+            this.avatarUrl.set(
+              genderName === "femenino" 
+                ? "img/women-avatar.png" 
+                : "img/men-avatar.png"
+            );
+            this.canDeleteAvatar.set(false);
+          }
         });
       this.snackbarService.openSnackbar(
         "Imagen de perfil eliminada.",
@@ -494,8 +508,19 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
           this.personDataService
             .getAvatar(user.person?.id)
             .pipe(takeUntil(this._destroy$))
-            .subscribe((response: string) => {
-              this.avatarUrl.set(response);
+            .subscribe((avatar: string | null) => {
+              if (avatar) {
+                this.avatarUrl.set(avatar);
+                this.canDeleteAvatar.set(true);
+              } else {
+                const gender = user.person?.gender?.name?.toLowerCase();
+                this.avatarUrl.set(
+                  gender === "femenino" 
+                    ? "img/women-avatar.png" 
+                    : "img/men-avatar.png"
+                );
+                this.canDeleteAvatar.set(false);
+              }
             });
         }
         this._getUserFiles(this.userId!);

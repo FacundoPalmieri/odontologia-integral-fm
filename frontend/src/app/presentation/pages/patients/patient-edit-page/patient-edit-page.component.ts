@@ -117,6 +117,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   entityTypeEnum = EntityTypeEnum;
 
   avatarUrl = signal<string | null>(null);
+  canDeleteAvatar = signal<boolean>(false);
   showAdditionalInfo = signal(false);
   patient = signal<PatientInterface>({} as PatientInterface);
   medicalRisks = signal<MedicalHistoryRiskInterface[]>([]);
@@ -237,6 +238,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this._destroy$))
         .subscribe({
           next: () => {
+            this.canDeleteAvatar.set(true);
             this.snackbarService.openSnackbar(
               "Imagen de perfil actualizada.",
               6000,
@@ -260,11 +262,22 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
 
   removeAvatar(): void {
     this.personDataService.removeAvatar(this.patientId!).subscribe(() => {
+      const gender = this.patientForm.get("person.gender")?.value;
       this.personDataService
         .getAvatar(this.patientId!)
-        .subscribe((avatar: string) => {
-          this.avatarUrl.set(avatar);
+        .subscribe((avatar: string | null) => {
+          if (avatar) {
+            this.avatarUrl.set(avatar);
+          } else {
+            const genderName = gender?.name?.toLowerCase();
+            this.avatarUrl.set(
+              genderName === "femenino" 
+                ? "img/women-avatar.png" 
+                : "img/men-avatar.png"
+            );
+          }
         });
+      this.canDeleteAvatar.set(false);
       this.snackbarService.openSnackbar(
         "Imagen de perfil eliminada.",
         6000,
@@ -293,6 +306,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             .setAvatar(patient.person.id, this.selectedAvatarFile)
             .subscribe(() => {
               this.selectedAvatarFile = null;
+              this.canDeleteAvatar.set(true);
               this.router.navigate([
                 "/patients/edit/",
                 response.data.person.id,
@@ -442,8 +456,17 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         if (response.data.person?.id) {
           this.personDataService
             .getAvatar(response.data.person.id)
-            .subscribe((avatar: string) => {
-              this.avatarUrl.set(avatar);
+            .subscribe((avatar: string | null) => {
+              if (avatar) {
+                this.avatarUrl.set(avatar);
+              } else {
+                const gender = response.data.person?.gender?.name?.toLowerCase();
+                this.avatarUrl.set(
+                  gender === "femenino" 
+                    ? "img/women-avatar.png" 
+                    : "img/men-avatar.png"
+                );
+              }
             });
         }
       });

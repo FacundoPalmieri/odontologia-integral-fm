@@ -203,18 +203,28 @@ export class PersonDataService {
     );
   }
 
-  getAvatar(id: number): Observable<string> {
+  getAvatar(id: number): Observable<string | null> {
     return this.http
-      .get(`${this.apiUrl}/person/${id}/avatar`, { responseType: "blob" })
+      .get(`${this.apiUrl}/person/${id}/avatar`, { 
+        responseType: "blob",
+        observe: "response"
+      })
       .pipe(
-        switchMap((blob) => {
+        switchMap((response) => {
+          if (response.status === 204 || !response.body || response.body.size === 0) {
+            return new Observable<string | null>((observer) => {
+              observer.next(null);
+              observer.complete();
+            });
+          }
+
           return new Observable<string>((observer) => {
             const reader = new FileReader();
             reader.onloadend = () => {
               observer.next(reader.result as string);
               observer.complete();
             };
-            reader.readAsDataURL(blob);
+            reader.readAsDataURL(response.body!);
           });
         })
       );

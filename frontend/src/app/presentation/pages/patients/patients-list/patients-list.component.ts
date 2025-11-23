@@ -178,8 +178,15 @@ export class PatientsListComponent implements OnDestroy, AfterViewInit {
             if (patient.person?.id) {
               this.personDataService
                 .getAvatar(patient.person.id)
-                .subscribe((avatar: any) => {
-                  patient.avatarUrl = avatar;
+                .subscribe((avatar: string | null) => {
+                  if (avatar) {
+                    patient.avatarUrl = avatar;
+                  } else {
+                    const gender = patient.person?.gender?.toLowerCase();
+                    patient.avatarUrl = gender === "femenino" 
+                      ? "img/women-avatar.png" 
+                      : "img/men-avatar.png";
+                  }
                   this.patients.set([...this.patients()]);
                 });
             }
