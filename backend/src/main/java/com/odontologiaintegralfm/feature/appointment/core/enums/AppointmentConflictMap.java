@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.appointment.catalogs.enums;
+package com.odontologiaintegralfm.feature.appointment.core.enums;
 
 
 /**

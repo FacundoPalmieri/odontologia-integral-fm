@@ -1,9 +1,11 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessAppointmentsManagementCreate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessAppointmentsManagementUpdate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateResponseDTO;
+import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentRescheduleRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentConflictService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
 import com.odontologiaintegralfm.shared.response.Response;
@@ -11,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,12 +48,27 @@ public class AppointmentController {
     }
 
 
+    @Operation(summary = "Crear turno", description = "Crea un turno")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Turno creado exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
     @PostMapping()
     @OnlyAccessAppointmentsManagementCreate
     public ResponseEntity<Response<AppointmentCreateResponseDTO>> create(@RequestBody @Valid AppointmentCreateRequestDTO appointmentCreateRequestDTO){
-
         Response<AppointmentCreateResponseDTO> response = appointmentService.create(appointmentCreateRequestDTO);
-
         return ResponseEntity.ok(response);
     }
+
+
+    @PatchMapping("{idAppointment}/reschedule")
+    @OnlyAccessAppointmentsManagementUpdate
+    public ResponseEntity<Response<AppointmentCreateResponseDTO>> reschedule(@PathVariable @NotNull Long idAppointment,
+                                                                             @RequestBody @Valid AppointmentRescheduleRequestDTO appointmentRescheduleRequestDTO){
+
+        Response<AppointmentCreateResponseDTO> response = appointmentService.reschedule(idAppointment, appointmentRescheduleRequestDTO);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.appointment.catalogs.enums;
+package com.odontologiaintegralfm.feature.appointment.core.enums;
 
 import lombok.Getter;
 
@@ -10,7 +10,7 @@ public enum AppointmentStatus {
     RESERVED("Reservado", "#6c757d"),     // gris neutro
     ATTENDED("Atendido", "#28a745"),     // verde éxito
     NO_SHOW("Ausente", "#dc3545"),       // rojo error
-    RESCHEDULED("Reprogramado", "#fd7e14"), // naranja advertencia
+    RESCHEDULED("Reprogramado", "#fd7e14"), //SOLO PARA HISTORIAL
     CANCELED("Cancelado", "#343a40");    // gris oscuro / anulado
 
 

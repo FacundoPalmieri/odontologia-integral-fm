@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.repository;
 
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentStatus;
+import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
