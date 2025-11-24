@@ -17,6 +17,7 @@ import { UserService } from "../../../services/user.service";
 import { AuthService } from "../../../services/auth.service";
 import { DentistService } from "../../../services/dentist.service";
 import { Subject, takeUntil } from "rxjs";
+import { DayEnum } from "../../../utils/enums/day.enum";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { PersonInterface } from "../../../domain/interfaces/person.interface";
 import { DentistAvailabilityInterface } from "../../../domain/interfaces/dentist.interface";
@@ -35,6 +36,7 @@ import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
 import { PersonFormComponent } from "../../components/person-form/person-form.component";
 import { DentistAvailabilityComponent } from "../../components/dentist-availability/dentist-availability.component";
 import { AppointmentConflictComponent } from "../../components/appointment-conflict/appointment-conflict.component";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 
 @Component({
   selector: "app-user-profile",
@@ -55,6 +57,7 @@ import { AppointmentConflictComponent } from "../../components/appointment-confl
     PersonFormComponent,
     DentistAvailabilityComponent,
     AppointmentConflictComponent,
+    MatDialogModule,
   ],
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
@@ -64,6 +67,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private readonly snackbarService = inject(SnackbarService);
   private readonly router = inject(Router);
   private readonly personDataService = inject(PersonDataService);
+  private readonly dialog = inject(MatDialog);
+  private readonly dentistService = inject(DentistService);
 
   @ViewChild("inputAvatar") inputAvatar!: ElementRef<HTMLInputElement>;
 
@@ -120,6 +125,25 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               );
               this.canDeleteAvatar.set(false);
             }
+          });
+      }
+    });
+
+    // Cargar disponibilidad si es dentista
+    effect(() => {
+      if (this.user() && this.isDentist() && this.user()?.person?.id) {
+        this.isLoadingAvailability.set(true);
+        this.dentistService
+          .getAvailability(this.user()?.person?.id!)
+          .pipe(takeUntil(this._destroy$))
+          .subscribe({
+            next: (response) => {
+              this.dentistAvailability.set(response.data);
+              this.isLoadingAvailability.set(false);
+            },
+            error: () => {
+              this.isLoadingAvailability.set(false);
+            },
           });
       }
     });
@@ -281,5 +305,46 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   clearSelection(): void {
     this.selectedPreference.set(null);
+  }
+
+  openEditPersonDialog(): void {
+    // TODO: Implementar el diálogo de edición
+    this.snackbarService.openSnackbar(
+      "Funcionalidad en desarrollo",
+      3000,
+      "center",
+      "bottom",
+      SnackbarTypeEnum.Info
+    );
+  }
+
+  getDayLabel(day: DayEnum): string {
+    const dayLabels: Record<DayEnum, string> = {
+      [DayEnum.MONDAY]: "Lunes",
+      [DayEnum.TUESDAY]: "Martes",
+      [DayEnum.WEDNESDAY]: "Miércoles",
+      [DayEnum.THURSDAY]: "Jueves",
+      [DayEnum.FRIDAY]: "Viernes",
+      [DayEnum.SATURDAY]: "Sábado",
+      [DayEnum.SUNDAY]: "Domingo",
+    };
+    return dayLabels[day] || day;
+  }
+
+  formatTime(time: { hour: number; minute: number }): string {
+    const hour = time.hour.toString().padStart(2, "0");
+    const minute = time.minute.toString().padStart(2, "0");
+    return `${hour}:${minute}`;
+  }
+
+  openEditAvailabilityDialog(): void {
+    // TODO: Implementar el diálogo de edición de disponibilidad
+    this.snackbarService.openSnackbar(
+      "Funcionalidad en desarrollo",
+      3000,
+      "center",
+      "bottom",
+      SnackbarTypeEnum.Info
+    );
   }
 }

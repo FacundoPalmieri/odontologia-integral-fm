@@ -52,20 +52,20 @@ export class LoginComponent implements OnDestroy {
 
   constructor() {
     this.loginForm = new FormGroup({
-      username: new FormControl<string>("fmazzota@gmail.com", [
-        Validators.required,
-        Validators.email,
-      ]),
-      password: new FormControl<string>("$FlorMazzotta12345678", [
-        Validators.required,
-      ]),
-      // username: new FormControl<string>("equintans@gmail.com", [
+      // username: new FormControl<string>("fmazzota@gmail.com", [
       //   Validators.required,
       //   Validators.email,
       // ]),
-      // password: new FormControl<string>("$EmmaQuintans12345678", [
+      // password: new FormControl<string>("$FlorMazzotta12345678", [
       //   Validators.required,
       // ]),
+      username: new FormControl<string>("equintans@gmail.com", [
+        Validators.required,
+        Validators.email,
+      ]),
+      password: new FormControl<string>("$EmmaQuintans12345678", [
+        Validators.required,
+      ]),
       // username: new FormControl<string>(
       //   "matiasnicolasiglesiasseliman@gmail.com",
       //   [Validators.required, Validators.email]

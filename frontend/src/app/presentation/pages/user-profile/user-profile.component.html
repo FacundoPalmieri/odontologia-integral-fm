@@ -1,287 +1,322 @@
-<mat-card appearance="outlined">
-  <mat-card-header class="mt-[0px] !p-0 h-[100px] overflow-hidden">
-    <img
-      src="img/profile-banner.jpg"
-      alt="banner"
-      class="w-full h-full object-cover rounded-t-[var(--mat-sys-corner-medium)]"
-    />
-  </mat-card-header>
-  <mat-card-content class="mt-[-75px]">
-    <div class="flex flex-col items-center">
-      <div class="relative group ">
-        <div class="avatar-gradient flex items-center justify-center mb-2">
-          <img
-            [src]="avatar()"
-            alt="Avatar"
-            class="rounded-[50%] h-[120px] w-[120px] object-cover border-2 border-white"
-          />
-          <div
-            class="absolute bg-black/30 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity"
-          >
-            <button mat-icon-button (click)="triggerFileInput()">
-              <i-tabler name="edit" class="text-white"></i-tabler>
-            </button>
-            @if(avatar() && canDeleteAvatar()) {
-            <button mat-icon-button (click)="removeAvatar()">
-              <i-tabler name="trash" class="text-red-500"></i-tabler>
-            </button>
-            }
-          </div>
-          <input
-            #inputAvatar
-            type="file"
-            class="hidden"
-            accept="image/*"
-            (change)="onFileSelected($event)"
-          />
-        </div>
-      </div>
-
-      <span class="font-bold text-xl"
-        >{{ user()?.person?.firstName }} {{ user()?.person?.lastName }}</span
-      >
-      <div class="flex flex-row gap-2 mt-1">
-        @if(user() && user()!.rolesList && user()!.rolesList.length > 0){
-        @for(role of user()!.rolesList; track $index){
-        <mat-chip>{{ role.label }}</mat-chip>
-        } } @else { <mat-chip color="warn">Sin roles</mat-chip>
-        }
-      </div>
-    </div>
-  </mat-card-content>
-  <div
-    class="w-full mt-4 bg-[var(--mat-sys-home-sidenav-content-background)] rounded-tabs"
-  >
-    <div class="justify-end items-end">
-      <mat-tab-group
-        mat-stretch-tabs="false"
-        mat-align-tabs="end"
-        animationDuration="300ms"
-        (selectedIndexChange)="selectedTabIndex.set($event)"
-      >
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <i-tabler class="mr-1" name="user-circle"></i-tabler>
-            Datos
-          </ng-template>
-        </mat-tab>
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <i-tabler class="mr-1" name="settings"></i-tabler>
-            Preferencias
-          </ng-template>
-        </mat-tab>
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <i-tabler class="mr-1" name="file"></i-tabler>
-            Adjuntos
-          </ng-template>
-        </mat-tab>
-      </mat-tab-group>
-    </div>
-  </div>
-</mat-card>
-<div class="mt-4">
-  <ng-container *ngIf="selectedTabIndex() === 0">
+<!-- Grid principal -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+  <!-- Columna izquierda: Avatar -->
+  <div class="lg:col-span-4">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <app-person-form
-          [person]="user()?.person!"
-          (formValid)="onPersonFormValidChange($event)"
-          (formValue)="onPersonFormValueChange($event)"
-        >
-        </app-person-form>
+        <div class="flex flex-col items-center">
+          <div class="relative group">
+            <div class="avatar-gradient flex items-center justify-center mb-2">
+              <img
+                [src]="avatar()"
+                alt="Avatar"
+                class="rounded-[50%] h-[120px] w-[120px] object-cover border-2 border-white"
+              />
+              <div
+                class="absolute bg-black/30 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity"
+              >
+                <button mat-icon-button (click)="triggerFileInput()">
+                  <i-tabler name="edit" class="text-white"></i-tabler>
+                </button>
+                @if(avatar() && canDeleteAvatar()) {
+                <button mat-icon-button (click)="removeAvatar()">
+                  <i-tabler name="trash" class="text-red-500"></i-tabler>
+                </button>
+                }
+              </div>
+              <input
+                #inputAvatar
+                type="file"
+                class="hidden"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+              />
+            </div>
+          </div>
+
+          <span class="font-bold text-xl text-center"
+            >{{ user()?.person?.firstName }}
+            {{ user()?.person?.lastName }}</span
+          >
+          <div class="flex flex-row flex-wrap gap-2 mt-2 justify-center">
+            @if(user() && user()!.rolesList && user()!.rolesList.length > 0){
+            @for(role of user()!.rolesList; track $index){
+            <mat-chip>{{ role.label }}</mat-chip>
+            } } @else { <mat-chip color="warn">Sin roles</mat-chip>
+            }
+          </div>
+        </div>
       </mat-card-content>
-      <mat-card-actions class="flex justify-end">
-        <button
-          mat-flat-button
-          [disabled]="!isPersonFormValid() || isSaving()"
-          (click)="savePersonData()"
-        >
-          Guardar cambios
+    </mat-card>
+  </div>
+
+  <!-- Columna derecha: Datos Personales -->
+  <div class="lg:col-span-8">
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Datos Personales</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="p-4">
+          <!-- Información Personal -->
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold mb-3">Información Personal</h3>
+            <div
+              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4"
+            >
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Nombre</span>
+                <span class="font-medium">{{
+                  user()?.person?.firstName || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Apellido</span>
+                <span class="font-medium">{{
+                  user()?.person?.lastName || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Tipo de Documento</span>
+                <span class="font-medium">{{
+                  user()?.person?.dniType?.dni || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Documento</span>
+                <span class="font-medium">{{
+                  user()?.person?.dni || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Fecha de Nacimiento</span>
+                <span class="font-medium">{{
+                  user()?.person?.birthDate
+                    ? (user()?.person?.birthDate | date : "dd/MM/yyyy")
+                    : "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Género</span>
+                <span class="font-medium">{{
+                  user()?.person?.gender?.name || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Nacionalidad</span>
+                <span class="font-medium">{{
+                  user()?.person?.nationality?.name || "-"
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de Contacto -->
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold mb-3">Información de Contacto</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Email</span>
+                <span class="font-medium">{{
+                  user()?.person?.contactEmails || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Tipo de Teléfono</span>
+                <span class="font-medium">{{
+                  user()?.person?.phoneType?.name || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Teléfono</span>
+                <span class="font-medium">{{
+                  user()?.person?.phone || "-"
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de Ubicación -->
+          <div>
+            <h3 class="text-sm font-semibold mb-3">Información de Ubicación</h3>
+            <div
+              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4"
+            >
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">País</span>
+                <span class="font-medium">{{
+                  user()?.person?.country?.name || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Provincia</span>
+                <span class="font-medium">{{
+                  user()?.person?.province?.name || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Localidad</span>
+                <span class="font-medium">{{
+                  user()?.person?.locality?.name || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Calle</span>
+                <span class="font-medium">{{
+                  user()?.person?.street || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Altura</span>
+                <span class="font-medium">{{
+                  user()?.person?.number || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Piso</span>
+                <span class="font-medium">{{
+                  user()?.person?.floor || "-"
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs mb-1">Departamento</span>
+                <span class="font-medium">{{
+                  user()?.person?.apartment || "-"
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-flat-button (click)="openEditPersonDialog()">
+          <div class="flex items-center justify-center gap-2">
+            <i-tabler name="edit"></i-tabler>
+            <span>Modificar</span>
+          </div>
         </button>
       </mat-card-actions>
     </mat-card>
-  </ng-container>
-  <ng-container *ngIf="selectedTabIndex() === 1">
-    @if(isDentist()) {
-    <div class="preferences-grid">
-      <!-- Grid de opciones -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-        <mat-card
-          class="preference-card cursor-pointer"
-          [class.selected]="selectedPreference() === 'availability'"
-          (click)="selectPreference('availability')"
-          appearance="outlined"
-        >
-          <mat-card-content class="text-center p-6">
-            <div class="mb-4 flex justify-center">
-              <div
-                class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"
-              >
-                <i-tabler name="clock" class="text-blue-600"></i-tabler>
-              </div>
-            </div>
-            <h3 class="text-lg font-semibold mb-2">Disponibilidad Horaria</h3>
-            <p class="text-sm">Configura tus horarios de atención</p>
-          </mat-card-content>
-        </mat-card>
+  </div>
+</div>
 
-        <mat-card
-          class="preference-card cursor-pointer"
-          [class.selected]="selectedPreference() === 'holidays'"
-          (click)="selectPreference('holidays')"
-          appearance="outlined"
-        >
-          <mat-card-content class="text-center p-6">
-            <div class="mb-4 flex justify-center">
-              <div
-                class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center"
-              >
-                <i-tabler
-                  name="calendar-cancel"
-                  class="text-red-600"
-                ></i-tabler>
-              </div>
-            </div>
-            <h3 class="text-lg font-semibold mb-2">Días no Laborales</h3>
-            <p class="text-sm">Gestiona tus días de descanso</p>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card
-          class="preference-card cursor-pointer"
-          [class.selected]="selectedPreference() === 'conflicts'"
-          (click)="selectPreference('conflicts')"
-          appearance="outlined"
-        >
-          <mat-card-content class="text-center p-6">
-            <div class="mb-4 flex justify-center">
-              <div
-                class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center"
-              >
-                <i-tabler
-                  name="alert-triangle"
-                  class="text-orange-600"
-                ></i-tabler>
-              </div>
-            </div>
-            <h3 class="text-lg font-semibold mb-2">Conflictos de Turnos</h3>
-            <p class="text-sm">Resuelve conflictos de programación</p>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Contenido de la opción seleccionada -->
-      @if(selectedPreference()) {
-      <mat-card appearance="outlined" class="selected-content-card">
-        <mat-card-header>
-          <mat-card-title class="flex items-center gap-3 !mb-0">
-            @switch(selectedPreference()) { @case('availability') {
-            <div class="flex items-center gap-3">
-              <div
-                class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center flex-shrink-0"
-              >
-                <i-tabler name="clock" class="text-blue-600"></i-tabler>
-              </div>
-              <span class="flex items-center">Disponibilidad Horaria</span>
-            </div>
-
-            } @case('holidays') {
-            <div class="flex items-center gap-3">
-              <div
-                class="w-8 h-8 bg-red-100 rounded-md flex items-center justify-center flex-shrink-0"
-              >
-                <i-tabler
-                  name="calendar-cancel"
-                  class="text-red-600"
-                ></i-tabler>
-              </div>
-              <span class="flex items-center">Días no Laborales</span>
-            </div>
-            } @case('conflicts') {
-            <div class="flex items-center gap-3">
-              <div
-                class="w-8 h-8 bg-orange-100 rounded-md flex items-center justify-center flex-shrink-0"
-              >
-                <i-tabler
-                  name="alert-triangle"
-                  class="text-orange-600"
-                ></i-tabler>
-              </div>
-              <span class="flex items-center">Conflictos de Turnos</span>
-            </div>
-            } }
-          </mat-card-title>
-          <button
-            mat-icon-button
-            class="ml-auto"
-            (click)="clearSelection()"
-            matTooltip="Cerrar"
-          >
-            <i-tabler name="x" class="mb-2"></i-tabler>
-          </button>
-        </mat-card-header>
-        <mat-card-content>
-          @switch(selectedPreference()) { @case('availability') {
-          <app-dentist-availability
-            [dentistId]="user()?.person?.id!"
-          ></app-dentist-availability>
-          } @case('holidays') {
-          <div class="text-center py-8">
-            <i-tabler
-              name="calendar-cancel"
-              class="text-gray-400 mb-4"
-              size="64"
-            ></i-tabler>
-            <h3 class="text-lg font-medium mb-2">
-              Configuración de días no laborales
-            </h3>
-            <p class="mb-4">
-              Esta funcionalidad estará disponible próximamente
-            </p>
-            <mat-chip color="accent">Próximamente</mat-chip>
-          </div>
-          } @case('conflicts') {
-          <div class="p-4">
-            <app-appointment-conflict
-              [dentistId]="user()?.person?.id!"
-            ></app-appointment-conflict>
-          </div>
-          } }
-        </mat-card-content>
-      </mat-card>
-      }
-    </div>
-    } @else {
-    <mat-card appearance="outlined">
-      <div class="p-8 text-center">
+<!-- Layout tipo masonry para Adjuntos y Preferencias -->
+<div class="mt-4 columns-1 lg:columns-2 gap-4 space-y-4">
+  <!-- Card de Adjuntos -->
+  <mat-card appearance="outlined" class="break-inside-avoid mb-4">
+    <mat-card-content>
+      <div class="flex items-center gap-3 mb-4">
         <div
-          class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4"
+          class="w-12 h-12 bg-blue-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
         >
-          <i-tabler name="info-circle" class="text-gray-500"></i-tabler>
+          <i-tabler name="file-text" class="text-blue-600"></i-tabler>
         </div>
-        <h3 class="text-lg font-medium mb-2">
-          Sin configuraciones disponibles
-        </h3>
-        <p>
-          Las configuraciones de preferencias están disponibles únicamente para
-          usuarios con rol de Dentista.
+        <h3 class="text-lg font-semibold">Archivos Adjuntos</h3>
+      </div>
+      @if(user()?.id) {
+      <app-attached-file
+        [attachedFileEntity]="{
+          id: user()?.id!,
+          entity: entityTypeEnum.USER
+        }"
+      ></app-attached-file>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Sección de preferencias (solo para dentistas) -->
+  @if(isDentist()) {
+  <!-- Card de Disponibilidad Horaria -->
+  <mat-card
+    appearance="outlined"
+    class="hover:shadow-lg transition-shadow break-inside-avoid mb-4"
+  >
+    <mat-card-content>
+      <div class="flex items-center gap-3 mb-4">
+        <div
+          class="w-12 h-12 bg-blue-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
+        >
+          <i-tabler name="clock" class="text-blue-600"></i-tabler>
+        </div>
+        <h3 class="text-lg font-semibold">Disponibilidad Horaria</h3>
+      </div>
+      @if(dentistAvailability()) {
+      <div class="flex flex-col gap-2">
+        @if(dentistAvailability()?.days && dentistAvailability()!.days.length >
+        0) { @for(day of dentistAvailability()!.days; track day.dayName) {
+        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+          <span class="font-medium">{{ getDayLabel(day.dayName) }}</span>
+          <span class="text-sm">
+            {{ formatTime(day.startTime) }} - {{ formatTime(day.endTime) }}
+            <span class="text-xs ml-2"
+              >({{ day.appointmentDuration }} min)</span
+            >
+          </span>
+        </div>
+        } } @else {
+        <p class="text-sm text-center py-4">
+          No hay días laborales configurados
         </p>
+        }
       </div>
-    </mat-card>
-    }
-  </ng-container>
-  <ng-container *ngIf="selectedTabIndex() === 2">
-    <mat-card appearance="outlined">
-      <div class="p-4">
-        <app-attached-file
-          [attachedFileEntity]="{
-            id: user()?.id!,
-            entity: entityTypeEnum.USER
-          }"
-        ></app-attached-file>
+      } @else {
+      <p class="text-sm text-center py-4">Cargando...</p>
+      }
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-flat-button (click)="openEditAvailabilityDialog()">
+        <div class="flex items-center justify-center gap-2">
+          <i-tabler name="edit"></i-tabler>
+          <span>Modificar</span>
+        </div>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Card de Días no Laborales -->
+  <mat-card
+    appearance="outlined"
+    class="hover:shadow-lg transition-shadow break-inside-avoid mb-4"
+  >
+    <mat-card-content>
+      <div class="flex items-center gap-3 mb-4">
+        <div
+          class="w-12 h-12 bg-red-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
+        >
+          <i-tabler name="calendar-cancel" class="text-red-600"></i-tabler>
+        </div>
+        <h3 class="text-lg font-semibold">Días no Laborales</h3>
       </div>
-    </mat-card>
-  </ng-container>
+      <div class="text-center py-8">
+        <h3 class="text-lg font-medium mb-2">
+          Configuración de días no laborales
+        </h3>
+        <p class="mb-4">Esta funcionalidad estará disponible próximamente</p>
+        <mat-chip color="accent">Próximamente</mat-chip>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Card de Conflictos de Turnos -->
+  <mat-card
+    appearance="outlined"
+    class="hover:shadow-lg transition-shadow break-inside-avoid mb-4"
+  >
+    <mat-card-content>
+      <div class="flex items-center gap-3 mb-4">
+        <div
+          class="w-12 h-12 bg-orange-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
+        >
+          <i-tabler name="alert-triangle" class="text-orange-600"></i-tabler>
+        </div>
+        <h3 class="text-lg font-semibold">Conflictos de Turnos</h3>
+      </div>
+      @if(user()?.person?.id) {
+      <app-appointment-conflict
+        [dentistId]="user()?.person?.id!"
+      ></app-appointment-conflict>
+      }
+    </mat-card-content>
+  </mat-card>
+  }
 </div>
