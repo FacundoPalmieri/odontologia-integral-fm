@@ -37,6 +37,7 @@ import { PersonFormComponent } from "../../components/person-form/person-form.co
 import { DentistAvailabilityComponent } from "../../components/dentist-availability/dentist-availability.component";
 import { AppointmentConflictComponent } from "../../components/appointment-conflict/appointment-conflict.component";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { PersonDataEditDialogComponent } from "./person-data-edit-dialog/person-data-edit-dialog.component";
 
 @Component({
   selector: "app-user-profile",
@@ -94,6 +95,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           .getById(this.userId())
           .pipe(takeUntil(this._destroy$))
           .subscribe((response: ApiResponseInterface<UserInterface>) => {
+            console.log(response);
             if (!response.data || !response.data.person) {
               this.snackbarService.openSnackbar(
                 "Ha ocurrido un error.",
@@ -121,7 +123,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             } else {
               const gender = this.user()?.person?.gender?.name.toLowerCase();
               this.avatar.set(
-                gender === "femenino" ? "img/women-avatar.png" : "img/men-avatar.png"
+                gender === "femenino"
+                  ? "img/women-avatar.png"
+                  : "img/men-avatar.png"
               );
               this.canDeleteAvatar.set(false);
             }
@@ -175,7 +179,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             } else {
               const gender = this.user()?.person?.gender?.name.toLowerCase();
               this.avatar.set(
-                gender === "femenino" ? "img/women-avatar.png" : "img/men-avatar.png"
+                gender === "femenino"
+                  ? "img/women-avatar.png"
+                  : "img/men-avatar.png"
               );
               this.canDeleteAvatar.set(false);
             }
@@ -299,23 +305,47 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }, 100);
   }
 
-  selectPreference(preference: string): void {
-    this.selectedPreference.set(preference);
-  }
-
-  clearSelection(): void {
-    this.selectedPreference.set(null);
-  }
-
   openEditPersonDialog(): void {
-    // TODO: Implementar el diálogo de edición
-    this.snackbarService.openSnackbar(
-      "Funcionalidad en desarrollo",
-      3000,
-      "center",
-      "bottom",
-      SnackbarTypeEnum.Info
-    );
+    const dialogRef = this.dialog.open(PersonDataEditDialogComponent, {
+      data: {
+        personData: this.user()?.person,
+      },
+      width: "800px",
+      maxHeight: "90vh",
+    });
+
+    dialogRef.afterClosed().subscribe((result: PersonInterface | undefined) => {
+      if (result) {
+        const updatedUser: UserInterface = {
+          ...this.user()!,
+          person: result,
+        };
+
+        this.userService
+          .update(updatedUser)
+          .pipe(takeUntil(this._destroy$))
+          .subscribe({
+            next: () => {
+              this.snackbarService.openSnackbar(
+                "Datos personales actualizados correctamente.",
+                6000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Success
+              );
+
+              this.userService
+                .getById(this.userId())
+                .pipe(takeUntil(this._destroy$))
+                .subscribe(
+                  (userResponse: ApiResponseInterface<UserInterface>) => {
+                    this.user.set(userResponse.data);
+                  }
+                );
+            },
+          });
+      }
+    });
   }
 
   getDayLabel(day: DayEnum): string {

@@ -10,7 +10,7 @@
               <img
                 [src]="avatar()"
                 alt="Avatar"
-                class="rounded-[50%] h-[120px] w-[120px] object-cover border-2 border-white"
+                class="rounded-[50%] h-[140px] w-[140px] object-cover border-2 border-white"
               />
               <div
                 class="absolute bg-black/30 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity"
@@ -53,10 +53,15 @@
   <!-- Columna derecha: Datos Personales -->
   <div class="lg:col-span-8">
     <mat-card appearance="outlined">
-      <mat-card-header>
-        <mat-card-title>Datos Personales</mat-card-title>
-      </mat-card-header>
       <mat-card-content>
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-12 h-12 bg-blue-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
+          >
+            <i-tabler name="id" class="text-blue-600"></i-tabler>
+          </div>
+          <h3 class="text-lg font-semibold">Datos Personales</h3>
+        </div>
         <div class="p-4">
           <!-- Información Personal -->
           <div class="mb-6">
@@ -207,9 +212,9 @@
     <mat-card-content>
       <div class="flex items-center gap-3 mb-4">
         <div
-          class="w-12 h-12 bg-blue-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
+          class="w-12 h-12 bg-gray-200 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
         >
-          <i-tabler name="file-text" class="text-blue-600"></i-tabler>
+          <i-tabler name="file-text" class="text-gray-600"></i-tabler>
         </div>
         <h3 class="text-lg font-semibold">Archivos Adjuntos</h3>
       </div>
@@ -254,15 +259,36 @@
           </span>
         </div>
         } } @else {
-        <p class="text-sm text-center py-4">
-          No hay días laborales configurados
-        </p>
+        <div class="flex flex-col items-center gap-4 py-6 px-4">
+          <div
+            class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center"
+          >
+            <i-tabler
+              name="alert-circle"
+              class="text-orange-600 scale-220"
+            ></i-tabler>
+          </div>
+          <div class="text-center">
+            <h4 class="font-semibold mb-2">Sin disponibilidad configurada</h4>
+            <p class="text-sm">
+              No se podrán cargar turnos a su nombre hasta que configure su
+              disponibilidad horaria.
+            </p>
+          </div>
+          <button mat-flat-button (click)="openEditAvailabilityDialog()">
+            <div class="flex items-center justify-center gap-2">
+              <i-tabler name="plus"></i-tabler>
+              <span>Configurar</span>
+            </div>
+          </button>
+        </div>
         }
       </div>
       } @else {
       <p class="text-sm text-center py-4">Cargando...</p>
       }
     </mat-card-content>
+    @if(dentistAvailability()?.days && dentistAvailability()!.days.length > 0) {
     <mat-card-actions align="end">
       <button mat-flat-button (click)="openEditAvailabilityDialog()">
         <div class="flex items-center justify-center gap-2">
@@ -271,6 +297,7 @@
         </div>
       </button>
     </mat-card-actions>
+    }
   </mat-card>
 
   <!-- Card de Días no Laborales -->

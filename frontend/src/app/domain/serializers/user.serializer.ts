@@ -59,9 +59,7 @@ export class UserSerializer {
         user.person !== null ? this.personSerializer.toView(user.person) : null,
       dentist: {
         licenseNumber: user.dentist?.licenseNumber,
-        dentistSpecialty: this._getDentistSpecialty(
-          user.dentist?.dentistSpecialty
-        ),
+        dentistSpecialty: user.dentist?.dentistSpecialty,
       },
     };
   }
