@@ -26,7 +26,7 @@ public class Patient extends Auditable {
     @Id
     private Long id; // Es el mismo que el de Person.
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "person_id")
     @MapsId  // Mapea el id de persona a paciente.
     private Person person;

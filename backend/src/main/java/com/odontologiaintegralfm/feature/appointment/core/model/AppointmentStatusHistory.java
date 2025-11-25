@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.model;
 
+import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentActionRequester;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.model.Auditable;
@@ -33,16 +34,21 @@ public class AppointmentStatusHistory extends Auditable {
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentActionRequester requestedBy;
+
     @Lob
     private String observation;
 
 
-    public AppointmentStatusHistory(Appointment appointment, AppointmentStatus status,String observation, UserSec updateBy, LocalDateTime updateAt, boolean enabled) {
+    public AppointmentStatusHistory(Appointment appointment, AppointmentStatus status,AppointmentActionRequester requestedBy,String observation, UserSec createBy, LocalDateTime createAt, boolean enabled) {
         this.appointment = appointment;
         this.status = status;
+        this.requestedBy = requestedBy;
         this.observation = observation;
-        this.setUpdatedBy(updateBy);
-        this.setUpdatedAt(updateAt);
+        this.setCreatedBy(createBy);
+        this.setCreatedAt(createAt);
         this.setEnabled(enabled);
     }
 

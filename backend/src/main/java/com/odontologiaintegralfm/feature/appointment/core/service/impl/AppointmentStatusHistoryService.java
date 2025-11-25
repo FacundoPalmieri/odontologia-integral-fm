@@ -10,6 +10,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
+import java.util.List;
+
 @Service
 public class AppointmentStatusHistoryService implements IAppointmentStatusHistoryService {
 
@@ -22,8 +24,18 @@ public class AppointmentStatusHistoryService implements IAppointmentStatusHistor
         try{
             appointmentStatusHistoryRepository.save(appointmentStatusHistory);
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "AppointmentStatusHistoryService", null, null, "create");
+            throw new DataBaseException(e, "AppointmentStatusHistoryService", appointmentStatusHistory.getId(), null, "save");
         }
 
+    }
+
+
+    @Override
+    public void saveAll(List<AppointmentStatusHistory> appointmentStatusHistory) {
+        try{
+            appointmentStatusHistoryRepository.saveAll(appointmentStatusHistory);
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "AppointmentStatusHistoryService", null, null, "saveAll");
+        }
     }
 }

@@ -9,7 +9,7 @@ import java.time.LocalTime;
 public record SlotResponseDTO(
         LocalTime starTime,
         LocalTime endTime,
-        //AppointmentCreateResponseDTO appointment,
+        //AppointmentResponseDTO appointment,
         DentistCalendarLockResponseDTO calendarLock
 ) {
 }

@@ -1,21 +1,28 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.TemplateEmail;
+import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCancelRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentRescheduleRequestDTO;
-import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentRequestSource;
+import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentResponseDTO;
+import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentActionRequester;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.feature.appointment.catalogs.service.HolidayService;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.*;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
+import com.odontologiaintegralfm.feature.authentication.enums.Role;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.implement.DentistService;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.feature.patient.core.service.implement.PatientService;
+import com.odontologiaintegralfm.feature.person.core.model.ContactEmail;
+import com.odontologiaintegralfm.feature.person.core.model.Person;
+import com.odontologiaintegralfm.feature.user.service.IUserService;
+import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.infrastructure.systemparameter.enums.SystemParameterKey;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.implement.SystemParameterService;
@@ -25,7 +32,6 @@ import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.response.Response;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -37,7 +43,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService implements IAppointmentService {
@@ -69,6 +77,10 @@ public class AppointmentService implements IAppointmentService {
     private AppointmentStatusHistoryService appointmentStatusHistoryService;
     @Autowired
     private SystemParameterService systemParameterService;
+    @Autowired
+    private IEmailService emailService;
+    @Autowired
+    private IUserService userService;
 
 
     /**
@@ -91,7 +103,7 @@ public class AppointmentService implements IAppointmentService {
      * @param appointmentCreateRequestDTO DTO con los datos necesarios para crear el turno:
      *                                    id del dentista, id del paciente y fecha-hora del turno.
      *
-     * @return {@link Response} que contiene un {@link AppointmentCreateResponseDTO}
+     * @return {@link Response} que contiene un {@link AppointmentResponseDTO}
      * con la información del turno creado (ID, dentista, paciente, fecha-hora y estado).
      *
      * @throws ConflictException si:
@@ -112,7 +124,7 @@ public class AppointmentService implements IAppointmentService {
             type = LogType.SYSTEM,
             level = LogLevel.INFO
     )
-    public Response<AppointmentCreateResponseDTO> create(AppointmentCreateRequestDTO appointmentCreateRequestDTO) {
+    public Response<AppointmentResponseDTO> create(AppointmentCreateRequestDTO appointmentCreateRequestDTO) {
 
         //Validar dentista
         Dentist dentist = dentistService.getById(appointmentCreateRequestDTO.idDentist())
@@ -162,6 +174,7 @@ public class AppointmentService implements IAppointmentService {
         AppointmentStatusHistory appointmentStatusHistory = new AppointmentStatusHistory(
                 appointment,
                 AppointmentStatus.RESERVED,
+                AppointmentActionRequester.PATIENT,
                 null,
                 authenticatedUserService.getAuthenticatedUser(),
                 LocalDateTime.now(),
@@ -169,6 +182,16 @@ public class AppointmentService implements IAppointmentService {
         );
 
         appointmentStatusHistoryService.save(appointmentStatusHistory);
+
+
+        //Notificación por mail.
+        sendAppointmentEmail(
+                appointment,
+                "appointmentService.create.notifyEmail.subject",
+                "appointmentService.create.notifyEmail.title",
+                "appointmentService.create.notifyEmail.message"
+        );
+
 
 
 
@@ -179,7 +202,7 @@ public class AppointmentService implements IAppointmentService {
                         null,
                         LocaleContextHolder.getLocale()
                 ),
-                new AppointmentCreateResponseDTO(
+                new AppointmentResponseDTO(
                         appointmentSaved.getId(),
                         appointmentSaved.getDentist().getPerson().getLastName() + "," + appointmentSaved.getDentist().getPerson().getFirstName(),
                         appointmentSaved.getPatient().getPerson().getLastName() + "," + appointmentSaved.getPatient().getPerson().getFirstName(),
@@ -207,7 +230,7 @@ public class AppointmentService implements IAppointmentService {
      *         (únicamente {@link AppointmentStatus#RESERVED}).</li>
      *
      *     <li><b>Tiempo mínimo de reprogramación:</b> Se valida que la operación cumpla el tiempo mínimo
-     *         permitido según quién solicita la modificación ({@link AppointmentRequestSource} paciente o dentista).
+     *         permitido según quién solicita la modificación ({@link AppointmentActionRequester} paciente o dentista).
      *         Esta validación se realiza mediante {@code validateMinimumHours()}.</li>
      *
      *     <li><b>Validación de dentista y paciente:</b> Se verifica que ambos existan y sean válidos
@@ -252,19 +275,20 @@ public class AppointmentService implements IAppointmentService {
             type = LogType.SYSTEM,
             level = LogLevel.INFO
     )
-    public Response<AppointmentCreateResponseDTO> reschedule(Long idAppointment, AppointmentRescheduleRequestDTO appointmentRescheduleRequestDTO) {
+    public Response<AppointmentResponseDTO> reschedule(Long idAppointment, AppointmentRescheduleRequestDTO appointmentRescheduleRequestDTO) {
 
         //Valída que exista el turno y que se encuentra en un estado que permita su reprogramación.
         Appointment appointment = appointmentRepository.findById(idAppointment)
                 .orElseThrow(() -> new ConflictException("exception.appointmentNotFound.user",null,"exception.appointmentNotFound.log",new Object[]{idAppointment, "AppointmentService", "reschedule"}, LogLevel.ERROR));
 
-        if(appointment.getStatus() != AppointmentStatus.RESERVED ){
+        if(appointment.getStatus() != AppointmentStatus.RESERVED){
             throw new ConflictException("exception.reschedule.conflictStatus.user",new Object[]{appointment.getStatus()},"exception.reschedule.conflictStatus.log",new Object[]{idAppointment,appointment.getStatus(), "AppointmentService", "reschedule"}, LogLevel.ERROR);
 
         }
 
+
         //Valída que se cumpla el tiempo mínimo de reprogramación del turno, según quien lo realiza (Dentista o Paciente).
-        validateMinimumHours(appointmentRescheduleRequestDTO.requestSource(), appointment.getDate());
+        validateMinimumHoursForReschedule(appointmentRescheduleRequestDTO.requestSource(), appointment.getDate());
 
 
         //Validar dentista
@@ -298,6 +322,7 @@ public class AppointmentService implements IAppointmentService {
         AppointmentStatusHistory appointmentStatusHistory = new AppointmentStatusHistory(
                 appointment,
                 AppointmentStatus.RESCHEDULED,
+                appointmentRescheduleRequestDTO.requestSource(),
                 appointmentRescheduleRequestDTO.observation(),
                 authenticatedUserService.getAuthenticatedUser(),
                 LocalDateTime.now(),
@@ -312,10 +337,25 @@ public class AppointmentService implements IAppointmentService {
             throw new DataBaseException(e, "AppointmentService", idAppointment, null, "reschedule");
         }
 
+
+        //Notificación por mail.
+        sendAppointmentEmail(
+                appointment,
+                "appointmentService.reschedule.notifyEmail.subject",
+                "appointmentService.reschedule.notifyEmail.title",
+                "appointmentService.reschedule.notifyEmail.message"
+        );
+
+
+
         return new Response<>(
                 true,
-                "appointmentService.reschedule.ok",
-                new AppointmentCreateResponseDTO(
+                messageSource.getMessage(
+                        "appointmentService.reschedule.ok",
+                        null,
+                        LocaleContextHolder.getLocale()
+                ),
+                new AppointmentResponseDTO(
                         appointment.getId(),
                         appointment.getDentist().getPerson().getLastName() + "," + appointment.getDentist().getPerson().getFirstName(),
                         appointment.getPatient().getPerson().getLastName() + "," + appointment.getPatient().getPerson().getFirstName(),
@@ -329,6 +369,274 @@ public class AppointmentService implements IAppointmentService {
     }
 
 
+
+
+
+    /**
+     * Cancela un turno existente.
+     * <p>
+     * Este método:
+     * <ol>
+     *     <li>Verifica que el turno exista.</li>
+     *     <li>Comprueba que se encuentre en un estado que permita su cancelación (solo RESERVED).</li>
+     *     <li>Valida el tiempo mínimo requerido para cancelar, según quién solicite la acción.</li>
+     *     <li>Actualiza el estado del turno a {@link AppointmentStatus#CANCELED}.</li>
+     *     <li>Registra el cambio en el historial de estados.</li>
+     * </ol>
+     * <p>
+     * No modifica la fecha original del turno: simplemente lo marca como cancelado.
+     *
+     * @param idAppointment ID del turno a cancelar.
+     * @param appointmentCancelRequestDTO Datos de la solicitud de cancelación,
+     *                                    incluyendo motivo y quién la pidió (dentista o paciente).
+     * @return Un {@link Response} con la información actualizada del turno ya cancelado.
+     * @throws ConflictException Si el turno no existe o no está en un estado que permita cancelación.
+     * @throws BadRequestException Si no se cumple el tiempo mínimo de cancelación.
+     * @throws DataBaseException Si ocurre un error al persistir la información en la base de datos.
+     */
+
+    @Override
+    @LogAction(
+            value = "appointmentService.logAction.cancel.ok",
+            args = {"#result.data.id", "#result.data.appointmentDateTime", "#result.data.dentistName", "#result.data.patientName"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
+    public Response<AppointmentResponseDTO> cancel(Long idAppointment, AppointmentCancelRequestDTO appointmentCancelRequestDTO) {
+
+        //Validar que el turno exista.
+        Appointment appointment = appointmentRepository.findById(idAppointment)
+                .orElseThrow(() -> new ConflictException("exception.appointmentNotFound.user",null,"exception.appointmentNotFound.log",new Object[]{idAppointment, "AppointmentService", "reschedule"}, LogLevel.ERROR));
+
+        //Validar que esté en un estado "Cancelable"
+        if(appointment.getStatus() != AppointmentStatus.RESERVED){
+            throw new ConflictException("exception.cancel.conflictStatus.user",new Object[]{appointment.getStatus()},"exception.cancel.conflictStatus.log",new Object[]{idAppointment,appointment.getStatus(), "AppointmentService", "cancel"}, LogLevel.ERROR);
+
+        }
+
+        //Validar mínimo de horas de cancelación.
+        validateMinimumHoursForCancel(appointmentCancelRequestDTO.requestSource(), appointment.getDate());
+
+        //Actualizar estado Turno.
+        appointment.setStatus(AppointmentStatus.CANCELED);
+        appointment.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+        appointment.setUpdatedAt(LocalDateTime.now());
+
+        //persiste turno
+        try{
+            appointmentRepository.save(appointment);
+        }catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "AppointmentService", idAppointment, null, "cancel");
+        }
+
+        //Actualizar estado Historial y persiste.
+        AppointmentStatusHistory appointmentStatusHistory = new AppointmentStatusHistory(
+                appointment,
+                AppointmentStatus.CANCELED,
+                appointmentCancelRequestDTO.requestSource(),
+                appointmentCancelRequestDTO.observation(),
+                authenticatedUserService.getAuthenticatedUser(),
+                LocalDateTime.now(),
+                true
+        );
+        appointmentStatusHistoryService.save(appointmentStatusHistory);
+
+
+
+        //Notificación por mail.
+        sendAppointmentEmail(
+                appointment,
+                "appointmentService.cancel.notifyEmail.subject",
+                "appointmentService.cancel.notifyEmail.title",
+                "appointmentService.cancel.notifyEmail.message"
+        );
+
+
+
+        return new Response<>(
+                true,
+                messageSource.getMessage(
+                        "appointmentService.cancel.ok",
+                        null,
+                        LocaleContextHolder.getLocale()
+                ),
+                new AppointmentResponseDTO(
+                        appointment.getId(),
+                        appointment.getDentist().getPerson().getLastName() + "," + appointment.getDentist().getPerson().getFirstName(),
+                        appointment.getPatient().getPerson().getLastName() + "," + appointment.getPatient().getPerson().getFirstName(),
+                        appointment.getDate(),
+                        appointment.getStatus()
+                )
+
+        );
+
+    }
+
+
+
+
+
+
+    @Override
+    @LogAction(
+            value = "appointmentService.logAction.cancelAllByDate.ok",
+            args = {"#idDentist", "#result.data"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+    )
+    public Response<Integer> cancelAllByDate(Long idDentist ,LocalDate date, AppointmentCancelRequestDTO appointmentCancelRequestDTO) {
+
+        //Valída que la fecha sea mayor al día actual.
+        if(!date.isAfter(LocalDate.now())){
+            throw new BadRequestException("exception.validateMinimumHoursForCancel.user", null, "exception.validateMinimumHoursForCancel.log", new Object[]{date, LocalDate.now(), "AppointmentService", "cancelAllByDate"}, LogLevel.ERROR);
+        }
+
+
+        //Recuperar turnos con estado "Reserved" para el dentista y día solicitado.
+        List<Appointment> appointments = appointmentRepository.findFutureAppointmentsReservedByDentist(idDentist, LocalDateTime.now(), AppointmentStatus.RESERVED);
+
+        List<AppointmentStatusHistory> appointmentStatusHistory = new ArrayList<>();
+
+        //Lista para guardar los mails de los pacientes para posterior envío.
+        Map<Patient, List<Appointment>> appointmentsByPatient = new HashMap<>();
+
+        // Recorre turnos
+        for (Appointment a : appointments) {
+
+            a.setStatus(AppointmentStatus.CANCELED);
+            a.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+            a.setUpdatedAt(LocalDateTime.now());
+
+            // Agrupar por paciente
+            appointmentsByPatient
+                    .computeIfAbsent(a.getPatient(), p -> new ArrayList<>())
+                    .add(a);
+
+            // Crear historial
+            appointmentStatusHistory.add(
+                    new AppointmentStatusHistory(
+                            a,
+                            AppointmentStatus.CANCELED,
+                            appointmentCancelRequestDTO.requestSource(),
+                            appointmentCancelRequestDTO.observation(),
+                            authenticatedUserService.getAuthenticatedUser(),
+                            LocalDateTime.now(),
+                            true
+                    )
+            );
+        }
+
+        //persiste
+        List<Appointment> appointmentsSaved;
+        try {
+            appointmentsSaved = appointmentRepository.saveAll(appointments);
+            appointmentStatusHistoryService.saveAll(appointmentStatusHistory);
+
+        } catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "AppointmentService", null, null, "cancelAllByDate");
+        }
+
+
+        // Notificación por mail
+        appointments.forEach(a ->
+                sendAppointmentEmail(
+                        a,
+                        "appointmentService.cancel.notifyEmail.subject",
+                        "appointmentService.cancel.notifyEmail.title",
+                        "appointmentService.cancel.notifyEmail.message"
+                )
+        );
+
+
+        return new Response<>(
+                true,
+                messageSource.getMessage(
+                        "appointmentService.cancelAllByDate.ok",
+                        new Object[]{appointmentsSaved.size()},
+                        LocaleContextHolder.getLocale()
+                ),
+                appointmentsSaved.size()
+
+        );
+
+    }
+
+
+    /**
+     * Envía email  a todos los contactos asociados al paciente del turno recibido, utilizando un template HTML.
+     *
+     * <p>Este método construye el correo a partir de la información del turno (`Appointment`):
+     * <ul>
+     *     <li>Nombre del paciente</li>
+     *     <li>Fecha y hora del turno</li>
+     *     <li>Profesional asignado</li>
+     * </ul>
+     * <p>El correo se envía a todos los emails registrados en el paciente
+     *
+     * <p>Este método encapsula la lógica común utilizada tanto para cancelación,
+     * creación o reprogramación de turnos
+     *
+     * @param appointment         Turno del cual se extraerá la información para completar el template del correo.
+     * @param subjectMessageKey   Key del archivo de mensajes para obtener el asunto del correo.
+     * @param titleMessageKey     Key del archivo de mensajes para completar el título del template.
+     * @param bodyMessageKey      Key del archivo de mensajes para completar el cuerpo principal del correo.
+     *
+     * @throws org.springframework.context.NoSuchMessageException
+     *         Si alguna de las keys provistas no existe en el archivo de mensajes.
+     *
+     * @implNote Este método no maneja excepciones del envío de correo, dado que el
+     *           `emailService.sendTemplateEmail()` es asíncrono por diseño.
+     */
+    private void sendAppointmentEmail(
+            Appointment appointment,
+            String subjectMessageKey,
+            String titleMessageKey,
+            String bodyMessageKey
+    ) {
+
+        // Obtener emails destino
+        List<String> emails = appointment.getPatient()
+                .getPerson()
+                .getContactEmails()
+                .stream()
+                .map(ContactEmail::getEmail)
+                .toList();
+
+        // Construir el cuerpo del mail
+        Map<String, Object> templateData = Map.of(
+                TemplateEmail.title.toString(),
+                messageSource.getMessage(titleMessageKey, null, LocaleContextHolder.getLocale()),
+
+                TemplateEmail.patient.toString(),
+                appointment.getPatient().getPerson().getFirstName() + ", " +
+                        appointment.getPatient().getPerson().getLastName(),
+
+                TemplateEmail.message.toString(),
+                messageSource.getMessage(bodyMessageKey, null, LocaleContextHolder.getLocale()),
+
+                TemplateEmail.date.toString(),
+                appointment.getDate().toLocalDate()
+                        .format(DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy", new Locale("es", "ES"))),
+
+                TemplateEmail.time.toString(),
+                appointment.getDate().toLocalTime()
+                        .format(DateTimeFormatter.ofPattern("HH:mm")) + " hs",
+
+                TemplateEmail.dentist.toString(),
+                appointment.getDentist().getPerson().getLastName() + ", " +
+                        appointment.getDentist().getPerson().getFirstName()
+        );
+
+        // Envio
+        emailService.sendTemplateEmail(
+                emails,
+                messageSource.getMessage(subjectMessageKey, null, LocaleContextHolder.getLocale()),
+                templateData
+        );
+    }
+
+
+
     /**
      * Valída que la reprogramación de un turno se realice con la anticipación mínima requerida según quien lo solicite.
      * <p>El sistema define dos parámetros de configuración:
@@ -337,7 +645,7 @@ public class AppointmentService implements IAppointmentService {
      * <p>
      * La validación consiste en restar ese tiempo mínimo a la fecha y hora del turno. Si el resultado es anterior al momento actual, significa que
      * la acción se está intentando fuera del tiempo permitido y se lanza una {@link BadRequestException}.</p>
-     * @param appointmentRequestSource indica quién solicita la reprogramación
+     * @param appointmentActionRequester indica quién solicita la reprogramación
      *                                 (PACIENTE o DENTISTA), lo cual determina
      *                                 qué parámetro de sistema se utiliza.
      *
@@ -347,11 +655,11 @@ public class AppointmentService implements IAppointmentService {
      *                             mínimo de anticipación definido por el negocio.
      */
 
-    private void validateMinimumHours(AppointmentRequestSource appointmentRequestSource, LocalDateTime appointmentDateTime) {
+    private void validateMinimumHoursForReschedule(AppointmentActionRequester appointmentActionRequester, LocalDateTime appointmentDateTime) {
 
         int minimumHours = Integer.parseInt(
                 systemParameterService.getByKey
-                        ((appointmentRequestSource == AppointmentRequestSource.PATIENT)
+                        ((appointmentActionRequester == AppointmentActionRequester.PATIENT)
                                 ? SystemParameterKey.APPOINTMENT_RESCHEDULE_PATIENT
                                 : SystemParameterKey.APPOINTMENT_RESCHEDULE_DENTIST
                         )
@@ -361,9 +669,51 @@ public class AppointmentService implements IAppointmentService {
         LocalDateTime limit = appointmentDateTime.minusHours(minimumHours);
 
         if (limit.isBefore(now)) {
-            throw new BadRequestException("exception.validateMinimumHours.user", null, "exception.validateMinimumHours.log", new Object[]{appointmentDateTime, limit, "AppointmentService", "validateMinimumHours"}, LogLevel.ERROR);
+            throw new BadRequestException("exception.validateMinimumHoursForReschedule.user", null, "exception.validateMinimumHoursForReschedule.log", new Object[]{appointmentDateTime, limit, "AppointmentService", "validateMinimumHours"}, LogLevel.ERROR);
         }
     }
+
+
+
+
+
+    /**
+     * Valída que la cancelación de un turno se realice con la anticipación mínima requerida según quien lo solicite.
+     * <p>El sistema define dos parámetros de configuración:
+     * uno para solicitudes realizadas por pacientes y otro para solicitudes realizadas por profesionales del consultorio.
+     * Dichos valores,expresados en horas, se utilizan para determinar si la reprogramación está permitida.</p>
+     * <p>
+     * La validación consiste en restar ese tiempo mínimo a la fecha y hora del turno. Si el resultado es anterior al momento actual, significa que
+     * la acción se está intentando fuera del tiempo permitido y se lanza una {@link BadRequestException}.</p>
+     * @param appointmentActionRequester indica quién solicita la reprogramación
+     *                                 (PACIENTE o DENTISTA), lo cual determina
+     *                                 qué parámetro de sistema se utiliza.
+     *
+     * @param appointmentDateTime      la fecha y hora original del turno a evaluar.
+     *
+     * @throws BadRequestException si la reprogramación no cumple con el tiempo
+     *                             mínimo de anticipación definido por el negocio.
+     */
+    private void validateMinimumHoursForCancel(AppointmentActionRequester appointmentActionRequester, LocalDateTime appointmentDateTime) {
+
+        int minimumHours = Integer.parseInt(
+                systemParameterService.getByKey
+                        ((appointmentActionRequester == AppointmentActionRequester.PATIENT)
+                                ? SystemParameterKey.APPOINTMENT_CANCEL_PATIENT
+                                : SystemParameterKey.APPOINTMENT_CANCEL_DENTIST
+                        )
+        );
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime limit = appointmentDateTime.minusHours(minimumHours);
+
+        if (limit.isBefore(now)) {
+            throw new BadRequestException("exception.validateMinimumHoursForCancel.user", null, "exception.validateMinimumHoursForCancel.log", new Object[]{appointmentDateTime, limit, "AppointmentService", "validateMinimumHours"}, LogLevel.ERROR);
+        }
+    }
+
+
+
 
 
     /**

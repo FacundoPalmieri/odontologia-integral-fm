@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.person.core.service.intefaces;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.feature.person.core.model.ContactEmail;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -23,5 +24,8 @@ public interface IContactEmailService {
      * @return
      */
     SchedulerResultDTO deleteOrphan();
+
+
+
 
 }

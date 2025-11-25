@@ -1,7 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
 
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.CalendarMonthResponseDTO;
 import com.odontologiaintegralfm.shared.response.Response;
 

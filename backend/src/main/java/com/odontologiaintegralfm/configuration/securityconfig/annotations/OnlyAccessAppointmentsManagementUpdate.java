@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAuthority('PERMISO_CONFIGURATION_UPDATE')")
+@PreAuthorize("hasAuthority('PERMISO_APPOINTMENT_MANAGEMENT_UPDATE')")
 public @interface OnlyAccessAppointmentsManagementUpdate {
 }
