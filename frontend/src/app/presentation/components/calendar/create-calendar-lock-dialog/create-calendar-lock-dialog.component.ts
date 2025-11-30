@@ -306,12 +306,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
         .pipe(takeUntil(this._destroy$))
         .subscribe({
           next: (response) => {
-            console.log("Calendar lock created successfully:", response);
             this.dialogRef.close(response.data);
-          },
-          error: (error) => {
-            console.error("Error creating calendar lock:", error);
-            // TODO: Mostrar mensaje de error al usuario
           },
         });
     } else {
@@ -319,7 +314,6 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
       Object.keys(this.eventForm.controls).forEach((key) => {
         this.eventForm.get(key)?.markAsTouched();
       });
-      console.log("Form is invalid", this.eventForm.errors);
     }
   }
 
