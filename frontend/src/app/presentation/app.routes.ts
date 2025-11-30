@@ -24,6 +24,7 @@ import { SchedulesListComponent } from "./pages/system/schedule/schedules-list/s
 import { MessagesListComponent } from "./pages/system/messages/messages-list/messages-list.component";
 import { RolesListComponent } from "./pages/configuration/role/roles-list/roles-list.component";
 import { CalendarComponent } from "./components/calendar/calendar.component";
+import { DentistAvailabilityComponent } from "./pages/dentist-availability/dentist-availability.component";
 
 export const routes: Routes = [
   {
@@ -110,6 +111,10 @@ export const routes: Routes = [
       {
         path: "calendar",
         component: CalendarComponent,
+      },
+      {
+        path: "dentist-availability/:id",
+        component: DentistAvailabilityComponent,
       },
     ],
   },

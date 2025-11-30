@@ -1,4 +1,5 @@
-import { DayEnum } from "../../utils/enums/day.enum";
+import { DayEnum, RecurrenceEnum } from "../../utils/enums/day.enum";
+import { AppointmentConflictInterface } from "./appointment.inteface";
 
 export interface DentistInterface {
   licenseNumber: string;
@@ -10,32 +11,27 @@ export interface DentistSpecialtyInterface {
   name: string;
 }
 
-export interface AppointmentConflictInterface {
-  appointmentId: number;
-  appointmentDateTime: Date;
-  patientName: string;
-  reasonKey: string;
-  reasonLabel: string;
-}
-
 export interface TimeInterface {
   hour: number;
   minute: number;
 }
 
-export interface DentistAvailabilityInterface {
-  idDentist: number;
-  days: DentistDayAvailabilityInterface[];
-}
-
 export interface DentistDayAvailabilityInterface {
-  dayName: DayEnum;
+  dayName?: DayEnum | null;
+  recurrence?: RecurrenceEnum | null;
+  specificDate: Date | string | null;
   startTime: TimeInterface;
   endTime: TimeInterface;
   appointmentDuration: number;
 }
 
-export interface DentistAvailabilitySaveResponseInterface
-  extends DentistAvailabilityInterface {
+export interface DentistAvailabilityResponseInterface {
+  idDentist: number;
+  days: DentistDayAvailabilityInterface[];
+}
+
+export interface DentistAvailabilitySaveResponseInterface {
+  idDentist: number;
+  days: DentistDayAvailabilityInterface[];
   appointmentConflict: AppointmentConflictInterface[];
 }

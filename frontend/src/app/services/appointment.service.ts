@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
-import { AppointmentConflictInterface } from "../domain/interfaces/dentist.interface";
+import { AppointmentConflictInterface } from "../domain/interfaces/appointment.inteface";
 
 @Injectable({ providedIn: "root" })
 export class AppointmentService {

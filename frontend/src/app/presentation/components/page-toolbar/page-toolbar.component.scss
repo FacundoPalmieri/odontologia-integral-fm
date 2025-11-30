@@ -1,5 +1,5 @@
 .page-toolbar {
-  border-radius: 12px;
+  border-radius: var(--mat-sys-corner-medium);
   background: var(--mat-sys-content-toolbar-container-color);
   box-shadow: var(--mat-sys-level1);
 }

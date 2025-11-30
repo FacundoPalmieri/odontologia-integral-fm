@@ -26,6 +26,7 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { CreateAppointmentDialogComponent } from "./create-appointment-dialog/create-appointment-dialog.component";
 import { CreateCalendarLockDialogComponent } from "./create-calendar-lock-dialog/create-calendar-lock-dialog.component";
+import { AuthService } from "../../../services/auth.service";
 
 export interface CalendarEvent {
   id: string;
@@ -64,9 +65,12 @@ export type CalendarView = "day" | "week" | "month";
   ],
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
-  loaderService = inject(LoaderService);
+  private readonly loaderService = inject(LoaderService);
+  private readonly authService = inject(AuthService);
   dialog = inject(MatDialog);
   loading$ = this.loaderService.loading$;
+
+  personId: number = 0;
 
   @ViewChild("timeColumn", { static: false }) timeColumn!: ElementRef;
   @ViewChild("eventsColumn", { static: false }) eventsColumn!: ElementRef;
@@ -919,6 +923,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.personId = this.authService.getUserData()?.person.id || 0;
     this.updateSelectedDate();
   }
 
@@ -1207,6 +1212,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   createCalendarLock() {
     const dialogRef = this.dialog.open(CreateCalendarLockDialogComponent, {
       width: "800px",
+      data: {
+        personId: this.personId,
+      },
     });
   }
 }

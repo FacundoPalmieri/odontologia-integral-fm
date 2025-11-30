@@ -5,4 +5,17 @@
   </button>
   }
   <span>{{ title }}</span>
+  <span class="flex-1"></span>
+  @if(showActionButton){
+  <button
+    mat-flat-button
+    [disabled]="actionButtonDisabled"
+    (click)="action.emit()"
+  >
+    <div class="flex items-center gap-2">
+      <i-tabler [name]="actionButtonIcon" />
+      <span>{{ actionButtonText }}</span>
+    </div>
+  </button>
+  }
 </mat-toolbar>

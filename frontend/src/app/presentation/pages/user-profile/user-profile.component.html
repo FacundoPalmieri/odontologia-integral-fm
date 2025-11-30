@@ -9,7 +9,6 @@
             <div class="avatar-gradient flex items-center justify-center mb-2">
               <img
                 [src]="avatar()"
-                alt="Avatar"
                 class="rounded-[50%] h-[140px] w-[140px] object-cover border-2 border-white"
               />
               <div
@@ -275,7 +274,7 @@
               disponibilidad horaria.
             </p>
           </div>
-          <button mat-flat-button (click)="openEditAvailabilityDialog()">
+          <button mat-flat-button (click)="goToEditAvailabilityDialog()">
             <div class="flex items-center justify-center gap-2">
               <i-tabler name="plus"></i-tabler>
               <span>Configurar</span>
@@ -284,13 +283,11 @@
         </div>
         }
       </div>
-      } @else {
-      <p class="text-sm text-center py-4">Cargando...</p>
       }
     </mat-card-content>
     @if(dentistAvailability()?.days && dentistAvailability()!.days.length > 0) {
     <mat-card-actions align="end">
-      <button mat-flat-button (click)="openEditAvailabilityDialog()">
+      <button mat-flat-button (click)="goToEditAvailabilityDialog()">
         <div class="flex items-center justify-center gap-2">
           <i-tabler name="edit"></i-tabler>
           <span>Modificar</span>

@@ -4,7 +4,7 @@ import { environment } from "../environments/environment";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import { map, Observable } from "rxjs";
 import {
-  DentistAvailabilityInterface,
+  DentistAvailabilityResponseInterface,
   DentistAvailabilitySaveResponseInterface,
   DentistDayAvailabilityInterface,
 } from "../domain/interfaces/dentist.interface";
@@ -19,7 +19,7 @@ export class DentistService {
 
   getAvailability(
     dentistId: number
-  ): Observable<ApiResponseInterface<DentistAvailabilityInterface>> {
+  ): Observable<ApiResponseInterface<DentistAvailabilityResponseInterface>> {
     return this.http
       .get<ApiResponseInterface<any>>(
         `${this.apiUrl}/dentist-availability/${dentistId}`

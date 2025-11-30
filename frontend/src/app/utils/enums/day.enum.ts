@@ -13,3 +13,10 @@ export enum HolidayTypeEnum {
   MOVEABLE = "MOVEABLE",
   LONG_WEEKEND = "LONG_WEEKEND",
 }
+
+export enum RecurrenceEnum {
+  NONE = "NONE",
+  WEEKLY = "WEEKLY",
+  MONTHLY = "MONTHLY",
+  YEARLY = "YEARLY",
+}

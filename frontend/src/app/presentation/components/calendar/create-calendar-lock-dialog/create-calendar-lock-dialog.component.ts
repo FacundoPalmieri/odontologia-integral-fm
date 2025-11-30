@@ -1,6 +1,10 @@
-import { Component, inject, ViewChild } from "@angular/core";
+import { Component, inject, OnDestroy, signal, ViewChild } from "@angular/core";
 import { MatDatepicker } from "@angular/material/datepicker";
-import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
@@ -11,9 +15,22 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
-import { FormsModule } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
-import { DayEnum } from "../../../../utils/enums/day.enum";
+import { DayEnum, RecurrenceEnum } from "../../../../utils/enums/day.enum";
+import { CalendarService } from "../../../../services/calendar.service";
+import {
+  CalendarLockInterface,
+  CalendarLockTypeInterface,
+} from "../../../../domain/interfaces/calendar.interface";
+import { Subject, takeUntil } from "rxjs";
+import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 
 @Component({
   selector: "app-create-calendar-lock-dialog",
@@ -32,14 +49,37 @@ import { DayEnum } from "../../../../utils/enums/day.enum";
     MatChipsModule,
     MatAutocompleteModule,
     FormsModule,
+    ReactiveFormsModule,
     IconsModule,
   ],
 })
-export class CreateCalendarLockDialogComponent {
+export class CreateCalendarLockDialogComponent implements OnDestroy {
+  private readonly _destroy$ = new Subject<void>();
+  private readonly calendarService = inject(CalendarService);
   dialogRef = inject(MatDialogRef<CreateCalendarLockDialogComponent>);
+  data = inject<{ personId: number }>(MAT_DIALOG_DATA, { optional: false });
 
   @ViewChild("startPicker") startPicker!: MatDatepicker<Date>;
   @ViewChild("endPicker") endPicker!: MatDatepicker<Date>;
+
+  // EventForm
+  eventForm = new FormGroup({
+    calendarLockType: new FormControl<CalendarLockTypeInterface | null>(null, [
+      Validators.required,
+    ]),
+    days: new FormControl<DayEnum[]>([], [Validators.required]),
+    startDate: new FormControl<Date | null>(null, [Validators.required]),
+    endDate: new FormControl<Date | null>(null, [Validators.required]),
+    startTime: new FormControl<string>("", [Validators.required]),
+    endTime: new FormControl<string>("", [Validators.required]),
+    recurrence: new FormControl<RecurrenceEnum>(RecurrenceEnum.NONE, [
+      Validators.required,
+    ]),
+    observation: new FormControl<string>("", [Validators.required]),
+  });
+
+  // Calendar lock types
+  calendarLockTypes = signal<CalendarLockTypeInterface[]>([]);
 
   // Date range
   startDate: Date | null = null;
@@ -47,8 +87,6 @@ export class CreateCalendarLockDialogComponent {
 
   // Time range
   isAllDay = false;
-  startTime: string = "";
-  endTime: string = "";
 
   // Days of week
   selectedDays: DayEnum[] = [];
@@ -71,22 +109,66 @@ export class CreateCalendarLockDialogComponent {
   // Professional
   selectedProfessional: any = null;
 
-  constructor() {
-    this.updateAvailableDays();
+  // Flag to show/hide time and days fields
+  get shouldShowTimeAndDays(): boolean {
+    const lockType = this.eventForm.get("calendarLockType")?.value;
+    if (!lockType) return true;
+
+    const hiddenTypes = ["Enfermedad", "Vacaciones"];
+    return !hiddenTypes.includes(lockType.name);
   }
 
-  professionals = [
-    { id: 1, name: "Dr. Ana Martínez", specialty: "Odontología General" },
-    { id: 2, name: "Dr. Pedro Rodríguez", specialty: "Ortodoncia" },
-    { id: 3, name: "Dr. Laura Sánchez", specialty: "Periodoncia" },
-  ];
+  constructor() {
+    this._getCalendarLockTypes();
+    this.updateAvailableDays();
+
+    // Listen to lock type changes to update validators
+    this.eventForm
+      .get("calendarLockType")
+      ?.valueChanges.pipe(takeUntil(this._destroy$))
+      .subscribe(() => {
+        this.updateFieldValidators();
+      });
+  }
+
+  private updateFieldValidators(): void {
+    const startTimeControl = this.eventForm.get("startTime");
+    const endTimeControl = this.eventForm.get("endTime");
+    const daysControl = this.eventForm.get("days");
+
+    if (this.shouldShowTimeAndDays) {
+      // Add required validators
+      startTimeControl?.setValidators([Validators.required]);
+      endTimeControl?.setValidators([Validators.required]);
+      daysControl?.setValidators([Validators.required]);
+    } else {
+      // Remove validators
+      startTimeControl?.clearValidators();
+      endTimeControl?.clearValidators();
+      daysControl?.clearValidators();
+
+      // Clear values
+      startTimeControl?.setValue("");
+      endTimeControl?.setValue("");
+      daysControl?.setValue([]);
+      this.selectedDays = [];
+      this.allDaysSelected = false;
+    }
+
+    // Update validity
+    startTimeControl?.updateValueAndValidity();
+    endTimeControl?.updateValueAndValidity();
+    daysControl?.updateValueAndValidity();
+  }
 
   onStartDateChange(): void {
+    this.startDate = this.eventForm.get("startDate")?.value || null;
     this.updateAvailableDays();
     this.validateSelectedDays();
   }
 
   onEndDateChange(): void {
+    this.endDate = this.eventForm.get("endDate")?.value || null;
     this.updateAvailableDays();
     this.validateSelectedDays();
   }
@@ -97,6 +179,17 @@ export class CreateCalendarLockDialogComponent {
 
   openEndDatePicker(): void {
     this.endPicker.open();
+  }
+
+  private _getCalendarLockTypes(): void {
+    this.calendarService
+      .getCalendarLockTypes()
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(
+        (response: ApiResponseInterface<CalendarLockTypeInterface[]>) => {
+          this.calendarLockTypes.set(response.data);
+        }
+      );
   }
 
   private updateAvailableDays(): void {
@@ -155,6 +248,7 @@ export class CreateCalendarLockDialogComponent {
     } else {
       this.selectedDays = [];
     }
+    this.eventForm.get("days")?.setValue(this.selectedDays);
   }
 
   toggleDay(day: DayEnum): void {
@@ -167,10 +261,23 @@ export class CreateCalendarLockDialogComponent {
     this.allDaysSelected =
       this.selectedDays.length === this.availableDays.length &&
       this.availableDays.length > 0;
+    this.eventForm.get("days")?.setValue(this.selectedDays);
   }
 
   isDaySelected(day: DayEnum): boolean {
     return this.selectedDays.includes(day);
+  }
+
+  onAllDayChange(isAllDay: boolean): void {
+    if (isAllDay) {
+      // Si se selecciona "Todo el día", establecer horarios completos
+      this.eventForm.get("startTime")?.setValue("00:00:00");
+      this.eventForm.get("endTime")?.setValue("23:59:59");
+    } else {
+      // Si se deselecciona, limpiar los valores para que el usuario los ingrese
+      this.eventForm.get("startTime")?.setValue("");
+      this.eventForm.get("endTime")?.setValue("");
+    }
   }
 
   onCancel() {
@@ -178,6 +285,46 @@ export class CreateCalendarLockDialogComponent {
   }
 
   onSave() {
-    this.dialogRef.close();
+    if (this.eventForm.valid) {
+      const formValue = this.eventForm.value;
+
+      // Construir el objeto CalendarLockInterface
+      const calendarLock: CalendarLockInterface = {
+        calendarLockType: formValue.calendarLockType!,
+        days: formValue.days || [],
+        recurrence: formValue.recurrence || RecurrenceEnum.NONE,
+        startDate: formValue.startDate!,
+        endDate: formValue.endDate!,
+        startTime: this.isAllDay ? "00:00:00" : formValue.startTime || "",
+        endTime: this.isAllDay ? "23:59:59" : formValue.endTime || "",
+        observation: formValue.observation || "",
+      };
+
+      // Llamar al servicio para crear el bloqueo
+      this.calendarService
+        .createCalendarLock(calendarLock, this.data.personId)
+        .pipe(takeUntil(this._destroy$))
+        .subscribe({
+          next: (response) => {
+            console.log("Calendar lock created successfully:", response);
+            this.dialogRef.close(response.data);
+          },
+          error: (error) => {
+            console.error("Error creating calendar lock:", error);
+            // TODO: Mostrar mensaje de error al usuario
+          },
+        });
+    } else {
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.eventForm.controls).forEach((key) => {
+        this.eventForm.get(key)?.markAsTouched();
+      });
+      console.log("Form is invalid", this.eventForm.errors);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 }

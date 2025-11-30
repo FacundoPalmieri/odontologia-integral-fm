@@ -20,7 +20,7 @@ import { Subject, takeUntil } from "rxjs";
 import { DayEnum } from "../../../utils/enums/day.enum";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { PersonInterface } from "../../../domain/interfaces/person.interface";
-import { DentistAvailabilityInterface } from "../../../domain/interfaces/dentist.interface";
+import { DentistAvailabilityResponseInterface } from "../../../domain/interfaces/dentist.interface";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatChipsModule } from "@angular/material/chips";
 import { Router } from "@angular/router";
@@ -34,7 +34,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { AttachedFileComponent } from "../../components/attached-file/attached-file.component";
 import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
 import { PersonFormComponent } from "../../components/person-form/person-form.component";
-import { DentistAvailabilityComponent } from "../../components/dentist-availability/dentist-availability.component";
 import { AppointmentConflictComponent } from "../../components/appointment-conflict/appointment-conflict.component";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { PersonDataEditDialogComponent } from "./person-data-edit-dialog/person-data-edit-dialog.component";
@@ -56,7 +55,6 @@ import { PersonDataEditDialogComponent } from "./person-data-edit-dialog/person-
     MatTooltipModule,
     AttachedFileComponent,
     PersonFormComponent,
-    DentistAvailabilityComponent,
     AppointmentConflictComponent,
     MatDialogModule,
   ],
@@ -83,7 +81,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   isSaving = signal<boolean>(false);
   isAnyPanelExpanded = signal<boolean>(false);
   selectedPreference = signal<string | null>(null);
-  dentistAvailability = signal<DentistAvailabilityInterface | null>(null);
+  dentistAvailability = signal<DentistAvailabilityResponseInterface | null>(
+    null
+  );
   isLoadingAvailability = signal<boolean>(false);
 
   entityTypeEnum = EntityTypeEnum;
@@ -95,7 +95,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           .getById(this.userId())
           .pipe(takeUntil(this._destroy$))
           .subscribe((response: ApiResponseInterface<UserInterface>) => {
-            console.log(response);
             if (!response.data || !response.data.person) {
               this.snackbarService.openSnackbar(
                 "Ha ocurrido un error.",
@@ -367,14 +366,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     return `${hour}:${minute}`;
   }
 
-  openEditAvailabilityDialog(): void {
-    // TODO: Implementar el diálogo de edición de disponibilidad
-    this.snackbarService.openSnackbar(
-      "Funcionalidad en desarrollo",
-      3000,
-      "center",
-      "bottom",
-      SnackbarTypeEnum.Info
-    );
+  goToEditAvailabilityDialog(): void {
+    this.router.navigate(["/dentist-availability/" + this.user()?.person?.id!]);
   }
 }

@@ -112,6 +112,8 @@ import {
   IconUserCheck,
   IconFileText,
   IconCalendarWeek,
+  IconDeviceFloppy,
+  IconCalendarEvent,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -225,6 +227,8 @@ const ICONS = {
   IconUserCheck,
   IconFileText,
   IconCalendarWeek,
+  IconDeviceFloppy,
+  IconCalendarEvent,
 } as const;
 
 @NgModule({

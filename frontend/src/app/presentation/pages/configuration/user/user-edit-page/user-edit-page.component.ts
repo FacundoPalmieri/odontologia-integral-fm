@@ -403,8 +403,8 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
           } else {
             const genderName = gender?.name?.toLowerCase();
             this.avatarUrl.set(
-              genderName === "femenino" 
-                ? "img/women-avatar.png" 
+              genderName === "femenino"
+                ? "img/women-avatar.png"
                 : "img/men-avatar.png"
             );
             this.canDeleteAvatar.set(false);
@@ -515,8 +515,8 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
               } else {
                 const gender = user.person?.gender?.name?.toLowerCase();
                 this.avatarUrl.set(
-                  gender === "femenino" 
-                    ? "img/women-avatar.png" 
+                  gender === "femenino"
+                    ? "img/women-avatar.png"
                     : "img/men-avatar.png"
                 );
                 this.canDeleteAvatar.set(false);

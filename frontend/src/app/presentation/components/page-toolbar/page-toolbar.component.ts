@@ -21,5 +21,10 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 export class PageToolbarComponent {
   @Input() title: string = "";
   @Input() showBackButton: boolean = false;
+  @Input() showActionButton: boolean = false;
+  @Input() actionButtonText: string = "Guardar";
+  @Input() actionButtonIcon: string = "device-floppy";
+  @Input() actionButtonDisabled: boolean = false;
   @Output() back = new EventEmitter<void>();
+  @Output() action = new EventEmitter<void>();
 }

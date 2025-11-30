@@ -2,19 +2,20 @@
 
 <mat-dialog-content class="w-full">
   <div
+    [formGroup]="eventForm"
     class="flex flex-col w-full bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)] pt-2 px-4 gap-2"
   >
     <!-- Title Section -->
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-row gap-4">
       <mat-form-field appearance="outline" class="w-full">
-        <mat-label class="items-center flex gap-2">
-          <i-tabler name="edit"></i-tabler>
-          <span class="font-bold">Añade un título</span>
-        </mat-label>
-        <input
-          matInput
-          placeholder="Ej: Consulta de rutina, Limpieza dental..."
-        />
+        <mat-label>Tipo de bloqueo</mat-label>
+        <mat-select formControlName="calendarLockType">
+          @for (lockType of calendarLockTypes(); track lockType.id) {
+          <mat-option [value]="lockType">
+            {{ lockType.name }}
+          </mat-option>
+          }
+        </mat-select>
       </mat-form-field>
     </div>
 
@@ -32,8 +33,8 @@
             <input
               matInput
               [matDatepicker]="startPicker"
-              [(ngModel)]="startDate"
-              (ngModelChange)="onStartDateChange()"
+              formControlName="startDate"
+              (dateChange)="onStartDateChange()"
               (click)="openStartDatePicker()"
               placeholder="Seleccionar fecha"
               readonly
@@ -52,10 +53,10 @@
             <input
               matInput
               [matDatepicker]="endPicker"
-              [(ngModel)]="endDate"
-              (ngModelChange)="onEndDateChange()"
+              formControlName="endDate"
+              (dateChange)="onEndDateChange()"
               (click)="openEndDatePicker()"
-              [min]="startDate || undefined"
+              [min]="eventForm.get('startDate')?.value || undefined"
               placeholder="Seleccionar fecha"
               readonly
             />
@@ -70,6 +71,7 @@
     </div>
 
     <!-- Days of Week Section -->
+    @if (shouldShowTimeAndDays) {
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <i-tabler name="calendar-week"></i-tabler>
@@ -108,8 +110,10 @@
         }
       </div>
     </div>
+    }
 
     <!-- Time Range Section -->
+    @if (shouldShowTimeAndDays) {
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <i-tabler name="clock"></i-tabler>
@@ -121,6 +125,8 @@
           class="checkbox-item"
           [disableRipple]="true"
           [(ngModel)]="isAllDay"
+          (ngModelChange)="onAllDayChange($event)"
+          [ngModelOptions]="{ standalone: true }"
         >
           Todo el día
         </mat-checkbox>
@@ -131,7 +137,7 @@
             <input
               matInput
               type="time"
-              [(ngModel)]="startTime"
+              formControlName="startTime"
               [disabled]="isAllDay"
               placeholder="--:--"
             />
@@ -142,7 +148,7 @@
             <input
               matInput
               type="time"
-              [(ngModel)]="endTime"
+              formControlName="endTime"
               [disabled]="isAllDay"
               placeholder="--:--"
             />
@@ -150,40 +156,22 @@
         </div>
       </div>
     </div>
+    }
 
-    <!-- Professional Section -->
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="user-check"></i-tabler>
-        <span class="font-medium">Profesional</span>
-      </div>
-
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Seleccionar profesional</mat-label>
-        <mat-select>
-          @for (professional of professionals; track professional.id) {
-          <mat-option [value]="professional">
-            {{ professional.name }}
-            <span class="text-sm ml-2"> - {{ professional.specialty }} </span>
-          </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <!-- Description Section -->
+    <!-- Observation Section -->
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <i-tabler name="file-text"></i-tabler>
-        <span class="font-medium">Descripción</span>
+        <span class="font-medium">Observación</span>
       </div>
 
       <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Notas adicionales (opcional)</mat-label>
+        <mat-label>Observación (opcional)</mat-label>
         <textarea
           matInput
+          formControlName="observation"
           rows="3"
-          placeholder="Agregar descripción o notas sobre la cita..."
+          placeholder="Agregar observación o notas sobre el bloqueo..."
         ></textarea>
       </mat-form-field>
     </div>

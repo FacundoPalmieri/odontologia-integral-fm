@@ -19,12 +19,24 @@ export class DentistAvailabilitySerializer {
     // Manejar el caso donde dto podría ser un objeto con una propiedad days o un array directamente
     const daysArray = Array.isArray(dto) ? dto : dto?.days || [];
 
-    return daysArray.map((dayDto: DentistDayAvailabilityDtoInterface) => ({
-      dayName: dayDto.dayName,
-      startTime: this.parseTime(dayDto.startTime),
-      endTime: this.parseTime(dayDto.endTime),
-      appointmentDuration: dayDto.appointmentDuration,
-    }));
+    return daysArray.map((dayDto: DentistDayAvailabilityDtoInterface) => {
+      const viewData: DentistDayAvailabilityInterface = {
+        specificDate: dayDto.specificDate,
+        startTime: this.parseTime(dayDto.startTime),
+        endTime: this.parseTime(dayDto.endTime),
+        appointmentDuration: dayDto.appointmentDuration,
+      };
+
+      // Solo incluir dayName y recurrence si están presentes (días semanales)
+      if (dayDto.dayName !== undefined && dayDto.dayName !== null) {
+        viewData.dayName = dayDto.dayName;
+      }
+      if (dayDto.recurrence !== undefined && dayDto.recurrence !== null) {
+        viewData.recurrence = dayDto.recurrence as any;
+      }
+
+      return viewData;
+    });
   }
 
   /**
@@ -36,7 +48,14 @@ export class DentistAvailabilitySerializer {
     days: DentistDayAvailabilityInterface[]
   ): DentistDayAvailabilityDtoInterface[] {
     return days.map((day: DentistDayAvailabilityInterface) => ({
-      dayName: day.dayName,
+      dayName: day.dayName !== undefined ? day.dayName : null,
+      recurrence: day.recurrence !== undefined ? day.recurrence : null,
+      specificDate:
+        day.specificDate === null
+          ? null
+          : typeof day.specificDate === "string"
+          ? day.specificDate
+          : day.specificDate.toISOString().split("T")[0],
       startTime: this.formatTime(day.startTime),
       endTime: this.formatTime(day.endTime),
       appointmentDuration: day.appointmentDuration,

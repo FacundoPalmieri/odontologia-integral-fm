@@ -23,7 +23,9 @@ export interface DentistSpecialtyDtoInterface {
 }
 
 export interface DentistDayAvailabilityDtoInterface {
-  dayName: DayEnum;
+  dayName?: DayEnum | null;
+  recurrence?: string | null;
+  specificDate: string | null;
   startTime: string;
   endTime: string;
   appointmentDuration: number;
