@@ -244,46 +244,118 @@
         </div>
         <h3 class="text-lg font-semibold">Disponibilidad Horaria</h3>
       </div>
-      @if(dentistAvailability()) {
-      <div class="flex flex-col gap-2">
-        @if(dentistAvailability()?.days && dentistAvailability()!.days.length >
-        0) { @for(day of dentistAvailability()!.days; track day.dayName) {
-        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-          <span class="font-medium">{{ getDayLabel(day.dayName) }}</span>
-          <span class="text-sm">
-            {{ formatTime(day.startTime) }} - {{ formatTime(day.endTime) }}
-            <span class="text-xs ml-2"
-              >({{ day.appointmentDuration }} min)</span
-            >
-          </span>
+      @if(dentistAvailability()) { @if(dentistAvailability()?.days &&
+      dentistAvailability()!.days.length > 0) {
+      <!-- Horario Semanal -->
+      @if(getWeeklyDays().length > 0) {
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+          <i-tabler name="calendar-week" class="text-sm"></i-tabler>
+          <h4 class="text-sm font-semibold">Horario Semanal</h4>
         </div>
-        } } @else {
-        <div class="flex flex-col items-center gap-4 py-6 px-4">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+        >
+          @for(day of getWeeklyDays(); track day.dayName) {
           <div
-            class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center"
+            class="p-4 bg-[var(--mat-sys-file-container-background)] rounded-[var(--mat-sys-corner-large)] shadow-sm"
           >
-            <i-tabler
-              name="alert-circle"
-              class="text-orange-600 scale-220"
-            ></i-tabler>
-          </div>
-          <div class="text-center">
-            <h4 class="font-semibold mb-2">Sin disponibilidad configurada</h4>
-            <p class="text-sm">
-              No se podrán cargar turnos a su nombre hasta que configure su
-              disponibilidad horaria.
-            </p>
-          </div>
-          <button mat-flat-button (click)="goToEditAvailabilityDialog()">
-            <div class="flex items-center justify-center gap-2">
-              <i-tabler name="plus"></i-tabler>
-              <span>Configurar</span>
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                <i-tabler name="calendar" class="text-sm opacity-70"></i-tabler>
+                <span class="font-semibold text-sm">{{
+                  getDayLabel(day.dayName)
+                }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <i-tabler name="clock" class="text-xs opacity-70"></i-tabler>
+                <span
+                  >{{ formatTime(day.startTime) }} -
+                  {{ formatTime(day.endTime) }}</span
+                >
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <i-tabler
+                  name="hourglass"
+                  class="text-xs opacity-70"
+                ></i-tabler>
+                <span>{{ day.appointmentDuration }} min</span>
+              </div>
             </div>
-          </button>
+          </div>
+          }
         </div>
-        }
       </div>
       }
+
+      <!-- Días Específicos -->
+      @if(getSpecificDays().length > 0) {
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <i-tabler name="calendar-event" class="text-sm"></i-tabler>
+          <h4 class="text-sm font-semibold">Días Específicos</h4>
+        </div>
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+        >
+          @for(day of getSpecificDays(); track day.specificDate) {
+          <div
+            class="p-4 bg-[var(--mat-sys-file-container-background)] rounded-[var(--mat-sys-corner-large)] shadow-sm"
+          >
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                <i-tabler
+                  name="calendar-event"
+                  class="text-sm opacity-70"
+                ></i-tabler>
+                <span class="font-semibold text-sm">{{
+                  formatDate(day.specificDate)
+                }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <i-tabler name="clock" class="text-xs opacity-70"></i-tabler>
+                <span
+                  >{{ formatTime(day.startTime) }} -
+                  {{ formatTime(day.endTime) }}</span
+                >
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <i-tabler
+                  name="hourglass"
+                  class="text-xs opacity-70"
+                ></i-tabler>
+                <span>{{ day.appointmentDuration }} min</span>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      } } @else {
+      <div class="flex flex-col items-center gap-4 py-6 px-4">
+        <div
+          class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center"
+        >
+          <i-tabler
+            name="alert-circle"
+            class="text-orange-600 scale-220"
+          ></i-tabler>
+        </div>
+        <div class="text-center">
+          <h4 class="font-semibold mb-2">Sin disponibilidad configurada</h4>
+          <p class="text-sm">
+            No se podrán cargar turnos a su nombre hasta que configure su
+            disponibilidad horaria.
+          </p>
+        </div>
+        <button mat-flat-button (click)="goToEditAvailabilityDialog()">
+          <div class="flex items-center justify-center gap-2">
+            <i-tabler name="plus"></i-tabler>
+            <span>Configurar</span>
+          </div>
+        </button>
+      </div>
+      } }
     </mat-card-content>
     @if(dentistAvailability()?.days && dentistAvailability()!.days.length > 0) {
     <mat-card-actions align="end">

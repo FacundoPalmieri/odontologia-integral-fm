@@ -347,7 +347,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  getDayLabel(day: DayEnum): string {
+  getDayLabel(day: DayEnum | null | undefined): string {
+    if (!day) return "-";
     const dayLabels: Record<DayEnum, string> = {
       [DayEnum.MONDAY]: "Lunes",
       [DayEnum.TUESDAY]: "Martes",
@@ -364,6 +365,32 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     const hour = time.hour.toString().padStart(2, "0");
     const minute = time.minute.toString().padStart(2, "0");
     return `${hour}:${minute}`;
+  }
+
+  getWeeklyDays() {
+    return (
+      this.dentistAvailability()?.days?.filter(
+        (day) => day.recurrence === "WEEKLY"
+      ) || []
+    );
+  }
+
+  getSpecificDays() {
+    return (
+      this.dentistAvailability()?.days?.filter(
+        (day) => !day.recurrence || day.recurrence === "NONE"
+      ) || []
+    );
+  }
+
+  formatDate(date: string | Date | null): string {
+    if (!date) return "-";
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    return dateObj.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   }
 
   goToEditAvailabilityDialog(): void {
