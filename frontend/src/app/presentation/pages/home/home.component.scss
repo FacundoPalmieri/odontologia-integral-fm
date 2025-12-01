@@ -19,13 +19,13 @@
   height: 100%;
 }
 
+.spacer {
+  flex: 1 1 auto;
+}
+
 .content-background {
   background: var(--mat-sys-home-sidenav-content-background);
   border-radius: var(--mat-sys-corner-extra-large);
-}
-
-.spacer {
-  flex: 1 1 auto;
 }
 
 .avatar-icon {

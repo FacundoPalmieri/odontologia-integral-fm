@@ -295,7 +295,7 @@
   /* CUSTOMS VARIABLES */
   --mat-toolbar-standard-height: 70px;
   --mat-sys-home-sidenav-content-background: light-dark(
-    rgb(255, 180, 163, 0.3),
+    rgb(255, 180, 163, 0.4),
     rgb(40, 32, 36, 1)
   );
   --mat-sys-content-toolbar-container-color: light-dark(

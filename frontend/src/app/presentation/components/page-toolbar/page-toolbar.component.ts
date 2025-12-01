@@ -20,6 +20,9 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 })
 export class PageToolbarComponent {
   @Input() title: string = "";
+  @Input() titleIcon: string = "";
+  @Input() titleIconContainerColor: string = "bg-blue-100";
+  @Input() titleIconColor: string = "text-blue-600";
   @Input() showBackButton: boolean = false;
   @Input() showActionButton: boolean = false;
   @Input() actionButtonText: string = "Guardar";

@@ -80,12 +80,6 @@ export class PermissionFactory {
         children: [
           {
             permissionEnum: PermissionsEnum.SYSTEM,
-            route: "/system/messages",
-            icon: "message-report",
-            label: "Mensajes",
-          },
-          {
-            permissionEnum: PermissionsEnum.SYSTEM,
             route: "/system/parameters",
             icon: "adjustments-horizontal",
             label: "Parámetros",

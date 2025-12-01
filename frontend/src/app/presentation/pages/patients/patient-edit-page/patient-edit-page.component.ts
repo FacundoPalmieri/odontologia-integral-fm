@@ -271,8 +271,8 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
           } else {
             const genderName = gender?.name?.toLowerCase();
             this.avatarUrl.set(
-              genderName === "femenino" 
-                ? "img/women-avatar.png" 
+              genderName === "femenino"
+                ? "img/women-avatar.png"
                 : "img/men-avatar.png"
             );
           }
@@ -460,10 +460,11 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
               if (avatar) {
                 this.avatarUrl.set(avatar);
               } else {
-                const gender = response.data.person?.gender?.name?.toLowerCase();
+                const gender =
+                  response.data.person?.gender?.name?.toLowerCase();
                 this.avatarUrl.set(
-                  gender === "femenino" 
-                    ? "img/women-avatar.png" 
+                  gender === "femenino"
+                    ? "img/women-avatar.png"
                     : "img/men-avatar.png"
                 );
               }

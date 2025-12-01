@@ -21,7 +21,6 @@ import { UserEditPageComponent } from "./pages/configuration/user/user-edit-page
 import { HolidaysListComponent } from "./pages/configuration/holiday/holidays-list/holidays-list.component";
 import { ParametersListComponent } from "./pages/system/parameters/parameters-list/parameters-list.component";
 import { SchedulesListComponent } from "./pages/system/schedule/schedules-list/schedules-list.component";
-import { MessagesListComponent } from "./pages/system/messages/messages-list/messages-list.component";
 import { RolesListComponent } from "./pages/configuration/role/roles-list/roles-list.component";
 import { CalendarComponent } from "./components/calendar/calendar.component";
 import { DentistAvailabilityComponent } from "./pages/dentist-availability/dentist-availability.component";
@@ -99,10 +98,6 @@ export const routes: Routes = [
       {
         path: "system/schedules",
         component: SchedulesListComponent,
-      },
-      {
-        path: "system/messages",
-        component: MessagesListComponent,
       },
       {
         path: "profile",

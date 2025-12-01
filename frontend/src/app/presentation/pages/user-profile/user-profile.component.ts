@@ -33,7 +33,6 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { AttachedFileComponent } from "../../components/attached-file/attached-file.component";
 import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
-import { PersonFormComponent } from "../../components/person-form/person-form.component";
 import { AppointmentConflictComponent } from "../../components/appointment-conflict/appointment-conflict.component";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { PersonDataEditDialogComponent } from "./person-data-edit-dialog/person-data-edit-dialog.component";
@@ -54,7 +53,6 @@ import { PersonDataEditDialogComponent } from "./person-data-edit-dialog/person-
     MatExpansionModule,
     MatTooltipModule,
     AttachedFileComponent,
-    PersonFormComponent,
     AppointmentConflictComponent,
     MatDialogModule,
   ],

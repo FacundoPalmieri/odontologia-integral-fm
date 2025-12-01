@@ -4,7 +4,19 @@
     <i-tabler name="arrow-left" />
   </button>
   }
-  <span>{{ title }}</span>
+  <div class="flex items-center gap-3">
+    @if(titleIcon) {
+    <div
+      [class]="
+        'w-10 h-10 rounded-[var(--mat-sys-corner-small)] flex items-center justify-center flex-shrink-0 ' +
+        titleIconContainerColor
+      "
+    >
+      <i-tabler [name]="titleIcon" [class]="titleIconColor"></i-tabler>
+    </div>
+    }
+    <span>{{ title }}</span>
+  </div>
   <span class="flex-1"></span>
   @if(showActionButton){
   <button
