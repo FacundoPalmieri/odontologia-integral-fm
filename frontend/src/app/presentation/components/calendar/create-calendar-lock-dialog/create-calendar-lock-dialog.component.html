@@ -180,7 +180,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="onSave()">
+  <button mat-flat-button (click)="save()" [disabled]="eventForm.invalid">
     <div class="flex items-center gap-2">
       <i-tabler name="check" class="mr-1"></i-tabler>
       <span>Bloquear</span>

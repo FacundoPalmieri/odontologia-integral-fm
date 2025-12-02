@@ -75,7 +75,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
     recurrence: new FormControl<RecurrenceEnum>(RecurrenceEnum.NONE, [
       Validators.required,
     ]),
-    observation: new FormControl<string>("", [Validators.required]),
+    observation: new FormControl<string>(""),
   });
 
   // Calendar lock types
@@ -135,6 +135,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
     const startTimeControl = this.eventForm.get("startTime");
     const endTimeControl = this.eventForm.get("endTime");
     const daysControl = this.eventForm.get("days");
+    const recurrenceControl = this.eventForm.get("recurrence");
 
     if (this.shouldShowTimeAndDays) {
       // Add required validators
@@ -147,12 +148,13 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
       endTimeControl?.clearValidators();
       daysControl?.clearValidators();
 
-      // Clear values
-      startTimeControl?.setValue("");
-      endTimeControl?.setValue("");
-      daysControl?.setValue([]);
-      this.selectedDays = [];
-      this.allDaysSelected = false;
+      // Set all-day times and NONE recurrence for Vacaciones or Enfermedad
+      startTimeControl?.setValue("00:00:00");
+      endTimeControl?.setValue("23:59:59");
+      recurrenceControl?.setValue(RecurrenceEnum.NONE);
+
+      // Set all days between start and end date
+      this.setAllDaysInRange();
     }
 
     // Update validity
@@ -161,16 +163,56 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
     daysControl?.updateValueAndValidity();
   }
 
+  private setAllDaysInRange(): void {
+    const startDate = this.eventForm.get("startDate")?.value;
+    const endDate = this.eventForm.get("endDate")?.value;
+
+    if (!startDate || !endDate) {
+      this.eventForm.get("days")?.setValue([]);
+      this.selectedDays = [];
+      this.allDaysSelected = false;
+      return;
+    }
+
+    const daysInRange = new Set<DayEnum>();
+    const currentDate = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Iterate through each day in the range
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getDay();
+      const dayEnum = this.getDayEnumFromDayOfWeek(dayOfWeek);
+      daysInRange.add(dayEnum);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Set all days in the range
+    this.selectedDays = Array.from(daysInRange);
+    this.eventForm.get("days")?.setValue(this.selectedDays);
+    this.allDaysSelected =
+      this.selectedDays.length === this.availableDays.length;
+  }
+
   onStartDateChange(): void {
     this.startDate = this.eventForm.get("startDate")?.value || null;
     this.updateAvailableDays();
     this.validateSelectedDays();
+
+    // If it's Vacaciones or Enfermedad, update days automatically
+    if (!this.shouldShowTimeAndDays) {
+      this.setAllDaysInRange();
+    }
   }
 
   onEndDateChange(): void {
     this.endDate = this.eventForm.get("endDate")?.value || null;
     this.updateAvailableDays();
     this.validateSelectedDays();
+
+    // If it's Vacaciones or Enfermedad, update days automatically
+    if (!this.shouldShowTimeAndDays) {
+      this.setAllDaysInRange();
+    }
   }
 
   openStartDatePicker(): void {
@@ -284,9 +326,12 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
     this.dialogRef.close();
   }
 
-  onSave() {
+  save() {
     if (this.eventForm.valid) {
       const formValue = this.eventForm.value;
+
+      // Determinar si debe usar horarios de todo el día
+      const useAllDayTimes = this.isAllDay || !this.shouldShowTimeAndDays;
 
       // Construir el objeto CalendarLockInterface
       const calendarLock: CalendarLockInterface = {
@@ -295,8 +340,8 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
         recurrence: formValue.recurrence || RecurrenceEnum.NONE,
         startDate: formValue.startDate!,
         endDate: formValue.endDate!,
-        startTime: this.isAllDay ? "00:00:00" : formValue.startTime || "",
-        endTime: this.isAllDay ? "23:59:59" : formValue.endTime || "",
+        startTime: useAllDayTimes ? "00:00:00" : formValue.startTime || "",
+        endTime: useAllDayTimes ? "23:59:59" : formValue.endTime || "",
         observation: formValue.observation || "",
       };
 
