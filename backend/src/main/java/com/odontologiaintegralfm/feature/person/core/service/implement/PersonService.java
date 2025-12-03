@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -288,5 +289,7 @@ public class PersonService implements IPersonService {
             throw new DataBaseException(e, "PersonService", personId,"<-  Id de la persona", "deleteAvatar");
         }
     }
+
+
 
 }

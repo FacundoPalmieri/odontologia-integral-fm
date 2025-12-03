@@ -1,8 +1,8 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentConflictMap;
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentStatus;
+import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentConflictMap;
+import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;

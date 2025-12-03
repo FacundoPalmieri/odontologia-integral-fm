@@ -85,9 +85,10 @@ public class PersonController {
     @Operation(summary = "Obtener Imágen", description = "Obtener la imágen de la persona.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Imágen recuperada exitosamente."),
+            @ApiResponse(responseCode = "204", description = "imagen no encontrada."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
-            @ApiResponse(responseCode = "404", description = "Persona o imagen no encontrada."),
+
     })
     @GetMapping("/{id}/avatar")
     @OnlyAccessPersonProfileOrPatientsRead

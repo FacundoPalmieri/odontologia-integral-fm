@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.model;
 
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.AppointmentStatus;
+import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.feature.user.model.UserSec;

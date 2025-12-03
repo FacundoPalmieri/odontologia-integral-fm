@@ -51,6 +51,8 @@ public interface IUserService {
 
 
 
+
+
      /**
       * Obtiene un usuario por su username.
       * @param username El username del usuario a recuperar.

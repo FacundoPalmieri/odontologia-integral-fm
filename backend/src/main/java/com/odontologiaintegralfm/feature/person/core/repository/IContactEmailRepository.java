@@ -26,4 +26,6 @@ public interface IContactEmailRepository extends JpaRepository<ContactEmail, Lon
     """)
     List<ContactEmail> findOrphan();
 
+
+
 }

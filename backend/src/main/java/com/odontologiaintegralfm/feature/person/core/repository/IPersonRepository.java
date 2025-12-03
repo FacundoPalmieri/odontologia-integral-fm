@@ -17,5 +17,8 @@ public interface IPersonRepository extends JpaRepository<Person, Long> {
            AND p.dni = :dni""")
     Optional<Person> findByDniTypeIdAndDni (@Param("dniTypeId") Long dniTypeId, @Param("dni") String dni);
 
-    long countByAddress_Id(Long addressId);
+
+
+
 }
+

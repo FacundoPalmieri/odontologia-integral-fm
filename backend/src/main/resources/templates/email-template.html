@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Email</title>
+</head>
+<body style="margin:0; padding:0; font-family: 'Raleway Thin', sans-serif; background:#000000;">
+
+
+<!-- Contenedor principal -->
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#1A1A1A; padding:20px 0;">
+    <tr>
+        <td>
+            <table width="600" cellpadding="0" cellspacing="0" style="margin:auto; background:#ffffff; border-radius:10px; overflow:hidden;">
+
+                <!-- Encabezado con logo -->
+                <tr>
+                    <td bgcolor="#999999" style="padding:0; margin:0;">
+                        <div style=" background-color: #999999 !important;padding:20px;text-align:center;color:#ffffff;mso-padding-alt:20px;">
+                            <img src="cid:logoImagen" alt="Logo" width="300" style="display:block; margin:auto;">
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Título -->
+                <tr>
+                    <td style="padding:25px; text-align:center; background:#ffffff;">
+                        <h2 style="margin:0; color:#693853; font-weight:600; font-size:22px;">
+                            {{title}}
+                        </h2>
+                    </td>
+                </tr>
+
+                <!-- Contenido -->
+                <tr>
+                    <td style="padding:25px; color:#333; font-size:16px; line-height:1.5;">
+                        <p>Estimado/a {{patient}} :</p>
+
+                        <p>{{message}}</p>
+
+                        <p>
+                            <strong>Fecha :</strong> {{date}}<br>
+                            <strong>Hora  :</strong> {{time}}<br>
+                            <strong>Profesional :</strong> {{dentist}}<br>
+                            <strong>Dirección:</strong> Las Heras 2443, Lomas Del Mirador, Buenos Aires <br>
+                            <strong>Contacto:</strong>+54 11 6198 8505
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Firma -->
+                <tr>
+                    <td style="padding:25px; font-size:14px; color:#333;">
+                        <p style="margin:0;">
+                            Saludos,<br>
+                            <strong> Equipo FM Odontología Integral 🦷 </strong>
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding:20px; text-align:center; background:  #F8967F; color:white; font-size:12px;">
+                        <em>Este es un mensaje automático, por favor no responder</em>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
