@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.*;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientCreateRequestDTO;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.patient.core.service.interfaces.IPatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

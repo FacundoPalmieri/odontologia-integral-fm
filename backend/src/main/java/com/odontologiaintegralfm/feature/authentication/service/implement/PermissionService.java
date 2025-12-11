@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.authentication.service.implement;
 
 import com.odontologiaintegralfm.feature.authentication.dto.PermissionFullResponseDTO;
 import com.odontologiaintegralfm.feature.authentication.dto.PermissionSimpleResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;

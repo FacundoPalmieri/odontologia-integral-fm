@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.service.implement;
 
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.TreatmentCondition;
 import com.odontologiaintegralfm.feature.consultation.catalogs.repository.ITreatmentConditionRepository;

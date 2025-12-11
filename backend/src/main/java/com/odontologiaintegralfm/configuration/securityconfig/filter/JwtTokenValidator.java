@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.configuration.securityconfig.filter;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;
@@ -217,7 +217,8 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 path.equals("/api/auth/token/refresh") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/swagger-ui") ||
-                path.equals("/swagger-ui.html");
+                path.equals("/swagger-ui.html") ||
+                path.equals("/ws");
     }
 }
 

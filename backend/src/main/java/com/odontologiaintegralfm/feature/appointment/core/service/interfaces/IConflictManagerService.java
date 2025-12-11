@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
 
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockRequestCreateDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
@@ -92,6 +92,21 @@ public interface IConflictManagerService {
     LocalDate findLastMatchingDate(LocalDate endDate, DayOfWeek daysBlock);
 
 
+
+
+
+    /**
+     * Valída si una fecha específica coincide con un patrón de recurrencia a partir de una fecha de inicio.
+     * <p>
+     * Este método determina si {@code currentDate} cumple con la recurrencia definida en {@code recurrence}
+     * tomando como referencia {@code startDate}. Se utiliza para validar bloqueos y disponibilidades recurrentes.
+     * </p>
+     * @param recurrence Tipo de recurrencia ({@link CalendarLockRecurrenceName}).
+     * @param startDate Fecha de inicio real(no el día posterior) que sirve como referencia para la recurrencia.
+     * @param currentDate Fecha que se desea validar contra la recurrencia.
+     * @return true si currentDate cumple con la recurrencia definida respecto a startDate; false en caso contrario.
+     */
+    boolean validateRecurrence(CalendarLockRecurrenceName recurrence, LocalDate startDate, LocalDate currentDate);
 
 
 }

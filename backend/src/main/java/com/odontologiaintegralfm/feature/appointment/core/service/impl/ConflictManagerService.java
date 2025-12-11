@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentConflictMap;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockRequestCreateDTO;
@@ -550,7 +550,7 @@ public class ConflictManagerService implements IConflictManagerService {
 
 
     /**
-     * Verifica si todas las fechas efectivas de un bloqueo  están completamente cubiertas
+     * Verifica si todas las fechas efectivas de un bloqueo están completamente cubiertas
      * por alguna disponibilidad del dentista.
      *
      * <p>
@@ -710,7 +710,8 @@ public class ConflictManagerService implements IConflictManagerService {
      * @return true si currentDate cumple con la recurrencia definida respecto a startDate; false en caso contrario.
      */
 
-    private boolean validateRecurrence(CalendarLockRecurrenceName recurrence, LocalDate startDate, LocalDate currentDate) {
+    public boolean validateRecurrence(CalendarLockRecurrenceName recurrence, LocalDate startDate, LocalDate currentDate) {
+
         switch (recurrence) {
             case DAILY:
                 return true;
@@ -798,8 +799,5 @@ public class ConflictManagerService implements IConflictManagerService {
         }
         return endDate;
     }
-
-
-
 }
 

@@ -6,18 +6,30 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface IDentistCalendarLockRepository extends JpaRepository<DentistCalendarLock, Long> {
 
     @Query("""
+
+            SELECT dcl
+           FROM DentistCalendarLock dcl
+           WHERE dcl.dentist.id = :dentistId
+           AND (dcl.endDate IS null OR dcl.endDate > CURRENT_DATE)
+           """)
+    List<DentistCalendarLock> findAllCurrentByDentistId(@Param("dentistId") Long dentist);
+
+
+
+    @Query("""
            SELECT dcl
            FROM DentistCalendarLock dcl
-           WHERE dcl.dentist.id = :idDentist
-           OR dcl.endDate IS null
-           OR dcl.endDate > CURRENT_DATE
+           WHERE dcl.dentist.id = :dentistId
+           AND dcl.startDate <= :date
+           AND dcl.endDate >= :date
            """)
-    List<DentistCalendarLock> findAllCurrentByDentistId(@Param("idDentist") Long dentist);
-
+    List<DentistCalendarLock> findByDentistIdAndDateRange(@Param("dentistId") Long dentistId,
+                                                          @Param("date") LocalDate date);
 }

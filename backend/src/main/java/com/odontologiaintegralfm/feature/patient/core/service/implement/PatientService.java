@@ -17,7 +17,7 @@ import com.odontologiaintegralfm.feature.patient.core.service.interfaces.IPatien
 import com.odontologiaintegralfm.feature.person.core.model.Person;
 import com.odontologiaintegralfm.feature.person.core.service.implement.PersonService;
 import com.odontologiaintegralfm.feature.patient.core.repository.IPatientRepository;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

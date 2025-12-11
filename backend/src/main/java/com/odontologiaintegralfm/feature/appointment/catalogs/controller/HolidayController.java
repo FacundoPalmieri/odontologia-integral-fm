@@ -7,7 +7,7 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayCreateR
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.service.HolidayService;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -32,18 +32,6 @@ public class HolidayController {
 
     @Autowired
     private HolidayService holidayService;
-
-    @Value("${pagination.default-page}")
-    private int defaultPage;
-
-    @Value("${pagination.default-size}")
-    private int defaultSize;
-
-    @Value("${pagination.default-direction}")
-    private String defaultDirection;
-
-    @Value("${pagination.default.holiday-sortBy}")
-    private String defaultHolidaySortBy;
 
 
     /**
@@ -125,13 +113,4 @@ public class HolidayController {
       Response<HolidayResponseDTO> response  =  holidayService.update(holidayUpdateRequestDTO);
       return ResponseEntity.ok(response);
     }
-
-
-
-
-
-
-
-
-
 }

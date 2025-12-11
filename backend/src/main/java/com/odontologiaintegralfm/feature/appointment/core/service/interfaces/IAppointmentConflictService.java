@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 
 import java.util.List;
 
@@ -69,5 +69,9 @@ public interface IAppointmentConflictService {
      * @param appointment: Turno
      */
     AppointmentConflict update(AppointmentConflict appointment);
+
+
+
+
 
 }

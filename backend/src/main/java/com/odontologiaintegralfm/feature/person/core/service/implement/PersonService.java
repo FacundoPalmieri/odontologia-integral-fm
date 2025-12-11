@@ -14,7 +14,7 @@ import com.odontologiaintegralfm.feature.person.core.service.intefaces.*;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IDniTypeService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IGenderService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.INationalityService;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 

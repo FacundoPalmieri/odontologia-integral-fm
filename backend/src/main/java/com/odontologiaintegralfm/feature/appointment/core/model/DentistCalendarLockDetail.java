@@ -6,11 +6,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * @author [Facundo Palmieri]
+ * Representa un día específico dentro de un patrón recurrente de bloqueo.
+ *
+ * Solo se utiliza cuando el usuario envía un conjunto de días (MONDAY, TUESDAY, etc.).
+ *
+ * Ejemplos:
+ * - days = [MONDAY, WEDNESDAY], recurrence = WEEKLY
+ *     → Se bloquean todos los lunes y miércoles dentro del rango.
+ *
+ * - Si el bloqueo es puntual o diario, esta entidad no se utiliza.
  */
 @Entity
 @Audited

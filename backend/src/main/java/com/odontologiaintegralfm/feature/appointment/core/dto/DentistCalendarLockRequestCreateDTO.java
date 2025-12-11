@@ -2,20 +2,39 @@ package com.odontologiaintegralfm.feature.appointment.core.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+
+
+/**
+ * DTO para la creación de un bloqueo de agenda.
+ *
+ * Reglas principales según combinación de campos:
+ *
+ * - Bloqueo puntual:
+ *      days vacío, recurrence null, startDate == endDate
+ *
+ * - Bloqueo diario:
+ *      days vacío, recurrence DAILY o null (en cuyo caso se fuerza DAILY),
+ *      startDate != endDate
+ *
+ * - Bloqueo recurrente:
+ *      days no vacío
+ *      recurrence != DAILY
+ *      recurrence null → se interpreta como NONE
+ *
+ * La validación final se realiza en servicio antes de persistir.
+ */
 @Getter
 @Setter
 public class DentistCalendarLockRequestCreateDTO{

@@ -1,14 +1,11 @@
 package com.odontologiaintegralfm.feature.appointment.core.model;
 
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,14 +17,41 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
- * Entidad que representa los días y horarios semanales disponibles de un dentista.
- * Funciona como template.
+ * Representa una disponibilidad laboral de un dentista.
  *
- * Si recurrence = WEEKLY -> Se usa keyName para generar slots todas las semanas.
- * Si recurrence = NONE y specificDate != null -> generar disponibilidad solo ese día.
- * Si recurrence = MONTHLY -> cada mes, el mismo día del mes que specificDate.
- * Si recurrence = YEARLY -> cada año en esa misma fecha (ej: evento fijo anual).
+ * <p>Esta entidad admite dos modalidades excluyentes:
+ *
+ * <ul>
+ *   <li><b>Modo recurrente</b>: (keyName + recurrence)
+ *       El dentista trabaja un día de la semana (keyName) con cierta recurrencia (DAILY, WEEKLY, BIWEEKLY, MONTHLY, etc.).
+ *
+ *   <li><b>Modo fecha específica</b>: (specificDate)
+ *       El dentista trabaja un día puntual sin repetición.
+ * </ul>
+ *
+ * Reglas clave:
+ * <ul>
+ *   <li>Solo uno de los modos puede estar activo.
+ *   <li>Si existe specificDate, entonces keyName y recurrence deben ser null.
+ *   <li>Si existe keyName, entonces recurrence debe existir y specificDate debe ser null.
+ * </ul>
+ *
+ * <p><b>effectiveDate</b>:
+ * Fecha real en que este horario entra en vigencia.
+ * <p>Cuando la disponibilidad es recurrente, effectiveDate NO viene desde el cliente:
+ * se calcula en la capa de servicio buscando el primer día que coincida con keyName dentro de los próximos 7 días corridos desde la fecha de modificación.
+ *
+ * Ejemplo:
+ * <pre>
+ *   keyName = MONDAY
+ *   hoy = miércoles 10/07
+ *   próximos 7 días = 10/07 al 17/07
+ *   el siguiente lunes es 15/07 → effectiveDate = 15/07
+ * </pre>
+ *
+ * Cuando existe specificDate, esa misma fecha es la effectiveDate.
  */
+
 @Entity
 @Getter
 @Setter
@@ -44,16 +68,17 @@ public class DentistAvailability extends Auditable {
     @JoinColumn(name = "dentist_id", nullable = false, updatable = false)
     private Dentist dentist;
 
+
     @Enumerated(EnumType.STRING)
     private DayName keyName;
-
-    @Column(name = "specific_date")
-    private LocalDate specificDate;
 
     @Enumerated(EnumType.STRING)
     private CalendarLockRecurrenceName recurrence;
 
-    /** Fecha ancla para inicio de jornada laboral (día posterior a la actualización) */
+    @Column(name = "specific_date")
+    private LocalDate specificDate;
+
+    /** Fecha de inicio real. Se calcula de acuerdo al primer match de KeyName en los próximos 7 días corridos. */
     private LocalDate effectiveDate;
 
     @Column(nullable = false)

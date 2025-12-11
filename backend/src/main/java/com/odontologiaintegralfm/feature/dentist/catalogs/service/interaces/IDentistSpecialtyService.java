@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.dentist.catalogs.service.interaces;
 
 
 import com.odontologiaintegralfm.feature.dentist.catalogs.dto.DentistSpecialtyResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.dentist.catalogs.model.DentistSpecialty;
 import java.util.List;
 
