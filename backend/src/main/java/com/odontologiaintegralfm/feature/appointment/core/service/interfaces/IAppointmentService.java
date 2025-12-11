@@ -4,9 +4,12 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCancelR
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentRescheduleRequestDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
+import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
+import com.odontologiaintegralfm.shared.dto.Response;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 public interface IAppointmentService {
@@ -57,6 +60,36 @@ public interface IAppointmentService {
     Response<AppointmentResponseDTO> cancel(Long idAppointment, AppointmentCancelRequestDTO appointmentCancelRequestDTO);
 
 
+
+    /**
+     * Cancela todos los turnos para un dentista en una fecha determinada.
+     *
+     * <p>Este método se utiliza ante situaciones excepcionales (ej.: una urgencia o
+     * imprevisto del profesional) donde el dentista no puede atender en toda la jornada
+     * seleccionada. Se actualiza el estado de todos los turnos a CANCELED,
+     * se registra su historial y se notifica a los pacientes por email.</p>
+     *
+     * @param idDentist ID del dentista cuyos turnos se deben cancelar.
+     * @param date Fecha en la cual se deben cancelar los turnos. Debe ser posterior al día actual.
+     * @param appointmentCancelRequestDTO Motivo, observación y fuente de la cancelación.
+
+     */
     Response<Integer> cancelAllByDate (Long idDentist ,LocalDate date, AppointmentCancelRequestDTO appointmentCancelRequestDTO);
+
+
+
+    /**
+     * Obtiene la lista de turnos en estado RESERVADO de un día para un dentista específico.
+     * @param idDentist : id Dentista.
+     * @param date : Fecha
+     */
+    List<Appointment> getAppointmentByDentistAndDate(Long idDentist, LocalDate date, AppointmentStatus status);
+
+
+    /**
+     * Obtiene la información de un turno. En caso de no encontrarlo arroja exception.
+     * @param idAppointment : id del turno
+     */
+    Appointment getById(Long idAppointment);
 
 }

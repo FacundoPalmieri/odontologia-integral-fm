@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.patient.catalogs.service.interfaces;
 
 import com.odontologiaintegralfm.feature.patient.catalogs.dto.HealthPlanResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.patient.catalogs.model.HealthPlan;
 
 import java.util.List;

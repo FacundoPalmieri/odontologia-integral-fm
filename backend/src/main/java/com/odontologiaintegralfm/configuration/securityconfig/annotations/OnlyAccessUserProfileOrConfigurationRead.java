@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("#id == @authenticatedUserService.authenticatedUser.person.id or " +
+@PreAuthorize("#id == @authenticatedUserService.authenticatedUser.id or " +
               "hasAuthority('PERMISO_CONFIGURATION_READ')")
 public @interface OnlyAccessUserProfileOrConfigurationRead {
 }

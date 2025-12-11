@@ -4,7 +4,7 @@ package com.odontologiaintegralfm.feature.person.core.service.intefaces;
 import com.odontologiaintegralfm.feature.person.core.dto.PersonCreateRequestDTO;
 import com.odontologiaintegralfm.feature.person.core.dto.PersonResponseDTO;
 import com.odontologiaintegralfm.feature.person.core.dto.PersonUpdateRequestDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.person.core.model.Person;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;

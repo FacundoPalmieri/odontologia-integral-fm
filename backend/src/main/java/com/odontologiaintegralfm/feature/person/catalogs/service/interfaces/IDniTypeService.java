@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.person.catalogs.service.interfaces;
 
 import com.odontologiaintegralfm.feature.person.catalogs.dto.DniTypeResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.person.catalogs.model.DniType;
 
 import java.util.Set;

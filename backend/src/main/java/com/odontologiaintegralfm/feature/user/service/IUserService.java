@@ -9,7 +9,7 @@ import com.odontologiaintegralfm.feature.user.dto.UserSecUpdateDTO;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.shared.exception.UnauthorizedException;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 

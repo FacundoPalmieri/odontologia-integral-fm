@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.feature.person.catalogs.dto.CountryResponseDTO;
 import com.odontologiaintegralfm.feature.person.catalogs.dto.LocalityResponseDTO;
 import com.odontologiaintegralfm.feature.person.catalogs.dto.ProvinceResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.person.catalogs.service.implement.GeoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

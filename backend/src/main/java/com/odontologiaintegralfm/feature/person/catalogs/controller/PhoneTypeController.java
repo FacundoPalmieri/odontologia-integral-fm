@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.person.catalogs.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationOrPatientsRead;
 import com.odontologiaintegralfm.feature.person.catalogs.dto.PhoneTypeResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IPhoneTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

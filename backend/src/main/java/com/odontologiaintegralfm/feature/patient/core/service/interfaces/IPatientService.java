@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.patient.core.service.interfaces;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientCreateRequestDTO;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import org.springframework.data.domain.Page;

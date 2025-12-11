@@ -6,7 +6,7 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLoc
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistCalendarLockResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistCalendarLockService;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

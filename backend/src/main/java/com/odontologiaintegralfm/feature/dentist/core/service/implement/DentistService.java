@@ -14,7 +14,7 @@ import com.odontologiaintegralfm.feature.person.core.model.Person;
 import com.odontologiaintegralfm.feature.person.core.service.intefaces.IPersonService;
 import com.odontologiaintegralfm.feature.dentist.core.repository.IDentistRepository;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

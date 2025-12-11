@@ -7,7 +7,7 @@ import com.odontologiaintegralfm.infrastructure.logging.service.SystemLogService
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleRequestDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleResponseDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.service.IScheduleService;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.dentist.core.service.interfaces;
 import com.odontologiaintegralfm.feature.dentist.core.dto.DentistCreateRequestDTO;
 import com.odontologiaintegralfm.feature.dentist.core.dto.DentistResponseDTO;
 import com.odontologiaintegralfm.feature.dentist.core.dto.DentistUpdateRequestDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.person.core.model.Person;

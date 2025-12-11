@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.authentication.controller;
 import com.odontologiaintegralfm.feature.authentication.dto.*;
 import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.feature.authentication.service.implement.UserDetailsServiceImp;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

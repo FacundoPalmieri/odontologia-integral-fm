@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.appointment.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,14 +12,25 @@ import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 /**
- * DTO que representa la disponibilidad diaria de un dentista.
- * Es hijo de {@link DentistAvailabilityResponseDTO}
+ * DTO que representa un día laboral del dentista.
+ * Reglas de validación:
+ * <ul>
+ *   <li>specificDate XOR dayName  (uno solo, no ambos)
+ *   <li>specificDate XOR recurrence (si hay fecha específica no puede haber recurrencia)
+ * </ul>
+ *
+ * Lógica de negocio relevante:
+ * <ul>
+ *   <li>Cuando viene specificDate -> entrada única.
+ *   <li>Cuando viene dayName + recurrence -> entrada recurrente.
+ *   <li>effectiveDate nunca viene en el request: lo calcula el backend.
+ * </ul>
  */
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -30,8 +41,12 @@ public class WorkingDayDTO {
 
     private CalendarLockRecurrenceName recurrence;
 
+
+
     /** Fecha específica de asistencia.(Ej. Concurre una vez por mes, y no la misma fecha */
     private LocalDate specificDate;
+
+
 
     @NotNull
     private LocalTime startTime;

@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.patient.core.controller;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPatientsUpdate;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientMedicalRiskRequestDTO;
 import com.odontologiaintegralfm.feature.patient.core.dto.PatientMedicalRiskResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.feature.patient.core.service.interfaces.IPatientMedicalRiskService;
 import io.swagger.v3.oas.annotations.Operation;

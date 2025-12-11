@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.ConsultationStatus;
+import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatus;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.shared.model.Auditable;
@@ -18,6 +18,8 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "consultations")
 @Audited
@@ -49,5 +51,18 @@ public class Consultation extends Auditable {
 
     @Lob
     private String observation;
+
+
+    public static Consultation build(Appointment appointment) {
+        return new Consultation(
+                null,
+                appointment.getPatient(),
+                appointment.getDentist(),
+                appointment,
+                ConsultationStatus.WAITING_ROOM,
+                BigDecimal.ZERO,
+                null
+        );
+    }
 
 }

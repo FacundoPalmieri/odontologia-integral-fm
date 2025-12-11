@@ -16,7 +16,7 @@ import com.odontologiaintegralfm.infrastructure.logging.service.SystemLogService
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.infrastructure.scheduler.service.IScheduleService;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.interfaces.ISystemParameterService;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
