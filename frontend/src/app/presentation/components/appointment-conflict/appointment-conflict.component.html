@@ -3,7 +3,7 @@
   @if (conflicts().length > 0) {
   <div class="flex justify-between items-center">
     <!-- Go to Calendar Button -->
-    <button mat-flat-button color="primary" (click)="goToCalendar.emit()">
+    <button mat-flat-button (click)="goToCalendar.emit()">
       <div class="flex items-center justify-center gap-2">
         <span>Ir a mi agenda</span>
         <i-tabler class="scale-90" name="arrow-right"></i-tabler>
@@ -37,7 +37,7 @@
   <!-- No Conflicts Message -->
   @if (conflicts().length === 0) {
   <div
-    class="flex flex-col items-center justify-center gap-6 p-10 bg-[rgba(16,185,129,0.2)] rounded-3xl border-2 border-[rgba(16,185,129,0.3)]"
+    class="flex flex-col items-center justify-center gap-6 p-6 bg-[rgba(16,185,129,0.2)] rounded-[var(--mat-sys-corner-medium)]"
   >
     <div
       class="rounded-full bg-[rgba(16,185,129,0.2)] p-8 w-24 h-24 flex items-center justify-center"
@@ -51,7 +51,7 @@
       ¡Felicitaciones!
     </h2>
     <p class="text-lg text-[#10b981] text-center font-medium">
-      No hay conflictos en los turnos programados.
+      No tienes conflictos en los turnos programados.
     </p>
   </div>
   }

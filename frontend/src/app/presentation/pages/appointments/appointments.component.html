@@ -124,19 +124,19 @@
       </mat-card>
     </div>
 
-    <mat-card appearance="outlined" class="mt-4">
+    <mat-card appearance="outlined" class="mt-4 no-padding-card">
       <mat-card-content>
-        <div class="flex w-full justify-between gap-4">
+        <div class="flex w-full items-center justify-between gap-4 p-4">
           <mat-form-field appearance="outline" class="w-[50%]">
             <mat-label>Buscar paciente</mat-label>
             <input type="text" matInput />
             <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
           </mat-form-field>
 
-          <button mat-flat-button matTooltipPosition="left" class="mt-1">
-            <div class="flex items-center justify-center">
-              <i-tabler class="mt-1 scale-80" name="plus"></i-tabler>
-              <span class="mt-1">Nuevo turno</span>
+          <button mat-flat-button matTooltipPosition="left">
+            <div class="flex items-center justify-center gap-2">
+              <i-tabler name="plus"></i-tabler>
+              <span>Nuevo turno</span>
             </div>
           </button>
         </div>

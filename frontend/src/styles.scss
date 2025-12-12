@@ -13,6 +13,35 @@ body {
   color: var(--mat-sys-on-background);
 }
 
+// ========================================
+// Estilos personalizados para scrollbar
+// ========================================
+* {
+  // Para navegadores WebKit (Chrome, Safari, Edge)
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--mat-sys-primary);
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: var(--mat-sys-primary-container);
+    }
+  }
+
+  // Para Firefox
+  scrollbar-width: thin;
+  scrollbar-color: var(--mat-sys-primary) transparent;
+}
+
 // Estilos custom angular material (ver de sacar de acá)
 body {
   //Revisar el motivo (barra en label) por el que es necesario agregar esta línea

@@ -21,3 +21,10 @@
 .background-scheduled {
   background: rgb(56, 189, 248, 0.2);
 }
+
+.no-padding-card {
+  ::ng-deep mat-card-content {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

@@ -1,12 +1,21 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
-import { AppointmentConflictInterface } from "../domain/interfaces/appointment.inteface";
+import {
+  AppointmentConflictInterface,
+  AppointmentInterface,
+} from "../domain/interfaces/appointment.inteface";
+import {
+  AppointmentCreateResponseDtoInterface,
+  AppointmentRescheduledDtoInterface,
+} from "../domain/dto/appointment.dto";
+import { AppointmentSerializer } from "../domain/serializers/appointment.serializer";
 
 @Injectable({ providedIn: "root" })
 export class AppointmentService {
+  private readonly appointmentSerializer = AppointmentSerializer;
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
@@ -150,6 +159,67 @@ export class AppointmentService {
 
   getCanceled(): any[] {
     return this.canceled_appointments;
+  }
+
+  create(
+    appointment: AppointmentInterface
+  ): Observable<ApiResponseInterface<AppointmentCreateResponseDtoInterface>> {
+    const serializedAppointment =
+      this.appointmentSerializer.toCreateDto(appointment);
+    return this.http.post<
+      ApiResponseInterface<AppointmentCreateResponseDtoInterface>
+    >(`${this.apiUrl}/appointment`, serializedAppointment);
+  }
+
+  cancel(
+    appointmentId: number,
+    appointment: AppointmentInterface
+  ): Observable<ApiResponseInterface<AppointmentCreateResponseDtoInterface>> {
+    const serializedAppointment =
+      this.appointmentSerializer.toCancelDto(appointment);
+    return this.http.post<
+      ApiResponseInterface<AppointmentCreateResponseDtoInterface>
+    >(
+      `${this.apiUrl}/appointment/${appointmentId}/cancel`,
+      serializedAppointment
+    );
+  }
+
+  cancelAll(
+    dentistId: number,
+    date: Date,
+    appointment: AppointmentInterface
+  ): Observable<ApiResponseInterface<AppointmentCreateResponseDtoInterface>> {
+    const serializedAppointment =
+      this.appointmentSerializer.toCancelDto(appointment);
+
+    const formattedDate =
+      date instanceof Date ? date.toISOString().split("T")[0] : date;
+
+    const params = new HttpParams().set("date", formattedDate);
+
+    return this.http.post<
+      ApiResponseInterface<AppointmentCreateResponseDtoInterface>
+    >(
+      `${this.apiUrl}/appointment/${dentistId}/all/cancel`,
+      serializedAppointment,
+      { params }
+    );
+  }
+
+  reschedule(
+    appointmentId: number,
+    appointment: AppointmentInterface
+  ): Observable<ApiResponseInterface<AppointmentCreateResponseDtoInterface>> {
+    const serializedAppointment =
+      this.appointmentSerializer.toRescheduledDto(appointment);
+
+    return this.http.post<
+      ApiResponseInterface<AppointmentCreateResponseDtoInterface>
+    >(
+      `${this.apiUrl}/appointment/${appointmentId}/reschedule`,
+      serializedAppointment
+    );
   }
 
   getAppointmentConflicts(

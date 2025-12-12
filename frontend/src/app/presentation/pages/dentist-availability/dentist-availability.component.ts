@@ -318,6 +318,9 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
         dayGroup.get("endTime.hour")?.updateValueAndValidity();
         dayGroup.get("endTime.minute")?.updateValueAndValidity();
         dayGroup.get("appointmentDuration")?.updateValueAndValidity();
+
+        // Actualizar la validez del formulario completo cuando cambia isWorking
+        this._updateFormValidity();
       });
 
       // Deshabilitar todos los campos inicialmente ya que isWorking es false
