@@ -84,6 +84,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   // Estados de expansión de secciones
   myCalendarsExpanded = true;
   otherCalendarsExpanded = true;
+  sidebarCollapsed = false;
 
   // Configuración de horarios de trabajo
   workStartHour = 0; // 12:00 AM (medianoche)
@@ -1183,6 +1184,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   toggleOtherCalendars() {
     this.otherCalendarsExpanded = !this.otherCalendarsExpanded;
+  }
+
+  toggleSidebar() {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   createAppointment() {

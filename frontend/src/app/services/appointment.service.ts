@@ -7,10 +7,7 @@ import {
   AppointmentConflictInterface,
   AppointmentInterface,
 } from "../domain/interfaces/appointment.inteface";
-import {
-  AppointmentCreateResponseDtoInterface,
-  AppointmentRescheduledDtoInterface,
-} from "../domain/dto/appointment.dto";
+import { AppointmentCreateResponseDtoInterface } from "../domain/dto/appointment.dto";
 import { AppointmentSerializer } from "../domain/serializers/appointment.serializer";
 
 @Injectable({ providedIn: "root" })

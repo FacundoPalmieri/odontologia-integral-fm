@@ -115,6 +115,8 @@ import {
   IconDeviceFloppy,
   IconCalendarEvent,
   IconUserPlus,
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -231,6 +233,8 @@ const ICONS = {
   IconDeviceFloppy,
   IconCalendarEvent,
   IconUserPlus,
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
 } as const;
 
 @NgModule({

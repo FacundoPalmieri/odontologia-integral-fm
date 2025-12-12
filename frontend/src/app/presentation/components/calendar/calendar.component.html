@@ -2,7 +2,7 @@
 <mat-card appearance="outlined" class="p-4">
   <div class="calendar">
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
       <!-- Create Event Menu -->
       <button
         mat-fab
@@ -12,7 +12,9 @@
       >
         <div class="flex items-center gap-2">
           <i-tabler name="plus"></i-tabler>
+          @if (!sidebarCollapsed) {
           <span>Crear evento</span>
+          }
         </div>
       </button>
 
@@ -31,6 +33,7 @@
         </button>
       </mat-menu>
 
+      @if (!sidebarCollapsed) {
       <!-- Mini Calendar -->
       <div class="mini-calendar mb-4">
         <div class="mini-calendar-header">
@@ -134,6 +137,7 @@
         </div>
         }
       </div>
+      }
     </aside>
 
     <!-- Main Content -->
@@ -143,6 +147,53 @@
         <div class="header-content">
           <!-- Left side -->
           <div class="header-left">
+            <!-- Create Event Menu (only visible when collapsed) -->
+            @if (sidebarCollapsed) {
+            <button
+              mat-fab
+              extended
+              class="mr-6"
+              [matMenuTriggerFor]="createEventMenuHeader"
+            >
+              <div class="flex items-center gap-2">
+                <i-tabler name="plus"></i-tabler>
+                <span>Crear evento</span>
+              </div>
+            </button>
+
+            <mat-menu #createEventMenuHeader="matMenu">
+              <button mat-menu-item (click)="createAppointment()">
+                <div class="flex items-center gap-2">
+                  <i-tabler name="calendar-plus"></i-tabler>
+                  <span>Cita</span>
+                </div>
+              </button>
+              <button mat-menu-item (click)="createCalendarLock()">
+                <div class="flex items-center gap-2">
+                  <i-tabler name="cancel"></i-tabler>
+                  <span>Bloqueo de Agenda</span>
+                </div>
+              </button>
+            </mat-menu>
+            }
+
+            <!-- Toggle Button (always visible) -->
+            <button
+              mat-icon-button
+              (click)="toggleSidebar()"
+              [matTooltip]="
+                sidebarCollapsed ? 'Expandir panel' : 'Minimizar panel'
+              "
+            >
+              <i-tabler
+                [name]="
+                  sidebarCollapsed
+                    ? 'layout-sidebar-left-expand'
+                    : 'layout-sidebar-left-collapse'
+                "
+              ></i-tabler>
+            </button>
+
             <button
               mat-icon-button
               (click)="navigateDate('prev')"
