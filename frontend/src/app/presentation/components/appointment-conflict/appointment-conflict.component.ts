@@ -96,12 +96,12 @@ export class AppointmentConflictComponent implements OnDestroy {
     return colors[reasonKey] || "bg-[#635bff]";
   }
 
-  getReasonIcon(reasonKey: string): string {
-    const icons: { [key: string]: string } = {
-      DOUBLE_BOOKING: "calendar-x",
-      OUTSIDE_HOURS: "clock-x",
-      HOLIDAY: "calendar-event",
-    };
-    return icons[reasonKey] || "alert-circle";
-  }
+  // getReasonIcon(reasonKey: string): string {
+  //   const icons: { [key: string]: string } = {
+  //     DOUBLE_BOOKING: "calendar-x",
+  //     OUTSIDE_HOURS: "clock-x",
+  //     HOLIDAY: "calendar-event",
+  //   };
+  //   return icons[reasonKey] || "alert-circle";
+  // }
 }
