@@ -1,12 +1,11 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
-import com.odontologiaintegralfm.shared.response.Response;
-import org.springframework.cglib.core.Local;
+import com.odontologiaintegralfm.shared.dto.Response;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -58,4 +57,13 @@ public interface IDentistAvailabilityService {
      * @param endTime  : Hora fin jornada de feriado
      */
     boolean validateDurationLessThanAppointmentDuration(Long idDentist, LocalTime startTime, LocalTime endTime);
+
+
+    /**
+     * Método que verifica si una fecha dada es coincidente con la alguna jornada laboral de dentista.
+     * @param dentist : id Dentist.
+     * @param date : Fecha a consultar
+     * @return : La jornada laboral.
+     */
+    DentistAvailability getDentistAvailabilityByDate(Long dentist, LocalDate date);
 }

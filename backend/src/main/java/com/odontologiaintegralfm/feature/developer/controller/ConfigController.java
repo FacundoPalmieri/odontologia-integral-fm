@@ -8,7 +8,7 @@ import com.odontologiaintegralfm.infrastructure.systemparameter.dto.SystemParame
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleRequestDTO;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

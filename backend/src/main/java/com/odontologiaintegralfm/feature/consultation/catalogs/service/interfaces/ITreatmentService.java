@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces;
 
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.consultation.catalogs.dto.TreatmentResponseDTO;
 import org.springframework.data.domain.Page;
 

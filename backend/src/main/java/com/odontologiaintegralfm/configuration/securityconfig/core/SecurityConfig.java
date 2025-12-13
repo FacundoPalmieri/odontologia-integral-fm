@@ -70,7 +70,8 @@ public class SecurityConfig {
                         "api/auth/token/refresh",
                         "/api/auth/logout",
                         "/api/auth/password/reset-request",
-                        "/api/auth/password/reset"
+                        "/api/auth/password/reset",
+                        "/ws/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated()

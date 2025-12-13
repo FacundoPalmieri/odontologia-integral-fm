@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.person.core.service.intefaces;
 
 import com.odontologiaintegralfm.feature.person.core.dto.AttachedFileResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;

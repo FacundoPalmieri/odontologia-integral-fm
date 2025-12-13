@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.person.catalogs.service.implement;
 
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;

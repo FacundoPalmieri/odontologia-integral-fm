@@ -5,7 +5,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.impl.DentistAvailabilityService;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

@@ -14,7 +14,7 @@ import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -23,7 +23,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 
 import java.util.*;
 import java.util.stream.Collectors;

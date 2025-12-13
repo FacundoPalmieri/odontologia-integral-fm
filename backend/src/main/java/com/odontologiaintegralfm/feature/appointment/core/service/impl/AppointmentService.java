@@ -7,20 +7,18 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentResched
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentActionRequester;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockRecurrenceName;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.feature.appointment.catalogs.service.HolidayService;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.*;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
-import com.odontologiaintegralfm.feature.authentication.enums.Role;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.implement.DentistService;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.feature.patient.core.service.implement.PatientService;
 import com.odontologiaintegralfm.feature.person.core.model.ContactEmail;
-import com.odontologiaintegralfm.feature.person.core.model.Person;
 import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
@@ -31,7 +29,8 @@ import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
+import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -40,12 +39,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @Service
 public class AppointmentService implements IAppointmentService {
@@ -141,7 +139,7 @@ public class AppointmentService implements IAppointmentService {
 
 
         //Validar jornada del dentista para la fecha y hora enviada.
-        validateAvailability(dentist.getId(), appointmentCreateRequestDTO.dateTime());
+        validateAvailabilityForAppointment(dentist.getId(), appointmentCreateRequestDTO.dateTime());
 
 
         //Validar feriado para la fecha enviada.
@@ -305,7 +303,7 @@ public class AppointmentService implements IAppointmentService {
         }
 
         //Validar jornada del dentista para la fecha y hora enviada.
-        validateAvailability(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
+        validateAvailabilityForAppointment(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
 
 
         //Validar feriado para la fecha enviada.
@@ -477,6 +475,35 @@ public class AppointmentService implements IAppointmentService {
 
 
 
+    /**
+     * Cancela todos los turnos con estado {@link AppointmentStatus#RESERVED} pertenecientes a un dentista en una fecha determinada.
+     * <p>
+     * Este método se utiliza ante situaciones imprevistas del dentista (emergencias,
+     * enfermedad, ausencias repentinas, etc.) donde no puede atender durante un día
+     * completo y es necesario cancelar todos sus turnos.
+     * </p>
+     * <ul>
+     *     <li>Valida que la fecha ingresada sea posterior a la fecha actual. No permite cancelar turnos del mismo día.</li>
+     *     <li>Obtiene todos los turnos RESERVED futuros correspondientes al dentista.</li>
+     *     <li>Actualiza el estado de cada turno a {@link AppointmentStatus#CANCELED}.</li>
+     *     <li>Registra cada cambio en el historial de estados.</li>
+     *     <li>Agrupa los turnos por paciente para facilitar el envío posterior de notificaciones.</li>
+     *     <li>Persiste los cambios en la base de datos (turnos e historiales).</li>
+     *     <li>Envía un correo electrónico a cada paciente notificando la cancelación.</li>
+     * </ul>
+     *
+     * <h3>Notificaciones:</h3>
+     * Por cada turno cancelado se envía un correo.
+     * @param idDentist  identificador del dentista cuyos turnos deben cancelarse
+     * @param date  fecha para la cual deben cancelarse los turnos; debe ser posterior al día actual
+     * @param appointmentCancelRequestDTO datos adicionales de cancelación (fuente, observación, etc.)
+     *
+     * @return Response<Integer> número total de turnos cancelados
+     *
+     * @throws BadRequestException si la fecha no es posterior a la fecha actual
+     * @throws DataBaseException si ocurre un error al persistir los cambios
+     */
+
     @Override
     @LogAction(
             value = "appointmentService.logAction.cancelAllByDate.ok",
@@ -558,6 +585,39 @@ public class AppointmentService implements IAppointmentService {
                 appointmentsSaved.size()
 
         );
+
+    }
+
+
+    /**
+     * Obtiene la lista de turnos de un día para un dentista específico.
+     * @param idDentist : id Dentista.
+     * @param date : Fecha
+     */
+    @Override
+    public List<Appointment> getAppointmentByDentistAndDate(Long idDentist, LocalDate date, AppointmentStatus status) {
+        try{
+            return appointmentRepository.findByDentistIdAndDateBetweenAndStatus(idDentist,date.atStartOfDay(),date.plusDays(1).atStartOfDay(), status);
+        }
+        catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "AppointmentService", idDentist, "<- ID Dentist", "getAppointmentByDentistAndDate");
+        }
+    }
+
+    /**
+     * Obtiene la información de un turno. En caso de no encontrarlo arroja exception.
+     *
+     * @param idAppointment : id del turno
+     */
+    @Override
+    public Appointment getById(Long idAppointment) {
+
+        try{
+            return appointmentRepository.findById(idAppointment)
+                    .orElseThrow(() ->new NotFoundException("exception.appointment.notFound.user",null,"exception.appointment.notFound.log", new Object[]{idAppointment,"AppointmentService","getById"},LogLevel.ERROR));        }
+        catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "AppointmentService", idAppointment, "<- ID Appointment", "getById");
+        }
 
     }
 
@@ -777,7 +837,7 @@ public class AppointmentService implements IAppointmentService {
      * @param appointmentDateTime : Fecha y hora del turno.
      */
 
-    private void validateAvailability(Long idDentist, LocalDateTime appointmentDateTime) {
+    private void validateAvailabilityForAppointment(Long idDentist, LocalDateTime appointmentDateTime) {
 
         //Obtener disponibilidad
         List<DentistAvailability> dentistAvailability = dentistAvailabilityService.getByIdInternal(idDentist);

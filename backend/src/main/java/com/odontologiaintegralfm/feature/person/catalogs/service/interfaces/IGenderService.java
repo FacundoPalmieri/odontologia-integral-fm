@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.person.catalogs.service.interfaces;
 
 import com.odontologiaintegralfm.feature.person.catalogs.dto.GenderResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.person.catalogs.model.Gender;
 
 import java.util.List;

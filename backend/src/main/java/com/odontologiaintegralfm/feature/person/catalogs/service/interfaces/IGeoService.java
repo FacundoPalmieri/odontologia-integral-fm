@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.person.catalogs.service.interfaces;
 import com.odontologiaintegralfm.feature.person.catalogs.dto.CountryResponseDTO;
 import com.odontologiaintegralfm.feature.person.catalogs.dto.LocalityResponseDTO;
 import com.odontologiaintegralfm.feature.person.catalogs.dto.ProvinceResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.person.catalogs.model.Locality;
 
 import java.util.List;

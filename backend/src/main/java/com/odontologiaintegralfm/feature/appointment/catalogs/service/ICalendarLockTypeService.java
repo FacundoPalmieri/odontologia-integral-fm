@@ -5,9 +5,8 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTy
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.CalendarLockType;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import java.util.List;
-import java.util.Optional;
 
 public interface ICalendarLockTypeService {
 

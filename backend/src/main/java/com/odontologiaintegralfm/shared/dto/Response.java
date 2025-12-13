@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.shared.response;
+package com.odontologiaintegralfm.shared.dto;
 
 public record Response<T>(
 

@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.authentication.service.interfaces;
 
 
 import com.odontologiaintegralfm.feature.authentication.dto.ActionResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.authentication.model.Action;
 import java.util.List;
 import java.util.Set;

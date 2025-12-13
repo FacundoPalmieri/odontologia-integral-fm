@@ -6,7 +6,7 @@ import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConfl
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentConflictRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentConflictService;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -15,7 +15,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;

@@ -7,8 +7,8 @@ import java.time.LocalDate;
  */
 public record CalendarGlobalDayDTO(
         LocalDate date,
-        String status,      // Enum CalendarMonthStatus
-        String description, // Enum CalendarMonthStatus
-        String color        // Enum CalendarMonthStatus
+        String status,      // Enum CalendarDayStatus
+        String description, // Enum CalendarDayStatus
+        String color        // Enum CalendarDayStatus
         ) {
 }

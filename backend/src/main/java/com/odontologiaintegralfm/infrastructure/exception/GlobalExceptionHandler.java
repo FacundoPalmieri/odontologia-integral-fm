@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.infrastructure.exception;
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.shared.exception.AppException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;

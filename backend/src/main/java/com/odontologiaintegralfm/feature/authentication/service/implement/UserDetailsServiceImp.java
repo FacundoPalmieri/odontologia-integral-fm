@@ -17,7 +17,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.core.JwtUtils;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.feature.authentication.service.interfaces.IRefreshTokenService;
 import com.odontologiaintegralfm.feature.user.service.IUserService;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;

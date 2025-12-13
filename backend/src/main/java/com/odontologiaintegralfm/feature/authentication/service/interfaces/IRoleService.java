@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.authentication.service.interfaces;
 
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.authentication.dto.RoleFullResponseDTO;
 import com.odontologiaintegralfm.feature.authentication.dto.RoleRequestDTO;
 import com.odontologiaintegralfm.feature.authentication.dto.RoleSimpleResponseDTO;

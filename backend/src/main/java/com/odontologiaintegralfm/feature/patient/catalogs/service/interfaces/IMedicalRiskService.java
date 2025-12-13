@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.patient.catalogs.service.interfaces;
 
 import com.odontologiaintegralfm.feature.patient.catalogs.dto.MedicalRiskResponseDTO;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.patient.catalogs.model.MedicalRisk;
 import java.util.Set;
 

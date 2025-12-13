@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.consultation.catalogs.dto.TreatmentResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.ITreatmentService;
 import io.swagger.v3.oas.annotations.Operation;

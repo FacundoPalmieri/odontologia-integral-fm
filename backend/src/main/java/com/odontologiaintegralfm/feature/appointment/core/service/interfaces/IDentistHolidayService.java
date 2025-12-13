@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequ
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistHoliday;
-import com.odontologiaintegralfm.shared.response.Response;
+import com.odontologiaintegralfm.shared.dto.Response;
 
 import java.util.List;
 import java.util.Optional;
