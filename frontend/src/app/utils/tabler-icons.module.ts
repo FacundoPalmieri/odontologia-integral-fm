@@ -117,6 +117,8 @@ import {
   IconUserPlus,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
+  IconHandMove,
+  IconHandOff,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -235,6 +237,8 @@ const ICONS = {
   IconUserPlus,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
+  IconHandMove,
+  IconHandOff,
 } as const;
 
 @NgModule({

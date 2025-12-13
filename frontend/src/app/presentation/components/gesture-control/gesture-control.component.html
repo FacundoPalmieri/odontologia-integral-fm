@@ -1,0 +1,57 @@
+<div class="gesture-control-container" *ngIf="shouldShowGestureControl">
+  <!-- Botón de toggle -->
+  <button
+    mat-fab
+    [class.active]="isActive"
+    (click)="toggleGestureControl()"
+    [matTooltip]="
+      isActive ? 'Desactivar control por gestos' : 'Activar control por gestos'
+    "
+    class="gesture-toggle-btn"
+  >
+    <i-tabler [name]="isActive ? 'hand-off' : 'hand-move'"></i-tabler>
+  </button>
+
+  <!-- Video y Canvas (ocultos cuando no está activo) -->
+  <div
+    class="video-container"
+    [class.active]="isActive"
+    [class.minimized]="isVideoMinimized"
+  >
+    <!-- Botón para minimizar/maximizar video -->
+    <button
+      mat-icon-button
+      (click)="toggleVideoSize()"
+      [matTooltip]="isVideoMinimized ? 'Maximizar video' : 'Minimizar video'"
+      class="minimize-btn"
+    >
+      <i-tabler [name]="isVideoMinimized ? 'maximize' : 'minimize'"></i-tabler>
+    </button>
+
+    <video
+      #videoElement
+      autoplay
+      playsinline
+      [width]="videoWidth"
+      [height]="videoHeight"
+    ></video>
+    <canvas #canvasElement [width]="videoWidth" [height]="videoHeight"></canvas>
+
+    <!-- Indicador de estado -->
+    <div class="status-indicator">
+      <span class="status-dot" [class.active]="isActive"></span>
+      <span class="status-text">{{ statusText }}</span>
+    </div>
+  </div>
+
+  <!-- Cursor virtual (visible en toda la pantalla) -->
+  <div
+    class="virtual-cursor"
+    [class.visible]="isActive && cursorVisible"
+    [class.clicking]="isClicking"
+    [style.left.px]="cursorX"
+    [style.top.px]="cursorY"
+  >
+    <div class="cursor-ring"></div>
+  </div>
+</div>

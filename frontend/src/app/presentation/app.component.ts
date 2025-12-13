@@ -2,13 +2,15 @@ import { Component, inject } from "@angular/core";
 import { ThemeService } from "../services/theme.service";
 import { RouterModule } from "@angular/router";
 import { LoaderComponent } from "./components/loader/loader.component";
+import { GestureControlComponent } from "./components/gesture-control/gesture-control.component";
 
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [RouterModule, LoaderComponent],
+  imports: [RouterModule, LoaderComponent, GestureControlComponent],
   template: `
     <app-loader></app-loader>
+    <!-- <app-gesture-control></app-gesture-control> -->
     <router-outlet></router-outlet>
   `,
 })
