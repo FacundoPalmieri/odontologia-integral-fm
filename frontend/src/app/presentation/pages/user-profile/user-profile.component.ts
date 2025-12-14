@@ -1,6 +1,5 @@
 import {
   Component,
-  computed,
   effect,
   ElementRef,
   inject,
@@ -15,11 +14,9 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
 import { UserService } from "../../../services/user.service";
 import { AuthService } from "../../../services/auth.service";
-import { DentistService } from "../../../services/dentist.service";
 import { Subject, takeUntil } from "rxjs";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { PersonInterface } from "../../../domain/interfaces/person.interface";
-import { DentistAvailabilityResponseInterface } from "../../../domain/interfaces/dentist.interface";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { MatChipsModule } from "@angular/material/chips";
 import { Router } from "@angular/router";
@@ -31,10 +28,9 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { AttachedFileComponent } from "../../components/attached-file/attached-file.component";
-import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
-import { AppointmentConflictComponent } from "../../components/appointment-conflict/appointment-conflict.component";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { PersonDataEditDialogComponent } from "./person-data-edit-dialog/person-data-edit-dialog.component";
+import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
 
 @Component({
   selector: "app-user-profile",
@@ -52,7 +48,6 @@ import { PersonDataEditDialogComponent } from "./person-data-edit-dialog/person-
     MatExpansionModule,
     MatTooltipModule,
     AttachedFileComponent,
-    AppointmentConflictComponent,
     MatDialogModule,
   ],
 })
@@ -72,15 +67,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   selectedTabIndex = signal<number>(0);
   avatar = signal<string | null>(null);
   canDeleteAvatar = signal<boolean>(false);
-  isPersonFormValid = signal<boolean>(false);
-  updatedPersonData = signal<PersonInterface | null>(null);
-  isSaving = signal<boolean>(false);
-  isAnyPanelExpanded = signal<boolean>(false);
   selectedPreference = signal<string | null>(null);
-  dentistAvailability = signal<DentistAvailabilityResponseInterface | null>(
-    null
-  );
-  isLoadingAvailability = signal<boolean>(false);
 
   entityTypeEnum = EntityTypeEnum;
 
