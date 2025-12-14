@@ -33,6 +33,16 @@
         </button>
       </mat-menu>
 
+      <!-- Disponibilidad laboral -->
+      <div class="flex justify-center !mb-4">
+        <button mat-stroked-button class="!w-[90%] rotate-on-hover">
+          <div class="flex items-center gap-2">
+            <i-tabler name="settings" class="rotate-on-hover"></i-tabler>
+            <span>Disponibilidad laboral</span>
+          </div>
+        </button>
+      </div>
+
       @if (!sidebarCollapsed) {
       <!-- Mini Calendar -->
       <div class="mini-calendar mb-4">
@@ -147,12 +157,28 @@
         <div class="header-content">
           <!-- Left side -->
           <div class="header-left">
+            <!-- Toggle Button (always visible) -->
+            <button
+              mat-icon-button
+              (click)="toggleSidebar()"
+              [matTooltip]="
+                sidebarCollapsed ? 'Expandir panel' : 'Minimizar panel'
+              "
+            >
+              <i-tabler
+                class="mb-1"
+                [name]="
+                  sidebarCollapsed
+                    ? 'layout-sidebar-left-expand'
+                    : 'layout-sidebar-left-collapse'
+                "
+              ></i-tabler>
+            </button>
             <!-- Create Event Menu (only visible when collapsed) -->
             @if (sidebarCollapsed) {
             <button
               mat-fab
               extended
-              class="mr-6"
               [matMenuTriggerFor]="createEventMenuHeader"
             >
               <div class="flex items-center gap-2">
@@ -175,24 +201,15 @@
                 </div>
               </button>
             </mat-menu>
-            }
 
-            <!-- Toggle Button (always visible) -->
             <button
               mat-icon-button
-              (click)="toggleSidebar()"
-              [matTooltip]="
-                sidebarCollapsed ? 'Expandir panel' : 'Minimizar panel'
-              "
+              class="rotate-on-hover mr-2"
+              matTooltip="Disponibilidad laboral"
             >
-              <i-tabler
-                [name]="
-                  sidebarCollapsed
-                    ? 'layout-sidebar-left-expand'
-                    : 'layout-sidebar-left-collapse'
-                "
-              ></i-tabler>
+              <i-tabler name="settings" class="mb-1"></i-tabler>
             </button>
+            }
 
             <button
               mat-icon-button
@@ -256,7 +273,7 @@
                   selectedDate.toLocaleDateString("es-ES", {
                     weekday: "long",
                     day: "numeric",
-                    month: "long",
+                    month: "short",
                     year: "numeric"
                   })
                 }}

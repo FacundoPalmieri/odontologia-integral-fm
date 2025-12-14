@@ -42,6 +42,28 @@ body {
   scrollbar-color: var(--mat-sys-primary) transparent;
 }
 
+// ========================================
+// Animación de rotación de ícono en hover
+// ========================================
+.rotate-on-hover {
+  // Cuando se aplica directamente al icono
+  transition: transform 1s ease-in-out;
+
+  &:hover {
+    transform: rotate(360deg);
+  }
+
+  // Cuando se aplica al icono dentro del button
+  &:hover i-tabler {
+    transform: rotate(360deg);
+  }
+
+  i-tabler {
+    transition: transform 1s ease-in-out;
+    display: inline-block;
+  }
+}
+
 // Estilos custom angular material (ver de sacar de acá)
 body {
   //Revisar el motivo (barra en label) por el que es necesario agregar esta línea
@@ -157,6 +179,7 @@ body {
   @include mat.card-overrides(
     (
       outlined-container-color: var(--mat-sys-content-container-color),
+      outlined-container-shape: var(--mat-sys-corner-large),
       outlined-outline-width: 0,
     )
   );

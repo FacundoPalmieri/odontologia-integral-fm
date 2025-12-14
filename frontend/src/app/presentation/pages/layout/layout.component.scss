@@ -1,0 +1,78 @@
+.drawer-container {
+  height: 100vh;
+}
+
+.sidenav {
+  background: var(--mat-sys-home-sidenav-content-background);
+  width: 220px;
+  border-radius: var(--mat-sys-corner-extra-large);
+}
+
+.references-sidenav {
+  background: var(--mat-sys-home-sidenav-content-background);
+  width: 180px;
+}
+
+.sidenav-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content-background {
+  background: var(--mat-sys-home-sidenav-content-background);
+  border-radius: var(--mat-sys-corner-extra-large);
+}
+
+.avatar-icon {
+  background: rgb(204, 204, 204, 0.3);
+  border-radius: 50%;
+  height: 34px;
+  width: 34px;
+}
+
+.avatar-icon-menu {
+  background: rgb(204, 204, 204, 0.3);
+  border-radius: 50%;
+  height: 70px;
+  width: 70px;
+}
+
+.custom-divider {
+  border-color: rgb(204, 204, 204, 0.6);
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+.main-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  min-height: 80px;
+}
+
+.menu-label {
+  display: block;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+  width: 100%;
+}
+
+.avatar-gradient {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(
+    from 180deg at 50% 50%,
+    #693853 0deg,
+    #f6957e 120deg,
+    #da695c 240deg,
+    #693853 360deg
+  );
+  padding: 3px;
+}

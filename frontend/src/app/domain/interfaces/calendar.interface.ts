@@ -16,3 +16,16 @@ export interface CalendarLockInterface {
   endTime: string;
   observation: string;
 }
+
+export interface CalendarMonthInterface {
+  year: number;
+  month: number;
+  days: CalendarMonthDayInterface[];
+}
+
+export interface CalendarMonthDayInterface {
+  date: Date;
+  status: string;
+  description: string;
+  color: string;
+}

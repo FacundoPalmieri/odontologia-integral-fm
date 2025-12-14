@@ -203,7 +203,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(["/profile"]);
+    this.router.navigate(["/home"]);
   }
 
   private _updateFormValidity(): void {

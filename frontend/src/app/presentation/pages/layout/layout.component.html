@@ -1,0 +1,165 @@
+<mat-drawer-container class="drawer-container" autosize>
+  <mat-drawer #drawer class="sidenav m-2" mode="side" opened>
+    <div class="flex justify-center p-4">
+      <img
+        src="img/logo-fondo-blanco.jpg"
+        alt="Logo"
+        class="rounded-[var(--mat-sys-corner-large)] avatar-gradient"
+      />
+    </div>
+
+    <mat-nav-list>
+      <div class="space-y-2 p-3">
+        @for(menu of filteredMenuItems; track menu.label){
+        <ng-container
+          *ngIf="menu.children && menu.children.length > 0; else noChildren"
+        >
+          <mat-list-item
+            class="list-item-menu cursor-pointer"
+            [matTooltip]="menu.label"
+            matTooltipPosition="right"
+            (click)="toggleSubmenu(menu.label)"
+          >
+            <div class="flex flex-row items-center">
+              <i-tabler [name]="menu.icon"></i-tabler>
+              <span
+                class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+                >{{ menu.label }}</span
+              >
+              <i-tabler
+                name="chevron-down"
+                class="ml-2 text-sm transition-transform duration-200"
+                [ngClass]="{ 'rotate-180': expandedMenus[menu.label] }"
+              ></i-tabler>
+            </div>
+          </mat-list-item>
+          <div class="pl-4" *ngIf="expandedMenus[menu.label]">
+            @for(child of menu.children; track child.label){
+            <mat-list-item
+              class="list-item-menu mb-1"
+              [matTooltip]="child.label"
+              matTooltipPosition="right"
+              [routerLink]="child.route"
+              routerLinkActive="active-link"
+            >
+              <div class="flex flex-row items-center">
+                <i-tabler [name]="child.icon"></i-tabler>
+                <span
+                  class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+                  >{{ child.label }}</span
+                >
+              </div>
+            </mat-list-item>
+            }
+          </div>
+        </ng-container>
+        <ng-template #noChildren>
+          <mat-list-item
+            class="list-item-menu"
+            [matTooltip]="menu.label"
+            matTooltipPosition="right"
+            [routerLink]="menu.route"
+            routerLinkActive="active-link"
+          >
+            <div class="flex flex-row items-center">
+              <i-tabler [name]="menu.icon"></i-tabler>
+              <span
+                class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+                >{{ menu.label }}</span
+              >
+            </div>
+          </mat-list-item>
+        </ng-template>
+        }
+      </div>
+    </mat-nav-list>
+  </mat-drawer>
+
+  <div class="sidenav-content">
+    <mat-toolbar class="gap-3 main-toolbar">
+      <button mat-icon-button (click)="drawer.toggle()">
+        <i-tabler name="menu"></i-tabler>
+      </button>
+      <mat-nav-list>
+        <mat-list-item
+          class="list-item-menu"
+          matTooltipPosition="right"
+          [routerLink]="'/calendar'"
+          routerLinkActive="active-link"
+        >
+          <div class="flex flex-row items-center">
+            <i-tabler name="calendar"></i-tabler>
+            <span
+              class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+              >Mi agenda</span
+            >
+          </div>
+        </mat-list-item>
+      </mat-nav-list>
+
+      <span class="spacer"></span>
+      <button
+        mat-icon-button
+        (click)="fullScreenService.toggleFullscreen()"
+        matTooltip="Pantalla completa"
+      >
+        <i-tabler
+          [name]="
+            fullScreenService.isFullscreen() ? 'maximize-off' : 'maximize'
+          "
+        ></i-tabler>
+      </button>
+      <button mat-icon-button class="rotate-on-hover" (click)="toggleTheme()">
+        <i-tabler
+          [name]="currentTheme().id === 'dark' ? 'moon' : 'sun'"
+        ></i-tabler>
+      </button>
+
+      <button mat-button [matMenuTriggerFor]="menu">
+        <div class="flex items-center gap-1">
+          <img
+            [src]="avatar ? avatar : 'img/doctor-avatar.png'"
+            alt="Avatar"
+            class="avatar-icon object-cover"
+          />
+          <i-tabler name="chevron-down"></i-tabler>
+        </div>
+      </button>
+
+      <mat-menu #menu="matMenu">
+        <div class="flex flex-col items-center justify-center p-4">
+          <img
+            [src]="avatar ? avatar : 'img/doctor-avatar.png'"
+            alt="Avatar"
+            class="avatar-icon-menu object-cover"
+          />
+          <div class="overflow-hidden text-ellipsis flex flex-col items-center">
+            <span class="text-lg"
+              >{{ userData?.person?.firstName }}
+              {{ userData?.person?.lastName }}</span
+            >
+            <span> {{ userData?.username }} </span>
+            <span class="text-blue-500 uppercase"> {{ getRoles() }} </span>
+          </div>
+        </div>
+        <mat-divider class="custom-divider"></mat-divider>
+        @if(!isDeveloper()){
+        <button mat-menu-item (click)="goToProfile()">
+          <div class="flex items-center">
+            <i-tabler name="user-circle"></i-tabler>
+            <span class="ml-1">Mi perfil</span>
+          </div></button
+        >}
+        <button mat-menu-item (click)="logout()">
+          <div class="flex items-center">
+            <i-tabler name="logout-2"></i-tabler>
+            <span class="ml-1">Cerrar sesión</span>
+          </div>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+    <div class="content-background flex-grow overflow-y-auto p-4 mx-4 mb-4">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</mat-drawer-container>

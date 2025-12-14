@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { Observable } from "rxjs";
@@ -29,6 +29,42 @@ export class CalendarService {
     return this.http.post<ApiResponseInterface<any>>(
       `${this.apiUrl}/dentist-calendar-lock/${idPerson}`,
       CalendarLockSerializer.toCreateDto(calendarLock)
+    );
+  }
+
+  getMonth(
+    idDentist: number,
+    date: Date
+  ): Observable<ApiResponseInterface<CalendarLockTypeInterface[]>> {
+    const params = new HttpParams().set("date", date.toISOString());
+
+    return this.http.get<ApiResponseInterface<CalendarLockTypeInterface[]>>(
+      `${this.apiUrl}/${idDentist}/month`,
+      { params }
+    );
+  }
+
+  getWeek(
+    idDentist: number,
+    date: Date
+  ): Observable<ApiResponseInterface<CalendarLockTypeInterface[]>> {
+    const params = new HttpParams().set("date", date.toISOString());
+
+    return this.http.get<ApiResponseInterface<CalendarLockTypeInterface[]>>(
+      `${this.apiUrl}/${idDentist}/week`,
+      { params }
+    );
+  }
+
+  getDay(
+    idDentist: number,
+    date: Date
+  ): Observable<ApiResponseInterface<CalendarLockTypeInterface[]>> {
+    const params = new HttpParams().set("date", date.toISOString());
+
+    return this.http.get<ApiResponseInterface<CalendarLockTypeInterface[]>>(
+      `${this.apiUrl}/${idDentist}/day`,
+      { params }
     );
   }
 }

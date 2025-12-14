@@ -16,6 +16,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatTableModule } from "@angular/material/table";
 import { AppointmentConflictInterface } from "../../../domain/interfaces/appointment.inteface";
 import { AppointmentService } from "../../../services/appointment.service";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-appointment-conflict",
@@ -31,40 +32,15 @@ import { AppointmentService } from "../../../services/appointment.service";
   ],
 })
 export class AppointmentConflictComponent implements OnDestroy {
+  private readonly router = inject(Router);
   dentistId = input<number | null>(null);
 
   private readonly _destroy$ = new Subject<void>();
   private readonly appointmentService = inject(AppointmentService);
 
-  goToCalendar = output<void>();
-
-  // TODO - waiting for creating the calendar component
   viewMode = signal<"grid" | "list">("grid");
 
-  // Mock conflicts data (replace with actual data from service)
-  conflicts = signal<AppointmentConflictInterface[]>([
-    {
-      appointmentId: 1,
-      appointmentDateTime: new Date("2025-10-05T09:00:00"),
-      patientName: "Juan Pérez",
-      reasonKey: "DOUBLE_BOOKING",
-      reasonLabel: "Doble reserva en el mismo horario",
-    },
-    {
-      appointmentId: 2,
-      appointmentDateTime: new Date("2025-10-05T14:30:00"),
-      patientName: "María González",
-      reasonKey: "OUTSIDE_HOURS",
-      reasonLabel: "Turno fuera del horario laboral",
-    },
-    {
-      appointmentId: 3,
-      appointmentDateTime: new Date("2025-10-06T10:00:00"),
-      patientName: "Carlos López",
-      reasonKey: "HOLIDAY",
-      reasonLabel: "Turno en día feriado",
-    },
-  ]);
+  conflicts = signal<AppointmentConflictInterface[]>([]);
 
   displayedColumns = ["patientName", "date", "reason"];
 
@@ -85,6 +61,10 @@ export class AppointmentConflictComponent implements OnDestroy {
   ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
+  }
+
+  goToCalendar() {
+    this.router.navigate(["/calendar"]);
   }
 
   getReasonColor(reasonKey: string): string {

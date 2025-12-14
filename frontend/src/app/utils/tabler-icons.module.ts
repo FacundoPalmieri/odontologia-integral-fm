@@ -119,6 +119,10 @@ import {
   IconLayoutSidebarLeftExpand,
   IconHandMove,
   IconHandOff,
+  IconHome,
+  IconCalendarBolt,
+  IconBoltFilled,
+  IconCalendarTime,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -239,6 +243,10 @@ const ICONS = {
   IconLayoutSidebarLeftExpand,
   IconHandMove,
   IconHandOff,
+  IconHome,
+  IconCalendarBolt,
+  IconBoltFilled,
+  IconCalendarTime,
 } as const;
 
 @NgModule({

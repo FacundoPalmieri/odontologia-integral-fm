@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
 import { LoginComponent } from "./pages/login/login.component";
 import { PasswordRecoveryComponent } from "./pages/password-recovery/password-recovery.component";
-import { HomeComponent } from "./pages/home/home.component";
+import { LayoutComponent } from "./pages/layout/layout.component";
 import { AuthGuard } from "../utils/guards/auth.guard";
 import { LoginGuard } from "../utils/guards/login.guard";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
@@ -24,13 +24,23 @@ import { SchedulesListComponent } from "./pages/system/schedule/schedules-list/s
 import { RolesListComponent } from "./pages/configuration/role/roles-list/roles-list.component";
 import { CalendarComponent } from "./components/calendar/calendar.component";
 import { DentistAvailabilityComponent } from "./pages/dentist-availability/dentist-availability.component";
+import { HomeComponent } from "./pages/home/home.component";
 
 export const routes: Routes = [
   {
     path: "",
-    component: HomeComponent,
+    component: LayoutComponent,
     canActivate: [AuthGuard],
     children: [
+      {
+        path: "",
+        redirectTo: "home",
+        pathMatch: "full",
+      },
+      {
+        path: "home",
+        component: HomeComponent,
+      },
       {
         path: "dashboard",
         component: DashboardComponent,

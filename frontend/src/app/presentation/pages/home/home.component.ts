@@ -1,34 +1,25 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   OnDestroy,
   OnInit,
-  ViewChildren,
-  QueryList,
+  signal,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { Router, RouterModule } from "@angular/router";
-import { MatIconModule } from "@angular/material/icon";
-import { MatButtonModule } from "@angular/material/button";
-import { MatToolbarModule } from "@angular/material/toolbar";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatListModule } from "@angular/material/list";
-import { MatSidenavModule } from "@angular/material/sidenav";
-import { MatMenuModule, MatMenu } from "@angular/material/menu";
 import { IconsModule } from "../../../utils/tabler-icons.module";
-import { ThemeService } from "../../../services/theme.service";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatCardModule } from "@angular/material/card";
+import { MatButtonModule } from "@angular/material/button";
+import { MatChipsModule } from "@angular/material/chips";
+import { Router } from "@angular/router";
 import { AuthService } from "../../../services/auth.service";
+import { DentistService } from "../../../services/dentist.service";
 import { UserDataInterface } from "../../../domain/interfaces/user-data.interface";
-import { MatDividerModule } from "@angular/material/divider";
-import { PermissionFactory } from "../../../utils/factories/permission.factory";
-import { MenuItemInterface } from "../../../domain/interfaces/menu-item.interface";
-import { FullscreenService } from "../../../services/fullscreen.service";
-import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
+import { DentistAvailabilityResponseInterface } from "../../../domain/interfaces/dentist.interface";
 import { Subject, takeUntil } from "rxjs";
-import { MatBadgeModule } from "@angular/material/badge";
-import { PersonDataService } from "../../../services/person-data.service";
-import { AccessControlService } from "../../../services/access-control.service";
+import { DayEnum } from "../../../utils/enums/day.enum";
 
 @Component({
   selector: "app-home",
@@ -37,74 +28,60 @@ import { AccessControlService } from "../../../services/access-control.service";
   standalone: true,
   imports: [
     CommonModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-    MatListModule,
-    MatTooltipModule,
-    MatMenuModule,
-    MatDividerModule,
-    RouterModule,
     IconsModule,
-    MatBadgeModule,
+    MatToolbarModule,
+    MatCardModule,
+    MatButtonModule,
+    MatChipsModule,
   ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
-  private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
-  private readonly personDataService = inject(PersonDataService);
-  private readonly accessControlService = inject(AccessControlService);
+  private readonly dentistService = inject(DentistService);
+  private readonly router = inject(Router);
 
-  router = inject(Router);
-  fullScreenService = inject(FullscreenService);
-  currentTheme = computed(() => this.themeService.currentTheme());
-  userData: UserDataInterface | null = this.authService.getUserData();
-  permissions: string[] = [];
-  private menuItems = PermissionFactory.createPermissions();
-  filteredMenuItems: MenuItemInterface[] = [];
-  avatar: string | null = null;
-  expandedMenus: { [label: string]: boolean } = {};
-  @ViewChildren("menuTemplate") menuTemplates!: QueryList<MatMenu>;
+  userData = signal<UserDataInterface | null>(null);
+  dentistAvailability = signal<DentistAvailabilityResponseInterface | null>(
+    null
+  );
+  isLoadingAvailability = signal<boolean>(false);
+  currentTime = signal<string>("");
+  currentDate = signal<string>("");
+
+  greeting = computed(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Buenos días";
+    if (hour < 20) return "Buenas tardes";
+    return "Buenas noches";
+  });
 
   constructor() {
-    if (this.authService.isLoggedIn()) {
-      this.accessControlService.initializePermissions();
-    }
-  }
-
-  ngOnInit() {
-    if (this.userData?.roles && this.userData?.roles.length > 0) {
-      this.userData.roles.forEach((role) => {
-        if (role.permissionsList) {
-          role.permissionsList.forEach((permissionObject) => {
-            this.permissions.push(permissionObject.name);
-          });
-        }
-      });
-      if (this.userData.person?.id) {
-        this.personDataService
-          .getAvatar(this.userData.person.id)
-          .subscribe((avatar) => {
-            if (avatar) {
-              this.avatar = avatar;
-            } else {
-              this.avatar = "img/doctor-avatar.png";
-            }
+    // Cargar disponibilidad si es dentista
+    effect(() => {
+      if (this.userData() && this.isDentist() && this.userData()?.person?.id) {
+        this.isLoadingAvailability.set(true);
+        this.dentistService
+          .getAvailability(this.userData()?.person?.id!)
+          .pipe(takeUntil(this._destroy$))
+          .subscribe({
+            next: (response) => {
+              this.dentistAvailability.set(response.data);
+              this.isLoadingAvailability.set(false);
+            },
+            error: () => {
+              this.isLoadingAvailability.set(false);
+            },
           });
       }
-      this.permissions = [...new Set(this.permissions)];
-      this.filteredMenuItems = this.filterMenuItems();
-    }
-    if (
-      this.personDataService.nationalities().length === 0 &&
-      this.userData?.roles
-    ) {
-      this.personDataService
-        .loadCatalogsBasedOnRole(this.userData.roles)
-        .subscribe();
-    }
+    });
+  }
+
+  ngOnInit(): void {
+    this.userData.set(this.authService.getUserData());
+    this.updateTime();
+    // Actualizar la hora cada minuto
+    setInterval(() => this.updateTime(), 60000);
   }
 
   ngOnDestroy(): void {
@@ -112,74 +89,86 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._destroy$.complete();
   }
 
-  private filterMenuItems(): MenuItemInterface[] {
-    return this.menuItems
-      .filter((item) => this.permissions.includes(item.permissionEnum))
-      .map((item) => ({
-        ...item,
-        children: item.children
-          ? item.children.filter((child) =>
-              this.permissions.includes(child.permissionEnum)
-            )
-          : undefined,
-      }));
+  updateTime(): void {
+    const now = new Date();
+    this.currentTime.set(
+      now.toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
+    this.currentDate.set(
+      now.toLocaleDateString("es-AR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    );
   }
 
-  logout() {
-    const logoutData = this.authService.getLogoutData();
-    this.authService
-      .logout(logoutData!)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((response: ApiResponseInterface<string>) => {
-        if (response.success) {
-          this.authService.dologout();
-          this.router.navigate(["/login"]);
-        }
-      });
+  isDentist(): boolean {
+    return (
+      this.userData()?.roles?.some((role) => role.name === "DENTIST") || false
+    );
   }
 
-  getRoles(): string {
-    if (this.userData?.roles && this.userData.roles.length > 0) {
-      return this.userData.roles.map((role) => role.label).join(", ");
+  getWeeklyDays() {
+    return (
+      this.dentistAvailability()?.days?.filter(
+        (day) => day.recurrence === "WEEKLY"
+      ) || []
+    );
+  }
+
+  getSpecificDays() {
+    return (
+      this.dentistAvailability()?.days?.filter(
+        (day) => !day.recurrence || day.recurrence === "NONE"
+      ) || []
+    );
+  }
+
+  getDayLabel(day: DayEnum | null | undefined): string {
+    if (!day) return "-";
+    const dayLabels: Record<DayEnum, string> = {
+      [DayEnum.MONDAY]: "Lunes",
+      [DayEnum.TUESDAY]: "Martes",
+      [DayEnum.WEDNESDAY]: "Miércoles",
+      [DayEnum.THURSDAY]: "Jueves",
+      [DayEnum.FRIDAY]: "Viernes",
+      [DayEnum.SATURDAY]: "Sábado",
+      [DayEnum.SUNDAY]: "Domingo",
+    };
+    return dayLabels[day] || day;
+  }
+
+  formatTime(time: { hour: number; minute: number }): string {
+    const hour = time.hour.toString().padStart(2, "0");
+    const minute = time.minute.toString().padStart(2, "0");
+    return `${hour}:${minute}`;
+  }
+
+  formatDate(date: string | Date | null): string {
+    if (!date) return "-";
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    return dateObj.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
+
+  goToCalendar(): void {
+    this.router.navigate(["/calendar"]);
+  }
+
+  goToAvailability(): void {
+    if (this.userData()?.person?.id) {
+      this.router.navigate([
+        "/dentist-availability",
+        this.userData()?.person?.id,
+      ]);
     }
-    return "";
-  }
-
-  toggleTheme() {
-    const newTheme = this.currentTheme().id === "light" ? "dark" : "light";
-    this.themeService.setTheme(newTheme);
-  }
-
-  goToProfile() {
-    this.router.navigate(["/profile"]);
-  }
-
-  isDeveloper(): boolean {
-    if (!this.userData?.roles) return false;
-    return this.userData.roles.some(
-      (role) =>
-        role.name.toLowerCase().includes("developer") ||
-        role.label.toLowerCase().includes("desarrollador")
-    );
-  }
-
-  toggleSubmenu(label: string) {
-    this.expandedMenus[label] = !this.expandedMenus[label];
-  }
-
-  getMenuForItem(label: string): MatMenu | null {
-    if (!this.menuTemplates) {
-      return null;
-    }
-
-    const menus = this.menuTemplates.toArray();
-    const menusWithChildren = this.filteredMenuItems.filter(
-      (item) => item.children && item.children.length > 0
-    );
-
-    const menuIndex = menusWithChildren.findIndex(
-      (item) => item.label === label
-    );
-    return menus[menuIndex] || null;
   }
 }
