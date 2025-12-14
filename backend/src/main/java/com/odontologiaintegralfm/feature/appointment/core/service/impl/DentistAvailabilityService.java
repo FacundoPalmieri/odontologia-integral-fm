@@ -306,7 +306,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         }
 
         //Verifica jornada específica, ya que si es así solo puede haber un elemento en la lista.
-        if ((dentistAvailabilities.get(0).getSpecificDate().equals(date))) {
+        if (((dentistAvailabilities.get(0).getSpecificDate())!= null) && dentistAvailabilities.get(0).getSpecificDate().equals(date)) {
             return dentistAvailabilities.get(0);
         }
 
