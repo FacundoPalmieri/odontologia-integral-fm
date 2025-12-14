@@ -17,7 +17,6 @@ import { UserService } from "../../../services/user.service";
 import { AuthService } from "../../../services/auth.service";
 import { DentistService } from "../../../services/dentist.service";
 import { Subject, takeUntil } from "rxjs";
-import { DayEnum } from "../../../utils/enums/day.enum";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
 import { PersonInterface } from "../../../domain/interfaces/person.interface";
 import { DentistAvailabilityResponseInterface } from "../../../domain/interfaces/dentist.interface";
@@ -65,7 +64,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly personDataService = inject(PersonDataService);
   private readonly dialog = inject(MatDialog);
-  private readonly dentistService = inject(DentistService);
 
   @ViewChild("inputAvatar") inputAvatar!: ElementRef<HTMLInputElement>;
 
@@ -126,25 +124,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               );
               this.canDeleteAvatar.set(false);
             }
-          });
-      }
-    });
-
-    // Cargar disponibilidad si es dentista
-    effect(() => {
-      if (this.user() && this.isDentist() && this.user()?.person?.id) {
-        this.isLoadingAvailability.set(true);
-        this.dentistService
-          .getAvailability(this.user()?.person?.id!)
-          .pipe(takeUntil(this._destroy$))
-          .subscribe({
-            next: (response) => {
-              this.dentistAvailability.set(response.data);
-              this.isLoadingAvailability.set(false);
-            },
-            error: () => {
-              this.isLoadingAvailability.set(false);
-            },
           });
       }
     });
@@ -235,73 +214,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  isDentist(): boolean {
-    return (
-      this.user()?.rolesList?.some((role) => role.name === "DENTIST") || false
-    );
-  }
-
-  onPersonFormValidChange(isValid: boolean): void {
-    this.isPersonFormValid.set(isValid);
-  }
-
-  onPersonFormValueChange(personData: PersonInterface): void {
-    this.updatedPersonData.set(personData);
-  }
-
-  savePersonData(): void {
-    if (
-      !this.isPersonFormValid() ||
-      !this.updatedPersonData() ||
-      !this.user()
-    ) {
-      return;
-    }
-
-    this.isSaving.set(true);
-
-    const updatedUser: UserInterface = {
-      ...this.user()!,
-      person: this.updatedPersonData()!,
-    };
-
-    this.userService
-      .update(updatedUser)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe({
-        next: (response) => {
-          this.snackbarService.openSnackbar(
-            "Datos personales actualizados correctamente.",
-            6000,
-            "center",
-            "top",
-            SnackbarTypeEnum.Success
-          );
-
-          this.userService
-            .getById(this.userId())
-            .pipe(takeUntil(this._destroy$))
-            .subscribe((userResponse: ApiResponseInterface<UserInterface>) => {
-              this.user.set(userResponse.data);
-              this.isSaving.set(false);
-            });
-        },
-      });
-  }
-
-  onPanelOpened(): void {
-    this.isAnyPanelExpanded.set(true);
-  }
-
-  onPanelClosed(): void {
-    setTimeout(() => {
-      const expandedPanels = document.querySelectorAll(
-        ".mat-expansion-panel.mat-expanded"
-      );
-      this.isAnyPanelExpanded.set(expandedPanels.length > 0);
-    }, 100);
-  }
-
   openEditPersonDialog(): void {
     const dialogRef = this.dialog.open(PersonDataEditDialogComponent, {
       data: {
@@ -343,55 +255,5 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           });
       }
     });
-  }
-
-  getDayLabel(day: DayEnum | null | undefined): string {
-    if (!day) return "-";
-    const dayLabels: Record<DayEnum, string> = {
-      [DayEnum.MONDAY]: "Lunes",
-      [DayEnum.TUESDAY]: "Martes",
-      [DayEnum.WEDNESDAY]: "Miércoles",
-      [DayEnum.THURSDAY]: "Jueves",
-      [DayEnum.FRIDAY]: "Viernes",
-      [DayEnum.SATURDAY]: "Sábado",
-      [DayEnum.SUNDAY]: "Domingo",
-    };
-    return dayLabels[day] || day;
-  }
-
-  formatTime(time: { hour: number; minute: number }): string {
-    const hour = time.hour.toString().padStart(2, "0");
-    const minute = time.minute.toString().padStart(2, "0");
-    return `${hour}:${minute}`;
-  }
-
-  getWeeklyDays() {
-    return (
-      this.dentistAvailability()?.days?.filter(
-        (day) => day.recurrence === "WEEKLY"
-      ) || []
-    );
-  }
-
-  getSpecificDays() {
-    return (
-      this.dentistAvailability()?.days?.filter(
-        (day) => !day.recurrence || day.recurrence === "NONE"
-      ) || []
-    );
-  }
-
-  formatDate(date: string | Date | null): string {
-    if (!date) return "-";
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return dateObj.toLocaleDateString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  }
-
-  goToEditAvailabilityDialog(): void {
-    this.router.navigate(["/dentist-availability/" + this.user()?.person?.id!]);
   }
 }

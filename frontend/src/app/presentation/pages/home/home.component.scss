@@ -160,65 +160,6 @@
 }
 
 // ========================================
-// Estilos Generales de Cards
-// ========================================
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-
-  .header-icon-container {
-    width: 56px;
-    height: 56px;
-    border-radius: var(--mat-sys-corner-medium);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    &.bg-blue {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    }
-
-    &.bg-green {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    }
-
-    &.bg-orange {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    }
-
-    &.bg-purple {
-      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-    }
-
-    .header-icon {
-      color: white;
-      font-size: 28px;
-    }
-  }
-
-  .header-text {
-    flex: 1;
-
-    .card-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0 0 4px 0;
-      color: var(--mat-sys-on-surface);
-    }
-
-    .card-subtitle {
-      font-size: 14px;
-      margin: 0;
-      color: var(--mat-sys-on-surface-variant);
-      opacity: 0.8;
-    }
-  }
-}
-
-// ========================================
 // Estado Vacío
 // ========================================
 .empty-state {

@@ -53,13 +53,13 @@
   <div class="lg:col-span-8">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <div class="flex items-center gap-3 mb-4">
-          <div
-            class="w-12 h-12 bg-blue-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
-          >
-            <i-tabler name="id" class="text-blue-600"></i-tabler>
+        <div class="card-header">
+          <div class="header-icon-container bg-blue">
+            <i-tabler name="id" class="header-icon scale-130"></i-tabler>
           </div>
-          <h3 class="text-lg font-semibold">Datos Personales</h3>
+          <div class="header-text">
+            <h3 class="card-title">Datos Personales</h3>
+          </div>
         </div>
         <div class="p-4">
           <!-- Información Personal -->
@@ -204,19 +204,19 @@
   </div>
 </div>
 
-<!-- Layout tipo masonry para Adjuntos y Preferencias -->
-<div class="mt-4 columns-1 lg:columns-2 gap-4 space-y-4">
-  <!-- Card de Adjuntos -->
-  <mat-card appearance="outlined" class="break-inside-avoid mb-4">
+<!-- Card de Archivos Adjuntos -->
+<div class="mt-4">
+  <mat-card appearance="outlined">
     <mat-card-content>
-      <div class="flex items-center gap-3 mb-4">
-        <div
-          class="w-12 h-12 bg-gray-200 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
-        >
-          <i-tabler name="file-text" class="text-gray-600"></i-tabler>
+      <div class="card-header">
+        <div class="header-icon-container bg-gray">
+          <i-tabler name="file-text" class="header-icon scale-130"></i-tabler>
         </div>
-        <h3 class="text-lg font-semibold">Archivos Adjuntos</h3>
+        <div class="header-text">
+          <h3 class="card-title">Archivos adjuntos</h3>
+        </div>
       </div>
+
       @if(user()?.id) {
       <app-attached-file
         [attachedFileEntity]="{
@@ -227,186 +227,4 @@
       }
     </mat-card-content>
   </mat-card>
-
-  <!-- Sección de preferencias (solo para dentistas) -->
-  @if(isDentist()) {
-
-  <!-- Card de Días no Laborales -->
-  <mat-card
-    appearance="outlined"
-    class="hover:shadow-lg transition-shadow break-inside-avoid mb-4"
-  >
-    <mat-card-content>
-      <div class="flex items-center gap-3 mb-4">
-        <div
-          class="w-12 h-12 bg-red-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
-        >
-          <i-tabler name="calendar-cancel" class="text-red-600"></i-tabler>
-        </div>
-        <h3 class="text-lg font-semibold">Días no Laborales</h3>
-      </div>
-      <div class="text-center py-8">
-        <h3 class="text-lg font-medium mb-2">
-          Configuración de días no laborales
-        </h3>
-        <mat-chip color="accent">Disponible próximamente</mat-chip>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Card de Disponibilidad Horaria -->
-  <mat-card
-    appearance="outlined"
-    class="hover:shadow-lg transition-shadow break-inside-avoid mb-4"
-  >
-    <mat-card-content>
-      <div class="flex items-center gap-3 mb-4">
-        <div
-          class="w-12 h-12 bg-blue-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
-        >
-          <i-tabler name="clock" class="text-blue-600"></i-tabler>
-        </div>
-        <h3 class="text-lg font-semibold">Disponibilidad Horaria</h3>
-      </div>
-      @if(dentistAvailability()) { @if(dentistAvailability()?.days &&
-      dentistAvailability()!.days.length > 0) {
-      <!-- Horario Semanal -->
-      @if(getWeeklyDays().length > 0) {
-      <div class="mb-6">
-        <div class="flex items-center gap-2 mb-3">
-          <i-tabler name="calendar-week" class="text-sm"></i-tabler>
-          <h4 class="text-sm font-semibold">Horario Semanal</h4>
-        </div>
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
-        >
-          @for(day of getWeeklyDays(); track day.dayName) {
-          <div
-            class="p-4 bg-[var(--mat-sys-file-container-background)] rounded-[var(--mat-sys-corner-large)] shadow-sm"
-          >
-            <div class="flex flex-col gap-2">
-              <div class="flex items-center gap-2">
-                <i-tabler name="calendar" class="text-sm opacity-70"></i-tabler>
-                <span class="font-semibold text-sm">{{
-                  getDayLabel(day.dayName)
-                }}</span>
-              </div>
-              <div class="flex items-center gap-2 text-sm">
-                <i-tabler name="clock" class="text-xs opacity-70"></i-tabler>
-                <span
-                  >{{ formatTime(day.startTime) }} -
-                  {{ formatTime(day.endTime) }}</span
-                >
-              </div>
-              <div class="flex items-center gap-2 text-sm">
-                <i-tabler
-                  name="hourglass"
-                  class="text-xs opacity-70"
-                ></i-tabler>
-                <span>{{ day.appointmentDuration }} min</span>
-              </div>
-            </div>
-          </div>
-          }
-        </div>
-      </div>
-      }
-
-      <!-- Días Específicos -->
-      @if(getSpecificDays().length > 0) {
-      <div>
-        <div class="flex items-center gap-2 mb-3">
-          <i-tabler name="calendar-event" class="text-sm"></i-tabler>
-          <h4 class="text-sm font-semibold">Días Específicos</h4>
-        </div>
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
-        >
-          @for(day of getSpecificDays(); track day.specificDate) {
-          <div
-            class="p-4 bg-[var(--mat-sys-file-container-background)] rounded-[var(--mat-sys-corner-large)] shadow-sm"
-          >
-            <div class="flex flex-col gap-2">
-              <div class="flex items-center gap-2">
-                <i-tabler
-                  name="calendar-event"
-                  class="text-sm opacity-70"
-                ></i-tabler>
-                <span class="font-semibold text-sm">{{
-                  formatDate(day.specificDate)
-                }}</span>
-              </div>
-              <div class="flex items-center gap-2 text-sm">
-                <i-tabler name="clock" class="text-xs opacity-70"></i-tabler>
-                <span
-                  >{{ formatTime(day.startTime) }} -
-                  {{ formatTime(day.endTime) }}</span
-                >
-              </div>
-              <div class="flex items-center gap-2 text-sm">
-                <i-tabler
-                  name="hourglass"
-                  class="text-xs opacity-70"
-                ></i-tabler>
-                <span>{{ day.appointmentDuration }} min</span>
-              </div>
-            </div>
-          </div>
-          }
-        </div>
-      </div>
-      } } @else {
-      <div class="flex flex-col items-center gap-4 py-6 px-4">
-        <div class="text-center">
-          <h4 class="text-lg font-medium mb-2">
-            Sin disponibilidad configurada
-          </h4>
-          <p>
-            No se podrán cargar turnos a su nombre hasta que configure su
-            disponibilidad horaria.
-          </p>
-        </div>
-        <button mat-flat-button (click)="goToEditAvailabilityDialog()">
-          <div class="flex items-center justify-center gap-2">
-            <i-tabler name="plus"></i-tabler>
-            <span>Configurar</span>
-          </div>
-        </button>
-      </div>
-      } }
-    </mat-card-content>
-    @if(dentistAvailability()?.days && dentistAvailability()!.days.length > 0) {
-    <mat-card-actions align="end">
-      <button mat-flat-button (click)="goToEditAvailabilityDialog()">
-        <div class="flex items-center justify-center gap-2">
-          <i-tabler name="edit"></i-tabler>
-          <span>Modificar</span>
-        </div>
-      </button>
-    </mat-card-actions>
-    }
-  </mat-card>
-
-  <!-- Card de Conflictos de Turnos -->
-  <mat-card
-    appearance="outlined"
-    class="hover:shadow-lg transition-shadow break-inside-avoid mb-4"
-  >
-    <mat-card-content>
-      <div class="flex items-center gap-3 mb-4">
-        <div
-          class="w-12 h-12 bg-orange-100 rounded-[var(--mat-sys-corner-medium)] flex items-center justify-center flex-shrink-0"
-        >
-          <i-tabler name="alert-triangle" class="text-orange-600"></i-tabler>
-        </div>
-        <h3 class="text-lg font-semibold">Conflictos de Turnos</h3>
-      </div>
-      @if(user()?.person?.id) {
-      <app-appointment-conflict
-        [dentistId]="user()?.person?.id!"
-      ></app-appointment-conflict>
-      }
-    </mat-card-content>
-  </mat-card>
-  }
 </div>
