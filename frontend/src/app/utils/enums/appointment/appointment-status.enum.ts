@@ -5,3 +5,15 @@ export enum AppointmentStatusEnum {
   RESCHEDULED = "Reprogramado",
   CANCELED = "Cancelado",
 }
+
+export enum SlotStatusEnum {
+  FREE = "FREE",
+  RESERVED = "RESERVED",
+  LOCKED = "LOCKED",
+}
+
+export enum CalendarMonthDayStatusEnum {
+  FREE = "FREE",
+  HOLIDAY = "HOLIDAY",
+  LOCKED = "LOCKED",
+}

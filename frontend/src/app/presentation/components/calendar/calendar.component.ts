@@ -5,6 +5,7 @@ import {
   AfterViewInit,
   ElementRef,
   ViewChild,
+  signal,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
@@ -28,6 +29,10 @@ import { CreateAppointmentDialogComponent } from "./create-appointment-dialog/cr
 import { CreateCalendarLockDialogComponent } from "./create-calendar-lock-dialog/create-calendar-lock-dialog.component";
 import { AuthService } from "../../../services/auth.service";
 import { Router } from "@angular/router";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { CalendarService } from "../../../services/calendar.service";
+import { CalendarMonthInterface } from "../../../domain/interfaces/calendar.interface";
+import { CalendarMonthDayStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
 
 export interface CalendarEvent {
   id: string;
@@ -63,12 +68,14 @@ export type CalendarView = "day" | "week" | "month";
     MatCheckboxModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatProgressSpinnerModule,
   ],
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly loaderService = inject(LoaderService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly calendarService = inject(CalendarService);
 
   dialog = inject(MatDialog);
   loading$ = this.loaderService.loading$;
@@ -80,6 +87,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   private scrollHandler: (() => void) | null = null;
 
+  // Calendar data signals
+  isLoadingCalendar = signal<boolean>(false);
+  calendarMonthData = signal<CalendarMonthInterface | null>(null);
   currentDate = new Date();
   selectedDate = new Date();
   currentView: CalendarView = "month";
@@ -929,11 +939,45 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.personId = this.authService.getUserData()?.person.id || 0;
     this.updateSelectedDate();
+
+    // Load month view data on initialization
+    if (this.currentView === "month") {
+      this.loadMonthView();
+    }
   }
 
   ngAfterViewInit() {
     this.setupScrollSync();
     this.startTimeUpdate();
+  }
+
+  /**
+   * Load month view data from backend
+   */
+  loadMonthView() {
+    if (!this.personId) {
+      console.error("No person ID available");
+      return;
+    }
+
+    this.isLoadingCalendar.set(true);
+    const year = this.selectedDate.getFullYear();
+    const month = this.selectedDate.getMonth() + 1; // JavaScript months are 0-indexed
+
+    this.calendarService.getMonth(this.personId, year, month).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.calendarMonthData.set(response.data);
+        } else {
+          this.calendarMonthData.set(null);
+        }
+        this.isLoadingCalendar.set(false);
+      },
+      error: (error) => {
+        this.isLoadingCalendar.set(false);
+        this.calendarMonthData.set(null);
+      },
+    });
   }
 
   generateTimeSlots() {
@@ -946,6 +990,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   setView(view: CalendarView) {
     this.currentView = view;
+
+    // Load data when switching to month view
+    if (view === "month") {
+      this.loadMonthView();
+    }
+
     // Reconfigurar sincronización cuando cambie la vista
     setTimeout(() => {
       this.setupScrollSync();
@@ -969,11 +1019,21 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     this.selectedDate = newDate;
     this.updateSelectedDate();
+
+    // Reload data when navigating in month view
+    if (this.currentView === "month") {
+      this.loadMonthView();
+    }
   }
 
   goToToday() {
     this.selectedDate = new Date();
     this.updateSelectedDate();
+
+    // Reload data when going to today in month view
+    if (this.currentView === "month") {
+      this.loadMonthView();
+    }
   }
 
   updateSelectedDate() {
@@ -1211,7 +1271,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   goToAvailability() {
-    console.log(this.personId);
     this.router.navigate(["/dentist-availability/" + this.personId]); // Navegar a la ruta de disponibilidad
   }
 

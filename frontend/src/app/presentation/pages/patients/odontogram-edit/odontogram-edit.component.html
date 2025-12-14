@@ -6,8 +6,8 @@
 
 <mat-card appearance="outlined" class="mt-4">
   <mat-card-content>
-    <div class="my-2 w-full odontogram-container">
-      <div class="odontogram-wrapper gap-2">
+    <div class="w-full odontogram-container">
+      <div class="odontogram-wrapper">
         <app-odontogram
           [odontogram]="odontogram"
           [showToolbox]="true"
@@ -25,7 +25,7 @@
   </mat-card-content>
 
   <mat-card-actions align="end">
-    <button mat-flat-button class="m-2" (click)="saveOdontogram()">
+    <button mat-flat-button (click)="saveOdontogram()">
       <div class="flex items-center">
         <span>Guardar</span>
       </div>

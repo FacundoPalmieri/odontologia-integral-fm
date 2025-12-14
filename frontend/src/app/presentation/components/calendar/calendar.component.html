@@ -416,6 +416,14 @@
 
         <!-- Month View -->
         <div *ngIf="currentView === 'month'" class="month-view">
+          @if (isLoadingCalendar()) {
+          <!-- Loading Spinner -->
+          <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p class="loading-text">Cargando calendario...</p>
+          </div>
+          } @else {
+          <!-- Month Grid -->
           <div class="month-grid">
             <div class="month-header">
               <div *ngFor="let day of weekDays" class="month-day-header">
@@ -455,6 +463,7 @@
               </div>
             </div>
           </div>
+          }
         </div>
       </div>
     </main>

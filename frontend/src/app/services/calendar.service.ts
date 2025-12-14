@@ -4,8 +4,11 @@ import { environment } from "../environments/environment";
 import { Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import {
+  CalendarDayInterface,
   CalendarLockInterface,
   CalendarLockTypeInterface,
+  CalendarMonthInterface,
+  CalendarWeekInterface,
 } from "../domain/interfaces/calendar.interface";
 import { CalendarLockSerializer } from "../domain/serializers/calendar-lock.serializer";
 
@@ -34,12 +37,15 @@ export class CalendarService {
 
   getMonth(
     idDentist: number,
-    date: Date
-  ): Observable<ApiResponseInterface<CalendarLockTypeInterface[]>> {
-    const params = new HttpParams().set("date", date.toISOString());
+    year: number,
+    month: number
+  ): Observable<ApiResponseInterface<CalendarMonthInterface>> {
+    const params = new HttpParams()
+      .set("year", year.toString())
+      .set("month", month.toString());
 
-    return this.http.get<ApiResponseInterface<CalendarLockTypeInterface[]>>(
-      `${this.apiUrl}/${idDentist}/month`,
+    return this.http.get<ApiResponseInterface<CalendarMonthInterface>>(
+      `${this.apiUrl}/calendar/${idDentist}/month`,
       { params }
     );
   }
@@ -47,11 +53,11 @@ export class CalendarService {
   getWeek(
     idDentist: number,
     date: Date
-  ): Observable<ApiResponseInterface<CalendarLockTypeInterface[]>> {
+  ): Observable<ApiResponseInterface<CalendarWeekInterface[]>> {
     const params = new HttpParams().set("date", date.toISOString());
 
-    return this.http.get<ApiResponseInterface<CalendarLockTypeInterface[]>>(
-      `${this.apiUrl}/${idDentist}/week`,
+    return this.http.get<ApiResponseInterface<CalendarWeekInterface[]>>(
+      `${this.apiUrl}/calendar/${idDentist}/week`,
       { params }
     );
   }
@@ -59,11 +65,11 @@ export class CalendarService {
   getDay(
     idDentist: number,
     date: Date
-  ): Observable<ApiResponseInterface<CalendarLockTypeInterface[]>> {
+  ): Observable<ApiResponseInterface<CalendarDayInterface[]>> {
     const params = new HttpParams().set("date", date.toISOString());
 
-    return this.http.get<ApiResponseInterface<CalendarLockTypeInterface[]>>(
-      `${this.apiUrl}/${idDentist}/day`,
+    return this.http.get<ApiResponseInterface<CalendarDayInterface[]>>(
+      `${this.apiUrl}/calendar/${idDentist}/day`,
       { params }
     );
   }
