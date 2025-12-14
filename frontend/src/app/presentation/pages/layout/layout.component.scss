@@ -76,3 +76,10 @@
   );
   padding: 3px;
 }
+
+.logo-collapsed {
+  height: 60px;
+  width: auto;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}

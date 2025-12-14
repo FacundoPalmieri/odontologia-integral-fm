@@ -80,6 +80,16 @@
       <button mat-icon-button (click)="drawer.toggle()">
         <i-tabler name="menu"></i-tabler>
       </button>
+
+      <!-- Logo visible cuando el sidenav está cerrado -->
+      @if(!drawer.opened) {
+      <img
+        src="img/logo-fondo-blanco.jpg"
+        alt="Logo"
+        class="logo-collapsed rounded-[var(--mat-sys-corner-medium)] avatar-gradient"
+      />
+      }
+
       <mat-nav-list>
         <mat-list-item
           class="list-item-menu"
