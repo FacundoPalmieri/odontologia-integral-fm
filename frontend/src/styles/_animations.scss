@@ -1,0 +1,115 @@
+// ========================================
+// Animaciones Globales
+// ========================================
+
+// Keyframes para fade-in
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Keyframes para slide-up
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Keyframes para slide-down
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Keyframes para scale-in
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Animación automática para mat-card
+mat-card {
+  animation: slideUp 0.4s ease-out;
+}
+
+// Clase para fade-in
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+// Clase para slide-up
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+// Clase para slide-down
+.slide-down {
+  animation: slideDown 0.5s ease-out;
+}
+
+// Clase para scale-in
+.scale-in {
+  animation: scaleIn 0.4s ease-out;
+}
+
+// Animación stagger para listas (cada elemento con delay)
+.stagger-item {
+  animation: slideUp 0.5s ease-out;
+
+  &:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+  &:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(5) {
+    animation-delay: 0.25s;
+  }
+  &:nth-child(6) {
+    animation-delay: 0.3s;
+  }
+  &:nth-child(7) {
+    animation-delay: 0.35s;
+  }
+  &:nth-child(8) {
+    animation-delay: 0.4s;
+  }
+  &:nth-child(9) {
+    animation-delay: 0.45s;
+  }
+  &:nth-child(10) {
+    animation-delay: 0.5s;
+  }
+}
+
+// Animación para el router-outlet (transiciones de página)
+router-outlet ~ * {
+  animation: fadeIn 0.3s ease-out;
+}

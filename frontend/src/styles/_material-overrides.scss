@@ -1,0 +1,310 @@
+@use "@angular/material" as mat;
+
+// ========================================
+// Overrides de Angular Material
+// ========================================
+
+body {
+  //Revisar el motivo (barra en label) por el que es necesario agregar esta línea
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border: none;
+  }
+
+  label {
+    display: inline-flex !important;
+  }
+
+  .mat-mdc-checkbox {
+    .mdc-checkbox {
+      border-radius: 6px;
+      width: 20px;
+      height: 20px;
+
+      .mdc-checkbox__background {
+        border-radius: 6px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .snackbar-success {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: rgba(16, 185, 129),
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+
+  .snackbar-error {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: rgb(245, 101, 101),
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+
+  .snackbar-warning {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: rgb(251, 146, 60),
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+
+  .snackbar-info {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: rgb(56, 189, 248),
+        supporting-text-color: white,
+        button-color: #ffffff,
+        supporting-text-size: 16px,
+        supporting-text-weight: 500,
+      )
+    );
+  }
+
+  .list-item-menu {
+    @include mat.list-overrides(
+      (
+        active-indicator-shape: var(--mat-sys-corner-large),
+      )
+    );
+  }
+
+  .active-link {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+    @include mat.list-overrides(
+      (
+        list-item-container-color: var(--mat-sys-secondary),
+      )
+    );
+  }
+
+  @include mat.button-overrides(
+    (
+      filled-container-shape: var(--mat-sys-corner-large),
+      outlined-container-shape: var(--mat-sys-corner-large),
+      protected-container-shape: var(--mat-sys-corner-large),
+      text-container-shape: var(--mat-sys-corner-large),
+    )
+  );
+
+  @include mat.tooltip-overrides(
+    (
+      container-color: var(--mat-sys-secondary),
+      supporting-text-color: var(--mat-sys-on-secondary-container),
+      container-shape: 12px,
+    )
+  );
+
+  @include mat.card-overrides(
+    (
+      outlined-container-color: var(--mat-sys-content-container-color),
+      outlined-container-shape: var(--mat-sys-corner-large),
+      outlined-outline-width: 0,
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      container-height: 50px,
+      container-vertical-padding: 14px,
+      container-text-size: 16px,
+      outlined-container-shape: 10px,
+      filled-container-shape: 10px,
+    )
+  );
+
+  @include mat.table-overrides(
+    (
+      background-color: (
+        --mat-sys-content-container-color,
+      ),
+      header-headline-size: 16px,
+      header-headline-weight: 600,
+      row-item-outline-color: rgba(0, 0, 0, 0.1),
+      row-item-outline-width: 1px,
+    )
+  );
+
+  @include mat.divider-overrides(
+    (
+      width: 3px,
+    )
+  );
+
+  @include mat.chips-overrides(
+    (
+      container-shape-radius: 100px,
+    )
+  );
+
+  @include mat.paginator-overrides(
+    (
+      container-background-color: var(--mat-sys-content-container-color),
+    )
+  );
+
+  @include mat.stepper-overrides(
+    (
+      container-color: var(--mat-sys-content-toolbar-container-color),
+    )
+  );
+
+  @include mat.dialog-overrides(
+    (
+      container-max-width: 1200px,
+    )
+  );
+
+  @include mat.expansion-overrides(
+    (
+      container-background-color: var(--mat-sys-content-container-color),
+    )
+  );
+
+  mat-expansion-panel {
+    box-shadow: var(--mat-sys-level1) !important;
+  }
+
+  .checkbox-item {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    padding: 0rem 1rem 0rem 0rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition-property: color, background-color, border-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    color: var(--mat-sys-on-surface);
+    background-color: var(--mat-sys-surface-container-low);
+
+    &:hover {
+      background-color: var(--mat-sys-surface-container-high);
+    }
+
+    .mdc-checkbox {
+      .mdc-checkbox__ripple {
+        display: none;
+      }
+
+      &:hover .mdc-checkbox__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+
+      .mdc-checkbox__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+    }
+
+    &:hover .mdc-checkbox {
+      .mdc-checkbox__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+    }
+  }
+
+  // ========================================
+  // Estilos personalizados para tabs
+  // ========================================
+  .mat-mdc-tab-group {
+    .mat-mdc-tab-header {
+      border-radius: var(--mat-sys-corner-medium) var(--mat-sys-corner-medium) 0
+        0;
+      overflow: hidden;
+    }
+
+    // Ocultar la línea indicadora predeterminada
+    .mat-mdc-tab-header-pagination-chevron,
+    .mdc-tab-indicator {
+      display: none !important;
+    }
+
+    // Estilos para los labels de los tabs
+    .mdc-tab {
+      padding: 0 !important;
+      margin: 6px !important;
+      min-width: auto !important;
+      flex: 1; // Hace que cada tab ocupe el mismo espacio
+
+      .mdc-tab__content {
+        width: 100%;
+        border-radius: var(--mat-sys-corner-large);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      // Desactivar transiciones de color en el texto
+      .mdc-tab__text-label {
+        transition: none !important;
+      }
+    }
+
+    // Tab activo - fondo con color primario
+    .mdc-tab--active {
+      .mdc-tab__content {
+        background-color: var(--mat-sys-primary);
+        color: var(--mat-sys-on-primary) !important;
+      }
+
+      .mdc-tab__text-label {
+        color: var(--mat-sys-on-primary) !important;
+      }
+
+      // Forzar color blanco en los iconos de Tabler
+      i-tabler,
+      i-tabler svg {
+        color: var(--mat-sys-on-primary) !important;
+        stroke: var(--mat-sys-on-primary) !important;
+      }
+    }
+
+    // Tab inactivo - sin fondo
+    .mdc-tab:not(.mdc-tab--active) {
+      .mdc-tab__content {
+        background-color: transparent;
+      }
+
+      .mdc-tab__text-label {
+        color: var(--mat-sys-on-surface);
+        opacity: 0.8;
+      }
+
+      &:hover .mdc-tab__content {
+        background-color: var(--mat-sys-surface-variant);
+        opacity: 0.8;
+      }
+    }
+
+    // Ajustar el ripple para que no se vea fuera del border radius
+    .mat-mdc-tab-ripple {
+      border-radius: var(--mat-sys-corner-extra-large);
+    }
+  }
+}

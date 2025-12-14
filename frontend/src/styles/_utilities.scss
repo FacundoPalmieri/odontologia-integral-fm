@@ -1,0 +1,23 @@
+// ========================================
+// Clases Utilitarias Globales
+// ========================================
+
+// Animación de rotación de ícono en hover
+.rotate-on-hover {
+  // Cuando se aplica directamente al icono
+  transition: transform 1s ease-in-out;
+
+  &:hover {
+    transform: rotate(360deg);
+  }
+
+  // Cuando se aplica al icono dentro del button
+  &:hover i-tabler {
+    transform: rotate(360deg);
+  }
+
+  i-tabler {
+    transition: transform 1s ease-in-out;
+    display: inline-block;
+  }
+}
