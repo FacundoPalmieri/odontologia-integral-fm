@@ -35,7 +35,11 @@
 
       <!-- Disponibilidad laboral -->
       <div class="flex justify-center !mb-4">
-        <button mat-stroked-button class="!w-[90%] rotate-on-hover">
+        <button
+          mat-stroked-button
+          class="!w-[90%] rotate-on-hover"
+          (click)="goToAvailability()"
+        >
           <div class="flex items-center gap-2">
             <i-tabler name="settings" class="rotate-on-hover"></i-tabler>
             <span>Disponibilidad laboral</span>
@@ -206,6 +210,7 @@
               mat-icon-button
               class="rotate-on-hover mr-2"
               matTooltip="Disponibilidad laboral"
+              (click)="goToAvailability()"
             >
               <i-tabler name="settings" class="mb-1"></i-tabler>
             </button>

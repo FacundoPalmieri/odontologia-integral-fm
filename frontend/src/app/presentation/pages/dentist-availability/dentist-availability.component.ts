@@ -1,12 +1,5 @@
-import {
-  Component,
-  effect,
-  OnDestroy,
-  OnInit,
-  inject,
-  signal,
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
+import { Component, OnDestroy, OnInit, inject, signal } from "@angular/core";
+import { CommonModule, Location } from "@angular/common";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import {
   FormArray,
@@ -35,7 +28,7 @@ import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar.component";
-import { Router, ActivatedRoute } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import { MatTooltipModule } from "@angular/material/tooltip";
 
@@ -61,8 +54,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
   ],
 })
 export class DentistAvailabilityComponent implements OnDestroy, OnInit {
-  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
   private readonly dentistService = inject(DentistService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly fb = inject(FormBuilder);
@@ -203,7 +196,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(["/home"]);
+    this.location.back();
   }
 
   private _updateFormValidity(): void {

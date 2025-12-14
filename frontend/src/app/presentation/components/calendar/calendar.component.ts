@@ -27,6 +27,7 @@ import { MatNativeDateModule } from "@angular/material/core";
 import { CreateAppointmentDialogComponent } from "./create-appointment-dialog/create-appointment-dialog.component";
 import { CreateCalendarLockDialogComponent } from "./create-calendar-lock-dialog/create-calendar-lock-dialog.component";
 import { AuthService } from "../../../services/auth.service";
+import { Router } from "@angular/router";
 
 export interface CalendarEvent {
   id: string;
@@ -67,6 +68,8 @@ export type CalendarView = "day" | "week" | "month";
 export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly loaderService = inject(LoaderService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   dialog = inject(MatDialog);
   loading$ = this.loaderService.loading$;
 
@@ -1205,6 +1208,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         // For example: this.appointmentService.create(result);
       }
     });
+  }
+
+  goToAvailability() {
+    console.log(this.personId);
+    this.router.navigate(["/dentist-availability/" + this.personId]); // Navegar a la ruta de disponibilidad
   }
 
   private getCurrentTimeSlot(): string {

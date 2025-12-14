@@ -58,23 +58,23 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor() {
     // Cargar disponibilidad si es dentista
-    effect(() => {
-      if (this.userData() && this.isDentist() && this.userData()?.person?.id) {
-        this.isLoadingAvailability.set(true);
-        this.dentistService
-          .getAvailability(this.userData()?.person?.id!)
-          .pipe(takeUntil(this._destroy$))
-          .subscribe({
-            next: (response) => {
-              this.dentistAvailability.set(response.data);
-              this.isLoadingAvailability.set(false);
-            },
-            error: () => {
-              this.isLoadingAvailability.set(false);
-            },
-          });
-      }
-    });
+    // effect(() => {
+    //   if (this.userData() && this.isDentist() && this.userData()?.person?.id) {
+    //     this.isLoadingAvailability.set(true);
+    //     this.dentistService
+    //       .getAvailability(this.userData()?.person?.id!)
+    //       .pipe(takeUntil(this._destroy$))
+    //       .subscribe({
+    //         next: (response) => {
+    //           this.dentistAvailability.set(response.data);
+    //           this.isLoadingAvailability.set(false);
+    //         },
+    //         error: () => {
+    //           this.isLoadingAvailability.set(false);
+    //         },
+    //       });
+    //   }
+    // });
   }
 
   ngOnInit(): void {
