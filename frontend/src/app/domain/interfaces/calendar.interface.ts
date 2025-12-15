@@ -28,7 +28,7 @@ export interface CalendarMonthInterface {
 }
 
 export interface CalendarMonthDayInterface {
-  day: Date;
+  date: string; // Formato: "YYYY-MM-DD"
   status: CalendarMonthDayStatusEnum;
   description: string;
   color: string;

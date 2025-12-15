@@ -508,7 +508,7 @@
   .month-grid {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 200px);
+    height: calc(100vh - 200px); // ← Height fijo
     overflow: hidden;
     width: 100%;
     max-width: 100%;
@@ -518,6 +518,7 @@
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
     border-bottom: 1px solid var(--mat-sys-outline-variant);
+    flex-shrink: 0; // ← No se encoge
 
     .month-day-header {
       padding: 12px 8px;
@@ -539,14 +540,13 @@
   .month-body {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    grid-template-rows: repeat(6, minmax(120px, 1fr));
-    min-height: 600px;
+    grid-auto-rows: 1fr; // ← Las filas se distribuyen automáticamente
+    flex: 1; // ← Ocupa todo el espacio disponible
     width: 100%;
     overflow: hidden;
 
     .month-day {
-      min-height: 120px;
-      height: 100%;
+      height: 100%; // ← Ocupa toda la altura de la fila
       border-right: 1px solid var(--mat-sys-outline-variant);
       border-bottom: 1px solid var(--mat-sys-outline-variant);
       padding: 8px;
@@ -623,6 +623,51 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+
+      .day-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        margin-bottom: 6px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        flex-shrink: 0;
+        max-width: 100%;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+
+        &:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+          z-index: 100;
+          max-width: none; // Permitir expansión
+
+          .badge-text {
+            white-space: normal; // Permitir múltiples líneas
+            max-width: 200px; // Ancho máximo al expandir
+          }
+        }
+
+        .badge-icon {
+          font-size: 12px;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+
+        .badge-text {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          line-height: 1.2;
+          transition: all 0.3s ease;
+        }
       }
 
       .day-events {

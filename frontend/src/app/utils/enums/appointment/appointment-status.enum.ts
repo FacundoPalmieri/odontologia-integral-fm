@@ -16,4 +16,5 @@ export enum CalendarMonthDayStatusEnum {
   FREE = "FREE",
   HOLIDAY = "HOLIDAY",
   LOCKED = "LOCKED",
+  FULL = "FULL",
 }

@@ -442,6 +442,17 @@
                 (click)="selectDate(date)"
               >
                 <div class="day-number">{{ date.getDate() }}</div>
+
+                <!-- Badge de feriado/día completo -->
+                <div
+                  *ngIf="getDayDescription(date)"
+                  class="day-badge"
+                  [style.background-color]="getDayColor(date)"
+                >
+                  <span class="badge-icon">{{ getDayIcon(date) }}</span>
+                  <span class="badge-text">{{ getDayDescription(date) }}</span>
+                </div>
+
                 <div class="day-events">
                   <div
                     *ngFor="let event of getEventsForDate(date).slice(0, 3)"

@@ -31,8 +31,12 @@ import { AuthService } from "../../../services/auth.service";
 import { Router } from "@angular/router";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { CalendarService } from "../../../services/calendar.service";
-import { CalendarMonthInterface } from "../../../domain/interfaces/calendar.interface";
+import {
+  CalendarMonthInterface,
+  CalendarMonthDayInterface,
+} from "../../../domain/interfaces/calendar.interface";
 import { CalendarMonthDayStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
+import { forkJoin } from "rxjs";
 
 export interface CalendarEvent {
   id: string;
@@ -90,6 +94,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   // Calendar data signals
   isLoadingCalendar = signal<boolean>(false);
   calendarMonthData = signal<CalendarMonthInterface | null>(null);
+
+  // Cache para almacenar los meses ya cargados (key: "YYYY-MM", value: CalendarMonthInterface)
+  private monthCache = new Map<string, CalendarMonthInterface>();
+
   currentDate = new Date();
   selectedDate = new Date();
   currentView: CalendarView = "month";
@@ -953,6 +961,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   /**
    * Load month view data from backend
+   * Loads current month + previous month + next month to cover all visible days
+   * Uses cache to avoid redundant API calls
    */
   loadMonthView() {
     if (!this.personId) {
@@ -964,20 +974,112 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     const year = this.selectedDate.getFullYear();
     const month = this.selectedDate.getMonth() + 1; // JavaScript months are 0-indexed
 
-    this.calendarService.getMonth(this.personId, year, month).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.calendarMonthData.set(response.data);
-        } else {
-          this.calendarMonthData.set(null);
+    // Calcular mes anterior y siguiente
+    const prevDate = new Date(year, month - 2, 1);
+    const nextDate = new Date(year, month, 1);
+
+    const prevYear = prevDate.getFullYear();
+    const prevMonth = prevDate.getMonth() + 1;
+    const nextYear = nextDate.getFullYear();
+    const nextMonth = nextDate.getMonth() + 1;
+
+    // Crear claves para el caché
+    const prevKey = `${prevYear}-${String(prevMonth).padStart(2, "0")}`;
+    const currentKey = `${year}-${String(month).padStart(2, "0")}`;
+    const nextKey = `${nextYear}-${String(nextMonth).padStart(2, "0")}`;
+
+    // Preparar las peticiones solo para los meses que no están en caché
+    const requests: { [key: string]: any } = {};
+
+    if (!this.monthCache.has(prevKey)) {
+      requests["prev"] = this.calendarService.getMonth(
+        this.personId,
+        prevYear,
+        prevMonth
+      );
+    }
+    if (!this.monthCache.has(currentKey)) {
+      requests["current"] = this.calendarService.getMonth(
+        this.personId,
+        year,
+        month
+      );
+    }
+    if (!this.monthCache.has(nextKey)) {
+      requests["next"] = this.calendarService.getMonth(
+        this.personId,
+        nextYear,
+        nextMonth
+      );
+    }
+
+    // Si no hay peticiones pendientes, usar solo el caché
+    if (Object.keys(requests).length === 0) {
+      this.combineMonthsFromCache(prevKey, currentKey, nextKey);
+      this.isLoadingCalendar.set(false);
+      return;
+    }
+
+    // Hacer las peticiones pendientes en paralelo
+    forkJoin(requests).subscribe({
+      next: (responses: any) => {
+        // Guardar en caché las respuestas nuevas
+        if (responses["prev"]?.success && responses["prev"].data) {
+          this.monthCache.set(prevKey, responses["prev"].data);
         }
+        if (responses["current"]?.success && responses["current"].data) {
+          this.monthCache.set(currentKey, responses["current"].data);
+        }
+        if (responses["next"]?.success && responses["next"].data) {
+          this.monthCache.set(nextKey, responses["next"].data);
+        }
+
+        // Combinar todos los meses (desde caché y nuevos)
+        this.combineMonthsFromCache(prevKey, currentKey, nextKey);
         this.isLoadingCalendar.set(false);
       },
       error: (error) => {
+        console.error("❌ Error al cargar mes:", error);
         this.isLoadingCalendar.set(false);
         this.calendarMonthData.set(null);
       },
     });
+  }
+
+  /**
+   * Combine months from cache
+   */
+  private combineMonthsFromCache(
+    prevKey: string,
+    currentKey: string,
+    nextKey: string
+  ) {
+    const allDays: CalendarMonthDayInterface[] = [];
+
+    // Obtener días del caché
+    const prevData = this.monthCache.get(prevKey);
+    const currentData = this.monthCache.get(currentKey);
+    const nextData = this.monthCache.get(nextKey);
+
+    if (prevData?.days) {
+      allDays.push(...prevData.days);
+    }
+    if (currentData?.days) {
+      allDays.push(...currentData.days);
+    }
+    if (nextData?.days) {
+      allDays.push(...nextData.days);
+    }
+
+    // Crear el objeto con todos los días
+    if (currentData) {
+      this.calendarMonthData.set({
+        ...currentData,
+        days: allDays,
+      });
+    } else {
+      this.calendarMonthData.set(null);
+    }
   }
 
   generateTimeSlots() {
@@ -1068,8 +1170,13 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     const dates: Date[] = [];
     const current = new Date(startDate);
 
-    // Generar 42 días (6 semanas)
-    for (let i = 0; i < 42; i++) {
+    // Calcular cuántas semanas necesitamos
+    // Seguir agregando días hasta que hayamos pasado el último día del mes
+    // y completado la semana actual
+    while (
+      current <= lastDay ||
+      (current > lastDay && current.getDay() !== 0) // Completar la última semana hasta el domingo
+    ) {
       dates.push(new Date(current));
       current.setDate(current.getDate() + 1);
     }
@@ -1154,6 +1261,82 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   onEventClick(event: CalendarEvent) {
     // Aquí puedes abrir un diálogo o navegar a los detalles del evento
+  }
+
+  /**
+   * Get day data from backend calendar month data
+   */
+  getDayFromBackend(date: Date): CalendarMonthDayInterface | null {
+    const calendarData = this.calendarMonthData();
+
+    if (!calendarData || !calendarData.days) {
+      return null;
+    }
+
+    // Crear una clave única para la fecha (YYYY-MM-DD)
+    const dateKey = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+    // Buscar el día que coincida con la fecha
+    return calendarData.days.find((day) => day.date === dateKey) || null;
+  }
+
+  /**
+   * Get the color for a specific day from backend data
+   */
+  getDayColor(date: Date): string | null {
+    const dayData = this.getDayFromBackend(date);
+    return dayData?.color || null;
+  }
+
+  /**
+   * Get the color with opacity for a specific day
+   * Converts hex color to rgba with specified opacity
+   */
+  getDayColorWithOpacity(date: Date, opacity: number = 0.4): string | null {
+    const color = this.getDayColor(date);
+    if (!color) return null;
+
+    // Convertir hex a rgb
+    const hex = color.replace("#", "");
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+
+  /**
+   * Get the description for a specific day (only for holidays and full days)
+   */
+  getDayDescription(date: Date): string | null {
+    const dayData = this.getDayFromBackend(date);
+    // Mostrar descripción si es feriado o día completo
+    if (
+      dayData?.status === CalendarMonthDayStatusEnum.HOLIDAY ||
+      dayData?.status === CalendarMonthDayStatusEnum.FULL
+    ) {
+      return dayData.description;
+    }
+    return null;
+  }
+
+  /**
+   * Get the icon for a specific day based on its status
+   */
+  getDayIcon(date: Date): string {
+    const dayData = this.getDayFromBackend(date);
+
+    if (dayData?.status === CalendarMonthDayStatusEnum.HOLIDAY) {
+      return "🎉"; // Celebración para feriados
+    }
+
+    if (dayData?.status === CalendarMonthDayStatusEnum.FULL) {
+      return "⛔"; // Candado para días completos/bloqueados
+    }
+
+    return "📅"; // Calendario por defecto
   }
 
   // Método para cambiar los horarios de trabajo
