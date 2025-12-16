@@ -34,6 +34,7 @@ import { CalendarService } from "../../../services/calendar.service";
 import {
   CalendarMonthInterface,
   CalendarMonthDayInterface,
+  CalendarWeekInterface,
   CalendarDayInterface,
 } from "../../../domain/interfaces/calendar.interface";
 import { CalendarMonthDayStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
@@ -95,6 +96,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   // Calendar data signals
   isLoadingCalendar = signal<boolean>(false);
   calendarMonthData = signal<CalendarMonthInterface | null>(null);
+  calendarWeekData = signal<CalendarWeekInterface | null>(null);
   calendarDayData = signal<CalendarDayInterface | null>(null);
 
   // Cache para almacenar los meses ya cargados (key: "YYYY-MM", value: CalendarMonthInterface)
@@ -308,6 +310,36 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Load week view data from backend
+   * Updates calendarWeekData signal
+   */
+  loadWeekView() {
+    if (!this.personId) {
+      console.warn("⚠️ No personId available");
+      return;
+    }
+
+    this.isLoadingCalendar.set(true);
+    const dateToLoad = new Date(this.selectedDate);
+
+    this.calendarService.getWeek(this.personId, dateToLoad).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.calendarWeekData.set(response.data);
+        } else {
+          this.calendarWeekData.set(null);
+        }
+
+        this.isLoadingCalendar.set(false);
+      },
+      error: (error) => {
+        console.error("❌ Error loading week data:", error);
+        this.isLoadingCalendar.set(false);
+      },
+    });
+  }
+
   generateTimeSlots() {
     // Generar horarios de trabajo configurables (cada hora)
     for (let hour = this.workStartHour; hour < this.workEndHour; hour++) {
@@ -322,6 +354,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     // Load data when switching views
     if (view === "month") {
       this.loadMonthView();
+    } else if (view === "week") {
+      this.loadWeekView();
     } else if (view === "day") {
       this.loadDayView();
     }
@@ -353,6 +387,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     // Reload data when navigating
     if (this.currentView === "month") {
       this.loadMonthView();
+    } else if (this.currentView === "week") {
+      this.loadWeekView();
     } else if (this.currentView === "day") {
       this.loadDayView();
     }
@@ -365,6 +401,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     // Reload data when going to today
     if (this.currentView === "month") {
       this.loadMonthView();
+    } else if (this.currentView === "week") {
+      this.loadWeekView();
     } else if (this.currentView === "day") {
       this.loadDayView();
     }
@@ -605,6 +643,43 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Get slots for a specific day in week view (only RESERVED slots)
+   */
+  getWeekViewSlots(date: Date) {
+    const weekData = this.calendarWeekData();
+
+    if (!weekData?.days) {
+      return [];
+    }
+
+    // Find the day that matches the date
+    // Use UTC methods for backend date (comes as ISO string) and local methods for calendar date
+    const dayData = weekData.days.find((day) => {
+      const dayDate = new Date(day.day);
+      return (
+        dayDate.getUTCFullYear() === date.getFullYear() &&
+        dayDate.getUTCMonth() === date.getMonth() &&
+        dayDate.getUTCDate() === date.getDate()
+      );
+    });
+
+    if (!dayData?.slots) {
+      return [];
+    }
+
+    // Filter to show ONLY RESERVED slots
+    return dayData.slots.filter((slot) => {
+      return (
+        slot.status === "RESERVED" &&
+        slot.starTime &&
+        slot.endTime &&
+        typeof slot.starTime === "string" &&
+        typeof slot.endTime === "string"
+      );
+    });
+  }
+
+  /**
    * Calculate the top position of a slot in pixels based on its start time
    * Each hour = 60px (matching the time-slot height)
    */
@@ -613,7 +688,20 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     const [hours, minutes] = this.parseTime(startTime);
     const totalMinutes = hours * 60 + minutes;
     // 60px per hour = 1px per minute
-    return totalMinutes;
+    return totalMinutes + 4;
+  }
+
+  /**
+   * Calculate the top position of a slot in pixels for WEEK view
+   * Adds offset to avoid overlapping with hour lines
+   */
+  getSlotPositionWeek(startTime: string): number {
+    if (!startTime) return 4;
+    const [hours, minutes] = this.parseTime(startTime);
+    const totalMinutes = hours * 60 + minutes;
+    // 60px per hour = 1px per minute
+    // Add 4px offset to avoid overlapping with hour line in week view
+    return totalMinutes + 8;
   }
 
   /**
