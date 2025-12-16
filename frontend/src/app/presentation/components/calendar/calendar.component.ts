@@ -34,6 +34,7 @@ import { CalendarService } from "../../../services/calendar.service";
 import {
   CalendarMonthInterface,
   CalendarMonthDayInterface,
+  CalendarDayInterface,
 } from "../../../domain/interfaces/calendar.interface";
 import { CalendarMonthDayStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
 import { forkJoin } from "rxjs";
@@ -94,9 +95,13 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   // Calendar data signals
   isLoadingCalendar = signal<boolean>(false);
   calendarMonthData = signal<CalendarMonthInterface | null>(null);
+  calendarDayData = signal<CalendarDayInterface | null>(null);
 
   // Cache para almacenar los meses ya cargados (key: "YYYY-MM", value: CalendarMonthInterface)
   private monthCache = new Map<string, CalendarMonthInterface>();
+
+  // Track current day to detect day changes
+  private currentDayKey: string = "";
 
   currentDate = new Date();
   selectedDate = new Date();
@@ -112,811 +117,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   workEndHour = 24; // 12:00 AM (medianoche del día siguiente)
 
   // Eventos de ejemplo distribuidos en octubre y noviembre de 2025
-  events: CalendarEvent[] = [
-    // OCTUBRE 2025 - Semana 1 (1-5 octubre)
-    {
-      id: "1",
-      title: "Consulta - Juan Pérez",
-      start: new Date(2025, 9, 1, 9, 0),
-      end: new Date(2025, 9, 1, 9, 30),
-      color: "#3f51b5",
-      description: "Consulta de rutina",
-    },
-    {
-      id: "2",
-      title: "Limpieza - María García",
-      start: new Date(2025, 9, 1, 10, 0),
-      end: new Date(2025, 9, 1, 11, 0),
-      color: "#4caf50",
-      description: "Limpieza dental",
-    },
-    {
-      id: "3",
-      title: "Ortodoncia - Sofía Rodríguez",
-      start: new Date(2025, 9, 2, 8, 30),
-      end: new Date(2025, 9, 2, 9, 30),
-      color: "#2196f3",
-      description: "Ajuste de brackets",
-    },
-    {
-      id: "4",
-      title: "Endodoncia - Miguel Torres",
-      start: new Date(2025, 9, 2, 10, 0),
-      end: new Date(2025, 9, 2, 12, 0),
-      color: "#795548",
-      description: "Tratamiento de conducto",
-    },
-    {
-      id: "5",
-      title: "Prótesis - Carmen Vega",
-      start: new Date(2025, 9, 3, 14, 0),
-      end: new Date(2025, 9, 3, 15, 30),
-      color: "#607d8b",
-      description: "Colocación de prótesis",
-    },
-    {
-      id: "6",
-      title: "Cirugía - Diego Morales",
-      start: new Date(2025, 9, 3, 16, 0),
-      end: new Date(2025, 9, 3, 18, 0),
-      color: "#d32f2f",
-      description: "Extracción de cordal",
-    },
-    {
-      id: "7",
-      title: "Consulta - Laura Jiménez",
-      start: new Date(2025, 9, 4, 9, 0),
-      end: new Date(2025, 9, 4, 9, 30),
-      color: "#3f51b5",
-      description: "Primera consulta",
-    },
-    {
-      id: "8",
-      title: "Limpieza - Fernando Ruiz",
-      start: new Date(2025, 9, 4, 10, 30),
-      end: new Date(2025, 9, 4, 11, 30),
-      color: "#4caf50",
-      description: "Limpieza profunda",
-    },
-    {
-      id: "9",
-      title: "Blanqueamiento - Patricia López",
-      start: new Date(2025, 9, 4, 15, 0),
-      end: new Date(2025, 9, 4, 16, 30),
-      color: "#ffc107",
-      description: "Tratamiento blanqueador",
-    },
-    {
-      id: "10",
-      title: "Emergencia - Luis González",
-      start: new Date(2025, 9, 5, 8, 0),
-      end: new Date(2025, 9, 5, 9, 0),
-      color: "#e91e63",
-      description: "Dolor agudo",
-    },
-
-    // OCTUBRE 2025 - Semana 2 (6-12 octubre)
-    {
-      id: "11",
-      title: "Ortodoncia - Alejandro Castro",
-      start: new Date(2025, 9, 6, 8, 0),
-      end: new Date(2025, 9, 6, 9, 0),
-      color: "#2196f3",
-      description: "Control mensual",
-    },
-    {
-      id: "12",
-      title: "Implante - Rosa Mendoza",
-      start: new Date(2025, 9, 6, 10, 0),
-      end: new Date(2025, 9, 6, 12, 30),
-      color: "#9c27b0",
-      description: "Colocación de implante",
-    },
-    {
-      id: "13",
-      title: "Consulta - Eduardo Vargas",
-      start: new Date(2025, 9, 7, 14, 0),
-      end: new Date(2025, 9, 7, 14, 30),
-      color: "#3f51b5",
-      description: "Consulta de seguimiento",
-    },
-    {
-      id: "14",
-      title: "Periodoncia - Isabel Herrera",
-      start: new Date(2025, 9, 7, 15, 0),
-      end: new Date(2025, 9, 7, 16, 0),
-      color: "#ff5722",
-      description: "Tratamiento periodontal",
-    },
-    {
-      id: "15",
-      title: "Revisión - Mónica Silva",
-      start: new Date(2025, 9, 8, 10, 0),
-      end: new Date(2025, 9, 8, 10, 30),
-      color: "#ff9800",
-      description: "Revisión post-cirugía",
-    },
-    {
-      id: "16",
-      title: "Prótesis - Ricardo Peña",
-      start: new Date(2025, 9, 8, 11, 0),
-      end: new Date(2025, 9, 8, 12, 30),
-      color: "#607d8b",
-      description: "Prueba de prótesis",
-    },
-    {
-      id: "17",
-      title: "Limpieza - Gabriela Flores",
-      start: new Date(2025, 9, 9, 9, 0),
-      end: new Date(2025, 9, 9, 10, 0),
-      color: "#4caf50",
-      description: "Limpieza rutinaria",
-    },
-    {
-      id: "18",
-      title: "Ortodoncia - Sebastián Cruz",
-      start: new Date(2025, 9, 9, 11, 0),
-      end: new Date(2025, 9, 9, 12, 0),
-      color: "#2196f3",
-      description: "Cambio de ligaduras",
-    },
-    {
-      id: "19",
-      title: "Endodoncia - Valeria Ramos",
-      start: new Date(2025, 9, 10, 14, 0),
-      end: new Date(2025, 9, 10, 16, 0),
-      color: "#795548",
-      description: "Finalización de conducto",
-    },
-    {
-      id: "20",
-      title: "Consulta - Andrés Moreno",
-      start: new Date(2025, 9, 11, 8, 30),
-      end: new Date(2025, 9, 11, 9, 0),
-      color: "#3f51b5",
-      description: "Consulta inicial",
-    },
-    {
-      id: "21",
-      title: "Cirugía - Claudia Rojas",
-      start: new Date(2025, 9, 11, 10, 0),
-      end: new Date(2025, 9, 11, 12, 0),
-      color: "#d32f2f",
-      description: "Extracción múltiple",
-    },
-    {
-      id: "22",
-      title: "Blanqueamiento - Hugo Sánchez",
-      start: new Date(2025, 9, 12, 15, 0),
-      end: new Date(2025, 9, 12, 16, 0),
-      color: "#ffc107",
-      description: "Sesión de blanqueamiento",
-    },
-
-    // OCTUBRE 2025 - Semana 3 (13-19 octubre)
-    {
-      id: "23",
-      title: "Implante - Adriana Castillo",
-      start: new Date(2025, 9, 13, 9, 0),
-      end: new Date(2025, 9, 13, 11, 30),
-      color: "#9c27b0",
-      description: "Cirugía de implante",
-    },
-    {
-      id: "24",
-      title: "Periodoncia - Omar Delgado",
-      start: new Date(2025, 9, 13, 14, 0),
-      end: new Date(2025, 9, 13, 15, 30),
-      color: "#ff5722",
-      description: "Mantenimiento periodontal",
-    },
-    {
-      id: "25",
-      title: "Revisión - Natalia Espinoza",
-      start: new Date(2025, 9, 14, 9, 0),
-      end: new Date(2025, 9, 14, 9, 30),
-      color: "#ff9800",
-      description: "Control post-tratamiento",
-    },
-    {
-      id: "26",
-      title: "Prótesis - Carlos Mendoza",
-      start: new Date(2025, 9, 14, 10, 0),
-      end: new Date(2025, 9, 14, 12, 0),
-      color: "#607d8b",
-      description: "Instalación de prótesis",
-    },
-    {
-      id: "27",
-      title: "Emergencia - Dr. García",
-      start: new Date(2025, 9, 15, 9, 0),
-      end: new Date(2025, 9, 15, 12, 0),
-      color: "#e91e63",
-      description: "Guardia de emergencias",
-    },
-    {
-      id: "28",
-      title: "Consulta - Dr. García",
-      start: new Date(2025, 9, 16, 9, 0),
-      end: new Date(2025, 9, 16, 17, 0),
-      color: "#3f51b5",
-      description: "Horario normal",
-    },
-    {
-      id: "29",
-      title: "Limpieza - Ana Beltrán",
-      start: new Date(2025, 9, 17, 9, 0),
-      end: new Date(2025, 9, 17, 10, 0),
-      color: "#4caf50",
-      description: "Limpieza dental",
-    },
-    {
-      id: "30",
-      title: "Ortodoncia - Roberto Vega",
-      start: new Date(2025, 9, 17, 11, 0),
-      end: new Date(2025, 9, 17, 12, 0),
-      color: "#2196f3",
-      description: "Control ortodoncia",
-    },
-    {
-      id: "31",
-      title: "Endodoncia - Silvia Torres",
-      start: new Date(2025, 9, 18, 14, 0),
-      end: new Date(2025, 9, 18, 16, 0),
-      color: "#795548",
-      description: "Tratamiento de conducto",
-    },
-    {
-      id: "32",
-      title: "Cirugía - Manuel Herrera",
-      start: new Date(2025, 9, 19, 8, 0),
-      end: new Date(2025, 9, 19, 10, 30),
-      color: "#d32f2f",
-      description: "Extracción quirúrgica",
-    },
-
-    // OCTUBRE 2025 - Semana 4 (20-26 octubre)
-    {
-      id: "33",
-      title: "Implante - Elena Morales",
-      start: new Date(2025, 9, 20, 11, 0),
-      end: new Date(2025, 9, 20, 13, 0),
-      color: "#9c27b0",
-      description: "Colocación de implante",
-    },
-    {
-      id: "34",
-      title: "Revisión - Jorge Ramos",
-      start: new Date(2025, 9, 20, 15, 0),
-      end: new Date(2025, 9, 20, 15, 30),
-      color: "#ff9800",
-      description: "Control post-cirugía",
-    },
-    {
-      id: "35",
-      title: "Blanqueamiento - Carmen Ruiz",
-      start: new Date(2025, 9, 21, 9, 0),
-      end: new Date(2025, 9, 21, 11, 0),
-      color: "#ffc107",
-      description: "Tratamiento blanqueador",
-    },
-    {
-      id: "36",
-      title: "Periodoncia - Francisco López",
-      start: new Date(2025, 9, 21, 14, 0),
-      end: new Date(2025, 9, 21, 15, 30),
-      color: "#ff5722",
-      description: "Tratamiento periodontal",
-    },
-    {
-      id: "37",
-      title: "Prótesis - Beatriz Castro",
-      start: new Date(2025, 9, 22, 9, 0),
-      end: new Date(2025, 9, 22, 11, 30),
-      color: "#607d8b",
-      description: "Instalación de prótesis",
-    },
-    {
-      id: "38",
-      title: "Consulta - Raúl Jiménez",
-      start: new Date(2025, 9, 22, 14, 0),
-      end: new Date(2025, 9, 22, 14, 30),
-      color: "#3f51b5",
-      description: "Consulta de rutina",
-    },
-    {
-      id: "39",
-      title: "Emergencias - Dr. García",
-      start: new Date(2025, 9, 23, 9, 0),
-      end: new Date(2025, 9, 23, 13, 0),
-      color: "#e91e63",
-      description: "Guardia de emergencias",
-    },
-    {
-      id: "40",
-      title: "Consulta - María González",
-      start: new Date(2025, 9, 24, 9, 0),
-      end: new Date(2025, 9, 24, 9, 30),
-      color: "#3f51b5",
-      description: "Primera consulta del mes",
-    },
-    {
-      id: "41",
-      title: "Limpieza - Pedro Martínez",
-      start: new Date(2025, 9, 24, 10, 0),
-      end: new Date(2025, 9, 24, 11, 0),
-      color: "#4caf50",
-      description: "Limpieza dental",
-    },
-    {
-      id: "42",
-      title: "Ortodoncia - Lucía Fernández",
-      start: new Date(2025, 9, 25, 8, 30),
-      end: new Date(2025, 9, 25, 9, 30),
-      color: "#2196f3",
-      description: "Control ortodoncia",
-    },
-
-    // OCTUBRE 2025 - Semana 5 (27-31 octubre)
-    {
-      id: "43",
-      title: "Endodoncia - Antonio Ruiz",
-      start: new Date(2025, 9, 27, 10, 0),
-      end: new Date(2025, 9, 27, 12, 0),
-      color: "#795548",
-      description: "Tratamiento de conducto",
-    },
-    {
-      id: "44",
-      title: "Cirugía - Isabel Sánchez",
-      start: new Date(2025, 9, 28, 9, 0),
-      end: new Date(2025, 9, 28, 11, 0),
-      color: "#d32f2f",
-      description: "Extracción de cordal",
-    },
-    {
-      id: "45",
-      title: "Consulta - Juan Pérez",
-      start: new Date(2025, 9, 29, 9, 0),
-      end: new Date(2025, 9, 29, 9, 30),
-      color: "#3f51b5",
-      description: "Consulta de seguimiento",
-    },
-    {
-      id: "46",
-      title: "Limpieza - María García",
-      start: new Date(2025, 9, 29, 10, 0),
-      end: new Date(2025, 9, 29, 11, 0),
-      color: "#4caf50",
-      description: "Limpieza dental",
-    },
-    {
-      id: "47",
-      title: "Emergencia - Roberto Silva",
-      start: new Date(2025, 9, 30, 20, 0),
-      end: new Date(2025, 9, 30, 21, 0),
-      color: "#e91e63",
-      description: "Emergencia dental nocturna",
-    },
-    {
-      id: "48",
-      title: "Guardia - Dr. García",
-      start: new Date(2025, 9, 31, 22, 0),
-      end: new Date(2025, 9, 31, 23, 30),
-      color: "#9c27b0",
-      description: "Guardia nocturna",
-    },
-
-    // NOVIEMBRE 2025 - Semana 1 (1-5 noviembre)
-    {
-      id: "49",
-      title: "Consulta - Juan Pérez",
-      start: new Date(2025, 10, 1, 9, 0),
-      end: new Date(2025, 10, 1, 9, 30),
-      color: "#3f51b5",
-      description: "Consulta de rutina",
-    },
-    {
-      id: "50",
-      title: "Limpieza - María García",
-      start: new Date(2025, 10, 1, 10, 0),
-      end: new Date(2025, 10, 1, 11, 0),
-      color: "#4caf50",
-      description: "Limpieza dental",
-    },
-    {
-      id: "51",
-      title: "Extracción - Carlos López",
-      start: new Date(2025, 10, 1, 14, 30),
-      end: new Date(2025, 10, 1, 15, 30),
-      color: "#f44336",
-      description: "Extracción de muela",
-    },
-    {
-      id: "52",
-      title: "Revisión - Ana Martínez",
-      start: new Date(2025, 10, 1, 16, 0),
-      end: new Date(2025, 10, 1, 16, 30),
-      color: "#ff9800",
-      description: "Revisión post-tratamiento",
-    },
-    {
-      id: "53",
-      title: "Ortodoncia - Sofía Rodríguez",
-      start: new Date(2025, 10, 2, 8, 30),
-      end: new Date(2025, 10, 2, 9, 30),
-      color: "#2196f3",
-      description: "Ajuste de brackets",
-    },
-    {
-      id: "54",
-      title: "Endodoncia - Miguel Torres",
-      start: new Date(2025, 10, 2, 10, 0),
-      end: new Date(2025, 10, 2, 12, 0),
-      color: "#795548",
-      description: "Tratamiento de conducto",
-    },
-    {
-      id: "55",
-      title: "Prótesis - Carmen Vega",
-      start: new Date(2025, 10, 3, 14, 0),
-      end: new Date(2025, 10, 3, 15, 30),
-      color: "#607d8b",
-      description: "Colocación de prótesis",
-    },
-    {
-      id: "56",
-      title: "Cirugía - Diego Morales",
-      start: new Date(2025, 10, 3, 16, 0),
-      end: new Date(2025, 10, 3, 18, 0),
-      color: "#d32f2f",
-      description: "Extracción de cordal",
-    },
-    {
-      id: "57",
-      title: "Consulta - Laura Jiménez",
-      start: new Date(2025, 10, 4, 9, 0),
-      end: new Date(2025, 10, 4, 9, 30),
-      color: "#3f51b5",
-      description: "Primera consulta",
-    },
-    {
-      id: "58",
-      title: "Limpieza - Fernando Ruiz",
-      start: new Date(2025, 10, 4, 10, 30),
-      end: new Date(2025, 10, 4, 11, 30),
-      color: "#4caf50",
-      description: "Limpieza profunda",
-    },
-    {
-      id: "59",
-      title: "Blanqueamiento - Patricia López",
-      start: new Date(2025, 10, 4, 15, 0),
-      end: new Date(2025, 10, 4, 16, 30),
-      color: "#ffc107",
-      description: "Tratamiento blanqueador",
-    },
-    {
-      id: "60",
-      title: "Emergencia - Luis González",
-      start: new Date(2025, 10, 5, 8, 0),
-      end: new Date(2025, 10, 5, 9, 0),
-      color: "#e91e63",
-      description: "Dolor agudo",
-    },
-
-    // NOVIEMBRE 2025 - Semana 2 (6-12 noviembre)
-    {
-      id: "61",
-      title: "Ortodoncia - Alejandro Castro",
-      start: new Date(2025, 10, 6, 8, 0),
-      end: new Date(2025, 10, 6, 9, 0),
-      color: "#2196f3",
-      description: "Control mensual",
-    },
-    {
-      id: "62",
-      title: "Implante - Rosa Mendoza",
-      start: new Date(2025, 10, 6, 10, 0),
-      end: new Date(2025, 10, 6, 12, 30),
-      color: "#9c27b0",
-      description: "Colocación de implante",
-    },
-    {
-      id: "63",
-      title: "Consulta - Eduardo Vargas",
-      start: new Date(2025, 10, 7, 14, 0),
-      end: new Date(2025, 10, 7, 14, 30),
-      color: "#3f51b5",
-      description: "Consulta de seguimiento",
-    },
-    {
-      id: "64",
-      title: "Periodoncia - Isabel Herrera",
-      start: new Date(2025, 10, 7, 15, 0),
-      end: new Date(2025, 10, 7, 16, 0),
-      color: "#ff5722",
-      description: "Tratamiento periodontal",
-    },
-    {
-      id: "65",
-      title: "Revisión - Mónica Silva",
-      start: new Date(2025, 10, 8, 10, 0),
-      end: new Date(2025, 10, 8, 10, 30),
-      color: "#ff9800",
-      description: "Revisión post-cirugía",
-    },
-    {
-      id: "66",
-      title: "Prótesis - Ricardo Peña",
-      start: new Date(2025, 10, 8, 11, 0),
-      end: new Date(2025, 10, 8, 12, 30),
-      color: "#607d8b",
-      description: "Prueba de prótesis",
-    },
-    {
-      id: "67",
-      title: "Limpieza - Gabriela Flores",
-      start: new Date(2025, 10, 9, 9, 0),
-      end: new Date(2025, 10, 9, 10, 0),
-      color: "#4caf50",
-      description: "Limpieza rutinaria",
-    },
-    {
-      id: "68",
-      title: "Ortodoncia - Sebastián Cruz",
-      start: new Date(2025, 10, 9, 11, 0),
-      end: new Date(2025, 10, 9, 12, 0),
-      color: "#2196f3",
-      description: "Cambio de ligaduras",
-    },
-    {
-      id: "69",
-      title: "Endodoncia - Valeria Ramos",
-      start: new Date(2025, 10, 10, 14, 0),
-      end: new Date(2025, 10, 10, 16, 0),
-      color: "#795548",
-      description: "Finalización de conducto",
-    },
-    {
-      id: "70",
-      title: "Consulta - Andrés Moreno",
-      start: new Date(2025, 10, 11, 8, 30),
-      end: new Date(2025, 10, 11, 9, 0),
-      color: "#3f51b5",
-      description: "Consulta inicial",
-    },
-    {
-      id: "71",
-      title: "Cirugía - Claudia Rojas",
-      start: new Date(2025, 10, 11, 10, 0),
-      end: new Date(2025, 10, 11, 12, 0),
-      color: "#d32f2f",
-      description: "Extracción múltiple",
-    },
-    {
-      id: "72",
-      title: "Blanqueamiento - Hugo Sánchez",
-      start: new Date(2025, 10, 12, 15, 0),
-      end: new Date(2025, 10, 12, 16, 0),
-      color: "#ffc107",
-      description: "Sesión de blanqueamiento",
-    },
-
-    // NOVIEMBRE 2025 - Semana 3 (13-19 noviembre)
-    {
-      id: "73",
-      title: "Implante - Adriana Castillo",
-      start: new Date(2025, 10, 13, 9, 0),
-      end: new Date(2025, 10, 13, 11, 30),
-      color: "#9c27b0",
-      description: "Cirugía de implante",
-    },
-    {
-      id: "74",
-      title: "Periodoncia - Omar Delgado",
-      start: new Date(2025, 10, 13, 14, 0),
-      end: new Date(2025, 10, 13, 15, 30),
-      color: "#ff5722",
-      description: "Mantenimiento periodontal",
-    },
-    {
-      id: "75",
-      title: "Revisión - Natalia Espinoza",
-      start: new Date(2025, 10, 14, 9, 0),
-      end: new Date(2025, 10, 14, 9, 30),
-      color: "#ff9800",
-      description: "Control post-tratamiento",
-    },
-    {
-      id: "76",
-      title: "Prótesis - Carlos Mendoza",
-      start: new Date(2025, 10, 14, 10, 0),
-      end: new Date(2025, 10, 14, 12, 0),
-      color: "#607d8b",
-      description: "Instalación de prótesis",
-    },
-    {
-      id: "77",
-      title: "Emergencia - Dr. García",
-      start: new Date(2025, 10, 15, 9, 0),
-      end: new Date(2025, 10, 15, 12, 0),
-      color: "#e91e63",
-      description: "Guardia de emergencias",
-    },
-    {
-      id: "78",
-      title: "Consulta - Dr. García",
-      start: new Date(2025, 10, 16, 9, 0),
-      end: new Date(2025, 10, 16, 17, 0),
-      color: "#3f51b5",
-      description: "Horario normal",
-    },
-    {
-      id: "79",
-      title: "Limpieza - Ana Beltrán",
-      start: new Date(2025, 10, 17, 9, 0),
-      end: new Date(2025, 10, 17, 10, 0),
-      color: "#4caf50",
-      description: "Limpieza dental",
-    },
-    {
-      id: "80",
-      title: "Ortodoncia - Roberto Vega",
-      start: new Date(2025, 10, 17, 11, 0),
-      end: new Date(2025, 10, 17, 12, 0),
-      color: "#2196f3",
-      description: "Control ortodoncia",
-    },
-    {
-      id: "81",
-      title: "Endodoncia - Silvia Torres",
-      start: new Date(2025, 10, 18, 14, 0),
-      end: new Date(2025, 10, 18, 16, 0),
-      color: "#795548",
-      description: "Tratamiento de conducto",
-    },
-    {
-      id: "82",
-      title: "Cirugía - Manuel Herrera",
-      start: new Date(2025, 10, 19, 8, 0),
-      end: new Date(2025, 10, 19, 10, 30),
-      color: "#d32f2f",
-      description: "Extracción quirúrgica",
-    },
-
-    // NOVIEMBRE 2025 - Semana 4 (20-26 noviembre)
-    {
-      id: "83",
-      title: "Implante - Elena Morales",
-      start: new Date(2025, 10, 20, 11, 0),
-      end: new Date(2025, 10, 20, 13, 0),
-      color: "#9c27b0",
-      description: "Colocación de implante",
-    },
-    {
-      id: "84",
-      title: "Revisión - Jorge Ramos",
-      start: new Date(2025, 10, 20, 15, 0),
-      end: new Date(2025, 10, 20, 15, 30),
-      color: "#ff9800",
-      description: "Control post-cirugía",
-    },
-    {
-      id: "85",
-      title: "Blanqueamiento - Carmen Ruiz",
-      start: new Date(2025, 10, 21, 9, 0),
-      end: new Date(2025, 10, 21, 11, 0),
-      color: "#ffc107",
-      description: "Tratamiento blanqueador",
-    },
-    {
-      id: "86",
-      title: "Periodoncia - Francisco López",
-      start: new Date(2025, 10, 21, 14, 0),
-      end: new Date(2025, 10, 21, 15, 30),
-      color: "#ff5722",
-      description: "Tratamiento periodontal",
-    },
-    {
-      id: "87",
-      title: "Prótesis - Beatriz Castro",
-      start: new Date(2025, 10, 22, 9, 0),
-      end: new Date(2025, 10, 22, 11, 30),
-      color: "#607d8b",
-      description: "Instalación de prótesis",
-    },
-    {
-      id: "88",
-      title: "Consulta - Raúl Jiménez",
-      start: new Date(2025, 10, 22, 14, 0),
-      end: new Date(2025, 10, 22, 14, 30),
-      color: "#3f51b5",
-      description: "Consulta de rutina",
-    },
-    {
-      id: "89",
-      title: "Emergencias - Dr. García",
-      start: new Date(2025, 10, 23, 9, 0),
-      end: new Date(2025, 10, 23, 13, 0),
-      color: "#e91e63",
-      description: "Guardia de emergencias",
-    },
-    {
-      id: "90",
-      title: "Consulta - María González",
-      start: new Date(2025, 10, 24, 9, 0),
-      end: new Date(2025, 10, 24, 9, 30),
-      color: "#3f51b5",
-      description: "Primera consulta del mes",
-    },
-    {
-      id: "91",
-      title: "Limpieza - Pedro Martínez",
-      start: new Date(2025, 10, 24, 10, 0),
-      end: new Date(2025, 10, 24, 11, 0),
-      color: "#4caf50",
-      description: "Limpieza dental",
-    },
-    {
-      id: "92",
-      title: "Ortodoncia - Lucía Fernández",
-      start: new Date(2025, 10, 25, 8, 30),
-      end: new Date(2025, 10, 25, 9, 30),
-      color: "#2196f3",
-      description: "Control ortodoncia",
-    },
-
-    // NOVIEMBRE 2025 - Semana 5 (27-30 noviembre)
-    {
-      id: "93",
-      title: "Endodoncia - Antonio Ruiz",
-      start: new Date(2025, 10, 27, 10, 0),
-      end: new Date(2025, 10, 27, 12, 0),
-      color: "#795548",
-      description: "Tratamiento de conducto",
-    },
-    {
-      id: "94",
-      title: "Cirugía - Isabel Sánchez",
-      start: new Date(2025, 10, 28, 9, 0),
-      end: new Date(2025, 10, 28, 11, 0),
-      color: "#d32f2f",
-      description: "Extracción de cordal",
-    },
-    {
-      id: "95",
-      title: "Consulta - Juan Pérez",
-      start: new Date(2025, 10, 29, 9, 0),
-      end: new Date(2025, 10, 29, 9, 30),
-      color: "#3f51b5",
-      description: "Consulta de seguimiento",
-    },
-    {
-      id: "96",
-      title: "Limpieza - María García",
-      start: new Date(2025, 10, 29, 10, 0),
-      end: new Date(2025, 10, 29, 11, 0),
-      color: "#4caf50",
-      description: "Limpieza dental",
-    },
-    {
-      id: "97",
-      title: "Emergencia - Roberto Silva",
-      start: new Date(2025, 10, 30, 20, 0),
-      end: new Date(2025, 10, 30, 21, 0),
-      color: "#e91e63",
-      description: "Emergencia dental nocturna",
-    },
-    {
-      id: "98",
-      title: "Guardia - Dr. García",
-      start: new Date(2025, 10, 30, 22, 0),
-      end: new Date(2025, 10, 30, 23, 30),
-      color: "#9c27b0",
-      description: "Guardia nocturna",
-    },
-  ];
+  events: CalendarEvent[] = [];
 
   // Horarios para vista de día (cada 30 minutos)
   timeSlots: string[] = [];
@@ -1082,6 +283,31 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Load day view data from backend
+   * Logs the response and updates calendarDayData signal
+   */
+  loadDayView() {
+    if (!this.personId) {
+      return;
+    }
+
+    this.isLoadingCalendar.set(true);
+    const dateToLoad = new Date(this.selectedDate);
+
+    this.calendarService.getDay(this.personId, dateToLoad).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.calendarDayData.set(response.data);
+        } else {
+          this.calendarDayData.set(null);
+        }
+
+        this.isLoadingCalendar.set(false);
+      },
+    });
+  }
+
   generateTimeSlots() {
     // Generar horarios de trabajo configurables (cada hora)
     for (let hour = this.workStartHour; hour < this.workEndHour; hour++) {
@@ -1093,9 +319,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   setView(view: CalendarView) {
     this.currentView = view;
 
-    // Load data when switching to month view
+    // Load data when switching views
     if (view === "month") {
       this.loadMonthView();
+    } else if (view === "day") {
+      this.loadDayView();
     }
 
     // Reconfigurar sincronización cuando cambie la vista
@@ -1122,9 +350,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.selectedDate = newDate;
     this.updateSelectedDate();
 
-    // Reload data when navigating in month view
+    // Reload data when navigating
     if (this.currentView === "month") {
       this.loadMonthView();
+    } else if (this.currentView === "day") {
+      this.loadDayView();
     }
   }
 
@@ -1132,9 +362,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.selectedDate = new Date();
     this.updateSelectedDate();
 
-    // Reload data when going to today in month view
+    // Reload data when going to today
     if (this.currentView === "month") {
       this.loadMonthView();
+    } else if (this.currentView === "day") {
+      this.loadDayView();
     }
   }
 
@@ -1253,6 +485,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   onDateClick(date: Date) {
     this.selectedDate = date;
     this.currentView = "day";
+    // Load day view data when clicking on a date
+    this.loadDayView();
   }
 
   selectDate(date: Date) {
@@ -1339,6 +573,98 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     return "📅"; // Calendario por defecto
   }
 
+  /**
+   * Check if the current day view is FULL
+   */
+  isDayViewFull(): boolean {
+    const dayData = this.calendarDayData();
+    // Backend sends 'FULL' as string even though it's not in SlotStatusEnum
+    return dayData?.calendarDayStatus === ("FULL" as any);
+  }
+
+  /**
+   * Get slots for the current day view (only RESERVED slots)
+   */
+  getDayViewSlots() {
+    const dayData = this.calendarDayData();
+
+    if (!dayData?.slots) {
+      return [];
+    }
+
+    // Filter to show ONLY RESERVED slots
+    return dayData.slots.filter((slot) => {
+      return (
+        slot.status === "RESERVED" &&
+        slot.starTime &&
+        slot.endTime &&
+        typeof slot.starTime === "string" &&
+        typeof slot.endTime === "string"
+      );
+    });
+  }
+
+  /**
+   * Calculate the top position of a slot in pixels based on its start time
+   * Each hour = 60px (matching the time-slot height)
+   */
+  getSlotPosition(startTime: string): number {
+    if (!startTime) return 0;
+    const [hours, minutes] = this.parseTime(startTime);
+    const totalMinutes = hours * 60 + minutes;
+    // 60px per hour = 1px per minute
+    return totalMinutes;
+  }
+
+  /**
+   * Calculate the height of a slot in pixels based on start and end time
+   */
+  getSlotHeight(startTime: string, endTime: string): number {
+    if (!startTime || !endTime) return 56; // Default 1 hour minus gap
+    const [startHours, startMinutes] = this.parseTime(startTime);
+    const [endHours, endMinutes] = this.parseTime(endTime);
+
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+    const durationMinutes = endTotalMinutes - startTotalMinutes;
+
+    // 1 minute = 1px (60px per hour)
+    // Subtract 4px to create visual gap between consecutive slots
+    const height = durationMinutes - 4;
+    return Math.max(height, 15); // Minimum 15px height
+  }
+
+  /**
+   * Parse time string (HH:mm:ss or HH:mm) to hours and minutes
+   */
+  private parseTime(timeString: string): [number, number] {
+    if (!timeString || typeof timeString !== "string") {
+      return [0, 0];
+    }
+
+    const parts = timeString.split(":");
+    if (parts.length < 2) {
+      return [0, 0];
+    }
+
+    const hours = parseInt(parts[0], 10) || 0;
+    const minutes = parseInt(parts[1], 10) || 0;
+    return [hours, minutes];
+  }
+
+  /**
+   * Get display text for a slot based on its status and appointment data
+   */
+  getSlotDisplayText(slot: any): string {
+    if (slot.status === "RESERVED" && slot.appointment) {
+      return slot.appointment.patientName || "Cita reservada";
+    }
+    if (slot.status === "LOCKED") {
+      return "Bloqueado";
+    }
+    return "Ocupado";
+  }
+
   // Método para cambiar los horarios de trabajo
   setWorkHours(startHour: number, endHour: number) {
     this.workStartHour = startHour;
@@ -1378,10 +704,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   startTimeUpdate() {
     // Actualizar inmediatamente
     this.updateCurrentTime();
+    this.updateCurrentDayKey();
 
     // Actualizar cada minuto
     setInterval(() => {
       this.updateCurrentTime();
+      this.checkDayChange();
     }, 60000); // 60 segundos
   }
 
@@ -1390,6 +718,35 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     // Forzar la detección de cambios
     if (this.isCurrentDay()) {
       // La línea se actualizará automáticamente por el binding
+    }
+  }
+
+  /**
+   * Update the current day key
+   */
+  private updateCurrentDayKey() {
+    const now = new Date();
+    this.currentDayKey = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  }
+
+  /**
+   * Check if the day has changed and reload day view if necessary
+   */
+  private checkDayChange() {
+    const now = new Date();
+    const newDayKey = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+    if (newDayKey !== this.currentDayKey) {
+      this.currentDayKey = newDayKey;
+
+      // Reload day view if currently in day view
+      if (this.currentView === "day") {
+        this.loadDayView();
+      }
     }
   }
 

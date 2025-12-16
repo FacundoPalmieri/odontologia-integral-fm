@@ -48,7 +48,7 @@ export interface CalendarDayInterface {
 }
 
 export interface SlotInterface {
-  startTime: string;
+  starTime: string; // Modificar desde backend
   endTime: string;
   status: SlotStatusEnum;
   color: string;

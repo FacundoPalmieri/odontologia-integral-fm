@@ -272,6 +272,7 @@
       border-bottom: 1px solid var(--mat-sys-outline-variant);
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 0 16px;
       background: var(--mat-sys-calendar-event-background) !important;
       position: sticky;
@@ -279,59 +280,137 @@
       z-index: 1000;
       font-size: 14px;
       font-weight: 500;
+      gap: 12px;
+
+      .day-full-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #ef4444;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        white-space: nowrap;
+
+        .badge-icon {
+          font-size: 14px;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+
+        .badge-text {
+          line-height: 1.2;
+        }
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+        }
+      }
     }
 
     .events-container {
       position: relative;
+      min-height: 1440px; // 24 hours * 60px per hour
 
+      // Grid de fondo - líneas horarias
       .time-row {
         height: 60px;
         border-bottom: 1px solid var(--mat-sys-outline-variant);
         position: relative;
+      }
 
-        .time-content {
+      // Slots dinámicos de la API
+      .api-slot {
+        position: absolute;
+        left: 8px; // Increased from 4px for better spacing
+        right: 8px; // Increased from 4px for better spacing
+        border-radius: var(--mat-sys-corner-small);
+        padding: 4px 16px; // Reduced vertical padding for better text fit
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        z-index: 10;
+        color: white !important;
+
+        &:hover {
+          transform: translateX(3px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          z-index: 20;
+        }
+
+        &.reserved {
+          background: var(--mat-sys-primary);
+          color: var(--mat-sys-on-primary);
+        }
+
+        &.locked {
+          background: var(--mat-sys-error);
+          color: var(--mat-sys-on-error);
+          opacity: 0.9;
+        }
+
+        .slot-content {
+          display: flex;
+          flex-direction: column;
+          gap: 4px; // Reduced for better text fit in small slots
           height: 100%;
-          position: relative;
-          padding: 2px;
+          overflow: hidden;
 
-          .event {
-            position: absolute;
-            left: 2px;
-            right: 2px;
-            top: 2px;
-            bottom: 2px;
-            background: var(--mat-sys-primary);
-            color: var(--mat-sys-on-primary);
-            border-radius: 4px;
-            padding: 4px 8px;
-            cursor: pointer;
+          .slot-title {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+          }
+
+          .slot-time {
+            font-size: 10px;
+            opacity: 0.95;
+            font-weight: 500;
+            flex-shrink: 0;
+          }
+
+          .slot-dentist {
+            font-size: 10px;
+            opacity: 0.85;
+            font-style: italic;
+            margin-top: auto;
+            flex-shrink: 0;
+          }
+
+          // Layout horizontal para horario y paciente
+          .slot-info-row {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            transition: all 0.2s ease;
-            border-left: 3px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
 
-            &:hover {
-              transform: translateY(-1px);
-              box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-              background: var(--mat-sys-primary);
-              z-index: 10;
+            .slot-time {
+              margin: 0;
             }
 
-            .event-title {
-              font-size: 12px;
-              font-weight: 500;
-              line-height: 1.2;
+            .slot-patient {
+              font-size: 11px;
+              font-weight: 600;
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
-            }
-
-            .event-time {
-              font-size: 10px;
-              opacity: 0.9;
-              margin-top: 2px;
+              flex: 1;
             }
           }
         }
@@ -562,6 +641,26 @@
 
       &:nth-child(7n) {
         border-right: none;
+      }
+
+      // Esquina superior izquierda (primer día)
+      &:first-child {
+        border-top-left-radius: var(--mat-sys-corner-large);
+      }
+
+      // Esquina superior derecha (día 7)
+      &:nth-child(7) {
+        border-top-right-radius: var(--mat-sys-corner-large);
+      }
+
+      // Esquina inferior izquierda (último día de la primera columna)
+      &:nth-last-child(-n + 7):nth-child(7n + 1) {
+        border-bottom-left-radius: var(--mat-sys-corner-large);
+      }
+
+      // Esquina inferior derecha (último día)
+      &:last-child {
+        border-bottom-right-radius: var(--mat-sys-corner-large);
       }
 
       &:hover {

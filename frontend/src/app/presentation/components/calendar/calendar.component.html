@@ -336,39 +336,47 @@
             <div class="events-column" #eventsColumn>
               <div class="events-header">
                 <span>Eventos</span>
+                @if (isDayViewFull()) {
+                <span class="day-full-badge">
+                  <span class="badge-icon">⛔</span>
+                  <span class="badge-text">Sin turnos disponibles</span>
+                </span>
+                }
               </div>
               <div class="events-container">
-                <div *ngFor="let timeSlot of timeSlots" class="time-row">
-                  <div class="time-content">
-                    <div
-                      *ngFor="
-                        let event of getEventsForTimeSlot(
-                          selectedDate,
-                          timeSlot
-                        )
-                      "
-                      class="event"
-                      [style.background-color]="event.color"
-                      (click)="onEventClick(event)"
-                      [matTooltip]="event.title"
-                    >
-                      <span class="event-title">{{ event.title }}</span>
-                      <span class="event-time">
-                        {{
-                          event.start.toLocaleTimeString("es-ES", {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })
-                        }}
-                        -
-                        {{
-                          event.end.toLocaleTimeString("es-ES", {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })
-                        }}
+                <!-- Grid de fondo con líneas horarias -->
+                <div *ngFor="let timeSlot of timeSlots" class="time-row"></div>
+
+                <!-- Slots dinámicos de la API posicionados absolutamente -->
+                <div
+                  *ngFor="let slot of getDayViewSlots()"
+                  class="api-slot"
+                  [style.top.px]="getSlotPosition(slot.starTime)"
+                  [style.height.px]="getSlotHeight(slot.starTime, slot.endTime)"
+                  [style.background-color]="slot.color"
+                  [class.reserved]="slot.status === 'RESERVED'"
+                  [class.locked]="slot.status === 'LOCKED'"
+                >
+                  <div class="slot-content">
+                    <!-- Fila con horario y nombre del paciente -->
+                    <div class="slot-info-row">
+                      <span class="slot-time">
+                        {{ slot.starTime?.substring(0, 5) || "00:00" }} -
+                        {{ slot.endTime?.substring(0, 5) || "00:00" }}
                       </span>
+                      @if (slot.appointment?.patientName) {
+                      <span class="slot-patient">{{
+                        slot.appointment.patientName
+                      }}</span>
+                      }
                     </div>
+
+                    <!-- Nombre del dentista abajo -->
+                    @if (slot.appointment?.dentistName) {
+                    <span class="slot-dentist">{{
+                      slot.appointment.dentistName
+                    }}</span>
+                    }
                   </div>
                 </div>
               </div>

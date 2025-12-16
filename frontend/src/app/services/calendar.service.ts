@@ -53,10 +53,15 @@ export class CalendarService {
   getWeek(
     idDentist: number,
     date: Date
-  ): Observable<ApiResponseInterface<CalendarWeekInterface[]>> {
-    const params = new HttpParams().set("date", date.toISOString());
+  ): Observable<ApiResponseInterface<CalendarWeekInterface>> {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
 
-    return this.http.get<ApiResponseInterface<CalendarWeekInterface[]>>(
+    const params = new HttpParams().set("day", formattedDate);
+
+    return this.http.get<ApiResponseInterface<CalendarWeekInterface>>(
       `${this.apiUrl}/calendar/${idDentist}/week`,
       { params }
     );
@@ -65,10 +70,15 @@ export class CalendarService {
   getDay(
     idDentist: number,
     date: Date
-  ): Observable<ApiResponseInterface<CalendarDayInterface[]>> {
-    const params = new HttpParams().set("date", date.toISOString());
+  ): Observable<ApiResponseInterface<CalendarDayInterface>> {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
 
-    return this.http.get<ApiResponseInterface<CalendarDayInterface[]>>(
+    const params = new HttpParams().set("day", formattedDate);
+
+    return this.http.get<ApiResponseInterface<CalendarDayInterface>>(
       `${this.apiUrl}/calendar/${idDentist}/day`,
       { params }
     );
