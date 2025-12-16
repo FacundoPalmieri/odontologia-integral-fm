@@ -20,6 +20,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 
@@ -170,8 +171,8 @@ public class CalendarService implements ICalendarService {
         validateDentist(idDentist);
 
         //Obtener la semana calendario a partir del día recibido.
-        LocalDate weekStart = day.with(DayOfWeek.MONDAY);
-        LocalDate weekEnd   = day.with(DayOfWeek.SUNDAY);
+        LocalDate weekStart =  day.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate weekEnd   = day.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
 
         List<CalendarDetailDayResponseDTO> days = new ArrayList<>();
 
