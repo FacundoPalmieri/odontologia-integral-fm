@@ -580,14 +580,15 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get the description for a specific day (only for holidays and full days)
+   * Get the description for a specific day (for holidays, full days, and locked days)
    */
   getDayDescription(date: Date): string | null {
     const dayData = this.getDayFromBackend(date);
-    // Mostrar descripción si es feriado o día completo
+    // Mostrar descripción si es feriado, día completo o día bloqueado
     if (
       dayData?.status === CalendarMonthDayStatusEnum.HOLIDAY ||
-      dayData?.status === CalendarMonthDayStatusEnum.FULL
+      dayData?.status === CalendarMonthDayStatusEnum.FULL ||
+      dayData?.status === CalendarMonthDayStatusEnum.LOCKED
     ) {
       return dayData.description;
     }
@@ -605,7 +606,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     }
 
     if (dayData?.status === CalendarMonthDayStatusEnum.FULL) {
-      return "⛔"; // Candado para días completos/bloqueados
+      return "⛔"; // Prohibido para días completos/sin turnos
+    }
+
+    if (dayData?.status === CalendarMonthDayStatusEnum.LOCKED) {
+      return "🔒"; // Candado para días bloqueados
     }
 
     return "📅"; // Calendario por defecto
@@ -621,7 +626,18 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get slots for the current day view (only RESERVED slots)
+   * Check if the current day view has LOCKED slots
+   */
+  isDayViewLocked(): boolean {
+    const dayData = this.calendarDayData();
+    if (!dayData?.slots) {
+      return false;
+    }
+    return dayData.slots.some((slot) => slot.status === "LOCKED");
+  }
+
+  /**
+   * Get slots for the current day view (RESERVED and LOCKED slots)
    */
   getDayViewSlots() {
     const dayData = this.calendarDayData();
@@ -630,10 +646,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return [];
     }
 
-    // Filter to show ONLY RESERVED slots
+    // Filter to show RESERVED and LOCKED slots
     return dayData.slots.filter((slot) => {
       return (
-        slot.status === "RESERVED" &&
+        (slot.status === "RESERVED" || slot.status === "LOCKED") &&
         slot.starTime &&
         slot.endTime &&
         typeof slot.starTime === "string" &&
@@ -643,7 +659,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get slots for a specific day in week view (only RESERVED slots)
+   * Get slots for a specific day in week view (RESERVED and LOCKED slots)
    */
   getWeekViewSlots(date: Date) {
     const weekData = this.calendarWeekData();
@@ -667,10 +683,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return [];
     }
 
-    // Filter to show ONLY RESERVED slots
+    // Filter to show RESERVED and LOCKED slots
     return dayData.slots.filter((slot) => {
       return (
-        slot.status === "RESERVED" &&
+        (slot.status === "RESERVED" || slot.status === "LOCKED") &&
         slot.starTime &&
         slot.endTime &&
         typeof slot.starTime === "string" &&

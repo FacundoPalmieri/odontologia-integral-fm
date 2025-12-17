@@ -324,6 +324,13 @@
       <div class="calendar-views">
         <!-- Day View -->
         <div *ngIf="currentView === 'day'" class="day-view">
+          @if (isLoadingCalendar()) {
+          <!-- Loading Spinner -->
+          <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p class="loading-text">Cargando calendario...</p>
+          </div>
+          } @else {
           <div class="day-grid">
             <div class="time-column" #timeColumn>
               <div class="time-header">
@@ -336,12 +343,19 @@
             <div class="events-column" #eventsColumn>
               <div class="events-header">
                 <span>Eventos</span>
-                @if (isDayViewFull()) {
-                <span class="day-full-badge">
-                  <span class="badge-icon">⛔</span>
-                  <span class="badge-text">Sin turnos disponibles</span>
-                </span>
-                }
+                <div class="header-badges">
+                  @if (isDayViewFull()) {
+                  <span class="day-full-badge">
+                    <span class="badge-icon">⛔</span>
+                    <span class="badge-text">Sin turnos disponibles</span>
+                  </span>
+                  } @if (isDayViewLocked()) {
+                  <span class="day-locked-badge">
+                    <span class="badge-icon">🔒</span>
+                    <span class="badge-text">Día bloqueado</span>
+                  </span>
+                  }
+                </div>
               </div>
               <div class="events-container">
                 <!-- Grid de fondo con líneas horarias -->
@@ -358,6 +372,27 @@
                   [class.locked]="slot.status === 'LOCKED'"
                 >
                   <div class="slot-content">
+                    @if (slot.status === 'LOCKED') {
+                    <!-- Contenido para slots bloqueados -->
+                    <div class="slot-locked-content">
+                      <div class="locked-info">
+                        <span class="slot-time">
+                          {{ slot.starTime?.substring(0, 5) || "00:00" }} -
+                          {{ slot.endTime?.substring(0, 5) || "00:00" }}
+                        </span>
+                        <span class="lock-type">{{
+                          slot.calendarLock.lockType
+                        }}</span>
+                        <span class="lock-observation">
+                          {{
+                            slot.calendarLock?.observation ||
+                              "[Sin observación]"
+                          }}
+                        </span>
+                      </div>
+                    </div>
+                    } @else {
+                    <!-- Contenido para slots reservados -->
                     <!-- Fila con horario y nombre del paciente -->
                     <div class="slot-info-row">
                       <span class="slot-time">
@@ -376,16 +411,24 @@
                     <span class="slot-dentist">{{
                       slot.appointment.dentistName
                     }}</span>
-                    }
+                    } }
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          }
         </div>
 
         <!-- Week View -->
         <div *ngIf="currentView === 'week'" class="week-view">
+          @if (isLoadingCalendar()) {
+          <!-- Loading Spinner -->
+          <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p class="loading-text">Cargando calendario...</p>
+          </div>
+          } @else {
           <table class="week-table">
             <thead>
               <tr class="week-header-row">
@@ -427,13 +470,34 @@
                     [class.locked]="slot.status === 'LOCKED'"
                   >
                     <div class="slot-content">
+                      @if (slot.status === 'LOCKED') {
+                      <!-- Contenido para slots bloqueados -->
+                      <div class="slot-locked-content">
+                        <div class="locked-info">
+                          <span class="slot-time">
+                            {{ slot.starTime?.substring(0, 5) || "00:00" }} -
+                            {{ slot.endTime?.substring(0, 5) || "00:00" }}
+                          </span>
+                          <span class="lock-type">{{
+                            slot.calendarLock.lockType
+                          }}</span>
+                          <span class="lock-observation">
+                            {{
+                              slot.calendarLock?.observation ||
+                                "[Sin observación]"
+                            }}
+                          </span>
+                        </div>
+                      </div>
+                      } @else {
+                      <!-- Contenido para slots reservados -->
                       <!-- Fila con horario y nombre del paciente -->
                       <div class="slot-info-row">
                         <span class="slot-time">
-                          {{ slot.starTime?.substring(0, 5) || "00:00" }} -
-                          {{ slot.endTime?.substring(0, 5) || "00:00" }}
+                          {{ slot.starTime!.substring(0, 5) || "00:00" }} -
+                          {{ slot.endTime!.substring(0, 5) || "00:00" }}
                         </span>
-                        @if (slot.appointment?.patientName) {
+                        @if (slot.appointment!.patientName) {
                         <span class="slot-patient">{{
                           slot.appointment.patientName
                         }}</span>
@@ -441,11 +505,11 @@
                       </div>
 
                       <!-- Nombre del dentista abajo -->
-                      @if (slot.appointment?.dentistName) {
+                      @if (slot.appointment!.dentistName) {
                       <span class="slot-dentist">{{
                         slot.appointment.dentistName
                       }}</span>
-                      }
+                      } }
                     </div>
                   </div>
                   }
@@ -453,6 +517,7 @@
               </tr>
             </tbody>
           </table>
+          }
         </div>
 
         <!-- Month View -->

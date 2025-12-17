@@ -53,6 +53,21 @@ export interface SlotInterface {
   status: SlotStatusEnum;
   color: string;
   appointment: AppointmentInterface;
+  calendarLock: CalendarLockDayInterface;
+}
+
+export interface CalendarLockDayInterface {
+  id: number;
+  idDentist: number;
+  appointmentConflict: any;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+  lockType: string;
+  observation: string;
+  observationUpdate: any;
+  recurrence: string;
 }
 
 export interface AppointmentInterface {
