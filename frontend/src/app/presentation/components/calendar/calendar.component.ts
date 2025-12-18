@@ -580,15 +580,16 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get the description for a specific day (for holidays, full days, and locked days)
+   * Get the description for a specific day (for holidays, full days, locked days, and not available days)
    */
   getDayDescription(date: Date): string | null {
     const dayData = this.getDayFromBackend(date);
-    // Mostrar descripción si es feriado, día completo o día bloqueado
+    // Mostrar descripción si es feriado, día completo, día bloqueado o no disponible
     if (
       dayData?.status === CalendarMonthDayStatusEnum.HOLIDAY ||
       dayData?.status === CalendarMonthDayStatusEnum.FULL ||
-      dayData?.status === CalendarMonthDayStatusEnum.LOCKED
+      dayData?.status === CalendarMonthDayStatusEnum.LOCKED ||
+      dayData?.status === CalendarMonthDayStatusEnum.NOT_AVAILABLE
     ) {
       return dayData.description;
     }
@@ -611,6 +612,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     if (dayData?.status === CalendarMonthDayStatusEnum.LOCKED) {
       return "🔒"; // Candado para días bloqueados
+    }
+
+    if (dayData?.status === CalendarMonthDayStatusEnum.NOT_AVAILABLE) {
+      return "🚫"; // No disponible
     }
 
     return "📅"; // Calendario por defecto
@@ -637,7 +642,32 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get slots for the current day view (RESERVED and LOCKED slots)
+   * Check if the current day view is completely NOT_AVAILABLE
+   */
+  isDayViewNotAvailable(): boolean {
+    const dayData = this.calendarDayData();
+    return dayData?.calendarDayStatus === ("NOT_AVAILABLE" as any);
+  }
+
+  /**
+   * Get description for NOT_AVAILABLE day in day view
+   */
+  getDayViewNotAvailableDescription(): string {
+    const dayData = this.calendarDayData();
+
+    // Try to get description from the first NOT_AVAILABLE slot
+    if (dayData?.slots) {
+      const notAvailableSlot = dayData.slots.find(
+        (slot) => slot.status === "NOT_AVAILABLE"
+      );
+      return notAvailableSlot?.calendarLock?.observation || "No disponible";
+    }
+
+    return "No disponible";
+  }
+
+  /**
+   * Get slots for the current day view (RESERVED, LOCKED, and NOT_AVAILABLE slots)
    */
   getDayViewSlots() {
     const dayData = this.calendarDayData();
@@ -646,10 +676,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return [];
     }
 
-    // Filter to show RESERVED and LOCKED slots
+    // Filter to show RESERVED, LOCKED, and NOT_AVAILABLE slots
     return dayData.slots.filter((slot) => {
       return (
-        (slot.status === "RESERVED" || slot.status === "LOCKED") &&
+        (slot.status === "RESERVED" ||
+          slot.status === "LOCKED" ||
+          slot.status === "NOT_AVAILABLE") &&
         slot.starTime &&
         slot.endTime &&
         typeof slot.starTime === "string" &&
@@ -659,7 +691,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get slots for a specific day in week view (RESERVED and LOCKED slots)
+   * Get slots for a specific day in week view (RESERVED, LOCKED, and NOT_AVAILABLE slots)
    */
   getWeekViewSlots(date: Date) {
     const weekData = this.calendarWeekData();
@@ -683,16 +715,67 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return [];
     }
 
-    // Filter to show RESERVED and LOCKED slots
+    // Filter to show RESERVED, LOCKED, and NOT_AVAILABLE slots
     return dayData.slots.filter((slot) => {
       return (
-        (slot.status === "RESERVED" || slot.status === "LOCKED") &&
+        (slot.status === "RESERVED" ||
+          slot.status === "LOCKED" ||
+          slot.status === "NOT_AVAILABLE") &&
         slot.starTime &&
         slot.endTime &&
         typeof slot.starTime === "string" &&
         typeof slot.endTime === "string"
       );
     });
+  }
+
+  /**
+   * Get day data from week view for a specific date
+   */
+  getWeekDayData(date: Date): CalendarDayInterface | null {
+    const weekData = this.calendarWeekData();
+
+    if (!weekData?.days) {
+      return null;
+    }
+
+    // Find the day that matches the date
+    const dayData = weekData.days.find((day) => {
+      const dayDate = new Date(day.day);
+      return (
+        dayDate.getUTCFullYear() === date.getFullYear() &&
+        dayDate.getUTCMonth() === date.getMonth() &&
+        dayDate.getUTCDate() === date.getDate()
+      );
+    });
+
+    return dayData || null;
+  }
+
+  /**
+   * Check if a day in week view is completely NOT_AVAILABLE
+   */
+  isWeekDayNotAvailable(date: Date): boolean {
+    const dayData = this.getWeekDayData(date);
+    // Check if calendarDayStatus is NOT_AVAILABLE (full day)
+    return dayData?.calendarDayStatus === ("NOT_AVAILABLE" as any);
+  }
+
+  /**
+   * Get description for a day in week view (for NOT_AVAILABLE days)
+   */
+  getWeekDayDescription(date: Date): string | null {
+    const dayData = this.getWeekDayData(date);
+
+    // If the whole day is NOT_AVAILABLE, try to get description from the first NOT_AVAILABLE slot
+    if (this.isWeekDayNotAvailable(date) && dayData?.slots) {
+      const notAvailableSlot = dayData.slots.find(
+        (slot) => slot.status === "NOT_AVAILABLE"
+      );
+      return notAvailableSlot?.calendarLock?.observation || "No trabaja";
+    }
+
+    return null;
   }
 
   /**
@@ -899,17 +982,19 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   createAppointment() {
     const dialogRef = this.dialog.open(CreateAppointmentDialogComponent, {
-      width: "600px",
+      width: "800px",
+      maxWidth: "90vw",
       data: {
-        selectedDate: this.selectedDate,
-        selectedTime: this.getCurrentTimeSlot(),
+        idDentist: this.personId, // Pasar el ID del dentista logueado
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Here you can handle the appointment creation
-        // For example: this.appointmentService.create(result);
+        // Aquí se manejará la creación del turno con el día y slot seleccionados
+        console.log("Turno a crear:", result);
+        // TODO: Llamar al servicio de appointments para crear el turno
+        // this.appointmentService.create(result);
       }
     });
   }

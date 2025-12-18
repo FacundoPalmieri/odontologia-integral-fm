@@ -1,163 +1,133 @@
 <h2 mat-dialog-title>Nueva cita</h2>
 
-<mat-dialog-content class="w-full">
-  <div
-    class="flex flex-col w-full bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)] px-4"
-  >
-    <!-- Title Section -->
-    <div class="flex flex-col gap-2 mt-2">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label class="items-center flex gap-2">
-          <i-tabler name="edit"></i-tabler>
-          <span class="font-bold">Añade un título</span>
-        </mat-label>
-        <input
-          matInput
-          placeholder="Ej: Consulta de rutina, Limpieza dental..."
-        />
-      </mat-form-field>
-    </div>
-
-    <!-- Date and Time Section -->
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="clock"></i-tabler>
-        <span class="font-medium">Fecha y hora</span>
-      </div>
-
-      <div class="flex flex-row gap-4">
-        <!-- Date Picker -->
-        <div class="flex flex-col gap-2 flex-1">
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha</mat-label>
-            <input
-              matInput
-              [matDatepicker]="picker"
-              (click)="openDatePicker()"
-              placeholder="Seleccionar fecha"
-              readonly
-            />
-            <mat-datepicker-toggle
-              matIconSuffix
-              [for]="picker"
-            ></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <!-- Time Range -->
-        <div class="flex flex-row gap-4 items-end">
-          <mat-form-field appearance="outline" class="w-32">
-            <mat-label>Inicio</mat-label>
-            <mat-select [(ngModel)]="startTime" [disabled]="isAllDay">
-              @for (time of timeSlots; track time) {
-              <mat-option [value]="time">
-                {{ time }}
-              </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="w-32">
-            <mat-label>Fin</mat-label>
-            <mat-select [(ngModel)]="endTime" [disabled]="isAllDay">
-              @for (time of timeSlots; track time) {
-              <mat-option [value]="time">
-                {{ time }}
-              </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+<mat-dialog-content class="dialog-content">
+  <!-- VISTA PARA DENTISTA (cuando hay idDentist) -->
+  @if (idDentist) {
+  <div class="dentist-view">
+    <!-- Selector de Semana -->
+    <div class="week-selector-container">
+      <div class="week-header">
+        <h3 class="month-year">{{ currentMonthYear }}</h3>
+        <div class="navigation-buttons">
+          <button mat-icon-button (click)="previousWeek()" class="nav-btn">
+            <i-tabler name="chevron-left"></i-tabler>
+          </button>
+          <button mat-icon-button (click)="nextWeek()" class="nav-btn">
+            <i-tabler name="chevron-right"></i-tabler>
+          </button>
         </div>
       </div>
-    </div>
 
-    <!-- Patients Section -->
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="users"></i-tabler>
-        <span class="font-medium">Paciente</span>
+      <!-- Días de la semana -->
+      @if (isLoadingWeek()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
       </div>
-
-      <!-- Patient Search -->
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Buscar paciente</mat-label>
-        <input matInput placeholder="Escribir nombre del paciente..." />
-      </mat-form-field>
-
-      <!-- Selected Patients Chips -->
-      <div class="flex flex-wrap gap-2">
-        <mat-chip-set>
-          @for (patient of selectedPatients; track $index) {
-          <mat-chip [removable]="true">
-            {{ patient.name }}
-            <mat-icon matChipRemove>cancel</mat-icon>
-          </mat-chip>
-          }
-        </mat-chip-set>
-      </div>
-    </div>
-
-    <!-- Professional Section -->
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="user-check"></i-tabler>
-        <span class="font-medium">Profesional</span>
-      </div>
-
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Seleccionar profesional</mat-label>
-        <mat-select>
-          @for (professional of professionals; track professional.id) {
-          <mat-option [value]="professional">
-            {{ professional.name }}
-            <span class="text-sm ml-2"> - {{ professional.specialty }} </span>
-          </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <!-- Selected Professional Info -->
-      @if(selectedProfessional){
-      <div class="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+      } @else {
+      <div class="week-days">
+        @for (day of weekDays(); track day.day) {
         <div
-          class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+          class="day-card"
+          [class.selected]="isSelectedDay(day)"
+          [class.available]="isDayAvailable(day)"
+          [class.unavailable]="!isDayAvailable(day)"
+          (click)="selectDay(day)"
         >
-          <i-tabler name="user" class="text-white text-sm"></i-tabler>
+          <div class="day-name">{{ getDayName(day.day) }}</div>
+          <div class="day-number">{{ getDayNumber(day.day) }}</div>
+          @if (!isDayAvailable(day)) {
+          <div class="unavailable-indicator">⛔</div>
+          }
         </div>
-        <div class="flex flex-col">
-          <span class="font-medium">{{ selectedProfessional.name }}</span>
-          <span class="text-sm text-gray-500">
-            {{ selectedProfessional.specialty }} · Disponible · Visibilidad
-            predeterminada · Notificar
-          </span>
-        </div>
+        }
       </div>
       }
     </div>
 
-    <!-- Description Section -->
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="file-text"></i-tabler>
-        <span class="font-medium">Descripción</span>
+    <!-- Slots disponibles del día seleccionado -->
+    @if (selectedDay()) {
+    <div class="slots-container">
+      <div class="slots-header">
+        <i-tabler name="clock"></i-tabler>
+        <span class="font-medium"
+          >Horarios disponibles - {{ getSelectedDayLabel() }}</span
+        >
       </div>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Notas adicionales (opcional)</mat-label>
-        <textarea
-          matInput
-          rows="3"
-          placeholder="Agregar descripción o notas sobre la cita..."
-        ></textarea>
-      </mat-form-field>
+      @if (isLoadingSlots()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+      } @else if (availableSlots().length === 0) {
+      <div class="no-slots-message">
+        <i-tabler name="calendar-off" class="no-slots-icon"></i-tabler>
+        <p>No hay horarios disponibles para este día</p>
+      </div>
+      } @else {
+      <div class="slots-grid">
+        @for (slot of availableSlots(); track slot.starTime) {
+        <button
+          mat-stroked-button
+          class="slot-button"
+          [class.selected]="isSelectedSlot(slot)"
+          (click)="selectSlot(slot)"
+        >
+          <i-tabler name="clock" class="slot-icon"></i-tabler>
+          <span>{{ slot.starTime }} - {{ slot.endTime }}</span>
+        </button>
+        }
+      </div>
+      }
     </div>
+
+    <!-- Información del turno seleccionado -->
+    @if (selectedSlot()) {
+    <div class="appointment-summary">
+      <h4 class="summary-title">
+        <i-tabler name="calendar-check"></i-tabler>
+        Resumen del turno
+      </h4>
+      <div class="summary-content">
+        <div class="summary-item">
+          <i-tabler name="calendar"></i-tabler>
+          <span>{{ getSelectedDayLabel() }}</span>
+        </div>
+        <div class="summary-item">
+          <i-tabler name="clock"></i-tabler>
+          <span
+            >{{ selectedSlot()!.starTime }} -
+            {{ selectedSlot()!.endTime }}</span
+          >
+        </div>
+      </div>
+    </div>
+    } }
   </div>
+  }
+
+  <!-- VISTA PARA SECRETARIO/OTRO USUARIO (cuando NO hay idDentist) -->
+  <!-- TODO: Implementar vista para secretario -->
+  @if (!idDentist) {
+  <div class="secretary-view">
+    <p class="placeholder-text">Vista para secretario - A implementar</p>
+    <!-- Aquí irá el formulario completo para que el secretario pueda:
+           - Seleccionar el dentista
+           - Seleccionar el paciente
+           - Elegir fecha y hora
+           - etc.
+      -->
+  </div>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="gap-2">
   <button mat-button (click)="onCancel()">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="onSave()">
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="onSave()"
+    [disabled]="!canSave()"
+  >
     <div class="flex items-center gap-2">
       <i-tabler name="check" class="mr-1"></i-tabler>
       <span>Guardar</span>

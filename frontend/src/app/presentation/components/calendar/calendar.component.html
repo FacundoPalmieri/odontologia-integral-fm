@@ -354,6 +354,13 @@
                     <span class="badge-icon">🔒</span>
                     <span class="badge-text">Día bloqueado</span>
                   </span>
+                  } @if (isDayViewNotAvailable()) {
+                  <span class="day-not-available-badge">
+                    <span class="badge-icon">🚫</span>
+                    <span class="badge-text">{{
+                      getDayViewNotAvailableDescription()
+                    }}</span>
+                  </span>
                   }
                 </div>
               </div>
@@ -370,10 +377,12 @@
                   [style.background-color]="slot.color"
                   [class.reserved]="slot.status === 'RESERVED'"
                   [class.locked]="slot.status === 'LOCKED'"
+                  [class.not-available]="slot.status === 'NOT_AVAILABLE'"
                 >
                   <div class="slot-content">
-                    @if (slot.status === 'LOCKED') {
-                    <!-- Contenido para slots bloqueados -->
+                    @if (slot.status === 'LOCKED' || slot.status ===
+                    'NOT_AVAILABLE') {
+                    <!-- Contenido para slots bloqueados y no disponibles -->
                     <div class="slot-locked-content">
                       <div class="locked-info">
                         <span class="slot-time">
@@ -442,6 +451,15 @@
                     <span class="day-number">{{
                       getWeekDates()[i].getDate()
                     }}</span>
+                    <!-- Badge para día completo NO DISPONIBLE -->
+                    @if (isWeekDayNotAvailable(getWeekDates()[i])) {
+                    <div class="week-day-not-available-badge">
+                      <span class="badge-icon">🚫</span>
+                      <span class="badge-text">{{
+                        getWeekDayDescription(getWeekDates()[i])
+                      }}</span>
+                    </div>
+                    }
                   </div>
                 </th>
               </tr>
@@ -468,10 +486,12 @@
                     [style.background-color]="slot.color"
                     [class.reserved]="slot.status === 'RESERVED'"
                     [class.locked]="slot.status === 'LOCKED'"
+                    [class.not-available]="slot.status === 'NOT_AVAILABLE'"
                   >
                     <div class="slot-content">
-                      @if (slot.status === 'LOCKED') {
-                      <!-- Contenido para slots bloqueados -->
+                      @if (slot.status === 'LOCKED' || slot.status ===
+                      'NOT_AVAILABLE') {
+                      <!-- Contenido para slots bloqueados y no disponibles -->
                       <div class="slot-locked-content">
                         <div class="locked-info">
                           <span class="slot-time">
