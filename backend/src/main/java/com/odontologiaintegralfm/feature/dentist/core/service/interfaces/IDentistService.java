@@ -40,7 +40,7 @@ public interface IDentistService {
     Dentist update(Dentist dentist, DentistUpdateRequestDTO dentistUpdateRequestDTO);
 
     /**
-     * Método para obtener un set de pacientes habilitados en el sistema.
+     * Método para obtener un set de Dentistas habilitados en el sistema.
      * @return Una respuesta que contiene una lista de objetos {@link DentistResponseDTO }
      */
     Response<Set<DentistResponseDTO>> getAll();
