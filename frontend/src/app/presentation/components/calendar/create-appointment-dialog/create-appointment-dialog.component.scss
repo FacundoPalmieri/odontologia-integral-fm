@@ -11,130 +11,141 @@
   gap: 1.5rem;
 }
 
-// Contenedor del selector de semana
-.week-selector-container {
-  background: var(--mat-sys-content-toolbar-container-color);
-  border-radius: var(--mat-sys-corner-large);
-  padding: 1.5rem;
+.patient-search-field {
+  width: 100%;
 }
 
-.week-header {
+.patient-option {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem 0;
 
-  .month-year {
-    margin: 0;
-    font-size: 1.25rem;
+  .patient-name {
+    font-size: 1rem;
     font-weight: 500;
     color: var(--mat-sys-on-surface);
   }
 
-  .navigation-buttons {
-    display: flex;
-    gap: 0.5rem;
+  .patient-dni {
+    font-size: 0.875rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
 
-    .nav-btn {
+.no-results-icon {
+  margin-right: 0.5rem;
+  color: var(--mat-sys-on-surface-variant);
+  vertical-align: middle;
+}
+
+// Contenedor del selector de semana
+.week-selector-container {
+  background: var(--mat-sys-surface-container-low);
+  border-radius: var(--mat-sys-corner-large);
+
+  .month-year {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+    text-align: center;
+  }
+}
+
+// Navegación de semana (botones + días)
+.week-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .nav-btn {
+    flex-shrink: 0;
+    color: var(--mat-sys-on-surface-variant);
+
+    &:hover {
       color: var(--mat-sys-primary);
+      background-color: rgba(var(--mat-sys-primary-rgb), 0.08);
     }
   }
 }
 
 // Días de la semana
 .week-days {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
 }
 
-.day-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem 0.5rem;
-  border-radius: var(--mat-sys-corner-medium);
-  cursor: pointer;
-  transition: all 0.3s ease;
+// Círculos de días
+.day-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 0;
   position: relative;
-  min-height: 80px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
 
+  .day-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
   .day-name {
-    font-size: 0.875rem;
+    font-size: 0.625rem;
     font-weight: 500;
-    margin-bottom: 0.25rem;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    margin-bottom: 2px;
   }
 
   .day-number {
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .unavailable-indicator {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
     font-size: 1rem;
+    font-weight: 500;
+    line-height: 1;
   }
 
-  // Estado disponible
-  &.available {
-    background: linear-gradient(
-      135deg,
-      rgba(var(--mat-sys-primary-rgb), 0.1),
-      rgba(var(--mat-sys-primary-rgb), 0.05)
-    );
-    border-color: rgba(var(--mat-sys-primary-rgb), 0.3);
+  // Estado normal (disponible)
+  &:not([disabled]) {
+    color: var(--mat-sys-on-surface);
+    background-color: transparent;
 
-    .day-name,
-    .day-number {
+    &:hover {
+      background-color: rgba(var(--mat-sys-primary-rgb), 0.08);
       color: var(--mat-sys-primary);
     }
 
-    &:hover {
-      background: linear-gradient(
-        135deg,
-        rgba(var(--mat-sys-primary-rgb), 0.2),
-        rgba(var(--mat-sys-primary-rgb), 0.1)
-      );
-      border-color: var(--mat-sys-primary);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(var(--mat-sys-primary-rgb), 0.2);
-    }
-
+    // Estado seleccionado
     &.selected {
-      background: linear-gradient(
-        135deg,
-        var(--mat-sys-primary),
-        var(--mat-sys-primary-container)
-      );
+      background-color: var(--mat-sys-primary);
+      color: var(--mat-sys-on-primary);
       border-color: var(--mat-sys-primary);
-      box-shadow: 0 4px 12px rgba(var(--mat-sys-primary-rgb), 0.3);
 
-      .day-name,
-      .day-number {
-        color: var(--mat-sys-on-primary);
+      &:hover {
+        background-color: var(--mat-sys-primary);
+        box-shadow: 0 2px 8px rgba(var(--mat-sys-primary-rgb), 0.3);
       }
     }
   }
 
-  // Estado no disponible
-  &.unavailable {
-    background: rgba(var(--mat-sys-surface-variant-rgb), 0.3);
-    border-color: rgba(var(--mat-sys-outline-rgb), 0.2);
+  // Estado disabled (no disponible)
+  &[disabled] {
+    color: var(--mat-sys-on-surface);
+    opacity: 0.38;
     cursor: not-allowed;
-    opacity: 0.6;
+    background-color: transparent;
 
     .day-name,
     .day-number {
-      color: var(--mat-sys-on-surface-variant);
-    }
-
-    &:hover {
-      transform: none;
+      color: var(--mat-sys-on-surface);
     }
   }
 }
@@ -183,48 +194,6 @@
   p {
     margin: 0;
     font-size: 1rem;
-  }
-}
-
-.slots-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.75rem;
-}
-
-.slot-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: var(--mat-sys-corner-medium);
-  border: 2px solid var(--mat-sys-outline);
-  background: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  transition: all 0.3s ease;
-  cursor: pointer;
-
-  .slot-icon {
-    font-size: 1.125rem;
-  }
-
-  &:hover {
-    border-color: var(--mat-sys-primary);
-    background: rgba(var(--mat-sys-primary-rgb), 0.1);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  &.selected {
-    border-color: var(--mat-sys-primary);
-    background: var(--mat-sys-primary);
-    color: var(--mat-sys-on-primary);
-    box-shadow: 0 4px 12px rgba(var(--mat-sys-primary-rgb), 0.3);
-
-    .slot-icon {
-      color: var(--mat-sys-on-primary);
-    }
   }
 }
 
@@ -295,30 +264,39 @@
     padding: 1rem;
   }
 
-  .week-days {
-    gap: 0.5rem;
+  .week-selector-container {
+    padding: 1rem;
+
+    .month-year {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
   }
 
-  .day-card {
-    min-height: 70px;
-    padding: 0.75rem 0.25rem;
+  .week-navigation {
+    gap: 0.25rem;
+
+    .nav-btn {
+      width: 36px;
+      height: 36px;
+      padding: 6px;
+    }
+  }
+
+  .week-days {
+    gap: 0.25rem;
+  }
+
+  .day-circle {
+    width: 44px;
+    height: 44px;
 
     .day-name {
-      font-size: 0.75rem;
+      font-size: 0.5rem;
     }
 
     .day-number {
-      font-size: 1.25rem;
+      font-size: 0.875rem;
     }
-  }
-
-  .slots-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 0.5rem;
-  }
-
-  .slot-button {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
   }
 }

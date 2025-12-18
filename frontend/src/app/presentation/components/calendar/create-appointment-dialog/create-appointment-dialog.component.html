@@ -4,42 +4,99 @@
   <!-- VISTA PARA DENTISTA (cuando hay idDentist) -->
   @if (idDentist) {
   <div class="dentist-view">
-    <!-- Selector de Semana -->
-    <div class="week-selector-container">
-      <div class="week-header">
-        <h3 class="month-year">{{ currentMonthYear }}</h3>
-        <div class="navigation-buttons">
-          <button mat-icon-button (click)="previousWeek()" class="nav-btn">
-            <i-tabler name="chevron-left"></i-tabler>
-          </button>
-          <button mat-icon-button (click)="nextWeek()" class="nav-btn">
-            <i-tabler name="chevron-right"></i-tabler>
-          </button>
-        </div>
-      </div>
+    <!-- Buscador de Pacientes -->
+    <mat-form-field appearance="outline" class="patient-search-field mt-2">
+      <mat-label>Buscar paciente</mat-label>
+      <input
+        type="text"
+        matInput
+        [formControl]="patientSearchControl"
+        [matAutocomplete]="auto"
+        placeholder="Nombre, apellido o DNI (mín. 3 caracteres)"
+      />
+      @if (selectedPatient()) {
+      <button
+        matSuffix
+        mat-icon-button
+        aria-label="Limpiar"
+        (click)="patientSearchControl.setValue(''); selectedPatient.set(null)"
+        matTooltip="Limpiar búsqueda"
+      >
+        <i-tabler name="xbox-x" class="text-red-500"></i-tabler>
+      </button>
+      }
 
-      <!-- Días de la semana -->
+      <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        [displayWith]="displayPatient.bind(this)"
+        (optionSelected)="onPatientSelected($event.option.value)"
+      >
+        @if (filteredPatients().length === 0 && patientSearchControl.value &&
+        patientSearchControl.value.length >= 3) {
+        <mat-option disabled>
+          <i-tabler name="user-off" class="no-results-icon"></i-tabler>
+          No se encontraron pacientes
+        </mat-option>
+        } @for (patient of filteredPatients(); track patient.person.id) {
+        <mat-option [value]="patient">
+          <div class="patient-option">
+            <div class="patient-name">
+              {{ patient.person.firstName }} {{ patient.person.lastName }}
+            </div>
+            <div class="patient-dni">DNI: {{ patient.person.dni }}</div>
+          </div>
+        </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <!-- Selector de Semana -->
+    <div class="week-selector-container pb-4">
+      <h3 class="month-year">{{ currentMonthYear }}</h3>
+
+      <!-- Días de la semana con navegación -->
       @if (isLoadingWeek()) {
       <div class="loading-container">
         <mat-spinner diameter="40"></mat-spinner>
       </div>
       } @else {
-      <div class="week-days">
-        @for (day of weekDays(); track day.day) {
-        <div
-          class="day-card"
-          [class.selected]="isSelectedDay(day)"
-          [class.available]="isDayAvailable(day)"
-          [class.unavailable]="!isDayAvailable(day)"
-          (click)="selectDay(day)"
+      <div class="week-navigation">
+        <button
+          mat-icon-button
+          (click)="previousWeek()"
+          class="nav-btn"
+          aria-label="Semana anterior"
         >
-          <div class="day-name">{{ getDayName(day.day) }}</div>
-          <div class="day-number">{{ getDayNumber(day.day) }}</div>
-          @if (!isDayAvailable(day)) {
-          <div class="unavailable-indicator">⛔</div>
+          <i-tabler name="chevron-left"></i-tabler>
+        </button>
+
+        <div class="week-days">
+          @for (day of weekDays(); track day.day) {
+          <button
+            mat-icon-button
+            class="day-circle"
+            [class.selected]="isSelectedDay(day)"
+            [disabled]="!isDayAvailable(day)"
+            (click)="selectDay(day)"
+          >
+            <div class="day-content">
+              <div class="day-name">{{ getDayName(day.day) }}</div>
+              <div class="day-number">{{ getDayNumber(day.day) }}</div>
+            </div>
+          </button>
           }
         </div>
-        }
+
+        <button
+          mat-icon-button
+          (click)="nextWeek()"
+          class="nav-btn"
+          aria-label="Semana siguiente"
+        >
+          <i-tabler name="chevron-right"></i-tabler>
+        </button>
       </div>
       }
     </div>
@@ -49,9 +106,7 @@
     <div class="slots-container">
       <div class="slots-header">
         <i-tabler name="clock"></i-tabler>
-        <span class="font-medium"
-          >Horarios disponibles - {{ getSelectedDayLabel() }}</span
-        >
+        <span class="font-medium">Horarios disponibles</span>
       </div>
 
       @if (isLoadingSlots()) {
@@ -64,19 +119,16 @@
         <p>No hay horarios disponibles para este día</p>
       </div>
       } @else {
-      <div class="slots-grid">
+      <mat-chip-set aria-label="Horarios disponibles">
         @for (slot of availableSlots(); track slot.starTime) {
-        <button
-          mat-stroked-button
-          class="slot-button"
-          [class.selected]="isSelectedSlot(slot)"
+        <mat-chip-option
+          [selected]="isSelectedSlot(slot)"
           (click)="selectSlot(slot)"
         >
-          <i-tabler name="clock" class="slot-icon"></i-tabler>
-          <span>{{ slot.starTime }} - {{ slot.endTime }}</span>
-        </button>
+          {{ formatTime(slot.starTime) }} - {{ formatTime(slot.endTime) }}
+        </mat-chip-option>
         }
-      </div>
+      </mat-chip-set>
       }
     </div>
 
@@ -84,20 +136,29 @@
     @if (selectedSlot()) {
     <div class="appointment-summary">
       <h4 class="summary-title">
-        <i-tabler name="calendar-check"></i-tabler>
+        <i-tabler name="receipt"></i-tabler>
         Resumen del turno
       </h4>
       <div class="summary-content">
+        @if (selectedPatient()) {
+        <div class="summary-item">
+          <i-tabler name="user"></i-tabler>
+          <span>
+            {{ selectedPatient()!.person.firstName }}
+            {{ selectedPatient()!.person.lastName }}
+          </span>
+        </div>
+        }
         <div class="summary-item">
           <i-tabler name="calendar"></i-tabler>
           <span>{{ getSelectedDayLabel() }}</span>
         </div>
         <div class="summary-item">
           <i-tabler name="clock"></i-tabler>
-          <span
-            >{{ selectedSlot()!.starTime }} -
-            {{ selectedSlot()!.endTime }}</span
-          >
+          <span>
+            {{ formatTime(selectedSlot()!.starTime) }} -
+            {{ formatTime(selectedSlot()!.endTime) }}
+          </span>
         </div>
       </div>
     </div>
@@ -121,16 +182,22 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="gap-2">
-  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-button (click)="onCancel()" [disabled]="isSaving()">
+    Cancelar
+  </button>
   <button
     mat-flat-button
     color="primary"
     (click)="onSave()"
-    [disabled]="!canSave()"
+    [disabled]="!canSave() || isSaving()"
   >
     <div class="flex items-center gap-2">
+      @if (isSaving()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      } @else {
       <i-tabler name="check" class="mr-1"></i-tabler>
-      <span>Guardar</span>
+      }
+      <span>{{ isSaving() ? "Guardando..." : "Guardar" }}</span>
     </div>
   </button>
 </mat-dialog-actions>

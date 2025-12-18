@@ -331,96 +331,103 @@
             <p class="loading-text">Cargando calendario...</p>
           </div>
           } @else {
-          <div class="day-grid">
-            <div class="time-column" #timeColumn>
-              <div class="time-header">
-                <span class="timezone"></span>
-              </div>
-              <div *ngFor="let timeSlot of timeSlots" class="time-slot">
-                <span class="time-label">{{ timeSlot }}</span>
-              </div>
-            </div>
-            <div class="events-column" #eventsColumn>
-              <div class="events-header">
-                <span>Eventos</span>
-                <div class="header-badges">
-                  @if (isDayViewFull()) {
-                  <span class="day-full-badge">
-                    <span class="badge-icon">⛔</span>
-                    <span class="badge-text">Sin turnos disponibles</span>
-                  </span>
-                  } @if (isDayViewLocked()) {
-                  <span class="day-locked-badge">
-                    <span class="badge-icon">🔒</span>
-                    <span class="badge-text">Día bloqueado</span>
-                  </span>
-                  } @if (isDayViewNotAvailable()) {
-                  <span class="day-not-available-badge">
-                    <span class="badge-icon">🚫</span>
-                    <span class="badge-text">{{
-                      getDayViewNotAvailableDescription()
-                    }}</span>
-                  </span>
-                  }
+          <div class="day-view-container">
+            <div class="day-grid">
+              <div class="time-column" #timeColumn>
+                <div class="time-header">
+                  <span class="timezone"></span>
+                </div>
+                <div *ngFor="let timeSlot of timeSlots" class="time-slot">
+                  <span class="time-label">{{ timeSlot }}</span>
                 </div>
               </div>
-              <div class="events-container">
-                <!-- Grid de fondo con líneas horarias -->
-                <div *ngFor="let timeSlot of timeSlots" class="time-row"></div>
+              <div class="events-column" #eventsColumn>
+                <div class="events-header">
+                  <span>Eventos</span>
+                  <div class="header-badges">
+                    @if (isDayViewFull()) {
+                    <span class="day-full-badge">
+                      <span class="badge-icon">⛔</span>
+                      <span class="badge-text">Sin turnos disponibles</span>
+                    </span>
+                    } @if (isDayViewLocked()) {
+                    <span class="day-locked-badge">
+                      <span class="badge-icon">🔒</span>
+                      <span class="badge-text">Día bloqueado</span>
+                    </span>
+                    } @if (isDayViewNotAvailable()) {
+                    <span class="day-not-available-badge">
+                      <span class="badge-icon">🚫</span>
+                      <span class="badge-text">{{
+                        getDayViewNotAvailableDescription()
+                      }}</span>
+                    </span>
+                    }
+                  </div>
+                </div>
+                <div class="events-container">
+                  <!-- Grid de fondo con líneas horarias -->
+                  <div
+                    *ngFor="let timeSlot of timeSlots"
+                    class="time-row"
+                  ></div>
 
-                <!-- Slots dinámicos de la API posicionados absolutamente -->
-                <div
-                  *ngFor="let slot of getDayViewSlots()"
-                  class="api-slot"
-                  [style.top.px]="getSlotPosition(slot.starTime)"
-                  [style.height.px]="getSlotHeight(slot.starTime, slot.endTime)"
-                  [style.background-color]="slot.color"
-                  [class.reserved]="slot.status === 'RESERVED'"
-                  [class.locked]="slot.status === 'LOCKED'"
-                  [class.not-available]="slot.status === 'NOT_AVAILABLE'"
-                >
-                  <div class="slot-content">
-                    @if (slot.status === 'LOCKED' || slot.status ===
-                    'NOT_AVAILABLE') {
-                    <!-- Contenido para slots bloqueados y no disponibles -->
-                    <div class="slot-locked-content">
-                      <div class="locked-info">
+                  <!-- Slots dinámicos de la API posicionados absolutamente -->
+                  <div
+                    *ngFor="let slot of getDayViewSlots()"
+                    class="api-slot"
+                    [style.top.px]="getSlotPosition(slot.starTime)"
+                    [style.height.px]="
+                      getSlotHeight(slot.starTime, slot.endTime)
+                    "
+                    [style.background-color]="slot.color"
+                    [class.reserved]="slot.status === 'RESERVED'"
+                    [class.locked]="slot.status === 'LOCKED'"
+                    [class.not-available]="slot.status === 'NOT_AVAILABLE'"
+                  >
+                    <div class="slot-content">
+                      @if (slot.status === 'LOCKED' || slot.status ===
+                      'NOT_AVAILABLE') {
+                      <!-- Contenido para slots bloqueados y no disponibles -->
+                      <div class="slot-locked-content">
+                        <div class="locked-info">
+                          <span class="slot-time">
+                            {{ slot.starTime?.substring(0, 5) || "00:00" }} -
+                            {{ slot.endTime?.substring(0, 5) || "00:00" }}
+                          </span>
+                          <span class="lock-type">{{
+                            slot.calendarLock.lockType
+                          }}</span>
+                          <span class="lock-observation">
+                            {{
+                              slot.calendarLock?.observation ||
+                                "[Sin observación]"
+                            }}
+                          </span>
+                        </div>
+                      </div>
+                      } @else {
+                      <!-- Contenido para slots reservados -->
+                      <!-- Fila con horario y nombre del paciente -->
+                      <div class="slot-info-row">
                         <span class="slot-time">
                           {{ slot.starTime?.substring(0, 5) || "00:00" }} -
                           {{ slot.endTime?.substring(0, 5) || "00:00" }}
                         </span>
-                        <span class="lock-type">{{
-                          slot.calendarLock.lockType
+                        @if (slot.appointment?.patientName) {
+                        <span class="slot-patient">{{
+                          slot.appointment.patientName
                         }}</span>
-                        <span class="lock-observation">
-                          {{
-                            slot.calendarLock?.observation ||
-                              "[Sin observación]"
-                          }}
-                        </span>
+                        }
                       </div>
-                    </div>
-                    } @else {
-                    <!-- Contenido para slots reservados -->
-                    <!-- Fila con horario y nombre del paciente -->
-                    <div class="slot-info-row">
-                      <span class="slot-time">
-                        {{ slot.starTime?.substring(0, 5) || "00:00" }} -
-                        {{ slot.endTime?.substring(0, 5) || "00:00" }}
-                      </span>
-                      @if (slot.appointment?.patientName) {
-                      <span class="slot-patient">{{
-                        slot.appointment.patientName
-                      }}</span>
-                      }
-                    </div>
 
-                    <!-- Nombre del dentista abajo -->
-                    @if (slot.appointment?.dentistName) {
-                    <span class="slot-dentist">{{
-                      slot.appointment.dentistName
-                    }}</span>
-                    } }
+                      <!-- Nombre del dentista abajo -->
+                      @if (slot.appointment?.dentistName) {
+                      <span class="slot-dentist">{{
+                        slot.appointment.dentistName
+                      }}</span>
+                      } }
+                    </div>
                   </div>
                 </div>
               </div>

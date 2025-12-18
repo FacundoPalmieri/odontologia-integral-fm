@@ -227,16 +227,22 @@
     }
   }
 
+  // Contenedor con scroll
+  .day-view-container {
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+  }
+
   .day-grid {
     display: flex;
-    height: calc(100vh - 200px);
-    overflow: hidden;
+    min-height: 100%;
   }
 
   .time-column {
-    width: 40px;
+    width: 70px;
     border-right: 1px solid var(--mat-sys-outline-variant);
-    overflow: hidden;
     flex-shrink: 0;
     position: relative;
 
@@ -281,7 +287,6 @@
 
   .events-column {
     flex: 1;
-    overflow-y: auto;
     position: relative;
 
     .events-header {
