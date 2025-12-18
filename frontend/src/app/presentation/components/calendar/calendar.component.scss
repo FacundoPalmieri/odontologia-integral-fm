@@ -532,16 +532,23 @@
     }
   }
 
+  // Contenedor con scroll
+  .week-table-container {
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+  }
+
   .week-table {
     width: 100%;
     border-collapse: collapse;
-    height: calc(100vh - 200px);
-    display: block;
-    overflow: hidden;
 
     thead {
-      display: block;
-      border-bottom: 1px solid var(--mat-sys-outline-variant);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--mat-sys-calendar-event-background);
 
       tr {
         display: table;
@@ -551,18 +558,23 @@
     }
 
     tbody {
-      display: block;
-      height: calc(100vh - 260px);
-      overflow-y: auto;
+      tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+      }
     }
 
     .week-header-row {
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
+
       .time-header-cell {
-        width: 80px;
+        width: 70px;
         padding: 12px 8px;
         text-align: center;
         border-right: 1px solid var(--mat-sys-outline-variant);
         vertical-align: middle;
+        background: var(--mat-sys-calendar-event-background);
       }
 
       .day-header-cell {
@@ -654,7 +666,7 @@
       border-bottom: 1px solid var(--mat-sys-outline-variant);
 
       .time-cell {
-        width: 80px;
+        width: 70px;
         padding: 8px 12px;
         font-size: 11px;
         font-weight: 500;

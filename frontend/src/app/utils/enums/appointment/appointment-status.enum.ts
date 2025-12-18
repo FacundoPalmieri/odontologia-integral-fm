@@ -10,6 +10,7 @@ export enum SlotStatusEnum {
   FREE = "FREE",
   RESERVED = "RESERVED",
   LOCKED = "LOCKED",
+  NOT_AVAILABLE = "NOT_AVAILABLE",
 }
 
 export enum CalendarMonthDayStatusEnum {
@@ -17,4 +18,5 @@ export enum CalendarMonthDayStatusEnum {
   HOLIDAY = "HOLIDAY",
   LOCKED = "LOCKED",
   FULL = "FULL",
+  NOT_AVAILABLE = "NOT_AVAILABLE",
 }
