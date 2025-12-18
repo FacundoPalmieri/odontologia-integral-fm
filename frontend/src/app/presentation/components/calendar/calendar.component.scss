@@ -313,7 +313,8 @@
 
       .day-full-badge,
       .day-locked-badge,
-      .day-not-available-badge {
+      .day-not-available-badge,
+      .day-holiday-badge {
         display: inline-flex;
         align-items: center;
         gap: 4px;
@@ -353,6 +354,10 @@
 
       .day-not-available-badge {
         background: #9e9e9e; // Gris para NOT_AVAILABLE
+      }
+
+      .day-holiday-badge {
+        background: #8b5cf6; // Púrpura para feriados
       }
     }
 
@@ -619,6 +624,45 @@
             transition: all 0.2s ease;
             line-height: 1;
             color: var(--mat-sys-on-surface);
+          }
+
+          // Badge para día feriado
+          .week-day-holiday-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            margin-top: 6px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+            background: #8b5cf6; // Púrpura para feriados
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            max-width: 120px;
+
+            .badge-icon {
+              font-size: 12px;
+              line-height: 1;
+              flex-shrink: 0;
+            }
+
+            .badge-text {
+              line-height: 1.2;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+
+            &:hover {
+              transform: translateY(-1px);
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+              max-width: none;
+              white-space: normal;
+            }
           }
 
           // Badge para día completo NO DISPONIBLE

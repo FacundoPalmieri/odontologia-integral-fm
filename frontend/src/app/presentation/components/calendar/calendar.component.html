@@ -345,7 +345,14 @@
                 <div class="events-header">
                   <span>Eventos</span>
                   <div class="header-badges">
-                    @if (isDayViewFull()) {
+                    @if (isDayViewHoliday()) {
+                    <span class="day-holiday-badge">
+                      <span class="badge-icon">🎉</span>
+                      <span class="badge-text">{{
+                        getDayViewHolidayDescription()
+                      }}</span>
+                    </span>
+                    } @if (isDayViewFull()) {
                     <span class="day-full-badge">
                       <span class="badge-icon">⛔</span>
                       <span class="badge-text">Sin turnos disponibles</span>
@@ -459,6 +466,15 @@
                       <span class="day-number">{{
                         getWeekDates()[i].getDate()
                       }}</span>
+                      <!-- Badge para día feriado -->
+                      @if (isWeekDayHoliday(getWeekDates()[i])) {
+                      <div class="week-day-holiday-badge">
+                        <span class="badge-icon">🎉</span>
+                        <span class="badge-text">{{
+                          getWeekDayHolidayDescription(getWeekDates()[i])
+                        }}</span>
+                      </div>
+                      }
                       <!-- Badge para día completo NO DISPONIBLE -->
                       @if (isWeekDayNotAvailable(getWeekDates()[i])) {
                       <div class="week-day-not-available-badge">

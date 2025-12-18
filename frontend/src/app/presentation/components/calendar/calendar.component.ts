@@ -667,6 +667,28 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Check if the current day view is a HOLIDAY
+   */
+  isDayViewHoliday(): boolean {
+    const dayData = this.calendarDayData();
+    return dayData?.calendarDayStatus === ("HOLIDAY" as any);
+  }
+
+  /**
+   * Get description for HOLIDAY day in day view
+   */
+  getDayViewHolidayDescription(): string {
+    // For HOLIDAY days, we need to get the description from the month data
+    // since the day view doesn't contain the holiday description (slots are empty)
+    const monthDay = this.getDayFromBackend(this.selectedDate);
+    if (monthDay?.description) {
+      return monthDay.description;
+    }
+
+    return "Feriado";
+  }
+
+  /**
    * Get slots for the current day view (RESERVED, LOCKED, and NOT_AVAILABLE slots)
    */
   getDayViewSlots() {
@@ -776,6 +798,29 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     }
 
     return null;
+  }
+
+  /**
+   * Check if a day in week view is a HOLIDAY
+   */
+  isWeekDayHoliday(date: Date): boolean {
+    const dayData = this.getWeekDayData(date);
+    // Check if calendarDayStatus is HOLIDAY (full day)
+    return dayData?.calendarDayStatus === ("HOLIDAY" as any);
+  }
+
+  /**
+   * Get description for a day in week view (for HOLIDAY days)
+   */
+  getWeekDayHolidayDescription(date: Date): string | null {
+    // For HOLIDAY days, we need to get the description from the month data
+    // since the week view doesn't contain the holiday description
+    const monthDay = this.getDayFromBackend(date);
+    if (monthDay?.description) {
+      return monthDay.description;
+    }
+
+    return "Feriado";
   }
 
   /**
