@@ -23,6 +23,7 @@ import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatRadioModule } from "@angular/material/radio";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { CreateAppointmentDialogComponent } from "./create-appointment-dialog/create-appointment-dialog.component";
@@ -83,6 +84,7 @@ export interface SpecialtyGroup {
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
+    MatRadioModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule,
@@ -127,6 +129,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   otherCalendarsExpanded = true;
   sidebarCollapsed = false;
 
+  // Propiedades para lista de dentistas en sidebar (todos los roles)
+  sidebarDentists = signal<DentistDtoInterface[]>([]);
+  selectedSidebarDentistId = signal<number | null>(null);
+
   // Propiedades para vista de secretario
   specialtyGroups = signal<SpecialtyGroup[]>([]);
   selectedDentist = signal<DentistDtoInterface | null>(null);
@@ -170,6 +176,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.personId = this.authService.getUserData()?.person.id || 0;
     this.updateSelectedDate();
 
+    // Cargar lista de dentistas para el sidebar (todos los roles)
+    this.loadSidebarDentists();
+
     // Si es secretario, cargar dentistas y mostrar vista de selección
     if (this.authService.isSecretary()) {
       this.sidebarCollapsed = true; // Colapsar sidebar por defecto para secretarios
@@ -177,6 +186,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       this.loadDentists();
     } else {
       // Para administradores y dentistas, cargar el calendario normalmente
+      // Establecer el dentista actual como seleccionado
+      this.selectedSidebarDentistId.set(this.personId);
+
       if (this.currentView === "month") {
         this.loadMonthView();
       }
@@ -1216,5 +1228,62 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   getDentistFullName(dentist: DentistDtoInterface): string {
     return `${dentist.person.firstName} ${dentist.person.lastName}`;
+  }
+
+  // ===== MÉTODOS PARA SIDEBAR DE DENTISTAS (TODOS LOS ROLES) =====
+
+  /**
+   * Carga la lista de dentistas para mostrar en el sidebar
+   */
+  loadSidebarDentists(): void {
+    this.dentistService.getAll().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.sidebarDentists.set(response.data);
+        }
+      },
+      error: (error) => {
+        console.error("Error al cargar dentistas del sidebar:", error);
+      },
+    });
+  }
+
+  /**
+   * Maneja la selección de un dentista desde el sidebar
+   */
+  onSidebarDentistSelect(dentist: DentistDtoInterface): void {
+    // Solo permitir un dentista seleccionado a la vez
+    const currentSelected = this.selectedSidebarDentistId();
+
+    if (currentSelected === dentist.person.id) {
+      // Si ya está seleccionado, no hacer nada
+      return;
+    }
+
+    // Actualizar selección
+    this.selectedSidebarDentistId.set(dentist.person.id);
+    this.personId = dentist.person.id;
+
+    // Limpiar caché y datos anteriores
+    this.monthCache.clear();
+    this.calendarMonthData.set(null);
+    this.calendarWeekData.set(null);
+    this.calendarDayData.set(null);
+
+    // Cargar calendario del dentista seleccionado
+    if (this.currentView === "month") {
+      this.loadMonthView();
+    } else if (this.currentView === "week") {
+      this.loadWeekView();
+    } else if (this.currentView === "day") {
+      this.loadDayView();
+    }
+  }
+
+  /**
+   * Verifica si un dentista está seleccionado en el sidebar
+   */
+  isSidebarDentistSelected(dentistId: number): boolean {
+    return this.selectedSidebarDentistId() === dentistId;
   }
 }

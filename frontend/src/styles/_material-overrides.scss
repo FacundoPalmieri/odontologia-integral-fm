@@ -229,6 +229,75 @@ body {
     }
   }
 
+  .radio-item {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    padding: 0rem 1rem 0rem 0rem;
+    border-radius: var(--mat-sys-corner-medium);
+    cursor: pointer;
+    transition-property: color, background-color, border-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    color: var(--mat-sys-on-surface);
+    background-color: var(--mat-sys-surface-container-low);
+    width: 100%;
+
+    &:hover {
+      background-color: var(--mat-sys-surface-container-high);
+    }
+
+    .mdc-radio {
+      .mdc-radio__ripple {
+        display: none;
+      }
+
+      &:hover .mdc-radio__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+
+      .mdc-radio__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+    }
+
+    &:hover .mdc-radio {
+      .mdc-radio__background {
+        &::before {
+          opacity: 0 !important;
+        }
+      }
+    }
+  }
+
+  // Estilos para el contenedor del radio button (calendar-item, etc.)
+  .radio-container {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+    cursor: pointer;
+    border-radius: var(--mat-sys-corner-medium);
+    transition: background-color 0.2s ease;
+
+    // Hover solo cuando NO está seleccionado
+    &:hover:not(.selected) {
+      background-color: var(--mat-sys-surface-container-low);
+    }
+
+    &.selected {
+      background-color: var(--mat-sys-primary-container);
+
+      .radio-item {
+        color: var(--mat-sys-on-primary-container);
+        font-weight: 600;
+      }
+    }
+  }
+
   // ========================================
   // Estilos personalizados para tabs
   // ========================================

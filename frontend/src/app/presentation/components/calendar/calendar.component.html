@@ -119,32 +119,29 @@
         </div>
         @if (myCalendarsExpanded) {
         <div class="calendar-list">
-          <div class="calendar-item">
-            <mat-checkbox class="checkbox-item" [disableRipple]="true" checked
-              ><span class="calendar-name">Yo</span></mat-checkbox
+          @for (dentist of sidebarDentists(); track dentist.person.id) {
+          <div
+            class="radio-container"
+            (click)="onSidebarDentistSelect(dentist)"
+            [class.selected]="isSidebarDentistSelected(dentist.person.id)"
+          >
+            <mat-radio-button
+              [checked]="isSidebarDentistSelected(dentist.person.id)"
+              [disableRipple]="true"
+              class="radio-item"
             >
+              <span class="calendar-name">{{
+                getDentistFullName(dentist)
+              }}</span>
+            </mat-radio-button>
           </div>
-          <div class="calendar-item">
-            <mat-checkbox class="checkbox-item" [disableRipple]="true"
-              ><span class="calendar-name">Matías Iglesias</span></mat-checkbox
-            >
-          </div>
-          <div class="calendar-item">
-            <mat-checkbox class="checkbox-item" [disableRipple]="true">
-              <span class="calendar-name">Facundo Palmieri</span>
-            </mat-checkbox>
-          </div>
-          <div class="calendar-item">
-            <mat-checkbox class="checkbox-item" [disableRipple]="true">
-              <span class="calendar-name">Emmanuel Quintans</span>
-            </mat-checkbox>
-          </div>
+          }
         </div>
         }
       </div>
 
       <!-- Other Calendars -->
-      <div class="calendars-section">
+      <!-- <div class="calendars-section">
         <div class="section-header" (click)="toggleOtherCalendars()">
           <span>Otros calendarios</span>
           <mat-icon>{{
@@ -160,7 +157,7 @@
           </div>
         </div>
         }
-      </div>
+      </div> -->
       }
     </aside>
 

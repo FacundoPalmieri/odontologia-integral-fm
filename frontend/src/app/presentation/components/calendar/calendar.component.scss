@@ -137,16 +137,10 @@
   }
 
   .calendar-list {
-    .calendar-item {
-      display: flex;
-      align-items: center;
-      padding: 4px 0;
-      cursor: pointer;
-
-      .calendar-name {
-        margin-left: 8px;
-        font-size: 14px;
-      }
+    // Los estilos de radio-container están en _material-overrides.scss
+    .calendar-name {
+      margin-left: 8px;
+      font-size: 14px;
     }
   }
 }
