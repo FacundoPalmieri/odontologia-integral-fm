@@ -238,8 +238,8 @@ public class CalendarService implements ICalendarService {
             days.add(new CalendarGlobalDayDTO(
                     d,
                     detail.calendarDayStatus().toString(),
-                    detail.calendarDayStatus().getDescription(),
-                    detail.calendarDayStatus().getColorHex().toString()
+                    detail.calendarDayStatus().description(),
+                    detail.calendarDayStatus().color()
             ));
         }
 
@@ -446,7 +446,12 @@ public class CalendarService implements ICalendarService {
 
         DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,day);
         if (dentistAvailability == null) {
-            return new CalendarDetailDayResponseDTO(idDentist, day,CalendarDayStatus.NOT_AVAILABLE ,Collections.emptyList());
+            return new CalendarDetailDayResponseDTO(
+                    idDentist,
+                    day,
+                    CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
+                    Collections.emptyList()
+            );
 
         }
 
@@ -476,7 +481,11 @@ public class CalendarService implements ICalendarService {
                 return new CalendarDetailDayResponseDTO(idDentist,day,deriveDayStatus(slots),slots);
 
             }else{
-                return new  CalendarDetailDayResponseDTO(idDentist,day,CalendarDayStatus.HOLIDAY,Collections.emptyList());
+                return new  CalendarDetailDayResponseDTO(
+                        idDentist,
+                        day,
+                        CalendarDayStatusResponseDTO.build(CalendarDayStatus.HOLIDAY),
+                        Collections.emptyList());
             }
         }
 
@@ -520,18 +529,18 @@ public class CalendarService implements ICalendarService {
      * @see CalendarDayStatus Para los estados globales posibles del día.
      */
 
-    private CalendarDayStatus deriveDayStatus(List<SlotResponseDTO> slots) {
+    private CalendarDayStatusResponseDTO deriveDayStatus(List<SlotResponseDTO> slots) {
 
         if (slots.isEmpty()) {
-            return CalendarDayStatus.NOT_AVAILABLE;
+            return CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE);
         }
 
         boolean anyFree   = slots.stream().anyMatch(s -> s.getStatus() == SlotStatus.FREE);
         boolean allLocked = slots.stream().allMatch(s -> s.getStatus() == SlotStatus.LOCKED);
 
-        if (anyFree) return CalendarDayStatus.FREE;
-        if (allLocked) return CalendarDayStatus.LOCKED;
-        return CalendarDayStatus.FULL;
+        if (anyFree)   return   CalendarDayStatusResponseDTO.build(CalendarDayStatus.FREE);
+        if (allLocked) return   CalendarDayStatusResponseDTO.build(CalendarDayStatus.LOCKED);
+        return   CalendarDayStatusResponseDTO.build(CalendarDayStatus.FULL);
     }
 
 

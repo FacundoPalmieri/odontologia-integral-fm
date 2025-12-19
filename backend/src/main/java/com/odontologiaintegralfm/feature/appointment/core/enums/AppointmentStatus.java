@@ -7,7 +7,7 @@ import lombok.Getter;
  */
 @Getter
 public enum AppointmentStatus {
-    RESERVED("Reservado", "#6c757d"),     // gris neutro
+    RESERVED("Reservado", "#4b99d2"),     // celeste
     ATTENDED("Atendido", "#28a745"),     // verde éxito
     NO_SHOW("Ausente", "#dc3545"),       // rojo error
     RESCHEDULED("Reprogramado", "#fd7e14"), //SOLO PARA HISTORIAL
