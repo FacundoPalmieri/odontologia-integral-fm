@@ -14,6 +14,7 @@ import { UserService } from "./user.service";
 import { UserInterface } from "../domain/interfaces/user.interface";
 import { RoleInterface } from "../domain/interfaces/role.interface";
 import { AccessControlService } from "./access-control.service";
+import { RoleEnum } from "../utils/enums/role.enum";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
@@ -137,6 +138,11 @@ export class AuthService {
       return JSON.parse(userData);
     }
     return null;
+  }
+
+  getUserRole(): RoleEnum {
+    const userData = this.getUserData();
+    return userData?.roles[0].name as RoleEnum;
   }
 
   isLoggedIn(): boolean {

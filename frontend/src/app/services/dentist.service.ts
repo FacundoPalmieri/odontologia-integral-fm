@@ -9,13 +9,19 @@ import {
   DentistDayAvailabilityInterface,
 } from "../domain/interfaces/dentist.interface";
 import { DentistAvailabilitySerializer } from "../domain/serializers/dentist-availability.serializer";
-import { DentistAvailabilityDtoInterface } from "../domain/dto/dentist.dto";
+import { DentistDtoInterface } from "../domain/dto/dentist.dto";
 import { DentistHolidayInterface } from "../domain/interfaces/holiday.interface";
 
 @Injectable({ providedIn: "root" })
 export class DentistService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
+
+  getAll(): Observable<ApiResponseInterface<DentistDtoInterface[]>> {
+    return this.http.get<ApiResponseInterface<DentistDtoInterface[]>>(
+      `${this.apiUrl}/dentist/all`
+    );
+  }
 
   getAvailability(
     dentistId: number

@@ -302,6 +302,7 @@
     var(--mat-sys-background),
     rgb(55, 47, 52, 1)
   );
+
   --mat-sys-odontogram-container-background: light-dark(
     rgb(204, 204, 204, 0.3),
     rgb(40, 32, 36, 1)

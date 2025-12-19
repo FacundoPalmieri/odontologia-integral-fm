@@ -14,6 +14,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { CalendarService } from "../../../../services/calendar.service";
 import { PatientService } from "../../../../services/patient.service";
+import { DentistService } from "../../../../services/dentist.service";
 import {
   CalendarDayInterface,
   CalendarWeekInterface,
@@ -23,12 +24,32 @@ import { PatientInterface } from "../../../../domain/interfaces/patient.interfac
 import { PersonInterface } from "../../../../domain/interfaces/person.interface";
 import { SlotStatusEnum } from "../../../../utils/enums/appointment/appointment-status.enum";
 import { CommonModule } from "@angular/common";
-import { debounceTime, distinctUntilChanged, switchMap, map } from "rxjs";
+import {
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  map,
+  forkJoin,
+} from "rxjs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { AppointmentService } from "../../../../services/appointment.service";
 import { AuthService } from "../../../../services/auth.service";
 import { AppointmentInterface } from "../../../../domain/interfaces/appointment.inteface";
 import { RequestSourceEnum } from "../../../../utils/enums/appointment/request-source.enum";
+import { RoleEnum } from "../../../../utils/enums/role.enum";
+import { DentistDtoInterface } from "../../../../domain/dto/dentist.dto";
+
+// Interfaz para agrupar dentistas por especialidad
+interface SpecialtyGroup {
+  specialtyName: string;
+  dentists: DentistDtoInterface[];
+}
+
+// Interfaz para rastrear disponibilidad de dentistas
+interface DentistAvailability {
+  dentist: DentistDtoInterface;
+  weekData: CalendarWeekInterface | null;
+}
 
 export interface CreateAppointmentDialogData {
   idDentist?: number; // Si existe, es un dentista creando su propio turno
@@ -61,6 +82,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
   private readonly patientService = inject(PatientService);
   private readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
+  private readonly dentistService = inject(DentistService);
 
   // Data recibida del diálogo
   idDentist?: number;
@@ -86,6 +108,19 @@ export class CreateAppointmentDialogComponent implements OnInit {
   selectedPatient = signal<PatientInterface | null>(null);
   allPatients: PatientInterface[] = [];
 
+  // ===== PROPIEDADES PARA VISTA DE SECRETARIO/ADMINISTRADOR =====
+  // Especialidades agrupadas
+  specialtyGroups = signal<SpecialtyGroup[]>([]);
+  selectedSpecialty = signal<string | null>(null);
+
+  // Disponibilidad de dentistas por especialidad
+  dentistAvailabilities = signal<DentistAvailability[]>([]);
+  isLoadingDentistWeeks = signal(false);
+
+  // Dentista seleccionado
+  selectedDentist = signal<DentistDtoInterface | null>(null);
+  availableDentistsForDay = signal<DentistDtoInterface[]>([]);
+
   // Nombres de días en español
   private dayNames = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
   private dayNamesComplete = [
@@ -105,6 +140,9 @@ export class CreateAppointmentDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Obtener el rol del usuario
+    const userRole = this.authService.getUserRole();
+
     // Cargar todos los pacientes
     this.loadPatients();
 
@@ -115,9 +153,27 @@ export class CreateAppointmentDialogComponent implements OnInit {
         this.filterPatients(searchTerm || "");
       });
 
-    if (this.idDentist) {
-      // Si hay idDentist, cargar la semana actual
-      this.loadWeek(new Date());
+    if (userRole === RoleEnum.DENTIST) {
+      // Si es dentista, cargar la semana actual
+      if (this.idDentist) {
+        this.loadWeek(new Date());
+      }
+    } else if (
+      userRole === RoleEnum.SECRETARY ||
+      userRole === RoleEnum.ADMINISTRATOR
+    ) {
+      // Si es secretaria o administrador, cargar todos los dentistas
+      this.dentistService.getAll().subscribe({
+        next: (response) => {
+          if (response.data) {
+            // Agrupar dentistas por especialidad
+            this.groupDentistsBySpecialty(response.data);
+          }
+        },
+        error: (error) => {
+          console.error("Error al cargar dentistas:", error);
+        },
+      });
     }
   }
 
@@ -281,9 +337,14 @@ export class CreateAppointmentDialogComponent implements OnInit {
   }
 
   /**
-   * Verifica si un día está disponible (tiene al menos un slot FREE)
+   * Verifica si un día está disponible (tiene al menos un slot FREE y es hoy o futuro)
    */
   isDayAvailable(day: CalendarDayInterface): boolean {
+    // Verificar que el día sea hoy o futuro
+    if (!this.isDateTodayOrFuture(day.day)) {
+      return false;
+    }
+
     return day.slots.some((slot) => slot.status === SlotStatusEnum.FREE);
   }
 
@@ -318,6 +379,19 @@ export class CreateAppointmentDialogComponent implements OnInit {
       d1.getMonth() === d2.getMonth() &&
       d1.getDate() === d2.getDate()
     );
+  }
+
+  /**
+   * Verifica si una fecha es hoy o futura (no permite fechas pasadas)
+   */
+  private isDateTodayOrFuture(date: Date): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Resetear horas para comparar solo la fecha
+
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+
+    return checkDate >= today;
   }
 
   /**
@@ -405,49 +479,95 @@ export class CreateAppointmentDialogComponent implements OnInit {
   onSave(): void {
     if (!this.canSave() || this.isSaving()) return;
 
-    const userData = this.authService.getUserData();
-    if (!userData || !userData.person) {
-      console.error("No se pudo obtener la información del usuario");
-      return;
-    }
+    let dentistPerson: PersonInterface;
 
-    // Convertir PersonDtoInterface a PersonInterface
-    const dentistPerson: PersonInterface = {
-      id: userData.person.id,
-      firstName: userData.person.firstName,
-      lastName: userData.person.lastName,
-      dniType: { id: 0, dni: userData.person.dniType },
-      dni: userData.person.dni,
-      birthDate: userData.person.birthDate,
-      gender: {
-        id: 0,
-        alias: userData.person.gender,
-        name: userData.person.gender,
-      },
-      nationality: { id: 0, name: userData.person.nationality }, // Simplificado
-      contactEmails: userData.person.contactEmails.join(", "), // Convertir array a string
-      phoneType: {
-        id: 0,
-        name: userData.person.contactPhone[0]?.typePhone || "",
-      },
-      phone: userData.person.contactPhone[0]?.phone || "",
-      country: {
-        id: userData.person.address.countryId,
-        name: userData.person.address.country,
-      },
-      province: {
-        id: userData.person.address.provinceId,
-        name: userData.person.address.province,
-      },
-      locality: {
-        id: userData.person.address.localityId,
-        name: userData.person.address.locality,
-      },
-      street: userData.person.address.street,
-      number: userData.person.address.number,
-      floor: userData.person.address.floor,
-      apartment: userData.person.address.apartment,
-    };
+    // Determinar de dónde obtener los datos del dentista
+    const selectedDentist = this.selectedDentist();
+
+    if (selectedDentist) {
+      // Vista de secretario/administrador: usar el dentista seleccionado
+      const dentistDto = selectedDentist.person;
+      dentistPerson = {
+        id: dentistDto.id,
+        firstName: dentistDto.firstName,
+        lastName: dentistDto.lastName,
+        dniType: { id: 0, dni: dentistDto.dniType },
+        dni: dentistDto.dni,
+        birthDate: dentistDto.birthDate,
+        gender: {
+          id: 0,
+          alias: dentistDto.gender,
+          name: dentistDto.gender,
+        },
+        nationality: { id: 0, name: dentistDto.nationality },
+        contactEmails: dentistDto.contactEmails.join(", "),
+        phoneType: {
+          id: 0,
+          name: dentistDto.contactPhone[0]?.typePhone || "",
+        },
+        phone: dentistDto.contactPhone[0]?.phone || "",
+        country: {
+          id: dentistDto.address.countryId,
+          name: dentistDto.address.country,
+        },
+        province: {
+          id: dentistDto.address.provinceId,
+          name: dentistDto.address.province,
+        },
+        locality: {
+          id: dentistDto.address.localityId,
+          name: dentistDto.address.locality,
+        },
+        street: dentistDto.address.street,
+        number: dentistDto.address.number,
+        floor: dentistDto.address.floor,
+        apartment: dentistDto.address.apartment,
+      };
+    } else {
+      // Vista de dentista: usar los datos del usuario logueado
+      const userData = this.authService.getUserData();
+      if (!userData || !userData.person) {
+        console.error("No se pudo obtener la información del usuario");
+        return;
+      }
+
+      dentistPerson = {
+        id: userData.person.id,
+        firstName: userData.person.firstName,
+        lastName: userData.person.lastName,
+        dniType: { id: 0, dni: userData.person.dniType },
+        dni: userData.person.dni,
+        birthDate: userData.person.birthDate,
+        gender: {
+          id: 0,
+          alias: userData.person.gender,
+          name: userData.person.gender,
+        },
+        nationality: { id: 0, name: userData.person.nationality },
+        contactEmails: userData.person.contactEmails.join(", "),
+        phoneType: {
+          id: 0,
+          name: userData.person.contactPhone[0]?.typePhone || "",
+        },
+        phone: userData.person.contactPhone[0]?.phone || "",
+        country: {
+          id: userData.person.address.countryId,
+          name: userData.person.address.country,
+        },
+        province: {
+          id: userData.person.address.provinceId,
+          name: userData.person.address.province,
+        },
+        locality: {
+          id: userData.person.address.localityId,
+          name: userData.person.address.locality,
+        },
+        street: userData.person.address.street,
+        number: userData.person.address.number,
+        floor: userData.person.address.floor,
+        apartment: userData.person.address.apartment,
+      };
+    }
 
     // Construir el objeto AppointmentInterface
     const dateTime = this.buildDateTime(
@@ -459,7 +579,9 @@ export class CreateAppointmentDialogComponent implements OnInit {
       patient: this.selectedPatient()!,
       dentist: dentistPerson,
       dateTime: dateTime,
-      requestSource: RequestSourceEnum.DENTIST,
+      requestSource: selectedDentist
+        ? RequestSourceEnum.SECRETARY
+        : RequestSourceEnum.DENTIST,
     };
 
     // Crear el appointment
@@ -467,7 +589,6 @@ export class CreateAppointmentDialogComponent implements OnInit {
     this.appointmentService.create(appointment).subscribe({
       next: (response) => {
         this.isSaving.set(false);
-        console.log("Appointment creado exitosamente:", response);
         this.dialogRef.close({
           success: true,
           data: response.data,
@@ -475,7 +596,6 @@ export class CreateAppointmentDialogComponent implements OnInit {
       },
       error: (error) => {
         this.isSaving.set(false);
-        console.error("Error al crear el appointment:", error);
         // Aquí podrías mostrar un mensaje de error al usuario
         this.dialogRef.close({
           success: false,
@@ -504,5 +624,262 @@ export class CreateAppointmentDialogComponent implements OnInit {
     const dateTime = new Date(year, month, dayOfMonth, hours, minutes, 0, 0);
 
     return dateTime;
+  }
+
+  // ===== MÉTODOS PARA VISTA DE SECRETARIO/ADMINISTRADOR =====
+
+  /**
+   * Agrupa los dentistas por especialidad
+   */
+  private groupDentistsBySpecialty(dentists: DentistDtoInterface[]): void {
+    const groupMap = new Map<string, DentistDtoInterface[]>();
+
+    dentists.forEach((dentist) => {
+      // Manejar tanto string como objeto para dentistSpecialty
+      let specialty =
+        typeof dentist.dentistSpecialty === "string"
+          ? dentist.dentistSpecialty
+          : (dentist.dentistSpecialty as any)?.name || "Sin especialidad";
+
+      // Limpiar comillas del string si existen
+      specialty = specialty.replace(/^["']|["']$/g, "").trim();
+
+      if (!groupMap.has(specialty)) {
+        groupMap.set(specialty, []);
+      }
+      groupMap.get(specialty)!.push(dentist);
+    });
+
+    const groups: SpecialtyGroup[] = Array.from(groupMap.entries()).map(
+      ([specialtyName, dentists]) => ({
+        specialtyName,
+        dentists,
+      })
+    );
+
+    this.specialtyGroups.set(groups);
+  }
+
+  /**
+   * Maneja la selección de una especialidad
+   */
+  onSpecialtySelected(specialty: string): void {
+    this.selectedSpecialty.set(specialty);
+    this.selectedDay.set(null);
+    this.selectedSlot.set(null);
+    this.selectedDentist.set(null);
+    this.availableDentistsForDay.set([]);
+
+    // Obtener dentistas de la especialidad seleccionada
+    const group = this.specialtyGroups().find(
+      (g) => g.specialtyName === specialty
+    );
+
+    if (group) {
+      // Cargar las semanas de todos los dentistas de esta especialidad
+      this.loadDentistWeeks(group.dentists);
+    }
+  }
+
+  /**
+   * Carga las semanas de todos los dentistas de una especialidad
+   */
+  private loadDentistWeeks(dentists: DentistDtoInterface[]): void {
+    this.isLoadingDentistWeeks.set(true);
+    this.updateMonthYearLabel(new Date());
+
+    // Crear un array de observables para cargar todas las semanas en paralelo
+    const weekRequests = dentists.map((dentist) =>
+      this.calendarService.getWeek(dentist.person.id, new Date()).pipe(
+        map((response) => ({
+          dentist,
+          weekData: response.data || null,
+        }))
+      )
+    );
+
+    // Ejecutar todas las peticiones en paralelo
+    forkJoin(weekRequests).subscribe({
+      next: (availabilities: DentistAvailability[]) => {
+        this.dentistAvailabilities.set(availabilities);
+
+        // Construir los días de la semana combinando todos los dentistas
+        this.buildCombinedWeekDays(availabilities);
+
+        this.isLoadingDentistWeeks.set(false);
+      },
+      error: (error) => {
+        console.error("Error al cargar semanas de dentistas:", error);
+        this.isLoadingDentistWeeks.set(false);
+      },
+    });
+  }
+
+  /**
+   * Construye los días de la semana combinando la disponibilidad de todos los dentistas
+   */
+  private buildCombinedWeekDays(availabilities: DentistAvailability[]): void {
+    if (availabilities.length === 0) {
+      this.weekDays.set([]);
+      return;
+    }
+
+    // Usar los días del primer dentista como base
+    const firstWeek = availabilities[0].weekData;
+    if (!firstWeek || !firstWeek.days) {
+      this.weekDays.set([]);
+      return;
+    }
+
+    // Los días ya vienen del backend, solo necesitamos marcarlos
+    this.weekDays.set(firstWeek.days);
+
+    // Seleccionar automáticamente el primer día disponible
+    this.selectFirstAvailableDayForSecretary();
+  }
+
+  /**
+   * Verifica si un día tiene al menos un dentista con slots FREE y es hoy o futuro
+   */
+  isDayAvailableForSecretary(day: CalendarDayInterface): boolean {
+    // Verificar que el día sea hoy o futuro
+    if (!this.isDateTodayOrFuture(day.day)) {
+      return false;
+    }
+
+    const availabilities = this.dentistAvailabilities();
+
+    // Buscar si algún dentista tiene slots FREE en este día
+    return availabilities.some((availability) => {
+      if (!availability.weekData) return false;
+
+      const dentistDay = availability.weekData.days.find((d) =>
+        this.isSameDay(d.day, day.day)
+      );
+
+      if (!dentistDay) return false;
+
+      return dentistDay.slots.some(
+        (slot) => slot.status === SlotStatusEnum.FREE
+      );
+    });
+  }
+
+  /**
+   * Selecciona un día en la vista de secretario
+   */
+  selectDayForSecretary(day: CalendarDayInterface): void {
+    if (!this.isDayAvailableForSecretary(day)) return;
+
+    this.selectedDay.set(day);
+    this.selectedSlot.set(null);
+    this.selectedDentist.set(null);
+
+    // Filtrar dentistas disponibles para este día
+    this.filterAvailableDentistsForDay(day);
+  }
+
+  /**
+   * Filtra los dentistas que tienen slots FREE en el día seleccionado
+   */
+  private filterAvailableDentistsForDay(day: CalendarDayInterface): void {
+    const availabilities = this.dentistAvailabilities();
+    const availableDentists: DentistDtoInterface[] = [];
+
+    availabilities.forEach((availability) => {
+      if (!availability.weekData) return;
+
+      const dentistDay = availability.weekData.days.find((d) =>
+        this.isSameDay(d.day, day.day)
+      );
+
+      if (!dentistDay) return;
+
+      const hasFreeSlots = dentistDay.slots.some(
+        (slot) => slot.status === SlotStatusEnum.FREE
+      );
+
+      if (hasFreeSlots) {
+        availableDentists.push(availability.dentist);
+      }
+    });
+
+    this.availableDentistsForDay.set(availableDentists);
+  }
+
+  /**
+   * Maneja la selección de un dentista
+   */
+  onDentistSelected(dentist: DentistDtoInterface): void {
+    this.selectedDentist.set(dentist);
+    this.selectedSlot.set(null);
+
+    // Cargar los slots del dentista para el día seleccionado
+    const day = this.selectedDay();
+    if (day) {
+      this.loadSlotsForDentistAndDay(dentist, day);
+    }
+  }
+
+  /**
+   * Carga los slots FREE de un dentista específico para un día específico
+   */
+  private loadSlotsForDentistAndDay(
+    dentist: DentistDtoInterface,
+    day: CalendarDayInterface
+  ): void {
+    const availability = this.dentistAvailabilities().find(
+      (a) => a.dentist.person.id === dentist.person.id
+    );
+
+    if (!availability || !availability.weekData) {
+      this.availableSlots.set([]);
+      return;
+    }
+
+    const dentistDay = availability.weekData.days.find((d) =>
+      this.isSameDay(d.day, day.day)
+    );
+
+    if (!dentistDay) {
+      this.availableSlots.set([]);
+      return;
+    }
+
+    const freeSlots = dentistDay.slots.filter(
+      (slot) => slot.status === SlotStatusEnum.FREE
+    );
+
+    this.availableSlots.set(freeSlots);
+  }
+
+  /**
+   * Selecciona automáticamente el primer día disponible (para secretario)
+   */
+  private selectFirstAvailableDayForSecretary(): void {
+    const days = this.weekDays();
+    const firstAvailableDay = days.find((day) =>
+      this.isDayAvailableForSecretary(day)
+    );
+
+    if (firstAvailableDay) {
+      this.selectDayForSecretary(firstAvailableDay);
+    }
+  }
+
+  /**
+   * Obtiene el nombre completo de un dentista
+   */
+  getDentistFullName(dentist: DentistDtoInterface): string {
+    return `${dentist.person.firstName} ${dentist.person.lastName}`;
+  }
+
+  /**
+   * Verifica si un dentista está seleccionado
+   */
+  isSelectedDentist(dentist: DentistDtoInterface): boolean {
+    const selected = this.selectedDentist();
+    if (!selected) return false;
+    return selected.person.id === dentist.person.id;
   }
 }

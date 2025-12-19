@@ -1,0 +1,5 @@
+export enum RoleEnum {
+  DENTIST = "DENTIST",
+  ADMINISTRATOR = "ADMINISTRATOR",
+  SECRETARY = "SECRETARY",
+}

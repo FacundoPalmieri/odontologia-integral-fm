@@ -38,7 +38,10 @@ import {
   CalendarDayInterface,
 } from "../../../domain/interfaces/calendar.interface";
 import { CalendarMonthDayStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
+import { RoleEnum } from "../../../utils/enums/role.enum";
 import { forkJoin } from "rxjs";
+import { SnackbarService } from "../../../services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 
 export interface CalendarEvent {
   id: string;
@@ -82,6 +85,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly calendarService = inject(CalendarService);
+  private readonly snackbarService = inject(SnackbarService);
 
   dialog = inject(MatDialog);
   loading$ = this.loaderService.loading$;
@@ -1026,22 +1030,47 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   createAppointment() {
+    // Obtener el rol del usuario para determinar qué datos pasar
+    const userRole = this.authService.getUserRole();
+
     const dialogRef = this.dialog.open(CreateAppointmentDialogComponent, {
       width: "800px",
       maxWidth: "90vw",
       data: {
-        idDentist: this.personId, // Pasar el ID del dentista logueado
+        // Solo pasar idDentist si el usuario es DENTIST
+        idDentist: userRole === RoleEnum.DENTIST ? this.personId : undefined,
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        // Aquí se manejará la creación del turno con el día y slot seleccionados
-        console.log("Turno a crear:", result);
-        // TODO: Llamar al servicio de appointments para crear el turno
-        // this.appointmentService.create(result);
+      if (result && result.success) {
+        this.snackbarService.openSnackbar(
+          "Turno creado exitosamente",
+          6000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Success
+        );
+        this.refreshCurrentView();
       }
     });
+  }
+
+  /**
+   * Refresca la vista actual del calendario
+   */
+  private refreshCurrentView(): void {
+    switch (this.currentView) {
+      case "month":
+        this.loadMonthView();
+        break;
+      case "week":
+        this.loadWeekView();
+        break;
+      case "day":
+        this.loadDayView();
+        break;
+    }
   }
 
   goToAvailability() {
