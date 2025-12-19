@@ -23,7 +23,7 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("api/appointment")
+@RequestMapping("/api/appointment")
 public class AppointmentController {
 
     @Autowired
