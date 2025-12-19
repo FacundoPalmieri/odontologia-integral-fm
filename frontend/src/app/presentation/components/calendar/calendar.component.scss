@@ -1,3 +1,5 @@
+@import "./calendar-dentist-selection.scss";
+
 * {
   box-sizing: border-box;
 }
@@ -118,19 +120,19 @@
 
 // Calendars Section
 .calendars-section {
-  margin-bottom: 24px;
-
   .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 0;
-    font-size: 14px;
+    padding: 0.75rem;
     font-weight: 500;
     cursor: pointer;
+    background-color: var(--mat-sys-surface-container-low);
+    border-radius: var(--mat-sys-corner-extra-large);
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
-    mat-icon {
-      font-size: 18px;
+    &:hover {
+      background-color: var(--mat-sys-surface-container-high);
     }
   }
 
@@ -143,7 +145,7 @@
 
       .calendar-name {
         margin-left: 8px;
-        font-size: 13px;
+        font-size: 14px;
       }
     }
   }

@@ -72,7 +72,7 @@ export class UsersListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   users = signal<UserDtoInterface[]>([]);
 
-  usersPageSize = signal(5);
+  usersPageSize = signal(10);
   usersPageIndex = signal(0);
   usersSortBy = signal("username");
   usersSortDirection = signal("asc");
@@ -219,9 +219,10 @@ export class UsersListComponent implements OnInit, OnDestroy, AfterViewInit {
                       user.avatarUrl = avatar;
                     } else {
                       const gender = user.person?.gender?.toLowerCase();
-                      user.avatarUrl = gender === "femenino" 
-                        ? "img/women-avatar.png" 
-                        : "img/men-avatar.png";
+                      user.avatarUrl =
+                        gender === "femenino"
+                          ? "img/women-avatar.png"
+                          : "img/men-avatar.png";
                     }
                     this.users.set([...this.users()]);
                   });

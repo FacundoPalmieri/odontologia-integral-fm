@@ -24,13 +24,7 @@ import { PatientInterface } from "../../../../domain/interfaces/patient.interfac
 import { PersonInterface } from "../../../../domain/interfaces/person.interface";
 import { SlotStatusEnum } from "../../../../utils/enums/appointment/appointment-status.enum";
 import { CommonModule } from "@angular/common";
-import {
-  debounceTime,
-  distinctUntilChanged,
-  switchMap,
-  map,
-  forkJoin,
-} from "rxjs";
+import { debounceTime, distinctUntilChanged, map, forkJoin } from "rxjs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { AppointmentService } from "../../../../services/appointment.service";
 import { AuthService } from "../../../../services/auth.service";

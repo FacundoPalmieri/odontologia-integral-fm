@@ -124,6 +124,9 @@ export class AuthService {
     localStorage.removeItem("userData");
   }
 
+  /**
+   * Obtiene el token jwt
+   */
   getJwtToken(): string | null {
     const userData = localStorage.getItem("userData");
     if (userData) {
@@ -132,6 +135,9 @@ export class AuthService {
     return null;
   }
 
+  /**
+   * Obtiene los datos del usuario
+   */
   getUserData(): UserDataInterface | null {
     const userData = localStorage.getItem("userData");
     if (userData) {
@@ -140,11 +146,53 @@ export class AuthService {
     return null;
   }
 
+  /**
+   * Obtiene el rol del usuario
+   */
   getUserRole(): RoleEnum {
     const userData = this.getUserData();
     return userData?.roles[0].name as RoleEnum;
   }
 
+  /**
+   * Verifica si el usuario tiene un rol específico
+   */
+  hasRole(role: RoleEnum): boolean {
+    const userRole = this.getUserRole();
+    return userRole === role;
+  }
+
+  /**
+   * Verifica si el usuario es dentista
+   */
+  isDentist(): boolean {
+    return this.hasRole(RoleEnum.DENTIST);
+  }
+
+  /**
+   * Verifica si el usuario es secretario
+   */
+  isSecretary(): boolean {
+    return this.hasRole(RoleEnum.SECRETARY);
+  }
+
+  /**
+   * Verifica si el usuario es administrador
+   */
+  isAdministrator(): boolean {
+    return this.hasRole(RoleEnum.ADMINISTRATOR);
+  }
+
+  /**
+   * Verifica si el usuario es secretario o administrador
+   */
+  isSecretaryOrAdmin(): boolean {
+    return this.isSecretary() || this.isAdministrator();
+  }
+
+  /**
+   * Verifica si el usuario está logueado
+   */
   isLoggedIn(): boolean {
     const token = this.getJwtToken();
 
@@ -156,6 +204,9 @@ export class AuthService {
     return !this.isTokenExpired(payload.exp);
   }
 
+  /**
+   * Obtiene los datos de logout
+   */
   getLogoutData(): LogoutInterface | null {
     const userData = this.getUserData();
     if (userData != null) {
@@ -171,6 +222,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Obtiene el payload del token
+   */
   private getJWTokenPayload(token: string) {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -180,6 +234,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Verifica si el token ha expirado
+   */
   private isTokenExpired(expiration: number): boolean {
     if (!expiration) {
       return true;

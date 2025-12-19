@@ -42,6 +42,8 @@ import { RoleEnum } from "../../../utils/enums/role.enum";
 import { forkJoin } from "rxjs";
 import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
+import { DentistService } from "../../../services/dentist.service";
+import { DentistDtoInterface } from "../../../domain/dto/dentist.dto";
 
 export interface CalendarEvent {
   id: string;
@@ -53,6 +55,12 @@ export interface CalendarEvent {
 }
 
 export type CalendarView = "day" | "week" | "month";
+
+// Interfaz para agrupar dentistas por especialidad
+export interface SpecialtyGroup {
+  specialtyName: string;
+  dentists: DentistDtoInterface[];
+}
 
 @Component({
   selector: "app-calendar",
@@ -82,10 +90,11 @@ export type CalendarView = "day" | "week" | "month";
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly loaderService = inject(LoaderService);
-  private readonly authService = inject(AuthService);
+  readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly calendarService = inject(CalendarService);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly dentistService = inject(DentistService);
 
   dialog = inject(MatDialog);
   loading$ = this.loaderService.loading$;
@@ -117,6 +126,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   myCalendarsExpanded = true;
   otherCalendarsExpanded = true;
   sidebarCollapsed = false;
+
+  // Propiedades para vista de secretario
+  specialtyGroups = signal<SpecialtyGroup[]>([]);
+  selectedDentist = signal<DentistDtoInterface | null>(null);
+  isLoadingDentists = signal<boolean>(false);
+  showDentistSelection = signal<boolean>(false);
 
   // Configuración de horarios de trabajo
   workStartHour = 0; // 12:00 AM (medianoche)
@@ -155,9 +170,16 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.personId = this.authService.getUserData()?.person.id || 0;
     this.updateSelectedDate();
 
-    // Load month view data on initialization
-    if (this.currentView === "month") {
-      this.loadMonthView();
+    // Si es secretario, cargar dentistas y mostrar vista de selección
+    if (this.authService.isSecretary()) {
+      this.sidebarCollapsed = true; // Colapsar sidebar por defecto para secretarios
+      this.showDentistSelection.set(true);
+      this.loadDentists();
+    } else {
+      // Para administradores y dentistas, cargar el calendario normalmente
+      if (this.currentView === "month") {
+        this.loadMonthView();
+      }
     }
   }
 
@@ -1091,5 +1113,108 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         personId: this.personId,
       },
     });
+  }
+
+  // ===== MÉTODOS PARA VISTA DE SECRETARIO =====
+
+  /**
+   * Carga todos los dentistas y los agrupa por especialidad
+   */
+  loadDentists(): void {
+    this.isLoadingDentists.set(true);
+
+    this.dentistService.getAll().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.groupDentistsBySpecialty(response.data);
+        }
+        this.isLoadingDentists.set(false);
+      },
+      error: (error) => {
+        console.error("Error al cargar dentistas:", error);
+        this.snackbarService.openSnackbar(
+          "Error al cargar la lista de dentistas",
+          6000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Error
+        );
+        this.isLoadingDentists.set(false);
+      },
+    });
+  }
+
+  /**
+   * Agrupa los dentistas por especialidad
+   */
+  private groupDentistsBySpecialty(dentists: DentistDtoInterface[]): void {
+    const groupMap = new Map<string, DentistDtoInterface[]>();
+
+    dentists.forEach((dentist) => {
+      // Manejar tanto string como objeto para dentistSpecialty
+      let specialty =
+        typeof dentist.dentistSpecialty === "string"
+          ? dentist.dentistSpecialty
+          : (dentist.dentistSpecialty as any)?.name || "Sin especialidad";
+
+      // Limpiar comillas del string si existen
+      specialty = specialty.replace(/^[\"']|[\"']$/g, "").trim();
+
+      if (!groupMap.has(specialty)) {
+        groupMap.set(specialty, []);
+      }
+      groupMap.get(specialty)!.push(dentist);
+    });
+
+    const groups: SpecialtyGroup[] = Array.from(groupMap.entries()).map(
+      ([specialtyName, dentists]) => ({
+        specialtyName,
+        dentists,
+      })
+    );
+
+    this.specialtyGroups.set(groups);
+  }
+
+  /**
+   * Maneja la selección de un dentista
+   */
+  onDentistSelect(dentist: DentistDtoInterface): void {
+    this.selectedDentist.set(dentist);
+    this.personId = dentist.person.id;
+    this.showDentistSelection.set(false);
+
+    // Cargar el calendario del dentista seleccionado
+    if (this.currentView === "month") {
+      this.loadMonthView();
+    } else if (this.currentView === "week") {
+      this.loadWeekView();
+    } else if (this.currentView === "day") {
+      this.loadDayView();
+    }
+  }
+
+  /**
+   * Vuelve a la vista de selección de dentistas
+   */
+  backToDentistSelection(): void {
+    this.showDentistSelection.set(true);
+    this.selectedDentist.set(null);
+    this.personId = 0;
+
+    // Limpiar datos del calendario
+    this.calendarMonthData.set(null);
+    this.calendarWeekData.set(null);
+    this.calendarDayData.set(null);
+
+    // Limpiar el caché de meses para evitar mostrar datos del dentista anterior
+    this.monthCache.clear();
+  }
+
+  /**
+   * Obtiene el nombre completo de un dentista
+   */
+  getDentistFullName(dentist: DentistDtoInterface): string {
+    return `${dentist.person.firstName} ${dentist.person.lastName}`;
   }
 }

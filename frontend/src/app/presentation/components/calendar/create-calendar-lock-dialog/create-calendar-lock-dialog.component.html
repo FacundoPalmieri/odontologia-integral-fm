@@ -1,5 +1,7 @@
-<h2 mat-dialog-title>Bloquear agenda</h2>
-
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler name="cancel" class="text-[var(--mat-sys-primary)]"></i-tabler>
+  <span>Bloquear agenda</span>
+</h2>
 <mat-dialog-content class="w-full">
   <div
     [formGroup]="eventForm"
@@ -182,7 +184,6 @@
   <button mat-button (click)="onCancel()">Cancelar</button>
   <button mat-flat-button (click)="save()" [disabled]="eventForm.invalid">
     <div class="flex items-center gap-2">
-      <i-tabler name="check" class="mr-1"></i-tabler>
       <span>Bloquear</span>
     </div>
   </button>

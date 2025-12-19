@@ -7,11 +7,11 @@
 </h2>
 
 <mat-dialog-content class="dialog-content">
-  <!-- VISTA PARA DENTISTA (cuando hay idDentist) -->
+  <!-- VISTA PARA DENTISTA -->
   @if (idDentist) {
   <div class="dentist-view">
     <!-- Buscador de Pacientes -->
-    <mat-form-field appearance="outline" class="patient-search-field mt-2">
+    <mat-form-field appearance="outline" class="patient-search-field">
       <mat-label>Buscar paciente</mat-label>
       <input
         type="text"
@@ -172,7 +172,7 @@
   </div>
   }
 
-  <!-- VISTA PARA SECRETARIO/ADMINISTRADOR/OTROS (cuando NO hay idDentist) -->
+  <!-- VISTA PARA SECRETARIO/ADMINISTRADOR/OTROS -->
   @if (!idDentist) {
   <div class="secretary-view">
     <!-- Buscador de Pacientes -->
@@ -405,8 +405,6 @@
     <div class="flex items-center gap-2">
       @if (isSaving()) {
       <mat-spinner diameter="20"></mat-spinner>
-      } @else {
-      <i-tabler name="check" class="mr-1"></i-tabler>
       }
       <span>{{ isSaving() ? "Guardando..." : "Agendar" }}</span>
     </div>

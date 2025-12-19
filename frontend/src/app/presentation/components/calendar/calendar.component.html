@@ -3,7 +3,8 @@
   <div class="calendar">
     <!-- Sidebar -->
     <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
-      <!-- Create Event Menu -->
+      <!-- Create Event Menu - Administrador y Dentista -->
+      @if (authService.isAdministrator() || authService.isDentist()) {
       <button
         mat-fab
         extended
@@ -32,8 +33,27 @@
           </div>
         </button>
       </mat-menu>
+      }
 
-      <!-- Disponibilidad laboral -->
+      <!-- Botón simple para Secretario -->
+      @if (authService.isSecretary()) {
+      <button
+        mat-fab
+        extended
+        class="!w-full !mb-4"
+        (click)="createAppointment()"
+      >
+        <div class="flex items-center gap-2">
+          <i-tabler name="calendar-plus"></i-tabler>
+          @if (!sidebarCollapsed) {
+          <span>Crear cita</span>
+          }
+        </div>
+      </button>
+      }
+
+      <!-- Disponibilidad laboral - Solo para Administrador y Dentista -->
+      @if (authService.isAdministrator() || authService.isDentist()) {
       <div class="flex justify-center !mb-4">
         <button
           mat-stroked-button
@@ -46,8 +66,7 @@
           </div>
         </button>
       </div>
-
-      @if (!sidebarCollapsed) {
+      } @if (!sidebarCollapsed) {
       <!-- Mini Calendar -->
       <div class="mini-calendar mb-4">
         <div class="mini-calendar-header">
@@ -88,15 +107,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Search -->
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Buscar personas</mat-label>
-          <input matInput />
-          <mat-icon matSuffix>person</mat-icon>
-        </mat-form-field>
       </div>
 
       <!-- My Calendars -->
@@ -156,6 +166,28 @@
 
     <!-- Main Content -->
     <main class="main-content">
+      <!-- Barra superior para dentista seleccionado (solo secretarios) -->
+      @if (authService.isSecretary() && selectedDentist()) {
+      <div class="dentist-selection-bar">
+        <button
+          mat-button
+          (click)="backToDentistSelection()"
+          class="back-to-selection-btn"
+        >
+          <div class="flex items-center gap-2">
+            <i-tabler name="arrow-left"></i-tabler>
+            <span>Cambiar profesional</span>
+          </div>
+        </button>
+        <div class="selected-dentist-info">
+          <i-tabler name="user-check" class="dentist-icon"></i-tabler>
+          <span class="dentist-name">{{
+            getDentistFullName(selectedDentist()!)
+          }}</span>
+        </div>
+      </div>
+      }
+
       <!-- Header -->
       <header class="calendar-header">
         <div class="header-content">
@@ -178,8 +210,23 @@
                 "
               ></i-tabler>
             </button>
+
+            <!-- Botón Crear cita para secretarios (visible siempre cuando sidebar está colapsado) -->
+            @if (sidebarCollapsed && authService.isSecretary()) {
+            <button mat-fab extended (click)="createAppointment()">
+              <div class="flex items-center gap-2">
+                <i-tabler name="calendar-plus"></i-tabler>
+                <span>Crear cita</span>
+              </div>
+            </button>
+            }
+
+            <!-- Resto de elementos del header (ocultos en vista de selección de dentistas) -->
+            @if (!authService.isSecretary() || !showDentistSelection()) {
             <!-- Create Event Menu (only visible when collapsed) -->
             @if (sidebarCollapsed) {
+            <!-- Menú completo para Administrador y Dentista -->
+            @if (authService.isAdministrator() || authService.isDentist()) {
             <button
               mat-fab
               extended
@@ -205,7 +252,7 @@
                 </div>
               </button>
             </mat-menu>
-
+            } @if (authService.isAdministrator() || authService.isDentist()) {
             <button
               mat-icon-button
               class="rotate-on-hover mr-2"
@@ -214,7 +261,7 @@
             >
               <i-tabler name="settings" class="mb-1"></i-tabler>
             </button>
-            }
+            } }
 
             <button
               mat-icon-button
@@ -238,8 +285,11 @@
               <mat-icon>today</mat-icon>
               Hoy
             </button>
+            }
           </div>
 
+          <!-- Center y Right (ocultos en vista de selección de dentistas) -->
+          @if (!authService.isSecretary() || !showDentistSelection()) {
           <!-- Center -->
           <div class="header-center">
             <h1 class="current-date">
@@ -317,11 +367,86 @@
               Mes
             </button>
           </div>
+          }
         </div>
       </header>
 
       <!-- Calendar Views -->
       <div class="calendar-views">
+        <!-- Dentist Selection View (Solo para Secretarios) -->
+        @if (authService.isSecretary() && showDentistSelection()) {
+        <div class="dentist-selection-view">
+          @if (isLoadingDentists()) {
+          <!-- Loading Spinner -->
+          <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p class="loading-text">Cargando dentistas...</p>
+          </div>
+          } @else {
+          <div class="dentist-selection-container">
+            <div class="selection-header">
+              <h2 class="selection-title">
+                <i-tabler
+                  name="user-check"
+                  class="title-icon scale-150"
+                ></i-tabler>
+                Seleccionar Profesional
+              </h2>
+              <p class="selection-subtitle">
+                Elige un profesional para ver su calendario y agendar citas
+              </p>
+            </div>
+
+            @if (specialtyGroups().length === 0) {
+            <div class="no-dentists-message">
+              <i-tabler name="user-off" class="no-dentists-icon"></i-tabler>
+              <p>No hay profesionales disponibles</p>
+            </div>
+            } @else { @for (group of specialtyGroups(); track
+            group.specialtyName) {
+            <div class="specialty-section">
+              <h3 class="specialty-title">
+                <i-tabler name="stethoscope" class="specialty-icon"></i-tabler>
+                {{ group.specialtyName }}
+              </h3>
+
+              <div class="dentist-cards-grid">
+                @for (dentist of group.dentists; track dentist.person.id) {
+                <button
+                  class="dentist-card"
+                  (click)="onDentistSelect(dentist)"
+                  mat-ripple
+                >
+                  <div class="dentist-card-content">
+                    <div class="dentist-avatar">
+                      <i-tabler
+                        name="user-circle"
+                        class="avatar-icon"
+                      ></i-tabler>
+                    </div>
+                    <div class="dentist-info">
+                      <h4 class="dentist-name">
+                        {{ getDentistFullName(dentist) }}
+                      </h4>
+                      <p class="dentist-specialty">{{ group.specialtyName }}</p>
+                    </div>
+                    <i-tabler
+                      name="chevron-right"
+                      class="card-arrow"
+                    ></i-tabler>
+                  </div>
+                </button>
+                }
+              </div>
+            </div>
+            } }
+          </div>
+          }
+        </div>
+        }
+
+        <!-- Calendar Views (para todos los roles cuando no están en selección) -->
+        @if (!authService.isSecretary() || !showDentistSelection()) {
         <!-- Day View -->
         <div *ngIf="currentView === 'day'" class="day-view">
           @if (isLoadingCalendar()) {
@@ -627,6 +752,7 @@
           </div>
           }
         </div>
+        }
       </div>
     </main>
   </div></mat-card
