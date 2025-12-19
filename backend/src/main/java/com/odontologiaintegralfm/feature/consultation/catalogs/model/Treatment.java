@@ -9,6 +9,7 @@ import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 /**
@@ -41,11 +42,8 @@ public class Treatment extends Auditable {
     )
     private Set<TreatmentCondition> condition;
 
-/*
+
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal price;
-
- */
-
 
 }

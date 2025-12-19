@@ -1,13 +1,11 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.model.Tooth;
-import com.odontologiaintegralfm.feature.consultation.catalogs.model.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.Treatment;
+import com.odontologiaintegralfm.feature.consultation.core.enums.Tooth;
+import com.odontologiaintegralfm.feature.consultation.core.enums.ToothFace;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -18,6 +16,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "consultation_odontogram")
 @Audited
@@ -32,18 +31,31 @@ public class ConsultationOdontogram extends Auditable {
     @JoinColumn(name = "consultation_id", nullable = false)
     private Consultation consultation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tooth_id")
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @Enumerated(EnumType.STRING)
     private Tooth tooth;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tooth_face_id")
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @Enumerated(EnumType.STRING)
     private ToothFace toothFace;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "treatment_id")
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Treatment treatment;
+
+
+    private ConsultationOdontogram(Consultation consultation, Tooth tooth, ToothFace toothFace, Treatment treatment) {
+        this.consultation = consultation;
+        this.tooth = tooth;
+        this.toothFace = toothFace;
+        this.treatment = treatment;
+    }
+
+    public static ConsultationOdontogram build(Consultation consultation, Tooth tooth, ToothFace toothFace, Treatment treatment){
+        return new ConsultationOdontogram(
+                consultation,
+                tooth,
+                toothFace,
+                treatment
+        );
+    }
 }
