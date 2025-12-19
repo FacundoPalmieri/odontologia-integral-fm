@@ -94,6 +94,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
   // Datos de la semana
   currentWeekStart = new Date();
+  currentWeekStartForSecretary = new Date();
   weekDays = signal<CalendarDayInterface[]>([]);
   currentMonthYear = "";
 
@@ -268,18 +269,34 @@ export class CreateAppointmentDialogComponent implements OnInit {
    * Navega a la semana anterior
    */
   previousWeek(): void {
-    const newDate = new Date(this.currentWeekStart);
-    newDate.setDate(newDate.getDate() - 7);
-    this.loadWeek(newDate);
+    if (this.idDentist) {
+      // Vista de dentista
+      const newDate = new Date(this.currentWeekStart);
+      newDate.setDate(newDate.getDate() - 7);
+      this.loadWeek(newDate);
+    } else {
+      // Vista de secretario/administrador
+      const newDate = new Date(this.currentWeekStartForSecretary);
+      newDate.setDate(newDate.getDate() - 7);
+      this.loadWeekForSecretary(newDate);
+    }
   }
 
   /**
    * Navega a la semana siguiente
    */
   nextWeek(): void {
-    const newDate = new Date(this.currentWeekStart);
-    newDate.setDate(newDate.getDate() + 7);
-    this.loadWeek(newDate);
+    if (this.idDentist) {
+      // Vista de dentista
+      const newDate = new Date(this.currentWeekStart);
+      newDate.setDate(newDate.getDate() + 7);
+      this.loadWeek(newDate);
+    } else {
+      // Vista de secretario/administrador
+      const newDate = new Date(this.currentWeekStartForSecretary);
+      newDate.setDate(newDate.getDate() + 7);
+      this.loadWeekForSecretary(newDate);
+    }
   }
 
   /**
@@ -683,14 +700,110 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
   /**
    * Carga las semanas de todos los dentistas de una especialidad
+   * Busca automáticamente la primera semana con disponibilidad
    */
   private loadDentistWeeks(dentists: DentistDtoInterface[]): void {
     this.isLoadingDentistWeeks.set(true);
-    this.updateMonthYearLabel(new Date());
+
+    // Comenzar desde la semana actual
+    this.currentWeekStartForSecretary = new Date();
+    this.findFirstAvailableWeek(dentists, new Date(), 0);
+  }
+
+  /**
+   * Busca recursivamente la primera semana con disponibilidad
+   * @param dentists Lista de dentistas a verificar
+   * @param startDate Fecha de inicio de la semana a verificar
+   * @param weeksChecked Contador de semanas verificadas (para evitar bucles infinitos)
+   */
+  private findFirstAvailableWeek(
+    dentists: DentistDtoInterface[],
+    startDate: Date,
+    weeksChecked: number
+  ): void {
+    // Límite de 12 semanas (3 meses) para evitar búsquedas infinitas
+    if (weeksChecked >= 12) {
+      // Si no se encuentra disponibilidad en 12 semanas, mostrar la semana actual
+      this.loadWeekForSecretary(new Date());
+      return;
+    }
 
     // Crear un array de observables para cargar todas las semanas en paralelo
     const weekRequests = dentists.map((dentist) =>
-      this.calendarService.getWeek(dentist.person.id, new Date()).pipe(
+      this.calendarService.getWeek(dentist.person.id, startDate).pipe(
+        map((response) => ({
+          dentist,
+          weekData: response.data || null,
+        }))
+      )
+    );
+
+    // Ejecutar todas las peticiones en paralelo
+    forkJoin(weekRequests).subscribe({
+      next: (availabilities: DentistAvailability[]) => {
+        // Verificar si esta semana tiene disponibilidad
+        const hasAvailability = this.checkWeekHasAvailability(availabilities);
+
+        if (hasAvailability) {
+          // Encontramos una semana con disponibilidad
+          this.currentWeekStartForSecretary = startDate;
+          this.dentistAvailabilities.set(availabilities);
+          this.buildCombinedWeekDays(availabilities);
+          this.updateMonthYearLabel(startDate);
+          this.isLoadingDentistWeeks.set(false);
+        } else {
+          // No hay disponibilidad, buscar en la siguiente semana
+          const nextWeek = new Date(startDate);
+          nextWeek.setDate(nextWeek.getDate() + 7);
+          this.findFirstAvailableWeek(dentists, nextWeek, weeksChecked + 1);
+        }
+      },
+      error: (error) => {
+        console.error("Error al cargar semanas de dentistas:", error);
+        this.isLoadingDentistWeeks.set(false);
+      },
+    });
+  }
+
+  /**
+   * Verifica si una semana tiene al menos un slot disponible
+   */
+  private checkWeekHasAvailability(
+    availabilities: DentistAvailability[]
+  ): boolean {
+    return availabilities.some((availability) => {
+      if (!availability.weekData) return false;
+
+      return availability.weekData.days.some((day) => {
+        // Verificar que el día sea hoy o futuro
+        if (!this.isDateTodayOrFuture(day.day)) return false;
+
+        // Verificar que tenga al menos un slot FREE
+        return day.slots.some((slot) => slot.status === SlotStatusEnum.FREE);
+      });
+    });
+  }
+
+  /**
+   * Carga una semana específica para la vista de secretario
+   */
+  private loadWeekForSecretary(date: Date): void {
+    const selectedSpecialty = this.selectedSpecialty();
+    if (!selectedSpecialty) return;
+
+    const group = this.specialtyGroups().find(
+      (g) => g.specialtyName === selectedSpecialty
+    );
+
+    if (!group) return;
+
+    this.isLoadingDentistWeeks.set(true);
+    this.currentWeekStartForSecretary = date;
+    this.updateMonthYearLabel(date);
+
+    // Crear un array de observables para cargar todas las semanas en paralelo
+    const weekRequests = group.dentists.map((dentist) =>
+      this.calendarService.getWeek(dentist.person.id, date).pipe(
         map((response) => ({
           dentist,
           weekData: response.data || null,
@@ -702,10 +815,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
     forkJoin(weekRequests).subscribe({
       next: (availabilities: DentistAvailability[]) => {
         this.dentistAvailabilities.set(availabilities);
-
-        // Construir los días de la semana combinando todos los dentistas
         this.buildCombinedWeekDays(availabilities);
-
         this.isLoadingDentistWeeks.set(false);
       },
       error: (error) => {
