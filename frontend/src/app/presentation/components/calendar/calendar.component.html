@@ -109,7 +109,8 @@
         </div>
       </div>
 
-      <!-- My Calendars -->
+      <!-- My Calendars - Para Administradores y Secretarios -->
+      @if (authService.isAdministrator() || authService.isSecretary()) {
       <div class="calendars-section">
         <div class="section-header" (click)="toggleMyCalendars()">
           <span>Mis calendarios</span>
@@ -119,7 +120,30 @@
         </div>
         @if (myCalendarsExpanded) {
         <div class="calendar-list">
-          @for (dentist of sidebarDentists(); track dentist.person.id) {
+          <!-- Radio button "Yo" - Solo para Administradores -->
+          @if (authService.isAdministrator()) {
+          <div
+            class="radio-container"
+            (click)="onMyCalendarSelect()"
+            [class.selected]="
+              isSidebarDentistSelected(
+                (authService.getUserData()?.person)!.id! || 0
+              )
+            "
+          >
+            <mat-radio-button
+              [checked]="
+                isSidebarDentistSelected(
+                  (authService.getUserData()?.person)!.id! || 0
+                )
+              "
+              [disableRipple]="true"
+              class="radio-item"
+            >
+              <span class="calendar-name">Yo</span>
+            </mat-radio-button>
+          </div>
+          } @for (dentist of sidebarDentists(); track dentist.person.id) {
           <div
             class="radio-container"
             (click)="onSidebarDentistSelect(dentist)"
@@ -139,6 +163,7 @@
         </div>
         }
       </div>
+      }
 
       <!-- Other Calendars -->
       <!-- <div class="calendars-section">

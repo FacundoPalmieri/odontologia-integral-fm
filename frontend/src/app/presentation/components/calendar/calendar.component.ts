@@ -1196,6 +1196,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.personId = dentist.person.id;
     this.showDentistSelection.set(false);
 
+    // Sincronizar el radio button del sidebar
+    this.selectedSidebarDentistId.set(dentist.person.id);
+
     // Cargar el calendario del dentista seleccionado
     if (this.currentView === "month") {
       this.loadMonthView();
@@ -1213,6 +1216,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.showDentistSelection.set(true);
     this.selectedDentist.set(null);
     this.personId = 0;
+
+    // Limpiar la selección del sidebar
+    this.selectedSidebarDentistId.set(null);
 
     // Limpiar datos del calendario
     this.calendarMonthData.set(null);
@@ -1264,6 +1270,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.selectedSidebarDentistId.set(dentist.person.id);
     this.personId = dentist.person.id;
 
+    // Si es secretario, también actualizar selectedDentist y ocultar vista de selección
+    if (this.authService.isSecretary()) {
+      this.selectedDentist.set(dentist);
+      this.showDentistSelection.set(false);
+    }
+
     // Limpiar caché y datos anteriores
     this.monthCache.clear();
     this.calendarMonthData.set(null);
@@ -1271,6 +1283,42 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.calendarDayData.set(null);
 
     // Cargar calendario del dentista seleccionado
+    if (this.currentView === "month") {
+      this.loadMonthView();
+    } else if (this.currentView === "week") {
+      this.loadWeekView();
+    } else if (this.currentView === "day") {
+      this.loadDayView();
+    }
+  }
+
+  /**
+   * Maneja la selección del calendario del usuario logueado ("Yo")
+   */
+  onMyCalendarSelect(): void {
+    const userId = this.authService.getUserData()?.person.id;
+
+    if (!userId) {
+      console.error("No se pudo obtener el ID del usuario logueado");
+      return;
+    }
+
+    // Si ya está seleccionado, no hacer nada
+    if (this.selectedSidebarDentistId() === userId) {
+      return;
+    }
+
+    // Actualizar selección
+    this.selectedSidebarDentistId.set(userId);
+    this.personId = userId;
+
+    // Limpiar caché y datos anteriores
+    this.monthCache.clear();
+    this.calendarMonthData.set(null);
+    this.calendarWeekData.set(null);
+    this.calendarDayData.set(null);
+
+    // Cargar calendario del usuario logueado
     if (this.currentView === "month") {
       this.loadMonthView();
     } else if (this.currentView === "week") {

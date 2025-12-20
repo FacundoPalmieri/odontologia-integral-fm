@@ -234,7 +234,7 @@ body {
     align-self: flex-start;
     align-items: center;
     padding: 0rem 1rem 0rem 0rem;
-    border-radius: var(--mat-sys-corner-medium);
+    border-radius: var(--mat-sys-corner-full);
     cursor: pointer;
     transition-property: color, background-color, border-color;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -243,7 +243,7 @@ body {
     background-color: var(--mat-sys-surface-container-low);
     width: 100%;
 
-    &:hover {
+    &:hover:not(:has(.mat-mdc-radio-checked)) {
       background-color: var(--mat-sys-surface-container-high);
     }
 
@@ -278,9 +278,8 @@ body {
   .radio-container {
     display: flex;
     align-items: center;
-    padding: 4px 0;
     cursor: pointer;
-    border-radius: var(--mat-sys-corner-medium);
+    border-radius: var(--mat-sys-corner-full);
     transition: background-color 0.2s ease;
 
     // Hover solo cuando NO está seleccionado

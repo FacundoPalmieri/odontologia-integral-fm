@@ -137,6 +137,11 @@
   }
 
   .calendar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; // gap-2 equivalent
+    margin-top: 8px;
+
     // Los estilos de radio-container están en _material-overrides.scss
     .calendar-name {
       margin-left: 8px;
