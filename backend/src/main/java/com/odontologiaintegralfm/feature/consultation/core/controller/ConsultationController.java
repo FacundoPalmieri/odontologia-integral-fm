@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.controller;
+package com.odontologiaintegralfm.feature.consultation.core.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessAppointmentsManagementCreate;
 import com.odontologiaintegralfm.feature.consultation.core.dto.ConsultationCreateResponseDTO;

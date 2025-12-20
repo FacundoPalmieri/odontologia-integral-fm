@@ -48,11 +48,11 @@ Trade-off:
 
 Endpoints:
     
--   GET /api/holiday/all?year= → Obtener todos los feriados de un año.
+-   GET /api/calendarHoliday/all?year= → Obtener todos los feriados de un año.
     
--   POST /api/holiday → Crear feriado (permiso: Configuración Creación).
+-   POST /api/calendarHoliday → Crear feriado (permiso: Configuración Creación).
     
--   PATCH /api/holiday → Actualizar feriado (permiso: Configuración Actualización).
+-   PATCH /api/calendarHoliday → Actualizar feriado (permiso: Configuración Actualización).
     
 Se usan DTOs (HolidayResponseDTO, HolidayCreateRequestDTO, HolidayUpdateRequestDTO) para desacoplar entidad de la API.
     

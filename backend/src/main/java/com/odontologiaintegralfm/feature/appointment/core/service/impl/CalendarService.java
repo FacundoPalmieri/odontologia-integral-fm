@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarDayStatus;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarHoliday;
 import com.odontologiaintegralfm.feature.appointment.core.enums.SlotStatus;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.feature.appointment.catalogs.service.IHolidayService;
@@ -450,6 +451,7 @@ public class CalendarService implements ICalendarService {
                     idDentist,
                     day,
                     CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
+                    null,
                     Collections.emptyList()
             );
 
@@ -478,13 +480,19 @@ public class CalendarService implements ICalendarService {
                 //Llenar slots.
                 fillSlot(slots,appointments, Collections.emptyList(),dentistAvailability.getAppointmentDuration());
 
-                return new CalendarDetailDayResponseDTO(idDentist,day,deriveDayStatus(slots),slots);
+                return new CalendarDetailDayResponseDTO(
+                        idDentist,
+                        day,
+                        deriveDayStatus(slots),
+                        CalendarHolidayResponseDTO.build(CalendarHoliday.HOLIDAY,holiday.get().getName(),holiday.get().getType().getLabel()),
+                        slots);
 
             }else{
                 return new  CalendarDetailDayResponseDTO(
                         idDentist,
                         day,
-                        CalendarDayStatusResponseDTO.build(CalendarDayStatus.HOLIDAY),
+                        CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
+                        CalendarHolidayResponseDTO.build(CalendarHoliday.HOLIDAY,holiday.get().getName(),holiday.get().getType().getLabel()),
                         Collections.emptyList());
             }
         }
@@ -503,7 +511,7 @@ public class CalendarService implements ICalendarService {
         //Llenar slots.
         fillSlot(slots,appointments, dentistCalendarLocks, dentistAvailability.getAppointmentDuration());
 
-        return new CalendarDetailDayResponseDTO(idDentist, day,deriveDayStatus(slots) ,slots);
+        return new CalendarDetailDayResponseDTO(idDentist, day,deriveDayStatus(slots),null,slots);
 
     }
 
