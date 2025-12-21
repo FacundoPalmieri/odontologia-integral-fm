@@ -101,22 +101,22 @@ public class DentistHolidayService implements IDentistHolidayService {
             //Valida que no exista una relación previa.
             Optional <DentistHoliday> dentistHolidays = dentistHolidayRepository.findByDentistIdAndHolidayId(id,holiday.getId());
             if(dentistHolidays.isPresent()) {
-                throw new ConflictException("exception.dentistHolidayService.create.user",null,"exception.dentistHolidayService.create.log",new Object[]{id,holiday.getId(),"Dentist Holiday Service","create"},LogLevel.ERROR);
+                throw new ConflictException("exception.dentistHolidayService.create.user",null,"exception.dentistHolidayService.create.log",new Object[]{id,holiday.getId(),"Dentist CalendarHoliday Service","create"},LogLevel.ERROR);
             }
 
             //Valída que el feriado no sea anterior a la fecha actual.
             if(!holiday.getDate().isAfter(LocalDate.now())){
-                throw new ConflictException("exception.dentistHolidayService.create.validateHolidayBeforeNow.user",null,"exception.dentistHolidayService.create.validateHolidayBeforeNow.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),"Dentist Holiday Service","create"},LogLevel.ERROR);
+                throw new ConflictException("exception.dentistHolidayService.create.validateHolidayBeforeNow.user",null,"exception.dentistHolidayService.create.validateHolidayBeforeNow.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),"Dentist CalendarHoliday Service","create"},LogLevel.ERROR);
             }
 
             //Valída que la hora de inicio sea anterior a la de fin.
             if(!dentistHolidayRequestCreateDTO.startTime().isBefore(dentistHolidayRequestCreateDTO.endTime())){
-                throw new ConflictException("exception.dentistHolidayService.create.validateStartTimeBeforeEndTime.user",null,"exception.dentistHolidayService.create.validateStartTimeBeforeEndTime.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist Holiday Service","create"},LogLevel.ERROR);
+                throw new ConflictException("exception.dentistHolidayService.create.validateStartTimeBeforeEndTime.user",null,"exception.dentistHolidayService.create.validateStartTimeBeforeEndTime.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist CalendarHoliday Service","create"},LogLevel.ERROR);
             }
 
             //Valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
             if(! dentistAvailabilityService.validateDurationLessThanAppointmentDuration(dentists.getId(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime())){
-                throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist Holiday Service","create"},LogLevel.ERROR);
+                throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist CalendarHoliday Service","create"},LogLevel.ERROR);
             }
 
 
@@ -170,7 +170,7 @@ public class DentistHolidayService implements IDentistHolidayService {
         try {
             //Recupera el objeto anterior.
             DentistHoliday dentistHoliday = dentistHolidayRepository.findById(dentistHolidayRequestUpdateDTO.idDentistHoliday())
-                    .orElseThrow(()-> new BadRequestException("exception.dentistHolidayService.update.user",null,"exception.dentistHolidayService.update.log",new Object[]{dentistHolidayRequestUpdateDTO.idDentistHoliday(),"Dentist Holiday Service","update"},LogLevel.ERROR));
+                    .orElseThrow(()-> new BadRequestException("exception.dentistHolidayService.update.user",null,"exception.dentistHolidayService.update.log",new Object[]{dentistHolidayRequestUpdateDTO.idDentistHoliday(),"Dentist CalendarHoliday Service","update"},LogLevel.ERROR));
 
 
 

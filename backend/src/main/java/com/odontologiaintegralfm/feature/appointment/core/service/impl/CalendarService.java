@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarDayStatus;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarHoliday;
 import com.odontologiaintegralfm.feature.appointment.core.enums.SlotStatus;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.feature.appointment.catalogs.service.IHolidayService;
@@ -238,8 +239,8 @@ public class CalendarService implements ICalendarService {
             days.add(new CalendarGlobalDayDTO(
                     d,
                     detail.calendarDayStatus().toString(),
-                    detail.calendarDayStatus().getDescription(),
-                    detail.calendarDayStatus().getColorHex().toString()
+                    detail.calendarDayStatus().description(),
+                    detail.calendarDayStatus().color()
             ));
         }
 
@@ -446,7 +447,13 @@ public class CalendarService implements ICalendarService {
 
         DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,day);
         if (dentistAvailability == null) {
-            return new CalendarDetailDayResponseDTO(idDentist, day,CalendarDayStatus.NOT_AVAILABLE ,Collections.emptyList());
+            return new CalendarDetailDayResponseDTO(
+                    idDentist,
+                    day,
+                    CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
+                    null,
+                    Collections.emptyList()
+            );
 
         }
 
@@ -473,10 +480,20 @@ public class CalendarService implements ICalendarService {
                 //Llenar slots.
                 fillSlot(slots,appointments, Collections.emptyList(),dentistAvailability.getAppointmentDuration());
 
-                return new CalendarDetailDayResponseDTO(idDentist,day,deriveDayStatus(slots),slots);
+                return new CalendarDetailDayResponseDTO(
+                        idDentist,
+                        day,
+                        deriveDayStatus(slots),
+                        CalendarHolidayResponseDTO.build(CalendarHoliday.HOLIDAY,holiday.get().getName(),holiday.get().getType().getLabel()),
+                        slots);
 
             }else{
-                return new  CalendarDetailDayResponseDTO(idDentist,day,CalendarDayStatus.HOLIDAY,Collections.emptyList());
+                return new  CalendarDetailDayResponseDTO(
+                        idDentist,
+                        day,
+                        CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
+                        CalendarHolidayResponseDTO.build(CalendarHoliday.HOLIDAY,holiday.get().getName(),holiday.get().getType().getLabel()),
+                        Collections.emptyList());
             }
         }
 
@@ -494,7 +511,7 @@ public class CalendarService implements ICalendarService {
         //Llenar slots.
         fillSlot(slots,appointments, dentistCalendarLocks, dentistAvailability.getAppointmentDuration());
 
-        return new CalendarDetailDayResponseDTO(idDentist, day,deriveDayStatus(slots) ,slots);
+        return new CalendarDetailDayResponseDTO(idDentist, day,deriveDayStatus(slots),null,slots);
 
     }
 
@@ -520,18 +537,18 @@ public class CalendarService implements ICalendarService {
      * @see CalendarDayStatus Para los estados globales posibles del día.
      */
 
-    private CalendarDayStatus deriveDayStatus(List<SlotResponseDTO> slots) {
+    private CalendarDayStatusResponseDTO deriveDayStatus(List<SlotResponseDTO> slots) {
 
         if (slots.isEmpty()) {
-            return CalendarDayStatus.NOT_AVAILABLE;
+            return CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE);
         }
 
         boolean anyFree   = slots.stream().anyMatch(s -> s.getStatus() == SlotStatus.FREE);
         boolean allLocked = slots.stream().allMatch(s -> s.getStatus() == SlotStatus.LOCKED);
 
-        if (anyFree) return CalendarDayStatus.FREE;
-        if (allLocked) return CalendarDayStatus.LOCKED;
-        return CalendarDayStatus.FULL;
+        if (anyFree)   return   CalendarDayStatusResponseDTO.build(CalendarDayStatus.FREE);
+        if (allLocked) return   CalendarDayStatusResponseDTO.build(CalendarDayStatus.LOCKED);
+        return   CalendarDayStatusResponseDTO.build(CalendarDayStatus.FULL);
     }
 
 

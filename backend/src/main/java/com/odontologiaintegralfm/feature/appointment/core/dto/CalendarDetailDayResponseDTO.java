@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.feature.appointment.core.dto;
 
-import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarDayStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +10,8 @@ import java.util.List;
 public record CalendarDetailDayResponseDTO(
         Long dentistId,
         LocalDate day,
-        CalendarDayStatus calendarDayStatus,//Se devuelve para luego sacar el estado del mes.
+        CalendarDayStatusResponseDTO calendarDayStatus,//Se devuelve para luego sacar el estado del mes.
+        CalendarHolidayResponseDTO holiday,
         List<SlotResponseDTO> slots
 ) {
 }
