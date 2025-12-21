@@ -28,4 +28,27 @@ public class CalendarLockType extends Auditable {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+
+    /**
+     * Indica que el bloqueo representa una ausencia total.
+     * Bloquea todas las jornadas completas entre startDate y endDate.
+     * No admite horarios ni días.
+     */
+    @Column(nullable = false)
+    private boolean absenceTotal;
+
+    /**
+     * Permite definir un rango horario.
+     * Ej: cursos, reuniones, bloqueos parciales.
+     */
+    @Column(nullable = false)
+    private boolean allowTimeRange;
+
+    /**
+     * Permite seleccionar días de la semana.
+     * Ej: bloqueos recurrentes.
+     */
+    @Column(nullable = false)
+    private boolean allowDays;
 }

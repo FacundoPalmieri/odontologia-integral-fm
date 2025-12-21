@@ -3,7 +3,6 @@ package com.odontologiaintegralfm.feature.consultation.core.model;
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
-import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import jakarta.persistence.*;
@@ -11,7 +10,7 @@ import lombok.*;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 
 
 /**

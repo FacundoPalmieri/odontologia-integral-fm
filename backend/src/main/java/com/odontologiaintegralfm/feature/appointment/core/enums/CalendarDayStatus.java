@@ -8,10 +8,11 @@ import lombok.Getter;
 @Getter
 public enum CalendarDayStatus {
     FREE("Disponible", "#4CAF50"),   // verde
-    HOLIDAY("Feriado", "#F44336"),       // rojo
     LOCKED("Bloqueo de agenda", "#FF9800"), // naranja
     FULL("Sin turnos disponibles", "#B0BEC5"), // gris
     NOT_AVAILABLE("No trabaja","#9E9E9E");
+
+
 
     private final String description;
     private final String colorHex;

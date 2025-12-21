@@ -170,7 +170,7 @@ public class DentistHolidayService implements IDentistHolidayService {
         try {
             //Recupera el objeto anterior.
             DentistHoliday dentistHoliday = dentistHolidayRepository.findById(dentistHolidayRequestUpdateDTO.idDentistHoliday())
-                    .orElseThrow(()-> new BadRequestException("exception.dentistHolidayService.update.user",null,"exception.dentistHolidayService.update.log",new Object[]{dentistHolidayRequestUpdateDTO.idDentistHoliday(),"Dentist Holiday Service","update"},LogLevel.ERROR));
+                    .orElseThrow(()-> new BadRequestException("exception.dentistHolidayService.update.user",null,"exception.dentistHolidayService.update.log",new Object[]{dentistHolidayRequestUpdateDTO.idDentistHoliday(),"Dentist CalendarHoliday Service","update"},LogLevel.ERROR));
 
 
 

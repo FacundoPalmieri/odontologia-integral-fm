@@ -169,7 +169,7 @@ public class HolidayService implements IHolidayService {
 
         //Buscar el feriado en la base.
          Holiday holiday = holidayRepository.findById(holidayUpdateRequestDTO.id())
-                .orElseThrow(() -> new NotFoundException("exception.holidayNotFound.user", null, "exception.holidayNotFound.log", new Object[]{holidayUpdateRequestDTO.id(), "Holiday Service", "Update"}, LogLevel.WARN));
+                .orElseThrow(() -> new NotFoundException("exception.holidayNotFound.user", null, "exception.holidayNotFound.log", new Object[]{holidayUpdateRequestDTO.id(), "CalendarHoliday Service", "Update"}, LogLevel.WARN));
 
 
 
@@ -258,7 +258,7 @@ public class HolidayService implements IHolidayService {
                     "exception.holidayBefore.user",
                     null,
                     "exception.holidayBefore.log",
-                    new Object[]{id, name, "Holiday Service", "validateNotBeforeDate"}
+                    new Object[]{id, name, "CalendarHoliday Service", "validateNotBeforeDate"}
                     , LogLevel.WARN
             );
         }
