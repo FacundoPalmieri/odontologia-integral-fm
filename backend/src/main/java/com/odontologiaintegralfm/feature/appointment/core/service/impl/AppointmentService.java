@@ -153,7 +153,7 @@ public class AppointmentService implements IAppointmentService {
         Appointment appointment = new Appointment(
                 patient,
                 dentist,
-                appointmentCreateRequestDTO.dateTime(),
+                appointmentCreateRequestDTO.dateTime().plusMinutes(1),
                 AppointmentStatus.RESERVED,
                 authenticatedUserService.getAuthenticatedUser(),
                 LocalDateTime.now(),
