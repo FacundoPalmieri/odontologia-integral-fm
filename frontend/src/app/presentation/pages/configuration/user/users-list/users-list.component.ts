@@ -72,7 +72,7 @@ export class UsersListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   users = signal<UserDtoInterface[]>([]);
 
-  usersPageSize = signal(10);
+  usersPageSize = signal(1000);
   usersPageIndex = signal(0);
   usersSortBy = signal("username");
   usersSortDirection = signal("asc");
