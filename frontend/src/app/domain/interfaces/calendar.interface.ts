@@ -45,6 +45,15 @@ export interface CalendarDayInterface {
   day: Date;
   calendarDayStatus: CalendarDayStatusInterface;
   slots: SlotInterface[];
+  holiday: HolidayInterface;
+}
+
+export interface HolidayInterface {
+  key: CalendarMonthDayStatusEnum;
+  color: string;
+  description: string;
+  label: string;
+  type: string;
 }
 
 export interface CalendarDayStatusInterface {

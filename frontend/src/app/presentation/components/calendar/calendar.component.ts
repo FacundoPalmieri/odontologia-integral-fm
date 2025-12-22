@@ -709,18 +709,18 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isDayViewHoliday(): boolean {
     const dayData = this.calendarDayData();
-    return dayData?.calendarDayStatus?.key === ("HOLIDAY" as any);
+    // Check if the holiday attribute exists and has data
+    return !!dayData?.holiday && !!dayData.holiday.description;
   }
 
   /**
    * Get description for HOLIDAY day in day view
    */
   getDayViewHolidayDescription(): string {
-    // For HOLIDAY days, we need to get the description from the month data
-    // since the day view doesn't contain the holiday description (slots are empty)
-    const monthDay = this.getDayFromBackend(this.selectedDate);
-    if (monthDay?.description) {
-      return monthDay.description;
+    const dayData = this.calendarDayData();
+    // Get description from the holiday attribute
+    if (dayData?.holiday?.description) {
+      return dayData.holiday.description;
     }
 
     return "Feriado";
@@ -843,22 +843,115 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isWeekDayHoliday(date: Date): boolean {
     const dayData = this.getWeekDayData(date);
-    // Check if calendarDayStatus.key is HOLIDAY (full day)
-    return dayData?.calendarDayStatus?.key === ("HOLIDAY" as any);
+    // Check if the holiday attribute exists and has data
+    return !!dayData?.holiday && !!dayData.holiday.description;
   }
 
   /**
    * Get description for a day in week view (for HOLIDAY days)
    */
   getWeekDayHolidayDescription(date: Date): string | null {
-    // For HOLIDAY days, we need to get the description from the month data
-    // since the week view doesn't contain the holiday description
-    const monthDay = this.getDayFromBackend(date);
-    if (monthDay?.description) {
-      return monthDay.description;
+    const dayData = this.getWeekDayData(date);
+    // Get description from the holiday attribute
+    if (dayData?.holiday?.description) {
+      return dayData.holiday.description;
     }
 
     return "Feriado";
+  }
+
+  /**
+   * Check if a day in week view is LOCKED
+   */
+  isWeekDayLocked(date: Date): boolean {
+    const dayData = this.getWeekDayData(date);
+    // Check if calendarDayStatus.key is LOCKED (full day)
+    return dayData?.calendarDayStatus?.key === ("LOCKED" as any);
+  }
+
+  /**
+   * Get description for a day in week view (for LOCKED days)
+   */
+  getWeekDayLockedDescription(date: Date): string | null {
+    const dayData = this.getWeekDayData(date);
+    // Get description from calendarDayStatus
+    if (dayData?.calendarDayStatus?.description) {
+      return dayData.calendarDayStatus.description;
+    }
+
+    return "Día bloqueado";
+  }
+
+  /**
+   * Get color for holiday badge in day view
+   */
+  getDayViewHolidayColor(): string {
+    const dayData = this.calendarDayData();
+    return dayData?.holiday?.color || "#48925f"; // Púrpura por defecto
+  }
+
+  /**
+   * Get color for full badge in day view
+   */
+  getDayViewFullColor(): string {
+    const dayData = this.calendarDayData();
+    return dayData?.calendarDayStatus?.color || "#ef4444"; // Rojo por defecto
+  }
+
+  /**
+   * Get color for locked badge in day view
+   */
+  getDayViewLockedColor(): string {
+    const dayData = this.calendarDayData();
+    return dayData?.calendarDayStatus?.color || "#f59e0b"; // Naranja por defecto
+  }
+
+  /**
+   * Get color for not available badge in day view
+   */
+  getDayViewNotAvailableColor(): string {
+    const dayData = this.calendarDayData();
+    return dayData?.calendarDayStatus?.color || "#9e9e9e"; // Gris por defecto
+  }
+
+  /**
+   * Get color for holiday badge in week view
+   */
+  getWeekDayHolidayColor(date: Date): string {
+    const dayData = this.getWeekDayData(date);
+    return dayData?.holiday?.color || "#48925f"; // Púrpura por defecto
+  }
+
+  /**
+   * Check if a day in week view is FULL
+   */
+  isWeekDayFull(date: Date): boolean {
+    const dayData = this.getWeekDayData(date);
+    return dayData?.calendarDayStatus?.key === ("FULL" as any);
+  }
+
+  /**
+   * Get color for full badge in week view
+   */
+  getWeekDayFullColor(date: Date): string {
+    const dayData = this.getWeekDayData(date);
+    return dayData?.calendarDayStatus?.color || "#ef4444"; // Rojo por defecto
+  }
+
+  /**
+   * Get color for locked badge in week view
+   */
+  getWeekDayLockedColor(date: Date): string {
+    const dayData = this.getWeekDayData(date);
+    return dayData?.calendarDayStatus?.color || "#f59e0b"; // Naranja por defecto
+  }
+
+  /**
+   * Get color for not available badge in week view
+   */
+  getWeekDayNotAvailableColor(date: Date): string {
+    const dayData = this.getWeekDayData(date);
+    return dayData?.calendarDayStatus?.color || "#9e9e9e"; // Gris por defecto
   }
 
   /**

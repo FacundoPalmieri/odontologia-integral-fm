@@ -493,24 +493,36 @@
                   <span>Eventos</span>
                   <div class="header-badges">
                     @if (isDayViewHoliday()) {
-                    <span class="day-holiday-badge">
+                    <span
+                      class="day-holiday-badge"
+                      [style.background]="getDayViewHolidayColor()"
+                    >
                       <span class="badge-icon">🎉</span>
                       <span class="badge-text">{{
                         getDayViewHolidayDescription()
                       }}</span>
                     </span>
                     } @if (isDayViewFull()) {
-                    <span class="day-full-badge">
+                    <span
+                      class="day-full-badge"
+                      [style.background]="getDayViewFullColor()"
+                    >
                       <span class="badge-icon">⛔</span>
                       <span class="badge-text">Sin turnos disponibles</span>
                     </span>
                     } @if (isDayViewLocked()) {
-                    <span class="day-locked-badge">
+                    <span
+                      class="day-locked-badge"
+                      [style.background]="getDayViewLockedColor()"
+                    >
                       <span class="badge-icon">🔒</span>
                       <span class="badge-text">Día bloqueado</span>
                     </span>
                     } @if (isDayViewNotAvailable()) {
-                    <span class="day-not-available-badge">
+                    <span
+                      class="day-not-available-badge"
+                      [style.background]="getDayViewNotAvailableColor()"
+                    >
                       <span class="badge-icon">🚫</span>
                       <span class="badge-text">{{
                         getDayViewNotAvailableDescription()
@@ -615,19 +627,55 @@
                       }}</span>
                       <!-- Badge para día feriado -->
                       @if (isWeekDayHoliday(getWeekDates()[i])) {
-                      <div class="week-day-holiday-badge">
+                      <div
+                        class="week-day-holiday-badge"
+                        [style.background]="
+                          getWeekDayHolidayColor(getWeekDates()[i])
+                        "
+                      >
                         <span class="badge-icon">🎉</span>
                         <span class="badge-text">{{
                           getWeekDayHolidayDescription(getWeekDates()[i])
                         }}</span>
                       </div>
                       }
+                      <!-- Badge para día FULL (sin turnos disponibles) -->
+                      @if (isWeekDayFull(getWeekDates()[i])) {
+                      <div
+                        class="week-day-full-badge"
+                        [style.background]="
+                          getWeekDayFullColor(getWeekDates()[i])
+                        "
+                      >
+                        <span class="badge-icon">⛔</span>
+                        <span class="badge-text">Sin turnos disponibles</span>
+                      </div>
+                      }
                       <!-- Badge para día completo NO DISPONIBLE -->
                       @if (isWeekDayNotAvailable(getWeekDates()[i])) {
-                      <div class="week-day-not-available-badge">
+                      <div
+                        class="week-day-not-available-badge"
+                        [style.background]="
+                          getWeekDayNotAvailableColor(getWeekDates()[i])
+                        "
+                      >
                         <span class="badge-icon">🚫</span>
                         <span class="badge-text">{{
                           getWeekDayDescription(getWeekDates()[i])
+                        }}</span>
+                      </div>
+                      }
+                      <!-- Badge para día bloqueado (LOCKED) -->
+                      @if (isWeekDayLocked(getWeekDates()[i])) {
+                      <div
+                        class="week-day-locked-badge"
+                        [style.background]="
+                          getWeekDayLockedColor(getWeekDates()[i])
+                        "
+                      >
+                        <span class="badge-icon">🔒</span>
+                        <span class="badge-text">{{
+                          getWeekDayLockedDescription(getWeekDates()[i])
                         }}</span>
                       </div>
                       }
