@@ -56,7 +56,7 @@
       @if (authService.isAdministrator() || authService.isDentist()) {
       <div class="flex justify-center !mb-4">
         <button
-          mat-stroked-button
+          mat-flat-button
           class="!w-[90%] rotate-on-hover"
           (click)="goToAvailability()"
         >
@@ -66,7 +66,23 @@
           </div>
         </button>
       </div>
-      } @if (!sidebarCollapsed) {
+      @if (hasConflicts()) {
+      <div class="flex justify-center !mb-4">
+        <button
+          mat-stroked-button
+          class="!w-[90%]"
+          (click)="viewConflicts()"
+          [matBadge]="getConflictCount()"
+          matBadgeColor="warn"
+          matBadgeOverlap="true"
+        >
+          <div class="flex items-center gap-2">
+            <i-tabler name="alert-triangle"></i-tabler>
+            <span>Conflictos de turnos</span>
+          </div>
+        </button>
+      </div>
+      } } @if (!sidebarCollapsed) {
       <!-- Mini Calendar -->
       <div class="mini-calendar mb-4">
         <div class="mini-calendar-header">
@@ -283,7 +299,19 @@
             >
               <i-tabler name="settings" class="mb-1"></i-tabler>
             </button>
-            } }
+            @if (hasConflicts()) {
+            <button
+              mat-icon-button
+              class="mr-2"
+              matTooltip="Ver conflictos"
+              (click)="viewConflicts()"
+              [matBadge]="getConflictCount()"
+              matBadgeColor="warn"
+              matBadgeOverlap="true"
+            >
+              <i-tabler name="alert-triangle" class="mb-1"></i-tabler>
+            </button>
+            } } }
 
             <button
               mat-icon-button

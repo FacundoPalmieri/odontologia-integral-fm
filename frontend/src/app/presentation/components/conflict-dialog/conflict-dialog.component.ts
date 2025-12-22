@@ -1,16 +1,24 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import {
   MatDialogModule,
   MAT_DIALOG_DATA,
   MatDialogRef,
+  MatDialog,
 } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { AppointmentConflictInterface } from "../../../domain/interfaces/appointment.inteface";
+import { AppointmentService } from "../../../services/appointment.service";
+import { RequestSourceEnum } from "../../../utils/enums/appointment/request-source.enum";
+import { SnackbarService } from "../../../services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
+import { CancelAppointmentDialog } from "../cancel-appointment-dialog/cancel-appointment-dialog.component";
+import { AppointmentCancelDtoInterface } from "../../../domain/dto/appointment.dto";
 
 @Component({
   selector: "app-conflict-dialog",
@@ -22,19 +30,51 @@ import { AppointmentConflictInterface } from "../../../domain/interfaces/appoint
     MatCardModule,
     MatTableModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     IconsModule,
   ],
   templateUrl: "./conflict-dialog.component.html",
 })
-export class ConflictDialogComponent {
-  data: { conflicts: AppointmentConflictInterface[] };
-  conflicts: AppointmentConflictInterface[];
-  displayedColumns = ["patientName", "date", "origin"];
+export class ConflictDialogComponent implements OnInit {
+  private readonly appointmentService = inject(AppointmentService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackbarService = inject(SnackbarService);
+
+  data: { conflicts?: AppointmentConflictInterface[]; dentistId?: number };
+  conflicts: AppointmentConflictInterface[] = [];
+  displayedColumns = ["patientName", "date", "origin", "actions"];
+  isLoading = false;
 
   constructor(public dialogRef: MatDialogRef<ConflictDialogComponent>) {
     this.data = inject(MAT_DIALOG_DATA);
-    this.conflicts = this.data.conflicts;
-    console.log("Conflicts received:", this.conflicts);
+  }
+
+  ngOnInit() {
+    // Si ya vienen los conflictos, usarlos
+    if (this.data.conflicts && this.data.conflicts.length > 0) {
+      this.conflicts = this.data.conflicts;
+      console.log("Conflicts received:", this.conflicts);
+    }
+    // Si viene dentistId, cargar los conflictos
+    else if (this.data.dentistId) {
+      this.loadConflicts(this.data.dentistId);
+    }
+  }
+
+  loadConflicts(dentistId: number) {
+    this.isLoading = true;
+    this.appointmentService.getAppointmentConflicts(dentistId).subscribe({
+      next: (response) => {
+        this.conflicts = response.data || [];
+        this.isLoading = false;
+        console.log("Conflicts loaded:", this.conflicts);
+      },
+      error: (error) => {
+        console.error("Error loading conflicts:", error);
+        this.conflicts = [];
+        this.isLoading = false;
+      },
+    });
   }
 
   formatDate(dateTime: Date | string): string {
@@ -64,5 +104,58 @@ export class ConflictDialogComponent {
       console.error("Error formatting time:", error, dateTime);
       return "-";
     }
+  }
+
+  rescheduleAppointment(conflict: AppointmentConflictInterface) {
+    console.log("Reschedule appointment:", conflict);
+    // TODO: Implementar lógica de reprogramación
+    // Podría abrir otro diálogo para seleccionar nueva fecha/hora
+  }
+
+  cancelAppointment(conflict: AppointmentConflictInterface) {
+    const dialogRef = this.dialog.open(CancelAppointmentDialog, {
+      width: "400px",
+      data: { conflict },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.confirmed) {
+        this.performCancelAppointment(conflict, result.observation);
+      }
+    });
+  }
+
+  private performCancelAppointment(
+    conflict: AppointmentConflictInterface,
+    observation: string
+  ) {
+    const appointmentData: AppointmentCancelDtoInterface = {
+      observation: observation,
+      requestSource: RequestSourceEnum.DENTIST,
+    };
+
+    this.appointmentService
+      .cancel(conflict.appointmentId, appointmentData)
+      .subscribe({
+        next: (response) => {
+          this.snackbarService.openSnackbar(
+            response.message,
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success
+          );
+          // Remover el conflicto de la lista
+          this.conflicts = this.conflicts.filter(
+            (c) => c.appointmentId !== conflict.appointmentId
+          );
+        },
+      });
+  }
+
+  cancelAllAppointments() {
+    console.log("Cancel all appointments:", this.conflicts);
+    // TODO: Implementar lógica para cancelar todos los turnos
+    // Podría mostrar confirmación y luego cancelar todos
   }
 }

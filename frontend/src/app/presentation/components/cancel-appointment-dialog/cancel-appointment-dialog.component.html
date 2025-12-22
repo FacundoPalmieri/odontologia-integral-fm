@@ -1,0 +1,31 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler name="cancel" class="text-red-500"></i-tabler>
+  <span>Cancelar turno</span>
+</h2>
+<mat-dialog-content>
+  <p class="mb-4 text-[var(--mat-sys-on-surface-variant)]">
+    ¿Está seguro que desea cancelar el turno de
+    <strong>{{ data.conflict.patientName }}</strong
+    >?
+  </p>
+  <mat-form-field class="w-full">
+    <mat-label>Observación (opcional)</mat-label>
+    <input
+      matInput
+      [(ngModel)]="observation"
+      maxlength="50"
+      placeholder="Ingrese una observación"
+    />
+    <mat-hint align="end">{{ observation.length }}/50</mat-hint>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="{ confirmed: false }">Cancelar</button>
+  <button
+    mat-flat-button
+    color="warn"
+    [mat-dialog-close]="{ confirmed: true, observation: observation }"
+  >
+    Confirmar
+  </button>
+</mat-dialog-actions>

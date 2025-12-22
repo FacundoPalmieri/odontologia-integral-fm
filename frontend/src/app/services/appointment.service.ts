@@ -7,7 +7,10 @@ import {
   AppointmentConflictInterface,
   AppointmentInterface,
 } from "../domain/interfaces/appointment.inteface";
-import { AppointmentCreateResponseDtoInterface } from "../domain/dto/appointment.dto";
+import {
+  AppointmentCancelDtoInterface,
+  AppointmentCreateResponseDtoInterface,
+} from "../domain/dto/appointment.dto";
 import { AppointmentSerializer } from "../domain/serializers/appointment.serializer";
 
 @Injectable({ providedIn: "root" })
@@ -170,15 +173,13 @@ export class AppointmentService {
 
   cancel(
     appointmentId: number,
-    appointment: AppointmentInterface
+    appointmentCancelRequest: AppointmentCancelDtoInterface
   ): Observable<ApiResponseInterface<AppointmentCreateResponseDtoInterface>> {
-    const serializedAppointment =
-      this.appointmentSerializer.toCancelDto(appointment);
-    return this.http.post<
+    return this.http.patch<
       ApiResponseInterface<AppointmentCreateResponseDtoInterface>
     >(
       `${this.apiUrl}/appointment/${appointmentId}/cancel`,
-      serializedAppointment
+      appointmentCancelRequest
     );
   }
 
@@ -195,7 +196,7 @@ export class AppointmentService {
 
     const params = new HttpParams().set("date", formattedDate);
 
-    return this.http.post<
+    return this.http.patch<
       ApiResponseInterface<AppointmentCreateResponseDtoInterface>
     >(
       `${this.apiUrl}/appointment/${dentistId}/all/cancel`,
@@ -211,7 +212,7 @@ export class AppointmentService {
     const serializedAppointment =
       this.appointmentSerializer.toRescheduledDto(appointment);
 
-    return this.http.post<
+    return this.http.patch<
       ApiResponseInterface<AppointmentCreateResponseDtoInterface>
     >(
       `${this.apiUrl}/appointment/${appointmentId}/reschedule`,

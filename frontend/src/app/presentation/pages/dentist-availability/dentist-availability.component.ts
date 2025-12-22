@@ -501,6 +501,15 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
           response: ApiResponseInterface<DentistAvailabilitySaveResponseInterface>
         ) => {
           if (response.data.appointmentConflict.length > 0) {
+            // Mostrar mensaje de que se guardó con advertencia
+            this.snackbarService.openSnackbar(
+              "Disponibilidad guardada. Se detectaron conflictos con turnos existentes.",
+              6000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Warning
+            );
+
             // Abrir diálogo con los conflictos
             this.dialog.open(ConflictDialogComponent, {
               data: {

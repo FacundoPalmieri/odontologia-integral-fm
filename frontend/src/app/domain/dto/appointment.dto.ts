@@ -17,7 +17,7 @@ export interface AppointmentCreateResponseDtoInterface {
 
 export interface AppointmentCancelDtoInterface {
   requestSource: RequestSourceEnum;
-  observation: string;
+  observation?: string;
 }
 
 export interface AppointmentRescheduledDtoInterface {

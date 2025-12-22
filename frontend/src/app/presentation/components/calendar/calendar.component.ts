@@ -18,6 +18,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatDialogModule, MatDialog } from "@angular/material/dialog";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatBadgeModule } from "@angular/material/badge";
 import { LoaderService } from "../../../services/loader.service";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -45,6 +46,8 @@ import { SnackbarService } from "../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { DentistService } from "../../../services/dentist.service";
 import { DentistDtoInterface } from "../../../domain/dto/dentist.dto";
+import { ConflictDialogComponent } from "../conflict-dialog/conflict-dialog.component";
+import { AppointmentService } from "../../../services/appointment.service";
 
 export interface CalendarEvent {
   id: string;
@@ -88,6 +91,7 @@ export interface SpecialtyGroup {
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule,
+    MatBadgeModule,
   ],
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
@@ -97,6 +101,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly calendarService = inject(CalendarService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly dentistService = inject(DentistService);
+  private readonly appointmentService = inject(AppointmentService);
 
   dialog = inject(MatDialog);
   loading$ = this.loaderService.loading$;
@@ -113,6 +118,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   calendarMonthData = signal<CalendarMonthInterface | null>(null);
   calendarWeekData = signal<CalendarWeekInterface | null>(null);
   calendarDayData = signal<CalendarDayInterface | null>(null);
+
+  // Conflicts data
+  appointmentConflicts = signal<any[]>([]);
+  hasConflicts = signal<boolean>(false);
 
   // Cache para almacenar los meses ya cargados (key: "YYYY-MM", value: CalendarMonthInterface)
   private monthCache = new Map<string, CalendarMonthInterface>();
@@ -176,18 +185,36 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.personId = this.authService.getUserData()?.person.id || 0;
     this.updateSelectedDate();
 
-    // Cargar lista de dentistas para el sidebar (todos los roles)
-    this.loadSidebarDentists();
-
     // Si es secretario, cargar dentistas y mostrar vista de selección
     if (this.authService.isSecretary()) {
       this.sidebarCollapsed = true; // Colapsar sidebar por defecto para secretarios
       this.showDentistSelection.set(true);
       this.loadDentists();
-    } else {
-      // Para administradores y dentistas, cargar el calendario normalmente
+      // Cargar lista de dentistas para el sidebar
+      this.loadSidebarDentists();
+    } else if (this.authService.isAdministrator()) {
+      // Para administradores, cargar lista de dentistas para el sidebar
+      this.loadSidebarDentists();
       // Establecer el dentista actual como seleccionado
       this.selectedSidebarDentistId.set(this.personId);
+
+      // Cargar conflictos
+      this.loadConflicts();
+
+      if (this.currentView === "month") {
+        this.loadMonthView();
+      } else if (this.currentView === "week") {
+        this.loadWeekView();
+      } else if (this.currentView === "day") {
+        this.loadDayView();
+      }
+    } else {
+      // Para dentistas, NO cargar lista de dentistas (solo ven su propia agenda)
+      // Establecer el dentista actual como seleccionado
+      this.selectedSidebarDentistId.set(this.personId);
+
+      // Cargar conflictos
+      this.loadConflicts();
 
       if (this.currentView === "month") {
         this.loadMonthView();
@@ -1202,6 +1229,42 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   goToAvailability() {
     this.router.navigate(["/dentist-availability/" + this.personId]); // Navegar a la ruta de disponibilidad
+  }
+
+  loadConflicts() {
+    this.appointmentService.getAppointmentConflicts(this.personId).subscribe({
+      next: (response) => {
+        if (response.data && response.data.length > 0) {
+          this.appointmentConflicts.set(response.data);
+          this.hasConflicts.set(true);
+        } else {
+          this.appointmentConflicts.set([]);
+          this.hasConflicts.set(false);
+        }
+      },
+      error: (error) => {
+        console.error("Error loading conflicts:", error);
+        this.appointmentConflicts.set([]);
+        this.hasConflicts.set(false);
+      },
+    });
+  }
+
+  viewConflicts() {
+    // Usar los conflictos ya cargados y pasarlos al diálogo
+    this.dialog.open(ConflictDialogComponent, {
+      data: {
+        conflicts: this.appointmentConflicts(),
+      },
+      width: "800px",
+      maxWidth: "90vw",
+    });
+  }
+
+  getConflictCount(): string {
+    const count = this.appointmentConflicts().length;
+    console.log("Conflict count:", count);
+    return count > 0 ? count.toString() : "";
   }
 
   private getCurrentTimeSlot(): string {
