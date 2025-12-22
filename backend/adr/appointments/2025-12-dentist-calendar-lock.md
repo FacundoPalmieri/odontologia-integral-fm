@@ -124,6 +124,61 @@ Separar responsabilidades, asegurar reutilización y mantener el dominio escalab
 El lock funciona como una capa de exclusión aplicada sobre la disponibilidad base.
 En el cálculo de turnos, un rango marcado como lock se considera no apto para reservas, respetando además sus reglas de recurrencia.
 
+### 2.7. Bloqueos diarios por ausencias prolongadas (licencias, vacaciones, enfermedad)
+
+Se definió un tipo especial de bloqueo denominado bloqueo diario por ausencia total, destinado a representar ausencias prolongadas y continuas del dentista, tales como:
+
+-  Vacaciones
+
+-  Licencias médicas
+
+-  Licencias personales prolongadas
+
+Estas ausencias presentan características funcionales distintas a otros bloqueos:
+
+-  No representan excepciones parciales a la agenda.
+
+-  No dependen de la jornada laboral habitual.
+
+-  Afectan días completos de manera corrida entre dos fechas.
+
+#### Reglas aplicadas
+
+Cuando el tipo de evento (CalendarLockType) posee el flag absenceTotal = true, el sistema aplica las siguientes reglas:
+
+El bloqueo:
+
+-  Se interpreta como días corridos entre startDate y endDate.
+
+-  Abarca toda la jornada diaria, independientemente de la disponibilidad configurada.
+
+-  No se valida contra la jornada laboral del dentista.
+
+No se permiten:
+
+-  Días específicos (days)
+
+-  Rangos horarios personalizados (startTime, endTime)
+
+-  Recurrencias distintas de DAILY o ausencia de recurrencia
+
+En estos casos, el sistema exige coherencia en los datos enviados y rechaza cualquier combinación incompatible mediante validaciones explícitas.
+
+#### Justificación
+
+Este enfoque permite:
+
+-  Modelar correctamente licencias prolongadas sin fragmentarlas en múltiples bloqueos.
+
+-  Evitar reglas artificiales que limiten el bloqueo solo a días laborales.
+
+-  Mantener claridad semántica entre:
+
+-  Bloqueos operativos (recurrentes, parciales, dependientes de jornada)
+
+-  Ausencias estructurales del profesional (vacaciones/licencias)
+
+De esta forma, el calendario final refleja fielmente la disponibilidad real del dentista.
 
 
 ## 3. Alternativas Consideradas

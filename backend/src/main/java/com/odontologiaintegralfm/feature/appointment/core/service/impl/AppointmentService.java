@@ -153,7 +153,7 @@ public class AppointmentService implements IAppointmentService {
         Appointment appointment = new Appointment(
                 patient,
                 dentist,
-                appointmentCreateRequestDTO.dateTime(),
+                appointmentCreateRequestDTO.dateTime().plusMinutes(1),
                 AppointmentStatus.RESERVED,
                 authenticatedUserService.getAuthenticatedUser(),
                 LocalDateTime.now(),
@@ -855,6 +855,9 @@ public class AppointmentService implements IAppointmentService {
                 //Obtiene los Date de la jornada de los próximos 7 días.
                 LocalDate startDate = conflictManagerService.findFirstMatchingDate(LocalDate.now().plusDays(1), d.getKeyName().toDayOfWeek());
                 match = conflictManagerService.hasAppointmentMatchWithEvent(appointmentDateTime, startDate, date, d.getKeyName().toDayOfWeek(), d.getStartTime(), d.getEndTime(), d.getRecurrence());
+                if(match){
+                    break;
+                }
             }
 
         }

@@ -42,6 +42,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -119,7 +120,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
                 throw new ConflictException("exception.dentistLockCalendarService.validateStarDateBeforeNow.user",null,"exception.dentistLockCalendarService.validateStarDateBeforeNow.log",new Object[]{dentists.getId(),dentistCalendarLockRequestCreateDTO.getStartDate(),"Dentist Calendar Lock Service","create" },LogLevel.ERROR);
             }
 
-            //Valíd que la fecha de fin no sea anterior a la fecha de inicio.
+            //Valída que la fecha de fin no sea anterior a la fecha de inicio.
             if(dentistCalendarLockRequestCreateDTO.getEndDate().isBefore(dentistCalendarLockRequestCreateDTO.getStartDate())){
                 throw new ConflictException("exception.dentistLockCalendarService.validateEndDateBeforeStartDate.user",null,"exception.dentistLockCalendarService.validateEndDateBeforeStartDate.log",new Object[]{dentists.getId(),dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate(),"Dentist Calendar Lock Service","create"},LogLevel.ERROR);
             }
@@ -127,6 +128,13 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
 
             //Validar Evento
             CalendarLockType calendarLockType = calendarLockTypeService.getByIdInternal(dentistCalendarLockRequestCreateDTO.getIdLockType());
+            validateLockType(calendarLockType, dentistCalendarLockRequestCreateDTO);
+
+            //Valída que envié horarios. Si luego de validar horarios por ausencia total, estos campos siguen nulos, hay exception.
+            if(dentistCalendarLockRequestCreateDTO.getStartTime() == null  || dentistCalendarLockRequestCreateDTO.getEndTime() == null){
+                throw new BadRequestException("dentistCalendarLockService.time.empty.user",null,"dentistCalendarLockService.time.empty.log",new Object[]{dentistCalendarLockRequestCreateDTO.getStartTime(), dentistCalendarLockRequestCreateDTO.getEndTime(),calendarLockType.isAllowTimeRange(),"DentistCalendarLockService","create" },LogLevel.ERROR);
+            }
+
 
             //Validación de recurrencia
             if(dentistCalendarLockRequestCreateDTO.getRecurrence() != null){
@@ -136,9 +144,11 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             //Valída casos diarios (que no envíe días y recurrencia).
             dentistCalendarLockRequestCreateDTO.setRecurrence(validateRecurrenceDays(dentistCalendarLockRequestCreateDTO.getRecurrence(),dentistCalendarLockRequestCreateDTO.getDays(), dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate()));
 
-            //Validar Jornada laboral.
-            validateAvailabilityForCalendarLock(idPerson,dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), dentistCalendarLockRequestCreateDTO.getStartTime(), dentistCalendarLockRequestCreateDTO.getEndTime(),dentistCalendarLockRequestCreateDTO.getDays(), dentistCalendarLockRequestCreateDTO.getRecurrence());
 
+            //Valída jornada laboral para casos de recurrencia NO diaria. Para los casos Daily(vacaciones) no se valida la jornada.
+            if(dentistCalendarLockRequestCreateDTO.getRecurrence() != CalendarLockRecurrenceName.DAILY) {
+                validateAvailabilityForCalendarLock(idPerson, dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), dentistCalendarLockRequestCreateDTO.getStartTime(), dentistCalendarLockRequestCreateDTO.getEndTime(), dentistCalendarLockRequestCreateDTO.getDays(), dentistCalendarLockRequestCreateDTO.getRecurrence());
+            }
 
 
             //Valída que no exista otro bloqueo que sea misma Fecha inicio - fin - recurrencia - dias.
@@ -172,7 +182,6 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
 
                 dentistCalendarLockDetailService.saveAll(dentistCalendarLockDetails);
             }
-
 
 
             //Seteo recurrencia, id y origen de posible conflicto en el DTO.
@@ -210,6 +219,54 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistCalendarLockService", idPerson, null, "create");
+        }
+    }
+
+
+    /**
+     * Valída la coherencia entre el tipo de bloqueo de calendario y los datos enviados en el request de creación del bloqueo.
+     *
+     * <p>
+     * Este método aplica reglas estrictas cuando el tipo de evento
+     * está marcado como {@code absenceTotal = true}, lo que representa ausencias
+     * prolongadas y continuas (por ejemplo: vacaciones, licencias).
+     * </p>
+     *
+     * <p><b>Reglas para tipos de bloqueo con ausencia total:</b></p>
+     * <ul>
+     *   <li>No se permiten días específicos ({@code days} debe ser {@code null}).</li>
+     *   <li>La recurrencia solo puede ser {@code DAILY} o {@code NONE}.
+     *       Cualquier otro valor es inválido.</li>
+     *   <li>No se permiten horarios personalizados:
+     *       {@code startTime} y {@code endTime} deben ser {@code null}.</li>
+     * </ul>*
+     * @param calendarLockType
+     *        Tipo de bloqueo configurado en el catálogo de eventos.
+     *        Define las reglas funcionales que deben cumplirse.
+     *
+     * @param dentistCalendarLockRequestCreateDTO
+     *        DTO con los datos del bloqueo que se desea crear.
+     *
+     * @throws BadRequestException
+     *         Si los datos enviados no son compatibles con el tipo de bloqueo,
+     *         particularmente en eventos de ausencia total.
+     */
+    private void validateLockType(CalendarLockType calendarLockType, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO) {
+
+        //Si el evento tiene flag "ausencia total" entendemos que es un tipo de ausencia prolongada y de manera corrida.
+        if(calendarLockType.isAbsenceTotal()){
+            if(dentistCalendarLockRequestCreateDTO.getDays() != null){
+                throw new BadRequestException("exception.dentistCalendarLockService.days.user", null,"exception.dentistCalendarLockService.days.log", new Object[]{calendarLockType.getId(),"Dentist Calendar Lock Service","create" }, LogLevel.ERROR);
+            }
+
+            if(dentistCalendarLockRequestCreateDTO.getRecurrence() != CalendarLockRecurrenceName.NONE && dentistCalendarLockRequestCreateDTO.getRecurrence() != CalendarLockRecurrenceName.DAILY){
+                throw new BadRequestException("exception.dentistCalendarLockService.recurrence.user", null,"exception.dentistCalendarLockService.recurrence.log", new Object[]{calendarLockType.getId(),"Dentist Calendar Lock Service","create" }, LogLevel.ERROR);
+            }
+
+            if(dentistCalendarLockRequestCreateDTO.getStartTime() != null || dentistCalendarLockRequestCreateDTO.getEndTime() != null){
+                throw new BadRequestException("exception.dentistCalendarLockService.time.user", null,"exception.dentistCalendarLockService.time.log", new Object[]{calendarLockType.getId(),"Dentist Calendar Lock Service","create" }, LogLevel.ERROR);
+            }
+
         }
     }
 
@@ -630,6 +687,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
     private void validateAvailabilityForCalendarLock(Long idDentist, LocalDate startDateBlock, LocalDate endDateBlock, LocalTime starTimeBlock, LocalTime endTimeBlock, List<DayName> daysBlock, CalendarLockRecurrenceName recurrenceBlock) {
         List<DentistAvailability> availabilities = dentistAvailabilityService.getByIdInternal(idDentist);
 
+
         // Si no especifican días, usar toda la semana
         List<DayOfWeek> daysToEvaluate =
                 (daysBlock == null || daysBlock.isEmpty())
@@ -644,7 +702,6 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
                 throw new BadRequestException("exception.dentistLockCalendarService.validateDentistAvailability.user", null, "exception.dentistLockCalendarService.validateDentistAvailability.log", new Object[]{idDentist, "DentistCalendarLockService", "validateDentistAvailability"}, LogLevel.ERROR);
             }
         }
-
     }
 
 

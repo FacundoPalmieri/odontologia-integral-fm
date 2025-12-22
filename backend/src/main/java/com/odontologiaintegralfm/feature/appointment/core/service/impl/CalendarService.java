@@ -132,7 +132,7 @@ public class CalendarService implements ICalendarService {
 
         //Validar dentista.
         validateDentist(idDentist);
-        return new Response<>(true, "", buildCalendarDay(idDentist,day));
+        return new Response<>(true, null, buildCalendarDay(idDentist,day));
     }
 
 
@@ -182,7 +182,7 @@ public class CalendarService implements ICalendarService {
             days.add(dayDTO);
         }
 
-        return new Response<>(true, "", new CalendarWeekResponseDTO(weekStart, weekEnd, days));
+        return new Response<>(true, null, new CalendarWeekResponseDTO(weekStart, weekEnd, days));
     }
 
 
@@ -238,14 +238,14 @@ public class CalendarService implements ICalendarService {
 
             days.add(new CalendarGlobalDayDTO(
                     d,
-                    detail.calendarDayStatus().toString(),
+                    detail.calendarDayStatus().key(),
                     detail.calendarDayStatus().description(),
                     detail.calendarDayStatus().color()
             ));
         }
 
         CalendarMonthResponseDTO responseDTO = new CalendarMonthResponseDTO(year, month, days);
-        return new Response<>(true, "", responseDTO);
+        return new Response<>(true, null, responseDTO);
     }
 
 
