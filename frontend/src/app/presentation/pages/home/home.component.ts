@@ -13,13 +13,20 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { Router } from "@angular/router";
 import { AuthService } from "../../../services/auth.service";
 import { DentistService } from "../../../services/dentist.service";
+import { CalendarService } from "../../../services/calendar.service";
 import { UserDataInterface } from "../../../domain/interfaces/user-data.interface";
 import { DentistAvailabilityResponseInterface } from "../../../domain/interfaces/dentist.interface";
+import {
+  CalendarDayInterface,
+  SlotInterface,
+} from "../../../domain/interfaces/calendar.interface";
 import { Subject, takeUntil } from "rxjs";
 import { DayEnum } from "../../../utils/enums/day.enum";
+import { SlotStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
 
 @Component({
   selector: "app-home",
@@ -33,12 +40,14 @@ import { DayEnum } from "../../../utils/enums/day.enum";
     MatCardModule,
     MatButtonModule,
     MatChipsModule,
+    MatProgressSpinnerModule,
   ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly authService = inject(AuthService);
   private readonly dentistService = inject(DentistService);
+  private readonly calendarService = inject(CalendarService);
   private readonly router = inject(Router);
 
   userData = signal<UserDataInterface | null>(null);
@@ -48,6 +57,37 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoadingAvailability = signal<boolean>(false);
   currentTime = signal<string>("");
   currentDate = signal<string>("");
+
+  // Señales para el calendario del día
+  todayCalendarData = signal<CalendarDayInterface | null>(null);
+  isLoadingTodayAppointments = signal<boolean>(false);
+
+  // Computed para obtener los turnos del día (excluyendo FREE y NOT_AVAILABLE)
+  todayAppointments = computed(() => {
+    const slots = this.todayCalendarData()?.slots || [];
+    return slots.filter(
+      (slot) =>
+        slot.status !== SlotStatusEnum.FREE &&
+        slot.status !== SlotStatusEnum.NOT_AVAILABLE &&
+        slot.status !== SlotStatusEnum.LOCKED
+    );
+  });
+
+  // Computed para obtener el próximo turno
+  nextAppointment = computed(() => {
+    const now = new Date();
+    const currentTimeString = `${String(now.getHours()).padStart(
+      2,
+      "0"
+    )}:${String(now.getMinutes()).padStart(2, "0")}:00`;
+
+    const appointments = this.todayAppointments();
+    const upcoming = appointments.filter(
+      (slot) => slot.starTime >= currentTimeString
+    );
+
+    return upcoming.length > 0 ? upcoming[0] : null;
+  });
 
   greeting = computed(() => {
     const hour = new Date().getHours();
@@ -73,6 +113,13 @@ export class HomeComponent implements OnInit, OnDestroy {
               this.isLoadingAvailability.set(false);
             },
           });
+      }
+    });
+
+    // Cargar turnos del día si es dentista
+    effect(() => {
+      if (this.userData() && this.isDentist() && this.userData()?.person?.id) {
+        this.loadTodayAppointments();
       }
     });
   }
@@ -159,8 +206,43 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadTodayAppointments(): void {
+    const personId = this.userData()?.person?.id;
+    if (!personId) return;
+
+    this.isLoadingTodayAppointments.set(true);
+    const today = new Date();
+
+    this.calendarService
+      .getDay(personId, today)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (response) => {
+          this.todayCalendarData.set(response.data);
+          this.isLoadingTodayAppointments.set(false);
+        },
+        error: () => {
+          this.isLoadingTodayAppointments.set(false);
+        },
+      });
+  }
+
+  getSlotPatientName(slot: SlotInterface): string {
+    if (slot.appointment?.patientName) {
+      return slot.appointment.patientName;
+    }
+    if (slot.calendarLock?.lockType) {
+      return slot.calendarLock.lockType;
+    }
+    return "-";
+  }
+
   goToCalendar(): void {
     this.router.navigate(["/calendar"]);
+  }
+
+  goToAppointments(): void {
+    this.router.navigate(["/appointments"]);
   }
 
   goToAvailability(): void {

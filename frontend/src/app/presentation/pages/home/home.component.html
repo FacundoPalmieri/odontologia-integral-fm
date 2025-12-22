@@ -48,6 +48,7 @@
   }
 
   <!-- Grid de Cards -->
+  @if(isDentist()) {
   <div class="cards-grid gap-4">
     <!-- Card de Próximo Turno -->
     <mat-card appearance="outlined" class="appointment-card">
@@ -65,6 +66,34 @@
           </div>
         </div>
 
+        @if(isLoadingTodayAppointments()) {
+        <div class="loading-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Cargando turnos...</p>
+        </div>
+        } @else if(nextAppointment()) {
+        <div class="appointment-details">
+          <div class="detail-row">
+            <div class="detail-label">
+              <i-tabler name="clock"></i-tabler>
+              <span>Horario</span>
+            </div>
+            <div class="detail-value">
+              {{ nextAppointment()!.starTime.substring(0, 5) }} -
+              {{ nextAppointment()!.endTime.substring(0, 5) }}
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">
+              <i-tabler name="user"></i-tabler>
+              <span>Paciente</span>
+            </div>
+            <div class="detail-value">
+              {{ getSlotPatientName(nextAppointment()!) }}
+            </div>
+          </div>
+        </div>
+        } @else {
         <div class="empty-state">
           <i-tabler name="calendar-smile" class="empty-icon"></i-tabler>
           <h4 class="empty-title">No hay turnos próximos</h4>
@@ -76,7 +105,18 @@
             </div>
           </button>
         </div>
+        }
       </mat-card-content>
+      @if(nextAppointment()) {
+      <mat-card-actions align="end">
+        <button mat-button (click)="goToAppointments()">
+          <div class="flex items-center gap-2">
+            <span>Ir a gestión de turnos</span>
+            <i-tabler name="arrow-right"></i-tabler>
+          </div>
+        </button>
+      </mat-card-actions>
+      }
     </mat-card>
 
     <!-- Card de Turnos del Día -->
@@ -95,11 +135,51 @@
           </div>
         </div>
 
+        @if(isLoadingTodayAppointments()) {
+        <div class="loading-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Cargando turnos...</p>
+        </div>
+        } @else if(todayAppointments().length > 0) {
+        <div class="appointments-list">
+          <div class="appointments-table">
+            <div class="table-header">
+              <div class="col-time">Horario</div>
+              <div class="col-patient">Paciente</div>
+            </div>
+            <div class="table-body">
+              @for(slot of todayAppointments(); track slot.starTime) {
+              <div class="table-row">
+                <div class="col-time">
+                  <i-tabler name="clock" class="time-icon"></i-tabler>
+                  <span class="time-text">
+                    {{ slot.starTime.substring(0, 5) }} -
+                    {{ slot.endTime.substring(0, 5) }}
+                  </span>
+                </div>
+                <div class="col-patient">
+                  <div class="patient-info">
+                    <i-tabler
+                      [name]="slot.appointment ? 'user' : 'lock'"
+                      class="patient-icon"
+                    ></i-tabler>
+                    <span class="patient-name">{{
+                      getSlotPatientName(slot)
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+        } @else {
         <div class="empty-state">
           <i-tabler name="calendar-stats" class="empty-icon"></i-tabler>
           <h4 class="empty-title">Sin turnos para hoy</h4>
           <p class="empty-text">Disfrutá tu día libre</p>
         </div>
+        }
       </mat-card-content>
     </mat-card>
 
@@ -163,4 +243,5 @@
       </mat-card-content>
     </mat-card> -->
   </div>
+  }
 </div>

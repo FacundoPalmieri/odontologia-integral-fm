@@ -664,8 +664,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isDayViewFull(): boolean {
     const dayData = this.calendarDayData();
-    // Backend sends 'FULL' as string even though it's not in SlotStatusEnum
-    return dayData?.calendarDayStatus === ("FULL" as any);
+    // Check if calendarDayStatus.key is 'FULL'
+    return dayData?.calendarDayStatus?.key === ("FULL" as any);
   }
 
   /**
@@ -684,7 +684,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isDayViewNotAvailable(): boolean {
     const dayData = this.calendarDayData();
-    return dayData?.calendarDayStatus === ("NOT_AVAILABLE" as any);
+    return dayData?.calendarDayStatus?.key === ("NOT_AVAILABLE" as any);
   }
 
   /**
@@ -709,7 +709,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isDayViewHoliday(): boolean {
     const dayData = this.calendarDayData();
-    return dayData?.calendarDayStatus === ("HOLIDAY" as any);
+    return dayData?.calendarDayStatus?.key === ("HOLIDAY" as any);
   }
 
   /**
@@ -817,8 +817,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isWeekDayNotAvailable(date: Date): boolean {
     const dayData = this.getWeekDayData(date);
-    // Check if calendarDayStatus is NOT_AVAILABLE (full day)
-    return dayData?.calendarDayStatus === ("NOT_AVAILABLE" as any);
+    // Check if calendarDayStatus.key is NOT_AVAILABLE (full day)
+    return dayData?.calendarDayStatus?.key === ("NOT_AVAILABLE" as any);
   }
 
   /**
@@ -843,8 +843,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isWeekDayHoliday(date: Date): boolean {
     const dayData = this.getWeekDayData(date);
-    // Check if calendarDayStatus is HOLIDAY (full day)
-    return dayData?.calendarDayStatus === ("HOLIDAY" as any);
+    // Check if calendarDayStatus.key is HOLIDAY (full day)
+    return dayData?.calendarDayStatus?.key === ("HOLIDAY" as any);
   }
 
   /**

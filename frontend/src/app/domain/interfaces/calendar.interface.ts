@@ -43,8 +43,14 @@ export interface CalendarWeekInterface {
 export interface CalendarDayInterface {
   dentistId: number;
   day: Date;
-  calendarDayStatus: SlotStatusEnum;
+  calendarDayStatus: CalendarDayStatusInterface;
   slots: SlotInterface[];
+}
+
+export interface CalendarDayStatusInterface {
+  key: SlotStatusEnum;
+  description: string;
+  color: string;
 }
 
 export interface SlotInterface {

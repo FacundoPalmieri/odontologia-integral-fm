@@ -157,6 +157,7 @@
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  align-items: start;
 }
 
 // ========================================
@@ -193,6 +194,193 @@
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+}
+
+// ========================================
+// Estado de Carga
+// ========================================
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  gap: 16px;
+
+  .loading-text {
+    font-size: 14px;
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+}
+
+// ========================================
+// Detalles del Próximo Turno
+// ========================================
+.appointment-details {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 8px;
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--mat-sys-surface-container-low);
+    border-radius: var(--mat-sys-corner-medium);
+    transition: all 0.2s ease;
+
+    .detail-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--mat-sys-on-surface-variant);
+
+      i-tabler {
+        font-size: 20px;
+        color: var(--mat-sys-primary);
+      }
+    }
+
+    .detail-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mat-sys-on-surface);
+      text-align: right;
+    }
+  }
+}
+
+.appointment-card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 200px;
+  }
+}
+
+// ========================================
+// Lista de Turnos del Día
+// ========================================
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.appointments-table {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--mat-sys-corner-medium);
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+
+  .table-header {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--mat-sys-surface-container);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--mat-sys-on-surface-variant);
+    border-bottom: 2px solid var(--mat-sys-outline-variant);
+  }
+
+  .table-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .table-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    padding: 16px;
+    border-left: 4px solid transparent;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    transition: all 0.2s ease;
+    background: var(--mat-sys-surface);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: var(--mat-sys-surface-container-low);
+    }
+
+    .col-time {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .time-icon {
+        font-size: 18px;
+        color: var(--mat-sys-primary);
+        flex-shrink: 0;
+      }
+
+      .time-text {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--mat-sys-on-surface);
+      }
+    }
+
+    .col-patient {
+      display: flex;
+      align-items: center;
+
+      .patient-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+
+        .patient-icon {
+          font-size: 20px;
+          color: var(--mat-sys-on-surface-variant);
+          flex-shrink: 0;
+        }
+
+        .patient-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--mat-sys-on-surface);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+}
+
+.appointments-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--mat-sys-surface-container-low);
+  border-radius: var(--mat-sys-corner-medium);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant);
+
+  i-tabler {
+    font-size: 20px;
+    color: var(--mat-sys-primary);
   }
 }
 
@@ -290,5 +478,22 @@
 
   .quick-actions-grid {
     grid-template-columns: 1fr;
+  }
+
+  .appointments-table {
+    .table-header {
+      display: none;
+    }
+
+    .table-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 12px;
+
+      .col-time,
+      .col-patient {
+        justify-content: flex-start;
+      }
+    }
   }
 }
