@@ -67,6 +67,7 @@ public class ConsultationController {
 
 
 
+
     @Operation(summary = "Crear odontograma", description = "Crea una odontograma.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Odontograma creada"),
@@ -84,9 +85,12 @@ public class ConsultationController {
     }
 
 
-    @Operation(summary = "Llamar paciente", description = "Dentista llama al paciente.")
+
+
+
+    @Operation(summary = "Actualizar consulta", description = "Actualiza el estado de una consulta por flujo natural o corrección.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Llamado creado"),
+            @ApiResponse(responseCode = "200", description = "Consulta actualizada"),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
@@ -99,6 +103,9 @@ public class ConsultationController {
         return ResponseEntity.ok(response);
 
     }
+
+
+
 
 
 

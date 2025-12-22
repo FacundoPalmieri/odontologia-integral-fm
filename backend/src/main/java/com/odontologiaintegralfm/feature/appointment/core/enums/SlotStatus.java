@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public enum SlotStatus {
     FREE("Disponible", "#4CAF50"),   // verde
-    RESERVED("Reservado", "#F44336"),       // rojo
+    RESERVED("Reservado", "#4b99d2"),       // rojo
     LOCKED("Bloqueo de agenda", "#FF9800");// naranja
 
 

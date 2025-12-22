@@ -40,24 +40,18 @@ public class ConsultationEvent extends Auditable {
     private String observation;
 
 
-    private ConsultationEvent(Consultation consultation, ConsultationEventType eventType, String observation, UserSec creatBy, LocalDateTime createAt, boolean enabled){
+    private ConsultationEvent(Consultation consultation, ConsultationEventType eventType, String observation){
         this.consultation = consultation;
         this.eventType = eventType;
         this.observation = observation;
-        this.setCreatedBy(creatBy);
-        this.setCreatedAt(createAt);
-        this.setEnabled(enabled);
     }
 
 
-    public static ConsultationEvent build(Consultation consultation, ConsultationEventType eventType, String observation, UserSec user) {
+    public static ConsultationEvent build(Consultation consultation, ConsultationEventType eventType, String observation) {
         return new ConsultationEvent(
                 consultation,
                 eventType,
-                observation,
-                user,
-                LocalDateTime.now(),
-                true
+                observation
         );
 
     }

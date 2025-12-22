@@ -193,6 +193,13 @@ public class ConsultationService implements IConsultationService {
      */
     @Override
     @Transactional
+    @LogAction(
+            value = "consultationService.logAction.update.ok",
+            args = {"#idConsultation", "#result.data.patientName", "#result.data.dentistName", "#result.data.consultationStatus"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+
+    )
     public Response<ConsultationResponseDTO> updateStatus(Long idConsultation, ConsultationUpdateRequestDTO update) {
 
         // Recuperamos la consulta.
@@ -209,14 +216,21 @@ public class ConsultationService implements IConsultationService {
                 throw new ConflictException("exception.consultationService.update.statusAfter.user",null,"exception.consultationService.update.statusAfter.log",new Object[]{idConsultation, consultation.getStatus(), update.status(),"ConsultationService", "update"} ,LogLevel.ERROR);
             }
 
-        } else{
-            consultationEventService.create(
-                    ConsultationEvent.build(
+        } else {
+            ConsultationEvent consultationEvent = ConsultationEvent.build(
                             consultation,
                             update.correction().eventType(),
-                            update.correction().observation(),
-                            authenticatedUserService.getAuthenticatedUser()
-                    ));
+                            update.correction().observation()
+                    );
+
+
+            //Campos auditoria
+            consultationEvent.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+            consultationEvent.setCreatedAt(LocalDateTime.now());
+            consultationEvent.setEnabled(true);
+
+            consultationEventService.create(consultationEvent);
+
         }
 
         //Actualiza la consulta.

@@ -15,13 +15,17 @@ import com.odontologiaintegralfm.feature.consultation.core.repository.IConsultat
 import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationHistoryService;
 import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationService;
 import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationOdontogramService;
+import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.interfaces.ISystemParameterService;
 import com.odontologiaintegralfm.infrastructure.websocket.enums.WebSocketEventType;
 import com.odontologiaintegralfm.infrastructure.websocket.service.IWebSocketEventPublisher;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
+import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -43,7 +47,7 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
     private final ITreatmentService treatmentService;
     private final IWebSocketEventPublisher webSocketEventPublisher;
     private final IConsultationHistoryService consultationHistoryService;
-
+    private final MessageSource messageSource;
 
 
     public ConsultationOdontogramService(IConsultationService consultationService,
@@ -52,8 +56,8 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
                                          AuthenticatedUserService authenticatedUserService,
                                          ITreatmentService treatmentService,
                                          IWebSocketEventPublisher webSocketEventPublisher,
-                                         IConsultationHistoryService consultationHistoryService
-    ) {
+                                         IConsultationHistoryService consultationHistoryService,
+                                         MessageSource messageSource) {
         this.consultationService = consultationService;
         this.consultationOdontogramRepository = consultationOdontogramRepository;
         this.systemParameterService = systemParameterService;
@@ -61,7 +65,9 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
         this.treatmentService = treatmentService;
         this.webSocketEventPublisher = webSocketEventPublisher;
         this.consultationHistoryService = consultationHistoryService;
+        this.messageSource = messageSource;
     }
+
 
 
 
@@ -73,8 +79,49 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
      */
     @Override
     @Transactional
+    @LogAction(
+            value = "consultationOdontogramService.logAction.create.ok",
+            args = {"#idConsultation"},
+            type = LogType.SYSTEM,
+            level = LogLevel.INFO
+
+    )
     public Response<Void> createOdontogram(Long idConsultation, List<ToothDTO> odontogram) {
 
+        //Recupera y valida el estado de la consulta.
+        Consultation consultation = validateConsultation(idConsultation);
+
+        //Valida si existe odontogramas activos previos.
+        List<ConsultationOdontogram> previous = validateExistingOdontograms(consultation);
+
+        //Deshabilita odontograma anterior.
+        disablePreviousOdontograms(previous);
+
+        //Construcción de nuevos odontogramas.
+        List<ConsultationOdontogram> newOdontograms = buildOdontograms(consultation, odontogram);
+
+        // Persistimos nuevo odontograma.
+        consultationOdontogramRepository.saveAll(newOdontograms);
+
+        //Actualizamos el estado en la consulta a pendiente de pago.
+        updateConsultationStatusToPendingPayment(consultation);
+
+        // Registramos evento en la bitácora de la consulta.
+        registerConsultationHistory(consultation);
+
+        // Disparamos notificación por WebSocket
+        publishAttentionFinishedEvent(consultation);
+
+        return new Response<>(true,messageSource.getMessage("consultationOdontogramService.ok", null, LocaleContextHolder.getLocale()) , null);
+    }
+
+
+    /**
+     * Recupera y valida el estado de la consulta.
+     * Se valida que no sea "WAITING_ROOM", ya que es el único estado en el que no se puede crear Odontogramas.
+     * En otros estados sería posible si se trata de correcciones.
+     */
+    private Consultation validateConsultation(Long idConsultation) {
         // Recuperamos la consulta.
         Consultation consultation = consultationService.getById(idConsultation);
 
@@ -84,8 +131,17 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
 
         }
 
+        return consultation;
+
+    }
+
+
+    /**
+     * Recupera odontogramas previos, y en caso de existir valída que no se supere el número de correcciones posibles.
+     */
+    private List<ConsultationOdontogram> validateExistingOdontograms(Consultation consultation) {
         // Validamos si existe odontograma activo.
-        List<ConsultationOdontogram> consultationOdontograms = consultationOdontogramRepository.findAllByConsultationId(idConsultation);
+        List<ConsultationOdontogram> consultationOdontograms = consultationOdontogramRepository.findAllByConsultationId(consultation.getId());
 
         // Validamos la consulta tiene más de un odontograma.
         if (consultationOdontograms.size() > 1) {
@@ -94,41 +150,61 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
             int maxCorrection = Integer.parseInt(systemParameterService.getByKey(ODONTOGRAM_CORRECTIONS));
 
             if (consultationOdontograms.size() > maxCorrection) {
-                throw new ConflictException("exception.odontogram.maxCorrection.user", null, "exception.odontogram.maxCorrection.log", new Object[]{idConsultation, consultationOdontograms.size(), maxCorrection, "ConsultationOdontogramService", "create"}, LogLevel.ERROR);
+                throw new ConflictException("exception.odontogram.maxCorrection.user", null, "exception.odontogram.maxCorrection.log", new Object[]{consultation.getId(), consultationOdontograms.size(), maxCorrection, "ConsultationOdontogramService", "create"}, LogLevel.ERROR);
             }
 
-            // Damos de baja lógica al odontograma anterior.
-            List<ConsultationOdontogram> odontogramsOld = new ArrayList<>();
-            for (ConsultationOdontogram o : consultationOdontograms) {
-                if (o.isEnabled()) {
-                    o.setEnabled(false);
-                    o.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
-                    o.setDisabledAt(LocalDateTime.now());
-                    odontogramsOld.add(o);
-                }
+        }
+        return consultationOdontograms;
+    }
+
+
+    /**
+     * Deshabilita los odontogramas anteriores (debería ser solo uno el habilitado)
+     */
+    private void disablePreviousOdontograms(List<ConsultationOdontogram> odontograms) {
+
+        // Damos de baja lógica al odontograma anterior.
+        List<ConsultationOdontogram> odontogramsOld = new ArrayList<>();
+
+        for (ConsultationOdontogram o : odontograms) {
+            if (o.isEnabled()) {
+                o.setEnabled(false);
+                o.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
+                o.setDisabledAt(LocalDateTime.now());
+                odontogramsOld.add(o);
             }
-            //Persistimos la actualización
-            consultationOdontogramRepository.saveAll(odontogramsOld);
         }
 
-        // Mapeamos a la entidad.
-        List<ConsultationOdontogram> consultationOdontogramsNew = new ArrayList<>();
+        //Persistimos la actualización
+        consultationOdontogramRepository.saveAll(odontogramsOld);
+    }
+
+
+    /**
+     * Construye el nuevo Odontograma.
+     */
+    private List<ConsultationOdontogram> buildOdontograms(Consultation consultation, List<ToothDTO> odontogram) {
+
 
         //Recuperamos todos los tratamientos para evitar múltiples llamadas a la BD dentro del foreach.
-        Map<Long,Treatment> treatmentMap = treatmentService.getAll()
+        Map<Long, Treatment> treatmentMap = treatmentService.getAll()
                 .stream()
                 .collect(Collectors.toMap(
                         treatment -> treatment.getId(),
                         treatment -> treatment
                 ));
 
+
+        // Mapeamos a la entidad.
+        List<ConsultationOdontogram> consultationOdontogramsNew = new ArrayList<>();
+
         for (ToothDTO o : odontogram) {
 
             //Obtenemos el tratamiento.
-            for(TreatmentRequestDTO t : o.treatments()){
+            for (TreatmentRequestDTO t : o.treatments()) {
                 Treatment treatment = treatmentMap.get(t.idTreatment());
-                if(treatment == null){
-                    throw  new ConflictException("exception.treatment.notFound.user",null,"exception.treatment.notFound.log",new Object[]{t.idTreatment(),"ConsultationOdontogramService","getAll" }, LogLevel.ERROR);
+                if (treatment == null) {
+                    throw new ConflictException("exception.treatment.notFound.user", null, "exception.treatment.notFound.log", new Object[]{t.idTreatment(), "ConsultationOdontogramService", "getAll"}, LogLevel.ERROR);
                 }
 
                 ConsultationOdontogram consultationOdontogram = ConsultationOdontogram.build(
@@ -146,16 +222,33 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
                 consultationOdontogramsNew.add(consultationOdontogram);
             }
         }
+        return consultationOdontogramsNew;
+    }
 
-        // Persistimos nuevo odontograma.
-        consultationOdontogramRepository.saveAll(consultationOdontogramsNew);
 
+    /**
+     * Actualiza el estado de la consulta a pendiente de pago.
+     */
+    private void updateConsultationStatusToPendingPayment(Consultation consultation) {
         //Actualizamos el estado en la consulta
-        consultationService.updateStatus(consultation.getId(), new ConsultationUpdateRequestDTO(ConsultationStatusType.PENDING_PAYMENT, null));
+        consultationService.updateStatus(
+                consultation.getId(),
+                new ConsultationUpdateRequestDTO(
+                        ConsultationStatusType.PENDING_PAYMENT,
+                        null)
+        );
+    }
 
 
+    /**
+     * Registra historial de consulta y persiste.
+     */
+    private void registerConsultationHistory(Consultation consultation) {
         // Registramos evento en la bitácora de la consulta.
-        ConsultationHistory consultationHistory = ConsultationHistory.build(consultation, ConsultationStatusType.PENDING_PAYMENT);
+        ConsultationHistory consultationHistory = ConsultationHistory.build(
+                consultation,
+                ConsultationStatusType.PENDING_PAYMENT
+        );
 
         //Campos auditoria
         consultationHistory.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
@@ -163,9 +256,13 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
         consultationHistory.setEnabled(true);
 
         consultationHistoryService.create(consultationHistory);
+    }
 
 
-
+    /**
+     * Dispara la notificación WebSocket.
+     */
+    private void publishAttentionFinishedEvent(Consultation consultation) {
         ConsultationResponseDTO consultationResponseDTO = new ConsultationResponseDTO(
                 consultation.getId(),
                 consultation.getPatient().getPerson().getLastName() + "," + consultation.getPatient().getPerson().getFirstName(),
@@ -178,12 +275,7 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
                 WebSocketEventType.ATTENTION_FINISHED,
                 consultationResponseDTO
         );
-
-
-        return new Response<>(true, "consultationOdontogramService.ok", null);
     }
-
-
 
 
 
@@ -194,9 +286,9 @@ public class ConsultationOdontogramService implements IConsultationOdontogramSer
      */
     @Override
     public Optional<ConsultationOdontogram> getById(Long idConsultation) {
-        try{
+        try {
             return consultationOdontogramRepository.findById(idConsultation);
-        }catch(DataAccessException | CannotCreateTransactionException e){
+        } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "ConsultationOdontogramService", idConsultation, null, "getById");
         }
     }

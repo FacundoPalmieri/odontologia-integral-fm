@@ -132,7 +132,7 @@ public class AppointmentService implements IAppointmentService {
         Patient patient = patientService.getByIdInternal(appointmentCreateRequestDTO.idPatient());
 
         //Validar que no haya otro turno
-        Optional<Appointment> appointmentExisting = appointmentRepository.findByDentistIdAndDate(dentist.getId(), appointmentCreateRequestDTO.dateTime());
+        Optional<Appointment> appointmentExisting = appointmentRepository.findByDentistIdAndDate(dentist.getId(), appointmentCreateRequestDTO.dateTime().plusMinutes(1));
         if (appointmentExisting.isPresent()) {
             throw new ConflictException("exception.appointmentConflict.user", null, "exception.appointmentConflict.log", new Object[]{appointmentExisting.get().getId(), "Appointment Service", "create"}, LogLevel.ERROR);
         }

@@ -19,6 +19,7 @@ public enum ConsultationStatusType {
 
 
     public boolean isAfter(ConsultationStatusType other) {
-        return ordinal() > other.ordinal();
+
+        return other.ordinal() > this.ordinal();
     }
 }
