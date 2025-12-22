@@ -30,6 +30,7 @@ import { MatBadgeModule } from "@angular/material/badge";
 import { PersonDataService } from "../../../services/person-data.service";
 import { AccessControlService } from "../../../services/access-control.service";
 import { PermissionsEnum } from "../../../utils/enums/permissions.enum";
+import { NotificationsComponent } from "../../components/notifications/notifications.component";
 
 @Component({
   selector: "app-layout",
@@ -49,6 +50,7 @@ import { PermissionsEnum } from "../../../utils/enums/permissions.enum";
     RouterModule,
     IconsModule,
     MatBadgeModule,
+    NotificationsComponent,
   ],
 })
 export class LayoutComponent implements OnInit, OnDestroy {

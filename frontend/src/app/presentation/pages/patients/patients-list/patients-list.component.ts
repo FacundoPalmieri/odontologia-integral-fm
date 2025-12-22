@@ -88,7 +88,7 @@ export class PatientsListComponent implements OnDestroy, AfterViewInit {
   ];
 
   currentPage = 0;
-  pageSize = 10;
+  pageSize = 10000;
   sortBy = "person.lastName";
   sortDirection = "asc";
 
@@ -183,9 +183,10 @@ export class PatientsListComponent implements OnDestroy, AfterViewInit {
                     patient.avatarUrl = avatar;
                   } else {
                     const gender = patient.person?.gender?.toLowerCase();
-                    patient.avatarUrl = gender === "femenino" 
-                      ? "img/women-avatar.png" 
-                      : "img/men-avatar.png";
+                    patient.avatarUrl =
+                      gender === "femenino"
+                        ? "img/women-avatar.png"
+                        : "img/men-avatar.png";
                   }
                   this.patients.set([...this.patients()]);
                 });

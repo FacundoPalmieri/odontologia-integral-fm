@@ -31,6 +31,9 @@ import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar
 import { ActivatedRoute } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatDialog } from "@angular/material/dialog";
+import { ConfirmDialogComponent } from "../../components/confirm-dialog/confirm-dialog.component";
+import { ConflictDialogComponent } from "../../components/conflict-dialog/conflict-dialog.component";
 
 @Component({
   selector: "app-dentist-availability",
@@ -59,6 +62,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   private readonly dentistService = inject(DentistService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly fb = inject(FormBuilder);
+  private readonly dialog = inject(MatDialog);
 
   dentistId: number | null = null;
 
@@ -421,6 +425,25 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
       return;
     }
 
+    // Mostrar diálogo de confirmación
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        message:
+          "¿Está seguro que desea modificar la disponibilidad laboral? Esto puede afectar turnos futuros ya agendados.",
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      // Si el usuario confirmó, proceder con el guardado
+      this._performSave(dentistId);
+    });
+  }
+
+  private _performSave(dentistId: number): void {
     // Combinar días semanales y específicos
     const allDays: DentistDayAvailabilityInterface[] = [];
 
@@ -478,13 +501,14 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
           response: ApiResponseInterface<DentistAvailabilitySaveResponseInterface>
         ) => {
           if (response.data.appointmentConflict.length > 0) {
-            this.snackbarService.openSnackbar(
-              response.message,
-              6000,
-              "center",
-              "top",
-              SnackbarTypeEnum.Error
-            );
+            // Abrir diálogo con los conflictos
+            this.dialog.open(ConflictDialogComponent, {
+              data: {
+                conflicts: response.data.appointmentConflict,
+              },
+              width: "800px",
+              maxWidth: "90vw",
+            });
           } else {
             this.snackbarService.openSnackbar(
               response.message,

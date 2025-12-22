@@ -1,0 +1,87 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler
+    name="alert-triangle"
+    class="text-[var(--mat-sys-error)]"
+  ></i-tabler>
+  <span>Conflictos de turnos detectados</span>
+</h2>
+<mat-dialog-content class="!p-4 !pt-0">
+  <div class="mb-4">
+    <p class="text-[var(--mat-sys-on-surface-variant)]">
+      Se detectaron {{ conflicts.length }} conflicto{{
+        conflicts.length !== 1 ? "s" : ""
+      }}
+      con turnos ya agendados. Por favor, revisa los siguientes turnos:
+    </p>
+  </div>
+
+  <div class="max-h-[60vh] overflow-y-auto">
+    <mat-card
+      appearance="outlined"
+      class="!bg-[var(--mat-sys-file-container-background)]"
+    >
+      <mat-card-content>
+        <div class="overflow-x-auto">
+          <table mat-table [dataSource]="conflicts" class="w-full">
+            <!-- Patient Name Column -->
+            <ng-container matColumnDef="patientName">
+              <th mat-header-cell *matHeaderCellDef>Paciente</th>
+              <td mat-cell *matCellDef="let element">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">{{ element.patientName }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Date Column -->
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Fecha y Hora</th>
+              <td mat-cell *matCellDef="let element">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-1">
+                    <i-tabler name="calendar" class="scale-90"></i-tabler>
+                    <span>{{ formatDate(element.appointmentDateTime) }}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <i-tabler name="clock" class="scale-90"></i-tabler>
+                    <span class="font-bold">{{
+                      formatTime(element.appointmentDateTime)
+                    }}</span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Origin Conflict Column -->
+            <ng-container matColumnDef="origin">
+              <th mat-header-cell *matHeaderCellDef>Motivo</th>
+              <td mat-cell *matCellDef="let element">
+                <div class="flex items-center gap-2">
+                  @if (element.nameOriginConflict) {
+                  <span
+                    class="px-3 py-1 rounded-xl text-white text-sm font-medium bg-[#f56565]"
+                  >
+                    {{ element.nameOriginConflict }}
+                  </span>
+                  } @else {
+                  <span
+                    class="text-sm text-[var(--mat-sys-on-surface-variant)]"
+                  >
+                    Sin información
+                  </span>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="false">Cerrar</button>
+</mat-dialog-actions>

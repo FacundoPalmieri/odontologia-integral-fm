@@ -1,0 +1,41 @@
+<button
+  mat-icon-button
+  [matMenuTriggerFor]="notificationsMenu"
+  matTooltip="Notificaciones"
+>
+  <i-tabler name="bell"></i-tabler>
+</button>
+
+<mat-menu #notificationsMenu="matMenu" class="notifications-menu">
+  <div class="overflow-y-auto overflow-x-hidden">
+    @if (notifications().length === 0) {
+    <div
+      class="flex flex-col items-center justify-center p-8 gap-4 text-[var(--mat-sys-on-surface-variant)]"
+    >
+      <i-tabler
+        name="bell-off"
+        class="text-5xl w-12 h-12 opacity-50"
+      ></i-tabler>
+      <p class="m-0 text-sm text-center">No hay notificaciones</p>
+    </div>
+    } @else {
+    <mat-list class="!p-0">
+      @for (notification of notifications(); track notification.id) {
+      <mat-list-item
+        class="cursor-pointer transition-colors duration-200 hover:bg-[var(--mat-sys-surface-container-high)] !px-4"
+      >
+        <div class="flex flex-col gap-1 w-full overflow-hidden">
+          <span class="font-medium text-sm break-words">{{
+            notification.title
+          }}</span>
+          <span
+            class="text-xs text-[var(--mat-sys-on-surface-variant)] break-words"
+            >{{ notification.description }}</span
+          >
+        </div>
+      </mat-list-item>
+      }
+    </mat-list>
+    }
+  </div>
+</mat-menu>

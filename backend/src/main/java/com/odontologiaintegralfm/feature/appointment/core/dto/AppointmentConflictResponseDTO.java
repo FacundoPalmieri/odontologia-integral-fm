@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 
 
 public record AppointmentConflictResponseDTO(
-        Long appointemntId,
-        LocalDateTime appointemntDateTime,
+        Long appointmentId,
+        LocalDateTime appointmentDateTime,
         String patientName,
         Long idOriginConflict,
         String nameOriginConflict
