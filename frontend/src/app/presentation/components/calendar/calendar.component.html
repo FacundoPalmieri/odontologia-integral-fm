@@ -742,15 +742,15 @@
                         <div class="slot-locked-content">
                           <div class="locked-info">
                             <span class="slot-time">
-                              {{ slot.starTime?.substring(0, 5) || "00:00" }} -
-                              {{ slot.endTime?.substring(0, 5) || "00:00" }}
+                              {{ slot.starTime!.substring(0, 5) || "00:00" }} -
+                              {{ slot.endTime!.substring(0, 5) || "00:00" }}
                             </span>
                             <span class="lock-type">{{
                               slot.calendarLock.lockType
                             }}</span>
                             <span class="lock-observation">
                               {{
-                                slot.calendarLock?.observation ||
+                                slot.calendarLock.observation ||
                                   "[Sin observación]"
                               }}
                             </span>

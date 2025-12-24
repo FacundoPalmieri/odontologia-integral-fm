@@ -243,4 +243,34 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  requestPasswordReset(): void {
+    const userEmail = this.user()?.person?.contactEmails;
+
+    if (!userEmail) {
+      this.snackbarService.openSnackbar(
+        "No se encontró un email asociado a tu cuenta.",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+      return;
+    }
+
+    this.authService
+      .resetPasswordRequest(userEmail)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: () => {
+          this.snackbarService.openSnackbar(
+            "Se ha enviado un correo con las instrucciones para restablecer tu contraseña.",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success
+          );
+        },
+      });
+  }
 }
