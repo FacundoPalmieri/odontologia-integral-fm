@@ -586,15 +586,15 @@
                       <div class="slot-locked-content">
                         <div class="locked-info">
                           <span class="slot-time">
-                            {{ slot.starTime?.substring(0, 5) || "00:00" }} -
-                            {{ slot.endTime?.substring(0, 5) || "00:00" }}
+                            {{ slot.starTime.substring(0, 5) || "00:00" }} -
+                            {{ slot.endTime.substring(0, 5) || "00:00" }}
                           </span>
                           <span class="lock-type">{{
                             slot.calendarLock.lockType
                           }}</span>
                           <span class="lock-observation">
                             {{
-                              slot.calendarLock?.observation ||
+                              slot.calendarLock.observation ||
                                 "[Sin observación]"
                             }}
                           </span>
@@ -605,10 +605,10 @@
                       <!-- Fila con horario y nombre del paciente -->
                       <div class="slot-info-row">
                         <span class="slot-time">
-                          {{ slot.starTime?.substring(0, 5) || "00:00" }} -
-                          {{ slot.endTime?.substring(0, 5) || "00:00" }}
+                          {{ slot.starTime.substring(0, 5) || "00:00" }} -
+                          {{ slot.endTime.substring(0, 5) || "00:00" }}
                         </span>
-                        @if (slot.appointment?.patientName) {
+                        @if (slot.appointment.patientName) {
                         <span class="slot-patient">{{
                           slot.appointment.patientName
                         }}</span>
@@ -616,7 +616,7 @@
                       </div>
 
                       <!-- Nombre del dentista abajo -->
-                      @if (slot.appointment?.dentistName) {
+                      @if (slot.appointment.dentistName) {
                       <span class="slot-dentist">{{
                         slot.appointment.dentistName
                       }}</span>
