@@ -4,7 +4,7 @@ import { MatDialogModule, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { FormsModule } from "@angular/forms";
+import { ReactiveFormsModule, FormControl, Validators } from "@angular/forms";
 import { IconsModule } from "../../../utils/tabler-icons.module";
 import { AppointmentConflictInterface } from "../../../domain/interfaces/appointment.inteface";
 
@@ -17,12 +17,12 @@ import { AppointmentConflictInterface } from "../../../domain/interfaces/appoint
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule,
+    ReactiveFormsModule,
     IconsModule,
   ],
   templateUrl: "./cancel-appointment-dialog.component.html",
 })
 export class CancelAppointmentDialog {
   data: { conflict: AppointmentConflictInterface } = inject(MAT_DIALOG_DATA);
-  observation: string = "";
+  observationControl = new FormControl("", [Validators.required]);
 }

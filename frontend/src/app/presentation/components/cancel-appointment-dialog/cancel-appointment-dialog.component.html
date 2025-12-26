@@ -9,14 +9,21 @@
     >?
   </p>
   <mat-form-field class="w-full">
-    <mat-label>Observación (opcional)</mat-label>
+    <mat-label>Observación</mat-label>
     <input
       matInput
-      [(ngModel)]="observation"
+      [formControl]="observationControl"
       maxlength="50"
-      placeholder="Ingrese una observación"
+      placeholder="Ingrese el motivo de la cancelación"
+      required
     />
-    <mat-hint align="end">{{ observation.length }}/50</mat-hint>
+    <mat-hint align="end"
+      >{{ observationControl.value?.length || 0 }}/50</mat-hint
+    >
+    @if (observationControl.hasError('required') && observationControl.touched)
+    {
+    <mat-error>La observación es obligatoria</mat-error>
+    }
   </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
@@ -24,7 +31,11 @@
   <button
     mat-flat-button
     color="warn"
-    [mat-dialog-close]="{ confirmed: true, observation: observation }"
+    [disabled]="observationControl.invalid"
+    [mat-dialog-close]="{
+      confirmed: true,
+      observation: observationControl.value
+    }"
   >
     Confirmar
   </button>

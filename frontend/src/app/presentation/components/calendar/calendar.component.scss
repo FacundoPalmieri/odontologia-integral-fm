@@ -314,7 +314,7 @@
 
       .day-full-badge,
       .day-locked-badge,
-      .day-not-available-badge,
+      .day-free-badge,
       .day-holiday-badge {
         display: inline-flex;
         align-items: center;
@@ -614,7 +614,7 @@
           // Badges en vista semanal - estilos compartidos
           .week-day-holiday-badge,
           .week-day-full-badge,
-          .week-day-not-available-badge,
+          .week-day-free-badge,
           .week-day-locked-badge {
             display: inline-flex;
             align-items: center;
@@ -1064,58 +1064,6 @@
           white-space: nowrap;
           line-height: 1.2;
           transition: all 0.3s ease;
-        }
-      }
-
-      .day-events {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-        overflow: hidden;
-
-        .month-event {
-          background: var(--mat-sys-primary);
-          color: var(--mat-sys-on-primary);
-          border-radius: 4px;
-          padding: 2px 6px;
-          margin-bottom: 2px;
-          font-size: 10px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          flex-shrink: 0;
-          border-left: 3px solid rgba(255, 255, 255, 0.3);
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-          max-width: 100%;
-          width: 100%;
-
-          &:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-            z-index: 10;
-            position: relative;
-          }
-        }
-
-        .more-events {
-          color: var(--mat-sys-on-surface-variant);
-          font-size: 10px;
-          font-weight: 500;
-          cursor: pointer;
-          padding: 2px 6px;
-          flex-shrink: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          max-width: 100%;
-
-          &:hover {
-            color: var(--mat-sys-on-surface);
-          }
         }
       }
     }

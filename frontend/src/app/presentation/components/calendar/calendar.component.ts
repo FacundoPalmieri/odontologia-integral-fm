@@ -49,15 +49,6 @@ import { DentistDtoInterface } from "../../../domain/dto/dentist.dto";
 import { ConflictDialogComponent } from "../conflict-dialog/conflict-dialog.component";
 import { AppointmentService } from "../../../services/appointment.service";
 
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  color?: string;
-  description?: string;
-}
-
 export type CalendarView = "day" | "week" | "month";
 
 // Interfaz para agrupar dentistas por especialidad
@@ -151,9 +142,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   // Configuración de horarios de trabajo
   workStartHour = 0; // 12:00 AM (medianoche)
   workEndHour = 24; // 12:00 AM (medianoche del día siguiente)
-
-  // Eventos de ejemplo distribuidos en octubre y noviembre de 2025
-  events: CalendarEvent[] = [];
 
   // Horarios para vista de día (cada 30 minutos)
   timeSlots: string[] = [];
@@ -530,37 +518,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     return weeks;
   }
 
-  getEventsForDate(date: Date): CalendarEvent[] {
-    return this.events.filter((event) => {
-      const eventDate = new Date(event.start);
-      return eventDate.toDateString() === date.toDateString();
-    });
-  }
-
-  getEventsForTimeSlot(date: Date, timeSlot: string): CalendarEvent[] {
-    const [hours] = timeSlot.split(":").map(Number);
-    const slotStart = new Date(date);
-    slotStart.setHours(hours, 0, 0, 0);
-    const slotEnd = new Date(slotStart);
-    slotEnd.setHours(slotEnd.getHours() + 1);
-
-    return this.events.filter((event) => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
-
-      // Verificar que el evento sea del mismo día
-      const isSameDay = eventStart.toDateString() === date.toDateString();
-
-      // Verificar si el evento se superpone con el slot de tiempo
-      const overlaps =
-        (eventStart >= slotStart && eventStart < slotEnd) ||
-        (eventEnd > slotStart && eventEnd <= slotEnd) ||
-        (eventStart <= slotStart && eventEnd >= slotEnd);
-
-      return isSameDay && overlaps;
-    });
-  }
-
   isToday(date: Date): boolean {
     const today = new Date();
     return date.toDateString() === today.toDateString();
@@ -570,34 +527,16 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     return date.getMonth() === this.selectedDate.getMonth();
   }
 
-  formatDate(date: Date): string {
-    return date.toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
-  formatWeekDate(date: Date): string {
-    return date.toLocaleDateString("es-ES", {
-      month: "short",
-      day: "numeric",
-    });
-  }
-
-  onDateClick(date: Date) {
-    this.selectedDate = date;
-    this.currentView = "day";
-    // Load day view data when clicking on a date
-    this.loadDayView();
+  /**
+   * Check if a day is NOT_AVAILABLE (for styling in monthly view)
+   */
+  isNotAvailableDay(date: Date): boolean {
+    const dayData = this.getDayFromBackend(date);
+    return dayData?.status === CalendarMonthDayStatusEnum.NOT_AVAILABLE;
   }
 
   selectDate(date: Date) {
     this.selectedDate = date;
-  }
-
-  onEventClick(event: CalendarEvent) {
-    // Aquí puedes abrir un diálogo o navegar a los detalles del evento
   }
 
   /**
@@ -628,33 +567,18 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get the color with opacity for a specific day
-   * Converts hex color to rgba with specified opacity
-   */
-  getDayColorWithOpacity(date: Date, opacity: number = 0.4): string | null {
-    const color = this.getDayColor(date);
-    if (!color) return null;
-
-    // Convertir hex a rgb
-    const hex = color.replace("#", "");
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  }
-
-  /**
-   * Get the description for a specific day (for holidays, full days, locked days, and not available days)
+   * Get the description for a specific day (for holidays, full days, locked days, and free days)
+   * NOT_AVAILABLE days are excluded from showing badges in monthly view
    */
   getDayDescription(date: Date): string | null {
     const dayData = this.getDayFromBackend(date);
-    // Mostrar descripción si es feriado, día completo, día bloqueado o no disponible
+    // Mostrar descripción si es feriado, día completo, día bloqueado o libre (FREE)
+    // NOT_AVAILABLE no muestra badge, solo se deshabilita visualmente
     if (
       dayData?.status === CalendarMonthDayStatusEnum.HOLIDAY ||
       dayData?.status === CalendarMonthDayStatusEnum.FULL ||
       dayData?.status === CalendarMonthDayStatusEnum.LOCKED ||
-      dayData?.status === CalendarMonthDayStatusEnum.NOT_AVAILABLE
+      dayData?.status === CalendarMonthDayStatusEnum.FREE
     ) {
       return dayData.description;
     }
@@ -679,8 +603,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return "🔒"; // Candado para días bloqueados
     }
 
-    if (dayData?.status === CalendarMonthDayStatusEnum.NOT_AVAILABLE) {
-      return "🚫"; // No disponible
+    if (dayData?.status === CalendarMonthDayStatusEnum.FREE) {
+      return "✅"; // Check para días libres/disponibles
     }
 
     return "📅"; // Calendario por defecto
@@ -707,28 +631,30 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Check if the current day view is completely NOT_AVAILABLE
+   * Check if the current day view is FREE (available)
    */
-  isDayViewNotAvailable(): boolean {
+  isDayViewFree(): boolean {
     const dayData = this.calendarDayData();
-    return dayData?.calendarDayStatus?.key === ("NOT_AVAILABLE" as any);
+    return dayData?.calendarDayStatus?.key === ("FREE" as any);
   }
 
   /**
-   * Get description for NOT_AVAILABLE day in day view
+   * Get description for FREE day in day view
    */
-  getDayViewNotAvailableDescription(): string {
+  getDayViewFreeDescription(): string {
     const dayData = this.calendarDayData();
-
-    // Try to get description from the first NOT_AVAILABLE slot
-    if (dayData?.slots) {
-      const notAvailableSlot = dayData.slots.find(
-        (slot) => slot.status === "NOT_AVAILABLE"
-      );
-      return notAvailableSlot?.calendarLock?.observation || "No disponible";
+    if (dayData?.calendarDayStatus?.description) {
+      return dayData.calendarDayStatus.description;
     }
+    return "Disponible";
+  }
 
-    return "No disponible";
+  /**
+   * Get color for FREE badge in day view
+   */
+  getDayViewFreeColor(): string {
+    const dayData = this.calendarDayData();
+    return dayData?.calendarDayStatus?.color || "#10b981"; // Verde por defecto
   }
 
   /**
@@ -840,32 +766,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Check if a day in week view is completely NOT_AVAILABLE
-   */
-  isWeekDayNotAvailable(date: Date): boolean {
-    const dayData = this.getWeekDayData(date);
-    // Check if calendarDayStatus.key is NOT_AVAILABLE (full day)
-    return dayData?.calendarDayStatus?.key === ("NOT_AVAILABLE" as any);
-  }
-
-  /**
-   * Get description for a day in week view (for NOT_AVAILABLE days)
-   */
-  getWeekDayDescription(date: Date): string | null {
-    const dayData = this.getWeekDayData(date);
-
-    // If the whole day is NOT_AVAILABLE, try to get description from the first NOT_AVAILABLE slot
-    if (this.isWeekDayNotAvailable(date) && dayData?.slots) {
-      const notAvailableSlot = dayData.slots.find(
-        (slot) => slot.status === "NOT_AVAILABLE"
-      );
-      return notAvailableSlot?.calendarLock?.observation || "No trabaja";
-    }
-
-    return null;
-  }
-
-  /**
    * Check if a day in week view is a HOLIDAY
    */
   isWeekDayHoliday(date: Date): boolean {
@@ -934,14 +834,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get color for not available badge in day view
-   */
-  getDayViewNotAvailableColor(): string {
-    const dayData = this.calendarDayData();
-    return dayData?.calendarDayStatus?.color || "#9e9e9e"; // Gris por defecto
-  }
-
-  /**
    * Get color for holiday badge in week view
    */
   getWeekDayHolidayColor(date: Date): string {
@@ -958,6 +850,33 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Check if a day in week view is FREE (available)
+   */
+  isWeekDayFree(date: Date): boolean {
+    const dayData = this.getWeekDayData(date);
+    return dayData?.calendarDayStatus?.key === ("FREE" as any);
+  }
+
+  /**
+   * Get description for a FREE day in week view
+   */
+  getWeekDayFreeDescription(date: Date): string | null {
+    const dayData = this.getWeekDayData(date);
+    if (dayData?.calendarDayStatus?.description) {
+      return dayData.calendarDayStatus.description;
+    }
+    return "Disponible";
+  }
+
+  /**
+   * Get color for FREE badge in week view
+   */
+  getWeekDayFreeColor(date: Date): string {
+    const dayData = this.getWeekDayData(date);
+    return dayData?.calendarDayStatus?.color || "#10b981"; // Verde por defecto
+  }
+
+  /**
    * Get color for full badge in week view
    */
   getWeekDayFullColor(date: Date): string {
@@ -971,14 +890,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   getWeekDayLockedColor(date: Date): string {
     const dayData = this.getWeekDayData(date);
     return dayData?.calendarDayStatus?.color || "#f59e0b"; // Naranja por defecto
-  }
-
-  /**
-   * Get color for not available badge in week view
-   */
-  getWeekDayNotAvailableColor(date: Date): string {
-    const dayData = this.getWeekDayData(date);
-    return dayData?.calendarDayStatus?.color || "#9e9e9e"; // Gris por defecto
   }
 
   /**
@@ -1040,19 +951,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     const hours = parseInt(parts[0], 10) || 0;
     const minutes = parseInt(parts[1], 10) || 0;
     return [hours, minutes];
-  }
-
-  /**
-   * Get display text for a slot based on its status and appointment data
-   */
-  getSlotDisplayText(slot: any): string {
-    if (slot.status === "RESERVED" && slot.appointment) {
-      return slot.appointment.patientName || "Cita reservada";
-    }
-    if (slot.status === "LOCKED") {
-      return "Bloqueado";
-    }
-    return "Ocupado";
   }
 
   // Método para cambiar los horarios de trabajo
