@@ -48,6 +48,7 @@ import { FileService } from "../../../../../services/file.service";
 import { MatTableModule } from "@angular/material/table";
 import { AttachedFileComponent } from "../../../../components/attached-file/attached-file.component";
 import { EntityTypeEnum } from "../../../../../utils/enums/entity-type.enum";
+import { RoleEnum } from "../../../../../utils/enums/role.enum";
 
 @Component({
   selector: "app-user-edit-page",
@@ -186,25 +187,54 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       .get("rolesList")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
       .subscribe((roles: RoleInterface[]) => {
-        const hasDentistRole = roles?.some((role) => role.name === "DENTIST");
-        this.showProfessionalData.set(hasDentistRole);
+        const hasDentistOrAdministratorRole = roles?.some(
+          (role) =>
+            role.name === RoleEnum.DENTIST ||
+            role.name === RoleEnum.ADMINISTRATOR
+        );
+        const hasDentistRole = roles?.some(
+          (role) => role.name === RoleEnum.DENTIST
+        );
+        this.showProfessionalData.set(hasDentistOrAdministratorRole);
 
-        if (hasDentistRole && !this.userForm.get("dentist")) {
+        if (hasDentistOrAdministratorRole && !this.userForm.get("dentist")) {
+          // Create dentist form group with conditional validators
+          const validators = hasDentistRole ? [Validators.required] : [];
           this.userForm.addControl(
             "dentist",
             new FormGroup({
               licenseNumber: new FormControl<string | null>("", [
-                Validators.required,
+                ...validators,
                 Validators.maxLength(30),
               ]),
               dentistSpecialty:
-                new FormControl<DentistSpecialtyInterface | null>(null, [
-                  Validators.required,
-                ]),
+                new FormControl<DentistSpecialtyInterface | null>(
+                  null,
+                  validators
+                ),
             })
           );
-        } else if (!hasDentistRole && this.userForm.get("dentist")) {
+        } else if (
+          !hasDentistOrAdministratorRole &&
+          this.userForm.get("dentist")
+        ) {
           this.userForm.removeControl("dentist");
+        } else if (
+          hasDentistOrAdministratorRole &&
+          this.userForm.get("dentist")
+        ) {
+          // Update validators if dentist form group already exists
+          const validators = hasDentistRole ? [Validators.required] : [];
+          this.userForm
+            .get("dentist.licenseNumber")
+            ?.setValidators([...validators, Validators.maxLength(30)]);
+          this.userForm
+            .get("dentist.dentistSpecialty")
+            ?.setValidators(validators);
+          this.userForm.get("dentist.licenseNumber")?.updateValueAndValidity();
+          this.userForm
+            .get("dentist.dentistSpecialty")
+            ?.updateValueAndValidity();
         }
       });
 
@@ -456,25 +486,36 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
 
   private updateLicenseNumberValidation(roles: RoleInterface[] | null): void {
     if (!roles) {
-      this.userForm.get("licenseNumber")?.clearValidators();
+      this.userForm.get("dentist.licenseNumber")?.clearValidators();
+      this.userForm.get("dentist.dentistSpecialty")?.clearValidators();
       this.showProfessionalData.set(false);
       return;
     }
 
-    const hasDentistRole = roles.some((role) => role.name === "DENTIST");
-    this.showProfessionalData.set(hasDentistRole);
+    const hasDentistAdministratorRole = roles.some(
+      (role) =>
+        role.name === RoleEnum.DENTIST || role.name === RoleEnum.ADMINISTRATOR
+    );
+    const hasDentistRole = roles.some((role) => role.name === RoleEnum.DENTIST);
+    this.showProfessionalData.set(hasDentistAdministratorRole);
 
+    // Only require license number and specialty for DENTIST role
     if (hasDentistRole) {
-      this.userForm.get("licenseNumber")?.setValidators([Validators.required]);
       this.userForm
-        .get("dentistSpecialty")
+        .get("dentist.licenseNumber")
+        ?.setValidators([Validators.required, Validators.maxLength(30)]);
+      this.userForm
+        .get("dentist.dentistSpecialty")
         ?.setValidators([Validators.required]);
     } else {
-      this.userForm.get("licenseNumber")?.clearValidators();
-      this.userForm.get("dentistSpecialty")?.clearValidators();
+      // For ADMINISTRATOR, make them optional
+      this.userForm
+        .get("dentist.licenseNumber")
+        ?.setValidators([Validators.maxLength(30)]);
+      this.userForm.get("dentist.dentistSpecialty")?.clearValidators();
     }
-    this.userForm.get("licenseNumber")?.updateValueAndValidity();
-    this.userForm.get("dentistSpecialty")?.updateValueAndValidity();
+    this.userForm.get("dentist.licenseNumber")?.updateValueAndValidity();
+    this.userForm.get("dentist.dentistSpecialty")?.updateValueAndValidity();
   }
 
   private _getUserIdFromRoute() {
@@ -562,18 +603,25 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     }
 
     const roles = user.rolesList || [];
-    const hasDentistRole = roles.some((role) => role.name === "DENTIST");
+    const hasDentistOrAdministratorRole = roles.some(
+      (role) =>
+        role.name === RoleEnum.DENTIST || role.name === RoleEnum.ADMINISTRATOR
+    );
+    const hasDentistRole = roles.some((role) => role.name === RoleEnum.DENTIST);
 
-    if (hasDentistRole && !this.userForm.get("dentist")) {
+    if (hasDentistOrAdministratorRole && !this.userForm.get("dentist")) {
+      // Create dentist form group with conditional validators
+      const validators = hasDentistRole ? [Validators.required] : [];
       this.userForm.addControl(
         "dentist",
         new FormGroup({
           licenseNumber: new FormControl<string | null>("", [
-            Validators.required,
+            ...validators,
+            Validators.maxLength(30),
           ]),
           dentistSpecialty: new FormControl<DentistSpecialtyInterface | null>(
             null,
-            [Validators.required]
+            validators
           ),
         })
       );

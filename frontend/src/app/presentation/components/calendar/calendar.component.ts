@@ -1161,7 +1161,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   getConflictCount(): string {
     const count = this.appointmentConflicts().length;
-    console.log("Conflict count:", count);
     return count > 0 ? count.toString() : "";
   }
 

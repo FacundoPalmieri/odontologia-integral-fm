@@ -168,8 +168,6 @@ export class GestureControlComponent implements OnInit, OnDestroy {
 
   // Nueva función para detectar pinch basada en la clase de la mano
   detectHandGesture(handClass: string): void {
-    console.log("Hand class detected:", handClass);
-
     // Solo hacer click cuando la mano cambia de 'open' a 'closed'
     // Esto evita clicks continuos mientras la mano está cerrada
     if (handClass === "closed" && this.previousHandClass === "open") {
@@ -177,7 +175,6 @@ export class GestureControlComponent implements OnInit, OnDestroy {
 
       // Verificar cooldown para evitar clicks múltiples
       if (now - this.lastClickTime > this.clickCooldown) {
-        console.log("Hand closed! Performing click...");
         this.performClick();
         this.lastClickTime = now;
       }
@@ -201,8 +198,6 @@ export class GestureControlComponent implements OnInit, OnDestroy {
     ) as HTMLElement;
 
     if (element) {
-      console.log("Clicking on:", element.tagName, element.className);
-
       // Crear y disparar múltiples eventos para asegurar compatibilidad
       const events = [
         new MouseEvent("mousedown", {
@@ -240,10 +235,7 @@ export class GestureControlComponent implements OnInit, OnDestroy {
 
       // Feedback visual adicional
       this.createClickRipple(this.cursorX, this.cursorY);
-
-      console.log("Click performed successfully!");
     } else {
-      console.log("No element found at cursor position");
     }
   }
 

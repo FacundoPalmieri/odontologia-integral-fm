@@ -53,7 +53,6 @@ export class ConflictDialogComponent implements OnInit {
     // Si ya vienen los conflictos, usarlos
     if (this.data.conflicts && this.data.conflicts.length > 0) {
       this.conflicts = this.data.conflicts;
-      console.log("Conflicts received:", this.conflicts);
     }
     // Si viene dentistId, cargar los conflictos
     else if (this.data.dentistId) {
@@ -67,7 +66,6 @@ export class ConflictDialogComponent implements OnInit {
       next: (response) => {
         this.conflicts = response.data || [];
         this.isLoading = false;
-        console.log("Conflicts loaded:", this.conflicts);
       },
       error: (error) => {
         console.error("Error loading conflicts:", error);
@@ -107,7 +105,6 @@ export class ConflictDialogComponent implements OnInit {
   }
 
   rescheduleAppointment(conflict: AppointmentConflictInterface) {
-    console.log("Reschedule appointment:", conflict);
     // TODO: Implementar lógica de reprogramación
     // Podría abrir otro diálogo para seleccionar nueva fecha/hora
   }
@@ -154,7 +151,6 @@ export class ConflictDialogComponent implements OnInit {
   }
 
   cancelAllAppointments() {
-    console.log("Cancel all appointments:", this.conflicts);
     // TODO: Implementar lógica para cancelar todos los turnos
     // Podría mostrar confirmación y luego cancelar todos
   }
