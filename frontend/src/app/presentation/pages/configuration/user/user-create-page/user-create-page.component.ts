@@ -84,7 +84,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       Validators.required,
       this.passwordMatchValidator(),
     ]),
-    rolesList: new FormControl<RoleInterface[] | null>(null, [
+    rolesList: new FormControl<RoleInterface | null>(null, [
       Validators.required,
     ]),
     person: new FormGroup({
@@ -177,16 +177,18 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
     this.userForm
       .get("rolesList")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((roles: RoleInterface[]) => {
-        const hasDentistOrAdministratorRole = roles?.some(
-          (role) =>
-            role.name === RoleEnum.DENTIST ||
-            role.name === RoleEnum.ADMINISTRATOR
-        );
-        const hasDentistRole = roles?.some(
-          (role) => role.name === RoleEnum.DENTIST
-        );
-        this.showProfessionalData.set(hasDentistOrAdministratorRole);
+      .subscribe((role: RoleInterface | null) => {
+        // Check if role exists
+        const selectedRole = role;
+
+        const hasDentistOrAdministratorRole =
+          selectedRole &&
+          (selectedRole.name === RoleEnum.DENTIST ||
+            selectedRole.name === RoleEnum.ADMINISTRATOR);
+        const hasDentistRole =
+          selectedRole && selectedRole.name === RoleEnum.DENTIST;
+
+        this.showProfessionalData.set(!!hasDentistOrAdministratorRole);
 
         if (hasDentistOrAdministratorRole && !this.userForm.get("dentist")) {
           // Create dentist form group with conditional validators
@@ -336,7 +338,12 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
   }
 
   create() {
-    const user: UserInterface = this.userForm.getRawValue();
+    const formValue = this.userForm.getRawValue();
+    // Convert single role back to array for backend compatibility
+    const user: UserInterface = {
+      ...formValue,
+      rolesList: formValue.rolesList ? [formValue.rolesList] : [],
+    };
 
     this.userService
       .create(user)

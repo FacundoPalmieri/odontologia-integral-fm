@@ -44,7 +44,6 @@
                     <mat-select
                       name="rolesSelect"
                       formControlName="rolesList"
-                      multiple
                       [compareWith]="compare"
                     >
                       @for(role of roles(); track $index){

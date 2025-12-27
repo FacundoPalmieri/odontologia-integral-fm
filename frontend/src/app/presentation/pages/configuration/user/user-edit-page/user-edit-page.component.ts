@@ -89,7 +89,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       Validators.required,
       Validators.email,
     ]),
-    rolesList: new FormControl<RoleInterface[] | null>(null, [
+    rolesList: new FormControl<RoleInterface | null>(null, [
       Validators.required,
     ]),
     enabled: new FormControl<boolean>(false, [Validators.required]),
@@ -170,7 +170,9 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     this.userForm
       .get("rolesList")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((roles: RoleInterface[]) => {
+      .subscribe((role: RoleInterface | null) => {
+        // Convert single role to array for compatibility
+        const roles = role ? [role] : [];
         this.updateLicenseNumberValidation(roles);
       });
   }
@@ -186,16 +188,17 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     this.userForm
       .get("rolesList")
       ?.valueChanges.pipe(takeUntil(this._destroy$))
-      .subscribe((roles: RoleInterface[]) => {
-        const hasDentistOrAdministratorRole = roles?.some(
-          (role) =>
-            role.name === RoleEnum.DENTIST ||
-            role.name === RoleEnum.ADMINISTRATOR
-        );
-        const hasDentistRole = roles?.some(
-          (role) => role.name === RoleEnum.DENTIST
-        );
-        this.showProfessionalData.set(hasDentistOrAdministratorRole);
+      .subscribe((selectedRole: RoleInterface | null) => {
+        // Check if role exists
+
+        const hasDentistOrAdministratorRole =
+          selectedRole &&
+          (selectedRole.name === RoleEnum.DENTIST ||
+            selectedRole.name === RoleEnum.ADMINISTRATOR);
+        const hasDentistRole =
+          selectedRole && selectedRole.name === RoleEnum.DENTIST;
+
+        this.showProfessionalData.set(!!hasDentistOrAdministratorRole);
 
         if (hasDentistOrAdministratorRole && !this.userForm.get("dentist")) {
           // Create dentist form group with conditional validators
@@ -451,7 +454,12 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   }
 
   save() {
-    const user: UserInterface = this.userForm.getRawValue();
+    const formValue = this.userForm.getRawValue();
+    // Convert single role back to array for backend compatibility
+    const user: UserInterface = {
+      ...formValue,
+      rolesList: formValue.rolesList ? [formValue.rolesList] : [],
+    };
     this.userService
       .update(user)
       .subscribe((response: ApiResponseInterface<UserDtoInterface>) => {
@@ -485,18 +493,20 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   }
 
   private updateLicenseNumberValidation(roles: RoleInterface[] | null): void {
-    if (!roles) {
+    if (!roles || roles.length === 0) {
       this.userForm.get("dentist.licenseNumber")?.clearValidators();
       this.userForm.get("dentist.dentistSpecialty")?.clearValidators();
       this.showProfessionalData.set(false);
       return;
     }
 
-    const hasDentistAdministratorRole = roles.some(
-      (role) =>
-        role.name === RoleEnum.DENTIST || role.name === RoleEnum.ADMINISTRATOR
-    );
-    const hasDentistRole = roles.some((role) => role.name === RoleEnum.DENTIST);
+    // Get the single selected role
+    const selectedRole = roles[0];
+    const hasDentistAdministratorRole =
+      selectedRole.name === RoleEnum.DENTIST ||
+      selectedRole.name === RoleEnum.ADMINISTRATOR;
+    const hasDentistRole = selectedRole.name === RoleEnum.DENTIST;
+
     this.showProfessionalData.set(hasDentistAdministratorRole);
 
     // Only require license number and specialty for DENTIST role
@@ -570,10 +580,14 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
   }
 
   private _populateForm(user: UserInterface) {
+    // Since rolesList is now single-selection, we need to pass only the first role
+    const selectedRole =
+      user.rolesList && user.rolesList.length > 0 ? user.rolesList[0] : null;
+
     this.userForm.patchValue({
       id: user.id,
       username: user.username,
-      rolesList: user.rolesList,
+      rolesList: selectedRole,
       enabled: user.enabled,
     });
 
@@ -603,11 +617,13 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
     }
 
     const roles = user.rolesList || [];
-    const hasDentistOrAdministratorRole = roles.some(
-      (role) =>
-        role.name === RoleEnum.DENTIST || role.name === RoleEnum.ADMINISTRATOR
-    );
-    const hasDentistRole = roles.some((role) => role.name === RoleEnum.DENTIST);
+    // Get the single selected role
+    const userRole = roles.length > 0 ? roles[0] : null;
+    const hasDentistOrAdministratorRole =
+      userRole &&
+      (userRole.name === RoleEnum.DENTIST ||
+        userRole.name === RoleEnum.ADMINISTRATOR);
+    const hasDentistRole = userRole && userRole.name === RoleEnum.DENTIST;
 
     if (hasDentistOrAdministratorRole && !this.userForm.get("dentist")) {
       // Create dentist form group with conditional validators
