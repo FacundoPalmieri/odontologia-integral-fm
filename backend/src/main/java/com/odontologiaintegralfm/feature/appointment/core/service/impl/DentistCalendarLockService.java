@@ -27,7 +27,6 @@ import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.shared.dto.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -36,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -123,6 +123,11 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             //Valída que la fecha de fin no sea anterior a la fecha de inicio.
             if(dentistCalendarLockRequestCreateDTO.getEndDate().isBefore(dentistCalendarLockRequestCreateDTO.getStartDate())){
                 throw new ConflictException("exception.dentistLockCalendarService.validateEndDateBeforeStartDate.user",null,"exception.dentistLockCalendarService.validateEndDateBeforeStartDate.log",new Object[]{dentists.getId(),dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate(),"Dentist Calendar Lock Service","create"},LogLevel.ERROR);
+            }
+
+            //Valida que el bloqueo no supere un año.
+            if(dentistCalendarLockRequestCreateDTO.getEndDate().isAfter(dentistCalendarLockRequestCreateDTO.getStartDate().plusYears(1))){
+                throw new ConflictException("exception.dentistLockCalendarService.validateMaximumOneYear.user",null,"exception.dentistLockCalendarService.validateMaximumOneYear.log",new Object[]{dentists.getId(),dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate(),"Dentist Calendar Lock Service","create"},LogLevel.ERROR);
             }
 
             //Validar Evento y tipos de datos de entrada para cada caso.
@@ -398,28 +403,82 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
 
 
     /**
-     * Genera una lista de fechas efectivas para un bloqueo de calendario según la recurrencia especificada.
-     * <p>
-     * Dependiendo del tipo de recurrencia, este método calcula todas las fechas dentro del rango
-     * entre {@code startDate} y {@code endDate} que corresponden al patrón definido:
-     * </p>
+     * Genera la lista de fechas efectivas para un bloqueo de agenda, en función
+     * de un rango de fechas, un tipo de recurrencia y, opcionalmente, una lista
+     * de días de la semana.
+     *
+     * <p>El método recorre el rango comprendido entre {@code startDate} y
+     * {@code endDate} (inclusive) y construye las fechas en las que el bloqueo
+     * debe aplicarse.</p>
+     *
+     * <h3>Reglas de funcionamiento</h3>
      *
      * <ul>
-     *     <li><b>NONE:</b> Solo la fecha de inicio.</li>
-     *     <li><b>DAILY:</b> Todos los días consecutivos entre startDate y endDate (inclusive).</li>
-     *     <li><b>WEEKLY:</b> Todos los días que coinciden semanalmente con el día de startDate.</li>
-     *     <li><b>BIWEEKLY:</b> Todos los días que coinciden cada dos semanas con el día de startDate.</li>
-     *     <li><b>MONTHLY:</b> Todos los días del mes que coinciden con el día del mes de startDate.</li>
-     *     <li><b>YEARLY:</b> Todos los días del año que coinciden con la fecha de startDate.</li>
+     *   <li>
+     *     <b>Recurrencia</b>:
+     *     La validación de la recurrencia se delega al enum
+     *     {@link CalendarLockRecurrenceName} mediante el método
+     *     {@code matches(startDate, currentDate)}.
+     *   </li>
+     *
+     *   <li>
+     *     <b>Días de la semana</b>:
+     *     Si se especifican días ({@code days}), el método calcula una fecha
+     *     de inicio y fin efectiva para cada día, alineando el rango al día
+     *     correspondiente antes de evaluar la recurrencia.
+     *   </li>
+     *
+     *   <li>
+     *     <b>Separación de responsabilidades</b>:
+     *     <ul>
+     *       <li>Este método coordina el cálculo de fechas.</li>
+     *       <li>El enum define las reglas de recurrencia.</li>
+     *       <li>Los utilitarios de fechas alinean los días del rango.</li>
+     *     </ul>
+     *   </li>
      * </ul>
      *
-     * <p>Este método solo genera las fechas según la recurrencia y no valida
-     * si coinciden con los días laborales o disponibilidades del dentista.</p>
+     * <h3>Comportamiento según parámetros</h3>
      *
-     * @param startDate Fecha de inicio del bloqueo. No puede ser {@code null}.
-     * @param endDate Fecha de fin del bloqueo. No puede ser {@code null} para recurrencias que requieren rango.
-     * @param recurrence Tipo de recurrencia del bloqueo ({@link CalendarLockRecurrenceName}).
-     * @return Lista de {@link LocalDate} que contiene todas las fechas efectivas generadas según la recurrencia.
+     * <ul>
+     *   <li>
+     *     Si {@code days} es {@code null} o vacío, se ignora la validación
+     *     por día de la semana y solo se evalúa la recurrencia.
+     *   </li>
+     *   <li>
+     *     Si {@code days} contiene valores, el método:
+     *     <ol>
+     *       <li>Calcula la primera fecha válida para cada día.</li>
+     *       <li>Calcula la última fecha válida para cada día.</li>
+     *       <li>Evalúa la recurrencia usando una fecha base alineada.</li>
+     *     </ol>
+     *   </li>
+     * </ul>
+     *
+     * <h3>Notas importantes</h3>
+     *
+     * <ul>
+     *   <li>
+     *     El método <b>no modifica</b> la fecha de inicio original del bloqueo,
+     *     sino que utiliza fechas efectivas internas para evaluar la recurrencia.
+     *   </li>
+     *   <li>
+     *     No valida superposición de bloqueos ni reglas de negocio externas.
+     *   </li>
+     *   <li>
+     *     El rango de fechas se considera inclusivo.
+     *   </li>
+     * </ul>
+     *
+     * @param startDate fecha de inicio del bloqueo.
+     * @param endDate fecha de fin del bloqueo.
+     * @param recurrence tipo de recurrencia del bloqueo.
+     * @param days lista opcional de días de la semana en los que aplica el bloqueo.
+     *
+     * @return lista de fechas en las que el bloqueo es efectivo.
+     *
+     * @throws NullPointerException si {@code startDate}, {@code endDate} o
+     *         {@code recurrence} son {@code null}.
      */
 
     private List<LocalDate> generateEffectiveDates(
@@ -428,24 +487,79 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             CalendarLockRecurrenceName recurrence,
             List<DayName> days
     ) {
+
+        // Lista final de fechas efectivas del bloqueo
         List<LocalDate> dates = new ArrayList<>();
 
-        for (LocalDate dayIteration = startDate; !dayIteration.isAfter(endDate); dayIteration = dayIteration.plusDays(1)) {
 
-            // 1. Validar recurrencia (frecuencia)
-            if (!CalendarUtils.matchesRecurrence(startDate, dayIteration, recurrence)) {
-                continue;
-            }
+        /*
+         * CASO 1:
+         * No se especificaron días de la semana.
+         * Ej: bloqueo puntual, bloqueo diario, etc.
+         *
+         * En este caso:
+         * - Recorremos todas las fechas entre startDate y endDate
+         * - Delegamos la decisión de si una fecha aplica o no
+         *   exclusivamente al enum (recurrence.matches)
+         */
+        if (days == null || days.isEmpty()) {
 
-            // 2. Validar día de semana (si aplica)
-            if (days != null && !days.isEmpty()) {
-                DayName dayName = DayName.fromDayOfWeek(dayIteration.getDayOfWeek()); //Toma el ofWeek y retorna en formato DayName
-                if (!days.contains(dayName)) {
+            for (LocalDate dayIteration = startDate;
+                 !dayIteration.isAfter(endDate);
+                 dayIteration = dayIteration.plusDays(1)) {
+
+                if (!recurrence.matches(startDate, dayIteration)) {
                     continue;
                 }
+
+                dates.add(dayIteration);
             }
 
-            dates.add(dayIteration);
+            return dates;
+        }
+
+        /*
+         * CASO 2:
+         * Hay días de la semana configurados (ej: MONDAY, WEDNESDAY).
+         *
+         * IMPORTANTE:
+         * El enum WEEKLY asume que startDate es el día base.
+         * Como startDate puede NO coincidir con el día pedido,
+         * se calcula la primer fecha dentro de los próximos 7 dias que coincide con el DAY
+         */
+        for (DayName day : days) {
+
+            // Convertimos nuestro DayName a DayOfWeek de Java
+            DayOfWeek dayOfWeek = day.toDayOfWeek();
+
+
+            /*
+             * Calculamos la PRIMER fecha >= startDate
+             * que coincida con este día de la semana.
+             *
+             * Ej:
+             * startDate = 27/12 (sábado)
+             * day = MONDAY
+             * effectiveStart = 29/12
+             */
+            LocalDate effectiveStart = CalendarUtils.findFirstMatchingDate(startDate, dayOfWeek);
+
+
+            /*
+             * Calculamos la ÚLTIMA fecha <= endDate
+             * que coincida con este día de la semana.
+             */
+            LocalDate effectiveEnd = CalendarUtils.findLastMatchingDate(endDate, dayOfWeek);
+
+            for (LocalDate dayIteration = effectiveStart; !dayIteration.isAfter(effectiveEnd); dayIteration = dayIteration.plusDays(1)) {
+
+                /*
+                 * Validamos la recurrencia usando el enum, PERO usando effectiveStart como fecha base */
+                if (!recurrence.matches(effectiveStart, dayIteration)) {
+                    continue;
+                }
+                dates.add(dayIteration);
+            }
         }
 
         return dates;
