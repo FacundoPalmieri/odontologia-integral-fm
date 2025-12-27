@@ -109,9 +109,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
       this.personDataService.nationalities().length === 0 &&
       this.userData?.roles
     ) {
-      this.personDataService
-        .loadCatalogsBasedOnRole(this.userData.roles)
-        .subscribe();
+      this.personDataService.loadAllCatalogs().subscribe();
     }
   }
 
