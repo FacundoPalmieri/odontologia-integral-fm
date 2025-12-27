@@ -24,7 +24,7 @@ import java.time.LocalTime;
  *
  * 1) **Bloqueo puntual (solo un día)**
  *    - days: vacío
- *    - recurrence: null
+ *    - recurrence: Null o NONE
  *    - startDate == endDate
  *    -> Se interpreta como un bloqueo para un único día específico.
  *    Persistencia:
@@ -33,7 +33,7 @@ import java.time.LocalTime;
  *
  * 2) **Bloqueo de varios días en una misma semana sin recurrencia**
  *    - days: no vacío.
- *    - recurrence: null
+ *    - recurrence: NONE
  *    - startDate != endDate
  *    -> Se interpreta como un bloqueo para varios dias en una misma semana sin recurrencia
  *    Persistencia:
@@ -42,7 +42,7 @@ import java.time.LocalTime;
  *
  * 3) **Bloqueo diario automático (vacaciones u ausencias prolongadas)**
  *    - days: vacío
- *    - recurrence: null o DAILY
+ *    - recurrence: DAILY
  *    - startDate != endDate
  *    -> Se genera un bloqueo todos los días entre startDate y endDate
  *    Persistencia:
@@ -145,5 +145,33 @@ public class DentistCalendarLock extends Auditable {
 
     @Lob
     private String observationUpdate;
+
+
+    private DentistCalendarLock(Dentist dentist, LocalDate startDate, LocalDate endDate,LocalTime startTime,LocalTime endTime ,CalendarLockType type, CalendarLockRecurrenceName recurrence, String observation) {
+        this.dentist = dentist;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.type = type;
+        this.recurrence = recurrence;
+        this.observation = observation;
+    }
+
+    public static DentistCalendarLock build(Dentist dentist, LocalDate startDate, LocalDate endDate, LocalTime startTime,LocalTime endTime, CalendarLockType type, CalendarLockRecurrenceName recurrence, String observation){
+        return new DentistCalendarLock(
+                dentist,
+                startDate,
+                endDate,
+                startTime,
+                endTime,
+                type,
+                recurrence,
+                observation
+        );
+    }
+
+
+
 
 }

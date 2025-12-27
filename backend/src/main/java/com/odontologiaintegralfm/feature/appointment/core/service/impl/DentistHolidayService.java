@@ -134,22 +134,10 @@ public class DentistHolidayService implements IDentistHolidayService {
             //Persiste.
             DentistHoliday dentistHolidaySaved = dentistHolidayRepository.save(dentistHoliday);
 
-            //Convierte al DTO.
-            DentistHolidayResponseDTO dentistHolidayResponseDTO = new DentistHolidayResponseDTO(
-                    dentistHolidaySaved.getId(),
-                    dentistHolidaySaved.getDentist().getId(),
-                    dentistHolidaySaved.getHoliday().getId(),
-                    dentistHolidaySaved.getHoliday().getDate(),
-                    dentistHolidaySaved.getHoliday().getName(),
-                    dentistHolidaySaved.getStartTime(),
-                    dentistHolidaySaved.getEndTime(),
-                    dentistHolidaySaved.isEnabled()
-            );
-
             return new Response<>(
                     true,
                     messageSource.getMessage("dentistHolidayService.create.user.ok",null,LocaleContextHolder.getLocale()),
-                    dentistHolidayResponseDTO
+                    DentistHolidayResponseDTO.build(dentistHolidaySaved)
             );
 
         }catch (CannotCreateTransactionException | DataAccessException e) {
@@ -183,22 +171,11 @@ public class DentistHolidayService implements IDentistHolidayService {
 
             DentistHoliday dentistHolidaySaved = dentistHolidayRepository.save(dentistHoliday);
 
-            //Arma respuesta
-            DentistHolidayResponseDTO dentistHolidayResponseDTO = new DentistHolidayResponseDTO(
-                    dentistHolidaySaved.getId(),
-                    dentistHolidaySaved.getDentist().getId(),
-                    dentistHolidaySaved.getHoliday().getId(),
-                    dentistHoliday.getHoliday().getDate(),
-                    dentistHoliday.getHoliday().getName(),
-                    dentistHolidaySaved.getStartTime(),
-                    dentistHolidaySaved.getEndTime(),
-                    dentistHolidaySaved.isEnabled()
-            );
 
             return new Response<>(
                     true,
                     messageSource.getMessage("dentistHolidayService.update.user.ok", null, LocaleContextHolder.getLocale()),
-                    dentistHolidayResponseDTO);
+                    DentistHolidayResponseDTO.build(dentistHolidaySaved));
 
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
@@ -235,6 +212,29 @@ public class DentistHolidayService implements IDentistHolidayService {
             return dentistHolidayRepository.findByDentistIdAndHolidayId(idDentist, idHoliday);
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistHolidayService", idDentist, null, "getByDentistIdAndHolidayId");
+        }
+    }
+
+
+
+
+    /**
+     * Valída si existe relación entre feriado y dentista.
+     * Si existe, no realiza acción.
+     * Si no existe, arroja exceptión.
+     * @param idDentist : Id dentista
+     * @param date : Fecha
+     */
+    @Override
+    public void validateDentistIdAndDate(Long idDentist, LocalDate date) {
+
+        //Se valida que el turno no sea un feriado.
+        Optional<Holiday> holiday = holidayService.getByDate(date);
+
+        // Si es feriado, se valida que el dentista lo trabaje.
+        if (holiday.isPresent()) {
+            getByDentistIdAndHolidayId(idDentist,holiday.get().getId())
+                    .orElseThrow(() -> new ConflictException("exception.dentistHolidayService.validateHoliday.user", null, "exception.dentistHolidayService.validateHoliday.log",new Object[]{idDentist ,holiday.get().getId(), "dentistHolidayService", "validateHoliday"}, LogLevel.ERROR));
         }
     }
 

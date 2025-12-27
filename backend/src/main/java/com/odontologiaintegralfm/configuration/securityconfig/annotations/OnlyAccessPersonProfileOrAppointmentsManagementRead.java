@@ -12,8 +12,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("#id == @authenticatedUserService.authenticatedUser.person.id or " +
-        " hasAuthority('PERMISO_APPOINTMENT_MANAGEMENT_READ') or" +
-        " hasAuthority('PERMISO_CONFIGURATION_READ')")
-public @interface OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationRead {
+@PreAuthorize("#idPerson == @authenticatedUserService.authenticatedUser.person.id or " +
+        " hasAuthority('PERMISO_APPOINTMENT_MANAGEMENT_READ')")
+public @interface OnlyAccessPersonProfileOrAppointmentsManagementRead {
 }

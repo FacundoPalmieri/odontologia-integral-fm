@@ -48,6 +48,13 @@ public class DentistCalendarLockController {
     }
 
 
+
+    @Operation(summary = "Finalizar bloqueo", description = "Actualiza la fecha de fin de bloqueo al momento en que se envía la request.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bloqueo finalizado exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
     @PatchMapping("/{idPerson}")
     @OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationUpdate
     public ResponseEntity<Response<DentistCalendarLockResponseDTO>> update(@PathVariable("idPerson")Long idPerson,

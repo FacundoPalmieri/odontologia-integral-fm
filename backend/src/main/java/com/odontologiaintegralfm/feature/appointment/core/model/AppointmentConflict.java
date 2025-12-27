@@ -41,14 +41,14 @@ public class AppointmentConflict extends Auditable {
     private boolean resolved;
 
 
-    public AppointmentConflict(Long id, Appointment appointment,Long idOriginConflict,String originConflict, LocalDateTime createAt, UserSec createBy, boolean enabled) {
-        this.id = id;
+    private AppointmentConflict(Appointment appointment,Long idOriginConflict,String originConflict) {
         this.appointment = appointment;
         this.idOriginConflict = idOriginConflict;
         this.originConflict = OriginConflict.valueOf(originConflict);
         this.resolved = false;
-        this.setCreatedAt(createAt);
-        this.setCreatedBy(createBy);
-        this.setEnabled(enabled);
+    }
+
+    public static AppointmentConflict build(Appointment appointment,Long idOriginConflict,String originConflict){
+        return new AppointmentConflict(appointment,idOriginConflict,originConflict);
     }
 }

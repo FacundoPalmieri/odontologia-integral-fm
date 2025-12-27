@@ -2,6 +2,8 @@ package com.odontologiaintegralfm.feature.appointment.core.dto;
 
 
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
+import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
+
 import java.time.LocalDateTime;
 
 public record AppointmentResponseDTO(
@@ -11,4 +13,14 @@ public record AppointmentResponseDTO(
         LocalDateTime appointmentDateTime,
         AppointmentStatus status
 ) {
+
+    public static AppointmentResponseDTO build(Appointment appointment) {
+        return new AppointmentResponseDTO(
+                appointment.getId(),
+                appointment.getDentist().getPerson().getLastName() + "," + appointment.getDentist().getPerson().getFirstName(),
+                appointment.getPatient().getPerson().getLastName() + "," + appointment.getPatient().getPerson().getFirstName(),
+                appointment.getDate(),
+                appointment.getStatus()
+        );
+    }
 }

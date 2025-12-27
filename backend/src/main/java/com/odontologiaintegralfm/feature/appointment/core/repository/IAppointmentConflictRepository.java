@@ -2,7 +2,9 @@ package com.odontologiaintegralfm.feature.appointment.core.repository;
 
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
+import com.odontologiaintegralfm.feature.user.model.UserSec;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -61,4 +63,19 @@ public interface IAppointmentConflictRepository extends JpaRepository<Appointmen
             AND ac.resolved = false
             """)
    List<AppointmentConflict> findAllByDentistIdAndIdOriginConflict(Long idDentist,Long idOriginConflict);
+
+
+    @Modifying
+    @Query("""
+            UPDATE AppointmentConflict ac
+            SET ac.resolved  = true,
+                ac.updatedAt = :updatedAt,
+                ac.updatedBy = :updatedBy
+            WHERE ac.id in :ids
+            
+            """)
+    void resolved(@Param("ids") List<Long> ids,
+                  @Param("updatedAt") LocalDateTime updatedAt,
+                  @Param("updatedBy")UserSec updatedBy);
+
 }

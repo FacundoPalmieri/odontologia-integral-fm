@@ -3,6 +3,8 @@ package com.odontologiaintegralfm.feature.appointment.catalogs.enums;
 import lombok.Getter;
 
 import java.time.DayOfWeek;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Representa los días semanales.
@@ -23,8 +25,6 @@ public enum DayName {
         this.label = label;
     }
 
-    public String getLabel() { return label; }
-
     public static DayName fromDayOfWeek(DayOfWeek dayOfWeek) {
         return DayName.valueOf(dayOfWeek.name());
     }
@@ -41,5 +41,26 @@ public enum DayName {
         };
     }
 
+
+    //Convierte lista de DayName a DayOfWeek
+    public  static List<DayOfWeek> toDayOfWeek(List<DayName> days){
+        if (days == null) return Collections.emptyList();
+        return days.stream()
+                .map(DayName::toDayOfWeek)
+                .toList();
+    }
+
+
+    public static List<DayName> listDayName(){
+        return List.of(
+                DayName.SUNDAY,
+                DayName.MONDAY,
+                DayName.TUESDAY,
+                DayName.WEDNESDAY,
+                DayName.THURSDAY,
+                DayName.FRIDAY,
+                DayName.SATURDAY
+        );
+    }
 
 }

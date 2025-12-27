@@ -3,7 +3,8 @@ package com.odontologiaintegralfm.feature.appointment.core.enums;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import lombok.Getter;
-
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 /**
@@ -11,12 +12,59 @@ import java.util.Arrays;
  */
 @Getter
 public enum CalendarLockRecurrenceName {
-    NONE("Sin repetición"),
-    DAILY("Diario"),        // Todos los días
-    WEEKLY("Semanal"),      // Día de inicio y su repetición semanal (EJ. todos los jueves)
-    BIWEEKLY ("Quincenal"), // Día de inicio y su repetición quincenal (EJ. Jueves por medio)
-    MONTHLY("Mensual"),     // Por Número de día (Ej. Segundo martes del mes)
-    YEARLY("Anual");        // Fecha fija por año (Mismo número de día)
+
+    DAILY("Diario") {
+        @Override
+        public boolean matches(LocalDate startDate, LocalDate currentDate) {
+            return true;
+        }
+    },
+
+    // Día de inicio y su repetición semanal (EJ. todos los jueves)
+    WEEKLY("Semanal") {
+        @Override
+        public boolean matches(LocalDate startDate, LocalDate currentDate) {
+            return startDate.getDayOfWeek() == currentDate.getDayOfWeek();
+        }
+    },
+
+    // Día de inicio y su repetición quincenal (EJ. Jueves por medio)
+    BIWEEKLY("Quincenal") {
+        @Override
+        public boolean matches(LocalDate startDate, LocalDate currentDate) {
+            long weeks = ChronoUnit.WEEKS.between(startDate, currentDate);
+            return startDate.getDayOfWeek() == currentDate.getDayOfWeek()
+                    && weeks % 2 == 0;
+        }
+    },
+
+    // Por Número de día (Ej. Segundo martes del mes)
+    MONTHLY("Mensual") {
+        @Override
+        public boolean matches(LocalDate startDate, LocalDate currentDate) {
+            int startWeek = (startDate.getDayOfMonth() - 1) / 7;
+            int currentWeek = (currentDate.getDayOfMonth() - 1) / 7;
+            return startDate.getDayOfWeek() == currentDate.getDayOfWeek()
+                    && startWeek == currentWeek;
+        }
+    },
+
+    // Fecha fija por año (Mismo número de día)
+    YEARLY("Anual") {
+        @Override
+        public boolean matches(LocalDate startDate, LocalDate currentDate) {
+            return startDate.getMonth() == currentDate.getMonth()
+                    && startDate.getDayOfMonth() == currentDate.getDayOfMonth();
+        }
+    },
+    NONE("Sin repetición") {
+        @Override
+        public boolean matches(LocalDate startDate, LocalDate currentDate) {
+            return startDate.equals(currentDate);
+        }
+    };
+
+    public abstract boolean matches(LocalDate startDate, LocalDate currentDate);
 
     private final String label;
     CalendarLockRecurrenceName(String label) {

@@ -9,6 +9,7 @@ import com.odontologiaintegralfm.feature.appointment.core.model.DentistCalendarL
 import com.odontologiaintegralfm.shared.dto.Response;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IDentistCalendarLockService {
@@ -28,22 +29,6 @@ public interface IDentistCalendarLockService {
 
 
 
-    /**
-     * Método para obtener todos los bloqueos con fecha de fin mayor al día actual.
-     * @param dentistId : id dentista
-     */
-   List<DentistCalendarLock> getAllCurrentByDentistId(Long dentistId);
-
-
-
-
-    /**
-     * Método para obtener todos los bloqueos verificando que el inicio sea <= y el fin sea => a una fecha dada.
-     * @param dentistId : id dentista
-     */
-    List<DentistCalendarLock> getByDentistIdAndDateRange(Long dentistId, LocalDate date);
-
-
 
     /**
      * Método para obtener todos los bloqueos que corresponde solo a una fecha dada.
@@ -53,4 +38,23 @@ public interface IDentistCalendarLockService {
     List<DentistCalendarLock> getByDate(Long dentistId, LocalDate date);
 
 
+
+
+    /**
+     * Valída si una fecha y hora se encuentran bloqueadas por un dentista.
+     * Si existe, no realiza acción.
+     * Si no existe, arroja exceptión.
+     * @param idDentist : Id dentista
+     * @param dateTime : Fecha y hora.
+     */
+    void validateByIdDentistAndDateTime(Long idDentist, LocalDateTime dateTime);
+
+
+    /**
+     * Valída que no exista ya un bloqueo de agenda con la misma configuración
+     * (fecha inicio/fin, recurrencia y al menos un día en común).
+     * @param idPerson : Id dentista.
+     * @param dentistCalendarLockRequestCreateDTO : Objeto nuevo a crear.
+     */
+    void verifyLockMatchWithLock(Long idPerson, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO);
 }

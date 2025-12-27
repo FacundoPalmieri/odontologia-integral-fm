@@ -1,8 +1,5 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessAppointmentsManagementCreate;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessAppointmentsManagementUpdate;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileAndConsultationOrAppointmentsManagementUpdate;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.*;
 import com.odontologiaintegralfm.feature.appointment.core.dto.*;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentConflictService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
@@ -38,10 +35,10 @@ public class AppointmentController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("/conflict/all/{idDentist}")
-    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
-    public ResponseEntity<Response<List<AppointmentConflictResponseDTO>>> getConflictAll(@PathVariable Long idDentist){
-        Response<List<AppointmentConflictResponseDTO>> response = appointmentConflictService.getConflict(idDentist);
+    @GetMapping("/conflict/all/{idPerson}")
+    @OnlyAccessPersonProfileOrAppointmentsManagementRead
+    public ResponseEntity<Response<List<AppointmentConflictResponseDTO>>> getConflictAll(@PathVariable Long idPerson){
+        Response<List<AppointmentConflictResponseDTO>> response = appointmentConflictService.getConflict(idPerson);
         return ResponseEntity.ok(response);
     }
 
