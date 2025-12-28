@@ -20,17 +20,7 @@ public record DentistAvailabilityResponseDTO (
                 availabilities.get(0).getDentist().getId(),
                 availabilities
                         .stream()
-                        .map(da -> new WorkingDayDTO(
-                                da.getKeyName(),
-                                da.getRecurrence(),
-                                da.getSpecificDate(),
-                                da.getStartTime(),
-                                da.getEndTime(),
-                                da.getAppointmentDuration(),
-                                da.getEffectiveDate(),
-                                null,
-                                null
-                        ))
+                        .map(WorkingDayDTO::from)
                         .toList(),
                 conflicts
         );

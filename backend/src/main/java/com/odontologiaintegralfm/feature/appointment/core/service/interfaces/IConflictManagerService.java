@@ -9,7 +9,6 @@ import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConfl
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistCalendarLock;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IConflictManagerService {
@@ -31,13 +30,6 @@ public interface IConflictManagerService {
      */
     List<AppointmentConflictResponseDTO> verifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists);
 
-
-    /**
-     * Método  detecta y genera nuevo conflictos de turnos
-     * @param appointments : Lista de turnos futuros.
-     * @param days         : Nueva jornada de trabajo.
-     */
-    List<AppointmentConflict> verifyConflictByDentistAvailability(List<Appointment> appointments, List<WorkingDayDTO> days);
 
 
     /**

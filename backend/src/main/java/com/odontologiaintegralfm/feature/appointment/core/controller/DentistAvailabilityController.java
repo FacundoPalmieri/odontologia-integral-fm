@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.impl.DentistAvailabilityService;
+import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistAvailabilityService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,8 +22,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/dentist-availability")
 public class DentistAvailabilityController {
-    @Autowired
-    private DentistAvailabilityService dentistAvailabilityService;
+
+    private final IDentistAvailabilityService dentistAvailabilityService;
+
+    public DentistAvailabilityController(IDentistAvailabilityService dentistAvailabilityService) {
+        this.dentistAvailabilityService = dentistAvailabilityService;
+    }
 
 
     /**

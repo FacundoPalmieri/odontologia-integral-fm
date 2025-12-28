@@ -51,4 +51,16 @@ public class CalendarLockType extends Auditable {
      */
     @Column(nullable = false)
     private boolean allowDays;
+
+
+    private CalendarLockType(String name, boolean absenceTotal, boolean allowTimeRange, boolean allowDays) {
+        this.name = name;
+        this.absenceTotal = absenceTotal;
+        this.allowTimeRange = allowTimeRange;
+        this.allowDays = allowDays;
+    }
+
+    public static CalendarLockType build (String name, boolean absenceTotal, boolean allowTimeRange, boolean allowDays) {
+        return new CalendarLockType(name, absenceTotal, allowTimeRange, allowDays);
+    }
 }

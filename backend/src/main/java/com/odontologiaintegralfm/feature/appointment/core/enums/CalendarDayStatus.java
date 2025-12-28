@@ -10,7 +10,7 @@ public enum CalendarDayStatus {
     FREE("Disponible", "#4CAF50"),   // verde
     LOCKED("Bloqueo de agenda", "#FF9800"), // naranja
     FULL("Sin turnos disponibles", "#B0BEC5"), // gris
-    NOT_AVAILABLE("No trabaja","#9E9E9E");
+    NOT_AVAILABLE("No trabaja","#533C47");
 
 
 

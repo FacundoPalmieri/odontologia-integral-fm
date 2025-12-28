@@ -5,12 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -63,6 +60,7 @@ public class DentistCalendarLockRequestCreateDTO {
   *   evaluarán los dayName del detalle.
   */
  @NotNull(message = "dentistCalendarLockRequestCreateDTO.startDate.empty")
+ @Future(message = "generic.date.futureOrPresent")
  private LocalDate startDate;
 
 

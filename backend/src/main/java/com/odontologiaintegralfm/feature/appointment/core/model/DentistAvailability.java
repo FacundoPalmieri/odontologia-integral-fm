@@ -79,6 +79,7 @@ public class DentistAvailability extends Auditable {
     private LocalDate specificDate;
 
     /** Fecha de inicio real. Se calcula de acuerdo al primer match de KeyName en los próximos 7 días corridos. */
+    @Column(nullable = false)
     private LocalDate effectiveDate;
 
     @Column(nullable = false)
@@ -91,7 +92,12 @@ public class DentistAvailability extends Auditable {
     private Integer appointmentDuration; // en minutos
 
 
-    public DentistAvailability(Dentist dentist, DayName keyName,LocalDate specificDate,CalendarLockRecurrenceName recurrence, LocalTime startTime, LocalTime endTime, Integer appointmentDuration,LocalDate effectiveDate ,LocalDateTime createAt, UserSec createBy, boolean enabled) {
+    /** Campos que representar un break dentro de la jornada laboral. */
+    private LocalTime breakStartTime;
+    private LocalTime breakEndTime;
+
+
+    private DentistAvailability(Dentist dentist, DayName keyName,LocalDate specificDate,CalendarLockRecurrenceName recurrence, LocalTime startTime, LocalTime endTime, Integer appointmentDuration,LocalDate effectiveDate, LocalTime breakStartTime,LocalTime breakEndTime) {
         this.dentist = dentist;
         this.keyName = keyName;
         this.specificDate = specificDate;
@@ -100,9 +106,13 @@ public class DentistAvailability extends Auditable {
         this.endTime = endTime;
         this.appointmentDuration = appointmentDuration;
         this.effectiveDate = effectiveDate;
-        this.setCreatedAt(createAt);
-        this.setCreatedBy(createBy);
-        this.setEnabled(enabled);
+        this.breakStartTime = breakStartTime;
+        this.breakEndTime = breakEndTime;
+    }
+
+
+    public static DentistAvailability build(Dentist dentist, DayName keyName,LocalDate specificDate,CalendarLockRecurrenceName recurrence, LocalTime startTime, LocalTime endTime, Integer appointmentDuration,LocalDate effectiveDate, LocalTime breakStartTime,LocalTime breakEndTime){
+        return new DentistAvailability(dentist,keyName,specificDate,recurrence,startTime,endTime,appointmentDuration,effectiveDate,breakStartTime,breakEndTime);
     }
 
 }

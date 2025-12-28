@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -46,8 +47,10 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
         try {
             List<CalendarLockType> calendarLockTypes = calendarLockTypeRepository.findAllByEnabledTrueOrderByNameAsc();
 
+
             List<CalendarLockTypeResponseDTO> calendarLockTypeResponseDTO = calendarLockTypes.stream()
-                    .map(calendarLockType -> new CalendarLockTypeResponseDTO(calendarLockType.getId(), calendarLockType.getName(), calendarLockType.isEnabled()))
+                    .sorted(Comparator.comparing(CalendarLockType::getId))
+                    .map(CalendarLockTypeResponseDTO::from)
                     .toList();
 
             return new Response<>(true, null, calendarLockTypeResponseDTO);
@@ -70,7 +73,7 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
                     .orElseThrow(()-> new NotFoundException("exception.calendarLockType.notFound.user", null,"exception.calendarLockType.notFound.log",new Object[]{id,"CalendarLockTypeService","getById"}, LogLevel.ERROR));
 
 
-            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(calendarLockType.getId(), calendarLockType.getName(), calendarLockType.isEnabled());
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = CalendarLockTypeResponseDTO.from(calendarLockType);
             return new Response<>(true, null, calendarLockTypeResponseDTO);
 
         }catch (CannotCreateTransactionException | DataAccessException e) {
@@ -121,7 +124,7 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
 
             CalendarLockType calendarLockTypeSaved = calendarLockTypeRepository.save(calendarLockType);
 
-            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(calendarLockTypeSaved.getId(), calendarLockTypeSaved.getName(),calendarLockTypeSaved.isEnabled());
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = CalendarLockTypeResponseDTO.from(calendarLockTypeSaved);
 
             return new Response<>(
                     true,
@@ -163,11 +166,7 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
 
             //Mapea respuesta.
 
-            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(
-                    calendarLockTypeSaved.getId(),
-                    calendarLockTypeSaved.getName(),
-                    calendarLockTypeSaved.isEnabled()
-            );
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = CalendarLockTypeResponseDTO.from(calendarLockTypeSaved);
 
             return new Response<>(
                     true,

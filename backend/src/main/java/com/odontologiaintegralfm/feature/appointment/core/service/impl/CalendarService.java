@@ -128,7 +128,6 @@ public class CalendarService implements ICalendarService {
      * @throws ConflictException Si no existe un dentista con el ID indicado.
      *
      * @see #generateSlot(LocalTime, LocalTime, int) Para la generación de los slots diarios.
-     * @see #fillSlot(List, List, List, Integer) Para rellenar los slots con turnos y bloqueos existentes.
      */
 
     @Override
@@ -274,23 +273,57 @@ public class CalendarService implements ICalendarService {
      *
      * <h4>Reglas de solapamiento aplicadas</h4>
      * <ul>
-     *     <li>Un bloqueo afecta un slot si:
-     *         <br>→ <code>lock.startTime &lt; slotEnd</code> y <code>lock.endTime &gt; slotStart</code></li>
-     *     <li>Un turno afecta un slot si su hora de inicio está dentro del rango del slot:
-     *         <br>→ <code>apptStart ≥ slotStart</code> y <code>apptStart &lt; slotEnd</code></li>
+     * Regla de solapamiento entre dos intervalos de tiempo A y B:
+     *
+     * Dos intervalos A y B se solapan si:
+     *
+     * 1) El inicio de A es anterior al fin de B
+     *    (A.start < B.end)
+     * Y
+     * 2) El fin de A es posterior al inicio de B
+     *    (A.end > B.start)
+
+     * "Dos cosas se pisan si ninguna termina antes de que la otra empiece".
+     *
+     * Ejemplo visual:
+     *
+     * Tiempo - >
+     *
+     * A: |--------|
+     * B:       |--------|
+     *
+     * En este caso:
+     * - A.start < B.end    -> verdadero
+     * - A.end   > B.start  -> verdadero
+     *
+     * Por lo tanto, A y B se solapan.
+     *
+     * Casos que NO se solapan:
+     *
+     * A: |--------|
+     * B:           |--------|
+     * (B empieza después de que A termina)
+     *
+     * A:           |--------|
+     * B: |--------|
+     * (B termina antes de que A empiece)
+     *
+     *
+     * El inicio de uno es anterior al fin del otro y El fin de uno es posterior al inicio del otro
      * </ul>
      *
      * @param slots          Lista de slots generados para el día, a ser completados.
      * @param appointments   Lista de turnos del día (se espera que pertenezcan todos a la misma fecha).
      * @param locks          Lista de bloqueos configurados para el dentista en ese día.
      * @param durationSlot   Duración en minutos de cada slot (utilizada para calcular el fin de un turno).
-     *
+     * @param breakStartTime Inicio del break en la jornada laboral.
+     * @param breakEndTime   Fin del break en la jornada laboral.
      * @see SlotStatus Para los diferentes estados posibles de un slot.
      * @see AppointmentResponseDTO Para los datos adjuntos cuando un slot queda reservado.
      * @see DentistCalendarLockResponseDTO Para los datos adjuntos cuando un slot queda bloqueado.
      */
 
-    private void fillSlot(List<SlotResponseDTO> slots, List<Appointment> appointments, List<DentistCalendarLock> locks, Integer durationSlot) {
+    private void fillSlot(List<SlotResponseDTO> slots, List<Appointment> appointments, List<DentistCalendarLock> locks, Integer durationSlot, LocalTime breakStartTime, LocalTime breakEndTime) {
 
         // Ordeno appointments del día por hora
         appointments.sort(Comparator.comparing(a -> a.getDate().toLocalTime()));
@@ -303,14 +336,24 @@ public class CalendarService implements ICalendarService {
             LocalTime slotStart = s.getStarTime();
             LocalTime slotEnd = s.getEndTime();
 
+            //Revisa Breaks
+            if(s.getStarTime().isBefore(breakEndTime) && s.getEndTime().isAfter(breakStartTime)) {
+                s.setStatus(SlotStatus.BREAK);
+                s.setColor(SlotStatus.BREAK.getColorHex());
+                s.setAppointment(null);
+                s.setCalendarLock(null);
+                continue;
+
+            }
+
+
             //Revisar bloqueos (no optimizo porque suelen ser pocos)
             for (DentistCalendarLock d : locks) {
                 if (d.getStartTime().isBefore(slotEnd) && d.getEndTime().isAfter(slotStart)) {
                     s.setStatus(SlotStatus.LOCKED);
                     s.setColor(SlotStatus.LOCKED.getColorHex());
                     s.setAppointment(null);
-                    s.setCalendarLock(DentistCalendarLockResponseDTO.build(d)
-                    );
+                    s.setCalendarLock(DentistCalendarLockResponseDTO.build(d));
                     break;
                 }
             }
@@ -427,7 +470,6 @@ public class CalendarService implements ICalendarService {
      * @throws ConflictException Si el dentista con {@code idDentist} no se encuentra en la base de datos.
      *
      * @see #generateSlot(LocalTime, LocalTime, int) Para la generación de slots según horario y duración.
-     * @see #fillSlot(List, List, List, Integer) Para llenar los slots con turnos reservados y bloqueos.
      */
     private CalendarDetailDayResponseDTO buildCalendarDay(Long idDentist, LocalDate day){
 
@@ -465,7 +507,7 @@ public class CalendarService implements ICalendarService {
                 List<Appointment> appointments = appointmentService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
 
                 //Llenar slots.
-                fillSlot(slots,appointments, Collections.emptyList(),dentistAvailability.getAppointmentDuration());
+                fillSlot(slots,appointments, Collections.emptyList(),dentistAvailability.getAppointmentDuration(),dentistAvailability.getBreakStartTime(),dentistAvailability.getEndTime());
 
                 return new CalendarDetailDayResponseDTO(
                         idDentist,
@@ -496,7 +538,7 @@ public class CalendarService implements ICalendarService {
         List<Appointment> appointments = appointmentService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
 
         //Llenar slots.
-        fillSlot(slots,appointments, dentistCalendarLocks, dentistAvailability.getAppointmentDuration());
+        fillSlot(slots,appointments, dentistCalendarLocks, dentistAvailability.getAppointmentDuration(),dentistAvailability.getBreakStartTime(),dentistAvailability.getBreakEndTime() );
 
         return new CalendarDetailDayResponseDTO(idDentist, day,deriveDayStatus(slots),null,slots);
 

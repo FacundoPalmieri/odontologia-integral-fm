@@ -46,6 +46,14 @@ public class CalendarLockTypeController {
     }
 
 
+
+
+    @Operation(summary = "Obtener un de bloqueo de agenda", description = "Obtiene un bloqueo de agenda por su id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bloqueos obtenido exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
     @GetMapping("/{id}")
     @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
     public ResponseEntity<Response<CalendarLockTypeResponseDTO>> getById(@PathVariable @NotNull Long id){
@@ -69,6 +77,14 @@ public class CalendarLockTypeController {
     }
 
 
+
+
+    @Operation(summary = "Actualizar un tipo de bloqueo de agenda.", description = "Actualiza un tipo de bloqueo de agenda")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tipos de bloqueo actualizado exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
     @PatchMapping("/{id}")
     @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate
     public ResponseEntity<Response<CalendarLockTypeResponseDTO>> update(@PathVariable @NotNull Long id,
