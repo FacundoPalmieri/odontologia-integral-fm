@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentConflictRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentConflictService;
+import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.dto.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
-
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -53,18 +53,6 @@ public class AppointmentConflictService implements IAppointmentConflictService {
 
 
 
-    /**
-     * Obtiene la lista de turnos conflictivos NO RESUELTOS por Id de dentista.
-     */
-    @Override
-    public List<AppointmentConflict> getNotResolved(Long idDentist) {
-        try{
-            return appointmentConflictRepository.findByIdDentistAndResolvedFalse(idDentist);
-        }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "AppointmentConflictService", idDentist, null, "getAllNotResolvedByDentist");
-        }
-    }
-
 
 
     /**
@@ -81,13 +69,7 @@ public class AppointmentConflictService implements IAppointmentConflictService {
         }
 
         List<AppointmentConflictResponseDTO> conflicts = appointmentConflicts.stream()
-                .map(ac -> new AppointmentConflictResponseDTO(
-                        ac.getAppointment().getId(),
-                        ac.getAppointment().getDate(),
-                        ac.getAppointment().getPatient().getPerson().getLastName() + "," + ac.getAppointment().getPatient().getPerson().getFirstName(),
-                        ac.getIdOriginConflict(),
-                        ac.getOriginConflict().getLabel()
-                ))
+                .map(AppointmentConflictResponseDTO::build)
                 .toList();
         return new Response<>(true, "", conflicts);
     }
@@ -111,13 +93,15 @@ public class AppointmentConflictService implements IAppointmentConflictService {
     }
 
     /**
-     * Actualiza turnos conflictivo
-     * @param appointmentConflicts : Turno
+     * Actualiza turnos conflictivo como resueltos
+     * @param appointmentsIds : id Turnos en conflictos
+     * @param updateAt : Fecha del día
+     * @param updateBy : Usuario que actualiza.
      */
     @Override
-    public List<AppointmentConflict> update(List<AppointmentConflict> appointmentConflicts) {
+    public void resolvedAll(List<Long> appointmentsIds, LocalDateTime updateAt, UserSec updateBy) {
         try{
-            return appointmentConflictRepository.saveAll(appointmentConflicts);
+             appointmentConflictRepository.resolved(appointmentsIds,updateAt,updateBy);
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "AppointmentConflictService",null, null, "update");

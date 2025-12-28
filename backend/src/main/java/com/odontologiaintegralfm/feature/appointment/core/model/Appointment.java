@@ -41,14 +41,20 @@ public class Appointment extends Auditable {
     private AppointmentStatus status;
 
 
-   public Appointment(Patient patient, Dentist dentist, LocalDateTime date, AppointmentStatus status, UserSec createBy, LocalDateTime createAt, boolean enabled) {
+   private Appointment(Patient patient, Dentist dentist, LocalDateTime date, AppointmentStatus status) {
         this.patient = patient;
         this.dentist = dentist;
         this.date = date;
         this.status = status;
-        this.setCreatedBy(createBy);
-        this.setCreatedAt(createAt);
-        this.setEnabled(enabled);
-    }
+   }
+
+   public static Appointment build(Patient patient, Dentist dentist, LocalDateTime date, AppointmentStatus status){
+       return new Appointment(
+               patient,
+               dentist,
+               date,
+               status
+       );
+   }
 
 }

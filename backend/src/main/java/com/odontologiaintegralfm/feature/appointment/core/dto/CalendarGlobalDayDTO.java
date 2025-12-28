@@ -10,5 +10,5 @@ public record CalendarGlobalDayDTO(
         String status,      // Enum CalendarDayStatus
         String description, // Enum CalendarDayStatus
         String color        // Enum CalendarDayStatus
-        ) {
+) {
 }

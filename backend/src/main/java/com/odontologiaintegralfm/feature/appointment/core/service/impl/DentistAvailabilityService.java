@@ -1,36 +1,37 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
+import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IDentistAvailabilityRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IConflictManagerService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistAvailabilityService;
+import com.odontologiaintegralfm.feature.appointment.core.util.CalendarUtils;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.shared.enums.LogType;
+import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.dto.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
+import static com.odontologiaintegralfm.feature.appointment.core.util.CalendarUtils.findFirstMatchingDate;
+
 
 /**
  * @author [Facundo Palmieri]
@@ -39,20 +40,28 @@ import java.util.*;
 @Slf4j
 public class DentistAvailabilityService implements IDentistAvailabilityService {
 
-    @Autowired
-    private IDentistService dentistService;
 
-    @Autowired
-    private IDentistAvailabilityRepository dentistAvailabilityRepository;
+    private final IDentistService dentistService;
+    private final IDentistAvailabilityRepository dentistAvailabilityRepository;
+    private final MessageSource messageSource;
+    private final AuthenticatedUserService authenticatedUserService;
+    private final IConflictManagerService conflictManagerService;
 
-    @Autowired
-    private MessageSource messageSource;
+    public DentistAvailabilityService(
+            IDentistService dentistService,
+            IDentistAvailabilityRepository dentistAvailabilityRepository,
+            MessageSource messageSource,
+            AuthenticatedUserService authenticatedUserService,
+            IConflictManagerService conflictManagerService
+    ) {
+        this.dentistService = dentistService;
+        this.dentistAvailabilityRepository = dentistAvailabilityRepository;
+        this.messageSource = messageSource;
+        this.authenticatedUserService = authenticatedUserService;
+        this.conflictManagerService = conflictManagerService;
+    }
 
-    @Autowired
-    private AuthenticatedUserService authenticatedUserService;
 
-    @Autowired
-    private IConflictManagerService conflictManagerService;
 
 
     /**
@@ -122,7 +131,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                             dto.getStartTime(),
                             dto.getEndTime(),
                             dto.getAppointmentDuration(),
-                            (dto.getSpecificDate() == null) ? conflictManagerService.findFirstMatchingDate(LocalDate.now().plusDays(1), dto.getDayName().toDayOfWeek()) : dto.getSpecificDate(),
+                            (dto.getSpecificDate() == null) ? CalendarUtils.findFirstMatchingDate(LocalDate.now().plusDays(1), dto.getDayName().toDayOfWeek()) : dto.getSpecificDate(),
                             LocalDateTime.now(),
                             authenticatedUserService.getAuthenticatedUser(),
                             true
@@ -146,54 +155,16 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
 
             //Verificar si hay turnos existentes que se vean afectados.
-            List<AppointmentConflictResponseDTO> appointments = conflictManagerService.verifyConflictsByDentistAvailability(id, days);
-
-
-            // Se arma la respuesta final.
-            DentistAvailabilityResponseDTO dentistAvailabilityResponseDTO = new DentistAvailabilityResponseDTO(
-                    dentistAvailabilitiesSaved.get(0).getDentist().getId(),
-                    dentistAvailabilitiesSaved
-                            .stream()
-                            .map(da -> new WorkingDayDTO(
-                                    da.getKeyName(),
-                                    da.getRecurrence(),
-                                    da.getSpecificDate(),
-                                    da.getStartTime(),
-                                    da.getEndTime(),
-                                    da.getAppointmentDuration(),
-                                    da.getEffectiveDate(),
-                                    null,
-                                    null
-                            ))
-                            .toList(),
-                    appointments
-            );
+            List<AppointmentConflictResponseDTO> appointmentsConflict = conflictManagerService.verifyConflictsByDentistAvailability(id, days);
 
             String messageUser = messageSource.getMessage("dentistAvailabilityService.update.ok", null, LocaleContextHolder.getLocale());
 
-            return new Response<>(true, messageUser, dentistAvailabilityResponseDTO);
+            return new Response<>(true, messageUser, DentistAvailabilityResponseDTO.build(dentistAvailabilitiesSaved,appointmentsConflict));
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistAvailabilityService", id, null, "update");
         }
     }
 
-
-    /**
-     * Deshabilita una jornada laboral
-     */
-    private void disabledAvailability(List<DentistAvailability> dentistAvailability) {
-
-        List<DentistAvailability> disabledAvailability = new ArrayList<>();
-
-        for (DentistAvailability da : dentistAvailability) {
-            da.setEnabled(false);
-            da.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
-            da.setDisabledAt(LocalDateTime.now());
-            disabledAvailability.add(da);
-        }
-
-        dentistAvailabilityRepository.saveAll(disabledAvailability);
-    }
 
 
     /**
@@ -221,28 +192,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                 return new Response<>(true, messageUser, null);
             }
 
-            //Mapeo a un DTO
-            DentistAvailabilityResponseDTO dentistAvailabilityResponseDTO = new DentistAvailabilityResponseDTO(
-                    dentistAvailability.get(0).getDentist().getId(),
-                    dentistAvailability
-                            .stream()
-                            .map(da -> new WorkingDayDTO(
-                                    da.getKeyName(),
-                                    da.getRecurrence(),
-                                    da.getSpecificDate(),
-                                    da.getStartTime(),
-                                    da.getEndTime(),
-                                    da.getAppointmentDuration(),
-                                    da.getEffectiveDate(),
-                                    null,
-                                    null
-
-                            ))
-                            .toList(),
-                    null
-            );
-
-            return new Response<>(true, null, dentistAvailabilityResponseDTO);
+            return new Response<>(true, null, DentistAvailabilityResponseDTO.build(dentistAvailability,null));
 
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistAvailabilityService", id, null, "get");
@@ -276,7 +226,6 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
     /**
      * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-     *
      * @param idDentist: Id Dentista
      * @param startTime: Hora inicio jornada de feriado
      * @param endTime    : Hora fin jornada de feriado
@@ -287,6 +236,8 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
         return holidayDurationMinutes >= appointmentDuration;
     }
+
+
 
     /**
      * Método que verifica si una fecha dada es coincidente con la alguna jornada laboral de dentista.
@@ -313,7 +264,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         //Si la jornada no es específica, recorremos todas las jornadas y verificamos recurrencia.
         for (DentistAvailability da : dentistAvailabilities) {
             if (da.getRecurrence() != null) {
-                if (conflictManagerService.validateRecurrence(da.getRecurrence(), da.getEffectiveDate(), date)) {
+                if (da.getRecurrence().matches(da.getEffectiveDate(), date)) {
                     return da;
                 }
 
@@ -321,4 +272,129 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         }
         return null;
     }
+
+
+
+
+
+    /**
+     * Valída que un bloqueo de calendario propuesto coincida con la jornada laboral del dentista.
+     *
+     * <p>Dependiendo del tipo de recurrencia del bloqueo:</p>
+     * <ul>
+     *     <li><b>DAILY:</b> El bloqueo debe cubrir todos los días laborales del dentista dentro del rango de fechas.</li>
+     *     <li><b>WEEKLY / MONTHLY / YEARLY / NONE:</b> El bloqueo debe coincidir con al menos un día laboral del dentista.</li>
+     * </ul>
+     *
+     * <p>El método obtiene las disponibilidades del dentista y verifica si las fechas y horarios del bloqueo
+     * están completamente cubiertos según la recurrencia.</p>
+     *
+     * @param idDentist Id del dentista cuyo calendario se valida.
+     * @param blocksDate Fechas de bloqueos
+     * @param startTimeBlock Hora de inicio del bloqueo.
+     * @param endTimeBlock Hora de fin del bloqueo.
+     *
+     * @throws BadRequestException Si el bloqueo no cumple con la cobertura requerida según la recurrencia y jornada del dentista.
+     */
+    @Override
+    public void validateCoverage(Long idDentist,List<LocalDate> blocksDate, LocalTime startTimeBlock, LocalTime endTimeBlock) {
+
+        List<DentistAvailability> availabilities = dentistAvailabilityRepository.findAllByDentistIdAndEnabledTrue(idDentist);
+
+        for (LocalDate blockDate : blocksDate) {
+
+            boolean covered = false;
+
+            for (DentistAvailability availability : availabilities) {
+
+                // 1. Día de la semana
+                if (availability.getKeyName() != DayName.fromDayOfWeek(blockDate.getDayOfWeek())) {
+                    continue;
+                }
+
+                // 2. Match por recurrencia
+                if (!availability.getRecurrence().matches(availability.getEffectiveDate(), blockDate)){
+                    continue;
+                }
+
+                // 3. Rango horario
+                if (availability.getStartTime().isAfter(startTimeBlock) || availability.getEndTime().isBefore(endTimeBlock)) {
+                    continue;
+                }
+
+                covered = true;
+                break;
+            }
+
+            if (!covered) {
+                throw new BadRequestException("exception.dentistLockCalendarService.validateDentistAvailability.user", null, "exception.dentistLockCalendarService.validateDentistAvailability.log", new Object[]{idDentist, blockDate}, LogLevel.ERROR);
+            }
+        }
+    }
+
+
+
+
+    /**
+     * Valída que una fecha/hora esté dentro de la jornada laboral del dentista.
+     * @param idDentist : idDentista
+     * @param appointmentDateTime : Fecha y hora a evaluar.
+     */
+    @Override
+    public void isDateTimeWithinAvailability(Long idDentist, LocalDateTime appointmentDateTime) {
+
+        //Obtener disponibilidad
+        List<DentistAvailability> dentistAvailability = dentistAvailabilityRepository.findAllByDentistIdAndEnabledTrue(idDentist);
+
+        //Separo Dias de horas
+        LocalDate date = appointmentDateTime.toLocalDate();
+
+        boolean match = false;
+
+
+        if(dentistAvailability.size() == 1){
+            match = CalendarUtils.isDateTimeWithinEvent(appointmentDateTime, dentistAvailability.get(0).getSpecificDate(), dentistAvailability.get(0).getSpecificDate(), null,dentistAvailability.get(0).getStartTime() , dentistAvailability.get(0).getEndTime(),null);
+        }else{
+            for (DentistAvailability d : dentistAvailability) {
+                //Obtiene los Date de la jornada de los próximos 7 días.
+                LocalDate startDate = findFirstMatchingDate(LocalDate.now().plusDays(1), d.getKeyName().toDayOfWeek());
+                match = CalendarUtils.isDateTimeWithinEvent(appointmentDateTime, startDate, date, d.getKeyName().toDayOfWeek(), d.getStartTime(), d.getEndTime(), d.getRecurrence());
+                if(match){
+                    break;
+                }
+            }
+
+        }
+
+        if (!match) {
+            throw new ConflictException("exception.dentistAvailabilityService.isDateTimeWithinAvailability.user", null,"exception.dentistAvailabilityService.isDateTimeWithinAvailability.log", new Object[]{idDentist,appointmentDateTime ,"dentistAvailabilityService", "isDateTimeWithinAvailability"}, LogLevel.ERROR);
+        }
+
+    }
+
+
+
+
+
+    /**
+     * Deshabilita una jornada laboral
+     */
+    private void disabledAvailability(List<DentistAvailability> dentistAvailability) {
+
+        List<DentistAvailability> disabledAvailability = new ArrayList<>();
+
+        for (DentistAvailability da : dentistAvailability) {
+            da.setEnabled(false);
+            da.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
+            da.setDisabledAt(LocalDateTime.now());
+            disabledAvailability.add(da);
+        }
+
+        dentistAvailabilityRepository.saveAll(disabledAvailability);
+    }
+
+
+
+
+
 }

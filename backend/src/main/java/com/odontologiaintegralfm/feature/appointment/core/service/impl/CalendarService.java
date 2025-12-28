@@ -15,7 +15,6 @@ import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentis
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.dto.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -75,23 +74,28 @@ import java.util.*;
 @Service
 public class CalendarService implements ICalendarService {
 
-    @Autowired
-    private IHolidayService holidayService;
+    private final IHolidayService holidayService;
+    private final IDentistHolidayService dentistHolidayService;
+    private final IDentistService dentistService;
+    private final IDentistAvailabilityService dentistAvailabilityService;
+    private final IAppointmentService appointmentService;
+    private final IDentistCalendarLockService dentistCalendarLockService;
 
-    @Autowired
-    private IDentistHolidayService dentistHolidayService;
-
-    @Autowired
-    private IDentistService dentistService;
-
-    @Autowired
-    private IDentistAvailabilityService dentistAvailabilityService;
-
-    @Autowired
-    private IAppointmentService appointmentService;
-
-    @Autowired
-    private IDentistCalendarLockService dentistCalendarLockService;
+    public CalendarService(
+            IHolidayService holidayService,
+            IDentistHolidayService dentistHolidayService,
+            IDentistService dentistService,
+            IDentistAvailabilityService dentistAvailabilityService,
+            IAppointmentService appointmentService,
+            IDentistCalendarLockService dentistCalendarLockService
+    ) {
+        this.holidayService = holidayService;
+        this.dentistHolidayService = dentistHolidayService;
+        this.dentistService = dentistService;
+        this.dentistAvailabilityService = dentistAvailabilityService;
+        this.appointmentService = appointmentService;
+        this.dentistCalendarLockService = dentistCalendarLockService;
+    }
 
 
 
@@ -305,19 +309,7 @@ public class CalendarService implements ICalendarService {
                     s.setStatus(SlotStatus.LOCKED);
                     s.setColor(SlotStatus.LOCKED.getColorHex());
                     s.setAppointment(null);
-                    s.setCalendarLock(new DentistCalendarLockResponseDTO(
-                                    d.getId(),
-                                    d.getDentist().getId(),
-                                    d.getType().getName(),
-                                    d.getRecurrence().getLabel(),
-                                    d.getStartDate(),
-                                    d.getEndDate(),
-                                    d.getStartTime(),
-                                    d.getEndTime(),
-                                    d.getObservation(),
-                                    d.getObservationUpdate(),
-                                    null
-                            )
+                    s.setCalendarLock(DentistCalendarLockResponseDTO.build(d)
                     );
                     break;
                 }
@@ -348,13 +340,7 @@ public class CalendarService implements ICalendarService {
                     s.setStatus(SlotStatus.RESERVED);
                     s.setColor(SlotStatus.RESERVED.getColorHex());
                     s.setAppointment(
-                            new AppointmentResponseDTO(
-                                    a.getId(),
-                                    a.getDentist().getPerson().getLastName() + "," + a.getDentist().getPerson().getFirstName(),
-                                    a.getPatient().getPerson().getLastName() + "," + a.getPatient().getPerson().getFirstName(),
-                                    a.getDate(),
-                                    a.getStatus()
-                            )
+                            AppointmentResponseDTO.build(a)
                     );
                     break;
                 }
@@ -447,6 +433,7 @@ public class CalendarService implements ICalendarService {
 
         DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,day);
         if (dentistAvailability == null) {
+
             return new CalendarDetailDayResponseDTO(
                     idDentist,
                     day,
