@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 
 public record AppointmentConflictResponseDTO(
-        Long appointemntId,
-        LocalDateTime appointemntDateTime,
+        Long appointmentId,
+        LocalDateTime appointmentDateTime,
         Long idPatient,
         String patientName,
         Long idOriginConflict,
