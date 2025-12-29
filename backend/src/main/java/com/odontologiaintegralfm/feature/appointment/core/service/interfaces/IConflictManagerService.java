@@ -14,12 +14,21 @@ import java.util.List;
 public interface IConflictManagerService {
 
     /**
-     * Método para verificar conflictos antes cambios en la jornada laboral del dentista.4
+     * Método para verificar conflictos antes cambios en la jornada laboral del dentista.
      * @param idDentist : id Dentista.
      * @param days : Lista con DTOs qie tienen la nueva jornada laboral.
      * @return : Lista de AppointmentConflictResponseDTO
      */
     List<AppointmentConflictResponseDTO> verifyConflictsByDentistAvailability(Long idDentist, List<WorkingDayDTO> days);
+
+
+    /**
+     * Método para verificar conflictos ante consulta de posible conflictos, antes un preview de cambios en la jornada laboral del dentista.
+     * @param idDentist : id Dentista.
+     * @param days : Lista con DTOs qie tienen la nueva jornada laboral.
+     * @return : Lista de AppointmentConflictResponseDTO
+     */
+    List<AppointmentConflictResponseDTO> PreviewVerifyConflictsByDentistAvailability(Long idDentist, List<WorkingDayDTO> days);
 
 
     /**

@@ -57,6 +57,30 @@ public class DentistAvailabilityController {
 
 
 
+    /**
+     * Endpoint para la visualización posible nuevos conflictos ante cambios en la jornada laboral de un dentista.
+     * @param id Id del dentista
+     */
+
+    @Operation(summary = "Visualizar posibles conflictos por cambio de jornada de dentista", description = "Permite visualizar lo posibles conflictos en turnos que puedan surgir antes cambios en la jornada laboral del dentista.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preview obtenido exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Dentista no encontrado.")
+    })
+    @PatchMapping("/{id}/preview")
+    @OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationUpdate
+    public ResponseEntity<Response<DentistAvailabilityResponseDTO>> updatePreview(@Validated @PathVariable Long id,
+                                                                                  @Valid @RequestBody List<WorkingDayDTO> days ) {
+
+        Response<DentistAvailabilityResponseDTO> response  =  dentistAvailabilityService.createPreview(id, days);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+
+
 
     /**
      * Endpoint para la visualización de disponibilidad de jornada laboral de un dentista.
@@ -76,4 +100,7 @@ public class DentistAvailabilityController {
         Response<DentistAvailabilityResponseDTO> response = dentistAvailabilityService.get(idPerson);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
+
 }
