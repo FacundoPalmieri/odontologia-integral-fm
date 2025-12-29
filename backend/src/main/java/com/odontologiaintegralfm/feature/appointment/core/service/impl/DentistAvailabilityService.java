@@ -132,9 +132,13 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
             //Verificar si hay turnos existentes que se vean afectados.
             List<AppointmentConflictResponseDTO> appointmentsConflict = conflictManagerService.verifyConflictsByDentistAvailability(id, days);
 
-            String messageUser = messageSource.getMessage("dentistAvailabilityService.update.ok", null, LocaleContextHolder.getLocale());
 
-            return new Response<>(true, messageUser, DentistAvailabilityResponseDTO.build(dentistAvailabilitiesSaved,appointmentsConflict));
+            return new Response<>(
+                    true,
+                    (appointmentsConflict.isEmpty())
+                            ? messageSource.getMessage("dentistAvailabilityService.update.ok.user",null, LocaleContextHolder.getLocale())
+                            : messageSource.getMessage("dentistAvailabilityService.update.okWithConflict.user", null, LocaleContextHolder.getLocale()),
+                    DentistAvailabilityResponseDTO.build(dentistAvailabilitiesSaved,appointmentsConflict));
         } catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistAvailabilityService", id, null, "update");
         }
@@ -160,7 +164,10 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
         //Si no hay disponibilidades previas, no hay conflictos. Se retorna.
         if(dentistAvailabilityExisting.dentistAvailabilities().isEmpty()) {
-           return new Response<>(true, "",  DentistAvailabilityResponseDTO.build(newAvailabilities,List.of()));
+           return new Response<>(
+                   true,
+                   messageSource.getMessage("dentistAvailabilityService.preview.ok.user", null, LocaleContextHolder.getLocale()),
+                   DentistAvailabilityResponseDTO.build(newAvailabilities,List.of()));
         }
 
 
@@ -170,7 +177,12 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         //Verificar si hay turnos existentes que se vean afectados.
         List<AppointmentConflictResponseDTO> appointmentsConflict = conflictManagerService.PreviewVerifyConflictsByDentistAvailability(id, days);
 
-        return new Response<>(true, null, DentistAvailabilityResponseDTO.build(newAvailabilities,appointmentsConflict));
+        return new Response<>(
+                true,
+                (appointmentsConflict.isEmpty())
+                        ? messageSource.getMessage("dentistAvailabilityService.preview.ok.user",null, LocaleContextHolder.getLocale())
+                        : messageSource.getMessage("dentistAvailabilityService.preview.okWithConflict.user", null, LocaleContextHolder.getLocale()),
+                DentistAvailabilityResponseDTO.build(newAvailabilities,appointmentsConflict));
 
     }
 

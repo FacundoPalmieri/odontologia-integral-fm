@@ -62,7 +62,7 @@ public class DentistAvailabilityController {
      * @param id Id del dentista
      */
 
-    @Operation(summary = "Visualizar posibles conflictos por cambio de jornada de dentista", description = "Permite visualizar lo posibles conflictos en turnos que puedan surgir antes cambios en la jornada laboral del dentista.")
+    @Operation(summary = "Visualizar posibles conflictos por cambio de jornada de dentista", description = "Permite visualizar lo posibles conflictos en turnos que puedan surgir ante cambios en la jornada laboral del dentista.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Preview obtenido exitosamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),

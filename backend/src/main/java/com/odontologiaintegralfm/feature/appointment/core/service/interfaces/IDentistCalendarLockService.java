@@ -21,6 +21,19 @@ public interface IDentistCalendarLockService {
      */
     Response<DentistCalendarLockResponseDTO> create (Long idPerson, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO);
 
+
+
+    /**
+     * Método para simular un bloqueo de calendario, lo que permite detectar posibles conflictos con turnos.
+     * @param idPerson  : Id Dentista.
+     * @param dentistCalendarLockRequestCreateDTO : Datos del evento.
+     */
+    Response<DentistCalendarLockResponseDTO> createPreview (Long idPerson, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO);
+
+
+
+
+
     /**
      * Método para actualizar una relación entre dentista y evento de bloqueo de agenda.
      * @param dentistCalendarLockRequestUpdateDTO : Datos del evento.

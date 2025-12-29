@@ -23,7 +23,7 @@ public interface IConflictManagerService {
 
 
     /**
-     * Método para verificar conflictos ante consulta de posible conflictos, antes un preview de cambios en la jornada laboral del dentista.
+     * Método para verificar conflictos ante un preview de cambios en la jornada laboral del dentista.
      * @param idDentist : id Dentista.
      * @param days : Lista con DTOs qie tienen la nueva jornada laboral.
      * @return : Lista de AppointmentConflictResponseDTO
@@ -33,11 +33,20 @@ public interface IConflictManagerService {
 
     /**
      * Método para verificar conflictos antes bloqueos de calendario del dentista.
-     * @param dentistCalendarLockRequestCreateDTO
-     * @param dentists
-     * @return
+     * @param dentistCalendarLockRequestCreateDTO :
+     * @param dentists :
      */
     List<AppointmentConflictResponseDTO> verifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists);
+
+
+
+    /**
+     * Método para verificar conflictos ante un preview de bloqueo de calendario dentista.
+     * @param dentistCalendarLockRequestCreateDTO :
+     * @param dentists :
+     */
+    List<AppointmentConflictResponseDTO> PreviewVerifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists);
+
 
 
 

@@ -265,9 +265,7 @@ Al unificar disponibilidad, locks y appointments, la capa de generación de slot
 
 ###   5.1. Bloqueo puntual (fecha exacta)
 
-Uso: feriado aislado, ausencia de un día, evento puntual.
-
-Input esperado:
+Uso: Ausencia de un día, evento puntual.
 
 Input esperado:
 

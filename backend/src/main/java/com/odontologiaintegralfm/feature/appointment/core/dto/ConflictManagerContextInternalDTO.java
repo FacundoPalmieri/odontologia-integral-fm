@@ -8,12 +8,12 @@ import java.util.List;
  * DTO interno del servicio de Conflict Manager.
  * Se utiliza para preparar el contexto de validación de turnos y turnos en conflicto.
  */
-public record ConflictManagerAvailabilityInternalDTO(
+public record ConflictManagerContextInternalDTO(
         List<Appointment> appointments,
         List<AppointmentConflict> appointmentConflicts
 ) {
 
-    public static ConflictManagerAvailabilityInternalDTO build(List<Appointment> appointments,  List<AppointmentConflict> appointmentConflicts){
-        return new ConflictManagerAvailabilityInternalDTO(appointments, appointmentConflicts);
+    public static ConflictManagerContextInternalDTO build(List<Appointment> appointments, List<AppointmentConflict> appointmentConflicts){
+        return new ConflictManagerContextInternalDTO(appointments, appointmentConflicts);
     }
 }

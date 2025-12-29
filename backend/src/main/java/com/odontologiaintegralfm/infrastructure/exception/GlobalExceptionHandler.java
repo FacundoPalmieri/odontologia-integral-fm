@@ -26,6 +26,8 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
 /**
  * Manejador global de excepciones para capturar y gestionar diferentes tipos de excepciones lanzadas en la aplicación.
  * <p>
@@ -131,11 +133,11 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
 
         // Toma el primer mensaje de error de todas las validaciones de DTO para mostrarlo en el campo "message" y luego en errors se ve todos los errores de validación de dtos.
-        String firstErrorMessage = errors.values().stream().findFirst().orElse("Error de validación");
+        String firstErrorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
 
         // Iteramos sobre los errores de cada campo que falló en la validación
         ex.getBindingResult().getFieldErrors().forEach(error ->{
-            String errorMessage = messageSource.getMessage(error.getDefaultMessage(), null, LocaleContextHolder.getLocale());   // Guardamos el nombre del campo (error.getField()) y el mensaje de error correspondiente (error.getDefaultMessage()) en el mapa
+            String errorMessage = messageSource.getMessage(Objects.requireNonNull(error.getDefaultMessage()), null, LocaleContextHolder.getLocale());   // Guardamos el nombre del campo (error.getField()) y el mensaje de error correspondiente (error.getDefaultMessage()) en el mapa
             errors.put(error.getField(), errorMessage);
 
             //Obtiene el usuario autenticado.
