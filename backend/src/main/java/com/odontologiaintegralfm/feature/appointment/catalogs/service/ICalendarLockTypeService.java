@@ -1,12 +1,14 @@
 package com.odontologiaintegralfm.feature.appointment.catalogs.service;
 
 
+import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockModeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.CalendarLockType;
 import com.odontologiaintegralfm.shared.dto.Response;
 import java.util.List;
+import java.util.Set;
 
 public interface ICalendarLockTypeService {
 
@@ -19,6 +21,13 @@ public interface ICalendarLockTypeService {
      * Obtiene un tipo de bloqueo por su ID.
      */
     Response<CalendarLockTypeResponseDTO> getById(Long id);
+
+
+    /**
+     * Obtiene los diferentes modos para un tipo de bloqueo.
+     */
+
+    Response<Set<CalendarLockModeResponseDTO>> getModes();
 
     /**
      * Obtiene un tipo de bloqueo por su ID.

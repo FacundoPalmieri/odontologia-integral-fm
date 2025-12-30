@@ -42,14 +42,17 @@ public class AppointmentStatusHistory extends Auditable {
     private String observation;
 
 
-    public AppointmentStatusHistory(Appointment appointment, AppointmentStatus status,AppointmentActionRequester requestedBy,String observation, UserSec createBy, LocalDateTime createAt, boolean enabled) {
+    private AppointmentStatusHistory(Appointment appointment, AppointmentStatus status,AppointmentActionRequester requestedBy,String observation) {
         this.appointment = appointment;
         this.status = status;
         this.requestedBy = requestedBy;
         this.observation = observation;
-        this.setCreatedBy(createBy);
-        this.setCreatedAt(createAt);
-        this.setEnabled(enabled);
     }
+
+    public static AppointmentStatusHistory build(Appointment appointment, AppointmentStatus status,AppointmentActionRequester requestedBy,String observation){
+        return new AppointmentStatusHistory(appointment,status,requestedBy,observation);
+    }
+
+
 
 }

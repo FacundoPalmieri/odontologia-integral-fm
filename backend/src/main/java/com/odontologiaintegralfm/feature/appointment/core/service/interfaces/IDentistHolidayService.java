@@ -6,6 +6,7 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayResp
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistHoliday;
 import com.odontologiaintegralfm.shared.dto.Response;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,4 +40,13 @@ public interface IDentistHolidayService {
      */
     Optional<DentistHoliday> getByDentistIdAndHolidayId(Long idDentist, Long idHoliday);
 
+
+    /**
+     * Valída si existe relación entre feriado y dentista.
+     * Si existe, no realiza acción.
+     * Si no existe, arroja exceptión.
+     * @param idDentist : Id dentista
+     * @param date : Fecha
+     */
+    void validateDentistIdAndDate(Long idDentist, LocalDate date);
 }

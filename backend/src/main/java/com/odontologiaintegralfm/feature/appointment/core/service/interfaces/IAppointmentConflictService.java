@@ -3,8 +3,10 @@ package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
+import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.dto.Response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -28,14 +30,6 @@ public interface IAppointmentConflictService {
 
 
 
-    /**
-     * Obtiene la lista de turnos conflictivos NO RESUELTOS por Id de dentista.
-     */
-    List<AppointmentConflict> getNotResolved(Long idDentist);
-
-
-
-
 
     /**
      * Devuelve una Response con Lista todos los conflictos del dentista.
@@ -54,11 +48,14 @@ public interface IAppointmentConflictService {
 
 
 
+
     /**
-     * Actualiza  turnos conflictivo
-     * @param appointmentConflicts: Turno
+     * Actualiza turnos conflictivo como resueltos
+     * @param appointmentsIds : id Turnos en conflictos
+     * @param updateAt : Fecha del día
+     * @param updateBy : Usuario que actualiza.
      */
-    List<AppointmentConflict> update(List<AppointmentConflict> appointmentConflicts);
+    void resolvedAll(List<Long> appointmentsIds, LocalDateTime updateAt, UserSec updateBy);
 
 
 

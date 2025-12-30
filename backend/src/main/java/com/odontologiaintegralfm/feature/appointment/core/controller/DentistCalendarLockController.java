@@ -26,8 +26,12 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class DentistCalendarLockController {
 
-    @Autowired
-    private IDentistCalendarLockService dentistCalendarService;
+
+    private final IDentistCalendarLockService dentistCalendarService;
+
+    public DentistCalendarLockController(IDentistCalendarLockService dentistCalendarService) {
+        this.dentistCalendarService = dentistCalendarService;
+    }
 
 
     @Operation(summary = "Crear bloqueo de Agenda", description = "Permite crear un bloqueo de agenda para un dentista.")
@@ -48,6 +52,34 @@ public class DentistCalendarLockController {
     }
 
 
+
+
+    @Operation(summary = "Visualizar posibles conflictos por creación de bloqueo de calendario.", description = "Permite visualizar lo posibles conflictos en turnos que puedan surgir por creación de bloqueo de calendario.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preview obtenido exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Dentista no encontrado.")
+    })
+    @PostMapping("/{idPerson}/preview")
+    @OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationCreate
+    public ResponseEntity<Response<DentistCalendarLockResponseDTO>>createPreview(@PathVariable("idPerson")Long idPerson,
+                                                                                 @Valid @RequestBody DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO) {
+
+
+        Response<DentistCalendarLockResponseDTO> response = dentistCalendarService.createPreview(idPerson, dentistCalendarLockRequestCreateDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+    }
+
+
+
+    @Operation(summary = "Finalizar bloqueo", description = "Actualiza la fecha de fin de bloqueo al momento en que se envía la request.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bloqueo finalizado exitosamente."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
     @PatchMapping("/{idPerson}")
     @OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationUpdate
     public ResponseEntity<Response<DentistCalendarLockResponseDTO>> update(@PathVariable("idPerson")Long idPerson,

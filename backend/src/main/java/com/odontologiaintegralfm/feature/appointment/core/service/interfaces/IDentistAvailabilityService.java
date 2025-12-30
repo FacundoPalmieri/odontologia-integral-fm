@@ -4,8 +4,10 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilit
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
 import com.odontologiaintegralfm.shared.dto.Response;
+import com.odontologiaintegralfm.shared.exception.BadRequestException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -15,7 +17,7 @@ import java.util.List;
 public interface IDentistAvailabilityService {
 
     /**
-     * Método para crear la disponibilidad de turnos de un dentista.
+     * Método para crear una nueva jornada laboral de un dentista.
      * - Inicio de jornada.
      * - Fin de jornada.
      * - Duración de turno.
@@ -23,6 +25,11 @@ public interface IDentistAvailabilityService {
      */
     Response<DentistAvailabilityResponseDTO> create(Long id, List<WorkingDayDTO> days);
 
+
+    /**
+     * Método para simular una nueva jornada laboral de un dentista.
+     */
+    Response<DentistAvailabilityResponseDTO> createPreview(Long id, List<WorkingDayDTO> days);
 
 
     /**
@@ -66,4 +73,26 @@ public interface IDentistAvailabilityService {
      * @return : La jornada laboral.
      */
     DentistAvailability getDentistAvailabilityByDate(Long dentist, LocalDate date);
+
+
+
+    /**
+     * Valída que un bloqueo de calendario propuesto coincida con la jornada laboral del dentista.
+     * @param idDentist Id del dentista cuyo calendario se valida.
+     * @param blocksDate Fechas de bloqueos
+     * @param starTimeBlock Hora de inicio del bloqueo.
+     * @param endTimeBlock Hora de fin del bloqueo.
+     * @throws BadRequestException Si el bloqueo no cumple con la cobertura requerida según la recurrencia y jornada del dentista.
+     */
+    void validateCoverage(Long idDentist, List<LocalDate> blocksDate, LocalTime starTimeBlock, LocalTime endTimeBlock);
+
+
+
+
+    /**
+     * Valída que una fecha/hora esté dentro de la jornada laboral del dentista.
+     * @param idDentist : idDentista
+     * @param appointmentDateTime : Fecha y hora a evaluar.
+     */
+    void isDateTimeWithinAvailability(Long idDentist, LocalDateTime appointmentDateTime);
 }

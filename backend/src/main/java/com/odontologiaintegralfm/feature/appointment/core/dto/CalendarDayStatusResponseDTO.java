@@ -11,6 +11,7 @@ public record CalendarDayStatusResponseDTO(
         String color
 ) {
 
+
     public static CalendarDayStatusResponseDTO build(CalendarDayStatus status) {
         return new CalendarDayStatusResponseDTO(
                 status.name(),

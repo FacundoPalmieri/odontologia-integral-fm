@@ -7,19 +7,15 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentResched
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentActionRequester;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
-import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
-import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
-import com.odontologiaintegralfm.feature.appointment.catalogs.service.HolidayService;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.core.model.*;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentRepository;
-import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
+import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.*;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
-import com.odontologiaintegralfm.feature.dentist.core.service.implement.DentistService;
+import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
-import com.odontologiaintegralfm.feature.patient.core.service.implement.PatientService;
+import com.odontologiaintegralfm.feature.patient.core.service.interfaces.IPatientService;
 import com.odontologiaintegralfm.feature.person.core.model.ContactEmail;
-import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.infrastructure.systemparameter.enums.SystemParameterKey;
@@ -31,8 +27,6 @@ import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
@@ -48,37 +42,47 @@ import java.util.*;
 @Service
 public class AppointmentService implements IAppointmentService {
 
-    @Autowired
-    private IAppointmentRepository appointmentRepository;
-    @Autowired
-    private DentistService dentistService;
-    @Autowired
-    private PatientService patientService;
-    @Autowired
-    private DentistAvailabilityService dentistAvailabilityService;
-    @Autowired
-    private ConflictManagerService conflictManagerService;
-    @Autowired
-    private DentistHolidayService dentistHolidayService;
-    @Autowired
-    private HolidayService holidayService;
-    @Autowired
-    private DentistCalendarLockService dentistCalendarLockService;
-    @Autowired
-    private DentistCalendarLockDetailService dentistCalendarLockDetailService;
-    @Autowired
-    private AuthenticatedUserService authenticatedUserService;
-    @Qualifier("messageSource")
-    @Autowired
-    private MessageSource messageSource;
-    @Autowired
-    private AppointmentStatusHistoryService appointmentStatusHistoryService;
-    @Autowired
-    private SystemParameterService systemParameterService;
-    @Autowired
-    private IEmailService emailService;
-    @Autowired
-    private IUserService userService;
+
+    private final IAppointmentRepository appointmentRepository;
+    private final IDentistService dentistService;
+    private final IPatientService patientService;
+    private final IDentistAvailabilityService dentistAvailabilityService;
+    private final IDentistHolidayService dentistHolidayService;
+    private final IDentistCalendarLockService dentistCalendarLockService;
+    private final AuthenticatedUserService authenticatedUserService;
+    private final MessageSource messageSource;
+    private final IAppointmentStatusHistoryService appointmentStatusHistoryService;
+    private final SystemParameterService systemParameterService;
+    private final IEmailService emailService;
+
+
+    public AppointmentService(
+            IAppointmentRepository appointmentRepository,
+            IDentistService dentistService,
+            IPatientService patientService,
+            IDentistAvailabilityService dentistAvailabilityService,
+            IDentistHolidayService dentistHolidayService,
+            IDentistCalendarLockService dentistCalendarLockService,
+            AuthenticatedUserService authenticatedUserService,
+            MessageSource messageSource,
+            IAppointmentStatusHistoryService appointmentStatusHistoryService,
+            SystemParameterService systemParameterService,
+            IEmailService emailService
+    ) {
+        this.appointmentRepository = appointmentRepository;
+        this.dentistService = dentistService;
+        this.patientService = patientService;
+        this.dentistAvailabilityService = dentistAvailabilityService;
+        this.dentistHolidayService = dentistHolidayService;
+        this.dentistCalendarLockService = dentistCalendarLockService;
+        this.authenticatedUserService = authenticatedUserService;
+        this.messageSource = messageSource;
+        this.appointmentStatusHistoryService = appointmentStatusHistoryService;
+        this.systemParameterService = systemParameterService;
+        this.emailService = emailService;
+    }
+
+
 
 
     /**
@@ -139,26 +143,22 @@ public class AppointmentService implements IAppointmentService {
 
 
         //Validar jornada del dentista para la fecha y hora enviada.
-        validateAvailabilityForAppointment(dentist.getId(), appointmentCreateRequestDTO.dateTime());
+        dentistAvailabilityService.isDateTimeWithinAvailability(dentist.getId(), appointmentCreateRequestDTO.dateTime());
 
 
         //Validar feriado para la fecha enviada.
-        validateHoliday(dentist.getId(), appointmentCreateRequestDTO.dateTime().toLocalDate());
+        dentistHolidayService.validateDentistIdAndDate(dentist.getId(), appointmentCreateRequestDTO.dateTime().toLocalDate());
 
         //Validar bloqueos para la fecha y hora enviada.
-        validateCalendarLock(dentist.getId(), appointmentCreateRequestDTO.dateTime());
+        dentistCalendarLockService.validateByIdDentistAndDateTime(dentist.getId(), appointmentCreateRequestDTO.dateTime());
 
 
         //Crear turno
-        Appointment appointment = new Appointment(
-                patient,
-                dentist,
-                appointmentCreateRequestDTO.dateTime().plusMinutes(1),
-                AppointmentStatus.RESERVED,
-                authenticatedUserService.getAuthenticatedUser(),
-                LocalDateTime.now(),
-                true
-        );
+        Appointment appointment = Appointment.build(patient, dentist, appointmentCreateRequestDTO.dateTime().plusMinutes(1), AppointmentStatus.RESERVED);
+        //Campos auditoria
+        appointment.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+        appointment.setCreatedAt(LocalDateTime.now());
+        appointment.setEnabled(true);
 
         //Se persiste turno e historial de acciones del mismo.
         Appointment appointmentSaved;
@@ -169,16 +169,11 @@ public class AppointmentService implements IAppointmentService {
         }
 
         //Se crea y persiste en el historial.
-        AppointmentStatusHistory appointmentStatusHistory = new AppointmentStatusHistory(
-                appointment,
-                AppointmentStatus.RESERVED,
-                AppointmentActionRequester.PATIENT,
-                null,
-                authenticatedUserService.getAuthenticatedUser(),
-                LocalDateTime.now(),
-                true
-        );
-
+        AppointmentStatusHistory appointmentStatusHistory = AppointmentStatusHistory.build(appointment, AppointmentStatus.RESERVED, AppointmentActionRequester.PATIENT, null);
+        //Campos auditoria.
+        appointmentStatusHistory.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+        appointmentStatusHistory.setCreatedAt(LocalDateTime.now());
+        appointmentStatusHistory.setEnabled(true);
         appointmentStatusHistoryService.save(appointmentStatusHistory);
 
 
@@ -200,13 +195,7 @@ public class AppointmentService implements IAppointmentService {
                         null,
                         LocaleContextHolder.getLocale()
                 ),
-                new AppointmentResponseDTO(
-                        appointmentSaved.getId(),
-                        appointmentSaved.getDentist().getPerson().getLastName() + "," + appointmentSaved.getDentist().getPerson().getFirstName(),
-                        appointmentSaved.getPatient().getPerson().getLastName() + "," + appointmentSaved.getPatient().getPerson().getFirstName(),
-                        appointmentSaved.getDate(),
-                        appointmentSaved.getStatus()
-                )
+                AppointmentResponseDTO.build(appointmentSaved)
         );
 
     }
@@ -303,29 +292,30 @@ public class AppointmentService implements IAppointmentService {
         }
 
         //Validar jornada del dentista para la fecha y hora enviada.
-        validateAvailabilityForAppointment(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
+        dentistAvailabilityService.isDateTimeWithinAvailability(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
 
 
         //Validar feriado para la fecha enviada.
-        validateHoliday(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime().toLocalDate());
+        dentistHolidayService.validateDentistIdAndDate(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime().toLocalDate());
 
         //Validar bloqueos para la fecha y hora enviada.
-        validateCalendarLock(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
+        dentistCalendarLockService.validateByIdDentistAndDateTime(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
 
 
         //Actualiza el appointment con la nueva fecha.
         appointment.setDate(appointmentRescheduleRequestDTO.appointment().dateTime());
 
         //Actualiza historial de turnos.
-        AppointmentStatusHistory appointmentStatusHistory = new AppointmentStatusHistory(
+        AppointmentStatusHistory appointmentStatusHistory = AppointmentStatusHistory.build(
                 appointment,
                 AppointmentStatus.RESCHEDULED,
                 appointmentRescheduleRequestDTO.requestSource(),
-                appointmentRescheduleRequestDTO.observation(),
-                authenticatedUserService.getAuthenticatedUser(),
-                LocalDateTime.now(),
-                true
+                appointmentRescheduleRequestDTO.observation()
         );
+        //Campos auditoria.
+        appointmentStatusHistory.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+        appointmentStatusHistory.setCreatedAt(LocalDateTime.now());
+        appointmentStatusHistory.setEnabled(true);
 
         //persiste
         try{
@@ -353,14 +343,7 @@ public class AppointmentService implements IAppointmentService {
                         null,
                         LocaleContextHolder.getLocale()
                 ),
-                new AppointmentResponseDTO(
-                        appointment.getId(),
-                        appointment.getDentist().getPerson().getLastName() + "," + appointment.getDentist().getPerson().getFirstName(),
-                        appointment.getPatient().getPerson().getLastName() + "," + appointment.getPatient().getPerson().getFirstName(),
-                        appointment.getDate(),
-                        appointment.getStatus()
-                )
-
+                AppointmentResponseDTO.build(appointment)
         );
 
 
@@ -428,15 +411,16 @@ public class AppointmentService implements IAppointmentService {
         }
 
         //Actualizar estado Historial y persiste.
-        AppointmentStatusHistory appointmentStatusHistory = new AppointmentStatusHistory(
+        AppointmentStatusHistory appointmentStatusHistory = AppointmentStatusHistory.build(
                 appointment,
                 AppointmentStatus.CANCELED,
                 appointmentCancelRequestDTO.requestSource(),
-                appointmentCancelRequestDTO.observation(),
-                authenticatedUserService.getAuthenticatedUser(),
-                LocalDateTime.now(),
-                true
+                appointmentCancelRequestDTO.observation()
         );
+        //Campos auditoría
+        appointmentStatusHistory.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+        appointmentStatusHistory.setCreatedAt(LocalDateTime.now());
+        appointmentStatusHistory.setEnabled(true);
         appointmentStatusHistoryService.save(appointmentStatusHistory);
 
 
@@ -458,13 +442,7 @@ public class AppointmentService implements IAppointmentService {
                         null,
                         LocaleContextHolder.getLocale()
                 ),
-                new AppointmentResponseDTO(
-                        appointment.getId(),
-                        appointment.getDentist().getPerson().getLastName() + "," + appointment.getDentist().getPerson().getFirstName(),
-                        appointment.getPatient().getPerson().getLastName() + "," + appointment.getPatient().getPerson().getFirstName(),
-                        appointment.getDate(),
-                        appointment.getStatus()
-                )
+                AppointmentResponseDTO.build(appointment)
 
         );
 
@@ -540,17 +518,15 @@ public class AppointmentService implements IAppointmentService {
                     .add(a);
 
             // Crear historial
-            appointmentStatusHistory.add(
-                    new AppointmentStatusHistory(
+            AppointmentStatusHistory ah =
+                    AppointmentStatusHistory.build(
                             a,
                             AppointmentStatus.CANCELED,
                             appointmentCancelRequestDTO.requestSource(),
-                            appointmentCancelRequestDTO.observation(),
-                            authenticatedUserService.getAuthenticatedUser(),
-                            LocalDateTime.now(),
-                            true
-                    )
-            );
+                            appointmentCancelRequestDTO.observation()
+                    );
+
+            appointmentStatusHistory.add(ah);
         }
 
         //persiste
@@ -770,102 +746,6 @@ public class AppointmentService implements IAppointmentService {
         if (limit.isBefore(now)) {
             throw new BadRequestException("exception.validateMinimumHoursForCancel.user", null, "exception.validateMinimumHoursForCancel.log", new Object[]{appointmentDateTime, limit, "AppointmentService", "validateMinimumHours"}, LogLevel.ERROR);
         }
-    }
-
-
-
-
-
-    /**
-     * Valída que el turno a crea no esté dentro un bloqueo de calendario.
-     *
-     * @param idDentist           : idDentista
-     * @param appointmentDateTime : Fecha y hora del turno.
-     */
-    private void validateCalendarLock(Long idDentist, LocalDateTime appointmentDateTime) {
-        //Obtener bloqueos.
-        List<DentistCalendarLock> dentistCalendarLock = dentistCalendarLockService.getAllCurrentByDentistId(idDentist);
-
-        //Validar esos bloqueos con la fecha del turno.
-        for (DentistCalendarLock dc : dentistCalendarLock) {
-
-            //Obtener detalles de bloqueos.
-            List<DentistCalendarLockDetail> dentistCalendarLockDetails = dentistCalendarLockDetailService.getAllByDentistCalendarLock(dc.getId());
-
-            //Si la lista está vacía, el bloqueo es diario.
-            if (dentistCalendarLockDetails.isEmpty()) {
-                if (conflictManagerService.hasAppointmentMatchWithEvent(appointmentDateTime, dc.getStartDate(), dc.getEndDate(), null, dc.getStartTime(), dc.getEndTime(), CalendarLockRecurrenceName.DAILY)) {
-                    throw new ConflictException("exception.appointmentService.validateCalendarLock.user", null, "exception.appointmentService.validateCalendarLock.log", new Object[]{dc.getId(), appointmentDateTime, "Appointment Service", "validateCalendarLock"}, LogLevel.ERROR);
-                }
-            } else {
-                for (DentistCalendarLockDetail dcld : dentistCalendarLockDetails) {
-                    if (conflictManagerService.hasAppointmentMatchWithEvent(appointmentDateTime, dc.getStartDate(), dc.getEndDate(), dcld.getDayName().toDayOfWeek(), dc.getStartTime(), dc.getEndTime(), dc.getRecurrence())) {
-                        throw new ConflictException("exception.appointmentService.validateCalendarLock.user", null, "exception.appointmentService.validateCalendarLock.log", new Object[]{dc.getId(), appointmentDateTime, "Appointment Service", "validateCalendarLock"}, LogLevel.ERROR);
-                    }
-                }
-            }
-        }
-    }
-
-
-
-    /**
-     * Valída que si la fecha es un feriado, el dentista la trabaje.
-     *
-     * @param id        : id del dentista
-     * @param localDate : fecha del turno.
-     */
-    private void validateHoliday(Long id, LocalDate localDate) {
-
-        //Se valida que el turno no sea un feriado.
-        Optional<Holiday> holiday = holidayService.getByDate(localDate);
-
-        // Si es feriado, se valida que el dentista lo trabaje.
-        if (holiday.isPresent()) {
-           dentistHolidayService.getByDentistIdAndHolidayId(id,holiday.get().getId())
-                   .orElseThrow(() -> new ConflictException("exception.appointmentService.validateHoliday.user", null, "exception.appointmentService.validateHoliday.log",new Object[]{id ,holiday.get().getId(), "appointmentService", "validateHoliday"}, LogLevel.ERROR));
-        }
-    }
-
-
-
-
-
-    /**
-     * Valída que el turno a crear esté dentro de la jornada laboral del dentista.
-     * @param idDentist : idDentista
-     * @param appointmentDateTime : Fecha y hora del turno.
-     */
-
-    private void validateAvailabilityForAppointment(Long idDentist, LocalDateTime appointmentDateTime) {
-
-        //Obtener disponibilidad
-        List<DentistAvailability> dentistAvailability = dentistAvailabilityService.getByIdInternal(idDentist);
-
-        //Separo Dias de horas
-        LocalDate date = appointmentDateTime.toLocalDate();
-
-        boolean match = false;
-
-
-        if(dentistAvailability.size() == 1){
-            match = conflictManagerService.hasAppointmentMatchWithEvent(appointmentDateTime, dentistAvailability.get(0).getSpecificDate(), dentistAvailability.get(0).getSpecificDate(), null,dentistAvailability.get(0).getStartTime() , dentistAvailability.get(0).getEndTime(),null);
-        }else{
-            for (DentistAvailability d : dentistAvailability) {
-                //Obtiene los Date de la jornada de los próximos 7 días.
-                LocalDate startDate = conflictManagerService.findFirstMatchingDate(LocalDate.now().plusDays(1), d.getKeyName().toDayOfWeek());
-                match = conflictManagerService.hasAppointmentMatchWithEvent(appointmentDateTime, startDate, date, d.getKeyName().toDayOfWeek(), d.getStartTime(), d.getEndTime(), d.getRecurrence());
-                if(match){
-                    break;
-                }
-            }
-
-        }
-
-        if (!match) {
-            throw new ConflictException("exception.appointmentService.validateAvailability.user", null,"exception.appointmentService.validateAvailability.log", new Object[]{idDentist,appointmentDateTime ,"Appointment Service", "validateAvailability"}, LogLevel.ERROR);
-        }
-
     }
 
 

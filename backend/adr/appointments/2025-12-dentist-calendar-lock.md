@@ -258,3 +258,165 @@ Sin embargo, esta complejidad es necesaria para un comportamiento confiable.
 ### 4.4. Simplificación futura en la generación de slots
 
 Al unificar disponibilidad, locks y appointments, la capa de generación de slots recibe un calendario coherentizado.
+
+
+
+## 5. Contrato de Input para Bloqueos de Calendario
+
+###   5.1. Bloqueo puntual (fecha exacta)
+
+Uso: Ausencia de un día, evento puntual.
+
+Input esperado:
+
+```json
+{
+  "startDate": "2025-12-27",
+  "endDate": "2025-12-27",
+  "days": [],
+  "recurrence": "NONE"
+}
+```
+
+
+Reglas:
+
+-  days debe estar vacío.
+
+-  recurrence debe ser NONE.
+
+-  startDate == endDate.
+
+No se generan detalles adicionales; la fecha se interpreta literalmente.
+
+
+### 5.2. Bloqueo de algunos días en un rango sin recurrencia
+
+Uso: “esta semana no atiendo lunes, miércoles y viernes”.
+
+Input esperado:
+
+```json
+{
+   "startDate": "2025-12-22",
+   "endDate": "2025-12-28",
+   "days": ["MONDAY", "WEDNESDAY", "FRIDAY"],
+   "recurrence": "NONE"
+}
+
+```
+
+Reglas:
+
+-  days no puede estar vacío.
+
+-  recurrence debe ser NONE.
+
+-  startDate != endDate.
+
+-  Las fechas reales se generan solo para los días de days dentro del rango.
+
+-  No significa que se bloqueen todas las fechas del rango, solo las coincidencias con days.
+
+
+### 5.3. Bloqueo diario continuo
+
+Uso: ausencias prolongadas (vacaciones, licencias médicas).
+
+Input esperado:
+
+```json
+{
+   "startDate": "2025-01-10",
+   "endDate": "2025-01-20",
+   "days": [],
+   "recurrence": "DAILY"
+}
+
+
+```
+
+Reglas:
+
+-  days debe estar vacío.
+
+-  recurrence debe ser DAILY.
+
+-  startDate != endDate.
+
+-  Todas las fechas entre startDate y endDate se bloquean sin excepción.
+
+No se generan detalles; se interpreta como días corridos reales.
+
+### 5.4. Bloqueo recurrente por patrón
+
+Uso: horarios fijos que no se atienden durante un período largo.
+
+Input esperado:
+
+```json
+{
+   "startDate": "2025-01-01",
+   "endDate": "2025-03-31",
+   "days": ["MONDAY", "WEDNESDAY"],
+   "recurrence": "WEEKLY"
+}
+
+```
+
+Reglas:
+
+-  days no puede estar vacío.
+
+-  recurrence puede ser WEEKLY, MONTHLY, YEARLY.
+
+-  startDate != endDate.
+
+Las fechas reales se calculan:
+
+-  solo dentro del rango [startDate, endDate],
+
+-  solo para días que coincidan con days,
+
+-  respetando la recurrencia indicada.
+
+-  Se generan detalles según corresponda.
+
+
+### 5.5. Reglas generales de validación
+
+startDate ≤ endDate.
+
+Si days está vacío:
+
+-  recurrence solo puede ser NONE o DAILY. 
+
+-  startDate == endDate → bloqueo puntual.
+
+-  startDate != endDate → bloqueo diario.
+
+Si days NO está vacío:
+
+-  recurrence DAILY es inválido.
+
+-  recurrence NONE → patrón sin recurrencia.
+
+-  recurrence WEEKLY/MONTHLY/YEARLY → patrón recurrente.
+
+startDate y endDate:
+
+-  son fechas reales solo en bloqueos puntuales o diarios.
+
+-  son rango ancla en bloqueos por patrón.
+
+No se permiten bloqueos superpuestos:
+
+-  Se valida antes de persistir.
+
+-  Si un bloqueo nuevo incluye fechas que ya están cubiertas por un bloqueo existente, se rechaza con ConflictException.
+
+Horario de bloqueos:
+
+-  El solapamiento se valida en intervalos [startTime, endTime] y cualquier intersección con otro lock existente es considerada conflicto.
+
+-  La validación es total, no parcial: si un bloqueo A cubre toda la jornada y el nuevo B cae dentro, se considera conflicto.
