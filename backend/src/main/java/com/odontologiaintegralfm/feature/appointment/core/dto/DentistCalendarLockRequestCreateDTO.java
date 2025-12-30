@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.appointment.core.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockMode;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
@@ -43,6 +44,9 @@ public class DentistCalendarLockRequestCreateDTO {
 
  @NotNull(message = "dentistCalendarLockRequestCreateDTO.lockType.empty")
  private Long idLockType;
+
+ @NotNull(message = "dentistCalendarLockRequestCreateDTO.mode.empty")
+ private CalendarLockMode mode;
 
  private List<DayName> days;
 

@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockMode;
 import com.odontologiaintegralfm.feature.appointment.core.dto.*;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
@@ -624,129 +625,77 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
      *       Cualquier otro valor es inválido.</li>
      *   <li>No se permiten horarios personalizados:
      *       {@code startTime} y {@code endTime} deben ser {@code null}.</li>
-     * </ul>*
-     * @param calendarLockType
-     *        Tipo de bloqueo configurado en el catálogo de eventos.
-     *        Define las reglas funcionales que deben cumplirse.
-     *
+     * </ul>**
      * @param dentistCalendarLockRequestCreateDTO
-     *        DTO con los datos del bloqueo que se desea crear.
+     *        DTO con el modo del bloqueo que se desea crear.
      *
      * @throws BadRequestException
      *         Si los datos enviados no son compatibles con el tipo de bloqueo,
      *         particularmente en eventos de ausencia total.
      */
-    private void validateLockType(CalendarLockType calendarLockType, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO) {
+    private void validateByMode(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO) {
 
-        if (calendarLockType.isAllowTimeRange()) {
-            if (dentistCalendarLockRequestCreateDTO.getStartTime() == null || dentistCalendarLockRequestCreateDTO.getEndTime() == null) {
-                throw new BadRequestException("exception.dentistCalendarLockService.time.empty.user", null, "exception.dentistCalendarLockService.time.empty.log", new Object[]{calendarLockType.getName(), dentistCalendarLockRequestCreateDTO.getStartTime(), dentistCalendarLockRequestCreateDTO.getEndTime(), "DentistCalendarLockService", "validateLockType"}, LogLevel.ERROR);
+
+        switch (dentistCalendarLockRequestCreateDTO.getMode()) {
+            case POINTUAL -> {
+
+                if (!dentistCalendarLockRequestCreateDTO.getStartDate().equals(dentistCalendarLockRequestCreateDTO.getEndDate())) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.pointual.dateEquals.user", null, "exception.dentistCalendarLockService.pointual.dateEquals.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
+                if (dentistCalendarLockRequestCreateDTO.getRecurrence() != CalendarLockRecurrenceName.NONE) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.pointual.recurrence.user", null, "exception.dentistCalendarLockService.pointual.recurrence.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), dentistCalendarLockRequestCreateDTO.getRecurrence(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
+                if (dentistCalendarLockRequestCreateDTO.getDays() != null && !dentistCalendarLockRequestCreateDTO.getDays().isEmpty()) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.pointual.days.user", null, "exception.dentistCalendarLockService.pointual.days.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
+
             }
-        } else {
-            if (dentistCalendarLockRequestCreateDTO.getStartTime() != null || dentistCalendarLockRequestCreateDTO.getEndTime() != null) {
-                throw new BadRequestException("exception.dentistCalendarLockService.time.user", null, "exception.dentistCalendarLockService.time.log", new Object[]{calendarLockType.getName(), dentistCalendarLockRequestCreateDTO.getStartTime(), dentistCalendarLockRequestCreateDTO.getEndTime(), "DentistCalendarLockService", "validateLockType"}, LogLevel.ERROR);
-            }
-        }
 
-        if (calendarLockType.isAllowDays()) {
-            // Si hay recurrencia, los días son obligatorios
-            if (dentistCalendarLockRequestCreateDTO.getRecurrence() != CalendarLockRecurrenceName.NONE) {
 
+            case DAYS_IN_RANGE_NO_RECURRENCE -> {
+                if (dentistCalendarLockRequestCreateDTO.getStartDate().equals(dentistCalendarLockRequestCreateDTO.getEndDate())) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.daysRangeNoRecurrence.date.user", null, "exception.dentistCalendarLockService.daysRangeNoRecurrence.date.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
+                if (dentistCalendarLockRequestCreateDTO.getRecurrence() != CalendarLockRecurrenceName.NONE) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.daysRangeNoRecurrence.recurrence.user", null, "exception.dentistCalendarLockService.daysRangeNoRecurrence.recurrence.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), dentistCalendarLockRequestCreateDTO.getRecurrence(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
                 if (dentistCalendarLockRequestCreateDTO.getDays() == null || dentistCalendarLockRequestCreateDTO.getDays().isEmpty()) {
-                    throw new BadRequestException("exception.dentistCalendarLockService.days.empty.user", null, "exception.dentistCalendarLockService.days.empty.log", new Object[]{calendarLockType.getName(), "DentistCalendarLockService", "validateLockType"}, LogLevel.ERROR);
-                }
-            } else {
-                if (dentistCalendarLockRequestCreateDTO.getDays() != null && !dentistCalendarLockRequestCreateDTO.getDays().isEmpty() ) {
-                    throw new BadRequestException("exception.dentistCalendarLockService.days.user", null, "exception.dentistCalendarLockService.days.log", new Object[]{calendarLockType.getName(), "DentistCalendarLockService", "validateLockType"}, LogLevel.ERROR);
+                    throw new BadRequestException("exception.dentistCalendarLockService.daysRangeNoRecurrence.days.user", null, "exception.dentistCalendarLockService.daysRangeNoRecurrence.days.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
                 }
             }
 
-        }
 
+            case DAILY_CONTINUOUS -> {
+                if (dentistCalendarLockRequestCreateDTO.getStartDate().equals(dentistCalendarLockRequestCreateDTO.getEndDate())) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.daily.date.user", null, "exception.dentistCalendarLockService.daily.date.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
+                if (dentistCalendarLockRequestCreateDTO.getRecurrence() != CalendarLockRecurrenceName.DAILY) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.daily.recurrence.user", null, "exception.dentistCalendarLockService.daily.recurrence.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), dentistCalendarLockRequestCreateDTO.getRecurrence(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
+                if (dentistCalendarLockRequestCreateDTO.getDays() != null && !dentistCalendarLockRequestCreateDTO.getDays().isEmpty()) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.daily.days.user", null, "exception.dentistCalendarLockService.daily.days.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
 
-        //Si el evento tiene flag "ausencia total" entendemos que es un tipo de ausencia prolongada y de manera corrida.
-        if (calendarLockType.isAbsenceTotal()) {
-            if (dentistCalendarLockRequestCreateDTO.getDays() != null && !dentistCalendarLockRequestCreateDTO.getDays().isEmpty()) {
-                throw new BadRequestException("exception.dentistCalendarLockService.days.user", null, "exception.dentistCalendarLockService.days.log", new Object[]{calendarLockType.getName(), "Dentist Calendar Lock Service", "validateLockType"}, LogLevel.ERROR);
+                }
             }
 
-            if (dentistCalendarLockRequestCreateDTO.getStartTime() != null) {
-                throw new BadRequestException("exception.dentistCalendarLockService.time.user", null, "exception.dentistCalendarLockService.time.log", new Object[]{calendarLockType.getName(), "Dentist Calendar Lock Service", "validateLockType"}, LogLevel.ERROR);
+
+            case RECURRENT_PATTERN -> {
+                if (dentistCalendarLockRequestCreateDTO.getStartDate().equals(dentistCalendarLockRequestCreateDTO.getEndDate())) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.recurrencePattern.date.user", null, "exception.dentistCalendarLockService.recurrencePattern.date.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
+                if (dentistCalendarLockRequestCreateDTO.getRecurrence() == CalendarLockRecurrenceName.NONE) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.recurrencePattern.recurrence.user", null, "exception.dentistCalendarLockService.recurrencePattern.recurrence.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), dentistCalendarLockRequestCreateDTO.getRecurrence(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+                }
+                if (dentistCalendarLockRequestCreateDTO.getDays() == null || dentistCalendarLockRequestCreateDTO.getDays().isEmpty()) {
+                    throw new BadRequestException("exception.dentistCalendarLockService.recurrencePattern.days.user", null, "exception.dentistCalendarLockService.recurrencePattern.days.log", new Object[]{dentistCalendarLockRequestCreateDTO.getMode(), "DentistCalendarLockService", "validateByMode"}, LogLevel.ERROR);
+
+                }
+
             }
-
-            //Setea horarios para bloquear toda la jornada
-            dentistCalendarLockRequestCreateDTO.setStartTime(LocalTime.MIDNIGHT);
-            dentistCalendarLockRequestCreateDTO.setEndTime(LocalTime.of(23,59));
         }
-
     }
 
 
-
-
-
-
-    /**
-     * Valída la coherencia entre los días enviados y la recurrencia seleccionada para un bloqueo de agenda.
-     *
-     * <p>Reglas aplicadas:
-     * <ul>
-     *   <li><b>Si NO se envían días:</b>
-     *       <ul>
-     *         <li>Solo se permite recurrencia DAILY.</li>
-     *         <li>Si no se envió recurrencia, se asigna DAILY por defecto.</li>
-     *       </ul>
-     *   </li>
-     *   <li><b>Si se envían días:</b>
-     *       <ul>
-     *         <li>La recurrencia DAILY es inválida.</li>
-     *         <li>Si no se envió recurrencia, se asigna NONE por defecto.</li>
-     *       </ul>
-     *   </li>
-     * </ul>
-     * @param recurrence recurrencia enviada en la request (puede ser null)
-     * @param days lista de días enviados en la request (puede ser vacía o null)
-     * @return la recurrencia final válida luego de aplicar las reglas
-     * @throws BadRequestException si la combinación días/recurrencia es inválida
-     */
-    private CalendarLockRecurrenceName validateRecurrenceDays(CalendarLockRecurrenceName recurrence, List<DayName> days, LocalDate startDate, LocalDate endDate) {
-
-        boolean noDays = (days == null || days.isEmpty());
-
-        // Caso 1: NO hay días
-        if (noDays) {
-
-            // Bloqueo puntual
-            if (startDate.equals(endDate)) {
-                return CalendarLockRecurrenceName.NONE;
-            }
-
-            //Se acepta recurrencia NONE o DAILY
-            if (recurrence == CalendarLockRecurrenceName.WEEKLY || recurrence == CalendarLockRecurrenceName.BIWEEKLY || recurrence == CalendarLockRecurrenceName.MONTHLY) {
-                throw new BadRequestException("exception.dentistCalendarLockService.daysEmptyRecurrenceInvalid.user", null,"exception.dentistCalendarLockService.daysEmptyRecurrenceInvalid.log", new Object[]{days,recurrence,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
-            }
-
-            // Si no vino recurrencia y los días no son iguales-> asumimos DAILY
-            return recurrence == null ? CalendarLockRecurrenceName.DAILY : recurrence;
-        }
-
-        //  Caso 2: HAY días -> DAILY es inválido
-        if (recurrence == CalendarLockRecurrenceName.DAILY) {
-            throw new BadRequestException("exception.dentistCalendarLockService.daysNotEmptyRecurrenceDaily.user", null,"exception.dentistCalendarLockService.daysNotEmptyRecurrenceDaily.log", new Object[]{days,recurrence,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
-        }
-
-        //  Caso 3: HAY días pero no vino recurrencia
-        if ((recurrence == null) && (startDate.get(WeekFields.ISO.weekOfWeekBasedYear()) == endDate.get(WeekFields.ISO.weekOfWeekBasedYear()))) {
-            return CalendarLockRecurrenceName.NONE;
-        }
-
-        // Caso 4: Hay días, no hay recurrencia, pero el inicio y fin son de diferentes semanas, se lanza exception.
-        if ((recurrence == null) && (startDate.get(WeekFields.ISO.weekOfWeekBasedYear()) != endDate.get(WeekFields.ISO.weekOfWeekBasedYear()))) {
-            throw new BadRequestException("exception.dentistCalendarLockService.startAndEndDifferentWeeks.user", null,"exception.dentistCalendarLockService.startAndEndDifferentWeeks.log", new Object[]{days,recurrence,startDate,endDate,"DentistCalendarLockService", "validateRecurrenceDays"}, LogLevel.ERROR);
-        }
-
-        return recurrence;
-    }
 
 
 
@@ -850,10 +799,11 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
 
         //Validar Evento y tipos de datos de entrada para cada caso.
         CalendarLockType calendarLockType = calendarLockTypeService.getByIdInternal(dentistCalendarLockRequestCreateDTO.getIdLockType());
-        validateLockType(calendarLockType, dentistCalendarLockRequestCreateDTO);
+        if (!calendarLockType.getModes().contains(dentistCalendarLockRequestCreateDTO.getMode())) {
+            throw new BadRequestException("exception.dentistLockCalendarService.validateMode.user",null,"exception.dentistLockCalendarService.validateMode.log",new Object[]{dentists.getId(),dentistCalendarLockRequestCreateDTO.getMode(),"Dentist Calendar Lock Service","create"},LogLevel.ERROR);
+        }
+        validateByMode(dentistCalendarLockRequestCreateDTO);
 
-        //Valída y serializa recurrencia para casos diarios (que no envíe días y recurrencia).
-        dentistCalendarLockRequestCreateDTO.setRecurrence(validateRecurrenceDays(dentistCalendarLockRequestCreateDTO.getRecurrence(),dentistCalendarLockRequestCreateDTO.getDays(), dentistCalendarLockRequestCreateDTO.getStartDate(),dentistCalendarLockRequestCreateDTO.getEndDate()));
 
 
         //Validación de recurrencia para casos semanales, quincenales, mensuales y anuales. Que la ventana de fechas de bloqueos al menos cubra la recurrencia enviada.

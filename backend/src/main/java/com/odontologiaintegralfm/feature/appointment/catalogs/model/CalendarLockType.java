@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.catalogs.model;
 
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockMode;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entidad que representa los tipos de bloqueos de calendario.
@@ -31,36 +35,27 @@ public class CalendarLockType extends Auditable {
 
 
     /**
-     * Indica que el bloqueo representa una ausencia total.
-     * Bloquea todas las jornadas completas entre startDate y endDate.
-     * No admite horarios ni días.
+     * Modos de bloqueo habilitados para este tipo de evento.
+     * Ej: CURSO → POINTUAL, RECURRENT_PATTERN
+     *     VACACIONES → DAILY_CONTINUOUS
      */
-    @Column(nullable = false)
-    private boolean absenceTotal;
-
-    /**
-     * Permite definir un rango horario.
-     * Ej: cursos, reuniones, bloqueos parciales.
-     */
-    @Column(nullable = false)
-    private boolean allowTimeRange;
-
-    /**
-     * Permite seleccionar días de la semana.
-     * Ej: bloqueos recurrentes.
-     */
-    @Column(nullable = false)
-    private boolean allowDays;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "calendar_lock_type_modes",
+            joinColumns = @JoinColumn(name = "calendar_lock_type_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode", nullable = false)
+    private Set<CalendarLockMode> modes = new HashSet<>();
 
 
-    private CalendarLockType(String name, boolean absenceTotal, boolean allowTimeRange, boolean allowDays) {
+    private CalendarLockType(String name,Set<CalendarLockMode> modes ) {
         this.name = name;
-        this.absenceTotal = absenceTotal;
-        this.allowTimeRange = allowTimeRange;
-        this.allowDays = allowDays;
+        this.modes = modes;
+
     }
 
-    public static CalendarLockType build (String name, boolean absenceTotal, boolean allowTimeRange, boolean allowDays) {
-        return new CalendarLockType(name, absenceTotal, allowTimeRange, allowDays);
+    public static CalendarLockType build (String name, Set<CalendarLockMode> modes) {
+        return new CalendarLockType(name, modes);
     }
 }

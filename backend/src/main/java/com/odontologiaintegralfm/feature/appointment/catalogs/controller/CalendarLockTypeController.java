@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.appointment.catalogs.controller;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationCreate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate;
+import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockModeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeUpdateRequestDTO;
@@ -19,13 +20,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Controlador para CRUD de catálogos de bloqueos de agenda.
  */
 
 @RestController
-@RequestMapping("api/calendar-lock-type")
+@RequestMapping("/api/calendar-lock-type")
 @Validated
 public class CalendarLockTypeController {
 
@@ -63,6 +65,21 @@ public class CalendarLockTypeController {
 
 
 
+    @Operation(summary = "Obtener los modos para un evento de bloqueo", description = "Obtiene todos los modos posibles para un evento de bloqueo.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Modos obtenido exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @GetMapping("/mode")
+    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
+    public ResponseEntity<Response<Set<CalendarLockModeResponseDTO>>> getMode(){
+        Response<Set<CalendarLockModeResponseDTO>> response = calendarLockTypeService.getModes();
+        return ResponseEntity.ok(response);
+    }
+
+
+
     @Operation(summary = "Crear un tipo de bloqueo de agenda.", description = "Crea un nuevo tipo de bloqueo de agenda")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Tipos de bloqueo creado exitosamente"),
@@ -93,6 +110,8 @@ public class CalendarLockTypeController {
         return ResponseEntity.ok(response);
 
     }
+
+
 
 
 
