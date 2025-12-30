@@ -410,7 +410,7 @@ public class UserService implements IUserService {
     public Response<UserSecResponseDTO> update(Long idUser, UserSecUpdateDTO userSecUpdateDto) {
         try {
             //Se obtiene el usuario desde la base de datos para realizar validaciones
-            UserSec userSec = userRepository.findById(idUser)
+            UserSec userSec = userRepository.findByIdWithPerson(idUser)
                     .orElseThrow(() -> new NotFoundException("userService.getById.error.user", null,"userService.getById.error.log",new Object[]{idUser, "UserService", "Update"},LogLevel.ERROR));
 
             //Valída que el ID del userSecUpdate no sea posea un rol DEV o que el usuario a actualizar no sea un usuario DEV
@@ -435,7 +435,7 @@ public class UserService implements IUserService {
 
             //Actualizar datos de la Persona.
             if(userSecUpdateDto.getPerson() != null) {
-                Person person = personService.getById(userSecUpdateDto.getPerson().id());
+                Person person = personService.getById(userSec.getPerson().getId());
                 person = personService.update(person,userSecUpdateDto.getPerson());
 
                 userSec.setPerson(person);
@@ -446,8 +446,20 @@ public class UserService implements IUserService {
 
                 // Verifica si se actualizan datos de Dentista.
                 if(userSecUpdateDto.getDentist() != null) {
-                    Optional <Dentist> dentist = dentistService.getById(userSecUpdateDto.getPerson().id());
-                    dentist = Optional.ofNullable(dentistService.update(dentist.get(), userSecUpdateDto.getDentist()));
+                    Optional <Dentist> dentist = dentistService.getById(userSec.getPerson().getId());
+
+                    //Si el dentista existe, actualiza.
+                    if(dentist.isPresent()) {
+                        dentist = Optional.ofNullable(dentistService.update(dentist.get(), userSecUpdateDto.getDentist()));
+                    }else{
+                        //sino existe, crea.
+                        DentistCreateRequestDTO dentistCreateRequestDTO = new DentistCreateRequestDTO(
+                                userSecUpdateDto.getDentist().licenseNumber(),
+                                userSecUpdateDto.getDentist().dentistSpecialtyId()
+                        );
+                        dentist = Optional.ofNullable(dentistService.create(person,dentistCreateRequestDTO));
+                    }
+
 
                     DentistResponseDTO dentistResponseDTO = dentistService.convertToDTO(dentist.get());
 
