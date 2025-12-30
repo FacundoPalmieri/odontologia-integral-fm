@@ -333,11 +333,11 @@ public class CalendarService implements ICalendarService {
 
         for (SlotResponseDTO s : slots) {
 
-            LocalTime slotStart = s.getStarTime();
+            LocalTime slotStart = s.getStartTime();
             LocalTime slotEnd = s.getEndTime();
 
             //Revisa Breaks
-            if(s.getStarTime().isBefore(breakEndTime) && s.getEndTime().isAfter(breakStartTime)) {
+            if(s.getStartTime().isBefore(breakEndTime) && s.getEndTime().isAfter(breakStartTime)) {
                 s.setStatus(SlotStatus.BREAK);
                 s.setColor(SlotStatus.BREAK.getColorHex());
                 s.setAppointment(null);

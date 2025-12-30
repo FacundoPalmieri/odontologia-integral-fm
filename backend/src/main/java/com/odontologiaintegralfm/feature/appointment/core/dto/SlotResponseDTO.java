@@ -16,7 +16,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SlotResponseDTO {
-    private LocalTime starTime;
+    private LocalTime startTime;
     private LocalTime endTime;
     private SlotStatus status;
     private String color;
