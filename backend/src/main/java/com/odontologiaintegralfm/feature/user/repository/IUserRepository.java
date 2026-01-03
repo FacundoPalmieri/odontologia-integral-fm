@@ -41,4 +41,13 @@ public interface IUserRepository extends JpaRepository<UserSec, Long> {
             """)
     List<String> findUsernameByRole(@Param("role") List<String> roles);
 
+    @Query("""
+    SELECT u
+    FROM UserSec u
+    LEFT JOIN FETCH u.person
+    WHERE u.id = :id
+""")
+    Optional<UserSec> findByIdWithPerson(Long id);
+
+
 }

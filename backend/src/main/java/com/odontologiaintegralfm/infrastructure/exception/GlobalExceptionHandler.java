@@ -21,10 +21,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
 /**
  * Manejador global de excepciones para capturar y gestionar diferentes tipos de excepciones lanzadas en la aplicación.
  * <p>
@@ -123,18 +126,18 @@ public class GlobalExceptionHandler {
      * @param ex La excepción {@link MethodArgumentNotValidException} que contiene los detalles de las violaciones de validación.
      * @return Una respuesta con un mapa de los errores de validación y un código de estado HTTP {@code 400 Bad Request}.
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)  // Esta excepción se lanza cuando hay una violación de validación de un objeto (por ejemplo, DTO)
+    @ExceptionHandler({MethodArgumentNotValidException.class})  // Esta excepción se lanza cuando hay una violación de validación de un objeto (por ejemplo, DTO)
     public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
 
         // Crear un mapa para almacenar los errores de validación
         Map<String, String> errors = new HashMap<>();
 
         // Toma el primer mensaje de error de todas las validaciones de DTO para mostrarlo en el campo "message" y luego en errors se ve todos los errores de validación de dtos.
-        String firstErrorMessage = errors.values().stream().findFirst().orElse("Error de validación");
+        String firstErrorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
 
         // Iteramos sobre los errores de cada campo que falló en la validación
         ex.getBindingResult().getFieldErrors().forEach(error ->{
-            String errorMessage = messageSource.getMessage(error.getDefaultMessage(), null, LocaleContextHolder.getLocale());   // Guardamos el nombre del campo (error.getField()) y el mensaje de error correspondiente (error.getDefaultMessage()) en el mapa
+            String errorMessage = messageSource.getMessage(Objects.requireNonNull(error.getDefaultMessage()), null, LocaleContextHolder.getLocale());   // Guardamos el nombre del campo (error.getField()) y el mensaje de error correspondiente (error.getDefaultMessage()) en el mapa
             errors.put(error.getField(), errorMessage);
 
             //Obtiene el usuario autenticado.
@@ -144,7 +147,7 @@ public class GlobalExceptionHandler {
             //Construye mensaje para log
             String logMessage = messageSource.getMessage("exception.validation.log",new Object[]{error.getField(),errorMessage,username}, LocaleContextHolder.getLocale());
 
-            // Log tradicional en consola
+            // Log en consola
             log.error(logMessage);
 
             // Guardar log en base de datos
@@ -163,7 +166,7 @@ public class GlobalExceptionHandler {
         //Genera el objeto response.
         Response<Map<String, String>> response = new Response<>(
                 false,
-                firstErrorMessage,
+                messageSource.getMessage(firstErrorMessage, null, LocaleContextHolder.getLocale()),
                 errors
         );
 
@@ -172,6 +175,116 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(response);  // Enviamos los errores de validación como cuerpo de la respuesta
     }
+
+
+
+
+
+    /**
+     * Maneja las excepciones de tipo {@link HandlerMethodValidationException}.
+     *
+     * <p>
+     * Esta excepción se lanza cuando falla una validación aplicada directamente
+     * sobre parámetros de métodos del controller (por ejemplo, anotaciones como
+     * {@code @Future}, {@code @Min}, {@code @NotNull} sobre parámetros individuales),
+     * y no sobre un DTO completo.
+     * </p>
+     *
+     * <p>
+     * A diferencia de {@link MethodArgumentNotValidException}, esta excepción
+     * no expone un {@code BindingResult}, sino una colección de resultados de validación
+     * obtenidos mediante {@code getAllValidationResults()}.
+     * </p>
+     *
+     * <p>
+     * Este handler:
+     * <ul>
+     *     <li>Extrae el nombre del parámetro que falló</li>
+     *     <li>Obtiene el mensaje de error localizado (i18n)</li>
+     *     <li>Construye una respuesta estándar con el mismo formato usado para errores de DTO</li>
+     *     <li>Registra el error tanto en logs como en base de datos</li>
+     * </ul>
+     * </p>
+     *
+     * @param ex Excepción lanzada por Spring cuando falla una validación a nivel de método
+     * @return ResponseEntity con estado HTTP 400 y el detalle de los errores de validación
+     */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<?> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
+
+        // Mapa donde se guardarán los errores de validación.
+        // La clave es el nombre del parámetro y el valor es el mensaje de error.
+        Map<String, String> errors = new HashMap<>();
+
+        // Recorremos todos los resultados de validación detectados por Spring
+        ex.getAllValidationResults().forEach(result -> {
+
+            // Obtenemos el nombre del parámetro del método que falló la validación
+            String fieldName = result.getMethodParameter().getParameterName();
+
+            // Cada parámetro puede tener uno o más errores de validación
+            result.getResolvableErrors().forEach(error -> {
+
+                // Resolvemos el mensaje de error según el idioma configurado
+                String errorMessage = messageSource.getMessage(
+                        error,
+                        LocaleContextHolder.getLocale()
+                );
+
+                // Guardamos el error en el mapa para devolverlo al frontend
+                errors.put(fieldName, errorMessage);
+
+                // Obtenemos el usuario autenticado (si existe)
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                String username = (authentication != null) ? authentication.getName() : "Anónimo";
+
+                // Construimos el mensaje de log utilizando el sistema de internacionalización
+                String logMessage = messageSource.getMessage(
+                        "exception.validation.log",
+                        new Object[]{fieldName, errorMessage, username},
+                        LocaleContextHolder.getLocale()
+                );
+
+                // Logueo tradicional en consola / archivo
+                log.error(logMessage);
+
+                // Persistimos el log en base de datos para auditoría y seguimiento
+                systemLogService.save(new SystemLogResponseDTO(
+                        LogLevel.WARN,
+                        LogType.EXCEPTION,
+                        errorMessage,
+                        logMessage,
+                        HandlerMethodValidationException.class.getSimpleName(),
+                        username,
+                        null,
+                        null
+                ));
+            });
+        });
+
+        // Tomamos el primer mensaje de error para mostrarlo como mensaje principal
+        String firstErrorMessage = errors.values()
+                .stream()
+                .findFirst()
+                .orElse("Error de validación");
+
+        // Construimos la respuesta estándar que consume el frontend
+        Response<Map<String, String>> response = new Response<>(
+                false,
+                messageSource.getMessage(firstErrorMessage, null, LocaleContextHolder.getLocale()),
+                errors
+        );
+
+        // Devolvemos HTTP 400 (Bad Request) con el detalle de los errores
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+
+
+
+
 
 
 

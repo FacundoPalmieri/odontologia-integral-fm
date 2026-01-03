@@ -1,14 +1,17 @@
 package com.odontologiaintegralfm.feature.appointment.catalogs.service;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockModeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeUpdateRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockMode;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.CalendarLockType;
 import com.odontologiaintegralfm.feature.appointment.catalogs.repository.ICalendarLockTypeRepository;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.enums.LogType;
+import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
@@ -22,7 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CalendarLockTypeService implements ICalendarLockTypeService {
@@ -46,8 +52,10 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
         try {
             List<CalendarLockType> calendarLockTypes = calendarLockTypeRepository.findAllByEnabledTrueOrderByNameAsc();
 
+
             List<CalendarLockTypeResponseDTO> calendarLockTypeResponseDTO = calendarLockTypes.stream()
-                    .map(calendarLockType -> new CalendarLockTypeResponseDTO(calendarLockType.getId(), calendarLockType.getName(), calendarLockType.isEnabled()))
+                    .sorted(Comparator.comparing(CalendarLockType::getId))
+                    .map(CalendarLockTypeResponseDTO::from)
                     .toList();
 
             return new Response<>(true, null, calendarLockTypeResponseDTO);
@@ -70,13 +78,27 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
                     .orElseThrow(()-> new NotFoundException("exception.calendarLockType.notFound.user", null,"exception.calendarLockType.notFound.log",new Object[]{id,"CalendarLockTypeService","getById"}, LogLevel.ERROR));
 
 
-            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(calendarLockType.getId(), calendarLockType.getName(), calendarLockType.isEnabled());
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = CalendarLockTypeResponseDTO.from(calendarLockType);
             return new Response<>(true, null, calendarLockTypeResponseDTO);
 
         }catch (CannotCreateTransactionException | DataAccessException e) {
             throw new DataBaseException(e, "CalendarLockTypeService", id, null, "getById");
         }
 
+    }
+
+    /**
+     * Obtiene los diferentes modos para un tipo de bloqueo.
+     */
+    @Override
+    public Response<Set<CalendarLockModeResponseDTO>> getModes() {
+      Set <CalendarLockModeResponseDTO> calendarLockModeResponseDTO = CalendarLockMode
+              .getAll()
+              .stream()
+              .map(CalendarLockModeResponseDTO::build)
+              .collect(Collectors.toSet());
+
+      return new Response<>(true, null, calendarLockModeResponseDTO);
     }
 
     /**
@@ -113,15 +135,17 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
                 throw new ConflictException("exception.calendarLockType.duplicate.user", null, "exception.calendarLockType.duplicate.log", new Object[]{calendarLockTypeCreateRequestDTO.name(), "CalendarLockTypeService", "create"}, LogLevel.ERROR);
             }
 
+
             CalendarLockType calendarLockType = new CalendarLockType();
             calendarLockType.setName(calendarLockTypeCreateRequestDTO.name());
+            calendarLockType.setModes(calendarLockTypeCreateRequestDTO.mode());
             calendarLockType.setCreatedAt(LocalDateTime.now());
             calendarLockType.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
             calendarLockType.setEnabled(true);
 
             CalendarLockType calendarLockTypeSaved = calendarLockTypeRepository.save(calendarLockType);
 
-            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(calendarLockTypeSaved.getId(), calendarLockTypeSaved.getName(),calendarLockTypeSaved.isEnabled());
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = CalendarLockTypeResponseDTO.from(calendarLockTypeSaved);
 
             return new Response<>(
                     true,
@@ -163,11 +187,7 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
 
             //Mapea respuesta.
 
-            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = new CalendarLockTypeResponseDTO(
-                    calendarLockTypeSaved.getId(),
-                    calendarLockTypeSaved.getName(),
-                    calendarLockTypeSaved.isEnabled()
-            );
+            CalendarLockTypeResponseDTO calendarLockTypeResponseDTO = CalendarLockTypeResponseDTO.from(calendarLockTypeSaved);
 
             return new Response<>(
                     true,

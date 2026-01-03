@@ -7,7 +7,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 
 public final class CalendarUtils {
 
@@ -131,6 +130,23 @@ public final class CalendarUtils {
         // Verificar rango horario
         return !appointmentTime.isBefore(eventStartTime) && !appointmentTime.isAfter(eventEndTime);
     }
+
+
+    /**
+     * Método que valída si un horario, está dentro de una ventana de tiempo.
+     * @param appointmentTime : Horario turno
+     * @param breakStart : Inicio ventana(break)
+     * @param breakEnd : Fin ventana (break)
+     * @return true si el turno cae dentro del break
+     */
+    public static boolean isDateTimeWithinBreak(LocalTime appointmentTime, LocalTime breakStart, LocalTime breakEnd) {
+        if (breakStart == null || breakEnd == null) {
+            return false;
+        }
+
+        return appointmentTime.isAfter(breakStart) && appointmentTime.isBefore(breakEnd);
+    }
+
 
 
 }

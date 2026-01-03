@@ -1,9 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
-import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
@@ -19,7 +17,7 @@ import java.util.List;
 public interface IDentistAvailabilityService {
 
     /**
-     * Método para crear la disponibilidad de turnos de un dentista.
+     * Método para crear una nueva jornada laboral de un dentista.
      * - Inicio de jornada.
      * - Fin de jornada.
      * - Duración de turno.
@@ -27,6 +25,11 @@ public interface IDentistAvailabilityService {
      */
     Response<DentistAvailabilityResponseDTO> create(Long id, List<WorkingDayDTO> days);
 
+
+    /**
+     * Método para simular una nueva jornada laboral de un dentista.
+     */
+    Response<DentistAvailabilityResponseDTO> createPreview(Long id, List<WorkingDayDTO> days);
 
 
     /**

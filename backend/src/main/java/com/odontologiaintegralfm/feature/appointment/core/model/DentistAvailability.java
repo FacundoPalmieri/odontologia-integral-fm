@@ -1,7 +1,9 @@
 package com.odontologiaintegralfm.feature.appointment.core.model;
 
+import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
+import com.odontologiaintegralfm.feature.appointment.core.util.CalendarUtils;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.model.Auditable;
@@ -15,6 +17,7 @@ import org.hibernate.envers.Audited;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * Representa una disponibilidad laboral de un dentista.
@@ -79,6 +82,7 @@ public class DentistAvailability extends Auditable {
     private LocalDate specificDate;
 
     /** Fecha de inicio real. Se calcula de acuerdo al primer match de KeyName en los próximos 7 días corridos. */
+    @Column(nullable = false)
     private LocalDate effectiveDate;
 
     @Column(nullable = false)
@@ -91,7 +95,12 @@ public class DentistAvailability extends Auditable {
     private Integer appointmentDuration; // en minutos
 
 
-    public DentistAvailability(Dentist dentist, DayName keyName,LocalDate specificDate,CalendarLockRecurrenceName recurrence, LocalTime startTime, LocalTime endTime, Integer appointmentDuration,LocalDate effectiveDate ,LocalDateTime createAt, UserSec createBy, boolean enabled) {
+    /** Campos que representar un break dentro de la jornada laboral. */
+    private LocalTime breakStartTime;
+    private LocalTime breakEndTime;
+
+
+    private DentistAvailability(Dentist dentist, DayName keyName,LocalDate specificDate,CalendarLockRecurrenceName recurrence, LocalTime startTime, LocalTime endTime, Integer appointmentDuration,LocalDate effectiveDate, LocalTime breakStartTime,LocalTime breakEndTime) {
         this.dentist = dentist;
         this.keyName = keyName;
         this.specificDate = specificDate;
@@ -100,9 +109,23 @@ public class DentistAvailability extends Auditable {
         this.endTime = endTime;
         this.appointmentDuration = appointmentDuration;
         this.effectiveDate = effectiveDate;
-        this.setCreatedAt(createAt);
-        this.setCreatedBy(createBy);
-        this.setEnabled(enabled);
+        this.breakStartTime = breakStartTime;
+        this.breakEndTime = breakEndTime;
+    }
+
+
+    public static DentistAvailability build(Dentist dentist, WorkingDayDTO day){
+        return new DentistAvailability(
+                dentist,day.getDayName(),
+                day.getSpecificDate(),
+                day.getRecurrence(),
+                day.getStartTime(),
+                day.getEndTime(),
+                day.getAppointmentDuration(),
+                (day.getSpecificDate() == null) ? CalendarUtils.findFirstMatchingDate(LocalDate.now().plusDays(1), day.getDayName().toDayOfWeek()) : day.getSpecificDate(),
+                day.getBreakStartTime(),
+                day.getBreakEndTime()
+        );
     }
 
 }

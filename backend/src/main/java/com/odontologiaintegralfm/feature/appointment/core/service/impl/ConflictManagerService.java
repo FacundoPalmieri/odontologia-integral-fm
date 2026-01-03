@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.appointment.core.dto.ConflictManagerContextInternalDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
@@ -28,8 +29,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-
 import static com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName.DAILY;
 
 /**
@@ -91,22 +90,21 @@ public class ConflictManagerService implements IConflictManagerService {
     @Transactional
     public List<AppointmentConflictResponseDTO> verifyConflictsByDentistAvailability(Long idDentist, List<WorkingDayDTO> days) {
 
-        //Se obtienen los turnos futuros para el dentista.
-        List<Appointment> appointments = appointmentRepository.findFutureAppointmentsReservedByDentist(idDentist, LocalDateTime.now(), AppointmentStatus.RESERVED);
+        //Obtiene turnos y turnos conflictivos.
+        ConflictManagerContextInternalDTO conflictManagerContextInternalDTO =  prepareContextByAvailability(idDentist);
 
-        // Se obtiene los turnos conflictivos previos al cambio, y que el origen del conflicto fue la jornada laboral del dentista.
-        List<AppointmentConflict> appointmentConflictsExisting = appointmentConflictService.getAllByDentistIdAndAvailabilityConflict(idDentist, OriginConflict.DENTIST_AVAILABILITIES);
 
-        if (appointments.isEmpty() && appointmentConflictsExisting.isEmpty()) {
+        //Si no hay ninguno, no hay más nada para evaluar.
+        if (conflictManagerContextInternalDTO.appointments().isEmpty() && conflictManagerContextInternalDTO.appointmentConflicts().isEmpty()) {
             return Collections.emptyList();
         }
 
-        //Se limpian los conflictos previos con origen "Disponibilidad Laboral".
-        updateResolvedConflicts(appointmentConflictsExisting);
 
+        //Se limpian los conflictos previos con origen "Disponibilidad Laboral".
+        updateResolvedConflicts(conflictManagerContextInternalDTO.appointmentConflicts());
 
         // Se reevalúan todos los turnos(en conflicto o no) para determinar si alguno está en conflicto por la nueva parametrización.
-        List<AppointmentConflict> appointmentConflictsNew = verifyConflictByDentistAvailability(appointments,days);
+        List<AppointmentConflict> appointmentConflictsNew = evaluateAppointmentDentistAvailability(conflictManagerContextInternalDTO.appointments(),days);
 
         //Persistimos en base solo los nuevos conflictos
         List<AppointmentConflict> conflictSaved = appointmentConflictService.create(appointmentConflictsNew);
@@ -127,6 +125,39 @@ public class ConflictManagerService implements IConflictManagerService {
 
         return conflictsResponseDTO;
     }
+
+    /**
+     * Método para verificar conflictos ante consulta de posible conflictos, antes un preview de cambios en la jornada laboral del dentista.
+     *
+     * @param idDentist : id Dentista.
+     * @param days      : Lista con DTOs qie tienen la nueva jornada laboral.
+     * @return : Lista de AppointmentConflictResponseDTO
+     */
+    @Override
+    public List<AppointmentConflictResponseDTO> PreviewVerifyConflictsByDentistAvailability(Long idDentist, List<WorkingDayDTO> days) {
+
+        //Obtiene turnos y turnos conflictivos.
+        ConflictManagerContextInternalDTO conflictManagerContextInternalDTO =  prepareContextByAvailability(idDentist);
+
+
+        //Si no hay ninguno, no hay más nada para evaluar.
+        if (conflictManagerContextInternalDTO.appointments().isEmpty() && conflictManagerContextInternalDTO.appointmentConflicts().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+
+        // Se reevalúan todos los turnos(en conflicto o no) para determinar si alguno está en conflicto por la nueva parametrización.
+        List<AppointmentConflict> appointmentConflictsNew = evaluateAppointmentDentistAvailability(conflictManagerContextInternalDTO.appointments(),days);
+
+
+        //Mapeamos los conflictos persistidos a UN DTO para respuesta.
+        return appointmentConflictsNew.stream()
+                .map(AppointmentConflictResponseDTO::build)
+                .toList();
+
+    }
+
+
 
 
     /**
@@ -152,20 +183,17 @@ public class ConflictManagerService implements IConflictManagerService {
      */
 
     public List<AppointmentConflictResponseDTO> verifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists) {
-        //Obtiene turno por dentista.
-        List<Appointment> appointments = appointmentRepository.findFutureAppointmentsReservedByDentist(dentists.getId(), LocalDateTime.now(), AppointmentStatus.RESERVED);
 
-        // Identificar si hay turnos en conflictos.
-        List<AppointmentConflict> appointmentConflicts = verifyConflictAppointmentsCalendarLock(appointments, dentistCalendarLockRequestCreateDTO,dentistCalendarLockRequestCreateDTO.getRecurrence());
+        //Obtiene turnos y turnos conflictivos.
+        ConflictManagerContextInternalDTO context = prepareContextByCalendarLock(dentistCalendarLockRequestCreateDTO, dentists);
 
         //Retorna en caso de lista vacía. Caso contrario, persiste conflictos y retorna
-        if(appointmentConflicts.isEmpty()) {
+        if (context.appointments().isEmpty() && context.appointmentConflicts().isEmpty()) {
             return Collections.emptyList();
-
         }
 
         //Persistimos en base solo los nuevos conflictos
-        List<AppointmentConflict> conflictSaved = appointmentConflictService.create(appointmentConflicts);
+        List<AppointmentConflict> conflictSaved = appointmentConflictService.create(context.appointmentConflicts());
 
         //Notificación por mail.
         emailService.sendEmail(
@@ -185,90 +213,31 @@ public class ConflictManagerService implements IConflictManagerService {
 
 
 
-
-
-
     /**
-     * Detecta y genera conflictos de turnos que se encuentran fuera de la nueva jornada laboral de un dentista.
-     * <p>
-     * Este método compara cada turno futuro del dentista con la lista de {@link WorkingDayDTO} que define la nueva
-     * disponibilidad laboral. Para cada turno que no se encuentra dentro de los días y horarios permitidos,
-     * se genera un objeto {@link AppointmentConflict} indicando que está fuera de horario.
-     * </p>
+     * Método para verificar conflictos ante un preview de bloqueo de calendario dentista.
      *
-     * @param appointments Lista de {@link Appointment} que representa los turnos futuros del dentista.
-     * @param workingDays Lista de {@link WorkingDayDTO} que define la nueva jornada laboral a evaluar.
-     * @return Lista de {@link AppointmentConflict} representando los turnos que no se ajustan a la nueva jornada laboral.
+     * @param dentistCalendarLockRequestCreateDTO :
+     * @param dentists                            :
      */
-
     @Override
-    public List<AppointmentConflict> verifyConflictByDentistAvailability(List<Appointment> appointments, List<WorkingDayDTO> workingDays) {
+    public List<AppointmentConflictResponseDTO> PreviewVerifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists) {
 
-        List<AppointmentConflict> conflicts = new ArrayList<>();
+        //Obtiene turnos y turnos conflictivos.
+       ConflictManagerContextInternalDTO context = prepareContextByCalendarLock(dentistCalendarLockRequestCreateDTO, dentists);
 
-        for (Appointment appointment : appointments) {
-            boolean covered = false;
-            Long idOriginConflict = null;
-            OriginConflict originConflict = null;
-
-
-            for (WorkingDayDTO workingDay : workingDays) {
-
-                LocalDate startDate;
-                LocalDate endDate;
-                DayOfWeek day;
-
-                // Jornada recurrente (semanal)
-                if (workingDay.getSpecificDate() == null) {
-
-                    startDate = workingDay.getEffectiveDate();
-
-                    //Fecha fín (Hasta donde evalúa). Último turno encontrado.
-                    endDate = appointments.stream()
-                            .map(a -> a.getDate().toLocalDate())
-                            .max(Comparator.naturalOrder())
-                            .orElse(null);
-
-                    day = workingDay.getDayName().toDayOfWeek();
-                }
-
-                // Jornada por fecha específica
-                else {
-                    startDate = workingDay.getSpecificDate();
-                    endDate = workingDay.getEffectiveDate();
-                    day = null;
-                }
-
-                // Si esta jornada cubre el turno, no hay conflicto
-                if (CalendarUtils.isDateTimeWithinEvent(appointment.getDate(), startDate, endDate,day, workingDay.getStartTime(), workingDay.getEndTime(), workingDay.getRecurrence())) {
-                    covered = true;
-                    break;
-                }
-
-                // Guardamos último origen posible (si ninguna cubre)
-                idOriginConflict = workingDay.getIdOriginConflict();
-                originConflict = workingDay.getOriginConflict();
-
-            }
-
-            if (!covered) {
-
-                AppointmentConflict ac = AppointmentConflict.build(
-                        appointment,
-                        idOriginConflict,
-                        originConflict.name()
-
-                );
-                ac.setCreatedAt(LocalDateTime.now());
-                ac.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
-                ac.setEnabled(true);
-
-                conflicts.add(ac);
-            }
+        //Retorna en caso de lista vacía. Caso contrario, persiste conflictos y retorna
+        if (context.appointments().isEmpty() && context.appointmentConflicts().isEmpty()) {
+            return Collections.emptyList();
         }
-        return conflicts;
-    }
 
+
+        //Mapea conflictos y devuelve
+        return context.appointmentConflicts().stream()
+                .map(AppointmentConflictResponseDTO::build)
+                .toList();
+
+
+    }
 
 
     /**
@@ -325,7 +294,7 @@ public class ConflictManagerService implements IConflictManagerService {
      * @return Lista de {@link AppointmentConflict} representando los turnos que entran en conflicto con el bloqueo.
      */
 
-    private List<AppointmentConflict> verifyConflictAppointmentsCalendarLock(List<Appointment> appointments, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, CalendarLockRecurrenceName recurrence) {
+    private List<AppointmentConflict> evaluateAppointmentDentistCalendarLock(List<Appointment> appointments, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, CalendarLockRecurrenceName recurrence) {
         List<AppointmentConflict> conflicts = new ArrayList<>();
 
 
@@ -389,6 +358,168 @@ public class ConflictManagerService implements IConflictManagerService {
         }
         return conflicts;
     }
+
+
+    /**
+     * Detecta y genera conflictos de turnos que se encuentran fuera de la nueva jornada laboral de un dentista.
+     * <p>
+     * Este método compara cada turno futuro del dentista con la lista de {@link WorkingDayDTO} que define la nueva
+     * disponibilidad laboral. Para cada turno que no se encuentra dentro de los días y horarios permitidos,
+     * se genera un objeto {@link AppointmentConflict} indicando que está fuera de horario.
+     * </p>
+     *
+     * @param appointments Lista de {@link Appointment} que representa los turnos futuros del dentista.
+     * @param workingDays  Lista de {@link WorkingDayDTO} que define la nueva jornada laboral a evaluar.
+     * @return Lista de {@link AppointmentConflict} representando los turnos que no se ajustan a la nueva jornada laboral.
+     */
+
+    private List<AppointmentConflict> evaluateAppointmentDentistAvailability(List<Appointment> appointments, List<WorkingDayDTO> workingDays) {
+
+        List<AppointmentConflict> conflicts = new ArrayList<>();
+
+        for (Appointment appointment : appointments) {
+            boolean covered = false;
+            Long idOriginConflict = null;
+            OriginConflict originConflict = null;
+
+
+            for (WorkingDayDTO workingDay : workingDays) {
+
+                LocalDate startDate;
+                LocalDate endDate;
+                DayOfWeek day;
+
+
+                // Jornada recurrente (semanal)
+                if (workingDay.getSpecificDate() == null) {
+
+                    startDate = workingDay.getEffectiveDate();
+
+                    //Fecha fín (Hasta donde evalúa). Último turno encontrado.
+                    endDate = appointments.stream()
+                            .map(a -> a.getDate().toLocalDate())
+                            .max(Comparator.naturalOrder())
+                            .orElse(null);
+
+                    day = workingDay.getDayName().toDayOfWeek();
+                }
+
+
+
+
+
+                // Jornada por fecha específica
+                else {
+                    startDate = workingDay.getEffectiveDate();
+                    endDate = workingDay.getEffectiveDate();
+                    day = null;
+                }
+
+
+
+
+                // Evalúa si el turno NO está cubierto por la jornada.
+                if (!CalendarUtils.isDateTimeWithinEvent(appointment.getDate(), startDate, endDate, day, workingDay.getStartTime(), workingDay.getEndTime(), workingDay.getRecurrence())) {
+
+                    // Guardamos último origen posible (si ninguna cubre)
+                    idOriginConflict = workingDay.getIdOriginConflict();
+                    originConflict = workingDay.getOriginConflict();
+
+                    continue;
+                }
+
+
+                // A partir de acá el turno cae dentro de la jornada
+
+                //Evalúa si hay break
+                if (workingDay.getBreakStartTime() != null && workingDay.getBreakEndTime() != null) {
+
+                    //Si el turno cae dentro del break, no está cubierta.
+                    if (CalendarUtils.isDateTimeWithinBreak(appointment.getDate().toLocalTime(), workingDay.getBreakStartTime(), workingDay.getBreakEndTime())) {
+
+                        // Guardamos último origen posible (si ninguna cubre)
+                        idOriginConflict = workingDay.getIdOriginConflict();
+                        originConflict = workingDay.getOriginConflict();
+
+                        continue; //corta el flujo, itera al siguiente.
+                    }
+                }
+
+                //Si no hay break, la jornada está totalmente cubierta.
+                covered = true;
+
+
+            }
+
+            if (!covered) {
+
+                AppointmentConflict ac = AppointmentConflict.build(
+                        appointment,
+                        idOriginConflict,
+                        originConflict.name()
+
+                );
+                ac.setCreatedAt(LocalDateTime.now());
+                ac.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+                ac.setEnabled(true);
+
+                conflicts.add(ac);
+            }
+        }
+
+
+        return conflicts;
+    }
+
+
+
+    /**
+     * Método privado del servicio.
+     * Permite obtener turnos y turnos en conflicto.
+     * Este método puede ser llamado por:
+     * El método para detecta y persistir turnos en conflictos ante nueva jornada laboral.
+     * El método que preview de Jornada laboral, para consultar los posibles conflictos antes de actualizar.
+     * @param idDentist: id dentista
+     */
+    private ConflictManagerContextInternalDTO prepareContextByAvailability(Long idDentist){
+
+        //Se obtienen los turnos futuros para el dentista.
+        List<Appointment> appointments = appointmentRepository.findFutureAppointmentsReservedByDentist(idDentist, LocalDateTime.now(), AppointmentStatus.RESERVED);
+
+        // Se obtiene los turnos conflictivos previos al cambio, y que el origen del conflicto fue la jornada laboral del dentista.
+        List<AppointmentConflict> appointmentConflictsExisting = appointmentConflictService.getAllByDentistIdAndAvailabilityConflict(idDentist, OriginConflict.DENTIST_AVAILABILITIES);
+
+        return ConflictManagerContextInternalDTO.build(appointments, appointmentConflictsExisting);
+
+    }
+
+
+
+    /**
+     * Método privado del servicio.
+     * Permite obtener turnos y turnos en conflicto.
+     * Este método puede ser llamado por:
+     * El método para detecta y persistir turnos en conflictos ante nuevo bloqueo de calendario.
+     * El método que preview de Bloqueo de calendario, para consultar los posibles conflictos antes de crear
+     */
+    private ConflictManagerContextInternalDTO prepareContextByCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentist){
+
+        //Obtiene turno por dentista.
+        List<Appointment> appointments = appointmentRepository.findFutureAppointmentsReservedByDentist(dentist.getId(), LocalDateTime.now(), AppointmentStatus.RESERVED);
+
+        // Identificar si hay turnos en conflictos.
+        List<AppointmentConflict> appointmentConflicts = evaluateAppointmentDentistCalendarLock(appointments, dentistCalendarLockRequestCreateDTO,dentistCalendarLockRequestCreateDTO.getRecurrence());
+
+        return ConflictManagerContextInternalDTO.build(appointments, appointmentConflicts);
+
+    }
+
+
+
+
+
+
+
 
 }
 

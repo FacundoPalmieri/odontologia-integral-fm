@@ -3,13 +3,14 @@ package com.odontologiaintegralfm.feature.appointment.core.enums;
 import lombok.Getter;
 
 /**
- * Tipo de información brindada al día para la vista mensual.
+ * Tipo de información brindada al día para la vista diaria.
  */
 @Getter
 public enum SlotStatus {
-    FREE("Disponible", "#4CAF50"),   // verde
-    RESERVED("Reservado", "#F44336"),       // rojo
-    LOCKED("Bloqueo de agenda", "#FF9800");// naranja
+    FREE("Disponible", "#4CAF50"),         // verde
+    RESERVED("Reservado", "#F44336"),      // rojo
+    LOCKED("Bloqueo de agenda", "#FF9800"),// naranja
+    BREAK("Break","#533C47");              //Gris violaceo
 
 
     private final String description;

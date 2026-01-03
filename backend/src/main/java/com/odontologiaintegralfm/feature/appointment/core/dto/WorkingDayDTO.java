@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
+import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,18 +34,24 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class WorkingDayDTO {
 
 
+    // ---------------------------------------------------//
+    /** Día de trabajo + recurrencia */
     private DayName dayName;
 
     private CalendarLockRecurrenceName recurrence;
 
 
 
+    // ---------------------------------------------------//
     /** Fecha específica de asistencia.(Ej. Concurre una vez por mes, y no la misma fecha */
+    @Future(message = "generic.date.futureOrPresent")
     private LocalDate specificDate;
 
+    // ---------------------------------------------------//
 
 
     @NotNull
@@ -63,13 +69,11 @@ public class WorkingDayDTO {
     private LocalDate effectiveDate;
 
 
+    /** Campos que representar un break dentro de la jornada laboral. */
+    private LocalTime breakStartTime;
+    private LocalTime breakEndTime;
 
-    /** Solo uso interno: id propio de esta entidad que es la que puede generar conflictos */
-    @Null
-    @JsonIgnore
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @Schema(hidden = true)
-    private Long idOriginConflict;
+
 
     /** Solo uso interno: motivo/origen del conflicto */
     @Null
@@ -77,6 +81,13 @@ public class WorkingDayDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(hidden = true)
     private OriginConflict originConflict;
+
+    /** Solo uso interno: id propio de esta entidad que es la que puede generar conflictos */
+    @Null
+    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(hidden = true)
+    private Long idOriginConflict;
 
 
     @JsonIgnore
@@ -96,4 +107,40 @@ public class WorkingDayDTO {
     }
 
 
+    public WorkingDayDTO(
+            DayName dayName,
+            CalendarLockRecurrenceName recurrence,
+            LocalDate specificDate,
+            LocalTime startTime,
+            LocalTime endTime,
+            Integer appointmentDuration,
+            LocalDate effectiveDate,
+            LocalTime breakStartTime,
+            LocalTime breakEndTime
+    ) {
+        this.dayName = dayName;
+        this.recurrence = recurrence;
+        this.specificDate = specificDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.appointmentDuration = appointmentDuration;
+        this.effectiveDate = effectiveDate;
+        this.breakStartTime = breakStartTime;
+        this.breakEndTime = breakEndTime;
+    }
+
+
+    public static WorkingDayDTO from (DentistAvailability dentistAvailability){
+       return new WorkingDayDTO(
+               dentistAvailability.getKeyName(),
+               dentistAvailability.getRecurrence(),
+               dentistAvailability.getSpecificDate(),
+               dentistAvailability.getStartTime(),
+               dentistAvailability.getEndTime(),
+               dentistAvailability.getAppointmentDuration(),
+               dentistAvailability.getEffectiveDate(),
+               dentistAvailability.getBreakStartTime(),
+               dentistAvailability.getBreakEndTime()
+       );
+    }
 }

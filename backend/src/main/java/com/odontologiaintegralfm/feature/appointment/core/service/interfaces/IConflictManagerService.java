@@ -9,13 +9,12 @@ import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConfl
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistCalendarLock;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IConflictManagerService {
 
     /**
-     * Método para verificar conflictos antes cambios en la jornada laboral del dentista.4
+     * Método para verificar conflictos antes cambios en la jornada laboral del dentista.
      * @param idDentist : id Dentista.
      * @param days : Lista con DTOs qie tienen la nueva jornada laboral.
      * @return : Lista de AppointmentConflictResponseDTO
@@ -24,20 +23,31 @@ public interface IConflictManagerService {
 
 
     /**
+     * Método para verificar conflictos ante un preview de cambios en la jornada laboral del dentista.
+     * @param idDentist : id Dentista.
+     * @param days : Lista con DTOs qie tienen la nueva jornada laboral.
+     * @return : Lista de AppointmentConflictResponseDTO
+     */
+    List<AppointmentConflictResponseDTO> PreviewVerifyConflictsByDentistAvailability(Long idDentist, List<WorkingDayDTO> days);
+
+
+    /**
      * Método para verificar conflictos antes bloqueos de calendario del dentista.
-     * @param dentistCalendarLockRequestCreateDTO
-     * @param dentists
-     * @return
+     * @param dentistCalendarLockRequestCreateDTO :
+     * @param dentists :
      */
     List<AppointmentConflictResponseDTO> verifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists);
 
 
+
     /**
-     * Método  detecta y genera nuevo conflictos de turnos
-     * @param appointments : Lista de turnos futuros.
-     * @param days         : Nueva jornada de trabajo.
+     * Método para verificar conflictos ante un preview de bloqueo de calendario dentista.
+     * @param dentistCalendarLockRequestCreateDTO :
+     * @param dentists :
      */
-    List<AppointmentConflict> verifyConflictByDentistAvailability(List<Appointment> appointments, List<WorkingDayDTO> days);
+    List<AppointmentConflictResponseDTO> PreviewVerifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists);
+
+
 
 
     /**
