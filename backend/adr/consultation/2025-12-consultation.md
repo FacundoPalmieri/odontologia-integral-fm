@@ -54,7 +54,7 @@ El odontograma forma parte del registro clínico y:
 
 -   Puede requerir corrección, pero de forma controlada.
 
--   El sistema debe permitir limitar la cantidad de correcciones, sin bloquear futuras decisiones de producto.
+-   El sistema debe permitir limitar la cantidad de correcciones(parámetro de sistema), sin bloquear futuras decisiones.
 
 #### Se debe evitar:
 

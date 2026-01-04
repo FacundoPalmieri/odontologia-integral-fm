@@ -18,9 +18,9 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "consultation_odontogram")
+@Table(name = "consultation_odontogram_details")
 @Audited
-public class ConsultationOdontogram extends Auditable {
+public class ConsultationOdontogramDetail extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class ConsultationOdontogram extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consultation_id", nullable = false)
-    private Consultation consultation;
+    private ConsultationOdontogramHeader odontogramHeader;
 
     @Enumerated(EnumType.STRING)
     private Tooth tooth;
@@ -43,16 +43,17 @@ public class ConsultationOdontogram extends Auditable {
     private Treatment treatment;
 
 
-    private ConsultationOdontogram(Consultation consultation, Tooth tooth, ToothFace toothFace, Treatment treatment) {
-        this.consultation = consultation;
+
+    private ConsultationOdontogramDetail(ConsultationOdontogramHeader odontogramHeader, Tooth tooth, ToothFace toothFace, Treatment treatment) {
+        this.odontogramHeader = odontogramHeader;
         this.tooth = tooth;
         this.toothFace = toothFace;
         this.treatment = treatment;
     }
 
-    public static ConsultationOdontogram build(Consultation consultation, Tooth tooth, ToothFace toothFace, Treatment treatment){
-        return new ConsultationOdontogram(
-                consultation,
+    public static ConsultationOdontogramDetail build(ConsultationOdontogramHeader odontogramHeader, Tooth tooth, ToothFace toothFace, Treatment treatment){
+        return new ConsultationOdontogramDetail(
+                odontogramHeader,
                 tooth,
                 toothFace,
                 treatment

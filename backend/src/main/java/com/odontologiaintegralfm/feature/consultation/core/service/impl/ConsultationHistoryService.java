@@ -5,9 +5,12 @@ import com.odontologiaintegralfm.feature.consultation.core.model.ConsultationHis
 import com.odontologiaintegralfm.feature.consultation.core.repository.IConsultationHistoryRepository;
 import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationHistoryService;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
+import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.CannotCreateTransactionException;
 
 @Service
 public class ConsultationHistoryService implements IConsultationHistoryService {
@@ -27,8 +30,11 @@ public class ConsultationHistoryService implements IConsultationHistoryService {
      */
     @Override
     public ConsultationHistory create(ConsultationHistory consultationHistory) {
-        return consultationHistoryRepository.save(consultationHistory);
-    }
+        try {
+            return consultationHistoryRepository.save(consultationHistory);
+        } catch (CannotCreateTransactionException | DataAccessException e) {
+            throw new DataBaseException(e, "ConsultationHistoryService", consultationHistory.getId(), null, "create");
+        }}
 
 
 
