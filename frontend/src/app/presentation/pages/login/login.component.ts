@@ -1,4 +1,13 @@
-import { Component, inject, OnDestroy, signal } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  signal,
+  AfterViewInit,
+  ElementRef,
+  viewChild,
+} from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -21,6 +30,8 @@ import { SnackbarTypeEnum } from "../../../utils/enums/snackbar-type.enum";
 import { ApiResponseInterface } from "../../../domain/interfaces/api-response.interface";
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
+import { ThemeService } from "../../../services/theme.service";
+import lottie, { AnimationItem } from "lottie-web";
 
 @Component({
   selector: "app-login",
@@ -38,34 +49,46 @@ import { Subject, takeUntil } from "rxjs";
     IconsModule,
   ],
 })
-export class LoginComponent implements OnDestroy {
+export class LoginComponent implements AfterViewInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   authService = inject(AuthService);
   loaderService = inject(LoaderService);
   snackbarService = inject(SnackbarService);
   router = inject(Router);
+  themeService = inject(ThemeService);
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   hidePassword = signal(true);
   isForgotPassword = signal(false);
   resetPasswordSent = signal(false);
 
+  // Determina qué logo mostrar según el tema actual
+  logoPath = computed(() => {
+    const currentTheme = this.themeService.currentTheme();
+    // Para temas oscuros (dark, default-dark) usa logo_transparent.svg
+    // Para temas claros (light, default-light) y por defecto usa logo_inverted_transparent.svg
+    const isDarkTheme = currentTheme.id.includes("dark");
+    return isDarkTheme
+      ? "img/logo_transparent.svg"
+      : "img/logo_inverted_transparent.svg";
+  });
+
   constructor() {
     this.loginForm = new FormGroup({
-      // username: new FormControl<string>("fmazzota@gmail.com", [
-      //   Validators.required,
-      //   Validators.email,
-      // ]),
-      // password: new FormControl<string>("$FlorMazzotta12345678", [
-      //   Validators.required,
-      // ]),
-      username: new FormControl<string>("equintans@gmail.com", [
+      username: new FormControl<string>("fmazzota@gmail.com", [
         Validators.required,
         Validators.email,
       ]),
-      password: new FormControl<string>("$EmmaQuintans12345678", [
+      password: new FormControl<string>("$FlorMazzotta12345678", [
         Validators.required,
       ]),
+      // username: new FormControl<string>("equintans@gmail.com", [
+      //   Validators.required,
+      //   Validators.email,
+      // ]),
+      // password: new FormControl<string>("$EmmaQuintans12345678", [
+      //   Validators.required,
+      // ]),
       // username: new FormControl<string>(
       //   "matiasnicolasiglesiasseliman@gmail.com",
       //   [Validators.required, Validators.email]
@@ -83,7 +106,29 @@ export class LoginComponent implements OnDestroy {
     });
   }
 
+  // Referencia al contenedor de la animación Lottie
+  lottieContainer = viewChild<ElementRef>("lottieContainer");
+  private lottieAnimation: AnimationItem | null = null;
+
+  ngAfterViewInit(): void {
+    // Inicializar la animación Lottie
+    const container = this.lottieContainer()?.nativeElement;
+    if (container) {
+      this.lottieAnimation = lottie.loadAnimation({
+        container: container,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "img/preventive-health-care.json",
+      });
+    }
+  }
+
   ngOnDestroy(): void {
+    // Limpiar la animación Lottie
+    if (this.lottieAnimation) {
+      this.lottieAnimation.destroy();
+    }
     this._destroy$.next();
     this._destroy$.complete();
   }

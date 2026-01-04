@@ -93,9 +93,20 @@ body {
 
     @include mat.list-overrides(
       (
-        list-item-container-color: var(--mat-sys-secondary),
+        list-item-container-color: var(--mat-sys-primary),
+        list-item-label-text-color: var(--mat-sys-on-primary),
       )
     );
+
+    * {
+      color: var(--mat-sys-on-primary) !important;
+    }
+
+    i-tabler,
+    i-tabler svg {
+      color: var(--mat-sys-on-primary) !important;
+      stroke: var(--mat-sys-on-primary) !important;
+    }
   }
 
   @include mat.menu-overrides(
@@ -110,13 +121,14 @@ body {
       outlined-container-shape: var(--mat-sys-corner-large),
       protected-container-shape: var(--mat-sys-corner-large),
       text-container-shape: var(--mat-sys-corner-large),
+      filled-container-color: var(--mat-sys-secondary),
     )
   );
 
   @include mat.tooltip-overrides(
     (
-      container-color: var(--mat-sys-secondary),
-      supporting-text-color: var(--mat-sys-on-secondary-container),
+      container-color: var(--mat-sys-primary-container),
+      supporting-text-color: var(--mat-sys-on-primary-container),
       container-shape: 12px,
     )
   );

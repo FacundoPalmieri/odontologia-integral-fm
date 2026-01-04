@@ -50,6 +50,7 @@
 
 .main-toolbar {
   position: sticky;
+  background: transparent;
   top: 0;
   z-index: 50;
   min-height: 80px;
@@ -69,10 +70,10 @@
   justify-content: center;
   background: conic-gradient(
     from 180deg at 50% 50%,
-    #693853 0deg,
-    #f6957e 120deg,
-    #da695c 240deg,
-    #693853 360deg
+    var(--mat-sys-primary) 0deg,
+    var(--mat-sys-secondary) 120deg,
+    var(--mat-sys-primary-fixed-dim) 240deg,
+    var(--mat-sys-primary) 360deg
   );
   padding: 3px;
 }

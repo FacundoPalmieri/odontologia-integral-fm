@@ -127,6 +127,7 @@ import {
   IconUserOff,
   IconBellOff,
   IconLockOpen,
+  IconPalette,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -255,6 +256,7 @@ const ICONS = {
   IconUserOff,
   IconBellOff,
   IconLockOpen,
+  IconPalette,
 } as const;
 
 @NgModule({

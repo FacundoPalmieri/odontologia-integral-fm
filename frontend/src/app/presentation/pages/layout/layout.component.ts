@@ -61,6 +61,12 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   fullScreenService = inject(FullscreenService);
   currentTheme = computed(() => this.themeService.currentTheme());
+  logoSrc = computed(() => {
+    const theme = this.currentTheme();
+    return theme.id.includes("dark")
+      ? "img/logo_dark.jpg"
+      : "img/logo_light.jpg";
+  });
   userData: UserDataInterface | null = this.authService.getUserData();
   permissions: string[] = [];
   private menuItems = PermissionFactory.createPermissions();
@@ -153,9 +159,16 @@ export class LayoutComponent implements OnInit, OnDestroy {
     return "";
   }
 
-  toggleTheme() {
-    const newTheme = this.currentTheme().id === "light" ? "dark" : "light";
-    this.themeService.setTheme(newTheme);
+  getAvailableThemes() {
+    return this.themeService.getThemes();
+  }
+
+  setTheme(themeId: string) {
+    this.themeService.setTheme(themeId);
+  }
+
+  isCurrentTheme(themeId: string): boolean {
+    return this.currentTheme().id === themeId;
   }
 
   goToProfile() {

@@ -1,2 +1,4 @@
+@import "./default-light-theme.css";
+@import "./default-dark-theme.css";
 @import "./light-theme.css";
 @import "./dark-theme.css";

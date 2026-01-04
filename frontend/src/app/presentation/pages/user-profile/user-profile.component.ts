@@ -103,12 +103,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               this.avatar.set(avatar);
               this.canDeleteAvatar.set(true);
             } else {
-              const gender = this.user()?.person?.gender?.name.toLowerCase();
-              this.avatar.set(
-                gender === "femenino"
-                  ? "img/women-avatar.png"
-                  : "img/men-avatar.png"
-              );
+              this.avatar.set("img/doctor-avatar.png");
               this.canDeleteAvatar.set(false);
             }
           });
@@ -140,12 +135,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               this.avatar.set(avatar);
               this.canDeleteAvatar.set(true);
             } else {
-              const gender = this.user()?.person?.gender?.name.toLowerCase();
-              this.avatar.set(
-                gender === "femenino"
-                  ? "img/women-avatar.png"
-                  : "img/men-avatar.png"
-              );
+              this.avatar.set("img/doctor-avatar.png");
               this.canDeleteAvatar.set(false);
             }
           });

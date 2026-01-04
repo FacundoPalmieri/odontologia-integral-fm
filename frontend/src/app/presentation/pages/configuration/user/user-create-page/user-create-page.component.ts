@@ -159,11 +159,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
   roles = signal<RoleInterface[]>([]);
 
   defaultAvatar = () => {
-    const gender = this.userForm.get("person.gender")?.value;
-    const genderName = gender?.name?.toLowerCase();
-    return genderName === "femenino"
-      ? "img/women-avatar.png"
-      : "img/men-avatar.png";
+    return "img/doctor-avatar.png";
   };
 
   ngOnInit() {

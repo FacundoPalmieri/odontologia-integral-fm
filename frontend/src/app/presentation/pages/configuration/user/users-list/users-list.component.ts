@@ -218,11 +218,7 @@ export class UsersListComponent implements OnInit, OnDestroy, AfterViewInit {
                     if (avatar) {
                       user.avatarUrl = avatar;
                     } else {
-                      const gender = user.person?.gender?.toLowerCase();
-                      user.avatarUrl =
-                        gender === "femenino"
-                          ? "img/women-avatar.png"
-                          : "img/men-avatar.png";
+                      user.avatarUrl = "img/doctor-avatar.png";
                     }
                     this.users.set([...this.users()]);
                   });

@@ -426,7 +426,6 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
 
   removeAvatar(): void {
     this.personDataService.removeAvatar(this.personId).subscribe(() => {
-      const gender = this.userForm.get("person.gender")?.value;
       this.personDataService
         .getAvatar(this.personId)
         .subscribe((avatar: string | null) => {
@@ -434,12 +433,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
             this.avatarUrl.set(avatar);
             this.canDeleteAvatar.set(true);
           } else {
-            const genderName = gender?.name?.toLowerCase();
-            this.avatarUrl.set(
-              genderName === "femenino"
-                ? "img/women-avatar.png"
-                : "img/men-avatar.png"
-            );
+            this.avatarUrl.set("img/doctor-avatar.png");
             this.canDeleteAvatar.set(false);
           }
         });
@@ -564,12 +558,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
                 this.avatarUrl.set(avatar);
                 this.canDeleteAvatar.set(true);
               } else {
-                const gender = user.person?.gender?.name?.toLowerCase();
-                this.avatarUrl.set(
-                  gender === "femenino"
-                    ? "img/women-avatar.png"
-                    : "img/men-avatar.png"
-                );
+                this.avatarUrl.set("img/doctor-avatar.png");
                 this.canDeleteAvatar.set(false);
               }
             });

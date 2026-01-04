@@ -2,7 +2,7 @@
   <mat-drawer #drawer class="sidenav m-2" mode="side" opened>
     <div class="flex justify-center p-4">
       <img
-        src="img/logo-fondo-blanco.jpg"
+        [src]="logoSrc()"
         alt="Logo"
         class="rounded-[var(--mat-sys-corner-large)] avatar-gradient"
       />
@@ -16,8 +16,6 @@
         >
           <mat-list-item
             class="list-item-menu cursor-pointer"
-            [matTooltip]="menu.label"
-            matTooltipPosition="right"
             (click)="toggleSubmenu(menu.label)"
           >
             <div class="flex flex-row items-center">
@@ -37,8 +35,6 @@
             @for(child of menu.children; track child.label){
             <mat-list-item
               class="list-item-menu mb-1"
-              [matTooltip]="child.label"
-              matTooltipPosition="right"
               [routerLink]="child.route"
               routerLinkActive="active-link"
             >
@@ -56,8 +52,6 @@
         <ng-template #noChildren>
           <mat-list-item
             class="list-item-menu"
-            [matTooltip]="menu.label"
-            matTooltipPosition="right"
             [routerLink]="menu.route"
             routerLinkActive="active-link"
           >
@@ -84,7 +78,7 @@
       <!-- Logo visible cuando el sidenav está cerrado -->
       @if(!drawer.opened) {
       <img
-        src="img/logo-fondo-blanco.jpg"
+        [src]="logoSrc()"
         alt="Logo"
         class="logo-collapsed rounded-[var(--mat-sys-corner-medium)] avatar-gradient"
       />
@@ -93,7 +87,6 @@
       <mat-nav-list>
         <mat-list-item
           class="list-item-menu"
-          matTooltipPosition="right"
           [routerLink]="'/calendar'"
           routerLinkActive="active-link"
         >
@@ -120,11 +113,78 @@
           "
         ></i-tabler>
       </button>
-      <button mat-icon-button class="rotate-on-hover" (click)="toggleTheme()">
-        <i-tabler
-          [name]="currentTheme().id === 'dark' ? 'moon' : 'sun'"
-        ></i-tabler>
+      <button
+        mat-icon-button
+        class="rotate-on-hover"
+        [matMenuTriggerFor]="themeMenu"
+        matTooltip="Cambiar tema"
+      >
+        <i-tabler name="palette"></i-tabler>
       </button>
+
+      <mat-menu #themeMenu="matMenu">
+        <div class="px-4 py-2 font-medium text-sm">Tema Default</div>
+        @for(theme of getAvailableThemes(); track theme.id) { @if(theme.category
+        === 'default') {
+        <button
+          mat-menu-item
+          (click)="setTheme(theme.id); $event.stopPropagation()"
+          [class.bg-primary-container]="isCurrentTheme(theme.id)"
+        >
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center gap-2">
+              <i-tabler
+                [name]="theme.id.includes('dark') ? 'moon' : 'sun'"
+                class="mr-1"
+              ></i-tabler>
+              <div class="flex gap-1">
+                @for(color of theme.previewColors; track $index) {
+                <div
+                  class="w-4 h-4 rounded-full border border-gray-300"
+                  [style.background-color]="color"
+                ></div>
+                }
+              </div>
+              <span>{{ theme.displayName }}</span>
+            </div>
+            @if(isCurrentTheme(theme.id)) {
+            <i-tabler name="check" class="ml-2"></i-tabler>
+            }
+          </div>
+        </button>
+        } }
+        <mat-divider class="my-2"></mat-divider>
+        <div class="px-4 py-2 font-medium text-sm">Tema FM</div>
+        @for(theme of getAvailableThemes(); track theme.id) { @if(theme.category
+        === 'fm') {
+        <button
+          mat-menu-item
+          (click)="setTheme(theme.id); $event.stopPropagation()"
+          [class.bg-primary-container]="isCurrentTheme(theme.id)"
+        >
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center gap-2">
+              <i-tabler
+                [name]="theme.id.includes('dark') ? 'moon' : 'sun'"
+                class="mr-1"
+              ></i-tabler>
+              <div class="flex gap-1">
+                @for(color of theme.previewColors; track $index) {
+                <div
+                  class="w-4 h-4 rounded-full border border-gray-300"
+                  [style.background-color]="color"
+                ></div>
+                }
+              </div>
+              <span>{{ theme.displayName }}</span>
+            </div>
+            @if(isCurrentTheme(theme.id)) {
+            <i-tabler name="check" class="ml-2"></i-tabler>
+            }
+          </div>
+        </button>
+        } }
+      </mat-menu>
 
       <button mat-button [matMenuTriggerFor]="menu">
         <div class="flex items-center gap-1">
