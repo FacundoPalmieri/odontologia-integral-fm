@@ -48,7 +48,7 @@
   }
 
   <!-- Grid de Cards -->
-  @if(isDentist()) {
+  @if(isDentist() && hasAvailability()) {
   <div class="cards-grid gap-4">
     <!-- Card de Próximo Turno -->
     <mat-card appearance="outlined" class="appointment-card">

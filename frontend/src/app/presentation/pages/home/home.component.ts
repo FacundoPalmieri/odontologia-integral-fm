@@ -74,6 +74,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   });
 
   // Computed para obtener el próximo turno
+  // Computed para verificar si tiene disponibilidad configurada
+  hasAvailability = computed(() => {
+    const availability = this.dentistAvailability();
+    return availability && availability.days && availability.days.length > 0;
+  });
+
   nextAppointment = computed(() => {
     const now = new Date();
     const currentTimeString = `${String(now.getHours()).padStart(
@@ -116,9 +122,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Cargar turnos del día si es dentista
+    // Cargar turnos del día si es dentista y tiene disponibilidad configurada
     effect(() => {
-      if (this.userData() && this.isDentist() && this.userData()?.person?.id) {
+      if (
+        this.userData() &&
+        this.isDentist() &&
+        this.userData()?.person?.id &&
+        this.hasAvailability()
+      ) {
         this.loadTodayAppointments();
       }
     });
