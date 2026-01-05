@@ -331,7 +331,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
   private loadAvailableSlots(day: CalendarDayInterface): void {
     this.isLoadingSlots.set(true);
 
-    // Filtrar solo los slots con status FREE
+    // Filtrar solo los slots con status FREE (BREAK no es FREE, por lo que queda excluido)
     const freeSlots = day.slots.filter(
       (slot) => slot.status === SlotStatusEnum.FREE
     );
@@ -356,6 +356,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
       return false;
     }
 
+    // Verificar que tenga al menos un slot FREE (BREAK no es FREE, por lo que queda excluido)
     return day.slots.some((slot) => slot.status === SlotStatusEnum.FREE);
   }
 

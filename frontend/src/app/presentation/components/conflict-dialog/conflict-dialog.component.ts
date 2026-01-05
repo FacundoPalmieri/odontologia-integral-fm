@@ -40,7 +40,11 @@ export class ConflictDialogComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackbarService = inject(SnackbarService);
 
-  data: { conflicts?: AppointmentConflictInterface[]; dentistId?: number };
+  data: {
+    conflicts?: AppointmentConflictInterface[];
+    dentistId?: number;
+    showSaveOption?: boolean;
+  };
   conflicts: AppointmentConflictInterface[] = [];
   displayedColumns = ["patientName", "date", "origin", "actions"];
   isLoading = false;

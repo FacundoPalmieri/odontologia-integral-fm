@@ -32,8 +32,8 @@ import { ActivatedRoute } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatDialog } from "@angular/material/dialog";
-import { ConfirmDialogComponent } from "../../components/confirm-dialog/confirm-dialog.component";
 import { ConflictDialogComponent } from "../../components/conflict-dialog/conflict-dialog.component";
+import { AppointmentConflictInterface } from "../../../domain/interfaces/appointment.inteface";
 
 @Component({
   selector: "app-dentist-availability",
@@ -680,26 +680,43 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
       return;
     }
 
-    // Mostrar diálogo de confirmación
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        message:
-          "¿Está seguro que desea modificar la disponibilidad laboral? Esto puede afectar turnos futuros ya agendados.",
-      },
-    });
+    // Preparar los datos de disponibilidad
+    const allDays = this._prepareAvailabilityData();
 
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) {
-        return;
-      }
+    // Primero, consultar el endpoint de preview para verificar conflictos
+    this.dentistService
+      .previewAvailabilityConflicts(dentistId, allDays)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (response) => {
+          const conflicts = response.data?.appointmentConflict || [];
 
-      // Si el usuario confirmó, proceder con el guardado
-      this._performSave(dentistId);
-    });
+          if (conflicts.length === 0) {
+            // No hay conflictos, guardar directamente sin diálogo
+            this._performSave(dentistId, allDays);
+          } else {
+            // Hay conflictos, mostrar el diálogo con opciones
+            this._showConflictDialogWithSaveOption(
+              dentistId,
+              allDays,
+              conflicts
+            );
+          }
+        },
+        error: (error) => {
+          console.error("Error al verificar conflictos:", error);
+          this.snackbarService.openSnackbar(
+            "Error al verificar conflictos. Por favor, intente nuevamente.",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Error
+          );
+        },
+      });
   }
 
-  private _performSave(dentistId: number): void {
-    // Combinar días semanales y específicos
+  private _prepareAvailabilityData(): DentistDayAvailabilityInterface[] {
     const allDays: DentistDayAvailabilityInterface[] = [];
 
     // Agregar días semanales
@@ -776,6 +793,13 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
 
     allDays.push(...specificDaysData);
 
+    return allDays;
+  }
+
+  private _performSave(
+    dentistId: number,
+    allDays: DentistDayAvailabilityInterface[]
+  ): void {
     this.dentistService
       .saveAvailability(dentistId, allDays)
       .pipe(takeUntil(this._destroy$))
@@ -783,34 +807,50 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
         next: (
           response: ApiResponseInterface<DentistAvailabilitySaveResponseInterface>
         ) => {
-          if (response.data.appointmentConflict.length > 0) {
-            // Mostrar mensaje de que se guardó con advertencia
-            this.snackbarService.openSnackbar(
-              "Disponibilidad guardada. Se detectaron conflictos con turnos existentes.",
-              6000,
-              "center",
-              "top",
-              SnackbarTypeEnum.Warning
-            );
-
-            // Abrir diálogo con los conflictos
-            this.dialog.open(ConflictDialogComponent, {
-              data: {
-                conflicts: response.data.appointmentConflict,
-              },
-              width: "800px",
-              maxWidth: "90vw",
-            });
-          } else {
-            this.snackbarService.openSnackbar(
-              response.message,
-              6000,
-              "center",
-              "top",
-              SnackbarTypeEnum.Success
-            );
-          }
+          this.snackbarService.openSnackbar(
+            response.message,
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success
+          );
+          // Recargar la disponibilidad para reflejar los cambios
+          this._loadAvailability();
+        },
+        error: (error) => {
+          console.error("Error al guardar disponibilidad:", error);
+          this.snackbarService.openSnackbar(
+            "Error al guardar la disponibilidad. Por favor, intente nuevamente.",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Error
+          );
         },
       });
+  }
+
+  private _showConflictDialogWithSaveOption(
+    dentistId: number,
+    allDays: DentistDayAvailabilityInterface[],
+    conflicts: AppointmentConflictInterface[]
+  ): void {
+    const dialogRef = this.dialog.open(ConflictDialogComponent, {
+      data: {
+        conflicts: conflicts,
+        showSaveOption: true,
+      },
+      width: "800px",
+      maxWidth: "90vw",
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.saveAnyway) {
+        // El usuario decidió guardar igualmente
+        this._performSave(dentistId, allDays);
+      }
+      // Si result es falsy o result.saveAnyway es false, no hacer nada (cancelar)
+    });
   }
 }

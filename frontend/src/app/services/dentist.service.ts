@@ -44,6 +44,17 @@ export class DentistService {
       );
   }
 
+  previewAvailabilityConflicts(
+    dentistId: number,
+    days: DentistDayAvailabilityInterface[]
+  ): Observable<ApiResponseInterface<any>> {
+    const daysDto = DentistAvailabilitySerializer.toDto(days);
+
+    return this.http.patch<
+      ApiResponseInterface<DentistAvailabilitySaveResponseInterface>
+    >(`${this.apiUrl}/dentist-availability/${dentistId}/preview`, daysDto);
+  }
+
   saveAvailability(
     dentistId: number,
     days: DentistDayAvailabilityInterface[]

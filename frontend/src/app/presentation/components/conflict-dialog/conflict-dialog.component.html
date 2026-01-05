@@ -119,9 +119,29 @@
   }
 </mat-dialog-content>
 <mat-dialog-actions align="end">
+  @if (data.showSaveOption) {
+  <!-- Botones cuando se muestra desde el flujo de guardar disponibilidad -->
+  <button
+    mat-stroked-button
+    [mat-dialog-close]="{ saveAnyway: false }"
+    class="!text-[var(--mat-sys-on-surface)]"
+  >
+    Cancelar
+  </button>
+  <div class="flex-1"></div>
+  <button
+    mat-flat-button
+    color="primary"
+    [mat-dialog-close]="{ saveAnyway: true }"
+  >
+    Guardar igualmente
+  </button>
+  } @else {
+  <!-- Botones por defecto (cuando se muestra después de guardar) -->
   <button mat-stroked-button color="warn" (click)="cancelAllAppointments()">
     Cancelar todos
   </button>
   <div class="flex-1"></div>
   <button mat-button [mat-dialog-close]="false">Cerrar</button>
+  }
 </mat-dialog-actions>
