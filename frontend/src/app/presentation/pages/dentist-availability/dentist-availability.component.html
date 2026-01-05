@@ -53,6 +53,26 @@
         [formGroup]="weeklyAvailabilityForm"
         style="will-change: scroll-position; transform: translateZ(0)"
       >
+        @if(hasSpecificDaysConfiguration()) {
+        <div
+          class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-[var(--mat-sys-corner-large)]"
+        >
+          <div class="flex items-start gap-2">
+            <i-tabler
+              name="info-circle"
+              class="text-yellow-600 mt-0.5"
+            ></i-tabler>
+            <p
+              class="text-sm text-yellow-800 rounded-[var(--mat-sys-corner-large)]"
+            >
+              No puedes configurar horario semanal porque ya tienes días
+              específicos configurados. Elimina todos los días específicos para
+              poder configurar un horario semanal.
+            </p>
+          </div>
+        </div>
+        }
+
         <div formArrayName="availability" class="space-y-4">
           @for(control of weeklyAvailability.controls; track $index) {
           <div
@@ -66,6 +86,7 @@
                 [disableRipple]="true"
                 formControlName="isWorking"
                 class="mr-3"
+                [disabled]="hasSpecificDaysConfiguration()"
               >
                 <span class="font-medium">
                   {{ getDayLabel(control.get("dayName")?.value) }}
@@ -269,6 +290,23 @@
         [formGroup]="specificDaysForm"
         style="will-change: scroll-position; transform: translateZ(0)"
       >
+        @if(hasWeeklyConfiguration()) {
+        <div
+          class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-[var(--mat-sys-corner-large)]"
+        >
+          <div class="flex items-start gap-2">
+            <i-tabler
+              name="info-circle"
+              class="text-yellow-600 mt-0.5"
+            ></i-tabler>
+            <p class="text-sm text-yellow-800">
+              No puedes agregar días específicos porque ya tienes un horario
+              semanal configurado. Desmarca todos los días del horario semanal
+              para poder agregar días específicos.
+            </p>
+          </div>
+        </div>
+        } @if(!hasWeeklyConfiguration()) {
         <div class="mb-4 flex justify-end">
           <button mat-stroked-button type="button" (click)="addSpecificDay()">
             <div class="flex items-center justify-center gap-2">
@@ -277,6 +315,7 @@
             </div>
           </button>
         </div>
+        }
 
         <div formArrayName="specificDays" class="space-y-4">
           @for(control of specificDays.controls; track $index) {

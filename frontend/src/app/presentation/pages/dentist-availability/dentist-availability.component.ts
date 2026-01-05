@@ -85,6 +85,10 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   selectedTabIndex = signal<number>(0);
   isFormValidSignal = signal<boolean>(false);
 
+  // Control de exclusividad entre horario semanal y días específicos
+  hasWeeklyConfiguration = signal<boolean>(false);
+  hasSpecificDaysConfiguration = signal<boolean>(false);
+
   private readonly _destroy$ = new Subject<void>();
 
   private readonly weekDays = [
@@ -206,6 +210,20 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   private _updateFormValidity(): void {
     const isValid = this._checkFormValidity();
     this.isFormValidSignal.set(isValid);
+    this._updateConfigurationStatus();
+  }
+
+  private _updateConfigurationStatus(): void {
+    // Verificar si hay configuración semanal
+    const hasWeekly = this.weeklyAvailability.controls.some(
+      (control: AbstractControl) => control.get("isWorking")?.value === true
+    );
+
+    // Verificar si hay días específicos
+    const hasSpecific = this.specificDays.length > 0;
+
+    this.hasWeeklyConfiguration.set(hasWeekly);
+    this.hasSpecificDaysConfiguration.set(hasSpecific);
   }
 
   private _checkFormValidity(): boolean {
