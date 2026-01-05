@@ -16,19 +16,28 @@ public interface IConsultationService {
     Response<ConsultationResponseDTO> create(Long idAppointment);
 
     /**
+     * Método interno de la aplicación
      * Recupera una consulta por su ID, si no existe arroja NotFound exception.
      * @param id : id de la consulta.
      */
-    Consultation getById(Long id);
+    Consultation getByIdInternal(Long id);
+
+
+    /**
+     * Método que brinda respuesta al controller.
+     * Recupera una consulta por su ID, si no existe arroja NotFound exception.
+     * @param id : id de la consulta.
+     */
+    Response<ConsultationResponseDTO> getById(Long id);
 
 
 
     /**
-     * Actualiza el estado de una consulta de manera interna por flujo normal
+     * Actualiza el estado de una consulta.
      *
      * @param idConsultation : id Consulta
      */
-    Response<ConsultationResponseDTO> updateStatus(Long idConsultation);
+    Response<ConsultationResponseDTO> callPatient(Long idConsultation);
 
 
 

@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.Treatment;
+import com.odontologiaintegralfm.feature.consultation.catalogs.model.TreatmentCondition;
 import com.odontologiaintegralfm.feature.consultation.core.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.core.enums.ToothFace;
 import com.odontologiaintegralfm.shared.model.Auditable;
@@ -18,9 +19,9 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "consultation_odontogram_details")
+@Table(name = "odontogram_details")
 @Audited
-public class ConsultationOdontogramDetail extends Auditable {
+public class OdontogramDetail extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +29,8 @@ public class ConsultationOdontogramDetail extends Auditable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consultation_id", nullable = false)
-    private ConsultationOdontogramHeader odontogramHeader;
+    @JoinColumn(name = "odontogram_header_id", nullable = false)
+    private OdontogramHeader odontogramHeader;
 
     @Enumerated(EnumType.STRING)
     private Tooth tooth;
@@ -43,20 +44,28 @@ public class ConsultationOdontogramDetail extends Auditable {
     private Treatment treatment;
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "treatment_condition_id", nullable = false)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    private TreatmentCondition treatmentCondition;
 
-    private ConsultationOdontogramDetail(ConsultationOdontogramHeader odontogramHeader, Tooth tooth, ToothFace toothFace, Treatment treatment) {
+
+
+    private OdontogramDetail(OdontogramHeader odontogramHeader, Tooth tooth, ToothFace toothFace, Treatment treatment, TreatmentCondition treatmentCondition) {
         this.odontogramHeader = odontogramHeader;
         this.tooth = tooth;
         this.toothFace = toothFace;
         this.treatment = treatment;
+        this.treatmentCondition = treatmentCondition;
     }
 
-    public static ConsultationOdontogramDetail build(ConsultationOdontogramHeader odontogramHeader, Tooth tooth, ToothFace toothFace, Treatment treatment){
-        return new ConsultationOdontogramDetail(
+    public static OdontogramDetail build(OdontogramHeader odontogramHeader, Tooth tooth, ToothFace toothFace, Treatment treatment, TreatmentCondition treatmentCondition){
+        return new OdontogramDetail(
                 odontogramHeader,
                 tooth,
                 toothFace,
-                treatment
+                treatment,
+                treatmentCondition
         );
     }
 }

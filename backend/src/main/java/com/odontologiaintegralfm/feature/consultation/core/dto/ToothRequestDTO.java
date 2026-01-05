@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * DTO que representa un diente con una lista de tratamientos asociados.
  */
-public record ToothDTO(
+public record ToothRequestDTO(
          @NotNull(message = "toothDTO.tooth.empty")
          Tooth tooth,
 

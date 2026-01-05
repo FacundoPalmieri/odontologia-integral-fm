@@ -2,17 +2,17 @@ package com.odontologiaintegralfm.feature.consultation.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.ITreatmentService;
-import com.odontologiaintegralfm.feature.consultation.core.dto.ConsultationOdontogramCorrectionRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.dto.ConsultationOdontogramCreateRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.dto.ToothDTO;
+import com.odontologiaintegralfm.feature.consultation.core.dto.*;
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationEventType;
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatusType;
+import com.odontologiaintegralfm.feature.consultation.core.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.core.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.model.ConsultationEvent;
-import com.odontologiaintegralfm.feature.consultation.core.model.ConsultationOdontogramHeader;
-import com.odontologiaintegralfm.feature.consultation.core.repository.IConsultationOdontogramHeaderRepository;
+import com.odontologiaintegralfm.feature.consultation.core.model.OdontogramDetail;
+import com.odontologiaintegralfm.feature.consultation.core.model.OdontogramHeader;
+import com.odontologiaintegralfm.feature.consultation.core.repository.IOdontogramHeaderRepository;
 import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationService;
-import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationOdontogramHeaderService;
+import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IOdontogramHeaderService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.interfaces.ISystemParameterService;
 import com.odontologiaintegralfm.shared.dto.Response;
@@ -28,32 +28,35 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.odontologiaintegralfm.infrastructure.systemparameter.enums.SystemParameterKey.ODONTOGRAM_CORRECTIONS;
 
 @Service
-public class ConsultationOdontogramHeaderService implements IConsultationOdontogramHeaderService {
+public class OdontogramHeaderService implements IOdontogramHeaderService {
 
     private final IConsultationService consultationService;
-    private final IConsultationOdontogramHeaderRepository consultationOdontogramHeaderRepository;
+    private final IOdontogramHeaderRepository odontogramHeaderRepository;
     private final ISystemParameterService systemParameterService;
     private final AuthenticatedUserService authenticatedUserService;
     private final MessageSource messageSource;
-    private final ConsultationOdontogramDetailsService consultationOdontogramDetailsService;
+    private final OdontogramDetailsService consultationOdontogramDetailsService;
+    private final OdontogramDetailsService odontogramDetailsService;
 
 
-    public ConsultationOdontogramHeaderService(IConsultationService consultationService,
-                                               IConsultationOdontogramHeaderRepository consultationOdontogramHeaderRepository,
-                                               ISystemParameterService systemParameterService,
-                                               AuthenticatedUserService authenticatedUserService,
-                                               ITreatmentService treatmentService,
-                                               MessageSource messageSource, ConsultationOdontogramDetailsService consultationOdontogramDetailsService) {
+    public OdontogramHeaderService(IConsultationService consultationService,
+                                   IOdontogramHeaderRepository odontogramHeaderRepository,
+                                   ISystemParameterService systemParameterService,
+                                   AuthenticatedUserService authenticatedUserService,
+                                   ITreatmentService treatmentService,
+                                   MessageSource messageSource, OdontogramDetailsService consultationOdontogramDetailsService, OdontogramDetailsService odontogramDetailsService) {
         this.consultationService = consultationService;
-        this.consultationOdontogramHeaderRepository = consultationOdontogramHeaderRepository;
+        this.odontogramHeaderRepository = odontogramHeaderRepository;
         this.systemParameterService = systemParameterService;
         this.authenticatedUserService = authenticatedUserService;
         this.messageSource = messageSource;
         this.consultationOdontogramDetailsService = consultationOdontogramDetailsService;
+        this.odontogramDetailsService = odontogramDetailsService;
     }
 
 
@@ -74,13 +77,13 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
             level = LogLevel.INFO
 
     )
-    public Response<Void> create(Long idConsultation, ConsultationOdontogramCreateRequestDTO odontogram) {
+    public Response<Void> create(Long idConsultation, OdontogramCreateRequestDTO odontogram) {
 
         //Valída y procesa la creación del odontograma
         processOdontogram(idConsultation,odontogram.tooths(), odontogram.observation());
 
         //Actualizamos el estado en la consulta a pendiente de pago + crear historial + dispara webSocket.
-        consultationService.updateStatus(idConsultation);
+        consultationService.callPatient(idConsultation);
         
         return new Response<>(
                 true,
@@ -103,7 +106,7 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
             level = LogLevel.INFO
 
     )
-    public Response<Void> update(Long idConsultation, ConsultationOdontogramCorrectionRequestDTO requestDTO) {
+    public Response<Void> update(Long idConsultation, OdontogramCorrectionRequestDTO requestDTO) {
 
         //Valída y procesa la creación del odontograma
         processOdontogram(idConsultation,requestDTO.odontogram().tooths(), requestDTO.odontogram().observation());
@@ -111,7 +114,7 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
 
         //Crea evento de corrección
         ConsultationEvent.build(
-                consultationService.getById(idConsultation),
+                consultationService.getByIdInternal(idConsultation),
                 ConsultationEventType.ODONTOGRAM_CORRECTED,
                 requestDTO.observationCorrection()
         );
@@ -125,16 +128,16 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
     }
 
 
-    private void processOdontogram(Long idConsultation, List<ToothDTO> odontogram, String observation){
+    private void processOdontogram(Long idConsultation, List<ToothRequestDTO> odontogram, String observation){
 
         //Recupera y valida el estado de la consulta.
         Consultation consultation = validateStateWaitingRoom(idConsultation);
 
         //Valida si existe odontogramas activos previos.
-        List<ConsultationOdontogramHeader> previous = validateExistingOdontograms(consultation);
+        List<OdontogramHeader> previous = validateExistingOdontograms(consultation);
 
         //Obtiene el único odontograma activo.
-        Optional<ConsultationOdontogramHeader> lastOdontogram = lastOdontogramEnabled(previous);
+        Optional<OdontogramHeader> lastOdontogram = lastOdontogramEnabled(previous);
 
         //Deshabilita odontograma anterior.
         lastOdontogram.ifPresent(this::disablePreviousOdontograms);
@@ -152,11 +155,11 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
      */
     private Consultation validateStateWaitingRoom(Long idConsultation) {
         // Recuperamos la consulta.
-        Consultation consultation = consultationService.getById(idConsultation);
+        Consultation consultation = consultationService.getByIdInternal(idConsultation);
 
         // Validamos estado de la consulta
         if (consultation.getStatus() == ConsultationStatusType.WAITING_ROOM) {
-            throw new ConflictException("exception.odontogramStatus.user", null, "exception.odontogramStatus.log", new Object[]{idConsultation, consultation.getStatus().toString(), "ConsultationOdontogramHeaderService", "create"}, LogLevel.ERROR);
+            throw new ConflictException("exception.odontogramStatus.user", null, "exception.odontogramStatus.log", new Object[]{idConsultation, consultation.getStatus().toString(), "OdontogramHeaderService", "create"}, LogLevel.ERROR);
 
         }
 
@@ -168,9 +171,9 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
     /**
      * Recupera odontogramas previos, y en caso de existir valída que no se supere el número de correcciones posibles.
      */
-    private List<ConsultationOdontogramHeader> validateExistingOdontograms(Consultation consultation) {
+    private List<OdontogramHeader> validateExistingOdontograms(Consultation consultation) {
         // Validamos si existe odontograma activo.
-        List<ConsultationOdontogramHeader> consultationOdontograms = consultationOdontogramHeaderRepository.findAllByConsultationId(consultation.getId());
+        List<OdontogramHeader> consultationOdontograms = odontogramHeaderRepository.findAllByConsultationId(consultation.getId());
 
         // Validamos la consulta tiene más de un odontograma.
         if (consultationOdontograms.size() > 1) {
@@ -179,7 +182,7 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
             int maxCorrection = Integer.parseInt(systemParameterService.getByKey(ODONTOGRAM_CORRECTIONS));
 
             if (consultationOdontograms.size() > maxCorrection) {
-                throw new ConflictException("exception.odontogram.maxCorrection.user", null, "exception.odontogram.maxCorrection.log", new Object[]{consultation.getId(), consultationOdontograms.size(), maxCorrection, "ConsultationOdontogramHeaderService", "create"}, LogLevel.ERROR);
+                throw new ConflictException("exception.odontogram.maxCorrection.user", null, "exception.odontogram.maxCorrection.log", new Object[]{consultation.getId(), consultationOdontograms.size(), maxCorrection, "OdontogramHeaderService", "create"}, LogLevel.ERROR);
             }
 
         }
@@ -192,21 +195,21 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
      * @param previous: Listado de todos los odontogramas asociados a la consulta (activos como deshabilitados)
      * @return : El único odontograma activo.
      */
-    private Optional<ConsultationOdontogramHeader> lastOdontogramEnabled(List<ConsultationOdontogramHeader> previous){
+    private Optional<OdontogramHeader> lastOdontogramEnabled(List<OdontogramHeader> previous){
         return previous.stream()
-                .filter(ConsultationOdontogramHeader::isEnabled)
+                .filter(OdontogramHeader::isEnabled)
                 .findFirst();
     }
 
 
 
-    private void disablePreviousOdontograms(ConsultationOdontogramHeader lastOdontogram){
+    private void disablePreviousOdontograms(OdontogramHeader lastOdontogram){
 
         //Deshabilita la cabecera.
         lastOdontogram.setEnabled(false);
         lastOdontogram.setDisabledAt(LocalDateTime.now());
         lastOdontogram.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
-        consultationOdontogramHeaderRepository.save(lastOdontogram);
+        odontogramHeaderRepository.save(lastOdontogram);
 
         //Deshabilita los detalles.
         consultationOdontogramDetailsService.disable(lastOdontogram);
@@ -220,22 +223,41 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
     /**
      * Construye el nuevo Odontograma.
      */
-    private void buildOdontograms(Consultation consultation, List<ToothDTO> odontogram, String observation) {
+    private void buildOdontograms(Consultation consultation, List<ToothRequestDTO> odontogram, String observation) {
 
         //Construye
-        ConsultationOdontogramHeader consultationOdontogramHeader = ConsultationOdontogramHeader.build(consultation, observation);
+        OdontogramHeader odontogramHeader = OdontogramHeader.build(consultation, observation);
 
         //Datos auditoría.
-        consultationOdontogramHeader.setEnabled(true);
-        consultationOdontogramHeader.setCreatedAt(LocalDateTime.now());
-        consultationOdontogramHeader.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+        odontogramHeader.setEnabled(true);
+        odontogramHeader.setCreatedAt(LocalDateTime.now());
+        odontogramHeader.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
 
         //Persiste cabecera.
-        ConsultationOdontogramHeader consultationOdontogramHeaderSaved = consultationOdontogramHeaderRepository.save(consultationOdontogramHeader);
+        OdontogramHeader odontogramHeaderSaved = odontogramHeaderRepository.save(odontogramHeader);
 
 
         //Construye y persiste detalles.
-        consultationOdontogramDetailsService.create(consultationOdontogramHeaderSaved,odontogram);
+        consultationOdontogramDetailsService.create(odontogramHeaderSaved,odontogram);
+    }
+
+
+
+
+
+    /**
+     * Método interno de la aplicación
+     * Busca cabecera de odontograma con estado "enabled = true"
+     *
+     * @param idConsultation : id Consulta
+     */
+    @Override
+    public Optional<OdontogramHeader> getByIdInternal(Long idConsultation) {
+        try {
+            return odontogramHeaderRepository.findById(idConsultation);
+        } catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "OdontogramHeaderService", idConsultation, null, "getById");
+        }
     }
 
 
@@ -245,16 +267,52 @@ public class ConsultationOdontogramHeaderService implements IConsultationOdontog
 
 
     /**
-     * Busca cabecera de odontograma con estado "enabled = true"
+     * Método que brinda respuesta al controlador.
+     * Busca cabecera de un odontograma con estado "enabled = true"
      *
      * @param idConsultation : id Consulta
      */
     @Override
-    public Optional<ConsultationOdontogramHeader> getById(Long idConsultation) {
-        try {
-            return consultationOdontogramHeaderRepository.findById(idConsultation);
-        } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "ConsultationOdontogramHeaderService", idConsultation, null, "getById");
-        }
+    public Response <OdontogramResponseDTO> getById(Long idConsultation) {
+
+        //Recupera encabezado
+        OdontogramHeader header = odontogramHeaderRepository.findByConsultationIdAndEnabledTrue(idConsultation);
+
+        //Recupera detalles.
+        List <OdontogramDetail> odontogramDetails = odontogramDetailsService.getByIdHeader(header.getId());
+
+        //Agrupamos detalle por dientes.
+        Map<Tooth, List<OdontogramDetail>> detailsByTooth = odontogramDetails.stream()
+                .collect(Collectors.groupingBy(OdontogramDetail::getTooth));
+
+
+        //Convertir cada grupo en un ToothRequestDTO
+        List<ToothResponseDTO> details = detailsByTooth.entrySet().stream()
+                .map(entry -> {
+                    Tooth tooth = entry.getKey();
+                    List<OdontogramDetail> detailList = entry.getValue();
+
+                    List<TreatmentResponseDTO> treatments = detailList.stream()
+                            .map(d -> new TreatmentResponseDTO(
+                                    d.getTreatment().getId(),
+                                    d.getTreatment().getName(),
+                                    d.getTreatmentCondition().getName(),
+                                    d.getToothFace()
+                            ))
+                            .toList();
+
+                    return new ToothResponseDTO(tooth, treatments);
+
+
+                })
+                .toList();
+
+
+       return new Response<>(
+               true,
+               null,
+               OdontogramResponseDTO.build(header, details)
+       );
+
     }
 }

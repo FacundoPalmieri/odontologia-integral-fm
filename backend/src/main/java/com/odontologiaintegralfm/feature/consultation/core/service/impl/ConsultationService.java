@@ -9,7 +9,7 @@ import com.odontologiaintegralfm.feature.consultation.core.dto.ConsultationRespo
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationEventType;
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.model.*;
-import com.odontologiaintegralfm.feature.consultation.core.repository.IConsultationOdontogramHeaderRepository;
+import com.odontologiaintegralfm.feature.consultation.core.repository.IOdontogramHeaderRepository;
 import com.odontologiaintegralfm.feature.consultation.core.repository.IConsultationRepository;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.infrastructure.websocket.enums.WebSocketEventType;
@@ -45,7 +45,7 @@ public class ConsultationService implements IConsultationService {
     private final IWebSocketEventPublisher webSocketEventPublisher;
     private final MessageSource messageSource;
     private final ConsultationHistoryService consultationHistoryService;
-    private final IConsultationOdontogramHeaderRepository consultationOdontogramHeaderRepository;
+    private final IOdontogramHeaderRepository consultationOdontogramHeaderRepository;
     private final ConsultationEventService consultationEventService;
 
     public ConsultationService(IAppointmentService appointmentService,
@@ -53,7 +53,7 @@ public class ConsultationService implements IConsultationService {
                                AuthenticatedUserService authenticatedUserService,
                                IWebSocketEventPublisher webSocketEventPublisher,
                                @Qualifier("messageSource") MessageSource messageSource, ConsultationHistoryService consultationHistoryService,
-                               IConsultationOdontogramHeaderRepository consultationOdontogramHeaderRepository, ConsultationEventService consultationEventService) {
+                               IOdontogramHeaderRepository consultationOdontogramHeaderRepository, ConsultationEventService consultationEventService) {
         this.appointmentService = appointmentService;
         this.consultationRepository = consultationRepository;
         this.authenticatedUserService = authenticatedUserService;
@@ -131,7 +131,7 @@ public class ConsultationService implements IConsultationService {
      * @param id : id de la consulta.
      */
     @Override
-    public Consultation getById(Long id) {
+    public Consultation getByIdInternal(Long id) {
         try{
             return consultationRepository.findById(id)
                     .orElseThrow(()->new NotFoundException("exception.consultation.notFound.user", null, "exception.consultation.notFound.log",new Object[]{id, "ConsultationService","getById"}, LogLevel.ERROR));
@@ -140,10 +140,26 @@ public class ConsultationService implements IConsultationService {
         }
     }
 
+    /**
+     * Método que brinda respuesta al controller.
+     * Recupera una consulta por su ID, si no existe arroja NotFound exception.
+     *
+     * @param id : id de la consulta.
+     */
+    @Override
+    public Response<ConsultationResponseDTO> getById(Long id) {
+       Consultation consultation = consultationRepository.findById(id)
+                  .orElseThrow(()->new NotFoundException("exception.consultation.notFound.user", null, "exception.consultation.notFound.log",new Object[]{id, "ConsultationService","getById"}, LogLevel.ERROR));
 
 
+       return new Response<>(
+               true,
+               null,
+               ConsultationResponseDTO.build(consultation)
+       );
 
 
+    }
 
 
     /**
@@ -177,18 +193,23 @@ public class ConsultationService implements IConsultationService {
             level = LogLevel.INFO
 
     )
-    public Response<ConsultationResponseDTO> updateStatus(Long idConsultation) {
+    public Response<ConsultationResponseDTO> callPatient(Long idConsultation) {
 
         // Recuperamos la consulta.
-        Consultation consultation = getById(idConsultation);
+        Consultation consultation = getByIdInternal(idConsultation);
 
         //Validamos que la consulta no se encuentre finalizada.
         if (consultation.getStatus() == ConsultationStatusType.FINISHED) {
             throw new ConflictException("exception.consultationService.finished.user", null, "exception.consultationService.finished.log", new Object[]{idConsultation, consultation.getStatus().toString(), "ConsultationService", "update"}, LogLevel.ERROR);
         }
 
+        //Validamos que esté en el estado correcto.
+        if (consultation.getStatus() != ConsultationStatusType.WAITING_ROOM) {
+            throw new ConflictException("exception.consultationService.waitingRoom.user", null, "exception.consultationService.waitingRoom.log", new Object[]{idConsultation, consultation.getStatus().toString(), "ConsultationService", "update"}, LogLevel.ERROR);
+        }
+
         //Actualiza la consulta + crea historial + envía webSocket.
-        ConsultationResponseDTO consultationResponseDTO = changeStatus(consultation, consultation.getStatus().next());
+        ConsultationResponseDTO consultationResponseDTO = changeStatus(consultation, ConsultationStatusType.IN_CONSULTATION);
 
 
         return new Response<>(
@@ -222,7 +243,7 @@ public class ConsultationService implements IConsultationService {
     )
     public Response<Void> disabled(Long idConsultation, String observation) {
         // Recuperamos la consulta.
-        Consultation consultation = getById(idConsultation);
+        Consultation consultation = getByIdInternal(idConsultation);
 
 
         //Si la consulta tiene otro estado, no puede cancelarse.
@@ -231,7 +252,7 @@ public class ConsultationService implements IConsultationService {
         }
 
         //Se verifica por las dudas que tampoco cuente con un odontograma.
-        List<ConsultationOdontogramHeader> consultationOdontogramList = consultationOdontogramHeaderRepository.findAllByConsultationId(consultation.getId());
+        List<OdontogramHeader> consultationOdontogramList = consultationOdontogramHeaderRepository.findAllByConsultationId(consultation.getId());
         if(!consultationOdontogramList.isEmpty()){
             throw new ConflictException("exception.consultationService.odontogram.user", null, "exception.consultationService.odontogram.log", new Object[]{consultation.getId(), consultation.getStatus(),consultation.getStatus(), "ConsultationService", "updateCorrectionStatus"}, LogLevel.ERROR);
         }
@@ -318,7 +339,7 @@ public class ConsultationService implements IConsultationService {
     public Response<ConsultationResponseDTO> updateCorrectionStatus(Long idConsultation, ConsultationCorrectionRequestDTO correction) {
 
         // Recuperamos la consulta.
-        Consultation consultation = getById(idConsultation);
+        Consultation consultation = getByIdInternal(idConsultation);
 
         //Validamos que la consulta no se encuentre finalizada.
         if (consultation.getStatus() == ConsultationStatusType.FINISHED) {
@@ -332,7 +353,7 @@ public class ConsultationService implements IConsultationService {
         }
 
         //Si la consulta ya tiene un odontograma, no puede volver a un estado WAITING_ROOM
-        List<ConsultationOdontogramHeader> consultationOdontogramList = consultationOdontogramHeaderRepository.findAllByConsultationId(consultation.getId());
+        List<OdontogramHeader> consultationOdontogramList = consultationOdontogramHeaderRepository.findAllByConsultationId(consultation.getId());
         if(!consultationOdontogramList.isEmpty()){
             throw new ConflictException("exception.consultationService.odontogram.user", null, "exception.consultationService.odontogram.log", new Object[]{consultation.getId(), consultation.getStatus(), "ConsultationService", "updateCorrectionStatus"}, LogLevel.ERROR);
         }

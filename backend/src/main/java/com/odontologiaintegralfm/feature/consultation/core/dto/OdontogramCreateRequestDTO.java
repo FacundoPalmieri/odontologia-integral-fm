@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * DTO que se utiliza para la creación de un odontograma.
  */
-public record ConsultationOdontogramCreateRequestDTO(
+public record OdontogramCreateRequestDTO(
         @NotEmpty(message = "OdontogramCreateRequestDTO.toothList.empty")
-        List<ToothDTO> tooths,
+        List<ToothRequestDTO> tooths,
 
         String observation
 
