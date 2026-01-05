@@ -73,7 +73,8 @@
               </mat-checkbox>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <!-- Primera fila: Horario de trabajo y duración -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-4">
               <div class="col-span-1">
                 <label class="block text-sm font-medium mb-2"
                   >Hora de inicio</label
@@ -161,6 +162,81 @@
               </div>
             </div>
 
+            <div class="mb-3">
+              <mat-checkbox formControlName="hasBreak" [disableRipple]="true">
+                <span class="text-sm">Configurar horario de descanso</span>
+              </mat-checkbox>
+            </div>
+
+            <!-- Segunda fila: Horario de descanso -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <div class="col-span-1">
+                <label class="block text-sm font-medium mb-2"
+                  >Inicio descanso</label
+                >
+                <div formGroupName="breakStartTime" class="flex gap-2">
+                  <mat-form-field appearance="outline" class="flex-1">
+                    <mat-label>Hora</mat-label>
+                    <mat-select formControlName="hour">
+                      @for(hour of
+                      [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22, 23];
+                      track trackByValue($index, hour)) {
+                      <mat-option [value]="hour">{{
+                        hour.toString().padStart(2, "0")
+                      }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="flex-1">
+                    <mat-label>Min</mat-label>
+                    <mat-select formControlName="minute">
+                      @for(minute of [0,15,30,45]; track trackByValue($index,
+                      minute)) {
+                      <mat-option [value]="minute">{{
+                        minute.toString().padStart(2, "0")
+                      }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="col-span-1">
+                <label class="block text-sm font-medium mb-2"
+                  >Fin descanso</label
+                >
+                <div formGroupName="breakEndTime" class="flex gap-2">
+                  <mat-form-field appearance="outline" class="flex-1">
+                    <mat-label>Hora</mat-label>
+                    <mat-select formControlName="hour">
+                      @for(hour of
+                      [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; track
+                      trackByValue($index, hour)) {
+                      <mat-option [value]="hour">{{
+                        hour.toString().padStart(2, "0")
+                      }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="flex-1">
+                    <mat-label>Min</mat-label>
+                    <mat-select formControlName="minute">
+                      @for(minute of [0,15,30,45]; track trackByValue($index,
+                      minute)) {
+                      <mat-option [value]="minute">{{
+                        minute.toString().padStart(2, "0")
+                      }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="col-span-1">
+                <!-- Espacio vacío para mantener la alineación -->
+              </div>
+            </div>
+
             @if((control.get('startTime.hour')?.hasError('required') ||
             control.get('startTime.minute')?.hasError('required')) &&
             control.get('isWorking')?.value) {
@@ -204,13 +280,14 @@
 
         <div formArrayName="specificDays" class="space-y-4">
           @for(control of specificDays.controls; track $index) {
-          <div class="flex gap-4 items-center">
+          <div class="flex gap-4 items-start">
             <div
               [formGroupName]="$index"
               class="flex-1 p-4 bg-[var(--mat-sys-home-sidenav-content-background)] rounded-[var(--mat-sys-corner-large)]"
               style="contain: layout style; will-change: transform"
             >
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <!-- Primera fila: Fecha, horario de trabajo y duración -->
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4">
                 <div class="col-span-1">
                   <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Fecha</mat-label>
@@ -314,6 +391,85 @@
                     >
                     }
                   </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Segunda fila: Horario de descanso -->
+              <div class="mb-3">
+                <mat-checkbox formControlName="hasBreak" [disableRipple]="true">
+                  <span class="text-sm">Configurar horario de descanso</span>
+                </mat-checkbox>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="col-span-1">
+                  <label class="block text-sm font-medium mb-2"
+                    >Inicio descanso</label
+                  >
+                  <div formGroupName="breakStartTime" class="flex gap-2">
+                    <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Hora</mat-label>
+                      <mat-select formControlName="hour">
+                        @for(hour of
+                        [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22, 23];
+                        track trackByValue($index, hour)) {
+                        <mat-option [value]="hour">{{
+                          hour.toString().padStart(2, "0")
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Min</mat-label>
+                      <mat-select formControlName="minute">
+                        @for(minute of [0,15,30,45]; track trackByValue($index,
+                        minute)) {
+                        <mat-option [value]="minute">{{
+                          minute.toString().padStart(2, "0")
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div class="col-span-1">
+                  <label class="block text-sm font-medium mb-2"
+                    >Fin descanso</label
+                  >
+                  <div formGroupName="breakEndTime" class="flex gap-2">
+                    <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Hora</mat-label>
+                      <mat-select formControlName="hour">
+                        @for(hour of
+                        [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+                        track trackByValue($index, hour)) {
+                        <mat-option [value]="hour">{{
+                          hour.toString().padStart(2, "0")
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Min</mat-label>
+                      <mat-select formControlName="minute">
+                        @for(minute of [0,15,30,45]; track trackByValue($index,
+                        minute)) {
+                        <mat-option [value]="minute">{{
+                          minute.toString().padStart(2, "0")
+                        }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div class="col-span-1">
+                  <!-- Espacio vacío para mantener la alineación -->
+                </div>
+
+                <div class="col-span-1">
+                  <!-- Espacio vacío para mantener la alineación -->
                 </div>
               </div>
             </div>

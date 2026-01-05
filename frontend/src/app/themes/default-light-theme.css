@@ -64,8 +64,8 @@
   --mat-sys-on-error-container: light-dark(#410002, #ffdad6);
 
   /* Neutral variant palette variables */
-  --mat-sys-surface-variant: light-dark(#ede0dc, #4a4543);
-  --mat-sys-on-surface-variant: light-dark(#4a4543, #cdc1bd);
+  --mat-sys-surface-variant: light-dark(#d4e3ff, #4a4543);
+  --mat-sys-on-surface-variant: light-dark(#4a4543, #d4e3ff);
   --mat-sys-neutral-variant20: light-dark(
     #352f2d,
     #352f2d

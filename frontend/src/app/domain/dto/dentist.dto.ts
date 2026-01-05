@@ -29,6 +29,8 @@ export interface DentistDayAvailabilityDtoInterface {
   startTime: string;
   endTime: string;
   appointmentDuration: number;
+  breakStartTime: string;
+  breakEndTime: string;
 }
 
 export type DentistAvailabilityDtoInterface =

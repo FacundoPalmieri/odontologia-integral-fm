@@ -13,7 +13,9 @@ import { MatButtonModule } from "@angular/material/button";
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   template: `
     <h2 mat-dialog-title>Confirmar</h2>
-    <mat-dialog-content>{{ data.message }}</mat-dialog-content>
+    <mat-dialog-content>
+      <p>{{ data.message }}</p>
+    </mat-dialog-content>
     <mat-dialog-actions>
       <button mat-button [mat-dialog-close]="false">No</button>
       <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Sí</button>

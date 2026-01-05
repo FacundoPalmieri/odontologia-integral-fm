@@ -23,6 +23,8 @@ export interface DentistDayAvailabilityInterface {
   startTime: TimeInterface;
   endTime: TimeInterface;
   appointmentDuration: number;
+  breakStartTime: TimeInterface;
+  breakEndTime: TimeInterface;
 }
 
 export interface DentistAvailabilityResponseInterface {

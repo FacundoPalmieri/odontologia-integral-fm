@@ -25,6 +25,12 @@ export class DentistAvailabilitySerializer {
         startTime: this.parseTime(dayDto.startTime),
         endTime: this.parseTime(dayDto.endTime),
         appointmentDuration: dayDto.appointmentDuration,
+        breakStartTime: dayDto.breakStartTime
+          ? this.parseTime(dayDto.breakStartTime)
+          : { hour: 0, minute: 0 },
+        breakEndTime: dayDto.breakEndTime
+          ? this.parseTime(dayDto.breakEndTime)
+          : { hour: 0, minute: 0 },
       };
 
       // Solo incluir dayName y recurrence si están presentes (días semanales)
@@ -59,6 +65,8 @@ export class DentistAvailabilitySerializer {
       startTime: this.formatTime(day.startTime),
       endTime: this.formatTime(day.endTime),
       appointmentDuration: day.appointmentDuration,
+      breakStartTime: this.formatTime(day.breakStartTime),
+      breakEndTime: this.formatTime(day.breakEndTime),
     }));
   }
 

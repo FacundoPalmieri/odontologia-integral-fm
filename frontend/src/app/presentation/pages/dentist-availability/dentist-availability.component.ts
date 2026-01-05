@@ -237,11 +237,64 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
         hour: [17, Validators.required],
         minute: [0, Validators.required],
       }),
+      hasBreak: [false],
+      breakStartTime: this.fb.group({
+        hour: [13, Validators.required],
+        minute: [0, Validators.required],
+      }),
+      breakEndTime: this.fb.group({
+        hour: [14, Validators.required],
+        minute: [0, Validators.required],
+      }),
       appointmentDuration: [
         30,
         [Validators.required, Validators.min(5), Validators.max(120)],
       ],
     });
+
+    // Configurar lógica de habilitación/deshabilitación de campos de descanso
+    specificDayGroup.get("hasBreak")?.valueChanges.subscribe((hasBreak) => {
+      if (hasBreak) {
+        specificDayGroup.get("breakStartTime.hour")?.enable();
+        specificDayGroup.get("breakStartTime.minute")?.enable();
+        specificDayGroup.get("breakEndTime.hour")?.enable();
+        specificDayGroup.get("breakEndTime.minute")?.enable();
+
+        specificDayGroup
+          .get("breakStartTime.hour")
+          ?.setValidators([Validators.required]);
+        specificDayGroup
+          .get("breakStartTime.minute")
+          ?.setValidators([Validators.required]);
+        specificDayGroup
+          .get("breakEndTime.hour")
+          ?.setValidators([Validators.required]);
+        specificDayGroup
+          .get("breakEndTime.minute")
+          ?.setValidators([Validators.required]);
+      } else {
+        specificDayGroup.get("breakStartTime.hour")?.disable();
+        specificDayGroup.get("breakStartTime.minute")?.disable();
+        specificDayGroup.get("breakEndTime.hour")?.disable();
+        specificDayGroup.get("breakEndTime.minute")?.disable();
+
+        specificDayGroup.get("breakStartTime.hour")?.clearValidators();
+        specificDayGroup.get("breakStartTime.minute")?.clearValidators();
+        specificDayGroup.get("breakEndTime.hour")?.clearValidators();
+        specificDayGroup.get("breakEndTime.minute")?.clearValidators();
+      }
+
+      specificDayGroup.get("breakStartTime.hour")?.updateValueAndValidity();
+      specificDayGroup.get("breakStartTime.minute")?.updateValueAndValidity();
+      specificDayGroup.get("breakEndTime.hour")?.updateValueAndValidity();
+      specificDayGroup.get("breakEndTime.minute")?.updateValueAndValidity();
+    });
+
+    // Deshabilitar campos de descanso inicialmente ya que hasBreak es false por defecto
+    specificDayGroup.get("breakStartTime.hour")?.disable();
+    specificDayGroup.get("breakStartTime.minute")?.disable();
+    specificDayGroup.get("breakEndTime.hour")?.disable();
+    specificDayGroup.get("breakEndTime.minute")?.disable();
 
     this.specificDays.push(specificDayGroup);
     // Actualizar la validez después de agregar un día
@@ -269,6 +322,15 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
           hour: [17, Validators.required],
           minute: [0, Validators.required],
         }),
+        hasBreak: [false],
+        breakStartTime: this.fb.group({
+          hour: [13, Validators.required],
+          minute: [0, Validators.required],
+        }),
+        breakEndTime: this.fb.group({
+          hour: [14, Validators.required],
+          minute: [0, Validators.required],
+        }),
         appointmentDuration: [
           30,
           [Validators.required, Validators.min(5), Validators.max(120)],
@@ -281,7 +343,17 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
           dayGroup.get("startTime.minute")?.enable();
           dayGroup.get("endTime.hour")?.enable();
           dayGroup.get("endTime.minute")?.enable();
+          dayGroup.get("hasBreak")?.enable();
           dayGroup.get("appointmentDuration")?.enable();
+
+          // Habilitar campos de descanso solo si hasBreak es true
+          const hasBreak = dayGroup.get("hasBreak")?.value;
+          if (hasBreak) {
+            dayGroup.get("breakStartTime.hour")?.enable();
+            dayGroup.get("breakStartTime.minute")?.enable();
+            dayGroup.get("breakEndTime.hour")?.enable();
+            dayGroup.get("breakEndTime.minute")?.enable();
+          }
 
           dayGroup.get("startTime.hour")?.setValidators([Validators.required]);
           dayGroup
@@ -289,6 +361,22 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
             ?.setValidators([Validators.required]);
           dayGroup.get("endTime.hour")?.setValidators([Validators.required]);
           dayGroup.get("endTime.minute")?.setValidators([Validators.required]);
+
+          if (hasBreak) {
+            dayGroup
+              .get("breakStartTime.hour")
+              ?.setValidators([Validators.required]);
+            dayGroup
+              .get("breakStartTime.minute")
+              ?.setValidators([Validators.required]);
+            dayGroup
+              .get("breakEndTime.hour")
+              ?.setValidators([Validators.required]);
+            dayGroup
+              .get("breakEndTime.minute")
+              ?.setValidators([Validators.required]);
+          }
+
           dayGroup
             .get("appointmentDuration")
             ?.setValidators([
@@ -301,12 +389,21 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
           dayGroup.get("startTime.minute")?.disable();
           dayGroup.get("endTime.hour")?.disable();
           dayGroup.get("endTime.minute")?.disable();
+          dayGroup.get("hasBreak")?.disable();
+          dayGroup.get("breakStartTime.hour")?.disable();
+          dayGroup.get("breakStartTime.minute")?.disable();
+          dayGroup.get("breakEndTime.hour")?.disable();
+          dayGroup.get("breakEndTime.minute")?.disable();
           dayGroup.get("appointmentDuration")?.disable();
 
           dayGroup.get("startTime.hour")?.clearValidators();
           dayGroup.get("startTime.minute")?.clearValidators();
           dayGroup.get("endTime.hour")?.clearValidators();
           dayGroup.get("endTime.minute")?.clearValidators();
+          dayGroup.get("breakStartTime.hour")?.clearValidators();
+          dayGroup.get("breakStartTime.minute")?.clearValidators();
+          dayGroup.get("breakEndTime.hour")?.clearValidators();
+          dayGroup.get("breakEndTime.minute")?.clearValidators();
           dayGroup.get("appointmentDuration")?.clearValidators();
         }
 
@@ -314,10 +411,52 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
         dayGroup.get("startTime.minute")?.updateValueAndValidity();
         dayGroup.get("endTime.hour")?.updateValueAndValidity();
         dayGroup.get("endTime.minute")?.updateValueAndValidity();
+        dayGroup.get("breakStartTime.hour")?.updateValueAndValidity();
+        dayGroup.get("breakStartTime.minute")?.updateValueAndValidity();
+        dayGroup.get("breakEndTime.hour")?.updateValueAndValidity();
+        dayGroup.get("breakEndTime.minute")?.updateValueAndValidity();
         dayGroup.get("appointmentDuration")?.updateValueAndValidity();
 
         // Actualizar la validez del formulario completo cuando cambia isWorking
         this._updateFormValidity();
+      });
+
+      // Suscribirse a cambios en hasBreak
+      dayGroup.get("hasBreak")?.valueChanges.subscribe((hasBreak) => {
+        if (hasBreak) {
+          dayGroup.get("breakStartTime.hour")?.enable();
+          dayGroup.get("breakStartTime.minute")?.enable();
+          dayGroup.get("breakEndTime.hour")?.enable();
+          dayGroup.get("breakEndTime.minute")?.enable();
+
+          dayGroup
+            .get("breakStartTime.hour")
+            ?.setValidators([Validators.required]);
+          dayGroup
+            .get("breakStartTime.minute")
+            ?.setValidators([Validators.required]);
+          dayGroup
+            .get("breakEndTime.hour")
+            ?.setValidators([Validators.required]);
+          dayGroup
+            .get("breakEndTime.minute")
+            ?.setValidators([Validators.required]);
+        } else {
+          dayGroup.get("breakStartTime.hour")?.disable();
+          dayGroup.get("breakStartTime.minute")?.disable();
+          dayGroup.get("breakEndTime.hour")?.disable();
+          dayGroup.get("breakEndTime.minute")?.disable();
+
+          dayGroup.get("breakStartTime.hour")?.clearValidators();
+          dayGroup.get("breakStartTime.minute")?.clearValidators();
+          dayGroup.get("breakEndTime.hour")?.clearValidators();
+          dayGroup.get("breakEndTime.minute")?.clearValidators();
+        }
+
+        dayGroup.get("breakStartTime.hour")?.updateValueAndValidity();
+        dayGroup.get("breakStartTime.minute")?.updateValueAndValidity();
+        dayGroup.get("breakEndTime.hour")?.updateValueAndValidity();
+        dayGroup.get("breakEndTime.minute")?.updateValueAndValidity();
       });
 
       // Deshabilitar todos los campos inicialmente ya que isWorking es false
@@ -325,6 +464,11 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
       dayGroup.get("startTime.minute")?.disable();
       dayGroup.get("endTime.hour")?.disable();
       dayGroup.get("endTime.minute")?.disable();
+      dayGroup.get("hasBreak")?.disable();
+      dayGroup.get("breakStartTime.hour")?.disable();
+      dayGroup.get("breakStartTime.minute")?.disable();
+      dayGroup.get("breakEndTime.hour")?.disable();
+      dayGroup.get("breakEndTime.minute")?.disable();
       dayGroup.get("appointmentDuration")?.disable();
 
       this.weeklyAvailability.controls.push(dayGroup);
@@ -371,6 +515,13 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
           const dayName = dayControl.get("dayName")?.value;
           const dayData = weeklyDays.find((d) => d.dayName === dayName);
           if (dayData) {
+            // hasBreak es true solo si el horario de descanso NO es 00:00
+            const hasBreak = !(
+              dayData.breakStartTime.hour === 0 &&
+              dayData.breakStartTime.minute === 0 &&
+              dayData.breakEndTime.hour === 0 &&
+              dayData.breakEndTime.minute === 0
+            );
             dayControl.patchValue({
               isWorking: true,
               startTime: {
@@ -381,6 +532,15 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
                 hour: dayData.endTime.hour,
                 minute: dayData.endTime.minute,
               },
+              hasBreak: hasBreak,
+              breakStartTime: {
+                hour: dayData.breakStartTime.hour,
+                minute: dayData.breakStartTime.minute,
+              },
+              breakEndTime: {
+                hour: dayData.breakEndTime.hour,
+                minute: dayData.breakEndTime.minute,
+              },
               appointmentDuration: dayData.appointmentDuration,
             });
           }
@@ -390,6 +550,13 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
 
     // Poblar días específicos
     specificDays.forEach((dayData) => {
+      // hasBreak es true solo si el horario de descanso NO es 00:00
+      const hasBreak = !(
+        dayData.breakStartTime.hour === 0 &&
+        dayData.breakStartTime.minute === 0 &&
+        dayData.breakEndTime.hour === 0 &&
+        dayData.breakEndTime.minute === 0
+      );
       const specificDayGroup = this.fb.group({
         specificDate: [
           this._parseLocalDate(dayData.specificDate),
@@ -403,11 +570,81 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
           hour: [dayData.endTime.hour, Validators.required],
           minute: [dayData.endTime.minute, Validators.required],
         }),
+        hasBreak: [hasBreak],
+        breakStartTime: this.fb.group({
+          hour: [
+            dayData.breakStartTime.hour,
+            hasBreak ? Validators.required : null,
+          ],
+          minute: [
+            dayData.breakStartTime.minute,
+            hasBreak ? Validators.required : null,
+          ],
+        }),
+        breakEndTime: this.fb.group({
+          hour: [
+            dayData.breakEndTime.hour,
+            hasBreak ? Validators.required : null,
+          ],
+          minute: [
+            dayData.breakEndTime.minute,
+            hasBreak ? Validators.required : null,
+          ],
+        }),
         appointmentDuration: [
           dayData.appointmentDuration,
           [Validators.required, Validators.min(5), Validators.max(120)],
         ],
       });
+
+      // Configurar lógica de habilitación/deshabilitación de campos de descanso
+      if (!hasBreak) {
+        specificDayGroup.get("breakStartTime.hour")?.disable();
+        specificDayGroup.get("breakStartTime.minute")?.disable();
+        specificDayGroup.get("breakEndTime.hour")?.disable();
+        specificDayGroup.get("breakEndTime.minute")?.disable();
+      }
+
+      specificDayGroup
+        .get("hasBreak")
+        ?.valueChanges.subscribe((hasBreakValue) => {
+          if (hasBreakValue) {
+            specificDayGroup.get("breakStartTime.hour")?.enable();
+            specificDayGroup.get("breakStartTime.minute")?.enable();
+            specificDayGroup.get("breakEndTime.hour")?.enable();
+            specificDayGroup.get("breakEndTime.minute")?.enable();
+
+            specificDayGroup
+              .get("breakStartTime.hour")
+              ?.setValidators([Validators.required]);
+            specificDayGroup
+              .get("breakStartTime.minute")
+              ?.setValidators([Validators.required]);
+            specificDayGroup
+              .get("breakEndTime.hour")
+              ?.setValidators([Validators.required]);
+            specificDayGroup
+              .get("breakEndTime.minute")
+              ?.setValidators([Validators.required]);
+          } else {
+            specificDayGroup.get("breakStartTime.hour")?.disable();
+            specificDayGroup.get("breakStartTime.minute")?.disable();
+            specificDayGroup.get("breakEndTime.hour")?.disable();
+            specificDayGroup.get("breakEndTime.minute")?.disable();
+
+            specificDayGroup.get("breakStartTime.hour")?.clearValidators();
+            specificDayGroup.get("breakStartTime.minute")?.clearValidators();
+            specificDayGroup.get("breakEndTime.hour")?.clearValidators();
+            specificDayGroup.get("breakEndTime.minute")?.clearValidators();
+          }
+
+          specificDayGroup.get("breakStartTime.hour")?.updateValueAndValidity();
+          specificDayGroup
+            .get("breakStartTime.minute")
+            ?.updateValueAndValidity();
+          specificDayGroup.get("breakEndTime.hour")?.updateValueAndValidity();
+          specificDayGroup.get("breakEndTime.minute")?.updateValueAndValidity();
+        });
 
       this.specificDays.push(specificDayGroup);
     });
@@ -453,20 +690,35 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
         .filter(
           (control: AbstractControl) => control.get("isWorking")?.value === true
         )
-        .map((control: AbstractControl) => ({
-          dayName: control.get("dayName")?.value,
-          recurrence: RecurrenceEnum.WEEKLY,
-          specificDate: null, // null para días semanales
-          startTime: {
-            hour: control.get("startTime.hour")?.value,
-            minute: control.get("startTime.minute")?.value,
-          },
-          endTime: {
-            hour: control.get("endTime.hour")?.value,
-            minute: control.get("endTime.minute")?.value,
-          },
-          appointmentDuration: control.get("appointmentDuration")?.value,
-        }));
+        .map((control: AbstractControl) => {
+          const hasBreak = control.get("hasBreak")?.value;
+          return {
+            dayName: control.get("dayName")?.value,
+            recurrence: RecurrenceEnum.WEEKLY,
+            specificDate: null, // null para días semanales
+            startTime: {
+              hour: control.get("startTime.hour")?.value,
+              minute: control.get("startTime.minute")?.value,
+            },
+            endTime: {
+              hour: control.get("endTime.hour")?.value,
+              minute: control.get("endTime.minute")?.value,
+            },
+            breakStartTime: hasBreak
+              ? {
+                  hour: control.get("breakStartTime.hour")?.value,
+                  minute: control.get("breakStartTime.minute")?.value,
+                }
+              : { hour: 0, minute: 0 },
+            breakEndTime: hasBreak
+              ? {
+                  hour: control.get("breakEndTime.hour")?.value,
+                  minute: control.get("breakEndTime.minute")?.value,
+                }
+              : { hour: 0, minute: 0 },
+            appointmentDuration: control.get("appointmentDuration")?.value,
+          };
+        });
 
     allDays.push(...workingDays);
 
@@ -474,6 +726,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
     const specificDaysData: DentistDayAvailabilityInterface[] =
       this.specificDays.controls.map((control: AbstractControl) => {
         const date = control.get("specificDate")?.value;
+        const hasBreak = control.get("hasBreak")?.value;
         return {
           dayName: null,
           recurrence: null,
@@ -487,6 +740,18 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
             hour: control.get("endTime.hour")?.value,
             minute: control.get("endTime.minute")?.value,
           },
+          breakStartTime: hasBreak
+            ? {
+                hour: control.get("breakStartTime.hour")?.value,
+                minute: control.get("breakStartTime.minute")?.value,
+              }
+            : { hour: 0, minute: 0 },
+          breakEndTime: hasBreak
+            ? {
+                hour: control.get("breakEndTime.hour")?.value,
+                minute: control.get("breakEndTime.minute")?.value,
+              }
+            : { hour: 0, minute: 0 },
           appointmentDuration: control.get("appointmentDuration")?.value,
         };
       });
