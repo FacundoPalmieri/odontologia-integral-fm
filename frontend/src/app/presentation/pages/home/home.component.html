@@ -79,7 +79,7 @@
               <span>Horario</span>
             </div>
             <div class="detail-value">
-              {{ nextAppointment()!.starTime.substring(0, 5) }} -
+              {{ nextAppointment()!.startTime.substring(0, 5) }} -
               {{ nextAppointment()!.endTime.substring(0, 5) }}
             </div>
           </div>
@@ -148,12 +148,12 @@
               <div class="col-patient">Paciente</div>
             </div>
             <div class="table-body">
-              @for(slot of todayAppointments(); track slot.starTime) {
+              @for(slot of todayAppointments(); track slot.startTime) {
               <div class="table-row">
                 <div class="col-time">
                   <i-tabler name="clock" class="time-icon"></i-tabler>
                   <span class="time-text">
-                    {{ slot.starTime.substring(0, 5) }} -
+                    {{ slot.startTime.substring(0, 5) }} -
                     {{ slot.endTime.substring(0, 5) }}
                   </span>
                 </div>

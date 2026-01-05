@@ -547,9 +547,9 @@
                   <div
                     *ngFor="let slot of getDayViewSlots()"
                     class="api-slot"
-                    [style.top.px]="getSlotPosition(slot.starTime)"
+                    [style.top.px]="getSlotPosition(slot.startTime)"
                     [style.height.px]="
-                      getSlotHeight(slot.starTime, slot.endTime)
+                      getSlotHeight(slot.startTime, slot.endTime)
                     "
                     [style.background-color]="slot.color"
                     [class.reserved]="slot.status === 'RESERVED'"
@@ -563,7 +563,7 @@
                       <div class="slot-locked-content">
                         <div class="locked-info">
                           <span class="slot-time">
-                            {{ slot.starTime.substring(0, 5) || "00:00" }} -
+                            {{ slot.startTime.substring(0, 5) || "00:00" }} -
                             {{ slot.endTime.substring(0, 5) || "00:00" }}
                           </span>
                           <span class="lock-type">{{
@@ -582,7 +582,7 @@
                       <!-- Fila con horario y nombre del paciente -->
                       <div class="slot-info-row">
                         <span class="slot-time">
-                          {{ slot.starTime.substring(0, 5) || "00:00" }} -
+                          {{ slot.startTime.substring(0, 5) || "00:00" }} -
                           {{ slot.endTime.substring(0, 5) || "00:00" }}
                         </span>
                         @if (slot.appointment.patientName) {
@@ -703,9 +703,9 @@
                     <div
                       *ngFor="let slot of getWeekViewSlots(date)"
                       class="api-slot"
-                      [style.top.px]="getSlotPositionWeek(slot.starTime)"
+                      [style.top.px]="getSlotPositionWeek(slot.startTime)"
                       [style.height.px]="
-                        getSlotHeight(slot.starTime, slot.endTime)
+                        getSlotHeight(slot.startTime, slot.endTime)
                       "
                       [style.background-color]="slot.color"
                       [class.reserved]="slot.status === 'RESERVED'"
@@ -719,7 +719,7 @@
                         <div class="slot-locked-content">
                           <div class="locked-info">
                             <span class="slot-time">
-                              {{ slot.starTime!.substring(0, 5) || "00:00" }} -
+                              {{ slot.startTime!.substring(0, 5) || "00:00" }} -
                               {{ slot.endTime!.substring(0, 5) || "00:00" }}
                             </span>
                             <span class="lock-type">{{
@@ -738,7 +738,7 @@
                         <!-- Fila con horario y nombre del paciente -->
                         <div class="slot-info-row">
                           <span class="slot-time">
-                            {{ slot.starTime!.substring(0, 5) || "00:00" }} -
+                            {{ slot.startTime!.substring(0, 5) || "00:00" }} -
                             {{ slot.endTime!.substring(0, 5) || "00:00" }}
                           </span>
                           @if (slot.appointment!.patientName) {

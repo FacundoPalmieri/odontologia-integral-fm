@@ -63,7 +63,7 @@ export interface CalendarDayStatusInterface {
 }
 
 export interface SlotInterface {
-  starTime: string;
+  startTime: string;
   endTime: string;
   status: SlotStatusEnum;
   color: string;

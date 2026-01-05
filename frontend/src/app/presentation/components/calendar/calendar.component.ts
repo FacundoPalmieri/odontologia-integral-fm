@@ -695,9 +695,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         (slot.status === "RESERVED" ||
           slot.status === "LOCKED" ||
           slot.status === "NOT_AVAILABLE") &&
-        slot.starTime &&
+        slot.startTime &&
         slot.endTime &&
-        typeof slot.starTime === "string" &&
+        typeof slot.startTime === "string" &&
         typeof slot.endTime === "string"
       );
     });
@@ -734,9 +734,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         (slot.status === "RESERVED" ||
           slot.status === "LOCKED" ||
           slot.status === "NOT_AVAILABLE") &&
-        slot.starTime &&
+        slot.startTime &&
         slot.endTime &&
-        typeof slot.starTime === "string" &&
+        typeof slot.startTime === "string" &&
         typeof slot.endTime === "string"
       );
     });

@@ -126,12 +126,12 @@
       </div>
       } @else {
       <mat-chip-set aria-label="Horarios disponibles">
-        @for (slot of availableSlots(); track slot.starTime) {
+        @for (slot of availableSlots(); track slot.startTime) {
         <mat-chip-option
           [selected]="isSelectedSlot(slot)"
           (click)="selectSlot(slot)"
         >
-          {{ formatTime(slot.starTime) }} - {{ formatTime(slot.endTime) }}
+          {{ formatTime(slot.startTime) }} - {{ formatTime(slot.endTime) }}
         </mat-chip-option>
         }
       </mat-chip-set>
@@ -162,7 +162,7 @@
         <div class="summary-item">
           <i-tabler name="clock"></i-tabler>
           <span>
-            {{ formatTime(selectedSlot()!.starTime) }} -
+            {{ formatTime(selectedSlot()!.startTime) }} -
             {{ formatTime(selectedSlot()!.endTime) }}
           </span>
         </div>
@@ -341,12 +341,12 @@
       </div>
       } @else {
       <mat-chip-set aria-label="Horarios disponibles">
-        @for (slot of availableSlots(); track slot.starTime) {
+        @for (slot of availableSlots(); track slot.startTime) {
         <mat-chip-option
           [selected]="isSelectedSlot(slot)"
           (click)="selectSlot(slot)"
         >
-          {{ formatTime(slot.starTime) }} - {{ formatTime(slot.endTime) }}
+          {{ formatTime(slot.startTime) }} - {{ formatTime(slot.endTime) }}
         </mat-chip-option>
         }
       </mat-chip-set>
@@ -381,7 +381,7 @@
         <div class="summary-item">
           <i-tabler name="clock"></i-tabler>
           <span>
-            {{ formatTime(selectedSlot()!.starTime) }} -
+            {{ formatTime(selectedSlot()!.startTime) }} -
             {{ formatTime(selectedSlot()!.endTime) }}
           </span>
         </div>

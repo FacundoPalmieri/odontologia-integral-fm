@@ -375,7 +375,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
     const selected = this.selectedSlot();
     if (!selected) return false;
     return (
-      selected.starTime === slot.starTime && selected.endTime === slot.endTime
+      selected.startTime === slot.startTime && selected.endTime === slot.endTime
     );
   }
 
@@ -583,7 +583,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
     // Construir el objeto AppointmentInterface
     const dateTime = this.buildDateTime(
       this.selectedDay()!.day,
-      this.selectedSlot()!.starTime
+      this.selectedSlot()!.startTime
     );
 
     const appointment: AppointmentInterface = {

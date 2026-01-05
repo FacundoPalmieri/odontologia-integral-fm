@@ -89,7 +89,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const appointments = this.todayAppointments();
     const upcoming = appointments.filter(
-      (slot) => slot.starTime >= currentTimeString
+      (slot) => slot.startTime >= currentTimeString
     );
 
     return upcoming.length > 0 ? upcoming[0] : null;
