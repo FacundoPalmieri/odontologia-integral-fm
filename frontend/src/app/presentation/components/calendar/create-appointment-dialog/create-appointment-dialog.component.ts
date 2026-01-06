@@ -10,7 +10,7 @@ import { MatChipsModule } from "@angular/material/chips";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { CalendarService } from "../../../../services/calendar.service";
 import { PatientService } from "../../../../services/patient.service";
@@ -47,6 +47,8 @@ interface DentistAvailability {
 
 export interface CreateAppointmentDialogData {
   idDentist?: number; // Si existe, es un dentista creando su propio turno
+  idPatient?: number; // Si existe, pre-seleccionar este paciente (para reprogramación)
+  appointmentId?: number; // Si existe, es una reprogramación (usar reschedule en lugar de create)
 }
 
 @Component({
@@ -80,6 +82,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
   // Data recibida del diálogo
   idDentist?: number;
+  idPatient?: number;
+  appointmentId?: number;
 
   // Estado de carga
   isLoadingWeek = signal(false);
@@ -98,10 +102,13 @@ export class CreateAppointmentDialogComponent implements OnInit {
   availableSlots = signal<SlotInterface[]>([]);
 
   // Buscador de pacientes
-  patientSearchControl = new FormControl("");
+  patientSearchControl = new FormControl<string | PatientInterface>("");
   filteredPatients = signal<PatientInterface[]>([]);
   selectedPatient = signal<PatientInterface | null>(null);
   allPatients: PatientInterface[] = [];
+
+  // Campo de observación para reprogramación
+  observationControl = new FormControl<string>("", [Validators.required]);
 
   // ===== PROPIEDADES PARA VISTA DE SECRETARIO/ADMINISTRADOR =====
   // Especialidades agrupadas
@@ -132,6 +139,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: CreateAppointmentDialogData
   ) {
     this.idDentist = data?.idDentist;
+    this.idPatient = data?.idPatient;
+    this.appointmentId = data?.appointmentId;
   }
 
   ngOnInit(): void {
@@ -141,12 +150,18 @@ export class CreateAppointmentDialogComponent implements OnInit {
     // Cargar todos los pacientes
     this.loadPatients();
 
-    // Configurar filtrado reactivo
-    this.patientSearchControl.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((searchTerm) => {
-        this.filterPatients(searchTerm || "");
-      });
+    // Si viene un idPatient, cargar ese paciente específico y deshabilitar búsqueda
+    if (this.idPatient) {
+      this.loadSpecificPatient(this.idPatient);
+      this.patientSearchControl.disable();
+    } else {
+      // Configurar filtrado reactivo solo si no hay paciente pre-seleccionado
+      this.patientSearchControl.valueChanges
+        .pipe(debounceTime(300), distinctUntilChanged())
+        .subscribe((searchTerm) => {
+          this.filterPatients(searchTerm || "");
+        });
+    }
 
     if (userRole === RoleEnum.DENTIST) {
       // Si es dentista, cargar la semana actual
@@ -191,10 +206,34 @@ export class CreateAppointmentDialogComponent implements OnInit {
   }
 
   /**
+   * Carga un paciente específico por ID y lo pre-selecciona
+   */
+  private loadSpecificPatient(patientId: number): void {
+    this.patientService.getById(patientId).subscribe({
+      next: (response) => {
+        if (response.data) {
+          const patient = response.data as unknown as PatientInterface;
+          this.selectedPatient.set(patient);
+          // Establecer el valor del control para que se muestre en el input
+          this.patientSearchControl.setValue(patient);
+        }
+      },
+      error: (error) => {
+        console.error("Error al cargar paciente:", error);
+      },
+    });
+  }
+
+  /**
    * Filtra pacientes por nombre, apellido o DNI
    * Solo filtra si hay 3 o más caracteres
    */
-  private filterPatients(searchTerm: string): void {
+  private filterPatients(searchTerm: string | PatientInterface): void {
+    // Si es un objeto PatientInterface, no filtrar (ya está seleccionado)
+    if (typeof searchTerm !== "string") {
+      return;
+    }
+
     if (searchTerm.length < 3) {
       this.filteredPatients.set([]);
       return;
@@ -229,6 +268,14 @@ export class CreateAppointmentDialogComponent implements OnInit {
   displayPatient(patient: PatientInterface | null): string {
     if (!patient) return "";
     return `${patient.person.firstName} ${patient.person.lastName} - DNI: ${patient.person.dni}`;
+  }
+
+  /**
+   * Verifica si el valor de búsqueda es un string válido con longitud mínima
+   */
+  isSearchValueValid(): boolean {
+    const value = this.patientSearchControl.value;
+    return typeof value === "string" && value.length >= 3;
   }
 
   /**
@@ -475,13 +522,20 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
   /**
    * Verifica si se puede guardar (hay día, slot y paciente seleccionados)
+   * Si es reprogramación, también valida que haya observación
    */
   canSave(): boolean {
-    return (
+    const basicValidation =
       this.selectedDay() !== null &&
       this.selectedSlot() !== null &&
-      this.selectedPatient() !== null
-    );
+      this.selectedPatient() !== null;
+
+    // Si es reprogramación, validar también la observación
+    if (this.appointmentId) {
+      return basicValidation && this.observationControl.valid;
+    }
+
+    return basicValidation;
   }
 
   onCancel(): void {
@@ -591,19 +645,30 @@ export class CreateAppointmentDialogComponent implements OnInit {
       patient: this.selectedPatient()!,
       dentist: dentistPerson,
       dateTime: dateTime,
-      requestSource: selectedDentist
+      requestSource: this.appointmentId
+        ? RequestSourceEnum.DENTIST // Siempre DENTIST para reprogramación
+        : selectedDentist
         ? RequestSourceEnum.SECRETARY
         : RequestSourceEnum.DENTIST,
+      observation: this.appointmentId
+        ? this.observationControl.value || ""
+        : undefined,
     };
 
-    // Crear el appointment
+    // Usar reschedule si hay appointmentId, sino crear nuevo
     this.isSaving.set(true);
-    this.appointmentService.create(appointment).subscribe({
+
+    const serviceCall = this.appointmentId
+      ? this.appointmentService.reschedule(this.appointmentId, appointment)
+      : this.appointmentService.create(appointment);
+
+    serviceCall.subscribe({
       next: (response) => {
         this.isSaving.set(false);
         this.dialogRef.close({
           success: true,
           data: response.data,
+          isReschedule: !!this.appointmentId,
         });
       },
       error: (error) => {

@@ -55,13 +55,9 @@
       <!-- Disponibilidad laboral - Solo para Administrador y Dentista -->
       @if (authService.isAdministrator() || authService.isDentist()) {
       <div class="flex justify-center !mb-4">
-        <button
-          mat-flat-button
-          class="!w-[90%] rotate-on-hover"
-          (click)="goToAvailability()"
-        >
+        <button mat-flat-button class="!w-[90%]" (click)="goToAvailability()">
           <div class="flex items-center gap-2">
-            <i-tabler name="settings" class="rotate-on-hover"></i-tabler>
+            <i-tabler name="settings"></i-tabler>
             <span>Disponibilidad laboral</span>
           </div>
         </button>
@@ -270,7 +266,7 @@
             } @if (authService.isAdministrator() || authService.isDentist()) {
             <button
               mat-icon-button
-              class="rotate-on-hover mr-2"
+              class="mr-2"
               matTooltip="Disponibilidad laboral"
               (click)="goToAvailability()"
             >
@@ -555,6 +551,8 @@
                     [class.reserved]="slot.status === 'RESERVED'"
                     [class.locked]="slot.status === 'LOCKED'"
                     [class.not-available]="slot.status === 'NOT_AVAILABLE'"
+                    (click)="openSlotDetail(slot)"
+                    style="cursor: pointer"
                   >
                     <div class="slot-content">
                       @if (slot.status === 'LOCKED' || slot.status ===
@@ -711,6 +709,8 @@
                       [class.reserved]="slot.status === 'RESERVED'"
                       [class.locked]="slot.status === 'LOCKED'"
                       [class.not-available]="slot.status === 'NOT_AVAILABLE'"
+                      (click)="openSlotDetail(slot)"
+                      style="cursor: pointer"
                     >
                       <div class="slot-content">
                         @if (slot.status === 'LOCKED' || slot.status ===

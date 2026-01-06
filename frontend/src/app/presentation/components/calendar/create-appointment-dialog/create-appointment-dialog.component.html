@@ -1,16 +1,17 @@
 <h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
   <i-tabler
-    name="calendar-plus"
+    [name]="appointmentId ? 'calendar-event' : 'calendar-plus'"
     class="text-[var(--mat-sys-primary)]"
   ></i-tabler>
-  <span>Nueva cita</span>
+  <span>{{ appointmentId ? "Reprogramar cita" : "Nueva cita" }}</span>
 </h2>
 
 <mat-dialog-content class="dialog-content">
   <!-- VISTA PARA DENTISTA -->
   @if (idDentist) {
   <div class="dentist-view">
-    <!-- Buscador de Pacientes -->
+    <!-- Buscador de Pacientes (solo si no viene pre-seleccionado) -->
+    @if (!idPatient) {
     <mat-form-field appearance="outline" class="patient-search-field">
       <mat-label>Buscar paciente</mat-label>
       <input
@@ -39,8 +40,7 @@
         [displayWith]="displayPatient.bind(this)"
         (optionSelected)="onPatientSelected($event.option.value)"
       >
-        @if (filteredPatients().length === 0 && patientSearchControl.value &&
-        patientSearchControl.value.length >= 3) {
+        @if (filteredPatients().length === 0 && isSearchValueValid()) {
         <mat-option disabled>
           <i-tabler name="user-off" class="no-results-icon"></i-tabler>
           No se encontraron pacientes
@@ -57,6 +57,37 @@
         }
       </mat-autocomplete>
     </mat-form-field>
+    } @else {
+    <!-- Mostrar paciente pre-seleccionado -->
+    <div
+      class="selected-patient-info p-4 rounded-lg bg-[var(--mat-sys-surface-container)]"
+    >
+      <div class="flex items-center gap-2 mb-2">
+        <i-tabler name="user" class="text-[var(--mat-sys-primary)]"></i-tabler>
+        <span class="font-medium">Paciente</span>
+      </div>
+      @if (selectedPatient()) {
+      <div class="text-lg font-semibold">
+        {{ selectedPatient()!.person.firstName }}
+        {{ selectedPatient()!.person.lastName }}
+      </div>
+      <div class="text-sm text-[var(--mat-sys-on-surface-variant)]">
+        DNI: {{ selectedPatient()!.person.dni }}
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Campo de observación para reprogramación -->
+    @if (appointmentId) {
+    <mat-form-field appearance="outline" class="w-full mb-2">
+      <mat-label>Motivo de la reprogramación</mat-label>
+      <textarea matInput [formControl]="observationControl" required></textarea>
+      @if (observationControl.invalid && observationControl.touched) {
+      <mat-error>El motivo de la reprogramación es obligatorio</mat-error>
+      }
+    </mat-form-field>
+    }
 
     <!-- Selector de Semana -->
     <div class="week-selector-container pb-4">
@@ -175,7 +206,8 @@
   <!-- VISTA PARA SECRETARIO/ADMINISTRADOR/OTROS -->
   @if (!idDentist) {
   <div class="secretary-view">
-    <!-- Buscador de Pacientes -->
+    <!-- Buscador de Pacientes (solo si no viene pre-seleccionado) -->
+    @if (!idPatient) {
     <mat-form-field appearance="outline" class="patient-search-field mt-2">
       <mat-label>Buscar paciente</mat-label>
       <input
@@ -204,8 +236,7 @@
         [displayWith]="displayPatient.bind(this)"
         (optionSelected)="onPatientSelected($event.option.value)"
       >
-        @if (filteredPatients().length === 0 && patientSearchControl.value &&
-        patientSearchControl.value.length >= 3) {
+        @if (filteredPatients().length === 0 && isSearchValueValid()) {
         <mat-option disabled>
           <i-tabler name="user-off" class="no-results-icon"></i-tabler>
           No se encontraron pacientes
@@ -222,6 +253,37 @@
         }
       </mat-autocomplete>
     </mat-form-field>
+    } @else {
+    <!-- Mostrar paciente pre-seleccionado -->
+    <div
+      class="selected-patient-info p-4 mt-2 rounded-lg bg-[var(--mat-sys-surface-container)]"
+    >
+      <div class="flex items-center gap-2 mb-2">
+        <i-tabler name="user" class="text-[var(--mat-sys-primary)]"></i-tabler>
+        <span class="font-medium">Paciente</span>
+      </div>
+      @if (selectedPatient()) {
+      <div class="text-lg font-semibold">
+        {{ selectedPatient()!.person.firstName }}
+        {{ selectedPatient()!.person.lastName }}
+      </div>
+      <div class="text-sm text-[var(--mat-sys-on-surface-variant)]">
+        DNI: {{ selectedPatient()!.person.dni }}
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Campo de observación para reprogramación -->
+    @if (appointmentId) {
+    <mat-form-field appearance="outline" class="w-full mb-2">
+      <mat-label>Motivo de la reprogramación</mat-label>
+      <textarea matInput [formControl]="observationControl" required></textarea>
+      @if (observationControl.invalid && observationControl.touched) {
+      <mat-error>El motivo de la reprogramación es obligatorio</mat-error>
+      }
+    </mat-form-field>
+    }
 
     <!-- Selector de Especialidad -->
     <div class="specialty-selector-container p-4 mb-4">
@@ -406,7 +468,15 @@
       @if (isSaving()) {
       <mat-spinner diameter="20"></mat-spinner>
       }
-      <span>{{ isSaving() ? "Guardando..." : "Agendar" }}</span>
+      <span>{{
+        isSaving()
+          ? appointmentId
+            ? "Reprogramando..."
+            : "Guardando..."
+          : appointmentId
+          ? "Reprogramar"
+          : "Agendar"
+      }}</span>
     </div>
   </button>
 </mat-dialog-actions>

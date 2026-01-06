@@ -1,0 +1,190 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler
+    name="calendar-event"
+    class="text-[var(--mat-sys-primary)]"
+  ></i-tabler>
+  <span>Detalles</span>
+</h2>
+
+<mat-dialog-content class="!p-6 !pt-4">
+  <!-- Grid for appointment info -->
+  @if (slot.status === 'RESERVED') {
+  <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+    <!-- Patient Information -->
+    @if (slot.appointment!.patientName) {
+    <div>
+      <div
+        class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+      >
+        <i-tabler
+          name="user"
+          class="w-4 h-4 text-[var(--mat-sys-primary)]"
+        ></i-tabler>
+        <span>Paciente</span>
+      </div>
+      <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
+        {{ slot.appointment.patientName }}
+      </div>
+    </div>
+    }
+
+    <!-- Dentist Information -->
+    @if (slot.appointment!.dentistName) {
+    <div>
+      <div
+        class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+      >
+        <i-tabler
+          name="user-check"
+          class="w-4 h-4 text-[var(--mat-sys-secondary)]"
+        ></i-tabler>
+        <span>Profesional</span>
+      </div>
+      <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
+        {{ slot.appointment.dentistName }}
+      </div>
+    </div>
+    }
+
+    <!-- Time -->
+    <div>
+      <div
+        class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+      >
+        <i-tabler
+          name="clock"
+          class="w-4 h-4 text-[var(--mat-sys-tertiary)]"
+        ></i-tabler>
+        <span>Horario</span>
+      </div>
+      <div
+        class="flex items-center gap-3 text-base font-medium text-[var(--mat-sys-on-surface)]"
+      >
+        <span>{{ formatTime(slot.startTime) }}</span>
+        <span class="text-[var(--mat-sys-on-surface-variant)]">—</span>
+        <span>{{ formatTime(slot.endTime) }}</span>
+      </div>
+    </div>
+
+    <!-- Date -->
+    @if (slot.appointment!.appointmentDateTime) {
+    <div>
+      <div
+        class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+      >
+        <i-tabler
+          name="calendar"
+          class="w-4 h-4 text-[var(--mat-sys-primary)]"
+        ></i-tabler>
+        <span>Fecha</span>
+      </div>
+      <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
+        {{ formatDate(slot.appointment.appointmentDateTime) }}
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- Lock Information -->
+  @if (slot.status === 'LOCKED' && slot.calendarLock) {
+
+  <!-- Observation (full width) -->
+  @if (slot.calendarLock.observation) {
+  <div
+    class="mb-4 p-3 rounded-lg bg-[var(--mat-sys-error-container)] border border-[var(--mat-sys-error)]"
+  >
+    <div
+      class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-error-container)] mb-2 flex items-center gap-2 opacity-80"
+    >
+      <i-tabler name="message-circle" class="w-4 h-4"></i-tabler>
+      <span>Observación</span>
+    </div>
+    <div class="text-base text-[var(--mat-sys-on-error-container)]">
+      {{ slot.calendarLock.observation }}
+    </div>
+  </div>
+  }
+
+  <!-- Grid for lock info -->
+  <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+    <!-- Date Range -->
+    <div>
+      <div
+        class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+      >
+        <i-tabler
+          name="calendar-event"
+          class="w-4 h-4 text-[var(--mat-sys-primary)]"
+        ></i-tabler>
+        <span>Período</span>
+      </div>
+      <div
+        class="flex items-center gap-2 text-sm font-medium text-[var(--mat-sys-on-surface)]"
+      >
+        <span>{{ formatDate(slot.calendarLock.startDate) }}</span>
+        <span class="text-[var(--mat-sys-on-surface-variant)]">—</span>
+        <span>{{ formatDate(slot.calendarLock.endDate) }}</span>
+      </div>
+    </div>
+
+    <!-- Time Range -->
+    <div>
+      <div
+        class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+      >
+        <i-tabler
+          name="clock"
+          class="w-4 h-4 text-[var(--mat-sys-tertiary)]"
+        ></i-tabler>
+        <span>Horario</span>
+      </div>
+      <div
+        class="flex items-center gap-3 text-base font-medium text-[var(--mat-sys-on-surface)]"
+      >
+        <span>{{ formatTime(slot.calendarLock.startTime) }}</span>
+        <span class="text-[var(--mat-sys-on-surface-variant)]">—</span>
+        <span>{{ formatTime(slot.calendarLock.endTime) }}</span>
+      </div>
+    </div>
+
+    <!-- Recurrence (full width if exists) -->
+    @if (slot.calendarLock.recurrence) {
+    <div class="col-span-2">
+      <div
+        class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+      >
+        <i-tabler
+          name="repeat"
+          class="w-4 h-4 text-[var(--mat-sys-secondary)]"
+        ></i-tabler>
+        <span>Recurrencia</span>
+      </div>
+      <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
+        {{ slot.calendarLock.recurrence }}
+      </div>
+    </div>
+    }
+  </div>
+
+  }
+</mat-dialog-content>
+
+<!-- Actions -->
+<mat-dialog-actions
+  class="!p-6 !pt-4 border-t border-[var(--mat-sys-outline-variant)] flex justify-center gap-2"
+>
+  <button mat-button (click)="close()" class="!min-w-[100px]">Cerrar</button>
+  @if (slot.appointment!.id && slot.status === 'RESERVED') {
+  <button
+    mat-flat-button
+    (click)="cancelAppointment()"
+    class="!min-w-[160px] flex items-center gap-2 !bg-[var(--mat-sys-error)] !text-white"
+  >
+    <div class="flex items-center gap-2">
+      <i-tabler name="cancel"></i-tabler>
+      <span>Cancelar Cita</span>
+    </div>
+  </button>
+  }
+</mat-dialog-actions>

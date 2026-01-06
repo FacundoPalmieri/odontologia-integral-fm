@@ -1150,12 +1150,19 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   viewConflicts() {
     // Usar los conflictos ya cargados y pasarlos al diálogo
-    this.dialog.open(ConflictDialogComponent, {
+    const dialogRef = this.dialog.open(ConflictDialogComponent, {
       data: {
         conflicts: this.appointmentConflicts(),
+        allowReschedule: true, // Permitir reprogramar desde el calendario
       },
       width: "800px",
       maxWidth: "90vw",
+    });
+
+    // Al cerrar el diálogo, recargar conflictos y actualizar calendario
+    dialogRef.afterClosed().subscribe(() => {
+      this.loadConflicts(); // Recargar la lista de conflictos
+      this.refreshCurrentView(); // Actualizar la vista del calendario
     });
   }
 
@@ -1177,6 +1184,32 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       data: {
         personId: this.personId,
       },
+    });
+  }
+
+  openSlotDetail(slot: any): void {
+    // Importar dinámicamente el componente para evitar problemas de dependencias
+    import(
+      "./appointment-detail-dialog/appointment-detail-dialog.component"
+    ).then((module) => {
+      const dialogRef = this.dialog.open(
+        module.AppointmentDetailDialogComponent,
+        {
+          width: "600px",
+          maxWidth: "90vw",
+          data: {
+            slot: slot,
+          },
+        }
+      );
+
+      // Al cerrar el diálogo, recargar la vista si se canceló la cita
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result?.cancelled) {
+          this.refreshCurrentView();
+          this.loadConflicts(); // También recargar conflictos si los hay
+        }
+      });
     });
   }
 

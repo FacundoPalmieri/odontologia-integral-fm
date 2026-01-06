@@ -4,9 +4,7 @@
 </h2>
 <mat-dialog-content>
   <p class="mb-4 text-[var(--mat-sys-on-surface-variant)]">
-    ¿Está seguro que desea cancelar el turno de
-    <strong>{{ data.conflict.patientName }}</strong
-    >?
+    ¿Está seguro que desea cancelar este turno?
   </p>
   <mat-form-field class="w-full">
     <mat-label>Observación</mat-label>
@@ -14,7 +12,7 @@
       matInput
       [formControl]="observationControl"
       maxlength="50"
-      placeholder="Ingrese el motivo de la cancelación"
+      placeholder="Ingrese el motivo"
       required
     />
     <mat-hint align="end"
@@ -26,7 +24,7 @@
     }
   </mat-form-field>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
+<mat-dialog-actions align="end" class="gap-2">
   <button mat-button [mat-dialog-close]="{ confirmed: false }">Cancelar</button>
   <button
     mat-flat-button

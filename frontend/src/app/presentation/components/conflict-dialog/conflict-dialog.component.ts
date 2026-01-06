@@ -44,6 +44,7 @@ export class ConflictDialogComponent implements OnInit {
     conflicts?: AppointmentConflictInterface[];
     dentistId?: number;
     showSaveOption?: boolean;
+    allowReschedule?: boolean; // Si es false, solo se puede cancelar (preview mode)
   };
   conflicts: AppointmentConflictInterface[] = [];
   displayedColumns = ["patientName", "date", "origin", "actions"];
@@ -109,8 +110,36 @@ export class ConflictDialogComponent implements OnInit {
   }
 
   rescheduleAppointment(conflict: AppointmentConflictInterface) {
-    // TODO: Implementar lógica de reprogramación
-    // Podría abrir otro diálogo para seleccionar nueva fecha/hora
+    // Importar dinámicamente el componente para evitar dependencias circulares
+    import(
+      "../calendar/create-appointment-dialog/create-appointment-dialog.component"
+    ).then((module) => {
+      const dialogRef = this.dialog.open(
+        module.CreateAppointmentDialogComponent,
+        {
+          data: {
+            idPatient: conflict.idPatient,
+            appointmentId: conflict.appointmentId,
+          },
+        }
+      );
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result?.success) {
+          this.snackbarService.openSnackbar(
+            "Turno reprogramado exitosamente",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success
+          );
+          // Remover el conflicto de la lista ya que fue reprogramado
+          this.conflicts = this.conflicts.filter(
+            (c) => c.appointmentId !== conflict.appointmentId
+          );
+        }
+      });
+    });
   }
 
   cancelAppointment(conflict: AppointmentConflictInterface) {
@@ -152,10 +181,5 @@ export class ConflictDialogComponent implements OnInit {
           );
         },
       });
-  }
-
-  cancelAllAppointments() {
-    // TODO: Implementar lógica para cancelar todos los turnos
-    // Podría mostrar confirmación y luego cancelar todos
   }
 }

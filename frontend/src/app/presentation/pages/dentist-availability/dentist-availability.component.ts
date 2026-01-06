@@ -839,6 +839,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
       data: {
         conflicts: conflicts,
         showSaveOption: true,
+        allowReschedule: false, // No permitir reprogramar en preview
       },
       width: "800px",
       maxWidth: "90vw",

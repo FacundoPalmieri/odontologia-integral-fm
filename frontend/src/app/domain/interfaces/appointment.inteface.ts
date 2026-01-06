@@ -13,6 +13,7 @@ export interface AppointmentInterface {
 export interface AppointmentConflictInterface {
   appointmentId: number;
   appointmentDateTime: Date;
+  idPatient: number;
   patientName: string;
   idOriginConflict?: number;
   nameOriginConflict?: string;
