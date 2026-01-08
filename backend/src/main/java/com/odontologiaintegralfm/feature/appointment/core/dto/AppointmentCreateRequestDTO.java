@@ -1,17 +1,22 @@
 package com.odontologiaintegralfm.feature.appointment.core.dto;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
-
-public record AppointmentCreateRequestDTO(
+@Getter
+@Setter
+public class AppointmentCreateRequestDTO {
         @NotNull(message = "appointmentCreateRequestDTO.idDentist.empty")
-        Long idDentist,
+        private Long idDentist;
 
         @NotNull(message = "appointmentCreateRequestDTO.idPatient.empty")
-        Long idPatient,
+        private Long idPatient;
 
         @NotNull(message = "appointmentCreateRequestDTO.dateTime.empty")
-        LocalDateTime dateTime
-) {
+        private LocalDateTime dateTime;
+
 }
+

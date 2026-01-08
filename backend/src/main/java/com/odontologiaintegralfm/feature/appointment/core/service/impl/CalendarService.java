@@ -366,8 +366,8 @@ public class CalendarService implements ICalendarService {
                 Appointment a = appointments.get(apptIndex);
                 LocalTime apptStart = a.getDate().toLocalTime();
 
-                // si el turno comienza después del fin del slot se corta cortar, porque todo los turnos están ordenados, entonces no hay que seguir iterando.
-                if (apptStart.isAfter(slotEnd)) {
+                // si el turno no es anterior fin del slot se corta cortar, porque todo los turnos están ordenados, entonces no hay que seguir iterando.
+                if (!apptStart.isBefore(slotEnd)) {
                     break;
                 }
 
@@ -379,16 +379,12 @@ public class CalendarService implements ICalendarService {
                 }
 
                 // Si llegamos acá hay solapamiento
-                if (!apptStart.isBefore(slotStart) && apptStart.isBefore(slotEnd)) {
                     s.setStatus(SlotStatus.RESERVED);
                     s.setColor(SlotStatus.RESERVED.getColorHex());
                     s.setAppointment(
                             AppointmentResponseDTO.build(a)
                     );
                     break;
-                }
-
-                apptIndex++;
             }
 
             if (s.getStatus() == null) {
