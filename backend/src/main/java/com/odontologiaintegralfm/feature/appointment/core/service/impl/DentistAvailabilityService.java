@@ -235,23 +235,25 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
     /**
      * Método para obtener el tiempo de duración de un turno por ID de dentista.
-     *
-     * @param idDentist
+     * @param idDentistAvailability: id disponibilidad laboral.
      */
     @Override
-    public Integer getAppointmentDuration(Long idDentist) {
-        return dentistAvailabilityRepository.findAppointmentDurationByDentistId(idDentist);
+    public Integer getAppointmentDuration(Long idDentistAvailability) {
+        return dentistAvailabilityRepository.findAppointmentDurationById(idDentistAvailability);
     }
+
+
 
 
     /**
      * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-     * @param idDentist: Id Dentista
+     * @param dentistAvailability: Id disponibilidad Dentista
      * @param startTime: Hora inicio jornada de feriado
      * @param endTime    : Hora fin jornada de feriado
      */
-    public boolean validateDurationLessThanAppointmentDuration(Long idDentist, LocalTime startTime, LocalTime endTime) {
-        Integer appointmentDuration = getAppointmentDuration(idDentist);
+    public boolean validateDurationLessThanAppointmentDuration(Long dentistAvailability, LocalTime startTime, LocalTime endTime) {
+
+        Integer appointmentDuration = getAppointmentDuration(dentistAvailability);
         long holidayDurationMinutes = Duration.between(startTime, endTime).toMinutes();
 
         return holidayDurationMinutes >= appointmentDuration;
@@ -277,8 +279,13 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         }
 
         //Verifica jornada específica, ya que si es así solo puede haber un elemento en la lista.
-        if (((dentistAvailabilities.get(0).getSpecificDate())!= null) && dentistAvailabilities.get(0).getSpecificDate().equals(date)) {
-            return dentistAvailabilities.get(0);
+        if (((dentistAvailabilities.get(0).getSpecificDate())!= null)) {
+            if(dentistAvailabilities.get(0).getSpecificDate().equals(date)){
+                return dentistAvailabilities.get(0);
+            }else{
+                throw new ConflictException("exception.dentistAvailability.specificDateNotMatchWithAvailability.user",null,"exception.dentistAvailability.specificDateNotMatchWithAvailability.log", new Object[]{dentist,dentistAvailabilities.get(0).getSpecificDate(), date, "DentistAvailabilityService", "getDentistAvailabilityByDate"}, LogLevel.ERROR);
+            }
+
         }
 
         //Si la jornada no es específica, recorremos todas las jornadas y verificamos recurrencia.
@@ -287,7 +294,6 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                 if (da.getRecurrence().matches(da.getEffectiveDate(), date)) {
                     return da;
                 }
-
             }
         }
         return null;

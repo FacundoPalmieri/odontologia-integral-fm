@@ -27,6 +27,7 @@ import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
@@ -129,32 +130,34 @@ public class AppointmentService implements IAppointmentService {
     public Response<AppointmentResponseDTO> create(AppointmentCreateRequestDTO appointmentCreateRequestDTO) {
 
         //Validar dentista
-        Dentist dentist = dentistService.getById(appointmentCreateRequestDTO.idDentist())
-                .orElseThrow(() -> new ConflictException("exception.dentistNotFound.user", null, "exception.dentistNotFound.log", new Object[]{appointmentCreateRequestDTO.idDentist(), "Appointment Service", "create"}, LogLevel.ERROR));
+        Dentist dentist = dentistService.getById(appointmentCreateRequestDTO.getIdDentist())
+                .orElseThrow(() -> new ConflictException("exception.dentistNotFound.user", null, "exception.dentistNotFound.log", new Object[]{appointmentCreateRequestDTO.getIdDentist(), "Appointment Service", "create"}, LogLevel.ERROR));
 
         //Validar patient
-        Patient patient = patientService.getByIdInternal(appointmentCreateRequestDTO.idPatient());
+        Patient patient = patientService.getByIdInternal(appointmentCreateRequestDTO.getIdPatient());
 
         //Validar que no haya otro turno
-        Optional<Appointment> appointmentExisting = appointmentRepository.findByDentistIdAndDate(dentist.getId(), appointmentCreateRequestDTO.dateTime().plusMinutes(1));
+        Optional<Appointment> appointmentExisting = appointmentRepository.findByDentistIdAndDate(dentist.getId(), appointmentCreateRequestDTO.getDateTime());
         if (appointmentExisting.isPresent()) {
             throw new ConflictException("exception.appointmentConflict.user", null, "exception.appointmentConflict.log", new Object[]{appointmentExisting.get().getId(), "Appointment Service", "create"}, LogLevel.ERROR);
         }
 
 
         //Validar jornada del dentista para la fecha y hora enviada.
-        dentistAvailabilityService.isDateTimeWithinAvailability(dentist.getId(), appointmentCreateRequestDTO.dateTime());
+        dentistAvailabilityService.isDateTimeWithinAvailability(dentist.getId(), appointmentCreateRequestDTO.getDateTime());
 
 
         //Validar feriado para la fecha enviada.
-        dentistHolidayService.validateDentistIdAndDate(dentist.getId(), appointmentCreateRequestDTO.dateTime().toLocalDate());
+        dentistHolidayService.validateDentistIdAndDate(dentist.getId(), appointmentCreateRequestDTO.getDateTime().toLocalDate());
 
         //Validar bloqueos para la fecha y hora enviada.
-        dentistCalendarLockService.validateByIdDentistAndDateTime(dentist.getId(), appointmentCreateRequestDTO.dateTime());
+        dentistCalendarLockService.validateByIdDentistAndDateTime(dentist.getId(), appointmentCreateRequestDTO.getDateTime());
 
+        //Normaliza fecha.
+        normalizeTime(appointmentCreateRequestDTO);
 
         //Crear turno
-        Appointment appointment = Appointment.build(patient, dentist, appointmentCreateRequestDTO.dateTime().plusMinutes(1), AppointmentStatus.RESERVED);
+        Appointment appointment = Appointment.build(patient, dentist, appointmentCreateRequestDTO.getDateTime(), AppointmentStatus.RESERVED);
         //Campos auditoria
         appointment.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
         appointment.setCreatedAt(LocalDateTime.now());
@@ -279,31 +282,31 @@ public class AppointmentService implements IAppointmentService {
 
 
         //Validar dentista
-        Dentist dentist = dentistService.getById(appointmentRescheduleRequestDTO.appointment().idDentist())
-                .orElseThrow(() -> new ConflictException("exception.dentistNotFound.user", null, "exception.dentistNotFound.log", new Object[]{appointmentRescheduleRequestDTO.appointment().idDentist(), "Appointment Service", "create"}, LogLevel.ERROR));
+        Dentist dentist = dentistService.getById(appointmentRescheduleRequestDTO.appointment().getIdDentist())
+                .orElseThrow(() -> new ConflictException("exception.dentistNotFound.user", null, "exception.dentistNotFound.log", new Object[]{appointmentRescheduleRequestDTO.appointment().getIdDentist(), "Appointment Service", "create"}, LogLevel.ERROR));
 
         //Validar patient
-        Patient patient = patientService.getByIdInternal(appointmentRescheduleRequestDTO.appointment().idPatient());
+        Patient patient = patientService.getByIdInternal(appointmentRescheduleRequestDTO.appointment().getIdPatient());
 
         //Validar que no haya otro turno
-        Optional<Appointment> appointmentExisting = appointmentRepository.findByDentistIdAndDate(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
+        Optional<Appointment> appointmentExisting = appointmentRepository.findByDentistIdAndDate(dentist.getId(), appointmentRescheduleRequestDTO.appointment().getDateTime());
         if (appointmentExisting.isPresent()) {
             throw new ConflictException("exception.appointmentConflict.user", null, "exception.appointmentConflict.log", new Object[]{appointmentExisting.get().getId(), "Appointment Service", "create"}, LogLevel.ERROR);
         }
 
         //Validar jornada del dentista para la fecha y hora enviada.
-        dentistAvailabilityService.isDateTimeWithinAvailability(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
+        dentistAvailabilityService.isDateTimeWithinAvailability(dentist.getId(), appointmentRescheduleRequestDTO.appointment().getDateTime());
 
 
         //Validar feriado para la fecha enviada.
-        dentistHolidayService.validateDentistIdAndDate(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime().toLocalDate());
+        dentistHolidayService.validateDentistIdAndDate(dentist.getId(), appointmentRescheduleRequestDTO.appointment().getDateTime().toLocalDate());
 
         //Validar bloqueos para la fecha y hora enviada.
-        dentistCalendarLockService.validateByIdDentistAndDateTime(dentist.getId(), appointmentRescheduleRequestDTO.appointment().dateTime());
+        dentistCalendarLockService.validateByIdDentistAndDateTime(dentist.getId(), appointmentRescheduleRequestDTO.appointment().getDateTime());
 
 
         //Actualiza el appointment con la nueva fecha.
-        appointment.setDate(appointmentRescheduleRequestDTO.appointment().dateTime());
+        appointment.setDate(appointmentRescheduleRequestDTO.appointment().getDateTime());
 
         //Actualiza historial de turnos.
         AppointmentStatusHistory appointmentStatusHistory = AppointmentStatusHistory.build(
@@ -746,6 +749,31 @@ public class AppointmentService implements IAppointmentService {
         if (limit.isBefore(now)) {
             throw new BadRequestException("exception.validateMinimumHoursForCancel.user", null, "exception.validateMinimumHoursForCancel.log", new Object[]{appointmentDateTime, limit, "AppointmentService", "validateMinimumHours"}, LogLevel.ERROR);
         }
+    }
+
+
+    private void normalizeTime(AppointmentCreateRequestDTO appointment){
+
+        //Obtiene la disponibilidad que se encuentran dentro del turno elegido
+        DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(appointment.getIdDentist(), appointment.getDateTime().toLocalDate());
+
+        //Obtiene el slot
+        int slot = dentistAvailability.getAppointmentDuration();
+
+
+        //Calcula los minutos del turno para que coincidan con el inicio del slot.
+        int minute = appointment.getDateTime().getMinute(); //Obtiene minutos del turno enviado en la request.
+        int minuteNormalize = (minute/slot) * slot;
+
+
+        LocalDateTime normalizedDateTime = appointment.getDateTime()
+                .withMinute(minuteNormalize)
+                .withSecond(0)
+                .withNano(0);
+
+
+        appointment.setDateTime(normalizedDateTime);
+
     }
 
 
