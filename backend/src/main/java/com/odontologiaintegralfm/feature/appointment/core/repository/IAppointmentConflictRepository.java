@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.repository;
 
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
+import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -77,5 +78,13 @@ public interface IAppointmentConflictRepository extends JpaRepository<Appointmen
     void resolved(@Param("ids") List<Long> ids,
                   @Param("updatedAt") LocalDateTime updatedAt,
                   @Param("updatedBy")UserSec updatedBy);
+
+
+    /**
+     * Obtiene turno en conflicto por IdTurno y estado de resolución
+     * @param appointment  : id Turno
+     * @param resolved: Estado de resolución.
+     */
+    AppointmentConflict findAppointmentConflictByAppointmentAndResolved(Appointment appointment, boolean resolved);
 
 }

@@ -38,7 +38,7 @@ public class AppointmentController {
     @GetMapping("/conflict/all/{idPerson}")
     @OnlyAccessPersonProfileOrAppointmentsManagementRead
     public ResponseEntity<Response<List<AppointmentConflictResponseDTO>>> getConflictAll(@PathVariable Long idPerson){
-        Response<List<AppointmentConflictResponseDTO>> response = appointmentConflictService.getConflict(idPerson);
+        Response<List<AppointmentConflictResponseDTO>> response = appointmentConflictService.getConflictByDentistId(idPerson);
         return ResponseEntity.ok(response);
     }
 

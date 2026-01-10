@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
+import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentConflictRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentConflictService;
@@ -59,7 +60,7 @@ public class AppointmentConflictService implements IAppointmentConflictService {
      * Devuelve una Response con Lista todos los conflictos del dentista.
      */
     @Override
-    public Response<List<AppointmentConflictResponseDTO>> getConflict(Long idDentist) {
+    public Response<List<AppointmentConflictResponseDTO>> getConflictByDentistId(Long idDentist) {
 
         List<AppointmentConflict> appointmentConflicts = appointmentConflictRepository.findByIdDentistAndResolvedFalse(idDentist);
 
@@ -74,8 +75,19 @@ public class AppointmentConflictService implements IAppointmentConflictService {
         return new Response<>(true, "", conflicts);
     }
 
+    /**
+     * Obtiene turno con en conflicto turno y estado de resolución.
+     *
+     * @param appointment  : Turno
+     * @param resolved: Estado de resolución.
+     */
+    @Override
+    public AppointmentConflict findAppointmentConflictByAppointmentAndResolved(Appointment appointment, Boolean resolved){
+
+        return appointmentConflictRepository.findAppointmentConflictByAppointmentAndResolved(appointment,resolved);
 
 
+    }
 
 
     /**
