@@ -30,18 +30,13 @@ El problema a resolver es:
 
 ## 2. Decisiones Tomadas
 
-### 2.1. Validar que el bloqueo esté dentro de la disponibilidad real del dentista
-    
-Antes de persistir un bloqueo, el sistema ejecuta:
-        
--  validateAvailabilityForCalendarLock
-        
--  validateExistCommonAvailabilityRange
-        
-Esto garantiza que el rango del lock intersecte un rango de disponibilidad real.
+### 2.1. Validar que el bloqueo esté dentro de la disponibilidad real del dentista solo para casos de recurrencia NO DIARIA. 
 
-#### Resultado: no se permiten “bloqueos fantasma” que no tengan sentido operativo.
+- Para los casos Daily(vacaciones) no se valida la jornada.
 
+- Para el resto de los casos se ejecuta el método validateCoverage. Esto garantiza que el rango del lock intersecte un rango de disponibilidad real.
+
+#### Resultado: no se permiten “bloqueos fantasma” que no tengan sentido operativo en los bloqueos NO DIARIOS.
 
 
 ### 2.2. Verificar conflictos con otros Calendar Locks
@@ -61,11 +56,14 @@ Este paso impide:
 - rangos inconsistentes dentro del modelo de agenda.
         
 
-### 2.3. Verificar conflictos con turnos reservados
+### 2.3. Verificar conflictos con turnos reservados "createPreview"
         
-Previo al guardado se ejecuta:
+Se cuenta "createPreview" que ejecuta la lógica para detectar y devolver al cliente los posibles conflictos con turnos existentes ante un nuevo bloqueo a crear.
+
+
+En caso de decidir crear el bloqueo, previo al guardado se ejecuta:
         
--  appointmentService.getAppointmentsByConflictRange
+- verifyLockMatchWithLock
         
 -  Si en el rango del lock hay turnos ya asignados:
         
@@ -78,48 +76,10 @@ Previo al guardado se ejecuta:
 El dentista o la administración deben tener la capacidad de bloquear igual, para luego gestionar manualmente la reprogramación con los pacientes.
         
 
-### 2.4. Soporte para locks recurrentes
-        
-La entidad DentistCalendarLock permite:
-        
--  DentistCalendarLockRange para rangos exactos,
-        
--  DentistCalendarLockDay para días específicos,
-        
--  DentistCalendarLockTime para rangos horarios,
-        
--  RecurrenceType (DAILY, WEEKLY, MONTHLY, YEARLY).
-        
-Esto provee flexibilidad para gestionar ausencias repetitivas sin crear múltiples registros manuales.
-        
-    
+ 
 
-### 2.5. Estructura relacional y lógica separada por concerns
-        
-Se definió una estructura modular:
-        
--  Entidad principal: DentistCalendarLock
-        
--  Componentes asociados: Range, Day, Time
-        
--  Enumeraciones: DentistCalendarLockType, RecurrenceType, PriorityType
-        
-Servicios especializados:
-        
-   -  DentistCalendarLockServiceImpl
-        
-   -  DentistAvailabilityServiceImpl
-        
-   -  ConflictManagerService
-        
-   -  AppointmentService
-     
-   
-Separar responsabilidades, asegurar reutilización y mantener el dominio escalable.
-        
-    
 
-### 2.6. El bloqueo modifica la disponibilidad efectiva final
+### 2.4. El bloqueo modifica la disponibilidad efectiva final
         
 El lock funciona como una capa de exclusión aplicada sobre la disponibilidad base.
 En el cálculo de turnos, un rango marcado como lock se considera no apto para reservas, respetando además sus reglas de recurrencia.
@@ -144,39 +104,82 @@ Estas ausencias presentan características funcionales distintas a otros bloqueo
 
 #### Reglas aplicadas
 
-Cuando el tipo de evento (CalendarLockType) posee el flag absenceTotal = true, el sistema aplica las siguientes reglas:
+Existen tres modalidades principales de bloqueo:
 
-El bloqueo:
+1) Bloqueo puntual - POINTUAL
 
--  Se interpreta como días corridos entre startDate y endDate.
+Descripción: Bloqueo único en una fecha específica.
 
--  Abarca toda la jornada diaria, independientemente de la disponibilidad configurada.
+- days: null o vacío.
+- mode: POINTUAL
+- recurrence: NONE
+- startDate == endDate -> Se interpreta como un bloqueo para un único día específico-
 
--  No se valida contra la jornada laboral del dentista.
+Persistencia:
+- DentistCalendarDetail: No se registra nada.
 
-No se permiten:
+Justificación: Un bloqueo puntual no puede repetirse ni depender de patrones semanales.
 
--  Días específicos (days)
 
--  Rangos horarios personalizados (startTime, endTime)
+2) Bloqueo de varios días en una misma semana sin recurrencia - DAYS_IN_RANGE_NO_RECURRENCE
 
--  Recurrencias distintas de DAILY o ausencia de recurrencia
+Descripción: Bloqueo de días específicos dentro de un rango de fechas, sin recurrencia automática
 
-En estos casos, el sistema exige coherencia en los datos enviados y rechaza cualquier combinación incompatible mediante validaciones explícitas.
+- days: obligatorio
+- mode: DAYS_IN_RANGE_NO_RECURRENCE
+- recurrence: NONE
+- startDate != endDate -> Se interpreta como un bloqueo para varios días en una misma semana sin recurrencia
+
+Persistencia:
+- DentistCalendarDetail: Se registran los días
+
+Justificación: El rango define el período de validez y los días determinan cuándo se aplica el bloqueo.
+
+
+3) Bloqueo de varios continuos  - DAILY_CONTINUOUS
+
+Descripción: Bloqueo diario continuo en un rango de fechas (por ejemplo: vacaciones o licencias).
+
+- days: null o vacío.
+- mode: DAILY_CONTINUOUS
+- recurrence: DAILY
+- startDate != endDate -> startDate debe ser distinta de endDate
+
+Persistencia:
+- DentistCalendarDetail: No se registra nada.
+
+Justificación: El bloqueo aplica todos los días del rango, sin necesidad de discriminar días de la semana.
+
+
+3) Bloqueo de días con recurrencia - RECURRENT_PATTERN
+
+Descripción: Bloqueo recurrente basado en un patrón semanal (por ejemplo: todos los lunes y miércoles).
+
+- days: Obligatorio
+- mode: RECURRENT_PATTERN
+- recurrence: No puede ser NONE
+- startDate != endDate -> aplica como fechas anclas y la ventana de fechas debe coincidir para que se cumpla la recurrencia. Ej -> recurrence BIWEEKLY la fecha de inicio y fin debe tener al mínimo 14 días.
+
+Persistencia:
+- DentistCalendarDetail: Se registran los días
+
+Justificación: La recurrencia define la frecuencia y los días especifican el patrón concreto.
+
+
+
 
 #### Justificación
 
 Este enfoque permite:
 
--  Modelar correctamente licencias prolongadas sin fragmentarlas en múltiples bloqueos.
+-  Se garantiza consistencia semántica de los bloqueos desde el momento de creación.
 
--  Evitar reglas artificiales que limiten el bloqueo solo a días laborales.
+-  Se evita lógica defensiva posterior en capas de negocio o generación de eventos.
 
--  Mantener claridad semántica entre:
+-  El código documenta explícitamente los casos de uso soportados.
 
--  Bloqueos operativos (recurrentes, parciales, dependientes de jornada)
+-  Facilita la extensión futura mediante la incorporación de nuevos modos
 
--  Ausencias estructurales del profesional (vacaciones/licencias)
 
 De esta forma, el calendario final refleja fielmente la disponibilidad real del dentista.
 
@@ -263,160 +266,83 @@ Al unificar disponibilidad, locks y appointments, la capa de generación de slot
 
 ## 5. Contrato de Input para Bloqueos de Calendario
 
-###   5.1. Bloqueo puntual (fecha exacta)
-
-Uso: Ausencia de un día, evento puntual.
+###   5.1. Bloqueo puntual (fecha exacta) - POINTUAL
 
 Input esperado:
 
 ```json
 {
-  "startDate": "2025-12-27",
-  "endDate": "2025-12-27",
-  "days": [],
-  "recurrence": "NONE"
-}
-```
-
-
-Reglas:
-
--  days debe estar vacío.
-
--  recurrence debe ser NONE.
-
--  startDate == endDate.
-
-No se generan detalles adicionales; la fecha se interpreta literalmente.
-
-
-### 5.2. Bloqueo de algunos días en un rango sin recurrencia
-
-Uso: “esta semana no atiendo lunes, miércoles y viernes”.
-
-Input esperado:
-
-```json
-{
-   "startDate": "2025-12-22",
-   "endDate": "2025-12-28",
-   "days": ["MONDAY", "WEDNESDAY", "FRIDAY"],
-   "recurrence": "NONE"
-}
-
-```
-
-Reglas:
-
--  days no puede estar vacío.
-
--  recurrence debe ser NONE.
-
--  startDate != endDate.
-
--  Las fechas reales se generan solo para los días de days dentro del rango.
-
--  No significa que se bloqueen todas las fechas del rango, solo las coincidencias con days.
-
-
-### 5.3. Bloqueo diario continuo
-
-Uso: ausencias prolongadas (vacaciones, licencias médicas).
-
-Input esperado:
-
-```json
-{
-   "startDate": "2025-01-10",
-   "endDate": "2025-01-20",
+   "idLockType": 3,
+   "mode": "POINTUAL",
    "days": [],
-   "recurrence": "DAILY"
+   "recurrence": "NONE",
+   "startDate": "2026-01-12",
+   "endDate": "2026-01-12",
+   "startTime": "09:00:00",
+   "endTime": "17:00:00",
+   "observation": "Prueba"
 }
-
-
 ```
 
-Reglas:
 
--  days debe estar vacío.
 
--  recurrence debe ser DAILY.
+### 5.2. Bloqueo de algunos días en un rango sin recurrencia - DAYS_IN_RANGE_NO_RECURRENCE
 
--  startDate != endDate.
-
--  Todas las fechas entre startDate y endDate se bloquean sin excepción.
-
-No se generan detalles; se interpreta como días corridos reales.
-
-### 5.4. Bloqueo recurrente por patrón
-
-Uso: horarios fijos que no se atienden durante un período largo.
 
 Input esperado:
 
 ```json
 {
-   "startDate": "2025-01-01",
-   "endDate": "2025-03-31",
-   "days": ["MONDAY", "WEDNESDAY"],
-   "recurrence": "WEEKLY"
+   "idLockType": 2,
+   "mode": "DAYS_IN_RANGE_NO_RECURRENCE",
+   "days": ["MONDAY"],
+   "recurrence": "NONE",
+   "startDate": "2026-01-05",
+   "endDate": "2026-01-11",
+   "startTime": "09:00:00",
+   "endTime": "17:00:00",
+   "observation": "Prueba"
 }
-
 ```
 
-Reglas:
-
--  days no puede estar vacío.
-
--  recurrence puede ser WEEKLY, MONTHLY, YEARLY.
-
--  startDate != endDate.
-
-Las fechas reales se calculan:
-
--  solo dentro del rango [startDate, endDate],
-
--  solo para días que coincidan con days,
-
--  respetando la recurrencia indicada.
-
--  Se generan detalles según corresponda.
 
 
-### 5.5. Reglas generales de validación
 
-startDate ≤ endDate.
+### 5.3. Bloqueo diario continuo - DAILY_CONTINUOUS
 
-Si days está vacío:
 
--  recurrence solo puede ser NONE o DAILY. 
 
--  startDate == endDate → bloqueo puntual.
+Input esperado:
 
--  startDate != endDate → bloqueo diario.
+```json
+{
+   "idLockType": 1,
+   "mode": "DAILY_CONTINUOUS",
+   "days": [],
+   "recurrence": "DAILY",
+   "startDate": "2026-01-05",
+   "endDate": "2026-01-11",
+   "startTime": "09:00:00",
+   "endTime": "17:00:00",
+   "observation": "Prueba"
+}
+```
 
-Si days NO está vacío:
 
--  recurrence DAILY es inválido.
+### 5.4. Bloqueo recurrente por patrón - RECURRENT_PATTERN
 
--  recurrence NONE → patrón sin recurrencia.
+Input esperado:
 
--  recurrence WEEKLY/MONTHLY/YEARLY → patrón recurrente.
-
-startDate y endDate:
-
--  son fechas reales solo en bloqueos puntuales o diarios.
-
--  son rango ancla en bloqueos por patrón.
-
-No se permiten bloqueos superpuestos:
-
--  Se valida antes de persistir.
-
--  Si un bloqueo nuevo incluye fechas que ya están cubiertas por un bloqueo existente, se rechaza con ConflictException.
-
-Horario de bloqueos:
-
--  El solapamiento se valida en intervalos [startTime, endTime] y cualquier intersección con otro lock existente es considerada conflicto.
-
--  La validación es total, no parcial: si un bloqueo A cubre toda la jornada y el nuevo B cae dentro, se considera conflicto.
+```json
+{
+   "idLockType": 3,
+   "mode": "RECURRENT_PATTERN",
+   "days": ["MONDAY", "TUESDAY"],
+   "recurrence": "WEEKLY",
+   "startDate": "2026-01-05",
+   "endDate": "2026-01-19",
+   "startTime": "09:00:00",
+   "endTime": "17:00:00",
+   "observation": "Prueba"
+}
+```
