@@ -116,7 +116,7 @@ public class HolidayService implements IHolidayService {
         validateHolidayCreate(holidayCreateRequestDTO.date());
 
 
-        // Mapeo el DTO a CalendarHoliday
+        // Mapeo el DTO a Holiday
         Holiday holiday = new Holiday();
         holiday.setDate(holidayCreateRequestDTO.date());
         holiday.setType(HolidayType.valueOf(holidayCreateRequestDTO.type().toUpperCase()));

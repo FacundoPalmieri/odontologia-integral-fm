@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
+import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.feature.appointment.core.model.AppointmentConflict;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.dto.Response;
@@ -34,7 +35,18 @@ public interface IAppointmentConflictService {
     /**
      * Devuelve una Response con Lista todos los conflictos del dentista.
      */
-    Response<List<AppointmentConflictResponseDTO>> getConflict(Long idDentist);
+    Response<List<AppointmentConflictResponseDTO>> getConflictByDentistId(Long idDentist);
+
+
+
+
+    /**
+     *
+     * Obtiene turno con en conflicto por turno y estado de resolución
+     * @param appointment : Turno
+     * @param resolved: Estado de resolución.
+     */
+    AppointmentConflict findAppointmentConflictByAppointmentAndResolved(Appointment appointment, Boolean resolved);
 
 
 

@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.dentist.core.service.implement;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.dentist.catalogs.dto.DentistSpecialtyResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -147,6 +148,7 @@ public class DentistService implements IDentistService {
      * @return Optional <Dentist>
      */
     @Override
+    @Transactional
     public Optional<Dentist> getById(Long id) {
         try{
             return dentistRepository.findById(id);

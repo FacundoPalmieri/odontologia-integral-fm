@@ -14,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
+import java.util.List;
+
 /**
  * @author [Facundo Palmieri]
  */
@@ -43,5 +45,11 @@ public class TreatmentConditionService implements ITreatmentConditionService {
         }catch(DataAccessException | CannotCreateTransactionException e){
          throw new DataBaseException(e, "TreatmentConditionService", null, null, "getAll");
         }
+    }
+
+
+    @Override
+    public List<TreatmentCondition> getAll() {
+        return  treatmentConditionRepository.findAll();
     }
 }

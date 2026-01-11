@@ -37,15 +37,14 @@ public interface IDentistAvailabilityService {
      * - Inicio de jornada.
      * - Fin de jornada.
      * - Duración de turno.
-     * @param id: Id del dentista
+     * @param id: Id dentista
      */
     Response<DentistAvailabilityResponseDTO> get(Long id);
 
 
     /**
-     * Método para obtener la jornada laboral de un dentista.
-     * @param idDentist
-     * @return
+     * Método para obtener las jornadas laborales de un dentista.
+     * @param idDentist: Id dentista.
      */
     List<DentistAvailability> getByIdInternal(Long idDentist);
 
@@ -58,12 +57,12 @@ public interface IDentistAvailabilityService {
 
 
     /**
-     * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-     * @param idDentist: Id Dentista
+     * Método que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
+     * @param dentistAvailability: Id disponibilidad Dentista
      * @param startTime: Hora inicio jornada de feriado
      * @param endTime  : Hora fin jornada de feriado
      */
-    boolean validateDurationLessThanAppointmentDuration(Long idDentist, LocalTime startTime, LocalTime endTime);
+    boolean validateDurationLessThanAppointmentDuration(Long dentistAvailability, LocalTime startTime, LocalTime endTime);
 
 
     /**

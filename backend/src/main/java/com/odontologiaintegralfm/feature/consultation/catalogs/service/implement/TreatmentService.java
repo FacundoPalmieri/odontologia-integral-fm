@@ -2,11 +2,12 @@ package com.odontologiaintegralfm.feature.consultation.catalogs.service.implemen
 
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.consultation.catalogs.dto.TreatmentResponseDTO;
+import com.odontologiaintegralfm.shared.enums.LogLevel;
+import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.catalogs.repository.ITreatmentRepository;
 import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.ITreatmentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
+import java.util.List;
+
 
 /**
  * @author [Facundo Palmieri]
@@ -21,8 +24,12 @@ import org.springframework.transaction.CannotCreateTransactionException;
 @Service
 public class TreatmentService implements ITreatmentService {
 
-    @Autowired
-    private ITreatmentRepository treatmentRepository;
+    private final  ITreatmentRepository treatmentRepository;
+
+    public TreatmentService(ITreatmentRepository treatmentRepository) {
+        this.treatmentRepository = treatmentRepository;
+    }
+
 
     /**
      * Método para obtener un Set de tratamientos "habilitados"
@@ -53,5 +60,32 @@ public class TreatmentService implements ITreatmentService {
        }catch(DataAccessException | CannotCreateTransactionException e){
            throw new DataBaseException(e, "TreatmentService", null, null, "getAll");
        }
+    }
+
+    /**
+     * Obtiene todos los tratamientos "habilitdos" en una lista para uso interno.
+     */
+    @Override
+    public List<Treatment> getAll() {
+        try{
+            return treatmentRepository.findAll();
+        }catch(DataAccessException | CannotCreateTransactionException e){
+            throw new DataBaseException(e, "TreatmentService", null, null, "getAll");
+        }
+    }
+
+    /**
+     * Obtiene tratamiento "habilitado" por su Id. Si no encuentra arroja exception
+     *
+     * @param id : id del tratamiento.
+     */
+    @Override
+    public Treatment getById(Long id) {
+        try{
+            return treatmentRepository.findById(id)
+                    .orElseThrow(() -> new ConflictException("exception.treatment.notFound.user",null,"exception.treatment.notFound.log",new Object[]{id,"TreatmentService","getById" }, LogLevel.ERROR));
+        }catch(DataAccessException | CannotCreateTransactionException e){
+            throw new DataBaseException(e, "TreatmentService", id, null, "getById");
+        }
     }
 }

@@ -5,5 +5,15 @@ import com.odontologiaintegralfm.feature.consultation.core.model.ConsultationHis
 
 public interface IConsultationHistoryService {
 
+    /**
+     * Persiste un historial de consulta.
+     * @param consultationHistory : Objeto a crear
+     */
     ConsultationHistory create(ConsultationHistory consultationHistory);
+
+    /**
+     * Obtiene el historial de una consulta.
+     * @param id : id de la consulta.
+     */
+    ConsultationHistory get(Long id);
 }

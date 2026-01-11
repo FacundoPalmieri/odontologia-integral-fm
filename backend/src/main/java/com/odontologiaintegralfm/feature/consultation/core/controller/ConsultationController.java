@@ -1,47 +1,40 @@
 package com.odontologiaintegralfm.feature.consultation.core.controller;
 
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessAppointmentsManagementCreate;
-import com.odontologiaintegralfm.feature.consultation.core.dto.ConsultationCreateResponseDTO;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.*;
+import com.odontologiaintegralfm.feature.consultation.core.dto.*;
+import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IOdontogramHeaderService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.net.URI;
 
 
 /**
  * Controlador que representa la gestión de consultas.
  */
-
-
-
 @RestController
 @RequestMapping("/api/consultation")
 @Validated
 public class ConsultationController {
 
-    @Autowired
-    private IConsultationService consultationService;
+    private final IConsultationService consultationService;
+    private final IOdontogramHeaderService odontogramHeaderService;
 
-    /**
-     * Endpoint que permite crear una nueva consulta.
-     * <p>Requiere permiso de <b>Consulta creación</b> para acceder.</p>
-     * @param idAppointment
-     * @return ResponseEntity con:
-     * <ul>
-     *     <li><b>200 OK</b> Consulta creada exitosamente.</li>
-     *     <li><b>401 Unauthorized</b>: No autenticado.</li>
-     *     <li><b>403 Forbidden</b>: No autorizado para acceder a este recurso.</li>
-     * </ul>
-     */
+    public ConsultationController(IConsultationService consultationService,
+                                  IOdontogramHeaderService odontogramService) {
+        this.consultationService = consultationService;
+        this.odontogramHeaderService = odontogramService;
+    }
+
+
     @Operation(summary = "Crear consulta", description = "Crea una consulta.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Consulta creada"),
@@ -50,8 +43,152 @@ public class ConsultationController {
     })
     @PostMapping("/{idAppointment}")
     @OnlyAccessAppointmentsManagementCreate
-    private ResponseEntity<Response<ConsultationCreateResponseDTO>> create (@NotNull Long idAppointment){
-        Response<ConsultationCreateResponseDTO> response = consultationService.create(idAppointment);
+    public ResponseEntity<Response<ConsultationResponseDTO>> create (@PathVariable @NotNull Long idAppointment){
+        Response<ConsultationResponseDTO> response = consultationService.create(idAppointment);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
+
+
+
+
+    @Operation(summary = "Paciente ingresa a atención", description = "Actualiza el estado de una consulta por ingreso de atención del paciente.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consulta actualizada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @PostMapping("/{idConsultation}/callPatient")
+    @OnlyAccessConsultationUpdate
+    public ResponseEntity<Response<ConsultationResponseDTO>> callPatient(@PathVariable @NotNull Long idConsultation) {
+
+        Response<ConsultationResponseDTO> response = consultationService.callPatient(idConsultation);
+        return ResponseEntity.ok(response);
+
+    }
+
+
+    @Operation(summary = "Corrección estado de consulta", description = "Actualiza el estado de una consulta por corrección.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consulta Corregida"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @PatchMapping("/{idConsultation}/correction")
+    @OnlyAccessConsultationUpdate
+    public ResponseEntity<Response<ConsultationResponseDTO>> updateCorrection(@PathVariable @NotNull Long idConsultation, ConsultationCorrectionRequestDTO correction) {
+
+        Response<ConsultationResponseDTO> response = consultationService.updateCorrectionStatus(idConsultation,correction);
+        return ResponseEntity.ok(response);
+
+    }
+
+
+
+
+    @Operation(summary = "Obtener consulta", description = "Obtiene una consulta.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consulta recuperada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @GetMapping("/{idConsultation}")
+    @OnlyAccessConsultationRead
+    public ResponseEntity<Response<ConsultationResponseDTO>> getById(@PathVariable @NotNull Long idConsultation) {
+        Response<ConsultationResponseDTO> response = consultationService.getById(idConsultation);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+
+
+
+    @Operation(summary = "Elimina una consulta", description = "Elimina una consulta iniciada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consulta Eliminada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @DeleteMapping("/{idConsultation}/disabled")
+    @OnlyAccessConsultationUpdate
+    public ResponseEntity<Response<Void>> disabled(@PathVariable @NotNull Long idConsultation, String observation) {
+
+        Response<Void> response = consultationService.disabled(idConsultation, observation);
+        return ResponseEntity.ok(response);
+
+    }
+
+
+
+
+
+
+
+    @Operation(summary = "Crear odontograma", description = "Crea una odontograma.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Odontograma creada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @PostMapping("/{idConsultation}/odontogram")
+    @OnlyAccessConsultationCreate
+    public ResponseEntity<Response<Void>> createOdontogram(@PathVariable @NotNull Long idConsultation,
+                                                           @RequestBody @Valid OdontogramCreateRequestDTO odontogram) {
+        Response<Void> response = odontogramHeaderService.create(idConsultation, odontogram);
+        return ResponseEntity
+                .created(URI.create("api/consultations/" + idConsultation + "/odontogram"))
+                .body(response);
+    }
+
+
+
+
+    @Operation(summary = "Actualizar odontograma", description = "Actualiza una odontograma.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Odontograma actualizado"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @PutMapping("/{idConsultation}/odontogram")
+    @OnlyAccessConsultationCreate
+    public ResponseEntity<Response<Void>> updateOdontogram(@PathVariable @NotNull Long idConsultation,
+                                                           @RequestBody  @Valid OdontogramCorrectionRequestDTO correctionRequestDTO) {
+        Response<Void> response = odontogramHeaderService.update(idConsultation, correctionRequestDTO);
+        return ResponseEntity
+                .created(URI.create("api/consultations/" + idConsultation + "/odontogram"))
+                .body(response);
+    }
+
+
+
+    @Operation(summary = "Obtener Odontograma", description = "Obtiene un Odontograma.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Odontograma recuperado"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @GetMapping("/{idConsultation}/odontogram")
+    @OnlyAccessConsultationRead
+    public ResponseEntity<Response<OdontogramResponseDTO>> getOdontogramById(@PathVariable @NotNull Long idConsultation) {
+        Response<OdontogramResponseDTO> response = odontogramHeaderService.getById(idConsultation);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+    //Hacer get consulta, odontograma
+    //get consulta -> tiene que recuperar tratamiento de la consulta mostrar detalle de precios y valor total.
+    //POST para registrar pago -> Validar que pague la totalidad.
+
+
+
+
+
+
+
+
 }

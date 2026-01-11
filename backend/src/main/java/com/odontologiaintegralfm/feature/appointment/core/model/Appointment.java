@@ -41,14 +41,26 @@ public class Appointment extends Auditable {
     private AppointmentStatus status;
 
 
-   private Appointment(Patient patient, Dentist dentist, LocalDateTime date, AppointmentStatus status) {
+
+    /**
+     * Turno del cual este turno fue reprogramado.
+     * Se usa ManyToOne porque un turno original puede dar lugar a varios turnos reprogramados.
+     * La regla de “un solo turno activo por original” se valida en la capa de servicio, no en la base.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rescheduled_from_id")
+    private Appointment rescheduledFrom;
+
+
+
+    private Appointment(Patient patient, Dentist dentist, LocalDateTime date, AppointmentStatus status) {
         this.patient = patient;
         this.dentist = dentist;
         this.date = date;
         this.status = status;
    }
 
-   public static Appointment build(Patient patient, Dentist dentist, LocalDateTime date, AppointmentStatus status){
+   public static Appointment build(Patient patient, Dentist dentist, LocalDateTime date, AppointmentStatus status) {
        return new Appointment(
                patient,
                dentist,

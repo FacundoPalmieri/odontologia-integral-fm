@@ -1,12 +1,10 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
-import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatus;
-import com.odontologiaintegralfm.feature.user.model.UserSec;
+import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 
 /**
  * Entidad que representar la "bitácora" de una consulta
@@ -27,24 +25,19 @@ public class ConsultationHistory extends Auditable {
     private Consultation consultation;
 
     @Enumerated(EnumType.STRING)
-    private ConsultationStatus consultationStatus;
+    @Column(name = "consultation_status", nullable = false)
+    private ConsultationStatusType consultationStatusType;
 
 
-    private ConsultationHistory(Consultation consultation, ConsultationStatus consultationStatus, UserSec createdBy, LocalDateTime createAt, boolean enabled ) {
+    private ConsultationHistory(Consultation consultation, ConsultationStatusType consultationStatusType) {
         this.consultation = consultation;
-        this.consultationStatus = consultationStatus;
-        this.setCreatedBy(createdBy);
-        this.setCreatedAt(createAt);
-        this.setEnabled(enabled);
+        this.consultationStatusType = consultationStatusType;
     }
 
-    public static ConsultationHistory build(Consultation consultation, UserSec user) {
+    public static ConsultationHistory build(Consultation consultation, ConsultationStatusType type) {
         return new ConsultationHistory(
                 consultation,
-                ConsultationStatus.WAITING_ROOM,
-                user,
-                LocalDateTime.now(),
-                true
+                type
         );
     }
 

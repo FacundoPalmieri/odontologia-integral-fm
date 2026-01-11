@@ -412,8 +412,8 @@ public class GlobalExceptionHandler {
                 LogType.EXCEPTION,
                 messageSource.getMessage("exception.accessDenied.user", null, LocaleContextHolder.getLocale()),
                 logMessage,
-                username,
                 this.getClass().getSimpleName(),
+                username,
                 Map.of("requestedUrl", requestedUrl),
                 systemLogService.getStackTraceAsString(ex)           // stacktrace como texto
         ));

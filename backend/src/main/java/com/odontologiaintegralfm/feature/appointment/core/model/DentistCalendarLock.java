@@ -16,60 +16,63 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 /**
- * Representa un bloqueo de agenda por un odontólogo.
+ * Representa un bloqueo de agenda aplicado por un odontólogo.
  *
- * La combinación de fechas, horarios, días y recurrencia define cómo se aplicará el bloqueo en el calendario.
+ * <p>
+ * Un bloqueo define intervalos de tiempo en los cuales no pueden asignarse turnos,
+ * y su comportamiento resulta de la combinación de fechas, horarios, días específicos
+ * y recurrencia.
+ * </p>
  *
- * Existen tres modalidades principales de bloqueo:
+ * <p><b>Escenarios funcionales soportados:</b></p>
  *
- * 1) **Bloqueo puntual (solo un día)**
- *    - days: vacío
- *    - recurrence: Null o NONE
- *    - startDate == endDate
- *    -> Se interpreta como un bloqueo para un único día específico.
- *    Persistencia:
- *    - recurrence: NONE
- *    - DentistCalendarDetail: No se registra nada.
+ * <ol>
+ *   <li>
+ *     <b>Bloqueo puntual (un único día)</b><br>
+ *     - days: vacío<br>
+ *     - recurrence: NONE<br>
+ *     - startDate == endDate<br>
+ *     Se interpreta como un bloqueo aplicado a una única fecha.
+ *   </li>
  *
- * 2) **Bloqueo de varios días en una misma semana sin recurrencia**
- *    - days: no vacío.
- *    - recurrence: NONE
- *    - startDate != endDate
- *    -> Se interpreta como un bloqueo para varios dias en una misma semana sin recurrencia
- *    Persistencia:
- *    - recurrence: NONE
- *    - DentistCalendarDetail: Se registran los dias
+ *   <li>
+ *     <b>Bloqueo de varios días sin recurrencia</b><br>
+ *     - days: no vacío<br>
+ *     - recurrence: NONE<br>
+ *     - startDate != endDate<br>
+ *     Se aplica únicamente a los días indicados dentro del rango definido.
+ *   </li>
  *
- * 3) **Bloqueo diario automático (vacaciones u ausencias prolongadas)**
- *    - days: vacío
- *    - recurrence: DAILY
- *    - startDate != endDate
- *    -> Se genera un bloqueo todos los días entre startDate y endDate
- *    Persistencia:
- *    - recurrence: DAILY
- *    - DentistCalendarDetail: No se registra nada.
+ *   <li>
+ *     <b>Bloqueo diario continuo (vacaciones o ausencias prolongadas)</b><br>
+ *     - days: vacío<br>
+ *     - recurrence: DAILY<br>
+ *     - startDate != endDate<br>
+ *     Se aplica a todos los días comprendidos entre startDate y endDate.
+ *   </li>
  *
- * 4) **Bloqueo recurrente semanal o con patrón**
- *    - days: no vacío
- *    - recurrence: WEEKLY, MONTHLY, etc.
- *    -> Se generan bloqueos según los días indicados dentro del rango.
- *    Persistencia:
- *    - recurrence: La correspondiente
- *    - DentistCalendarDetail: Un registro por cada día.
+ *   <li>
+ *     <b>Bloqueo recurrente con patrón</b><br>
+ *     - days: no vacío<br>
+ *     - recurrence: WEEKLY, MONTHLY, etc.<br>
+ *     Se generan bloqueos siguiendo el patrón indicado dentro del rango de fechas.
+ *   </li>
+ * </ol>
  *
- * Reglas de validación:
- * - Si days está vacío:
- *      - recurrence solo puede ser NONE o DAILY.
- *      - Si startDate == endDate → bloqueo puntual (recurrence = NONE).
- *      - Si startDate != endDate y recurrence es null → recurrence = DAILY.
- *
- * - Si days NO está vacío:
- *      - recurrence DAILY es inválido.
- *      - Si recurrence es null -> se toma recurrence = NONE.
- *
- * startDate y endDate funcionan como “semanas ancla” desde donde se toman los días cuando el bloqueo supera más de un día.
- *
+ * <p><b>Notas de diseño:</b></p>
+ * <ul>
+ *   <li>
+ *     La validación de coherencia entre fechas, días y recurrencia se realiza
+ *     en la capa de servicio antes de la persistencia.
+ *   </li>
+ *   <li>
+ *     Los campos startDate y endDate representan fechas efectivas en bloqueos
+ *     puntuales y diarios, y actúan como rango ancla para la evaluación de patrones
+ *     en bloqueos recurrentes.
+ *   </li>
+ * </ul>
  */
+
 
 @Entity
 @Audited
