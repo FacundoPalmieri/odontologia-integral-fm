@@ -87,10 +87,8 @@ public class SecurityConfig {
 
                 //Se agregan filtros Personalizados.
                 .addFilterBefore(new JwtTokenValidator(jwtUtils, messageSource, systemLogService),UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new OAuth2UserFilter(jwtUtils,userRepository,messageSource,refreshTokenService), BasicAuthenticationFilter.class)
-                .oauth2Login(oauth2 -> oauth2
-                      .defaultSuccessUrl("/holaseg",true))//Redirección luego de autenticación.
-
+                //.addFilterBefore(new OAuth2UserFilter(jwtUtils,userRepository,messageSource,refreshTokenService), BasicAuthenticationFilter.class)
+                //.oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/holaseg",true))//Redirección luego de autenticación.
                 .build();
     }
 
