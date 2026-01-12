@@ -162,8 +162,8 @@
                 <mat-form-field appearance="outline" class="w-full">
                   <mat-label>Duración de la cita</mat-label>
                   <mat-select formControlName="appointmentDuration">
-                    @for(duration of [15,20,30,45,60]; track
-                    trackByValue($index, duration)) {
+                    @for(duration of [30, 60]; track trackByValue($index,
+                    duration)) {
                     <mat-option [value]="duration"
                       >{{ duration }} minutos</mat-option
                     >
@@ -413,8 +413,8 @@
                   <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Duración de la cita</mat-label>
                     <mat-select formControlName="appointmentDuration">
-                      @for(duration of [15,20,30,45,60]; track
-                      trackByValue($index, duration)) {
+                      @for(duration of [30,60]; track trackByValue($index,
+                      duration)) {
                       <mat-option [value]="duration"
                         >{{ duration }} minutos</mat-option
                       >
