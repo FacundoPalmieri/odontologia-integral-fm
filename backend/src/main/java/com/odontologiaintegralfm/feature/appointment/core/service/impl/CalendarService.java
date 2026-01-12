@@ -371,9 +371,8 @@ public class CalendarService implements ICalendarService {
                     break;
                 }
 
-                // si el turno termina antes de que empiece el slot se salta y avanza al siguiente
-                LocalTime apptEnd = apptStart.plusMinutes(durationSlot);
-                if (apptEnd.isBefore(slotStart)) {
+                // si el turno es anterior de que empiece el slot se salta y avanza al siguiente
+                if (apptStart.isBefore(slotStart)) {
                     apptIndex++;
                     continue;
                 }

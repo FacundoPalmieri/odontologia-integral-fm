@@ -282,8 +282,6 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         if (((dentistAvailabilities.get(0).getSpecificDate())!= null)) {
             if(dentistAvailabilities.get(0).getSpecificDate().equals(date)){
                 return dentistAvailabilities.get(0);
-            }else{
-                throw new ConflictException("exception.dentistAvailability.specificDateNotMatchWithAvailability.user",null,"exception.dentistAvailability.specificDateNotMatchWithAvailability.log", new Object[]{dentist,dentistAvailabilities.get(0).getSpecificDate(), date, "DentistAvailabilityService", "getDentistAvailabilityByDate"}, LogLevel.ERROR);
             }
 
         }
