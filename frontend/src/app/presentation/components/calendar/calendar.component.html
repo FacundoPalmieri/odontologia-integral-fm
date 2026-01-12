@@ -529,6 +529,31 @@
                         getDayViewFreeDescription()
                       }}</span>
                     </span>
+                    } @if ((authService.isAdministrator() ||
+                    authService.isDentist() || authService.isSecretary()) &&
+                    canCancelDayViewAppointments()) {
+                    <button
+                      mat-icon-button
+                      [matMenuTriggerFor]="dayActionsMenu"
+                      matTooltip="Acciones del día"
+                      class="ml-2"
+                    >
+                      <i-tabler class="mb-1" name="dots-vertical"></i-tabler>
+                    </button>
+                    <mat-menu #dayActionsMenu="matMenu">
+                      <button
+                        mat-menu-item
+                        (click)="cancelAllAppointments(selectedDate)"
+                      >
+                        <div class="flex items-center gap-2">
+                          <i-tabler
+                            name="calendar-cancel"
+                            class="text-red-500"
+                          ></i-tabler>
+                          <span>Cancelar todos los turnos</span>
+                        </div>
+                      </button>
+                    </mat-menu>
                     }
                   </div>
                 </div>
@@ -624,10 +649,44 @@
                     class="day-header-cell"
                   >
                     <div class="day-info">
-                      <span class="day-name">{{ day }}</span>
-                      <span class="day-number">{{
-                        getWeekDates()[i].getDate()
-                      }}</span>
+                      <div class="day-header-row">
+                        <div class="day-name-number">
+                          <span class="day-name">{{ day }}</span>
+                          <span class="day-number">{{
+                            getWeekDates()[i].getDate()
+                          }}</span>
+                        </div>
+                        <!-- Botón de acciones del día -->
+                        @if ((authService.isAdministrator() ||
+                        authService.isDentist() || authService.isSecretary()) &&
+                        canCancelWeekDayAppointments(getWeekDates()[i])) {
+                        <button
+                          mat-icon-button
+                          [matMenuTriggerFor]="weekDayActionsMenu"
+                          matTooltip="Acciones del día"
+                          class="week-day-actions-btn-inline"
+                        >
+                          <i-tabler
+                            name="dots-vertical"
+                            class="scale-75"
+                          ></i-tabler>
+                        </button>
+                        <mat-menu #weekDayActionsMenu="matMenu">
+                          <button
+                            mat-menu-item
+                            (click)="cancelAllAppointments(getWeekDates()[i])"
+                          >
+                            <div class="flex items-center gap-2">
+                              <i-tabler
+                                name="calendar-cancel"
+                                class="text-red-500"
+                              ></i-tabler>
+                              <span>Cancelar todos los turnos</span>
+                            </div>
+                          </button>
+                        </mat-menu>
+                        }
+                      </div>
                       <!-- Badge para día feriado -->
                       @if (isWeekDayHoliday(getWeekDates()[i])) {
                       <div

@@ -1,0 +1,47 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler name="calendar-cancel" class="text-red-500"></i-tabler>
+  <span>Cancelar todos los turnos del día</span>
+</h2>
+<mat-dialog-content>
+  <p class="mb-2 text-[var(--mat-sys-on-surface-variant)]">
+    ¿Está seguro que desea cancelar <strong>todos los turnos</strong> del día:
+  </p>
+  <p class="mb-4 text-lg font-semibold text-[var(--mat-sys-primary)]">
+    {{ getFormattedDate() }}
+  </p>
+  <p class="mb-4 text-sm text-[var(--mat-sys-error)]">
+    Esta acción cancelará todos los turnos agendados para este día y no se puede
+    deshacer.
+  </p>
+  <mat-form-field class="w-full">
+    <mat-label>Observación</mat-label>
+    <input
+      matInput
+      [formControl]="observationControl"
+      maxlength="50"
+      placeholder="Ingrese el motivo de la cancelación"
+      required
+    />
+    <mat-hint align="end"
+      >{{ observationControl.value?.length || 0 }}/50</mat-hint
+    >
+    @if (observationControl.hasError('required') && observationControl.touched)
+    {
+    <mat-error>La observación es obligatoria</mat-error>
+    }
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="gap-2">
+  <button mat-button [mat-dialog-close]="{ confirmed: false }">Cancelar</button>
+  <button
+    mat-flat-button
+    color="warn"
+    [disabled]="observationControl.invalid"
+    [mat-dialog-close]="{
+      confirmed: true,
+      observation: observationControl.value
+    }"
+  >
+    Confirmar cancelación
+  </button>
+</mat-dialog-actions>

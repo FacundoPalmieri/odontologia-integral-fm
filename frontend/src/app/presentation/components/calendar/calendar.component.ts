@@ -48,6 +48,9 @@ import { DentistService } from "../../../services/dentist.service";
 import { DentistDtoInterface } from "../../../domain/dto/dentist.dto";
 import { ConflictDialogComponent } from "../conflict-dialog/conflict-dialog.component";
 import { AppointmentService } from "../../../services/appointment.service";
+import { CancelAllAppointmentsDialog } from "../cancel-all-appointments-dialog/cancel-all-appointments-dialog.component";
+import { AppointmentInterface } from "../../../domain/interfaces/appointment.inteface";
+import { RequestSourceEnum } from "../../../utils/enums/appointment/request-source.enum";
 
 export type CalendarView = "day" | "week" | "month";
 
@@ -1419,5 +1422,96 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isSidebarDentistSelected(dentistId: number): boolean {
     return this.selectedSidebarDentistId() === dentistId;
+  }
+
+  /**
+   * Verifica si el día actual tiene turnos que se pueden cancelar
+   * (tiene slots RESERVED)
+   */
+  canCancelDayViewAppointments(): boolean {
+    const dayData = this.calendarDayData();
+
+    if (!dayData) {
+      return false;
+    }
+
+    // Verificar si hay slots RESERVED
+    const hasReservedSlots = dayData.slots?.some(
+      (slot) => slot.status === "RESERVED"
+    );
+
+    return hasReservedSlots || false;
+  }
+
+  /**
+   * Verifica si un día específico en la vista semanal tiene turnos que se pueden cancelar
+   * (tiene slots RESERVED)
+   */
+  canCancelWeekDayAppointments(date: Date): boolean {
+    const dayData = this.getWeekDayData(date);
+
+    if (!dayData) {
+      return false;
+    }
+
+    // Verificar si hay slots RESERVED
+    const hasReservedSlots = dayData.slots?.some(
+      (slot) => slot.status === "RESERVED"
+    );
+
+    return hasReservedSlots || false;
+  }
+
+  /**
+   * Cancela todos los turnos de un día específico
+   */
+  cancelAllAppointments(date: Date): void {
+    const dialogRef = this.dialog.open(CancelAllAppointmentsDialog, {
+      width: "600px",
+      maxWidth: "90vw",
+      data: {
+        date: date,
+        dentistId: this.personId,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.confirmed && result?.observation) {
+        // Crear el objeto de cita con la observación y el requestSource
+        const appointment: AppointmentInterface = {
+          observation: result.observation,
+          requestSource: RequestSourceEnum.DENTIST,
+        } as AppointmentInterface;
+
+        // Llamar al servicio para cancelar todos los turnos
+        this.appointmentService
+          .cancelAll(this.personId, date, appointment)
+          .subscribe({
+            next: (response) => {
+              if (response.success) {
+                this.snackbarService.openSnackbar(
+                  "Todos los turnos del día fueron cancelados exitosamente",
+                  6000,
+                  "center",
+                  "top",
+                  SnackbarTypeEnum.Success
+                );
+                this.refreshCurrentView();
+                this.loadConflicts(); // Recargar conflictos si los hay
+              }
+            },
+            error: (error) => {
+              console.error("Error al cancelar todos los turnos:", error);
+              this.snackbarService.openSnackbar(
+                "Error al cancelar los turnos del día",
+                6000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Error
+              );
+            },
+          });
+      }
+    });
   }
 }

@@ -586,6 +586,36 @@
           display: flex;
           flex-direction: column;
           align-items: center;
+          width: 100%;
+          position: relative;
+
+          // Fila horizontal para día/número y botón de acciones
+          .day-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: relative;
+            margin-bottom: 4px;
+
+            .day-name-number {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+            }
+
+            // Botón de acciones inline - posicionado a la derecha
+            .week-day-actions-btn-inline {
+              position: absolute;
+              right: 4px;
+              width: 24px;
+              height: 24px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 0;
+            }
+          }
 
           .day-name {
             font-size: 11px;
