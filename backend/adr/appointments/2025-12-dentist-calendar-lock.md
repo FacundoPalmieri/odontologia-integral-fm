@@ -151,7 +151,7 @@ Persistencia:
 Justificación: El bloqueo aplica todos los días del rango, sin necesidad de discriminar días de la semana.
 
 
-3) Bloqueo de días con recurrencia - RECURRENT_PATTERN
+4) Bloqueo de días con recurrencia - RECURRENT_PATTERN
 
 Descripción: Bloqueo recurrente basado en un patrón semanal (por ejemplo: todos los lunes y miércoles).
 
