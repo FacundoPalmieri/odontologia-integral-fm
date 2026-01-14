@@ -409,6 +409,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     // Load data when switching views
     if (view === "month") {
+      // Clear cache when switching to month view to ensure fresh data
+      this.monthCache.clear();
       this.loadMonthView();
     } else if (view === "week") {
       this.loadWeekView();

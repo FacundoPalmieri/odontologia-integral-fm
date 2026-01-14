@@ -42,10 +42,21 @@ export class CalendarService {
     );
   }
 
+  createCalendarLockPreview(
+    calendarLock: CalendarLockInterface,
+    idPerson: number
+  ): Observable<ApiResponseInterface<any>> {
+    return this.http.post<ApiResponseInterface<any>>(
+      `${this.apiUrl}/dentist-calendar-lock/${idPerson}/preview`,
+      CalendarLockSerializer.toCreateDto(calendarLock)
+    );
+  }
+
   createCalendarLock(
     calendarLock: CalendarLockInterface,
     idPerson: number
   ): Observable<ApiResponseInterface<any>> {
+    // TODO: Cambiar a CalendarLockInterface
     return this.http.post<ApiResponseInterface<any>>(
       `${this.apiUrl}/dentist-calendar-lock/${idPerson}`,
       CalendarLockSerializer.toCreateDto(calendarLock)

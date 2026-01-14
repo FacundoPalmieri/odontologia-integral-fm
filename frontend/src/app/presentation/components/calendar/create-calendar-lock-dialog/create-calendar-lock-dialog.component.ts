@@ -4,6 +4,7 @@ import {
   MatDialogModule,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialog,
 } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
@@ -35,6 +36,8 @@ import { Subject, takeUntil } from "rxjs";
 import { ApiResponseInterface } from "../../../../domain/interfaces/api-response.interface";
 import { SnackbarService } from "../../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
+import { ConflictDialogComponent } from "../../conflict-dialog/conflict-dialog.component";
+import { AppointmentConflictInterface } from "../../../../domain/interfaces/appointment.inteface";
 
 @Component({
   selector: "app-create-calendar-lock-dialog",
@@ -61,6 +64,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly calendarService = inject(CalendarService);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly dialog = inject(MatDialog);
   dialogRef = inject(MatDialogRef<CreateCalendarLockDialogComponent>);
   data = inject<{ personId: number }>(MAT_DIALOG_DATA, { optional: false });
 
@@ -756,21 +760,20 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
         observation: formValue.observation || "",
       };
 
-      // Call service to create lock
+      // First, check for conflicts using preview endpoint
       this.calendarService
-        .createCalendarLock(calendarLock, this.data.personId)
+        .createCalendarLockPreview(calendarLock, this.data.personId)
         .pipe(takeUntil(this._destroy$))
         .subscribe({
-          next: (response: ApiResponseInterface<CalendarLockInterface>) => {
-            if (response.success) {
-              this.snackbarService.openSnackbar(
-                response.message,
-                6000,
-                "center",
-                "top",
-                SnackbarTypeEnum.Success
-              );
-              this.dialogRef.close({ success: true, data: response.data });
+          next: (response) => {
+            const conflicts = response.data?.appointmentConflict || [];
+
+            if (conflicts.length === 0) {
+              // No conflicts, save directly
+              this._performSave(calendarLock);
+            } else {
+              // Show conflict dialog with save option
+              this._showConflictDialogWithSaveOption(calendarLock, conflicts);
             }
           },
         });
@@ -779,6 +782,61 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
         this.eventForm.get(key)?.markAsTouched();
       });
     }
+  }
+
+  private _performSave(calendarLock: CalendarLockInterface): void {
+    this.calendarService
+      .createCalendarLock(calendarLock, this.data.personId)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (response: ApiResponseInterface<CalendarLockInterface>) => {
+          if (response.success) {
+            this.snackbarService.openSnackbar(
+              response.message,
+              6000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Success
+            );
+            this.dialogRef.close({ success: true, data: response.data });
+          }
+        },
+        error: (error) => {
+          console.error("Error creating calendar lock:", error);
+          this.snackbarService.openSnackbar(
+            error?.error?.message ||
+              "Error al crear el bloqueo. Por favor, intente nuevamente.",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Error
+          );
+        },
+      });
+  }
+
+  private _showConflictDialogWithSaveOption(
+    calendarLock: CalendarLockInterface,
+    conflicts: AppointmentConflictInterface[]
+  ): void {
+    const conflictDialogRef = this.dialog.open(ConflictDialogComponent, {
+      data: {
+        conflicts: conflicts,
+        showSaveOption: true,
+        allowReschedule: false, // No permitir reprogramar en preview de bloqueo
+      },
+      width: "800px",
+      maxWidth: "90vw",
+      disableClose: true,
+    });
+
+    conflictDialogRef.afterClosed().subscribe((result) => {
+      if (result?.saveAnyway) {
+        // El usuario decidió guardar igualmente
+        this._performSave(calendarLock);
+      }
+      // Si result es falsy o result.saveAnyway es false, no hacer nada (cancelar)
+    });
   }
 
   ngOnDestroy(): void {

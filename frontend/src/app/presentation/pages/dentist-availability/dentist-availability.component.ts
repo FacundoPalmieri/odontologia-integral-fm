@@ -714,16 +714,6 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
             );
           }
         },
-        error: (error) => {
-          console.error("Error al verificar conflictos:", error);
-          this.snackbarService.openSnackbar(
-            "Error al verificar conflictos. Por favor, intente nuevamente.",
-            6000,
-            "center",
-            "top",
-            SnackbarTypeEnum.Error
-          );
-        },
       });
   }
 
