@@ -31,6 +31,7 @@ import { PageToolbarComponent } from "../../components/page-toolbar/page-toolbar
 import { ActivatedRoute } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatDialog } from "@angular/material/dialog";
 import { ConflictDialogComponent } from "../../components/conflict-dialog/conflict-dialog.component";
 import { AppointmentConflictInterface } from "../../../domain/interfaces/appointment.inteface";
@@ -54,6 +55,7 @@ import { AppointmentConflictInterface } from "../../../domain/interfaces/appoint
     PageToolbarComponent,
     MatCardModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
 })
 export class DentistAvailabilityComponent implements OnDestroy, OnInit {
@@ -82,6 +84,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
 
   // Estado de inicialización
   isConfigured = signal<boolean>(false);
+  isLoading = signal<boolean>(false);
   selectedTabIndex = signal<number>(0);
   isFormValidSignal = signal<boolean>(false);
 
@@ -135,6 +138,9 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   private _loadAvailability(): void {
     if (!this.dentistId) return;
 
+    // Set loading state to true
+    this.isLoading.set(true);
+
     this.dentistService
       .getAvailability(this.dentistId)
       .pipe(takeUntil(this._destroy$))
@@ -154,10 +160,15 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
             // Actualizar validez después de cargar los datos
             this._updateFormValidity();
           }
+
+          // Set loading state to false
+          this.isLoading.set(false);
         },
         error: () => {
           this.dentistAvailability.set(null);
           this.isConfigured.set(false);
+          // Set loading state to false even on error
+          this.isLoading.set(false);
         },
       });
   }

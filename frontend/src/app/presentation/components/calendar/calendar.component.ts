@@ -1188,6 +1188,15 @@ export class CalendarComponent implements OnInit, AfterViewInit {
         personId: this.personId,
       },
     });
+
+    // Suscribirse al cierre del diálogo para recargar la vista
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log(result);
+      if (result?.success) {
+        // Si se creó un bloqueo exitosamente, recargar la vista actual
+        this.refreshCurrentView();
+      }
+    });
   }
 
   openSlotDetail(slot: any): void {

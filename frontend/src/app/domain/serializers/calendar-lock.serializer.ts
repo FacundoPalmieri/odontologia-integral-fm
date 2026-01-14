@@ -7,6 +7,7 @@ export class CalendarLockSerializer {
   ): CalendarLockCreateDtoInterface {
     const calendarLockDto: CalendarLockCreateDtoInterface = {
       idLockType: calendarLock.calendarLockType.id,
+      mode: calendarLock.mode,
       days: calendarLock.days,
       recurrence: calendarLock.recurrence,
       startDate: calendarLock.startDate,

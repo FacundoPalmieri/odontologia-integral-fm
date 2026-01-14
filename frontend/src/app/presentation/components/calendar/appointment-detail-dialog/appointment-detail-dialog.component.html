@@ -22,8 +22,15 @@
         ></i-tabler>
         <span>Paciente</span>
       </div>
-      <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
-        {{ slot.appointment.patientName }}
+      <div
+        (click)="navigateToPatientProfile()"
+        class="text-base font-medium text-[var(--mat-sys-on-surface)] flex items-center gap-2 cursor-pointer hover:text-[var(--mat-sys-primary)] transition-colors group"
+      >
+        <span>{{ slot.appointment.patientName }}</span>
+        <i-tabler
+          name="external-link"
+          class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--mat-sys-primary)]"
+        ></i-tabler>
       </div>
     </div>
     }
@@ -178,12 +185,22 @@
   @if (slot.appointment!.id && slot.status === 'RESERVED') {
   <button
     mat-flat-button
+    (click)="rescheduleAppointment()"
+    class="!min-w-[160px] flex items-center gap-2 !bg-[var(--mat-sys-secondary)] !text-white"
+  >
+    <div class="flex items-center gap-2">
+      <i-tabler name="calendar-event"></i-tabler>
+      <span>Reprogramar</span>
+    </div>
+  </button>
+  <button
+    mat-flat-button
     (click)="cancelAppointment()"
     class="!min-w-[160px] flex items-center gap-2 !bg-[var(--mat-sys-error)] !text-white"
   >
     <div class="flex items-center gap-2">
       <i-tabler name="cancel"></i-tabler>
-      <span>Cancelar Cita</span>
+      <span>Cancelar</span>
     </div>
   </button>
   }

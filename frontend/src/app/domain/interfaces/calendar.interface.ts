@@ -2,16 +2,25 @@ import {
   CalendarMonthDayStatusEnum,
   SlotStatusEnum,
 } from "../../utils/enums/appointment/appointment-status.enum";
+import { LockTypeModeEnum } from "../../utils/enums/calendar/lock-type-mode.enum";
 import { DayEnum, RecurrenceEnum } from "../../utils/enums/day.enum";
 
 export interface CalendarLockTypeInterface {
   id: number;
   name: string;
   enable: boolean;
+  modes: (CalendarLockTypeModeInterface | string)[];
+}
+
+export interface CalendarLockTypeModeInterface {
+  name: string;
+  label: string;
+  description: string;
 }
 
 export interface CalendarLockInterface {
   calendarLockType: CalendarLockTypeInterface;
+  mode: LockTypeModeEnum;
   days: DayEnum[];
   recurrence: RecurrenceEnum;
   startDate: Date;
@@ -28,7 +37,7 @@ export interface CalendarMonthInterface {
 }
 
 export interface CalendarMonthDayInterface {
-  date: string; // Formato: "YYYY-MM-DD"
+  date: string;
   status: CalendarMonthDayStatusEnum;
   description: string;
   color: string;
@@ -88,6 +97,7 @@ export interface CalendarLockDayInterface {
 export interface AppointmentInterface {
   id: number;
   dentistName: string;
+  idPatient: number;
   patientName: string;
   appointmentDateTime: Date;
   status: SlotStatusEnum;

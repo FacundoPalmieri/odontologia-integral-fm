@@ -7,6 +7,7 @@ import {
   CalendarDayInterface,
   CalendarLockInterface,
   CalendarLockTypeInterface,
+  CalendarLockTypeModeInterface,
   CalendarMonthInterface,
   CalendarWeekInterface,
 } from "../domain/interfaces/calendar.interface";
@@ -22,6 +23,22 @@ export class CalendarService {
   > {
     return this.http.get<ApiResponseInterface<CalendarLockTypeInterface[]>>(
       `${this.apiUrl}/calendar-lock-type/all`
+    );
+  }
+
+  getCalendarLockTypeById(
+    id: number
+  ): Observable<ApiResponseInterface<CalendarLockTypeInterface>> {
+    return this.http.get<ApiResponseInterface<CalendarLockTypeInterface>>(
+      `${this.apiUrl}/calendar-lock-type/${id}`
+    );
+  }
+
+  getAllCalendarLocksModes(): Observable<
+    ApiResponseInterface<CalendarLockTypeModeInterface[]>
+  > {
+    return this.http.get<ApiResponseInterface<CalendarLockTypeModeInterface[]>>(
+      `${this.apiUrl}/calendar-lock-type/mode`
     );
   }
 

@@ -7,7 +7,7 @@
     [formGroup]="eventForm"
     class="flex flex-col w-full bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)] pt-2 px-4 gap-2"
   >
-    <!-- Title Section -->
+    <!-- Lock Type Section -->
     <div class="flex flex-row gap-4">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Tipo de bloqueo</mat-label>
@@ -21,7 +21,32 @@
       </mat-form-field>
     </div>
 
+    <!-- Mode Selector (only if multiple modes available) -->
+    @if (shouldShowModeSelector) {
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <i-tabler name="settings"></i-tabler>
+        <span class="font-medium">Modo de bloqueo</span>
+      </div>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Selecciona el modo</mat-label>
+        <mat-select formControlName="mode">
+          @for (mode of availableModes(); track getModeName(mode)) {
+          <mat-option [value]="mode">
+            {{ getModeLabel(mode) }}
+          </mat-option>
+          }
+        </mat-select>
+        <mat-hint>{{ getModeDescription(selectedMode()) }}</mat-hint>
+        @if (modeSelectionError) {
+        <mat-error>{{ modeSelectionError }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+    }
+
     <!-- Date Range Section -->
+    @if (selectedMode()) {
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <i-tabler name="calendar"></i-tabler>
@@ -36,7 +61,6 @@
               matInput
               [matDatepicker]="startPicker"
               formControlName="startDate"
-              (dateChange)="onStartDateChange()"
               (click)="openStartDatePicker()"
               placeholder="Seleccionar fecha"
               readonly
@@ -56,24 +80,37 @@
               matInput
               [matDatepicker]="endPicker"
               formControlName="endDate"
-              (dateChange)="onEndDateChange()"
               (click)="openEndDatePicker()"
-              [min]="eventForm.get('startDate')?.value || undefined"
+              [min]="eventForm.get('startDate')?.value || null"
+              [matDatepickerFilter]="getEndDateFilter"
+              [disabled]="shouldDisableEndDate"
               placeholder="Seleccionar fecha"
               readonly
             />
             <mat-datepicker-toggle
               matIconSuffix
               [for]="endPicker"
+              [disabled]="shouldDisableEndDate"
             ></mat-datepicker-toggle>
             <mat-datepicker #endPicker></mat-datepicker>
+            @if (shouldDisableEndDate) {
+            <mat-hint
+              >Para bloqueo puntual, la fecha de fin es la misma que la de
+              inicio</mat-hint
+            >
+            } @else if (maxDateRange && !endDateRangeError) {
+            <mat-hint>Máximo {{ maxDateRange }} días</mat-hint>
+            } @if (endDateRangeError) {
+            <mat-error>{{ endDateRangeError }}</mat-error>
+            }
           </mat-form-field>
         </div>
       </div>
     </div>
+    }
 
     <!-- Days of Week Section -->
-    @if (shouldShowTimeAndDays) {
+    @if (shouldShowDaysSelector && selectedMode()) {
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <i-tabler name="calendar-week"></i-tabler>
@@ -114,8 +151,38 @@
     </div>
     }
 
+    <!-- Recurrence Section -->
+    @if (shouldShowRecurrenceSelector && selectedMode() &&
+    availableRecurrences().length > 0) {
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <i-tabler name="repeat"></i-tabler>
+        <span class="font-medium">Recurrencia</span>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Frecuencia de repetición</mat-label>
+        <mat-select formControlName="recurrence">
+          @for (rec of availableRecurrences(); track rec.value) {
+          <mat-option [value]="rec.value">
+            {{ rec.label }}
+          </mat-option>
+          }
+        </mat-select>
+        @if (availableRecurrences().length === 1) {
+        <mat-hint
+          >Solo hay una opción disponible para el rango de fechas
+          seleccionado</mat-hint
+        >
+        } @else {
+        <mat-hint>Selecciona la frecuencia de repetición del bloqueo</mat-hint>
+        }
+      </mat-form-field>
+    </div>
+    }
+
     <!-- Time Range Section -->
-    @if (shouldShowTimeAndDays) {
+    @if (shouldShowTimeSelector && selectedMode()) {
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <i-tabler name="clock"></i-tabler>
@@ -161,6 +228,7 @@
     }
 
     <!-- Observation Section -->
+    @if (selectedMode()) {
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <i-tabler name="file-text"></i-tabler>
@@ -177,6 +245,7 @@
         ></textarea>
       </mat-form-field>
     </div>
+    }
   </div>
 </mat-dialog-content>
 

@@ -4,12 +4,12 @@ import { MenuItemInterface } from "../../domain/interfaces/menu-item.interface";
 export class PermissionFactory {
   static createPermissions(): MenuItemInterface[] {
     return [
-      {
-        permissionEnum: PermissionsEnum.DASHBOARD,
-        route: "/dashboard",
-        icon: "chart-bar",
-        label: "Dashboard",
-      },
+      // {
+      //   permissionEnum: PermissionsEnum.DASHBOARD,
+      //   route: "/dashboard",
+      //   icon: "chart-bar",
+      //   label: "Dashboard",
+      // },
       {
         permissionEnum: PermissionsEnum.CONSULTATION,
         route: "/consultation",
@@ -34,18 +34,18 @@ export class PermissionFactory {
         icon: "packages",
         label: "Insumos",
       },
-      {
-        permissionEnum: PermissionsEnum.FINANCE,
-        route: "/finances",
-        icon: "file-dollar",
-        label: "Finanzas",
-      },
-      {
-        permissionEnum: PermissionsEnum.REPORTS,
-        route: "/reports",
-        icon: "chart-histogram",
-        label: "Reportes",
-      },
+      // {
+      //   permissionEnum: PermissionsEnum.FINANCE,
+      //   route: "/finances",
+      //   icon: "file-dollar",
+      //   label: "Finanzas",
+      // },
+      // {
+      //   permissionEnum: PermissionsEnum.REPORTS,
+      //   route: "/reports",
+      //   icon: "chart-histogram",
+      //   label: "Reportes",
+      // },
       {
         permissionEnum: PermissionsEnum.CONFIGURATION,
         route: "/configuration",

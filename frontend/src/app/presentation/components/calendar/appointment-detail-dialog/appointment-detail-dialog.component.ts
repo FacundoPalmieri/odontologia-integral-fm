@@ -15,6 +15,7 @@ import { RequestSourceEnum } from "../../../../utils/enums/appointment/request-s
 import { AppointmentCancelDtoInterface } from "../../../../domain/dto/appointment.dto";
 import { SnackbarService } from "../../../../services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-appointment-detail-dialog",
@@ -35,6 +36,7 @@ export class AppointmentDetailDialogComponent {
   );
   private readonly appointmentService = inject(AppointmentService);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly router = inject(Router);
 
   slot: SlotInterface;
 
@@ -76,12 +78,53 @@ export class AppointmentDetailDialogComponent {
     return colorMap[status] || "var(--mat-sys-on-surface)";
   }
 
+  navigateToPatientProfile(): void {
+    if (!this.slot.appointment?.idPatient) {
+      return;
+    }
+
+    this.dialogRef.close();
+    this.router.navigate(["/patients/edit", this.slot.appointment.idPatient]);
+  }
+
+  rescheduleAppointment(): void {
+    if (!this.slot.appointment?.id || !this.slot.appointment?.idPatient) {
+      return;
+    }
+
+    import(
+      "../create-appointment-dialog/create-appointment-dialog.component"
+    ).then((module) => {
+      const dialogRef = this.dialog.open(
+        module.CreateAppointmentDialogComponent,
+        {
+          data: {
+            appointmentId: this.slot.appointment.id,
+            idPatient: this.slot.appointment.idPatient,
+          },
+        }
+      );
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result?.success && result?.isReschedule) {
+          this.snackbarService.openSnackbar(
+            "Cita reprogramada exitosamente",
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success
+          );
+          this.dialogRef.close({ rescheduled: true });
+        }
+      });
+    });
+  }
+
   cancelAppointment(): void {
     if (!this.slot.appointment?.id) {
       return;
     }
 
-    // Importar dinámicamente el componente de cancelación
     import(
       "../../cancel-appointment-dialog/cancel-appointment-dialog.component"
     ).then((module) => {
