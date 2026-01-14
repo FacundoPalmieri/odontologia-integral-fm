@@ -129,7 +129,16 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
   endDateRangeError: string | null = null;
   modeSelectionError: string | null = null;
 
+  // Minimum date for date pickers (tomorrow)
+  minDate: Date;
+
   constructor() {
+    // Set minimum date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    this.minDate = tomorrow;
+
     this._getCalendarLockTypes();
     this.updateAvailableDays();
 

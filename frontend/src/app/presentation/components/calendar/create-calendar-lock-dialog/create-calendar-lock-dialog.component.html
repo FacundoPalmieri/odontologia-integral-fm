@@ -62,6 +62,7 @@
               [matDatepicker]="startPicker"
               formControlName="startDate"
               (click)="openStartDatePicker()"
+              [min]="minDate"
               placeholder="Seleccionar fecha"
               readonly
             />
@@ -81,7 +82,7 @@
               [matDatepicker]="endPicker"
               formControlName="endDate"
               (click)="openEndDatePicker()"
-              [min]="eventForm.get('startDate')?.value || null"
+              [min]="eventForm.get('startDate')?.value || minDate"
               [matDatepickerFilter]="getEndDateFilter"
               [disabled]="shouldDisableEndDate"
               placeholder="Seleccionar fecha"
