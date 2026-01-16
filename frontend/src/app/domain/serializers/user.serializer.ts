@@ -12,16 +12,14 @@ export class UserSerializer {
 
   toCreateDto(user: UserInterface): UserCreateDtoInterface {
     const dto: Partial<UserCreateDtoInterface> = {};
+
+    dto.enabled = user.enabled;
     if (user.id) {
       dto.id = user.id;
     }
 
     if (user.username) {
       dto.username = user.username;
-    }
-
-    if (user.enabled) {
-      dto.enabled = user.enabled;
     }
 
     if (user.password1) {
