@@ -24,7 +24,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="users")
-@Where(clause = "enabled = true")
 public class UserSec extends Auditable {
 
     /**Identificador único del usuario.*/
