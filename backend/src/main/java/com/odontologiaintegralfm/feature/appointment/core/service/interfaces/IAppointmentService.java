@@ -1,9 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.interfaces;
 
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCancelRequestDTO;
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentResponseDTO;
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentRescheduleRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.core.dto.*;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.shared.dto.Response;
@@ -74,7 +71,7 @@ public interface IAppointmentService {
      * @param appointmentCancelRequestDTO Motivo, observación y fuente de la cancelación.
 
      */
-    Response<Integer> cancelAllByDate (Long idDentist ,LocalDate date, AppointmentCancelRequestDTO appointmentCancelRequestDTO);
+    Response<Integer> cancelAllByDate (Long idDentist ,LocalDate date, AppointmentCancelAllRequestDTO appointmentCancelRequestDTO);
 
 
 
