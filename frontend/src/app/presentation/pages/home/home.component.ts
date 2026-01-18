@@ -27,6 +27,7 @@ import {
 import { Subject, takeUntil } from "rxjs";
 import { DayEnum } from "../../../utils/enums/day.enum";
 import { SlotStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
+import { RoleEnum } from "../../../utils/enums/role.enum";
 
 @Component({
   selector: "app-home",
@@ -103,9 +104,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
-    // Cargar disponibilidad si es dentista
+    // Cargar disponibilidad si es dentista o admin
     effect(() => {
-      if (this.userData() && this.isDentist() && this.userData()?.person?.id) {
+      if (
+        this.userData() &&
+        this.shouldShowDentistInfo() &&
+        this.userData()?.person?.id
+      ) {
         this.isLoadingAvailability.set(true);
         this.dentistService
           .getAvailability(this.userData()?.person?.id!)
@@ -122,11 +127,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Cargar turnos del día si es dentista y tiene disponibilidad configurada
+    // Cargar turnos del día si es dentista o admin y tiene disponibilidad configurada
     effect(() => {
       if (
         this.userData() &&
-        this.isDentist() &&
+        this.shouldShowDentistInfo() &&
         this.userData()?.person?.id &&
         this.hasAvailability()
       ) {
@@ -167,8 +172,21 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   isDentist(): boolean {
     return (
-      this.userData()?.roles?.some((role) => role.name === "DENTIST") || false
+      this.userData()?.roles?.some((role) => role.name === RoleEnum.DENTIST) ||
+      false
     );
+  }
+
+  isAdmin(): boolean {
+    return (
+      this.userData()?.roles?.some(
+        (role) => role.name === RoleEnum.ADMINISTRATOR
+      ) || false
+    );
+  }
+
+  shouldShowDentistInfo(): boolean {
+    return this.isDentist() || this.isAdmin();
   }
 
   getWeeklyDays() {

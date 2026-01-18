@@ -64,8 +64,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
   logoSrc = computed(() => {
     const theme = this.currentTheme();
     return theme.id.includes("dark")
-      ? "img/logo_dark.jpg"
-      : "img/logo_light.jpg";
+      ? "img/odontologia_fm.jpg"
+      : "img/odontologia_fm.jpg";
   });
   userData: UserDataInterface | null = this.authService.getUserData();
   permissions: string[] = [];
