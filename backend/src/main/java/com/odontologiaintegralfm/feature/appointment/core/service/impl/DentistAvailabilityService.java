@@ -413,7 +413,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
             boolean withinWorkingHours = CalendarUtils.isDateTimeWithinEvent(
                     appointmentDateTime,
                     availability.getEffectiveDate(),      // inicio real de vigencia
-                    date,                                // fecha a evaluar
+                    availability.getEffectiveDate(),      // fecha a evaluar
                     availability.getKeyName() != null ? availability.getKeyName().toDayOfWeek() : null,
                     availability.getStartTime(),
                     availability.getEndTime(),

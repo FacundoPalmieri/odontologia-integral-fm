@@ -14,7 +14,7 @@ public interface IDentistCalendarLockRepository extends JpaRepository<DentistCal
 
     @Query("""
 
-            SELECT dcl
+           SELECT dcl
            FROM DentistCalendarLock dcl
            WHERE dcl.dentist.id = :dentistId
            AND (dcl.endDate IS null OR dcl.endDate > CURRENT_DATE)

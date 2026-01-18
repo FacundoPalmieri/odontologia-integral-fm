@@ -322,7 +322,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
     public void validateByIdDentistAndDateTime(Long idDentist, LocalDateTime dateTime) {
 
         //Obtener bloqueos.
-        List<DentistCalendarLock> dentistCalendarLock = dentistLockCalendarRepository.findAllCurrentByDentistId(idDentist);
+        List<DentistCalendarLock> dentistCalendarLock = dentistLockCalendarRepository.findByDentistIdAndDateRange(idDentist, dateTime.toLocalDate());
 
         //Validar esos bloqueos con la fecha del turno.
         for (DentistCalendarLock dc : dentistCalendarLock) {
