@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.model;
 
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
+import com.odontologiaintegralfm.feature.appointment.core.dto.DentistHolidayRequestCreateDTO;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
@@ -50,6 +51,39 @@ public class DentistHoliday extends Auditable {
 
     @Column(nullable = false)
     private LocalTime endTime;
+
+    @Column(nullable = false)
+    private Integer appointmentDuration; // en minutos
+
+
+    /** Campos que representar un break dentro de la jornada laboral. */
+    private LocalTime breakStartTime;
+    private LocalTime breakEndTime;
+
+
+    private DentistHoliday(Dentist dentist, Holiday holiday, LocalTime startTime, LocalTime endTime, Integer appointmentDuration, LocalTime breakStartTime, LocalTime breakEndTime) {
+        this.dentist = dentist;
+        this.holiday = holiday;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.appointmentDuration = appointmentDuration;
+        this.breakStartTime = breakStartTime;
+        this.breakEndTime = breakEndTime;
+
+    }
+
+    public static DentistHoliday build (Dentist dentist, Holiday holiday, DentistHolidayRequestCreateDTO dentistHolidayRequestCreateDTO) {
+        return new DentistHoliday(
+                dentist,
+                holiday,
+                dentistHolidayRequestCreateDTO.startTime(),
+                dentistHolidayRequestCreateDTO.endTime(),
+                dentistHolidayRequestCreateDTO.appointmentDuration(),
+                dentistHolidayRequestCreateDTO.breakStartTime(),
+                dentistHolidayRequestCreateDTO.breakEndTime()
+        );
+    }
+
 
 }
 

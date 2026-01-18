@@ -315,7 +315,6 @@ public class CalendarService implements ICalendarService {
      * @param slots          Lista de slots generados para el día, a ser completados.
      * @param appointments   Lista de turnos del día (se espera que pertenezcan todos a la misma fecha).
      * @param locks          Lista de bloqueos configurados para el dentista en ese día.
-     * @param durationSlot   Duración en minutos de cada slot (utilizada para calcular el fin de un turno).
      * @param breakStartTime Inicio del break en la jornada laboral.
      * @param breakEndTime   Fin del break en la jornada laboral.
      * @see SlotStatus Para los diferentes estados posibles de un slot.
@@ -323,7 +322,7 @@ public class CalendarService implements ICalendarService {
      * @see DentistCalendarLockResponseDTO Para los datos adjuntos cuando un slot queda bloqueado.
      */
 
-    private void fillSlot(List<SlotResponseDTO> slots, List<Appointment> appointments, List<DentistCalendarLock> locks, Integer durationSlot, LocalTime breakStartTime, LocalTime breakEndTime) {
+    private void fillSlot(List<SlotResponseDTO> slots, List<Appointment> appointments, List<DentistCalendarLock> locks, LocalTime breakStartTime, LocalTime breakEndTime) {
 
         // Ordeno appointments del día por hora
         appointments.sort(Comparator.comparing(a -> a.getDate().toLocalTime()));
@@ -446,7 +445,7 @@ public class CalendarService implements ICalendarService {
      * <p>
      * El método realiza las siguientes validaciones y acciones:
      * <ul>
-     *     <li>Obtiene la disponibilidad del dentista para el día especificado.</li>
+     *     <li>Obtiene la disponibilidad del dentista, solo para verificar que exista alguna, independientemente de la fecha del feriado..</li>
      *     <li>Si no hay disponibilidad, devuelve un calendario vacío con un mensaje informativo.</li>
      *     <li>Valida si el día es feriado y, en caso que sea, verifica si el dentista trabaja ese feriado.</li>
      *     <li>Genera los slots del día (según horario de disponibilidad o feriado) y los llena con los turnos reservados y bloqueos.</li>
@@ -468,8 +467,10 @@ public class CalendarService implements ICalendarService {
      */
     private CalendarDetailDayResponseDTO buildCalendarDay(Long idDentist, LocalDate day){
 
-        DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,day);
-        if (dentistAvailability == null) {
+        //Verifica que al menos exista una disponibilidad.
+        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
+
+        if (dentistAvailabilities.isEmpty()) {
 
             return new CalendarDetailDayResponseDTO(
                     idDentist,
@@ -487,13 +488,15 @@ public class CalendarService implements ICalendarService {
 
         //Si es feriado, valída que lo trabaje el dentista.
         if(holiday.isPresent()) {
-            Optional <DentistHoliday> dentistHoliday = dentistHolidayService.getByDentistIdAndHolidayId(idDentist, holiday.get().getId());
-            if(dentistHoliday.isPresent()) {
+            Optional <DentistHoliday> dentistHolidayOptional = dentistHolidayService.getByDentistIdAndHolidayId(idDentist, holiday.get().getId());
+            if(dentistHolidayOptional.isPresent()) {
+
+                DentistHoliday dentistHoliday = dentistHolidayOptional.get();
 
                 //Recupera horarios de inicio/fin del feriado, junto con duración del turno.
-                LocalTime startTime = dentistHoliday.get().getStartTime();
-                LocalTime endTime = dentistHoliday.get().getEndTime();
-                int durationSlot = dentistAvailabilityService.getAppointmentDuration(idDentist);
+                LocalTime startTime = dentistHoliday.getStartTime();
+                LocalTime endTime = dentistHoliday.getEndTime();
+                int durationSlot = dentistHoliday.getAppointmentDuration();
 
                 //Generar slots vacíos.
                 List<SlotResponseDTO> slots = generateSlot(startTime, endTime, durationSlot);
@@ -502,14 +505,15 @@ public class CalendarService implements ICalendarService {
                 List<Appointment> appointments = appointmentService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
 
                 //Llenar slots.
-                fillSlot(slots,appointments, Collections.emptyList(),dentistAvailability.getAppointmentDuration(),dentistAvailability.getBreakStartTime(),dentistAvailability.getEndTime());
+                fillSlot(slots,appointments, Collections.emptyList(),dentistHoliday.getBreakStartTime(),dentistHoliday.getBreakEndTime());
 
                 return new CalendarDetailDayResponseDTO(
                         idDentist,
                         day,
                         deriveDayStatus(slots),
                         CalendarHolidayResponseDTO.build(CalendarHoliday.HOLIDAY,holiday.get().getName(),holiday.get().getType().getLabel()),
-                        slots);
+                        slots
+                );
 
             }else{
                 return new  CalendarDetailDayResponseDTO(
@@ -517,13 +521,18 @@ public class CalendarService implements ICalendarService {
                         day,
                         CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
                         CalendarHolidayResponseDTO.build(CalendarHoliday.HOLIDAY,holiday.get().getName(),holiday.get().getType().getLabel()),
-                        Collections.emptyList());
+                        Collections.emptyList()
+                );
             }
         }
 
 
 
         //2. Valida jornada de trabajo habitual.
+
+        //Habiendo validado que exista al menos una jornada, y sabiendo que no es feriado, se obtiene la jornada para ese dia puntual
+        DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,day);
+
         List<DentistCalendarLock> dentistCalendarLocks = dentistCalendarLockService.getByDate(idDentist,day);
 
         //Generar slots vacíos.
@@ -533,7 +542,7 @@ public class CalendarService implements ICalendarService {
         List<Appointment> appointments = appointmentService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
 
         //Llenar slots.
-        fillSlot(slots,appointments, dentistCalendarLocks, dentistAvailability.getAppointmentDuration(),dentistAvailability.getBreakStartTime(),dentistAvailability.getBreakEndTime() );
+        fillSlot(slots,appointments, dentistCalendarLocks,dentistAvailability.getBreakStartTime(),dentistAvailability.getBreakEndTime());
 
         return new CalendarDetailDayResponseDTO(idDentist, day,deriveDayStatus(slots),null,slots);
 

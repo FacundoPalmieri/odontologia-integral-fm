@@ -17,6 +17,13 @@ public record DentistHolidayRequestCreateDTO(
         LocalTime startTime,
 
         @NotNull(message = "dentistHolidayDTO.endTime.empty")
-        LocalTime endTime
+        LocalTime endTime,
+
+        @NotNull(message = "dentistHolidayDTO.appointmentDuration.empty")
+        Integer appointmentDuration, // en minutos
+
+        /** Campos que representar un break dentro de la jornada laboral. */
+        LocalTime breakStartTime,
+        LocalTime breakEndTime
 ) {
 }

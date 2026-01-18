@@ -123,21 +123,14 @@ public class DentistHolidayService implements IDentistHolidayService {
             DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(dentists.getId(), holiday.getDate());
 
 
-            //Valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-            if(! dentistAvailabilityService.validateDurationLessThanAppointmentDuration(dentistAvailability.getId(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime())){
-                throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist Holiday Service","create"},LogLevel.ERROR);
+            //Valída que la hora de inicio y fin cubra al menos la parametrización de la duración de un turno.
+            if(! dentistAvailabilityService.validateDurationLessThanAppointmentDuration(dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(), dentistHolidayRequestCreateDTO.appointmentDuration())){
+                throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(), dentistHolidayRequestCreateDTO.appointmentDuration(),"DentistAvailabilityService","entityFromDto"},LogLevel.ERROR);
             }
 
 
-            //Persiste la relación.
-            DentistHoliday dentistHoliday = new DentistHoliday();
-            dentistHoliday.setDentist(dentists);
-            dentistHoliday.setHoliday(holiday);
-            dentistHoliday.setStartTime(dentistHolidayRequestCreateDTO.startTime());
-            dentistHoliday.setEndTime(dentistHolidayRequestCreateDTO.endTime());
-            dentistHoliday.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
-            dentistHoliday.setCreatedAt(LocalDateTime.now());
-            dentistHoliday.setEnabled(true);
+            //Construye objeto a persistir.
+            DentistHoliday dentistHoliday = DentistHoliday.build(dentists,holiday,dentistHolidayRequestCreateDTO);
 
             //Persiste.
             DentistHoliday dentistHolidaySaved = dentistHolidayRepository.save(dentistHoliday);
