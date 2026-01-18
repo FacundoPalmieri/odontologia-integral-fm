@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.feature.appointment.core.dto;
 
-import java.time.YearMonth;
 import java.util.List;
 
 /**
@@ -9,6 +8,6 @@ import java.util.List;
 public record CalendarMonthResponseDTO(
         Integer year,
         Integer month,
-        List<CalendarGlobalDayDTO> days
+        List<CalendarDayResponseDTO> days
 ) {
 }

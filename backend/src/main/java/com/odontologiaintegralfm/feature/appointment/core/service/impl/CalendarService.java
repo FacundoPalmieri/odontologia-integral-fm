@@ -117,7 +117,7 @@ public class CalendarService implements ICalendarService {
      * @param idDentist ID del dentista del cual se desea obtener el calendario.
      * @param day       Fecha específica a consultar.
      *
-     * @return Un {@link Response} que contiene un {@link CalendarDetailDayResponseDTO} con:
+     * @return Un {@link Response} que contiene un {@link CalendarDayResponseDTO} con:
      *         <ul>
      *             <li>ID del dentista,</li>
      *             <li>fecha consultada,</li>
@@ -131,7 +131,7 @@ public class CalendarService implements ICalendarService {
      */
 
     @Override
-    public Response<CalendarDetailDayResponseDTO> getCalendarDay(Long idDentist, LocalDate day) {
+    public Response<CalendarDayResponseDTO> getCalendarDay(Long idDentist, LocalDate day) {
 
         //Validar dentista.
         validateDentist(idDentist);
@@ -178,10 +178,10 @@ public class CalendarService implements ICalendarService {
         LocalDate weekStart =  day.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
         LocalDate weekEnd   = day.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
 
-        List<CalendarDetailDayResponseDTO> days = new ArrayList<>();
+        List<CalendarDayResponseDTO> days = new ArrayList<>();
 
         for (LocalDate d = weekStart; !d.isAfter(weekEnd); d = d.plusDays(1)) {
-            CalendarDetailDayResponseDTO dayDTO = buildCalendarDay(idDentist, d);
+            CalendarDayResponseDTO dayDTO = buildCalendarDay(idDentist, d);
             days.add(dayDTO);
         }
 
@@ -200,8 +200,6 @@ public class CalendarService implements ICalendarService {
      *     <li>Valida que el dentista exista; de no ser así, lanza {@link ConflictException}.</li>
      *     <li>Determina el rango de fechas del mes utilizando {@link YearMonth}.</li>
      *     <li>Itera desde el día 1 hasta el último día del mes, construyendo el detalle diario mediante {@code buildCalendarDay}.</li>
-     *     <li>A partir del detalle diario, deriva el estado global del día (FREE, FULL, LOCKED, NOT_AVAILABLE)
-     *         y arma un {@link CalendarGlobalDayDTO} por cada fecha.</li>
      *     <li>Devuelve un objeto que contiene el año, mes y todos los días con su estado resumido.</li>
      * </ul>
      *
@@ -212,14 +210,13 @@ public class CalendarService implements ICalendarService {
      * @return Un {@link Response} que contiene un {@link CalendarMonthResponseDTO} con:
      *         <ul>
      *             <li>El año y mes solicitados.</li>
-     *             <li>La lista de {@link CalendarGlobalDayDTO}, uno por cada día del mes,
+     *             <li>La lista de {@link CalendarDayResponseDTO}, uno por cada día del mes,
      *                 con su estado general, descripción y color asociado.</li>
      *         </ul>
      *
      * @throws ConflictException Si no existe un dentista con el ID indicado.
      *
      * @see #buildCalendarDay(Long, LocalDate) Para obtener el detalle completo de cada día.
-     * @see CalendarGlobalDayDTO Para el estado global resumido de un día.
      * @see CalendarMonthResponseDTO Para la estructura de la respuesta mensual.
      */
 
@@ -234,17 +231,11 @@ public class CalendarService implements ICalendarService {
         LocalDate start = ym.atDay(1);
         LocalDate end   = ym.atEndOfMonth();
 
-        List<CalendarGlobalDayDTO> days = new ArrayList<>();
+        List<CalendarDayResponseDTO> days = new ArrayList<>();
 
         for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
-            CalendarDetailDayResponseDTO detail = buildCalendarDay(idDentist, d);
-
-            days.add(new CalendarGlobalDayDTO(
-                    d,
-                    detail.calendarDayStatus().key(),
-                    detail.calendarDayStatus().description(),
-                    detail.calendarDayStatus().color()
-            ));
+            CalendarDayResponseDTO dayDTO = buildCalendarDay(idDentist, d);
+            days.add(dayDTO);
         }
 
         CalendarMonthResponseDTO responseDTO = new CalendarMonthResponseDTO(year, month, days);
@@ -455,7 +446,7 @@ public class CalendarService implements ICalendarService {
      *
      * @param idDentist El identificador único del dentista para el cual se consulta el calendario.
      * @param day       La fecha específica del calendario a consultar.
-     * @return Un  {@link CalendarDetailDayResponseDTO} con:
+     * @return Un  {@link CalendarDayResponseDTO} con:
      *         <ul>
      *             <li>El ID del dentista.</li>
      *             <li>La fecha consultada.</li>
@@ -465,14 +456,14 @@ public class CalendarService implements ICalendarService {
      *
      * @see #generateSlot(LocalTime, LocalTime, int) Para la generación de slots según horario y duración.
      */
-    private CalendarDetailDayResponseDTO buildCalendarDay(Long idDentist, LocalDate day){
+    private CalendarDayResponseDTO buildCalendarDay(Long idDentist, LocalDate day){
 
         //Verifica que al menos exista una disponibilidad.
         List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
 
         if (dentistAvailabilities.isEmpty()) {
 
-            return new CalendarDetailDayResponseDTO(
+            return new CalendarDayResponseDTO(
                     idDentist,
                     day,
                     CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
@@ -507,7 +498,7 @@ public class CalendarService implements ICalendarService {
                 //Llenar slots.
                 fillSlot(slots,appointments, Collections.emptyList(),dentistHoliday.getBreakStartTime(),dentistHoliday.getBreakEndTime());
 
-                return new CalendarDetailDayResponseDTO(
+                return new CalendarDayResponseDTO(
                         idDentist,
                         day,
                         deriveDayStatus(slots),
@@ -516,7 +507,7 @@ public class CalendarService implements ICalendarService {
                 );
 
             }else{
-                return new  CalendarDetailDayResponseDTO(
+                return new CalendarDayResponseDTO(
                         idDentist,
                         day,
                         CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
@@ -530,8 +521,14 @@ public class CalendarService implements ICalendarService {
 
         //2. Valida jornada de trabajo habitual.
 
-        //Habiendo validado que exista al menos una jornada, y sabiendo que no es feriado, se obtiene la jornada para ese dia puntual
+        //Habiendo validado que exista al menos una jornada, y sabiendo que no es feriado, se obtiene la jornada para ese día puntual
         DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,day);
+
+
+        //Si no hay jornada para ese día, se devuelve como NO DISPONIBLE.
+        if(dentistAvailability == null) {
+            return new CalendarDayResponseDTO(idDentist, day,CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),null,null);
+        }
 
         List<DentistCalendarLock> dentistCalendarLocks = dentistCalendarLockService.getByDate(idDentist,day);
 
@@ -544,7 +541,7 @@ public class CalendarService implements ICalendarService {
         //Llenar slots.
         fillSlot(slots,appointments, dentistCalendarLocks,dentistAvailability.getBreakStartTime(),dentistAvailability.getBreakEndTime());
 
-        return new CalendarDetailDayResponseDTO(idDentist, day,deriveDayStatus(slots),null,slots);
+        return new CalendarDayResponseDTO(idDentist, day,deriveDayStatus(slots),null,slots);
 
     }
 
