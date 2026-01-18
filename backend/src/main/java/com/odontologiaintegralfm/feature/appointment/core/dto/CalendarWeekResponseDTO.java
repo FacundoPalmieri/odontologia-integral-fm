@@ -9,6 +9,6 @@ import java.util.List;
 public record CalendarWeekResponseDTO(
         LocalDate weekStart,
         LocalDate weekEnd,
-        List<CalendarDetailDayResponseDTO> days
+        List<CalendarDayResponseDTO> days
 ) {
 }

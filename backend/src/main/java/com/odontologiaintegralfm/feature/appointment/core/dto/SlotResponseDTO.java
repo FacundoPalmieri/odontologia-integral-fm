@@ -9,7 +9,7 @@ import java.time.LocalTime;
 
 /**
  * DTO que representa los slot y su estado.
- * Se utiliza embebido en {@link CalendarDetailDayResponseDTO} para respuesta diaria.
+ * Se utiliza embebido en {@link CalendarDayResponseDTO} para respuesta diaria.
  */
 @Getter
 @Setter

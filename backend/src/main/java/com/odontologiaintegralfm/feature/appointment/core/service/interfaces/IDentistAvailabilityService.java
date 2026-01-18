@@ -58,11 +58,11 @@ public interface IDentistAvailabilityService {
 
     /**
      * Método que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-     * @param dentistAvailability: Id disponibilidad Dentista
      * @param startTime: Hora inicio jornada de feriado
      * @param endTime  : Hora fin jornada de feriado
+     * @param appointmentDuration  : Duración del turno
      */
-    boolean validateDurationLessThanAppointmentDuration(Long dentistAvailability, LocalTime startTime, LocalTime endTime);
+    boolean validateDurationLessThanAppointmentDuration(LocalTime startTime, LocalTime endTime, Integer appointmentDuration);
 
 
     /**

@@ -247,13 +247,11 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
     /**
      * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-     * @param dentistAvailability: Id disponibilidad Dentista
      * @param startTime: Hora inicio jornada de feriado
      * @param endTime    : Hora fin jornada de feriado
      */
-    public boolean validateDurationLessThanAppointmentDuration(Long dentistAvailability, LocalTime startTime, LocalTime endTime) {
+    public boolean validateDurationLessThanAppointmentDuration(LocalTime startTime, LocalTime endTime, Integer appointmentDuration) {
 
-        Integer appointmentDuration = getAppointmentDuration(dentistAvailability);
         long holidayDurationMinutes = Duration.between(startTime, endTime).toMinutes();
 
         return holidayDurationMinutes >= appointmentDuration;
@@ -415,7 +413,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
             boolean withinWorkingHours = CalendarUtils.isDateTimeWithinEvent(
                     appointmentDateTime,
                     availability.getEffectiveDate(),      // inicio real de vigencia
-                    date,                                // fecha a evaluar
+                    availability.getEffectiveDate(),      // fecha a evaluar
                     availability.getKeyName() != null ? availability.getKeyName().toDayOfWeek() : null,
                     availability.getStartTime(),
                     availability.getEndTime(),
@@ -529,6 +527,13 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
         return days.stream()
                 .map(dto -> {
+
+                    //Valída que la hora de inicio y fin cubra al menos la parametrización de la duración de un turno.
+                    if(validateDurationLessThanAppointmentDuration(dto.getStartTime(),dto.getEndTime(), dto.getAppointmentDuration())){
+                        throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{dto.getStartTime(),dto.getEndTime(), dto.getAppointmentDuration(),"DentistAvailabilityService","entityFromDto"},LogLevel.ERROR);
+                    }
+
+
                     DentistAvailability dentistAvailability = DentistAvailability.build(dentistAvailabilityExisting.dentist(), dto);
 
                     //Campos auditoría.

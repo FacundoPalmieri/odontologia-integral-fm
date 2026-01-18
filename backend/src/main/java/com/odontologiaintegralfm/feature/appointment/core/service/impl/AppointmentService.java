@@ -8,7 +8,6 @@ import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentRespons
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentActionRequester;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
-import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.*;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.*;
@@ -28,7 +27,6 @@ import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;

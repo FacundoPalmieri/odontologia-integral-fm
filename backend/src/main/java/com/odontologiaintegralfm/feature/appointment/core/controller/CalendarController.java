@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.controller;
 
-import com.odontologiaintegralfm.feature.appointment.core.dto.CalendarDetailDayResponseDTO;
+import com.odontologiaintegralfm.feature.appointment.core.dto.CalendarDayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.CalendarMonthResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.CalendarWeekResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.ICalendarService;
@@ -36,10 +36,10 @@ public class CalendarController {
             @ApiResponse(responseCode = "409", description = "Dentista no poseé jornada laboral parametrizada."),
     })
     @GetMapping("/{idDentist}/day")
-    public ResponseEntity<Response<CalendarDetailDayResponseDTO>> getCalendarDay(@PathVariable @NotNull Long idDentist,
-                                                                                 @RequestParam @NotNull LocalDate day) {
+    public ResponseEntity<Response<CalendarDayResponseDTO>> getCalendarDay(@PathVariable @NotNull Long idDentist,
+                                                                           @RequestParam @NotNull LocalDate day) {
 
-        Response<CalendarDetailDayResponseDTO> response = calendarService.getCalendarDay(idDentist, day);
+        Response<CalendarDayResponseDTO> response = calendarService.getCalendarDay(idDentist, day);
         return ResponseEntity.ok(response);
     }
 
