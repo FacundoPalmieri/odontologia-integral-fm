@@ -72,7 +72,7 @@ export interface CreateAppointmentDialogData {
 })
 export class CreateAppointmentDialogComponent implements OnInit {
   private readonly dialogRef = inject(
-    MatDialogRef<CreateAppointmentDialogComponent>
+    MatDialogRef<CreateAppointmentDialogComponent>,
   );
   private readonly calendarService = inject(CalendarService);
   private readonly patientService = inject(PatientService);
@@ -136,7 +136,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
   ];
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: CreateAppointmentDialogData
+    @Inject(MAT_DIALOG_DATA) public data: CreateAppointmentDialogData,
   ) {
     this.idDentist = data?.idDentist;
     this.idPatient = data?.idPatient;
@@ -380,7 +380,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
     // Filtrar solo los slots con status FREE (BREAK no es FREE, por lo que queda excluido)
     const freeSlots = day.slots.filter(
-      (slot) => slot.status === SlotStatusEnum.FREE
+      (slot) => slot.status === SlotStatusEnum.FREE,
     );
 
     this.availableSlots.set(freeSlots);
@@ -638,7 +638,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
     // Construir el objeto AppointmentInterface
     const dateTime = this.buildDateTime(
       this.selectedDay()!.day,
-      this.selectedSlot()!.startTime
+      this.selectedSlot()!.startTime,
     );
 
     const appointment: AppointmentInterface = {
@@ -648,8 +648,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
       requestSource: this.appointmentId
         ? RequestSourceEnum.DENTIST // Siempre DENTIST para reprogramación
         : selectedDentist
-        ? RequestSourceEnum.SECRETARY
-        : RequestSourceEnum.DENTIST,
+          ? RequestSourceEnum.SECRETARY
+          : RequestSourceEnum.DENTIST,
       observation: this.appointmentId
         ? this.observationControl.value || ""
         : undefined,
@@ -731,7 +731,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
       ([specialtyName, dentists]) => ({
         specialtyName,
         dentists,
-      })
+      }),
     );
 
     this.specialtyGroups.set(groups);
@@ -749,7 +749,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
     // Obtener dentistas de la especialidad seleccionada
     const group = this.specialtyGroups().find(
-      (g) => g.specialtyName === specialty
+      (g) => g.specialtyName === specialty,
     );
 
     if (group) {
@@ -779,7 +779,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
   private findFirstAvailableWeek(
     dentists: DentistDtoInterface[],
     startDate: Date,
-    weeksChecked: number
+    weeksChecked: number,
   ): void {
     // Límite de 12 semanas (3 meses) para evitar búsquedas infinitas
     if (weeksChecked >= 12) {
@@ -794,8 +794,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
         map((response) => ({
           dentist,
           weekData: response.data || null,
-        }))
-      )
+        })),
+      ),
     );
 
     // Ejecutar todas las peticiones en paralelo
@@ -829,7 +829,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
    * Verifica si una semana tiene al menos un slot disponible
    */
   private checkWeekHasAvailability(
-    availabilities: DentistAvailability[]
+    availabilities: DentistAvailability[],
   ): boolean {
     return availabilities.some((availability) => {
       if (!availability.weekData) return false;
@@ -852,7 +852,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
     if (!selectedSpecialty) return;
 
     const group = this.specialtyGroups().find(
-      (g) => g.specialtyName === selectedSpecialty
+      (g) => g.specialtyName === selectedSpecialty,
     );
 
     if (!group) return;
@@ -867,8 +867,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
         map((response) => ({
           dentist,
           weekData: response.data || null,
-        }))
-      )
+        })),
+      ),
     );
 
     // Ejecutar todas las peticiones en paralelo
@@ -924,13 +924,13 @@ export class CreateAppointmentDialogComponent implements OnInit {
       if (!availability.weekData) return false;
 
       const dentistDay = availability.weekData.days.find((d) =>
-        this.isSameDay(d.day, day.day)
+        this.isSameDay(d.day, day.day),
       );
 
       if (!dentistDay) return false;
 
       return dentistDay.slots.some(
-        (slot) => slot.status === SlotStatusEnum.FREE
+        (slot) => slot.status === SlotStatusEnum.FREE,
       );
     });
   }
@@ -960,13 +960,13 @@ export class CreateAppointmentDialogComponent implements OnInit {
       if (!availability.weekData) return;
 
       const dentistDay = availability.weekData.days.find((d) =>
-        this.isSameDay(d.day, day.day)
+        this.isSameDay(d.day, day.day),
       );
 
       if (!dentistDay) return;
 
       const hasFreeSlots = dentistDay.slots.some(
-        (slot) => slot.status === SlotStatusEnum.FREE
+        (slot) => slot.status === SlotStatusEnum.FREE,
       );
 
       if (hasFreeSlots) {
@@ -996,10 +996,10 @@ export class CreateAppointmentDialogComponent implements OnInit {
    */
   private loadSlotsForDentistAndDay(
     dentist: DentistDtoInterface,
-    day: CalendarDayInterface
+    day: CalendarDayInterface,
   ): void {
     const availability = this.dentistAvailabilities().find(
-      (a) => a.dentist.person.id === dentist.person.id
+      (a) => a.dentist.person.id === dentist.person.id,
     );
 
     if (!availability || !availability.weekData) {
@@ -1008,7 +1008,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
     }
 
     const dentistDay = availability.weekData.days.find((d) =>
-      this.isSameDay(d.day, day.day)
+      this.isSameDay(d.day, day.day),
     );
 
     if (!dentistDay) {
@@ -1017,7 +1017,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
     }
 
     const freeSlots = dentistDay.slots.filter(
-      (slot) => slot.status === SlotStatusEnum.FREE
+      (slot) => slot.status === SlotStatusEnum.FREE,
     );
 
     this.availableSlots.set(freeSlots);
@@ -1029,7 +1029,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
   private selectFirstAvailableDayForSecretary(): void {
     const days = this.weekDays();
     const firstAvailableDay = days.find((day) =>
-      this.isDayAvailableForSecretary(day)
+      this.isDayAvailableForSecretary(day),
     );
 
     if (firstAvailableDay) {

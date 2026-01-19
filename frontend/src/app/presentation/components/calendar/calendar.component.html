@@ -934,6 +934,7 @@
                       *ngIf="getHolidayDescription(date)"
                       class="day-badge holiday-badge"
                       [style.background-color]="getHolidayColor(date)"
+                      (click)="openHolidayDetail(date, $event)"
                     >
                       <span class="badge-icon">🎉</span>
                       <span class="badge-text">{{

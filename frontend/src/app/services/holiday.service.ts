@@ -19,53 +19,50 @@ export class HolidayService {
     let params = new HttpParams().set("year", 2025);
 
     return this.http
-      .get<ApiResponseInterface<HolidayUpdateDtoInterface[]>>(
-        `${this.apiUrl}/holiday/all`,
-        { params }
-      )
+      .get<
+        ApiResponseInterface<HolidayUpdateDtoInterface[]>
+      >(`${this.apiUrl}/holiday/all`, { params })
       .pipe(
         map((response) => ({
           ...response,
           data: response.data.map((holidayDto) =>
-            HolidaySerializer.toView(holidayDto)
+            HolidaySerializer.toView(holidayDto),
           ),
-        }))
+        })),
       );
   }
 
   create(
-    holiday: Omit<HolidayInterface, "id">
+    holiday: Omit<HolidayInterface, "id">,
   ): Observable<ApiResponseInterface<HolidayInterface>> {
     const holidayDto = HolidaySerializer.toCreateDto(holiday);
 
     return this.http
-      .post<ApiResponseInterface<HolidayUpdateDtoInterface>>(
-        `${this.apiUrl}/holiday`,
-        holidayDto
-      )
+      .post<
+        ApiResponseInterface<HolidayUpdateDtoInterface>
+      >(`${this.apiUrl}/holiday`, holidayDto)
       .pipe(
         map((response) => ({
           ...response,
           data: HolidaySerializer.toView(response.data),
-        }))
+        })),
       );
   }
 
   update(
-    holiday: HolidayInterface
+    holiday: HolidayInterface,
   ): Observable<ApiResponseInterface<HolidayInterface>> {
     const holidayDto = HolidaySerializer.toUpdateDto(holiday);
 
     return this.http
-      .patch<ApiResponseInterface<HolidayUpdateDtoInterface>>(
-        `${this.apiUrl}/holiday`,
-        holidayDto
-      )
+      .patch<
+        ApiResponseInterface<HolidayUpdateDtoInterface>
+      >(`${this.apiUrl}/holiday`, holidayDto)
       .pipe(
         map((response) => ({
           ...response,
           data: HolidaySerializer.toView(response.data),
-        }))
+        })),
       );
   }
 }

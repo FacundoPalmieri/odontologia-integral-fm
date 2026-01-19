@@ -537,9 +537,16 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   /**
    * Check if a day is NOT_AVAILABLE (for styling in monthly view)
+   * Los días con feriado NO se marcan como deshabilitados
    */
   isNotAvailableDay(date: Date): boolean {
     const dayData = this.getDayFromBackend(date);
+
+    // Si hay un feriado, el día NO está deshabilitado
+    if (dayData?.holiday) {
+      return false;
+    }
+
     return (dayData?.calendarDayStatus?.key as string) === "NOT_AVAILABLE";
   }
 
@@ -622,6 +629,42 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   getHolidayColor(date: Date): string | null {
     const dayData = this.getDayFromBackend(date);
     return dayData?.holiday?.color || "#48925f"; // Verde por defecto
+  }
+
+  /**
+   * Open holiday detail dialog
+   */
+  openHolidayDetail(date: Date, event: Event): void {
+    // Prevenir que se propague el evento al día
+    event.stopPropagation();
+
+    const dayData = this.getDayFromBackend(date);
+    if (!dayData?.holiday) {
+      return;
+    }
+
+    import("./holiday-detail-dialog/holiday-detail-dialog.component").then(
+      (module) => {
+        const dialogRef = this.dialog.open(
+          module.HolidayDetailDialogComponent,
+          {
+            width: "600px",
+            maxWidth: "90vw",
+            data: {
+              holiday: dayData.holiday,
+              date: date,
+            },
+          },
+        );
+
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result?.workConfigured) {
+            // Recargar la vista del calendario
+            this.refreshCurrentView();
+          }
+        });
+      },
+    );
   }
 
   /**

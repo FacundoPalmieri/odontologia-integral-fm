@@ -1,0 +1,180 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler name="briefcase" class="text-[var(--mat-sys-primary)]"></i-tabler>
+  <span>Configurar disponibilidad laboral</span>
+</h2>
+
+<mat-dialog-content class="!p-6 !pt-4">
+  <form [formGroup]="workForm" class="flex flex-col gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+      <div class="col-span-1">
+        <label class="block text-sm font-medium mb-2">Hora de inicio</label>
+        <div formGroupName="startTime" class="flex gap-2">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Hora</mat-label>
+            <mat-select formControlName="hour">
+              @for (hour of hours; track trackByValue($index, hour)) {
+                <mat-option [value]="hour">{{
+                  hour.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Min</mat-label>
+            <mat-select formControlName="minute">
+              @for (minute of minutes; track trackByValue($index, minute)) {
+                <mat-option [value]="minute">{{
+                  minute.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="block text-sm font-medium mb-2">Hora de fin</label>
+        <div formGroupName="endTime" class="flex gap-2">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Hora</mat-label>
+            <mat-select formControlName="hour">
+              @for (hour of hours; track trackByValue($index, hour)) {
+                <mat-option [value]="hour">{{
+                  hour.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Min</mat-label>
+            <mat-select formControlName="minute">
+              @for (minute of minutes; track trackByValue($index, minute)) {
+                <mat-option [value]="minute">{{
+                  minute.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Duración de la cita</mat-label>
+          <mat-select formControlName="appointmentDuration">
+            @for (duration of durations; track trackByValue($index, duration)) {
+              <mat-option [value]="duration">{{ duration }} minutos</mat-option>
+            }
+          </mat-select>
+          @if (workForm.get("appointmentDuration")?.hasError("required")) {
+            <mat-error>Campo requerido</mat-error>
+          }
+          @if (
+            workForm.get("appointmentDuration")?.hasError("min") ||
+            workForm.get("appointmentDuration")?.hasError("max")
+          ) {
+            <mat-error>La duración debe estar entre 5 y 120 minutos</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <mat-checkbox formControlName="hasBreak" [disableRipple]="true">
+        <span class="text-sm">Configurar horario de descanso</span>
+      </mat-checkbox>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+      <div class="col-span-1">
+        <label class="block text-sm font-medium mb-2">Inicio descanso</label>
+        <div formGroupName="breakStartTime" class="flex gap-2">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Hora</mat-label>
+            <mat-select formControlName="hour">
+              @for (hour of hours; track trackByValue($index, hour)) {
+                <mat-option [value]="hour">{{
+                  hour.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Min</mat-label>
+            <mat-select formControlName="minute">
+              @for (minute of minutes; track trackByValue($index, minute)) {
+                <mat-option [value]="minute">{{
+                  minute.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="block text-sm font-medium mb-2">Fin descanso</label>
+        <div formGroupName="breakEndTime" class="flex gap-2">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Hora</mat-label>
+            <mat-select formControlName="hour">
+              @for (hour of hours; track trackByValue($index, hour)) {
+                <mat-option [value]="hour">{{
+                  hour.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Min</mat-label>
+            <mat-select formControlName="minute">
+              @for (minute of minutes; track trackByValue($index, minute)) {
+                <mat-option [value]="minute">{{
+                  minute.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="col-span-1"></div>
+    </div>
+
+    @if (
+      workForm.get("startTime.hour")?.hasError("required") ||
+      workForm.get("startTime.minute")?.hasError("required")
+    ) {
+      <div class="text-red-500 text-sm mt-2">
+        *La hora de inicio es requerida
+      </div>
+    }
+    @if (
+      workForm.get("endTime.hour")?.hasError("required") ||
+      workForm.get("endTime.minute")?.hasError("required")
+    ) {
+      <div class="text-red-500 text-sm mt-2">*La hora de fin es requerida</div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions class="!p-4 !flex !justify-end gap-2">
+  <button mat-button (click)="cancel()" [disabled]="isSaving">Cancelar</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="saveAvailability()"
+    [disabled]="workForm.invalid || isSaving"
+    class="!flex items-center gap-2"
+  >
+    @if (isSaving) {
+      <mat-spinner diameter="20" class="!w-5 !h-5"></mat-spinner>
+      <span>Guardando...</span>
+    } @else {
+      <div class="flex items-center gap-2">
+        <i-tabler name="device-floppy" class="w-4 h-4"></i-tabler>
+        <span>Guardar Configuración</span>
+      </div>
+    }
+  </button>
+</mat-dialog-actions>

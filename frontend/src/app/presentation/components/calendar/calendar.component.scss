@@ -1102,6 +1102,16 @@
           transition: all 0.3s ease;
         }
       }
+
+      // Badge de feriado clickeable
+      .holiday-badge {
+        cursor: pointer;
+
+        &:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+        }
+      }
     }
   }
 }
