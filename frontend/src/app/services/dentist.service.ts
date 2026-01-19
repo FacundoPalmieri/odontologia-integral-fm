@@ -11,6 +11,10 @@ import {
 import { DentistAvailabilitySerializer } from "../domain/serializers/dentist-availability.serializer";
 import { DentistDtoInterface } from "../domain/dto/dentist.dto";
 import { DentistHolidayInterface } from "../domain/interfaces/holiday.interface";
+import {
+  HolidayWorkConfigCreateResponseDtoInterface,
+  HolidayWorkConfigDtoInterface,
+} from "../domain/dto/holiday.dto";
 
 @Injectable({ providedIn: "root" })
 export class DentistService {
@@ -19,17 +23,17 @@ export class DentistService {
 
   getAll(): Observable<ApiResponseInterface<DentistDtoInterface[]>> {
     return this.http.get<ApiResponseInterface<DentistDtoInterface[]>>(
-      `${this.apiUrl}/dentist/all`
+      `${this.apiUrl}/dentist/all`,
     );
   }
 
   getAvailability(
-    dentistId: number
+    dentistId: number,
   ): Observable<ApiResponseInterface<DentistAvailabilityResponseInterface>> {
     return this.http
-      .get<ApiResponseInterface<any>>(
-        `${this.apiUrl}/dentist-availability/${dentistId}`
-      )
+      .get<
+        ApiResponseInterface<any>
+      >(`${this.apiUrl}/dentist-availability/${dentistId}`)
       .pipe(
         map((response) => {
           const days = DentistAvailabilitySerializer.toView(response.data);
@@ -40,13 +44,13 @@ export class DentistService {
               days,
             },
           };
-        })
+        }),
       );
   }
 
   previewAvailabilityConflicts(
     dentistId: number,
-    days: DentistDayAvailabilityInterface[]
+    days: DentistDayAvailabilityInterface[],
   ): Observable<ApiResponseInterface<any>> {
     const daysDto = DentistAvailabilitySerializer.toDto(days);
 
@@ -57,7 +61,7 @@ export class DentistService {
 
   saveAvailability(
     dentistId: number,
-    days: DentistDayAvailabilityInterface[]
+    days: DentistDayAvailabilityInterface[],
   ): Observable<ApiResponseInterface<any>> {
     const daysDto = DentistAvailabilitySerializer.toDto(days);
 
@@ -66,12 +70,25 @@ export class DentistService {
     >(`${this.apiUrl}/dentist-availability/${dentistId}`, daysDto);
   }
 
-  getHolidays(
-    dentistId: number
-  ): Observable<ApiResponseInterface<DentistHolidayInterface>> {
-    const year = new Date().getFullYear();
-    return this.http.get<ApiResponseInterface<DentistHolidayInterface>>(
-      `${this.apiUrl}/dentist-holidays/${dentistId}?year=${year}`
-    );
+  saveAvailabilityHoliday(
+    userId: number,
+    availability: HolidayWorkConfigDtoInterface,
+  ): Observable<
+    ApiResponseInterface<HolidayWorkConfigCreateResponseDtoInterface>
+  > {
+    return this.http.post<
+      ApiResponseInterface<HolidayWorkConfigCreateResponseDtoInterface>
+    >(`${this.apiUrl}/dentist-holiday/${userId}`, availability);
+  }
+
+  updateAvailabilityHoliday(
+    userId: number,
+    availability: HolidayWorkConfigDtoInterface,
+  ): Observable<
+    ApiResponseInterface<HolidayWorkConfigCreateResponseDtoInterface>
+  > {
+    return this.http.patch<
+      ApiResponseInterface<HolidayWorkConfigCreateResponseDtoInterface>
+    >(`${this.apiUrl}/dentist-holiday/${userId}`, availability);
   }
 }

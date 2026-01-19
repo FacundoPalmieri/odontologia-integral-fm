@@ -18,10 +18,11 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import {
-  HolidayWorkConfigDtoInterface,
-  TimeInterface,
-} from "../../../../domain/dto/holiday.dto";
+import { HolidayWorkConfigDtoInterface } from "../../../../domain/dto/holiday.dto";
+import { AuthService } from "../../../../services/auth.service";
+import { DentistService } from "../../../../services/dentist.service";
+import { SnackbarService } from "../../../../services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
 
 @Component({
   selector: "app-work-on-holiday-dialog",
@@ -51,6 +52,9 @@ export class WorkOnHolidayDialogComponent implements OnInit {
   durations = [30, 60];
 
   private fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly dentistService = inject(DentistService);
+  private readonly snackbarService = inject(SnackbarService);
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -129,15 +133,12 @@ export class WorkOnHolidayDialogComponent implements OnInit {
   }
 
   /**
-   * Build time object for DTO
+   * Build time string in HH:mm format
    */
-  private buildTimeObject(hour: number, minute: number): TimeInterface {
-    return {
-      hour,
-      minute,
-      second: 0,
-      nano: 0,
-    };
+  private buildTimeString(hour: number, minute: number): string {
+    const hourStr = hour.toString().padStart(2, "0");
+    const minuteStr = minute.toString().padStart(2, "0");
+    return `${hourStr}:${minuteStr}`;
   }
 
   /**
@@ -148,6 +149,19 @@ export class WorkOnHolidayDialogComponent implements OnInit {
       return;
     }
 
+    // Get user ID from auth service
+    const userData = this.authService.getUserData();
+    if (!userData) {
+      this.snackbarService.openSnackbar(
+        "Error: Usuario no autenticado",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error,
+      );
+      return;
+    }
+
     this.isSaving = true;
 
     const formValue = this.workForm.getRawValue();
@@ -155,40 +169,54 @@ export class WorkOnHolidayDialogComponent implements OnInit {
     // Build DTO matching API structure
     const dto: HolidayWorkConfigDtoInterface = {
       year: this.date.getFullYear(),
-      idHoliday: 0, // TODO: Get from holiday data
-      startTime: this.buildTimeObject(
+      idHoliday: this.holiday.id,
+      startTime: this.buildTimeString(
         formValue.startTime.hour,
         formValue.startTime.minute,
       ),
-      endTime: this.buildTimeObject(
+      endTime: this.buildTimeString(
         formValue.endTime.hour,
         formValue.endTime.minute,
       ),
       appointmentDuration: formValue.appointmentDuration,
       breakStartTime: formValue.hasBreak
-        ? this.buildTimeObject(
+        ? this.buildTimeString(
             formValue.breakStartTime.hour,
             formValue.breakStartTime.minute,
           )
         : null,
       breakEndTime: formValue.hasBreak
-        ? this.buildTimeObject(
+        ? this.buildTimeString(
             formValue.breakEndTime.hour,
             formValue.breakEndTime.minute,
           )
         : null,
     };
 
-    // TODO: Call service to save configuration
-    console.log("DTO to send:", dto);
+    console.log(dto);
 
-    setTimeout(() => {
-      this.isSaving = false;
-      this.dialogRef.close({
-        configured: true,
-        data: dto,
+    // Call service to save configuration
+    this.dentistService
+      .saveAvailabilityHoliday(userData.idUser, dto)
+      .subscribe({
+        next: (response) => {
+          this.isSaving = false;
+          this.snackbarService.openSnackbar(
+            response.message,
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success,
+          );
+          this.dialogRef.close({
+            configured: true,
+            data: response.data,
+          });
+        },
+        error: (error) => {
+          this.isSaving = false;
+        },
       });
-    }, 500);
   }
 
   /**

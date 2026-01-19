@@ -1587,18 +1587,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
                   SnackbarTypeEnum.Success,
                 );
                 this.refreshCurrentView();
-                this.loadConflicts(); // Recargar conflictos si los hay
+                this.loadConflicts();
               }
             },
             error: (error) => {
               console.error("Error al cancelar todos los turnos:", error);
-              this.snackbarService.openSnackbar(
-                "Error al cancelar los turnos del día",
-                6000,
-                "center",
-                "top",
-                SnackbarTypeEnum.Error,
-              );
             },
           });
       }

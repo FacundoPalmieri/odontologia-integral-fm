@@ -168,8 +168,10 @@
     class="!flex items-center gap-2"
   >
     @if (isSaving) {
-      <mat-spinner diameter="20" class="!w-5 !h-5"></mat-spinner>
-      <span>Guardando...</span>
+      <div class="flex items-center gap-2">
+        <mat-spinner diameter="20" class="!w-5 !h-5"></mat-spinner>
+        <span>Guardando...</span>
+      </div>
     } @else {
       <div class="flex items-center gap-2">
         <i-tabler name="device-floppy" class="w-4 h-4"></i-tabler>

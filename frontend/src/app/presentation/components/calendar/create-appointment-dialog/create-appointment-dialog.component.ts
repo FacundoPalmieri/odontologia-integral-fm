@@ -379,9 +379,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
     this.isLoadingSlots.set(true);
 
     // Filtrar solo los slots con status FREE (BREAK no es FREE, por lo que queda excluido)
-    const freeSlots = day.slots.filter(
-      (slot) => slot.status === SlotStatusEnum.FREE,
-    );
+    const freeSlots =
+      day.slots?.filter((slot) => slot.status === SlotStatusEnum.FREE) ?? [];
 
     this.availableSlots.set(freeSlots);
     this.isLoadingSlots.set(false);
@@ -404,7 +403,9 @@ export class CreateAppointmentDialogComponent implements OnInit {
     }
 
     // Verificar que tenga al menos un slot FREE (BREAK no es FREE, por lo que queda excluido)
-    return day.slots.some((slot) => slot.status === SlotStatusEnum.FREE);
+    return (
+      day.slots?.some((slot) => slot.status === SlotStatusEnum.FREE) ?? false
+    );
   }
 
   /**
@@ -839,7 +840,10 @@ export class CreateAppointmentDialogComponent implements OnInit {
         if (!this.isDateTodayOrFuture(day.day)) return false;
 
         // Verificar que tenga al menos un slot FREE
-        return day.slots.some((slot) => slot.status === SlotStatusEnum.FREE);
+        return (
+          day.slots?.some((slot) => slot.status === SlotStatusEnum.FREE) ??
+          false
+        );
       });
     });
   }
@@ -927,7 +931,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
         this.isSameDay(d.day, day.day),
       );
 
-      if (!dentistDay) return false;
+      if (!dentistDay || !dentistDay.slots) return false;
 
       return dentistDay.slots.some(
         (slot) => slot.status === SlotStatusEnum.FREE,
@@ -963,7 +967,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
         this.isSameDay(d.day, day.day),
       );
 
-      if (!dentistDay) return;
+      if (!dentistDay || !dentistDay.slots) return;
 
       const hasFreeSlots = dentistDay.slots.some(
         (slot) => slot.status === SlotStatusEnum.FREE,
@@ -1011,7 +1015,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
       this.isSameDay(d.day, day.day),
     );
 
-    if (!dentistDay) {
+    if (!dentistDay || !dentistDay.slots) {
       this.availableSlots.set([]);
       return;
     }

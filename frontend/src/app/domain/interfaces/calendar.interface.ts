@@ -59,6 +59,7 @@ export interface CalendarDayInterface {
 }
 
 export interface HolidayInterface {
+  id: number;
   key: CalendarMonthDayStatusEnum;
   color: string;
   description: string;
