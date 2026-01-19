@@ -477,11 +477,14 @@ public class CalendarService implements ICalendarService {
 
 
         //1. Validar si es feriado.
-        Optional<Holiday> holiday = holidayService.getByDate(day);
+        Optional<Holiday> holidayOptional = holidayService.getByDate(day);
 
         //Si es feriado, valída que lo trabaje el dentista.
-        if(holiday.isPresent()) {
-            Optional <DentistHoliday> dentistHolidayOptional = dentistHolidayService.getByDentistIdAndHolidayId(idDentist, holiday.get().getId());
+        if(holidayOptional.isPresent()) {
+
+            Holiday holiday = holidayOptional.get();
+
+            Optional <DentistHoliday> dentistHolidayOptional = dentistHolidayService.getByDentistIdAndHolidayId(idDentist, holiday.getId());
             if(dentistHolidayOptional.isPresent()) {
 
                 DentistHoliday dentistHoliday = dentistHolidayOptional.get();
@@ -504,7 +507,7 @@ public class CalendarService implements ICalendarService {
                         idDentist,
                         day,
                         deriveDayStatus(slots),
-                        CalendarHolidayResponseDTO.build(CalendarHoliday.HOLIDAY,holiday.get().getName(),holiday.get().getType().getLabel()),
+                        CalendarHolidayResponseDTO.build(holiday.getId(), CalendarHoliday.HOLIDAY,holiday.getName(),holiday.getType().getLabel()),
                         slots
                 );
 
@@ -513,7 +516,7 @@ public class CalendarService implements ICalendarService {
                         idDentist,
                         day,
                         CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
-                        CalendarHolidayResponseDTO.build(CalendarHoliday.HOLIDAY,holiday.get().getName(),holiday.get().getType().getLabel()),
+                        CalendarHolidayResponseDTO.build(holiday.getId(),CalendarHoliday.HOLIDAY,holiday.getName(),holiday.getType().getLabel()),
                         Collections.emptyList()
                 );
             }
