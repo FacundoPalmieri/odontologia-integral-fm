@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 import { ApiResponseInterface } from "../domain/interfaces/api-response.interface";
 import {
   CalendarDayInterface,
+  CalendarLockDayInterface,
   CalendarLockInterface,
   CalendarLockTypeInterface,
   CalendarLockTypeModeInterface,
@@ -22,15 +23,15 @@ export class CalendarService {
     ApiResponseInterface<CalendarLockTypeInterface[]>
   > {
     return this.http.get<ApiResponseInterface<CalendarLockTypeInterface[]>>(
-      `${this.apiUrl}/calendar-lock-type/all`
+      `${this.apiUrl}/calendar-lock-type/all`,
     );
   }
 
   getCalendarLockTypeById(
-    id: number
+    id: number,
   ): Observable<ApiResponseInterface<CalendarLockTypeInterface>> {
     return this.http.get<ApiResponseInterface<CalendarLockTypeInterface>>(
-      `${this.apiUrl}/calendar-lock-type/${id}`
+      `${this.apiUrl}/calendar-lock-type/${id}`,
     );
   }
 
@@ -38,35 +39,45 @@ export class CalendarService {
     ApiResponseInterface<CalendarLockTypeModeInterface[]>
   > {
     return this.http.get<ApiResponseInterface<CalendarLockTypeModeInterface[]>>(
-      `${this.apiUrl}/calendar-lock-type/mode`
+      `${this.apiUrl}/calendar-lock-type/mode`,
     );
   }
 
   createCalendarLockPreview(
     calendarLock: CalendarLockInterface,
-    idPerson: number
+    idPerson: number,
   ): Observable<ApiResponseInterface<any>> {
     return this.http.post<ApiResponseInterface<any>>(
       `${this.apiUrl}/dentist-calendar-lock/${idPerson}/preview`,
-      CalendarLockSerializer.toCreateDto(calendarLock)
+      CalendarLockSerializer.toCreateDto(calendarLock),
     );
   }
 
   createCalendarLock(
     calendarLock: CalendarLockInterface,
-    idPerson: number
-  ): Observable<ApiResponseInterface<any>> {
-    // TODO: Cambiar a CalendarLockInterface
-    return this.http.post<ApiResponseInterface<any>>(
+    idPerson: number,
+  ): Observable<ApiResponseInterface<CalendarLockInterface>> {
+    return this.http.post<ApiResponseInterface<CalendarLockInterface>>(
       `${this.apiUrl}/dentist-calendar-lock/${idPerson}`,
-      CalendarLockSerializer.toCreateDto(calendarLock)
+      CalendarLockSerializer.toCreateDto(calendarLock),
+    );
+  }
+
+  updateCalendarLock(
+    calendarLock: CalendarLockDayInterface,
+    observation: string,
+    idPerson: number,
+  ): Observable<ApiResponseInterface<CalendarLockInterface>> {
+    return this.http.patch<ApiResponseInterface<CalendarLockInterface>>(
+      `${this.apiUrl}/dentist-calendar-lock/${idPerson}`,
+      CalendarLockSerializer.toUpdateDto(calendarLock, observation),
     );
   }
 
   getMonth(
     idDentist: number,
     year: number,
-    month: number
+    month: number,
   ): Observable<ApiResponseInterface<CalendarMonthInterface>> {
     const params = new HttpParams()
       .set("year", year.toString())
@@ -74,13 +85,13 @@ export class CalendarService {
 
     return this.http.get<ApiResponseInterface<CalendarMonthInterface>>(
       `${this.apiUrl}/calendar/${idDentist}/month`,
-      { params }
+      { params },
     );
   }
 
   getWeek(
     idDentist: number,
-    date: Date
+    date: Date,
   ): Observable<ApiResponseInterface<CalendarWeekInterface>> {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -91,13 +102,13 @@ export class CalendarService {
 
     return this.http.get<ApiResponseInterface<CalendarWeekInterface>>(
       `${this.apiUrl}/calendar/${idDentist}/week`,
-      { params }
+      { params },
     );
   }
 
   getDay(
     idDentist: number,
-    date: Date
+    date: Date,
   ): Observable<ApiResponseInterface<CalendarDayInterface>> {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -108,7 +119,7 @@ export class CalendarService {
 
     return this.http.get<ApiResponseInterface<CalendarDayInterface>>(
       `${this.apiUrl}/calendar/${idDentist}/day`,
-      { params }
+      { params },
     );
   }
 }

@@ -254,21 +254,21 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       requests["prev"] = this.calendarService.getMonth(
         this.personId,
         prevYear,
-        prevMonth
+        prevMonth,
       );
     }
     if (!this.monthCache.has(currentKey)) {
       requests["current"] = this.calendarService.getMonth(
         this.personId,
         year,
-        month
+        month,
       );
     }
     if (!this.monthCache.has(nextKey)) {
       requests["next"] = this.calendarService.getMonth(
         this.personId,
         nextYear,
-        nextMonth
+        nextMonth,
       );
     }
 
@@ -311,7 +311,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private combineMonthsFromCache(
     prevKey: string,
     currentKey: string,
-    nextKey: string
+    nextKey: string,
   ) {
     const allDays: CalendarMonthDayInterface[] = [];
 
@@ -556,7 +556,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     // Crear una clave única para la fecha (YYYY-MM-DD)
     const dateKey = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
+      date.getMonth() + 1,
     ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
     // Buscar el día que coincida con la fecha
@@ -1020,7 +1020,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private updateCurrentDayKey() {
     const now = new Date();
     this.currentDayKey = `${now.getFullYear()}-${String(
-      now.getMonth() + 1
+      now.getMonth() + 1,
     ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   }
 
@@ -1030,7 +1030,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private checkDayChange() {
     const now = new Date();
     const newDayKey = `${now.getFullYear()}-${String(
-      now.getMonth() + 1
+      now.getMonth() + 1,
     ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
     if (newDayKey !== this.currentDayKey) {
@@ -1106,7 +1106,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
           6000,
           "center",
           "top",
-          SnackbarTypeEnum.Success
+          SnackbarTypeEnum.Success,
         );
         this.refreshCurrentView();
       }
@@ -1202,29 +1202,56 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   openSlotDetail(slot: any): void {
-    // Importar dinámicamente el componente para evitar problemas de dependencias
-    import(
-      "./appointment-detail-dialog/appointment-detail-dialog.component"
-    ).then((module) => {
-      const dialogRef = this.dialog.open(
-        module.AppointmentDetailDialogComponent,
-        {
-          width: "600px",
-          maxWidth: "90vw",
-          data: {
-            slot: slot,
-          },
-        }
-      );
+    // Verificar si es un bloqueo o una cita
+    if (slot.status === "LOCKED") {
+      // Abrir diálogo de detalle de bloqueo
+      import("./calendar-lock-detail-dialog/calendar-lock-detail-dialog.component").then(
+        (module) => {
+          const dialogRef = this.dialog.open(
+            module.CalendarLockDetailDialogComponent,
+            {
+              width: "600px",
+              maxWidth: "90vw",
+              data: {
+                slot: slot,
+                idDentist: this.personId,
+              },
+            },
+          );
 
-      // Al cerrar el diálogo, recargar la vista si se canceló la cita
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result?.cancelled) {
-          this.refreshCurrentView();
-          this.loadConflicts(); // También recargar conflictos si los hay
-        }
-      });
-    });
+          // Al cerrar el diálogo, recargar la vista si se desbloqueó
+          dialogRef.afterClosed().subscribe((result) => {
+            if (result?.unlocked) {
+              this.refreshCurrentView();
+            }
+          });
+        },
+      );
+    } else {
+      // Abrir diálogo de detalle de cita (RESERVED)
+      import("./appointment-detail-dialog/appointment-detail-dialog.component").then(
+        (module) => {
+          const dialogRef = this.dialog.open(
+            module.AppointmentDetailDialogComponent,
+            {
+              width: "600px",
+              maxWidth: "90vw",
+              data: {
+                slot: slot,
+              },
+            },
+          );
+
+          // Al cerrar el diálogo, recargar la vista si se canceló la cita
+          dialogRef.afterClosed().subscribe((result) => {
+            if (result?.cancelled) {
+              this.refreshCurrentView();
+              this.loadConflicts(); // También recargar conflictos si los hay
+            }
+          });
+        },
+      );
+    }
   }
 
   // ===== MÉTODOS PARA VISTA DE SECRETARIO =====
@@ -1249,7 +1276,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
           6000,
           "center",
           "top",
-          SnackbarTypeEnum.Error
+          SnackbarTypeEnum.Error,
         );
         this.isLoadingDentists.set(false);
       },
@@ -1282,7 +1309,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       ([specialtyName, dentists]) => ({
         specialtyName,
         dentists,
-      })
+      }),
     );
 
     this.specialtyGroups.set(groups);
@@ -1448,7 +1475,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     // Verificar si hay slots RESERVED
     const hasReservedSlots = dayData.slots?.some(
-      (slot) => slot.status === "RESERVED"
+      (slot) => slot.status === "RESERVED",
     );
 
     return hasReservedSlots || false;
@@ -1467,7 +1494,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     // Verificar si hay slots RESERVED
     const hasReservedSlots = dayData.slots?.some(
-      (slot) => slot.status === "RESERVED"
+      (slot) => slot.status === "RESERVED",
     );
 
     return hasReservedSlots || false;
@@ -1505,7 +1532,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
                   6000,
                   "center",
                   "top",
-                  SnackbarTypeEnum.Success
+                  SnackbarTypeEnum.Success,
                 );
                 this.refreshCurrentView();
                 this.loadConflicts(); // Recargar conflictos si los hay
@@ -1518,7 +1545,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
                 6000,
                 "center",
                 "top",
-                SnackbarTypeEnum.Error
+                SnackbarTypeEnum.Error,
               );
             },
           });

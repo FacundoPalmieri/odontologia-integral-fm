@@ -1,0 +1,41 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler name="lock-open" class="text-[var(--mat-sys-error)]"></i-tabler>
+  <span>Desbloquear agenda</span>
+</h2>
+<mat-dialog-content>
+  <p class="mb-4 text-[var(--mat-sys-on-surface-variant)]">
+    ¿Está seguro que desea desbloquear este período de la agenda?
+  </p>
+  <mat-form-field class="w-full">
+    <mat-label>Observación</mat-label>
+    <input
+      matInput
+      [formControl]="observationControl"
+      maxlength="50"
+      placeholder="Ingrese el motivo del desbloqueo"
+      required
+    />
+    <mat-hint align="end"
+      >{{ observationControl.value?.length || 0 }}/50</mat-hint
+    >
+    @if (
+      observationControl.hasError("required") && observationControl.touched
+    ) {
+      <mat-error>La observación es obligatoria</mat-error>
+    }
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="gap-2">
+  <button mat-button [mat-dialog-close]="{ confirmed: false }">Cancelar</button>
+  <button
+    mat-flat-button
+    color="warn"
+    [disabled]="observationControl.invalid"
+    [mat-dialog-close]="{
+      confirmed: true,
+      observation: observationControl.value,
+    }"
+  >
+    Confirmar desbloqueo
+  </button>
+</mat-dialog-actions>

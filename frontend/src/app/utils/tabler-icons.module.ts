@@ -130,6 +130,7 @@ import {
   IconPalette,
   IconDotsVertical,
   IconRepeat,
+  IconMessageCircle,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -261,6 +262,7 @@ const ICONS = {
   IconPalette,
   IconDotsVertical,
   IconRepeat,
+  IconMessageCircle,
 } as const;
 
 @NgModule({

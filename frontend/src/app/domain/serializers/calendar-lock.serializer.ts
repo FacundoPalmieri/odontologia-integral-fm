@@ -1,9 +1,15 @@
-import { CalendarLockCreateDtoInterface } from "../dto/calendar.dto";
-import { CalendarLockInterface } from "../interfaces/calendar.interface";
+import {
+  CalendarLockCreateDtoInterface,
+  CalendarLockUpdateDtoInterface,
+} from "../dto/calendar.dto";
+import {
+  CalendarLockDayInterface,
+  CalendarLockInterface,
+} from "../interfaces/calendar.interface";
 
 export class CalendarLockSerializer {
   static toCreateDto(
-    calendarLock: CalendarLockInterface
+    calendarLock: CalendarLockInterface,
   ): CalendarLockCreateDtoInterface {
     const calendarLockDto: CalendarLockCreateDtoInterface = {
       idLockType: calendarLock.calendarLockType.id,
@@ -18,5 +24,17 @@ export class CalendarLockSerializer {
     };
 
     return calendarLockDto;
+  }
+
+  static toUpdateDto(
+    calendarLock: CalendarLockDayInterface,
+    observation: string,
+  ): CalendarLockUpdateDtoInterface {
+    const calendarLockUpdateDto: CalendarLockUpdateDtoInterface = {
+      idDentistCalendarLock: calendarLock.id,
+      observationUpdate: observation,
+    };
+
+    return calendarLockUpdateDto;
   }
 }

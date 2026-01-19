@@ -1,0 +1,116 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler
+    name="calendar-cancel"
+    class="text-[var(--mat-sys-error)]"
+  ></i-tabler>
+  <span>Detalle del Bloqueo</span>
+</h2>
+
+<mat-dialog-content class="!p-6 !pt-0">
+  @if (slot.status === "LOCKED" && slot.calendarLock) {
+    <!-- Grid for lock info -->
+    <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+      <!-- Lock Type -->
+      <div class="col-span-2">
+        <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
+          {{ slot.calendarLock.lockType || "No especificado" }}
+        </div>
+      </div>
+
+      <!-- Date Range -->
+      <div>
+        <div
+          class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+        >
+          <i-tabler
+            name="calendar-event"
+            class="w-4 h-4 text-[var(--mat-sys-primary)]"
+          ></i-tabler>
+          <span>Período</span>
+        </div>
+        <div
+          class="flex items-center gap-2 text-sm font-medium text-[var(--mat-sys-on-surface)]"
+        >
+          <span>{{ formatDate(slot.calendarLock.startDate) }}</span>
+          <span class="text-[var(--mat-sys-on-surface-variant)]">—</span>
+          <span>{{ formatDate(slot.calendarLock.endDate) }}</span>
+        </div>
+      </div>
+
+      <!-- Time Range -->
+      <div>
+        <div
+          class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+        >
+          <i-tabler
+            name="clock"
+            class="w-4 h-4 text-[var(--mat-sys-tertiary)]"
+          ></i-tabler>
+          <span>Horario</span>
+        </div>
+        <div
+          class="flex items-center gap-3 text-base font-medium text-[var(--mat-sys-on-surface)]"
+        >
+          <span>{{ formatTime(slot.calendarLock.startTime) }}</span>
+          <span class="text-[var(--mat-sys-on-surface-variant)]">—</span>
+          <span>{{ formatTime(slot.calendarLock.endTime) }}</span>
+        </div>
+      </div>
+
+      <!-- Recurrence (full width if exists) -->
+      @if (slot.calendarLock.recurrence) {
+        <div class="col-span-2">
+          <div
+            class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+          >
+            <i-tabler
+              name="repeat"
+              class="w-4 h-4 text-[var(--mat-sys-secondary)]"
+            ></i-tabler>
+            <span>Recurrencia</span>
+          </div>
+          <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
+            {{ slot.calendarLock.recurrence }}
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Observation (full width) -->
+    @if (slot.calendarLock.observation) {
+      <div
+        class="mt-4 p-3 rounded-lg bg-[var(--mat-sys-surface-container-high)] border border-[var(--mat-sys-outline-variant)]"
+      >
+        <div
+          class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+        >
+          <i-tabler
+            name="message-circle"
+            class="w-4 h-4 text-[var(--mat-sys-primary)]"
+          ></i-tabler>
+          <span>Observación</span>
+        </div>
+        <div class="text-base text-[var(--mat-sys-on-surface)]">
+          {{ slot.calendarLock.observation }}
+        </div>
+      </div>
+    }
+  }
+</mat-dialog-content>
+
+<!-- Actions -->
+<mat-dialog-actions
+  class="!p-6 !pt-4 border-t border-[var(--mat-sys-outline-variant)] flex justify-center gap-2"
+>
+  <button mat-button (click)="close()" class="!min-w-[100px]">Cerrar</button>
+  <button
+    mat-flat-button
+    (click)="unlockCalendar()"
+    class="!min-w-[160px] flex items-center gap-2 !bg-[var(--mat-sys-error)] !text-white"
+  >
+    <div class="flex items-center gap-2">
+      <i-tabler name="lock-open"></i-tabler>
+      <span>Desbloquear</span>
+    </div>
+  </button>
+</mat-dialog-actions>

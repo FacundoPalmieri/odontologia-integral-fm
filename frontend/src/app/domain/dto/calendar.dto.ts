@@ -12,3 +12,8 @@ export interface CalendarLockCreateDtoInterface {
   endTime: string;
   observation: string;
 }
+
+export interface CalendarLockUpdateDtoInterface {
+  idDentistCalendarLock: number;
+  observationUpdate: string;
+}
