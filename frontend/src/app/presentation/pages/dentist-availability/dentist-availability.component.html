@@ -9,543 +9,636 @@
 </app-page-toolbar>
 
 <!-- Estado de carga: Mostrar spinner mientras se recuperan los datos -->
-@if(isLoading()) {
-<mat-card appearance="outlined" class="mt-4">
-  <mat-card-content class="p-8">
-    <div class="flex flex-col items-center justify-center gap-4 py-8">
-      <mat-spinner diameter="60"></mat-spinner>
-      <p class="text-center max-w-md text-gray-600">
-        Cargando configuración de disponibilidad...
-      </p>
-    </div>
-  </mat-card-content>
-</mat-card>
+@if (isLoading()) {
+  <mat-card appearance="outlined" class="mt-4">
+    <mat-card-content class="p-8">
+      <div class="flex flex-col items-center justify-center gap-4 py-8">
+        <mat-spinner diameter="60"></mat-spinner>
+        <p class="text-center max-w-md text-gray-600">
+          Cargando configuración de disponibilidad...
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
 }
 
 <!-- Estado no configurado: Mostrar botón para inicializar -->
-@if(!isConfigured() && !isLoading()) {
-<mat-card appearance="outlined" class="mt-4">
-  <mat-card-content class="p-8">
-    <div class="flex flex-col items-center justify-center gap-4 py-8">
-      <div
-        class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center"
-      >
-        <i-tabler
-          name="calendar-plus"
-          class="text-blue-600 scale-[2]"
-        ></i-tabler>
-      </div>
-      <p class="text-center max-w-md">
-        No tienes una configuración de disponibilidad laboral. Haz clic en el
-        botón para comenzar a configurar tus horarios de trabajo.
-      </p>
-      <button mat-flat-button (click)="initializeConfiguration()">
-        <div class="flex items-center gap-2">
-          <i-tabler name="settings"></i-tabler>
-          <span>Iniciar configuración</span>
+@if (!isConfigured() && !isLoading()) {
+  <mat-card appearance="outlined" class="mt-4">
+    <mat-card-content class="p-8">
+      <div class="flex flex-col items-center justify-center gap-4 py-8">
+        <div
+          class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center"
+        >
+          <i-tabler
+            name="calendar-plus"
+            class="text-blue-600 scale-[2]"
+          ></i-tabler>
         </div>
-      </button>
-    </div>
-  </mat-card-content>
-</mat-card>
+        <p class="text-center max-w-md">
+          No tienes una configuración de disponibilidad laboral. Haz clic en el
+          botón para comenzar a configurar tus horarios de trabajo.
+        </p>
+        <button mat-flat-button (click)="initializeConfiguration()">
+          <div class="flex items-center gap-2">
+            <i-tabler name="settings"></i-tabler>
+            <span>Iniciar configuración</span>
+          </div>
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
 }
 
 <!-- Estado configurado: Mostrar tabs con formularios -->
-@if(isConfigured()) {
-<mat-card appearance="outlined" class="mt-4">
-  <mat-tab-group [(selectedIndex)]="selectedTabIndex">
-    <!-- Tab 1: Configuración semanal recurrente -->
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <div class="flex items-center gap-2">
-          <i-tabler name="calendar-week"></i-tabler>
-          <span>Horario semanal</span>
-        </div>
-      </ng-template>
-      <form
-        class="p-4"
-        [formGroup]="weeklyAvailabilityForm"
-        style="will-change: scroll-position; transform: translateZ(0)"
-      >
-        @if(hasSpecificDaysConfiguration()) {
-        <div
-          class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-[var(--mat-sys-corner-large)]"
-        >
-          <div class="flex items-start gap-2">
-            <i-tabler
-              name="info-circle"
-              class="text-yellow-600 mt-0.5"
-            ></i-tabler>
-            <p
-              class="text-sm text-yellow-800 rounded-[var(--mat-sys-corner-large)]"
-            >
-              No puedes configurar horario semanal porque ya tienes días
-              específicos configurados. Elimina todos los días específicos para
-              poder configurar un horario semanal.
-            </p>
+@if (isConfigured()) {
+  <mat-card appearance="outlined" class="mt-4">
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+      <!-- Tab 1: Configuración semanal recurrente -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="flex items-center gap-2">
+            <i-tabler name="calendar-week"></i-tabler>
+            <span>Horario semanal</span>
           </div>
-        </div>
-        }
+        </ng-template>
+        <form
+          class="p-4"
+          [formGroup]="weeklyAvailabilityForm"
+          style="will-change: scroll-position; transform: translateZ(0)"
+        >
+          @if (hasSpecificDaysConfiguration()) {
+            <div
+              class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-[var(--mat-sys-corner-large)]"
+            >
+              <div class="flex items-start gap-2">
+                <i-tabler
+                  name="info-circle"
+                  class="text-yellow-600 mt-0.5"
+                ></i-tabler>
+                <p
+                  class="text-sm text-yellow-800 rounded-[var(--mat-sys-corner-large)]"
+                >
+                  No puedes configurar horario semanal porque ya tienes días
+                  específicos configurados. Elimina todos los días específicos
+                  para poder configurar un horario semanal.
+                </p>
+              </div>
+            </div>
+          }
 
-        <div formArrayName="availability" class="space-y-4">
-          @for(control of weeklyAvailability.controls; track $index) {
-          <div
-            [formGroupName]="$index"
-            class="p-4 bg-[var(--mat-sys-home-sidenav-content-background)] rounded-[var(--mat-sys-corner-large)]"
-            style="contain: layout style; will-change: transform"
-          >
-            <div class="flex items-center mb-4">
-              <mat-checkbox
-                class="checkbox-item"
-                [disableRipple]="true"
-                formControlName="isWorking"
-                class="mr-3"
-                [disabled]="hasSpecificDaysConfiguration()"
+          <div formArrayName="availability" class="space-y-4">
+            @for (control of weeklyAvailability.controls; track $index) {
+              <div
+                [formGroupName]="$index"
+                class="p-4 bg-[var(--mat-sys-home-sidenav-content-background)] rounded-[var(--mat-sys-corner-large)]"
+                style="contain: layout style; will-change: transform"
               >
-                <span class="font-medium">
-                  {{ getDayLabel(control.get("dayName")?.value) }}
-                </span>
-              </mat-checkbox>
-            </div>
-
-            <!-- Primera fila: Horario de trabajo y duración -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-4">
-              <div class="col-span-1">
-                <label class="block text-sm font-medium mb-2"
-                  >Hora de inicio</label
-                >
-                <div formGroupName="startTime" class="flex gap-2">
-                  <mat-form-field appearance="outline" class="flex-1">
-                    <mat-label>Hora</mat-label>
-                    <mat-select formControlName="hour">
-                      @for(hour of
-                      [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22, 23];
-                      track trackByValue($index, hour)) {
-                      <mat-option [value]="hour">{{
-                        hour.toString().padStart(2, "0")
-                      }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="flex-1">
-                    <mat-label>Min</mat-label>
-                    <mat-select formControlName="minute">
-                      @for(minute of [0,15,30,45]; track trackByValue($index,
-                      minute)) {
-                      <mat-option [value]="minute">{{
-                        minute.toString().padStart(2, "0")
-                      }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-              </div>
-
-              <div class="col-span-1">
-                <label class="block text-sm font-medium mb-2"
-                  >Hora de fin</label
-                >
-                <div formGroupName="endTime" class="flex gap-2">
-                  <mat-form-field appearance="outline" class="flex-1">
-                    <mat-label>Hora</mat-label>
-                    <mat-select formControlName="hour">
-                      @for(hour of
-                      [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; track
-                      trackByValue($index, hour)) {
-                      <mat-option [value]="hour">{{
-                        hour.toString().padStart(2, "0")
-                      }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="flex-1">
-                    <mat-label>Min</mat-label>
-                    <mat-select formControlName="minute">
-                      @for(minute of [0,15,30,45]; track trackByValue($index,
-                      minute)) {
-                      <mat-option [value]="minute">{{
-                        minute.toString().padStart(2, "0")
-                      }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-              </div>
-
-              <div class="col-span-1">
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Duración de la cita</mat-label>
-                  <mat-select formControlName="appointmentDuration">
-                    @for(duration of [30, 60]; track trackByValue($index,
-                    duration)) {
-                    <mat-option [value]="duration"
-                      >{{ duration }} minutos</mat-option
-                    >
-                    }
-                  </mat-select>
-                  @if(control.get('appointmentDuration')?.hasError('required')
-                  && control.get('isWorking')?.value) {
-                  <mat-error>Campo requerido</mat-error>
-                  } @if((control.get('appointmentDuration')?.hasError('min') ||
-                  control.get('appointmentDuration')?.hasError('max')) &&
-                  control.get('isWorking')?.value) {
-                  <mat-error
-                    >La duración debe estar entre 5 y 120 minutos</mat-error
+                <div class="flex items-center mb-4">
+                  <mat-checkbox
+                    class="checkbox-item"
+                    [disableRipple]="true"
+                    formControlName="isWorking"
+                    class="mr-3"
+                    [disabled]="hasSpecificDaysConfiguration()"
                   >
-                  }
-                </mat-form-field>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <mat-checkbox formControlName="hasBreak" [disableRipple]="true">
-                <span class="text-sm">Configurar horario de descanso</span>
-              </mat-checkbox>
-            </div>
-
-            <!-- Segunda fila: Horario de descanso -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <div class="col-span-1">
-                <label class="block text-sm font-medium mb-2"
-                  >Inicio descanso</label
-                >
-                <div formGroupName="breakStartTime" class="flex gap-2">
-                  <mat-form-field appearance="outline" class="flex-1">
-                    <mat-label>Hora</mat-label>
-                    <mat-select formControlName="hour">
-                      @for(hour of
-                      [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22, 23];
-                      track trackByValue($index, hour)) {
-                      <mat-option [value]="hour">{{
-                        hour.toString().padStart(2, "0")
-                      }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="flex-1">
-                    <mat-label>Min</mat-label>
-                    <mat-select formControlName="minute">
-                      @for(minute of [0,15,30,45]; track trackByValue($index,
-                      minute)) {
-                      <mat-option [value]="minute">{{
-                        minute.toString().padStart(2, "0")
-                      }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                    <span class="font-medium">
+                      {{ getDayLabel(control.get("dayName")?.value) }}
+                    </span>
+                  </mat-checkbox>
                 </div>
-              </div>
 
-              <div class="col-span-1">
-                <label class="block text-sm font-medium mb-2"
-                  >Fin descanso</label
+                <!-- Primera fila: Horario de trabajo y duración -->
+                <div
+                  class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-4"
                 >
-                <div formGroupName="breakEndTime" class="flex gap-2">
-                  <mat-form-field appearance="outline" class="flex-1">
-                    <mat-label>Hora</mat-label>
-                    <mat-select formControlName="hour">
-                      @for(hour of
-                      [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; track
-                      trackByValue($index, hour)) {
-                      <mat-option [value]="hour">{{
-                        hour.toString().padStart(2, "0")
-                      }}</mat-option>
+                  <div class="col-span-1">
+                    <label class="block text-sm font-medium mb-2"
+                      >Hora de inicio</label
+                    >
+                    <div formGroupName="startTime" class="flex gap-2">
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Hora</mat-label>
+                        <mat-select formControlName="hour">
+                          @for (
+                            hour of [
+                              6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                              19, 20, 21, 22, 23,
+                            ];
+                            track trackByValue($index, hour)
+                          ) {
+                            <mat-option [value]="hour">{{
+                              hour.toString().padStart(2, "0")
+                            }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Min</mat-label>
+                        <mat-select formControlName="minute">
+                          @for (
+                            minute of [0, 15, 30, 45];
+                            track trackByValue($index, minute)
+                          ) {
+                            <mat-option [value]="minute">{{
+                              minute.toString().padStart(2, "0")
+                            }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <div class="col-span-1">
+                    <label class="block text-sm font-medium mb-2"
+                      >Hora de fin</label
+                    >
+                    <div formGroupName="endTime" class="flex gap-2">
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Hora</mat-label>
+                        <mat-select formControlName="hour">
+                          @for (
+                            hour of [
+                              6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                              19, 20, 21, 22, 23,
+                            ];
+                            track trackByValue($index, hour)
+                          ) {
+                            <mat-option [value]="hour">{{
+                              hour.toString().padStart(2, "0")
+                            }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Min</mat-label>
+                        <mat-select formControlName="minute">
+                          @for (
+                            minute of [0, 15, 30, 45];
+                            track trackByValue($index, minute)
+                          ) {
+                            <mat-option [value]="minute">{{
+                              minute.toString().padStart(2, "0")
+                            }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <div class="col-span-1">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Duración de la cita</mat-label>
+                      <mat-select formControlName="appointmentDuration">
+                        @for (
+                          duration of [15, 30, 45, 60];
+                          track trackByValue($index, duration)
+                        ) {
+                          <mat-option [value]="duration"
+                            >{{ duration }} minutos</mat-option
+                          >
+                        }
+                      </mat-select>
+                      @if (
+                        control
+                          .get("appointmentDuration")
+                          ?.hasError("required") &&
+                        control.get("isWorking")?.value
+                      ) {
+                        <mat-error>Campo requerido</mat-error>
                       }
-                    </mat-select>
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="flex-1">
-                    <mat-label>Min</mat-label>
-                    <mat-select formControlName="minute">
-                      @for(minute of [0,15,30,45]; track trackByValue($index,
-                      minute)) {
-                      <mat-option [value]="minute">{{
-                        minute.toString().padStart(2, "0")
-                      }}</mat-option>
+                      @if (
+                        (control.get("appointmentDuration")?.hasError("min") ||
+                          control
+                            .get("appointmentDuration")
+                            ?.hasError("max")) &&
+                        control.get("isWorking")?.value
+                      ) {
+                        <mat-error
+                          >La duración debe estar entre 5 y 120
+                          minutos</mat-error
+                        >
                       }
-                    </mat-select>
-                  </mat-form-field>
+                    </mat-form-field>
+                  </div>
                 </div>
-              </div>
 
-              <div class="col-span-1">
-                <!-- Espacio vacío para mantener la alineación -->
-              </div>
-            </div>
+                <div class="mb-3">
+                  <mat-checkbox
+                    formControlName="hasBreak"
+                    [disableRipple]="true"
+                  >
+                    <span class="text-sm">Configurar horario de descanso</span>
+                  </mat-checkbox>
+                </div>
 
-            @if((control.get('startTime.hour')?.hasError('required') ||
-            control.get('startTime.minute')?.hasError('required')) &&
-            control.get('isWorking')?.value) {
-            <div class="text-red-500 text-sm mt-2">
-              *La hora de inicio es requerida
-            </div>
-            } @if((control.get('endTime.hour')?.hasError('required') ||
-            control.get('endTime.minute')?.hasError('required')) &&
-            control.get('isWorking')?.value) {
-            <div class="text-red-500 text-sm mt-2">
-              *La hora de fin es requerida
-            </div>
+                <!-- Segunda fila: Horario de descanso -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                  <div class="col-span-1">
+                    <label class="block text-sm font-medium mb-2"
+                      >Inicio descanso</label
+                    >
+                    <div formGroupName="breakStartTime" class="flex gap-2">
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Hora</mat-label>
+                        <mat-select formControlName="hour">
+                          @for (
+                            hour of [
+                              6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                              19, 20, 21, 22, 23,
+                            ];
+                            track trackByValue($index, hour)
+                          ) {
+                            <mat-option [value]="hour">{{
+                              hour.toString().padStart(2, "0")
+                            }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Min</mat-label>
+                        <mat-select formControlName="minute">
+                          @for (
+                            minute of [0, 15, 30, 45];
+                            track trackByValue($index, minute)
+                          ) {
+                            <mat-option [value]="minute">{{
+                              minute.toString().padStart(2, "0")
+                            }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <div class="col-span-1">
+                    <label class="block text-sm font-medium mb-2"
+                      >Fin descanso</label
+                    >
+                    <div formGroupName="breakEndTime" class="flex gap-2">
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Hora</mat-label>
+                        <mat-select formControlName="hour">
+                          @for (
+                            hour of [
+                              6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                              19, 20, 21, 22, 23,
+                            ];
+                            track trackByValue($index, hour)
+                          ) {
+                            <mat-option [value]="hour">{{
+                              hour.toString().padStart(2, "0")
+                            }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Min</mat-label>
+                        <mat-select formControlName="minute">
+                          @for (
+                            minute of [0, 15, 30, 45];
+                            track trackByValue($index, minute)
+                          ) {
+                            <mat-option [value]="minute">{{
+                              minute.toString().padStart(2, "0")
+                            }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <div class="col-span-1">
+                    <!-- Espacio vacío para mantener la alineación -->
+                  </div>
+                </div>
+
+                @if (
+                  (control.get("startTime.hour")?.hasError("required") ||
+                    control.get("startTime.minute")?.hasError("required")) &&
+                  control.get("isWorking")?.value
+                ) {
+                  <div class="text-red-500 text-sm mt-2">
+                    *La hora de inicio es requerida
+                  </div>
+                }
+                @if (
+                  (control.get("endTime.hour")?.hasError("required") ||
+                    control.get("endTime.minute")?.hasError("required")) &&
+                  control.get("isWorking")?.value
+                ) {
+                  <div class="text-red-500 text-sm mt-2">
+                    *La hora de fin es requerida
+                  </div>
+                }
+              </div>
             }
           </div>
-          }
-        </div>
-      </form>
-    </mat-tab>
+        </form>
+      </mat-tab>
 
-    <!-- Tab 2: Días específicos -->
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <div class="flex items-center gap-2">
-          <i-tabler name="calendar-event"></i-tabler>
-          <span>Días específicos</span>
-        </div>
-      </ng-template>
-      <form
-        class="p-4"
-        [formGroup]="specificDaysForm"
-        style="will-change: scroll-position; transform: translateZ(0)"
-      >
-        @if(hasWeeklyConfiguration()) {
-        <div
-          class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-[var(--mat-sys-corner-large)]"
+      <!-- Tab 2: Días específicos -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="flex items-center gap-2">
+            <i-tabler name="calendar-event"></i-tabler>
+            <span>Días específicos</span>
+          </div>
+        </ng-template>
+        <form
+          class="p-4"
+          [formGroup]="specificDaysForm"
+          style="will-change: scroll-position; transform: translateZ(0)"
         >
-          <div class="flex items-start gap-2">
-            <i-tabler
-              name="info-circle"
-              class="text-yellow-600 mt-0.5"
-            ></i-tabler>
-            <p class="text-sm text-yellow-800">
-              No puedes agregar días específicos porque ya tienes un horario
-              semanal configurado. Desmarca todos los días del horario semanal
-              para poder agregar días específicos.
-            </p>
-          </div>
-        </div>
-        } @if(!hasWeeklyConfiguration()) {
-        <div class="mb-4 flex justify-end">
-          <button mat-stroked-button type="button" (click)="addSpecificDay()">
-            <div class="flex items-center justify-center gap-2">
-              <i-tabler name="plus"></i-tabler>
-              <span>Agregar día</span>
-            </div>
-          </button>
-        </div>
-        }
-
-        <div formArrayName="specificDays" class="space-y-4">
-          @for(control of specificDays.controls; track $index) {
-          <div class="flex gap-4 items-start">
+          @if (hasWeeklyConfiguration()) {
             <div
-              [formGroupName]="$index"
-              class="flex-1 p-4 bg-[var(--mat-sys-home-sidenav-content-background)] rounded-[var(--mat-sys-corner-large)]"
-              style="contain: layout style; will-change: transform"
+              class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-[var(--mat-sys-corner-large)]"
             >
-              <!-- Primera fila: Fecha, horario de trabajo y duración -->
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4">
-                <div class="col-span-1">
-                  <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Fecha</mat-label>
-                    <input
-                      matInput
-                      [matDatepicker]="picker"
-                      formControlName="specificDate"
-                      [min]="minDate"
-                    />
-                    <mat-datepicker-toggle
-                      matIconSuffix
-                      [for]="picker"
-                    ></mat-datepicker-toggle>
-                    <mat-datepicker #picker></mat-datepicker>
-                    @if(control.get('specificDate')?.hasError('required')) {
-                    <mat-error>La fecha es requerida.</mat-error>
-                    }
-                  </mat-form-field>
-                </div>
-
-                <div class="col-span-1">
-                  <label class="block text-sm font-medium mb-2"
-                    >Hora de inicio</label
-                  >
-                  <div formGroupName="startTime" class="flex gap-2">
-                    <mat-form-field appearance="outline" class="flex-1">
-                      <mat-label>Hora</mat-label>
-                      <mat-select formControlName="hour">
-                        @for(hour of
-                        [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22, 23];
-                        track trackByValue($index, hour)) {
-                        <mat-option [value]="hour">{{
-                          hour.toString().padStart(2, "0")
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="flex-1">
-                      <mat-label>Min</mat-label>
-                      <mat-select formControlName="minute">
-                        @for(minute of [0,15,30,45]; track trackByValue($index,
-                        minute)) {
-                        <mat-option [value]="minute">{{
-                          minute.toString().padStart(2, "0")
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <div class="col-span-1">
-                  <label class="block text-sm font-medium mb-2"
-                    >Hora de fin</label
-                  >
-                  <div formGroupName="endTime" class="flex gap-2">
-                    <mat-form-field appearance="outline" class="flex-1">
-                      <mat-label>Hora</mat-label>
-                      <mat-select formControlName="hour">
-                        @for(hour of
-                        [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
-                        track trackByValue($index, hour)) {
-                        <mat-option [value]="hour">{{
-                          hour.toString().padStart(2, "0")
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="flex-1">
-                      <mat-label>Min</mat-label>
-                      <mat-select formControlName="minute">
-                        @for(minute of [0,15,30,45]; track trackByValue($index,
-                        minute)) {
-                        <mat-option [value]="minute">{{
-                          minute.toString().padStart(2, "0")
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <div class="col-span-1">
-                  <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Duración de la cita</mat-label>
-                    <mat-select formControlName="appointmentDuration">
-                      @for(duration of [30,60]; track trackByValue($index,
-                      duration)) {
-                      <mat-option [value]="duration"
-                        >{{ duration }} minutos</mat-option
-                      >
-                      }
-                    </mat-select>
-                    @if(control.get('appointmentDuration')?.hasError('required'))
-                    {
-                    <mat-error>Campo requerido</mat-error>
-                    } @if((control.get('appointmentDuration')?.hasError('min')
-                    || control.get('appointmentDuration')?.hasError('max'))) {
-                    <mat-error
-                      >La duración debe estar entre 5 y 120 minutos</mat-error
-                    >
-                    }
-                  </mat-form-field>
-                </div>
-              </div>
-
-              <!-- Segunda fila: Horario de descanso -->
-              <div class="mb-3">
-                <mat-checkbox formControlName="hasBreak" [disableRipple]="true">
-                  <span class="text-sm">Configurar horario de descanso</span>
-                </mat-checkbox>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div class="col-span-1">
-                  <label class="block text-sm font-medium mb-2"
-                    >Inicio descanso</label
-                  >
-                  <div formGroupName="breakStartTime" class="flex gap-2">
-                    <mat-form-field appearance="outline" class="flex-1">
-                      <mat-label>Hora</mat-label>
-                      <mat-select formControlName="hour">
-                        @for(hour of
-                        [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22, 23];
-                        track trackByValue($index, hour)) {
-                        <mat-option [value]="hour">{{
-                          hour.toString().padStart(2, "0")
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="flex-1">
-                      <mat-label>Min</mat-label>
-                      <mat-select formControlName="minute">
-                        @for(minute of [0,15,30,45]; track trackByValue($index,
-                        minute)) {
-                        <mat-option [value]="minute">{{
-                          minute.toString().padStart(2, "0")
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <div class="col-span-1">
-                  <label class="block text-sm font-medium mb-2"
-                    >Fin descanso</label
-                  >
-                  <div formGroupName="breakEndTime" class="flex gap-2">
-                    <mat-form-field appearance="outline" class="flex-1">
-                      <mat-label>Hora</mat-label>
-                      <mat-select formControlName="hour">
-                        @for(hour of
-                        [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
-                        track trackByValue($index, hour)) {
-                        <mat-option [value]="hour">{{
-                          hour.toString().padStart(2, "0")
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="flex-1">
-                      <mat-label>Min</mat-label>
-                      <mat-select formControlName="minute">
-                        @for(minute of [0,15,30,45]; track trackByValue($index,
-                        minute)) {
-                        <mat-option [value]="minute">{{
-                          minute.toString().padStart(2, "0")
-                        }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <div class="col-span-1">
-                  <!-- Espacio vacío para mantener la alineación -->
-                </div>
-
-                <div class="col-span-1">
-                  <!-- Espacio vacío para mantener la alineación -->
-                </div>
+              <div class="flex items-start gap-2">
+                <i-tabler
+                  name="info-circle"
+                  class="text-yellow-600 mt-0.5"
+                ></i-tabler>
+                <p class="text-sm text-yellow-800">
+                  No puedes agregar días específicos porque ya tienes un horario
+                  semanal configurado. Desmarca todos los días del horario
+                  semanal para poder agregar días específicos.
+                </p>
               </div>
             </div>
-
-            <button
-              mat-icon-button
-              type="button"
-              (click)="removeSpecificDay($index)"
-              matTooltip="Eliminar día"
-              class="flex-shrink-0"
-            >
-              <i-tabler name="trash" class="text-red-500 mb-1"></i-tabler>
-            </button>
-          </div>
-
-          } @if(specificDays.length === 0) {
-          <div class="text-center py-8">
-            No hay días específicos configurados.
-          </div>
           }
-        </div>
-      </form>
-    </mat-tab>
-  </mat-tab-group>
-</mat-card>
+          @if (!hasWeeklyConfiguration()) {
+            <div class="mb-4 flex justify-end">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="addSpecificDay()"
+              >
+                <div class="flex items-center justify-center gap-2">
+                  <i-tabler name="plus"></i-tabler>
+                  <span>Agregar día</span>
+                </div>
+              </button>
+            </div>
+          }
+
+          <div formArrayName="specificDays" class="space-y-4">
+            @for (control of specificDays.controls; track $index) {
+              <div class="flex gap-4 items-start">
+                <div
+                  [formGroupName]="$index"
+                  class="flex-1 p-4 bg-[var(--mat-sys-home-sidenav-content-background)] rounded-[var(--mat-sys-corner-large)]"
+                  style="contain: layout style; will-change: transform"
+                >
+                  <!-- Primera fila: Fecha, horario de trabajo y duración -->
+                  <div
+                    class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4"
+                  >
+                    <div class="col-span-1">
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Fecha</mat-label>
+                        <input
+                          matInput
+                          [matDatepicker]="picker"
+                          formControlName="specificDate"
+                          [min]="minDate"
+                        />
+                        <mat-datepicker-toggle
+                          matIconSuffix
+                          [for]="picker"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                        @if (
+                          control.get("specificDate")?.hasError("required")
+                        ) {
+                          <mat-error>La fecha es requerida.</mat-error>
+                        }
+                      </mat-form-field>
+                    </div>
+
+                    <div class="col-span-1">
+                      <label class="block text-sm font-medium mb-2"
+                        >Hora de inicio</label
+                      >
+                      <div formGroupName="startTime" class="flex gap-2">
+                        <mat-form-field appearance="outline" class="flex-1">
+                          <mat-label>Hora</mat-label>
+                          <mat-select formControlName="hour">
+                            @for (
+                              hour of [
+                                6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                                19, 20, 21, 22, 23,
+                              ];
+                              track trackByValue($index, hour)
+                            ) {
+                              <mat-option [value]="hour">{{
+                                hour.toString().padStart(2, "0")
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                          <mat-label>Min</mat-label>
+                          <mat-select formControlName="minute">
+                            @for (
+                              minute of [0, 15, 30, 45];
+                              track trackByValue($index, minute)
+                            ) {
+                              <mat-option [value]="minute">{{
+                                minute.toString().padStart(2, "0")
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="col-span-1">
+                      <label class="block text-sm font-medium mb-2"
+                        >Hora de fin</label
+                      >
+                      <div formGroupName="endTime" class="flex gap-2">
+                        <mat-form-field appearance="outline" class="flex-1">
+                          <mat-label>Hora</mat-label>
+                          <mat-select formControlName="hour">
+                            @for (
+                              hour of [
+                                6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                                19, 20, 21, 22, 23,
+                              ];
+                              track trackByValue($index, hour)
+                            ) {
+                              <mat-option [value]="hour">{{
+                                hour.toString().padStart(2, "0")
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                          <mat-label>Min</mat-label>
+                          <mat-select formControlName="minute">
+                            @for (
+                              minute of [0, 15, 30, 45];
+                              track trackByValue($index, minute)
+                            ) {
+                              <mat-option [value]="minute">{{
+                                minute.toString().padStart(2, "0")
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="col-span-1">
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Duración de la cita</mat-label>
+                        <mat-select formControlName="appointmentDuration">
+                          @for (
+                            duration of [15, 30, 45, 60];
+                            track trackByValue($index, duration)
+                          ) {
+                            <mat-option [value]="duration"
+                              >{{ duration }} minutos</mat-option
+                            >
+                          }
+                        </mat-select>
+                        @if (
+                          control
+                            .get("appointmentDuration")
+                            ?.hasError("required")
+                        ) {
+                          <mat-error>Campo requerido</mat-error>
+                        }
+                        @if (
+                          control.get("appointmentDuration")?.hasError("min") ||
+                          control.get("appointmentDuration")?.hasError("max")
+                        ) {
+                          <mat-error
+                            >La duración debe estar entre 5 y 120
+                            minutos</mat-error
+                          >
+                        }
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <!-- Segunda fila: Horario de descanso -->
+                  <div class="mb-3">
+                    <mat-checkbox
+                      formControlName="hasBreak"
+                      [disableRipple]="true"
+                    >
+                      <span class="text-sm"
+                        >Configurar horario de descanso</span
+                      >
+                    </mat-checkbox>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div class="col-span-1">
+                      <label class="block text-sm font-medium mb-2"
+                        >Inicio descanso</label
+                      >
+                      <div formGroupName="breakStartTime" class="flex gap-2">
+                        <mat-form-field appearance="outline" class="flex-1">
+                          <mat-label>Hora</mat-label>
+                          <mat-select formControlName="hour">
+                            @for (
+                              hour of [
+                                6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                                19, 20, 21, 22, 23,
+                              ];
+                              track trackByValue($index, hour)
+                            ) {
+                              <mat-option [value]="hour">{{
+                                hour.toString().padStart(2, "0")
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                          <mat-label>Min</mat-label>
+                          <mat-select formControlName="minute">
+                            @for (
+                              minute of [0, 15, 30, 45];
+                              track trackByValue($index, minute)
+                            ) {
+                              <mat-option [value]="minute">{{
+                                minute.toString().padStart(2, "0")
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="col-span-1">
+                      <label class="block text-sm font-medium mb-2"
+                        >Fin descanso</label
+                      >
+                      <div formGroupName="breakEndTime" class="flex gap-2">
+                        <mat-form-field appearance="outline" class="flex-1">
+                          <mat-label>Hora</mat-label>
+                          <mat-select formControlName="hour">
+                            @for (
+                              hour of [
+                                6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                                19, 20, 21, 22, 23,
+                              ];
+                              track trackByValue($index, hour)
+                            ) {
+                              <mat-option [value]="hour">{{
+                                hour.toString().padStart(2, "0")
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                          <mat-label>Min</mat-label>
+                          <mat-select formControlName="minute">
+                            @for (
+                              minute of [0, 15, 30, 45];
+                              track trackByValue($index, minute)
+                            ) {
+                              <mat-option [value]="minute">{{
+                                minute.toString().padStart(2, "0")
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="col-span-1">
+                      <!-- Espacio vacío para mantener la alineación -->
+                    </div>
+
+                    <div class="col-span-1">
+                      <!-- Espacio vacío para mantener la alineación -->
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="removeSpecificDay($index)"
+                  matTooltip="Eliminar día"
+                  class="flex-shrink-0"
+                >
+                  <i-tabler name="trash" class="text-red-500 mb-1"></i-tabler>
+                </button>
+              </div>
+            }
+            @if (specificDays.length === 0) {
+              <div class="text-center py-8">
+                No hay días específicos configurados.
+              </div>
+            }
+          </div>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
 }

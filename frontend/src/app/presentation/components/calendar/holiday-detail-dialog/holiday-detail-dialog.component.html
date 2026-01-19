@@ -89,19 +89,46 @@
         class="w-5 h-5 flex-shrink-0 mt-0.5"
       ></i-tabler>
       <p class="text-sm leading-relaxed">
-        Este día está marcado como feriado. Si deseas trabajar igualmente,
-        utiliza el botón "Trabajar este día" para configurar tu horario.
+        @if (isWorking) {
+          Ya estás trabajando en este feriado. Puedes modificar el rango horario
+          o dejar de trabajar este día.
+        } @else {
+          Este día está marcado como feriado. Si deseas trabajar igualmente,
+          utiliza el botón "Trabajar este día" para configurar tu horario.
+        }
       </p>
     </div>
   </mat-dialog-content>
 
   <mat-dialog-actions class="!p-4 !flex !justify-end gap-2">
     <button mat-button [mat-dialog-close]="null">Cerrar</button>
-    <button mat-flat-button color="primary" (click)="openWorkOnHolidayDialog()">
-      <div class="flex items-center gap-2">
-        <i-tabler name="briefcase"></i-tabler>
-        <span>Trabajar este día</span>
-      </div>
-    </button>
+
+    @if (isWorking) {
+      <!-- Botones cuando ya está trabajando -->
+      <button mat-stroked-button color="warn" (click)="stopWorkingOnHoliday()">
+        <div class="flex items-center gap-2">
+          <i-tabler name="x"></i-tabler>
+          <span>No trabajar este día</span>
+        </div>
+      </button>
+      <button mat-flat-button color="primary" (click)="openModifyHoursDialog()">
+        <div class="flex items-center gap-2">
+          <i-tabler name="clock"></i-tabler>
+          <span>Modificar rango horario</span>
+        </div>
+      </button>
+    } @else {
+      <!-- Botón cuando no está trabajando -->
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="openWorkOnHolidayDialog()"
+      >
+        <div class="flex items-center gap-2">
+          <i-tabler name="briefcase"></i-tabler>
+          <span>Trabajar este día</span>
+        </div>
+      </button>
+    }
   </mat-dialog-actions>
 </div>

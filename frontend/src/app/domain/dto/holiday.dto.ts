@@ -39,3 +39,10 @@ export interface TimeInterface {
   second: number;
   nano: number;
 }
+
+export interface HolidayUpdateAvailabilityDtoInterface {
+  idDentistHoliday: number;
+  startTime: string;
+  endTime: string;
+  enabled: boolean;
+}

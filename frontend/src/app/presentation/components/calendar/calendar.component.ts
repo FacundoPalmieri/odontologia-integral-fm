@@ -643,6 +643,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    // Verificar si el día tiene badge "Disponible" (FREE status)
+    const isWorking =
+      dayData.calendarDayStatus?.key === CalendarMonthDayStatusEnum.FREE;
+
     import("./holiday-detail-dialog/holiday-detail-dialog.component").then(
       (module) => {
         const dialogRef = this.dialog.open(
@@ -653,6 +657,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
             data: {
               holiday: dayData.holiday,
               date: date,
+              isWorking: isWorking,
             },
           },
         );

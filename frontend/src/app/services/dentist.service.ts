@@ -14,6 +14,7 @@ import { DentistHolidayInterface } from "../domain/interfaces/holiday.interface"
 import {
   HolidayWorkConfigCreateResponseDtoInterface,
   HolidayWorkConfigDtoInterface,
+  HolidayUpdateAvailabilityDtoInterface,
 } from "../domain/dto/holiday.dto";
 
 @Injectable({ providedIn: "root" })
@@ -83,7 +84,7 @@ export class DentistService {
 
   updateAvailabilityHoliday(
     userId: number,
-    availability: HolidayWorkConfigDtoInterface,
+    availability: HolidayUpdateAvailabilityDtoInterface,
   ): Observable<
     ApiResponseInterface<HolidayWorkConfigCreateResponseDtoInterface>
   > {

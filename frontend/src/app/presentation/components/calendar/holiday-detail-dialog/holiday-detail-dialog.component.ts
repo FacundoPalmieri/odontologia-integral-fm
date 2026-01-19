@@ -10,6 +10,11 @@ import { MatDividerModule } from "@angular/material/divider";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../../utils/tabler-icons.module";
 import { HolidayInterface } from "../../../../domain/interfaces/calendar.interface";
+import { DentistService } from "../../../../services/dentist.service";
+import { AuthService } from "../../../../services/auth.service";
+import { SnackbarService } from "../../../../services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
+import { HolidayUpdateAvailabilityDtoInterface } from "../../../../domain/dto/holiday.dto";
 
 @Component({
   selector: "app-holiday-detail-dialog",
@@ -26,15 +31,25 @@ import { HolidayInterface } from "../../../../domain/interfaces/calendar.interfa
 export class HolidayDetailDialogComponent {
   holiday: HolidayInterface;
   date: Date;
+  isWorking: boolean = false; // Indica si el feriado ya está configurado para trabajar
   private dialog = inject(MatDialog);
+  private readonly dentistService = inject(DentistService);
+  private readonly authService = inject(AuthService);
+  private readonly snackbarService = inject(SnackbarService);
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { holiday: HolidayInterface; date: Date },
+    public data: {
+      holiday: HolidayInterface;
+      date: Date;
+      isWorking?: boolean;
+    },
     private dialogRef: MatDialogRef<HolidayDetailDialogComponent>,
   ) {
     this.holiday = data.holiday;
     this.date = data.date;
+    // Si el badge es "Disponible", significa que ya está configurado para trabajar
+    this.isWorking = data.isWorking || false;
   }
 
   /**
@@ -75,5 +90,76 @@ export class HolidayDetailDialogComponent {
         });
       },
     );
+  }
+
+  /**
+   * Open modify holiday hours dialog
+   */
+  openModifyHoursDialog(): void {
+    import("../modify-holiday-hours-dialog/modify-holiday-hours-dialog.component").then(
+      (module) => {
+        const modifyDialogRef = this.dialog.open(
+          module.ModifyHolidayHoursDialogComponent,
+          {
+            width: "600px",
+            maxWidth: "90vw",
+            data: {
+              holiday: this.holiday,
+              date: this.date,
+            },
+          },
+        );
+
+        modifyDialogRef.afterClosed().subscribe((result) => {
+          if (result?.updated) {
+            // Cerrar el diálogo de detalle y notificar que se actualizó
+            this.dialogRef.close({ workConfigured: true });
+          }
+        });
+      },
+    );
+  }
+
+  /**
+   * Stop working on this holiday
+   */
+  stopWorkingOnHoliday(): void {
+    const userData = this.authService.getUserData();
+    if (!userData) {
+      this.snackbarService.openSnackbar(
+        "Error: Usuario no autenticado",
+        6000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error,
+      );
+      return;
+    }
+
+    // Build DTO with empty time range and enabled = false
+    const dto: HolidayUpdateAvailabilityDtoInterface = {
+      idDentistHoliday: 0, // Por ahora en 0 como indicaste
+      startTime: "00:00",
+      endTime: "00:00",
+      enabled: false,
+    };
+
+    this.dentistService
+      .updateAvailabilityHoliday(userData.idUser, dto)
+      .subscribe({
+        next: (response) => {
+          this.snackbarService.openSnackbar(
+            response.message,
+            6000,
+            "center",
+            "top",
+            SnackbarTypeEnum.Success,
+          );
+          this.dialogRef.close({ workConfigured: true });
+        },
+        error: (error) => {
+          // Error handling is done by the interceptor
+        },
+      });
   }
 }
