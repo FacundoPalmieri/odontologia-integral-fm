@@ -17,12 +17,16 @@
   overflow-y: auto;
   flex-shrink: 0;
   position: relative;
-  transition: width 0.4s ease-in-out, padding 0.4s ease-in-out;
+  transition:
+    width 0.4s ease-in-out,
+    padding 0.4s ease-in-out;
   will-change: width, padding;
 
   // Transición suave para los elementos internos
   > * {
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    transition:
+      opacity 0.3s ease-in-out,
+      visibility 0.3s ease-in-out;
     opacity: 1;
     visibility: visible;
   }
@@ -36,7 +40,9 @@
     > * {
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+      transition:
+        opacity 0.2s ease-in-out,
+        visibility 0.2s ease-in-out;
     }
   }
 }

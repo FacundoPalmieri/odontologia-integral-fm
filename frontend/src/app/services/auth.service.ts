@@ -11,7 +11,6 @@ import { LogoutInterface } from "../domain/interfaces/logout.interface";
 import { RefreshTokenDataDto } from "../domain/dto/refresh-token-data.dto";
 import { Router } from "@angular/router";
 import { UserService } from "./user.service";
-import { UserInterface } from "../domain/interfaces/user.interface";
 import { RoleInterface } from "../domain/interfaces/role.interface";
 import { AccessControlService } from "./access-control.service";
 import { RoleEnum } from "../utils/enums/role.enum";
@@ -30,11 +29,11 @@ export class AuthService {
   >(null);
 
   login(
-    login: LoginInterface
+    login: LoginInterface,
   ): Observable<ApiResponseInterface<AuthUserInterface>> {
     return this.http.post<ApiResponseInterface<AuthUserInterface>>(
       `${this.apiUrl}/auth/login`,
-      login
+      login,
     );
   }
 
@@ -43,21 +42,20 @@ export class AuthService {
       `${this.apiUrl}/auth/logout`,
       {
         body: logout,
-      }
+      },
     );
   }
 
   refreshToken(
-    refreshTokenData: RefreshTokenDataDto
+    refreshTokenData: RefreshTokenDataDto,
   ): Observable<ApiResponseInterface<AuthUserInterface>> {
     this.refreshTokenInProgress = true;
     this.refreshTokenSubject.next(null);
     let roles: RoleInterface[];
     return this.http
-      .post<ApiResponseInterface<AuthUserInterface>>(
-        `${this.apiUrl}/auth/token/refresh`,
-        refreshTokenData
-      )
+      .post<
+        ApiResponseInterface<AuthUserInterface>
+      >(`${this.apiUrl}/auth/token/refresh`, refreshTokenData)
       .pipe(
         tap((response) => {
           const userData = this.getUserData();
@@ -72,7 +70,7 @@ export class AuthService {
           this.router.navigateByUrl("/login");
           this.refreshTokenSubject.next(null);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -86,23 +84,23 @@ export class AuthService {
   }
 
   resetPasswordRequest(
-    email: string
+    email: string,
   ): Observable<ApiResponseInterface<string>> {
     const params = new HttpParams().set("email", email);
 
     return this.http.post<ApiResponseInterface<string>>(
       `${this.apiUrl}/auth/password/reset-request`,
       null,
-      { params }
+      { params },
     );
   }
 
   resetPassword(
-    resetData: ResetPasswordInterface
+    resetData: ResetPasswordInterface,
   ): Observable<ApiResponseInterface<string>> {
     return this.http.post<ApiResponseInterface<string>>(
       `${this.apiUrl}/auth/password/reset`,
-      resetData
+      resetData,
     );
   }
 

@@ -39,7 +39,10 @@ import {
   CalendarWeekInterface,
   CalendarDayInterface,
 } from "../../../domain/interfaces/calendar.interface";
-import { CalendarMonthDayStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
+import {
+  CalendarMonthDayStatusEnum,
+  SlotStatusEnum,
+} from "../../../utils/enums/appointment/appointment-status.enum";
 import { RoleEnum } from "../../../utils/enums/role.enum";
 import { forkJoin } from "rxjs";
 import { SnackbarService } from "../../../services/snackbar.service";
@@ -537,7 +540,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isNotAvailableDay(date: Date): boolean {
     const dayData = this.getDayFromBackend(date);
-    return dayData?.status === CalendarMonthDayStatusEnum.NOT_AVAILABLE;
+    return (dayData?.calendarDayStatus?.key as string) === "NOT_AVAILABLE";
   }
 
   selectDate(date: Date) {
@@ -559,16 +562,17 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       date.getMonth() + 1,
     ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
-    // Buscar el día que coincida con la fecha
-    return calendarData.days.find((day) => day.date === dateKey) || null;
+    // Buscar el día que coincida con la fecha usando el campo 'day'
+    return calendarData.days.find((day) => day.day === dateKey) || null;
   }
 
   /**
    * Get the color for a specific day from backend data
+   * Returns the color from calendarDayStatus
    */
   getDayColor(date: Date): string | null {
     const dayData = this.getDayFromBackend(date);
-    return dayData?.color || null;
+    return dayData?.calendarDayStatus?.color || null;
   }
 
   /**
@@ -577,17 +581,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   getDayDescription(date: Date): string | null {
     const dayData = this.getDayFromBackend(date);
-    // Mostrar descripción si es feriado, día completo, día bloqueado o libre (FREE)
-    // NOT_AVAILABLE no muestra badge, solo se deshabilita visualmente
-    if (
-      dayData?.status === CalendarMonthDayStatusEnum.HOLIDAY ||
-      dayData?.status === CalendarMonthDayStatusEnum.FULL ||
-      dayData?.status === CalendarMonthDayStatusEnum.LOCKED ||
-      dayData?.status === CalendarMonthDayStatusEnum.FREE
-    ) {
-      return dayData.description;
-    }
-    return null;
+    // Retornar la descripción del calendarDayStatus si existe
+    return dayData?.calendarDayStatus?.description || null;
   }
 
   /**
@@ -595,24 +590,38 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   getDayIcon(date: Date): string {
     const dayData = this.getDayFromBackend(date);
+    const statusKey = dayData?.calendarDayStatus?.key as string;
 
-    if (dayData?.status === CalendarMonthDayStatusEnum.HOLIDAY) {
-      return "🎉"; // Celebración para feriados
-    }
-
-    if (dayData?.status === CalendarMonthDayStatusEnum.FULL) {
+    if (statusKey === CalendarMonthDayStatusEnum.FULL) {
       return "⛔"; // Prohibido para días completos/sin turnos
     }
 
-    if (dayData?.status === CalendarMonthDayStatusEnum.LOCKED) {
+    if (statusKey === CalendarMonthDayStatusEnum.LOCKED) {
       return "🔒"; // Candado para días bloqueados
     }
 
-    if (dayData?.status === CalendarMonthDayStatusEnum.FREE) {
+    if (statusKey === CalendarMonthDayStatusEnum.FREE) {
       return "✅"; // Check para días libres/disponibles
     }
 
     return "📅"; // Calendario por defecto
+  }
+
+  /**
+   * Get the holiday description for a specific day
+   */
+  getHolidayDescription(date: Date): string | null {
+    const dayData = this.getDayFromBackend(date);
+    // Retornar la descripción del holiday si existe
+    return dayData?.holiday?.description || null;
+  }
+
+  /**
+   * Get the holiday color for a specific day
+   */
+  getHolidayColor(date: Date): string | null {
+    const dayData = this.getDayFromBackend(date);
+    return dayData?.holiday?.color || "#48925f"; // Verde por defecto
   }
 
   /**
@@ -621,7 +630,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   isDayViewFull(): boolean {
     const dayData = this.calendarDayData();
     // Check if calendarDayStatus.key is 'FULL'
-    return dayData?.calendarDayStatus?.key === ("FULL" as any);
+    return dayData?.calendarDayStatus?.key === CalendarMonthDayStatusEnum.FULL;
   }
 
   /**
@@ -632,7 +641,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     if (!dayData?.slots) {
       return false;
     }
-    return dayData.slots.some((slot) => slot.status === "LOCKED");
+    return dayData.slots.some((slot) => slot.status === SlotStatusEnum.LOCKED);
   }
 
   /**
@@ -640,7 +649,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    */
   isDayViewFree(): boolean {
     const dayData = this.calendarDayData();
-    return dayData?.calendarDayStatus?.key === ("FREE" as any);
+    return dayData?.calendarDayStatus?.key === CalendarMonthDayStatusEnum.FREE;
   }
 
   /**

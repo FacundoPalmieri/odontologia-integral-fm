@@ -5,157 +5,163 @@
     <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
       <!-- Create Event Menu - Administrador y Dentista -->
       @if (authService.isAdministrator() || authService.isDentist()) {
-      <button
-        mat-fab
-        extended
-        class="!w-full !mb-4"
-        [matMenuTriggerFor]="createEventMenu"
-      >
-        <div class="flex items-center gap-2">
-          <i-tabler name="plus"></i-tabler>
-          @if (!sidebarCollapsed) {
-          <span>Crear evento</span>
-          }
-        </div>
-      </button>
+        <button
+          mat-fab
+          extended
+          class="!w-full !mb-4"
+          [matMenuTriggerFor]="createEventMenu"
+        >
+          <div class="flex items-center gap-2">
+            <i-tabler name="plus"></i-tabler>
+            @if (!sidebarCollapsed) {
+              <span>Crear evento</span>
+            }
+          </div>
+        </button>
 
-      <mat-menu #createEventMenu="matMenu">
-        <button mat-menu-item (click)="createAppointment()">
-          <div class="flex items-center gap-2">
-            <i-tabler name="calendar-plus"></i-tabler>
-            <span>Cita</span>
-          </div>
-        </button>
-        <button mat-menu-item (click)="createCalendarLock()">
-          <div class="flex items-center gap-2">
-            <i-tabler name="cancel"></i-tabler>
-            <span>Bloqueo de Agenda</span>
-          </div>
-        </button>
-      </mat-menu>
+        <mat-menu #createEventMenu="matMenu">
+          <button mat-menu-item (click)="createAppointment()">
+            <div class="flex items-center gap-2">
+              <i-tabler name="calendar-plus"></i-tabler>
+              <span>Cita</span>
+            </div>
+          </button>
+          <button mat-menu-item (click)="createCalendarLock()">
+            <div class="flex items-center gap-2">
+              <i-tabler name="cancel"></i-tabler>
+              <span>Bloqueo de Agenda</span>
+            </div>
+          </button>
+        </mat-menu>
       }
 
       <!-- Botón simple para Secretario -->
       @if (authService.isSecretary()) {
-      <button
-        mat-fab
-        extended
-        class="!w-full !mb-4"
-        (click)="createAppointment()"
-      >
-        <div class="flex items-center gap-2">
-          <i-tabler name="calendar-plus"></i-tabler>
-          @if (!sidebarCollapsed) {
-          <span>Crear cita</span>
-          }
-        </div>
-      </button>
+        <button
+          mat-fab
+          extended
+          class="!w-full !mb-4"
+          (click)="createAppointment()"
+        >
+          <div class="flex items-center gap-2">
+            <i-tabler name="calendar-plus"></i-tabler>
+            @if (!sidebarCollapsed) {
+              <span>Crear cita</span>
+            }
+          </div>
+        </button>
       }
 
       <!-- Disponibilidad laboral - Solo para Administrador y Dentista -->
       @if (authService.isAdministrator() || authService.isDentist()) {
-      <div class="flex justify-center !mb-4">
-        <button mat-flat-button class="!w-[90%]" (click)="goToAvailability()">
-          <div class="flex items-center gap-2">
-            <i-tabler name="settings"></i-tabler>
-            <span>Disponibilidad laboral</span>
-          </div>
-        </button>
-      </div>
-      @if (hasConflicts()) {
-      <div class="flex justify-center !mb-4">
-        <button
-          mat-stroked-button
-          class="!w-[90%]"
-          (click)="viewConflicts()"
-          [matBadge]="getConflictCount()"
-          matBadgeColor="warn"
-          matBadgeOverlap="true"
-        >
-          <div class="flex items-center gap-2">
-            <i-tabler name="alert-triangle"></i-tabler>
-            <span>Conflictos de turnos</span>
-          </div>
-        </button>
-      </div>
-      } } @if (!sidebarCollapsed) {
-      <!-- Mini Calendar -->
-      <div class="mini-calendar mb-4">
-        <div class="mini-calendar-header">
-          <button mat-icon-button (click)="navigateDate('prev')">
-            <div class="flex items-center">
-              <i-tabler class="scale-80" name="chevron-left"></i-tabler>
-            </div>
-          </button>
-          <span class="month-year"
-            >{{ months[selectedDate.getMonth()] }}
-            {{ selectedDate.getFullYear() }}</span
-          >
-          <button mat-icon-button (click)="navigateDate('next')">
-            <div class="flex items-center">
-              <i-tabler class="scale-80" name="chevron-right"></i-tabler>
+        <div class="flex justify-center !mb-4">
+          <button mat-flat-button class="!w-[90%]" (click)="goToAvailability()">
+            <div class="flex items-center gap-2">
+              <i-tabler name="settings"></i-tabler>
+              <span>Disponibilidad laboral</span>
             </div>
           </button>
         </div>
-
-        <div class="mini-calendar-body">
-          <div class="weekdays">
-            <span *ngFor="let day of weekDays" class="weekday">{{
-              day.charAt(0)
-            }}</span>
-          </div>
-          <div class="days">
-            <div
-              *ngFor="let date of getMonthDates().slice(0, 35)"
-              class="day"
-              [class.today]="isToday(date)"
-              [class.selected]="
-                date.toDateString() === selectedDate.toDateString()
-              "
-              [class.other-month]="!isCurrentMonth(date)"
-              (click)="selectDate(date)"
+        @if (hasConflicts()) {
+          <div class="flex justify-center !mb-4">
+            <button
+              mat-stroked-button
+              class="!w-[90%]"
+              (click)="viewConflicts()"
+              [matBadge]="getConflictCount()"
+              matBadgeColor="warn"
+              matBadgeOverlap="true"
             >
-              {{ date.getDate() }}
-            </div>
+              <div class="flex items-center gap-2">
+                <i-tabler name="alert-triangle"></i-tabler>
+                <span>Conflictos de turnos</span>
+              </div>
+            </button>
           </div>
-        </div>
-      </div>
-
-      <!-- My Calendars - Para Administradores y Secretarios -->
-      @if (authService.isAdministrator() || authService.isSecretary()) {
-      <div class="calendars-section">
-        <div class="section-header" (click)="toggleMyCalendars()">
-          <span>Mis calendarios</span>
-          <mat-icon>{{
-            myCalendarsExpanded ? "keyboard_arrow_up" : "keyboard_arrow_down"
-          }}</mat-icon>
-        </div>
-        @if (myCalendarsExpanded) {
-        <div class="calendar-list">
-          @for (dentist of sidebarDentists(); track dentist.person.id) {
-          <div
-            class="radio-container"
-            (click)="onSidebarDentistSelect(dentist)"
-            [class.selected]="isSidebarDentistSelected(dentist.person.id)"
-          >
-            <mat-radio-button
-              [checked]="isSidebarDentistSelected(dentist.person.id)"
-              [disableRipple]="true"
-              class="radio-item"
-            >
-              <span class="calendar-name">{{
-                getDentistFullName(dentist)
-              }}</span>
-            </mat-radio-button>
-          </div>
-          }
-        </div>
         }
-      </div>
       }
+      @if (!sidebarCollapsed) {
+        <!-- Mini Calendar -->
+        <div class="mini-calendar mb-4">
+          <div class="mini-calendar-header">
+            <button mat-icon-button (click)="navigateDate('prev')">
+              <div class="flex items-center">
+                <i-tabler class="scale-80" name="chevron-left"></i-tabler>
+              </div>
+            </button>
+            <span class="month-year"
+              >{{ months[selectedDate.getMonth()] }}
+              {{ selectedDate.getFullYear() }}</span
+            >
+            <button mat-icon-button (click)="navigateDate('next')">
+              <div class="flex items-center">
+                <i-tabler class="scale-80" name="chevron-right"></i-tabler>
+              </div>
+            </button>
+          </div>
 
-      <!-- Other Calendars -->
-      <!-- <div class="calendars-section">
+          <div class="mini-calendar-body">
+            <div class="weekdays">
+              <span *ngFor="let day of weekDays" class="weekday">{{
+                day.charAt(0)
+              }}</span>
+            </div>
+            <div class="days">
+              <div
+                *ngFor="let date of getMonthDates().slice(0, 35)"
+                class="day"
+                [class.today]="isToday(date)"
+                [class.selected]="
+                  date.toDateString() === selectedDate.toDateString()
+                "
+                [class.other-month]="!isCurrentMonth(date)"
+                (click)="selectDate(date)"
+              >
+                {{ date.getDate() }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Calendars - Para Administradores y Secretarios -->
+        @if (authService.isAdministrator() || authService.isSecretary()) {
+          <div class="calendars-section">
+            <div class="section-header" (click)="toggleMyCalendars()">
+              <span>Mis calendarios</span>
+              <mat-icon>{{
+                myCalendarsExpanded
+                  ? "keyboard_arrow_up"
+                  : "keyboard_arrow_down"
+              }}</mat-icon>
+            </div>
+            @if (myCalendarsExpanded) {
+              <div class="calendar-list">
+                @for (dentist of sidebarDentists(); track dentist.person.id) {
+                  <div
+                    class="radio-container"
+                    (click)="onSidebarDentistSelect(dentist)"
+                    [class.selected]="
+                      isSidebarDentistSelected(dentist.person.id)
+                    "
+                  >
+                    <mat-radio-button
+                      [checked]="isSidebarDentistSelected(dentist.person.id)"
+                      [disableRipple]="true"
+                      class="radio-item"
+                    >
+                      <span class="calendar-name">{{
+                        getDentistFullName(dentist)
+                      }}</span>
+                    </mat-radio-button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Other Calendars -->
+        <!-- <div class="calendars-section">
         <div class="section-header" (click)="toggleOtherCalendars()">
           <span>Otros calendarios</span>
           <mat-icon>{{
@@ -179,24 +185,24 @@
     <main class="main-content">
       <!-- Barra superior para dentista seleccionado (solo secretarios) -->
       @if (authService.isSecretary() && selectedDentist()) {
-      <div class="dentist-selection-bar">
-        <button
-          mat-button
-          (click)="backToDentistSelection()"
-          class="back-to-selection-btn"
-        >
-          <div class="flex items-center gap-2">
-            <i-tabler name="arrow-left"></i-tabler>
-            <span>Cambiar profesional</span>
+        <div class="dentist-selection-bar">
+          <button
+            mat-button
+            (click)="backToDentistSelection()"
+            class="back-to-selection-btn"
+          >
+            <div class="flex items-center gap-2">
+              <i-tabler name="arrow-left"></i-tabler>
+              <span>Cambiar profesional</span>
+            </div>
+          </button>
+          <div class="selected-dentist-info">
+            <i-tabler name="user-check" class="dentist-icon"></i-tabler>
+            <span class="dentist-name">{{
+              getDentistFullName(selectedDentist()!)
+            }}</span>
           </div>
-        </button>
-        <div class="selected-dentist-info">
-          <i-tabler name="user-check" class="dentist-icon"></i-tabler>
-          <span class="dentist-name">{{
-            getDentistFullName(selectedDentist()!)
-          }}</span>
         </div>
-      </div>
       }
 
       <!-- Header -->
@@ -224,172 +230,175 @@
 
             <!-- Botón Crear cita para secretarios (visible siempre cuando sidebar está colapsado) -->
             @if (sidebarCollapsed && authService.isSecretary()) {
-            <button mat-fab extended (click)="createAppointment()">
-              <div class="flex items-center gap-2">
-                <i-tabler name="calendar-plus"></i-tabler>
-                <span>Crear cita</span>
-              </div>
-            </button>
+              <button mat-fab extended (click)="createAppointment()">
+                <div class="flex items-center gap-2">
+                  <i-tabler name="calendar-plus"></i-tabler>
+                  <span>Crear cita</span>
+                </div>
+              </button>
             }
 
             <!-- Resto de elementos del header (ocultos en vista de selección de dentistas) -->
             @if (!authService.isSecretary() || !showDentistSelection()) {
-            <!-- Create Event Menu (only visible when collapsed) -->
-            @if (sidebarCollapsed) {
-            <!-- Menú completo para Administrador y Dentista -->
-            @if (authService.isAdministrator() || authService.isDentist()) {
-            <button
-              mat-fab
-              extended
-              [matMenuTriggerFor]="createEventMenuHeader"
-            >
-              <div class="flex items-center gap-2">
-                <i-tabler name="plus"></i-tabler>
-                <span>Crear evento</span>
-              </div>
-            </button>
+              <!-- Create Event Menu (only visible when collapsed) -->
+              @if (sidebarCollapsed) {
+                <!-- Menú completo para Administrador y Dentista -->
+                @if (authService.isAdministrator() || authService.isDentist()) {
+                  <button
+                    mat-fab
+                    extended
+                    [matMenuTriggerFor]="createEventMenuHeader"
+                  >
+                    <div class="flex items-center gap-2">
+                      <i-tabler name="plus"></i-tabler>
+                      <span>Crear evento</span>
+                    </div>
+                  </button>
 
-            <mat-menu #createEventMenuHeader="matMenu">
-              <button mat-menu-item (click)="createAppointment()">
+                  <mat-menu #createEventMenuHeader="matMenu">
+                    <button mat-menu-item (click)="createAppointment()">
+                      <div class="flex items-center gap-2">
+                        <i-tabler name="calendar-plus"></i-tabler>
+                        <span>Cita</span>
+                      </div>
+                    </button>
+                    <button mat-menu-item (click)="createCalendarLock()">
+                      <div class="flex items-center gap-2">
+                        <i-tabler name="cancel"></i-tabler>
+                        <span>Bloqueo de Agenda</span>
+                      </div>
+                    </button>
+                  </mat-menu>
+                }
+                @if (authService.isAdministrator() || authService.isDentist()) {
+                  <button
+                    mat-icon-button
+                    class="mr-2"
+                    matTooltip="Disponibilidad laboral"
+                    (click)="goToAvailability()"
+                  >
+                    <i-tabler name="settings" class="mb-1"></i-tabler>
+                  </button>
+                  @if (hasConflicts()) {
+                    <button
+                      mat-icon-button
+                      class="mr-2"
+                      matTooltip="Ver conflictos"
+                      (click)="viewConflicts()"
+                      [matBadge]="getConflictCount()"
+                      matBadgeColor="warn"
+                      matBadgeOverlap="true"
+                    >
+                      <i-tabler name="alert-triangle" class="mb-1"></i-tabler>
+                    </button>
+                  }
+                }
+              }
+
+              <button
+                mat-icon-button
+                (click)="navigateDate('prev')"
+                matTooltip="Anterior"
+              >
                 <div class="flex items-center gap-2">
-                  <i-tabler name="calendar-plus"></i-tabler>
-                  <span>Cita</span>
+                  <i-tabler name="chevron-left"></i-tabler>
                 </div>
               </button>
-              <button mat-menu-item (click)="createCalendarLock()">
+              <button
+                mat-icon-button
+                (click)="navigateDate('next')"
+                matTooltip="Siguiente"
+              >
                 <div class="flex items-center gap-2">
-                  <i-tabler name="cancel"></i-tabler>
-                  <span>Bloqueo de Agenda</span>
+                  <i-tabler name="chevron-right"></i-tabler>
                 </div>
               </button>
-            </mat-menu>
-            } @if (authService.isAdministrator() || authService.isDentist()) {
-            <button
-              mat-icon-button
-              class="mr-2"
-              matTooltip="Disponibilidad laboral"
-              (click)="goToAvailability()"
-            >
-              <i-tabler name="settings" class="mb-1"></i-tabler>
-            </button>
-            @if (hasConflicts()) {
-            <button
-              mat-icon-button
-              class="mr-2"
-              matTooltip="Ver conflictos"
-              (click)="viewConflicts()"
-              [matBadge]="getConflictCount()"
-              matBadgeColor="warn"
-              matBadgeOverlap="true"
-            >
-              <i-tabler name="alert-triangle" class="mb-1"></i-tabler>
-            </button>
-            } } }
-
-            <button
-              mat-icon-button
-              (click)="navigateDate('prev')"
-              matTooltip="Anterior"
-            >
-              <div class="flex items-center gap-2">
-                <i-tabler name="chevron-left"></i-tabler>
-              </div>
-            </button>
-            <button
-              mat-icon-button
-              (click)="navigateDate('next')"
-              matTooltip="Siguiente"
-            >
-              <div class="flex items-center gap-2">
-                <i-tabler name="chevron-right"></i-tabler>
-              </div>
-            </button>
-            <button mat-button (click)="goToToday()" class="today-btn">
-              <mat-icon>today</mat-icon>
-              Hoy
-            </button>
+              <button mat-button (click)="goToToday()" class="today-btn">
+                <mat-icon>today</mat-icon>
+                Hoy
+              </button>
             }
           </div>
 
           <!-- Center y Right (ocultos en vista de selección de dentistas) -->
           @if (!authService.isSecretary() || !showDentistSelection()) {
-          <!-- Center -->
-          <div class="header-center">
-            <h1 class="current-date">
-              <!-- Vista de mes -->
-              @if (currentView === 'month') {
-              <span>
-                {{ months[selectedDate.getMonth()] }}
-                {{ selectedDate.getFullYear() }}
-              </span>
-              }
+            <!-- Center -->
+            <div class="header-center">
+              <h1 class="current-date">
+                <!-- Vista de mes -->
+                @if (currentView === "month") {
+                  <span>
+                    {{ months[selectedDate.getMonth()] }}
+                    {{ selectedDate.getFullYear() }}
+                  </span>
+                }
 
-              <!-- Vista de semana -->
-              @if (currentView === 'week') {
-              <span>
-                {{
-                  getWeekDates()[0].toLocaleDateString("es-ES", {
-                    day: "numeric",
-                    month: "short"
-                  })
-                }}
-                -
-                {{
-                  getWeekDates()[6].toLocaleDateString("es-ES", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric"
-                  })
-                }}
-              </span>
-              }
+                <!-- Vista de semana -->
+                @if (currentView === "week") {
+                  <span>
+                    {{
+                      getWeekDates()[0].toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "short",
+                      })
+                    }}
+                    -
+                    {{
+                      getWeekDates()[6].toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    }}
+                  </span>
+                }
 
-              <!-- Vista de día -->
-              @if (currentView === 'day') {
-              <span>
-                {{
-                  selectedDate.toLocaleDateString("es-ES", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric"
-                  })
-                }}
-              </span>
-              }
-            </h1>
-          </div>
+                <!-- Vista de día -->
+                @if (currentView === "day") {
+                  <span>
+                    {{
+                      selectedDate.toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    }}
+                  </span>
+                }
+              </h1>
+            </div>
 
-          <!-- Right side -->
-          <div class="header-right">
-            <button
-              mat-button
-              [class.active]="currentView === 'day'"
-              (click)="setView('day')"
-              class="view-btn"
-            >
-              <mat-icon>view_day</mat-icon>
-              Día
-            </button>
-            <button
-              mat-button
-              [class.active]="currentView === 'week'"
-              (click)="setView('week')"
-              class="view-btn"
-            >
-              <mat-icon>view_week</mat-icon>
-              Semana
-            </button>
-            <button
-              mat-button
-              [class.active]="currentView === 'month'"
-              (click)="setView('month')"
-              class="view-btn"
-            >
-              <mat-icon>view_module</mat-icon>
-              Mes
-            </button>
-          </div>
+            <!-- Right side -->
+            <div class="header-right">
+              <button
+                mat-button
+                [class.active]="currentView === 'day'"
+                (click)="setView('day')"
+                class="view-btn"
+              >
+                <mat-icon>view_day</mat-icon>
+                Día
+              </button>
+              <button
+                mat-button
+                [class.active]="currentView === 'week'"
+                (click)="setView('week')"
+                class="view-btn"
+              >
+                <mat-icon>view_week</mat-icon>
+                Semana
+              </button>
+              <button
+                mat-button
+                [class.active]="currentView === 'month'"
+                (click)="setView('month')"
+                class="view-btn"
+              >
+                <mat-icon>view_module</mat-icon>
+                Mes
+              </button>
+            </div>
           }
         </div>
       </header>
@@ -398,476 +407,544 @@
       <div class="calendar-views">
         <!-- Dentist Selection View (Solo para Secretarios) -->
         @if (authService.isSecretary() && showDentistSelection()) {
-        <div class="dentist-selection-view">
-          @if (isLoadingDentists()) {
-          <!-- Loading Spinner -->
-          <div class="loading-container">
-            <mat-spinner diameter="50"></mat-spinner>
-            <p class="loading-text">Cargando dentistas...</p>
-          </div>
-          } @else {
-          <div class="dentist-selection-container">
-            <div class="selection-header">
-              <h2 class="selection-title">
-                <i-tabler
-                  name="user-check"
-                  class="title-icon scale-150"
-                ></i-tabler>
-                Seleccionar Profesional
-              </h2>
-              <p class="selection-subtitle">
-                Elige un profesional para ver su calendario y agendar citas
-              </p>
-            </div>
-
-            @if (specialtyGroups().length === 0) {
-            <div class="no-dentists-message">
-              <i-tabler name="user-off" class="no-dentists-icon"></i-tabler>
-              <p>No hay profesionales disponibles</p>
-            </div>
-            } @else { @for (group of specialtyGroups(); track
-            group.specialtyName) {
-            <div class="specialty-section">
-              <h3 class="specialty-title">
-                <i-tabler name="stethoscope" class="specialty-icon"></i-tabler>
-                {{ group.specialtyName }}
-              </h3>
-
-              <div class="dentist-cards-grid">
-                @for (dentist of group.dentists; track dentist.person.id) {
-                <button
-                  class="dentist-card"
-                  (click)="onDentistSelect(dentist)"
-                  mat-ripple
-                >
-                  <div class="dentist-card-content">
-                    <div class="dentist-avatar">
-                      <i-tabler
-                        name="user-circle"
-                        class="avatar-icon"
-                      ></i-tabler>
-                    </div>
-                    <div class="dentist-info">
-                      <h4 class="dentist-name">
-                        {{ getDentistFullName(dentist) }}
-                      </h4>
-                      <p class="dentist-specialty">{{ group.specialtyName }}</p>
-                    </div>
+          <div class="dentist-selection-view">
+            @if (isLoadingDentists()) {
+              <!-- Loading Spinner -->
+              <div class="loading-container">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p class="loading-text">Cargando dentistas...</p>
+              </div>
+            } @else {
+              <div class="dentist-selection-container">
+                <div class="selection-header">
+                  <h2 class="selection-title">
                     <i-tabler
-                      name="chevron-right"
-                      class="card-arrow"
+                      name="user-check"
+                      class="title-icon scale-150"
                     ></i-tabler>
+                    Seleccionar Profesional
+                  </h2>
+                  <p class="selection-subtitle">
+                    Elige un profesional para ver su calendario y agendar citas
+                  </p>
+                </div>
+
+                @if (specialtyGroups().length === 0) {
+                  <div class="no-dentists-message">
+                    <i-tabler
+                      name="user-off"
+                      class="no-dentists-icon"
+                    ></i-tabler>
+                    <p>No hay profesionales disponibles</p>
                   </div>
-                </button>
+                } @else {
+                  @for (group of specialtyGroups(); track group.specialtyName) {
+                    <div class="specialty-section">
+                      <h3 class="specialty-title">
+                        <i-tabler
+                          name="stethoscope"
+                          class="specialty-icon"
+                        ></i-tabler>
+                        {{ group.specialtyName }}
+                      </h3>
+
+                      <div class="dentist-cards-grid">
+                        @for (
+                          dentist of group.dentists;
+                          track dentist.person.id
+                        ) {
+                          <button
+                            class="dentist-card"
+                            (click)="onDentistSelect(dentist)"
+                            mat-ripple
+                          >
+                            <div class="dentist-card-content">
+                              <div class="dentist-avatar">
+                                <i-tabler
+                                  name="user-circle"
+                                  class="avatar-icon"
+                                ></i-tabler>
+                              </div>
+                              <div class="dentist-info">
+                                <h4 class="dentist-name">
+                                  {{ getDentistFullName(dentist) }}
+                                </h4>
+                                <p class="dentist-specialty">
+                                  {{ group.specialtyName }}
+                                </p>
+                              </div>
+                              <i-tabler
+                                name="chevron-right"
+                                class="card-arrow"
+                              ></i-tabler>
+                            </div>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
                 }
               </div>
-            </div>
-            } }
+            }
           </div>
-          }
-        </div>
         }
 
         <!-- Calendar Views (para todos los roles cuando no están en selección) -->
         @if (!authService.isSecretary() || !showDentistSelection()) {
-        <!-- Day View -->
-        <div *ngIf="currentView === 'day'" class="day-view">
-          @if (isLoadingCalendar()) {
-          <!-- Loading Spinner -->
-          <div class="loading-container">
-            <mat-spinner diameter="50"></mat-spinner>
-            <p class="loading-text">Cargando calendario...</p>
-          </div>
-          } @else {
-          <div class="day-view-container">
-            <div class="day-grid">
-              <div class="time-column" #timeColumn>
-                <div class="time-header">
-                  <span class="timezone"></span>
-                </div>
-                <div *ngFor="let timeSlot of timeSlots" class="time-slot">
-                  <span class="time-label">{{ timeSlot }}</span>
+          <!-- Day View -->
+          <div *ngIf="currentView === 'day'" class="day-view">
+            @if (isLoadingCalendar()) {
+              <!-- Loading Spinner -->
+              <div class="loading-container">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p class="loading-text">Cargando calendario...</p>
+              </div>
+            } @else {
+              <div class="day-view-container">
+                <div class="day-grid">
+                  <div class="time-column" #timeColumn>
+                    <div class="time-header">
+                      <span class="timezone"></span>
+                    </div>
+                    <div *ngFor="let timeSlot of timeSlots" class="time-slot">
+                      <span class="time-label">{{ timeSlot }}</span>
+                    </div>
+                  </div>
+                  <div class="events-column" #eventsColumn>
+                    <div class="events-header">
+                      <span>Eventos</span>
+                      <div class="header-badges">
+                        @if (isDayViewHoliday()) {
+                          <span
+                            class="day-holiday-badge"
+                            [style.background]="getDayViewHolidayColor()"
+                          >
+                            <span class="badge-icon">🎉</span>
+                            <span class="badge-text">{{
+                              getDayViewHolidayDescription()
+                            }}</span>
+                          </span>
+                        }
+                        @if (isDayViewFull()) {
+                          <span
+                            class="day-full-badge"
+                            [style.background]="getDayViewFullColor()"
+                          >
+                            <span class="badge-icon">⛔</span>
+                            <span class="badge-text"
+                              >Sin turnos disponibles</span
+                            >
+                          </span>
+                        }
+                        @if (isDayViewLocked()) {
+                          <span
+                            class="day-locked-badge"
+                            [style.background]="getDayViewLockedColor()"
+                          >
+                            <span class="badge-icon">🔒</span>
+                            <span class="badge-text">Día bloqueado</span>
+                          </span>
+                        }
+                        @if (isDayViewFree()) {
+                          <span
+                            class="day-free-badge"
+                            [style.background]="getDayViewFreeColor()"
+                          >
+                            <span class="badge-icon">✅</span>
+                            <span class="badge-text">{{
+                              getDayViewFreeDescription()
+                            }}</span>
+                          </span>
+                        }
+                        @if (
+                          (authService.isAdministrator() ||
+                            authService.isDentist() ||
+                            authService.isSecretary()) &&
+                          canCancelDayViewAppointments()
+                        ) {
+                          <button
+                            mat-icon-button
+                            [matMenuTriggerFor]="dayActionsMenu"
+                            matTooltip="Acciones del día"
+                            class="ml-2"
+                          >
+                            <i-tabler
+                              class="mb-1"
+                              name="dots-vertical"
+                            ></i-tabler>
+                          </button>
+                          <mat-menu #dayActionsMenu="matMenu">
+                            <button
+                              mat-menu-item
+                              (click)="cancelAllAppointments(selectedDate)"
+                            >
+                              <div class="flex items-center gap-2">
+                                <i-tabler
+                                  name="calendar-cancel"
+                                  class="text-red-500"
+                                ></i-tabler>
+                                <span>Cancelar todos los turnos</span>
+                              </div>
+                            </button>
+                          </mat-menu>
+                        }
+                      </div>
+                    </div>
+                    <div class="events-container">
+                      <!-- Grid de fondo con líneas horarias -->
+                      <div
+                        *ngFor="let timeSlot of timeSlots"
+                        class="time-row"
+                      ></div>
+
+                      <!-- Slots dinámicos de la API posicionados absolutamente -->
+                      <div
+                        *ngFor="let slot of getDayViewSlots()"
+                        class="api-slot"
+                        [style.top.px]="getSlotPosition(slot.startTime)"
+                        [style.height.px]="
+                          getSlotHeight(slot.startTime, slot.endTime)
+                        "
+                        [style.background-color]="slot.color"
+                        [class.reserved]="slot.status === 'RESERVED'"
+                        [class.locked]="slot.status === 'LOCKED'"
+                        [class.not-available]="slot.status === 'NOT_AVAILABLE'"
+                        (click)="openSlotDetail(slot)"
+                        style="cursor: pointer"
+                      >
+                        <div class="slot-content">
+                          @if (
+                            slot.status === "LOCKED" ||
+                            slot.status === "NOT_AVAILABLE"
+                          ) {
+                            <!-- Contenido para slots bloqueados y no disponibles -->
+                            <div class="slot-locked-content">
+                              <div class="locked-info">
+                                <span class="slot-time">
+                                  {{
+                                    slot.startTime.substring(0, 5) || "00:00"
+                                  }}
+                                  -
+                                  {{ slot.endTime.substring(0, 5) || "00:00" }}
+                                </span>
+                                <span class="lock-type">{{
+                                  slot.calendarLock.lockType
+                                }}</span>
+                                <span class="lock-observation">
+                                  {{
+                                    slot.calendarLock.observation ||
+                                      "[Sin observación]"
+                                  }}
+                                </span>
+                              </div>
+                            </div>
+                          } @else {
+                            <!-- Contenido para slots reservados -->
+                            <!-- Fila con horario y nombre del paciente -->
+                            <div class="slot-info-row">
+                              <span class="slot-time">
+                                {{ slot.startTime.substring(0, 5) || "00:00" }}
+                                -
+                                {{ slot.endTime.substring(0, 5) || "00:00" }}
+                              </span>
+                              @if (slot.appointment.patientName) {
+                                <span class="slot-patient">{{
+                                  slot.appointment.patientName
+                                }}</span>
+                              }
+                            </div>
+
+                            <!-- Nombre del dentista abajo -->
+                            @if (slot.appointment.dentistName) {
+                              <span class="slot-dentist">{{
+                                slot.appointment.dentistName
+                              }}</span>
+                            }
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="events-column" #eventsColumn>
-                <div class="events-header">
-                  <span>Eventos</span>
-                  <div class="header-badges">
-                    @if (isDayViewHoliday()) {
-                    <span
-                      class="day-holiday-badge"
-                      [style.background]="getDayViewHolidayColor()"
+            }
+          </div>
+
+          <!-- Week View -->
+          <div *ngIf="currentView === 'week'" class="week-view">
+            @if (isLoadingCalendar()) {
+              <!-- Loading Spinner -->
+              <div class="loading-container">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p class="loading-text">Cargando calendario...</p>
+              </div>
+            } @else {
+              <div class="week-table-container">
+                <table class="week-table">
+                  <thead>
+                    <tr class="week-header-row">
+                      <th class="time-header-cell"></th>
+                      <th
+                        *ngFor="let day of weekDays; let i = index"
+                        class="day-header-cell"
+                      >
+                        <div class="day-info">
+                          <div class="day-header-row">
+                            <div class="day-name-number">
+                              <span class="day-name">{{ day }}</span>
+                              <span class="day-number">{{
+                                getWeekDates()[i].getDate()
+                              }}</span>
+                            </div>
+                            <!-- Botón de acciones del día -->
+                            @if (
+                              (authService.isAdministrator() ||
+                                authService.isDentist() ||
+                                authService.isSecretary()) &&
+                              canCancelWeekDayAppointments(getWeekDates()[i])
+                            ) {
+                              <button
+                                mat-icon-button
+                                [matMenuTriggerFor]="weekDayActionsMenu"
+                                matTooltip="Acciones del día"
+                                class="week-day-actions-btn-inline"
+                              >
+                                <i-tabler
+                                  name="dots-vertical"
+                                  class="scale-75"
+                                ></i-tabler>
+                              </button>
+                              <mat-menu #weekDayActionsMenu="matMenu">
+                                <button
+                                  mat-menu-item
+                                  (click)="
+                                    cancelAllAppointments(getWeekDates()[i])
+                                  "
+                                >
+                                  <div class="flex items-center gap-2">
+                                    <i-tabler
+                                      name="calendar-cancel"
+                                      class="text-red-500"
+                                    ></i-tabler>
+                                    <span>Cancelar todos los turnos</span>
+                                  </div>
+                                </button>
+                              </mat-menu>
+                            }
+                          </div>
+                          <!-- Badge para día feriado -->
+                          @if (isWeekDayHoliday(getWeekDates()[i])) {
+                            <div
+                              class="week-day-holiday-badge"
+                              [style.background]="
+                                getWeekDayHolidayColor(getWeekDates()[i])
+                              "
+                            >
+                              <span class="badge-icon">🎉</span>
+                              <span class="badge-text">{{
+                                getWeekDayHolidayDescription(getWeekDates()[i])
+                              }}</span>
+                            </div>
+                          }
+                          <!-- Badge para día FULL (sin turnos disponibles) -->
+                          @if (isWeekDayFull(getWeekDates()[i])) {
+                            <div
+                              class="week-day-full-badge"
+                              [style.background]="
+                                getWeekDayFullColor(getWeekDates()[i])
+                              "
+                            >
+                              <span class="badge-icon">⛔</span>
+                              <span class="badge-text"
+                                >Sin turnos disponibles</span
+                              >
+                            </div>
+                          }
+                          <!-- Badge para día FREE (disponible) -->
+                          @if (isWeekDayFree(getWeekDates()[i])) {
+                            <div
+                              class="week-day-free-badge"
+                              [style.background]="
+                                getWeekDayFreeColor(getWeekDates()[i])
+                              "
+                            >
+                              <span class="badge-icon">✅</span>
+                              <span class="badge-text">{{
+                                getWeekDayFreeDescription(getWeekDates()[i])
+                              }}</span>
+                            </div>
+                          }
+                          <!-- Badge para día bloqueado (LOCKED) -->
+                          @if (isWeekDayLocked(getWeekDates()[i])) {
+                            <div
+                              class="week-day-locked-badge"
+                              [style.background]="
+                                getWeekDayLockedColor(getWeekDates()[i])
+                              "
+                            >
+                              <span class="badge-icon">🔒</span>
+                              <span class="badge-text">{{
+                                getWeekDayLockedDescription(getWeekDates()[i])
+                              }}</span>
+                            </div>
+                          }
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="let timeSlot of timeSlots; let i = index"
+                      class="week-row"
+                    >
+                      <td class="time-cell">{{ timeSlot }}</td>
+                      <td *ngFor="let date of getWeekDates()" class="day-cell">
+                        <!-- Grid de fondo -->
+                        <div class="time-row-bg"></div>
+                        <!-- Renderizar slots solo en la primera fila -->
+                        @if (i === 0) {
+                          <!-- Slots dinámicos de la API -->
+                          <div
+                            *ngFor="let slot of getWeekViewSlots(date)"
+                            class="api-slot"
+                            [style.top.px]="getSlotPositionWeek(slot.startTime)"
+                            [style.height.px]="
+                              getSlotHeight(slot.startTime, slot.endTime)
+                            "
+                            [style.background-color]="slot.color"
+                            [class.reserved]="slot.status === 'RESERVED'"
+                            [class.locked]="slot.status === 'LOCKED'"
+                            [class.not-available]="
+                              slot.status === 'NOT_AVAILABLE'
+                            "
+                            (click)="openSlotDetail(slot)"
+                            style="cursor: pointer"
+                          >
+                            <div class="slot-content">
+                              @if (
+                                slot.status === "LOCKED" ||
+                                slot.status === "NOT_AVAILABLE"
+                              ) {
+                                <!-- Contenido para slots bloqueados y no disponibles -->
+                                <div class="slot-locked-content">
+                                  <div class="locked-info">
+                                    <span class="slot-time">
+                                      {{
+                                        slot.startTime!.substring(0, 5) ||
+                                          "00:00"
+                                      }}
+                                      -
+                                      {{
+                                        slot.endTime!.substring(0, 5) || "00:00"
+                                      }}
+                                    </span>
+                                    <span class="lock-type">{{
+                                      slot.calendarLock.lockType
+                                    }}</span>
+                                    <span class="lock-observation">
+                                      {{
+                                        slot.calendarLock.observation ||
+                                          "[Sin observación]"
+                                      }}
+                                    </span>
+                                  </div>
+                                </div>
+                              } @else {
+                                <!-- Contenido para slots reservados -->
+                                <!-- Fila con horario y nombre del paciente -->
+                                <div class="slot-info-row">
+                                  <span class="slot-time">
+                                    {{
+                                      slot.startTime!.substring(0, 5) || "00:00"
+                                    }}
+                                    -
+                                    {{
+                                      slot.endTime!.substring(0, 5) || "00:00"
+                                    }}
+                                  </span>
+                                  @if (slot.appointment!.patientName) {
+                                    <span class="slot-patient">{{
+                                      slot.appointment.patientName
+                                    }}</span>
+                                  }
+                                </div>
+
+                                <!-- Nombre del dentista abajo -->
+                                @if (slot.appointment!.dentistName) {
+                                  <span class="slot-dentist">{{
+                                    slot.appointment.dentistName
+                                  }}</span>
+                                }
+                              }
+                            </div>
+                          </div>
+                        }
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+
+          <!-- Month View -->
+          <div *ngIf="currentView === 'month'" class="month-view">
+            @if (isLoadingCalendar()) {
+              <!-- Loading Spinner -->
+              <div class="loading-container">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p class="loading-text">Cargando calendario...</p>
+              </div>
+            } @else {
+              <!-- Month Grid -->
+              <div class="month-grid">
+                <div class="month-header">
+                  <div *ngFor="let day of weekDays" class="month-day-header">
+                    {{ day }}
+                  </div>
+                </div>
+                <div class="month-body">
+                  <div
+                    *ngFor="let date of getMonthDates()"
+                    class="month-day"
+                    [class.other-month]="!isCurrentMonth(date)"
+                    [class.today]="isToday(date)"
+                    [class.selected]="
+                      date.toDateString() === selectedDate.toDateString()
+                    "
+                    [class.disabled]="isNotAvailableDay(date)"
+                    (click)="selectDate(date)"
+                  >
+                    <div class="day-number">{{ date.getDate() }}</div>
+
+                    <!-- Badge de estado del día (calendarDayStatus) -->
+                    <div
+                      *ngIf="getDayDescription(date)"
+                      class="day-badge"
+                      [style.background-color]="getDayColor(date)"
+                    >
+                      <span class="badge-icon">{{ getDayIcon(date) }}</span>
+                      <span class="badge-text">{{
+                        getDayDescription(date)
+                      }}</span>
+                    </div>
+
+                    <!-- Badge de feriado (holiday) - siempre visible si existe -->
+                    <div
+                      *ngIf="getHolidayDescription(date)"
+                      class="day-badge holiday-badge"
+                      [style.background-color]="getHolidayColor(date)"
                     >
                       <span class="badge-icon">🎉</span>
                       <span class="badge-text">{{
-                        getDayViewHolidayDescription()
+                        getHolidayDescription(date)
                       }}</span>
-                    </span>
-                    } @if (isDayViewFull()) {
-                    <span
-                      class="day-full-badge"
-                      [style.background]="getDayViewFullColor()"
-                    >
-                      <span class="badge-icon">⛔</span>
-                      <span class="badge-text">Sin turnos disponibles</span>
-                    </span>
-                    } @if (isDayViewLocked()) {
-                    <span
-                      class="day-locked-badge"
-                      [style.background]="getDayViewLockedColor()"
-                    >
-                      <span class="badge-icon">🔒</span>
-                      <span class="badge-text">Día bloqueado</span>
-                    </span>
-                    } @if (isDayViewFree()) {
-                    <span
-                      class="day-free-badge"
-                      [style.background]="getDayViewFreeColor()"
-                    >
-                      <span class="badge-icon">✅</span>
-                      <span class="badge-text">{{
-                        getDayViewFreeDescription()
-                      }}</span>
-                    </span>
-                    } @if ((authService.isAdministrator() ||
-                    authService.isDentist() || authService.isSecretary()) &&
-                    canCancelDayViewAppointments()) {
-                    <button
-                      mat-icon-button
-                      [matMenuTriggerFor]="dayActionsMenu"
-                      matTooltip="Acciones del día"
-                      class="ml-2"
-                    >
-                      <i-tabler class="mb-1" name="dots-vertical"></i-tabler>
-                    </button>
-                    <mat-menu #dayActionsMenu="matMenu">
-                      <button
-                        mat-menu-item
-                        (click)="cancelAllAppointments(selectedDate)"
-                      >
-                        <div class="flex items-center gap-2">
-                          <i-tabler
-                            name="calendar-cancel"
-                            class="text-red-500"
-                          ></i-tabler>
-                          <span>Cancelar todos los turnos</span>
-                        </div>
-                      </button>
-                    </mat-menu>
-                    }
-                  </div>
-                </div>
-                <div class="events-container">
-                  <!-- Grid de fondo con líneas horarias -->
-                  <div
-                    *ngFor="let timeSlot of timeSlots"
-                    class="time-row"
-                  ></div>
-
-                  <!-- Slots dinámicos de la API posicionados absolutamente -->
-                  <div
-                    *ngFor="let slot of getDayViewSlots()"
-                    class="api-slot"
-                    [style.top.px]="getSlotPosition(slot.startTime)"
-                    [style.height.px]="
-                      getSlotHeight(slot.startTime, slot.endTime)
-                    "
-                    [style.background-color]="slot.color"
-                    [class.reserved]="slot.status === 'RESERVED'"
-                    [class.locked]="slot.status === 'LOCKED'"
-                    [class.not-available]="slot.status === 'NOT_AVAILABLE'"
-                    (click)="openSlotDetail(slot)"
-                    style="cursor: pointer"
-                  >
-                    <div class="slot-content">
-                      @if (slot.status === 'LOCKED' || slot.status ===
-                      'NOT_AVAILABLE') {
-                      <!-- Contenido para slots bloqueados y no disponibles -->
-                      <div class="slot-locked-content">
-                        <div class="locked-info">
-                          <span class="slot-time">
-                            {{ slot.startTime.substring(0, 5) || "00:00" }} -
-                            {{ slot.endTime.substring(0, 5) || "00:00" }}
-                          </span>
-                          <span class="lock-type">{{
-                            slot.calendarLock.lockType
-                          }}</span>
-                          <span class="lock-observation">
-                            {{
-                              slot.calendarLock.observation ||
-                                "[Sin observación]"
-                            }}
-                          </span>
-                        </div>
-                      </div>
-                      } @else {
-                      <!-- Contenido para slots reservados -->
-                      <!-- Fila con horario y nombre del paciente -->
-                      <div class="slot-info-row">
-                        <span class="slot-time">
-                          {{ slot.startTime.substring(0, 5) || "00:00" }} -
-                          {{ slot.endTime.substring(0, 5) || "00:00" }}
-                        </span>
-                        @if (slot.appointment.patientName) {
-                        <span class="slot-patient">{{
-                          slot.appointment.patientName
-                        }}</span>
-                        }
-                      </div>
-
-                      <!-- Nombre del dentista abajo -->
-                      @if (slot.appointment.dentistName) {
-                      <span class="slot-dentist">{{
-                        slot.appointment.dentistName
-                      }}</span>
-                      } }
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            }
           </div>
-          }
-        </div>
-
-        <!-- Week View -->
-        <div *ngIf="currentView === 'week'" class="week-view">
-          @if (isLoadingCalendar()) {
-          <!-- Loading Spinner -->
-          <div class="loading-container">
-            <mat-spinner diameter="50"></mat-spinner>
-            <p class="loading-text">Cargando calendario...</p>
-          </div>
-          } @else {
-          <div class="week-table-container">
-            <table class="week-table">
-              <thead>
-                <tr class="week-header-row">
-                  <th class="time-header-cell"></th>
-                  <th
-                    *ngFor="let day of weekDays; let i = index"
-                    class="day-header-cell"
-                  >
-                    <div class="day-info">
-                      <div class="day-header-row">
-                        <div class="day-name-number">
-                          <span class="day-name">{{ day }}</span>
-                          <span class="day-number">{{
-                            getWeekDates()[i].getDate()
-                          }}</span>
-                        </div>
-                        <!-- Botón de acciones del día -->
-                        @if ((authService.isAdministrator() ||
-                        authService.isDentist() || authService.isSecretary()) &&
-                        canCancelWeekDayAppointments(getWeekDates()[i])) {
-                        <button
-                          mat-icon-button
-                          [matMenuTriggerFor]="weekDayActionsMenu"
-                          matTooltip="Acciones del día"
-                          class="week-day-actions-btn-inline"
-                        >
-                          <i-tabler
-                            name="dots-vertical"
-                            class="scale-75"
-                          ></i-tabler>
-                        </button>
-                        <mat-menu #weekDayActionsMenu="matMenu">
-                          <button
-                            mat-menu-item
-                            (click)="cancelAllAppointments(getWeekDates()[i])"
-                          >
-                            <div class="flex items-center gap-2">
-                              <i-tabler
-                                name="calendar-cancel"
-                                class="text-red-500"
-                              ></i-tabler>
-                              <span>Cancelar todos los turnos</span>
-                            </div>
-                          </button>
-                        </mat-menu>
-                        }
-                      </div>
-                      <!-- Badge para día feriado -->
-                      @if (isWeekDayHoliday(getWeekDates()[i])) {
-                      <div
-                        class="week-day-holiday-badge"
-                        [style.background]="
-                          getWeekDayHolidayColor(getWeekDates()[i])
-                        "
-                      >
-                        <span class="badge-icon">🎉</span>
-                        <span class="badge-text">{{
-                          getWeekDayHolidayDescription(getWeekDates()[i])
-                        }}</span>
-                      </div>
-                      }
-                      <!-- Badge para día FULL (sin turnos disponibles) -->
-                      @if (isWeekDayFull(getWeekDates()[i])) {
-                      <div
-                        class="week-day-full-badge"
-                        [style.background]="
-                          getWeekDayFullColor(getWeekDates()[i])
-                        "
-                      >
-                        <span class="badge-icon">⛔</span>
-                        <span class="badge-text">Sin turnos disponibles</span>
-                      </div>
-                      }
-                      <!-- Badge para día FREE (disponible) -->
-                      @if (isWeekDayFree(getWeekDates()[i])) {
-                      <div
-                        class="week-day-free-badge"
-                        [style.background]="
-                          getWeekDayFreeColor(getWeekDates()[i])
-                        "
-                      >
-                        <span class="badge-icon">✅</span>
-                        <span class="badge-text">{{
-                          getWeekDayFreeDescription(getWeekDates()[i])
-                        }}</span>
-                      </div>
-                      }
-                      <!-- Badge para día bloqueado (LOCKED) -->
-                      @if (isWeekDayLocked(getWeekDates()[i])) {
-                      <div
-                        class="week-day-locked-badge"
-                        [style.background]="
-                          getWeekDayLockedColor(getWeekDates()[i])
-                        "
-                      >
-                        <span class="badge-icon">🔒</span>
-                        <span class="badge-text">{{
-                          getWeekDayLockedDescription(getWeekDates()[i])
-                        }}</span>
-                      </div>
-                      }
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  *ngFor="let timeSlot of timeSlots; let i = index"
-                  class="week-row"
-                >
-                  <td class="time-cell">{{ timeSlot }}</td>
-                  <td *ngFor="let date of getWeekDates()" class="day-cell">
-                    <!-- Grid de fondo -->
-                    <div class="time-row-bg"></div>
-                    <!-- Renderizar slots solo en la primera fila -->
-                    @if (i === 0) {
-                    <!-- Slots dinámicos de la API -->
-                    <div
-                      *ngFor="let slot of getWeekViewSlots(date)"
-                      class="api-slot"
-                      [style.top.px]="getSlotPositionWeek(slot.startTime)"
-                      [style.height.px]="
-                        getSlotHeight(slot.startTime, slot.endTime)
-                      "
-                      [style.background-color]="slot.color"
-                      [class.reserved]="slot.status === 'RESERVED'"
-                      [class.locked]="slot.status === 'LOCKED'"
-                      [class.not-available]="slot.status === 'NOT_AVAILABLE'"
-                      (click)="openSlotDetail(slot)"
-                      style="cursor: pointer"
-                    >
-                      <div class="slot-content">
-                        @if (slot.status === 'LOCKED' || slot.status ===
-                        'NOT_AVAILABLE') {
-                        <!-- Contenido para slots bloqueados y no disponibles -->
-                        <div class="slot-locked-content">
-                          <div class="locked-info">
-                            <span class="slot-time">
-                              {{ slot.startTime!.substring(0, 5) || "00:00" }} -
-                              {{ slot.endTime!.substring(0, 5) || "00:00" }}
-                            </span>
-                            <span class="lock-type">{{
-                              slot.calendarLock.lockType
-                            }}</span>
-                            <span class="lock-observation">
-                              {{
-                                slot.calendarLock.observation ||
-                                  "[Sin observación]"
-                              }}
-                            </span>
-                          </div>
-                        </div>
-                        } @else {
-                        <!-- Contenido para slots reservados -->
-                        <!-- Fila con horario y nombre del paciente -->
-                        <div class="slot-info-row">
-                          <span class="slot-time">
-                            {{ slot.startTime!.substring(0, 5) || "00:00" }} -
-                            {{ slot.endTime!.substring(0, 5) || "00:00" }}
-                          </span>
-                          @if (slot.appointment!.patientName) {
-                          <span class="slot-patient">{{
-                            slot.appointment.patientName
-                          }}</span>
-                          }
-                        </div>
-
-                        <!-- Nombre del dentista abajo -->
-                        @if (slot.appointment!.dentistName) {
-                        <span class="slot-dentist">{{
-                          slot.appointment.dentistName
-                        }}</span>
-                        } }
-                      </div>
-                    </div>
-                    }
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          }
-        </div>
-
-        <!-- Month View -->
-        <div *ngIf="currentView === 'month'" class="month-view">
-          @if (isLoadingCalendar()) {
-          <!-- Loading Spinner -->
-          <div class="loading-container">
-            <mat-spinner diameter="50"></mat-spinner>
-            <p class="loading-text">Cargando calendario...</p>
-          </div>
-          } @else {
-          <!-- Month Grid -->
-          <div class="month-grid">
-            <div class="month-header">
-              <div *ngFor="let day of weekDays" class="month-day-header">
-                {{ day }}
-              </div>
-            </div>
-            <div class="month-body">
-              <div
-                *ngFor="let date of getMonthDates()"
-                class="month-day"
-                [class.other-month]="!isCurrentMonth(date)"
-                [class.today]="isToday(date)"
-                [class.selected]="
-                  date.toDateString() === selectedDate.toDateString()
-                "
-                [class.disabled]="isNotAvailableDay(date)"
-                (click)="selectDate(date)"
-              >
-                <div class="day-number">{{ date.getDate() }}</div>
-
-                <!-- Badge de feriado/día completo -->
-                <div
-                  *ngIf="getDayDescription(date)"
-                  class="day-badge"
-                  [style.background-color]="getDayColor(date)"
-                >
-                  <span class="badge-icon">{{ getDayIcon(date) }}</span>
-                  <span class="badge-text">{{ getDayDescription(date) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          }
-        </div>
         }
       </div>
     </main>

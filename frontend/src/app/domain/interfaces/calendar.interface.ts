@@ -37,10 +37,11 @@ export interface CalendarMonthInterface {
 }
 
 export interface CalendarMonthDayInterface {
-  date: string;
-  status: CalendarMonthDayStatusEnum;
-  description: string;
-  color: string;
+  calendarDayStatus: CalendarDayStatusInterface;
+  day: string;
+  dentistId: number;
+  holiday: HolidayInterface;
+  slots: SlotInterface[];
 }
 
 export interface CalendarWeekInterface {
@@ -66,7 +67,7 @@ export interface HolidayInterface {
 }
 
 export interface CalendarDayStatusInterface {
-  key: SlotStatusEnum;
+  key: CalendarMonthDayStatusEnum;
   description: string;
   color: string;
 }
