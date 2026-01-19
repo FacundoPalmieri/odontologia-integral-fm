@@ -132,6 +132,11 @@ public class DentistHolidayService implements IDentistHolidayService {
             //Construye objeto a persistir.
             DentistHoliday dentistHoliday = DentistHoliday.build(dentists,holiday,dentistHolidayRequestCreateDTO);
 
+            //Auditoría.
+            dentistHoliday.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+            dentistHoliday.setCreatedAt(LocalDateTime.now());
+            dentistHoliday.setEnabled(true);
+
             //Persiste.
             DentistHoliday dentistHolidaySaved = dentistHolidayRepository.save(dentistHoliday);
 
