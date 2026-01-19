@@ -1294,9 +1294,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
             },
           );
 
-          // Al cerrar el diálogo, recargar la vista si se canceló la cita
+          // Al cerrar el diálogo, recargar la vista si se canceló o reprogramó la cita
           dialogRef.afterClosed().subscribe((result) => {
-            if (result?.cancelled) {
+            if (result?.cancelled || result?.rescheduled) {
               this.refreshCurrentView();
               this.loadConflicts(); // También recargar conflictos si los hay
             }
