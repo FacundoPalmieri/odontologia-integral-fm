@@ -13,23 +13,26 @@ import java.util.List;
 @Setter
 public class CalendarDayResponseDTO {
     private Long dentistId;
+    private Long dentistHolidayId;
     private LocalDate day;
     private CalendarDayStatusResponseDTO calendarDayStatus; //Se devuelve para luego sacar el estado del mes.
     private CalendarHolidayResponseDTO holiday;
     private List<SlotResponseDTO> slots;
 
 
-    private CalendarDayResponseDTO (Long dentistId, LocalDate day, CalendarDayStatusResponseDTO calendarDayStatus, CalendarHolidayResponseDTO holiday, List<SlotResponseDTO> slots){
+    private CalendarDayResponseDTO (Long dentistId,Long dentistHolidayId, LocalDate day, CalendarDayStatusResponseDTO calendarDayStatus, CalendarHolidayResponseDTO holiday, List<SlotResponseDTO> slots){
         this.dentistId = dentistId;
+        this.dentistHolidayId = dentistHolidayId;
         this.day = day;
         this.calendarDayStatus = calendarDayStatus;
         this.holiday = holiday;
         this.slots = slots;
     }
 
-    public static CalendarDayResponseDTO build(Long dentistId, LocalDate day, CalendarDayStatusResponseDTO calendarDayStatus, CalendarHolidayResponseDTO holiday, List<SlotResponseDTO> slots){
+    public static CalendarDayResponseDTO build(Long dentistId,Long dentistHolidayId, LocalDate day, CalendarDayStatusResponseDTO calendarDayStatus, CalendarHolidayResponseDTO holiday, List<SlotResponseDTO> slots){
         return new CalendarDayResponseDTO(
                 dentistId,
+                dentistHolidayId,
                 day,
                 calendarDayStatus,
                 holiday,
