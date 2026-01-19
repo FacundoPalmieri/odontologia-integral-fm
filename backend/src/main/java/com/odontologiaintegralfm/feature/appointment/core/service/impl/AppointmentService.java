@@ -2,12 +2,10 @@ package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.TemplateEmail;
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCancelRequestDTO;
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentRescheduleRequestDTO;
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentResponseDTO;
+import com.odontologiaintegralfm.feature.appointment.core.dto.*;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentActionRequester;
 import com.odontologiaintegralfm.feature.appointment.core.enums.AppointmentStatus;
-import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentCreateRequestDTO;
+import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.*;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IAppointmentRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.*;
@@ -27,6 +25,7 @@ import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
@@ -254,9 +253,9 @@ public class AppointmentService implements IAppointmentService {
         validateMinimumHoursForReschedule(appointmentRescheduleRequestDTO.requestSource(), appointment.getDate());
 
 
-        //Deshabilitamos el turno anterior.
+        //Actualizamos estado
         appointment.setStatus(AppointmentStatus.RESCHEDULED);
-        appointment.setEnabled(false);
+
 
         // Valida y construye el turno
         Appointment appointmentNew = validateAndBuildAppointment(appointmentRescheduleRequestDTO.appointment());
@@ -470,7 +469,7 @@ public class AppointmentService implements IAppointmentService {
             type = LogType.SYSTEM,
             level = LogLevel.INFO
     )
-    public Response<Integer> cancelAllByDate(Long idDentist ,LocalDate date, AppointmentCancelRequestDTO appointmentCancelRequestDTO) {
+    public Response<Integer> cancelAllByDate(Long idDentist ,LocalDate date, AppointmentCancelAllRequestDTO appointmentCancelRequestDTO) {
 
         //Valída que la fecha sea mayor al día actual.
         if(!date.isAfter(LocalDate.now())){
@@ -503,9 +502,14 @@ public class AppointmentService implements IAppointmentService {
                     AppointmentStatusHistory.build(
                             a,
                             AppointmentStatus.CANCELED,
-                            appointmentCancelRequestDTO.requestSource(),
+                            AppointmentActionRequester.PATIENT,
                             appointmentCancelRequestDTO.observation()
                     );
+
+            //Datos auditoría.
+            ah.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+            ah.setCreatedAt(LocalDateTime.now());
+            ah.setEnabled(true);
 
             appointmentStatusHistory.add(ah);
         }

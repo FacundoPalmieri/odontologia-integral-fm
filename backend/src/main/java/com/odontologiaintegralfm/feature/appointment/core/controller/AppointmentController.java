@@ -103,7 +103,7 @@ public class AppointmentController {
     @OnlyAccessPersonProfileAndConsultationOrAppointmentsManagementUpdate
     public ResponseEntity<Response<Integer>> cancelAllByDate(@PathVariable @NotNull Long idDentist,
                                                              @RequestParam @NotNull LocalDate date,
-                                                             @RequestBody @Valid AppointmentCancelRequestDTO appointmentCancelRequestDTO) {
+                                                             @RequestBody @Valid AppointmentCancelAllRequestDTO appointmentCancelRequestDTO) {
 
         Response<Integer> response = appointmentService.cancelAllByDate(idDentist, date, appointmentCancelRequestDTO);
         return ResponseEntity.ok(response);
