@@ -467,6 +467,7 @@ public class CalendarService implements ICalendarService {
 
             return CalendarDayResponseDTO.build(
                     idDentist,
+                    null,
                     day,
                     CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
                     null,
@@ -505,6 +506,7 @@ public class CalendarService implements ICalendarService {
 
                 return  CalendarDayResponseDTO.build(
                         idDentist,
+                        dentistHoliday.getId(),
                         day,
                         deriveDayStatus(slots),
                         CalendarHolidayResponseDTO.build(holiday.getId(), CalendarHoliday.HOLIDAY,holiday.getName(),holiday.getType().getLabel()),
@@ -514,6 +516,7 @@ public class CalendarService implements ICalendarService {
             }else{
                 return  CalendarDayResponseDTO.build(
                         idDentist,
+                        null,
                         day,
                         CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
                         CalendarHolidayResponseDTO.build(holiday.getId(),CalendarHoliday.HOLIDAY,holiday.getName(),holiday.getType().getLabel()),
@@ -532,7 +535,7 @@ public class CalendarService implements ICalendarService {
 
         //Si no hay jornada para ese día, se devuelve como NO DISPONIBLE.
         if(dentistAvailability == null) {
-            return  CalendarDayResponseDTO.build(idDentist, day,CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),null,null);
+            return  CalendarDayResponseDTO.build(idDentist,null, day,CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),null,null);
         }
 
         List<DentistCalendarLock> dentistCalendarLocks = dentistCalendarLockService.getByDate(idDentist,day);
@@ -546,7 +549,7 @@ public class CalendarService implements ICalendarService {
         //Llenar slots.
         fillSlot(slots,appointments, dentistCalendarLocks,dentistAvailability.getBreakStartTime(),dentistAvailability.getBreakEndTime());
 
-        return  CalendarDayResponseDTO.build(idDentist, day,deriveDayStatus(slots),null,slots);
+        return  CalendarDayResponseDTO.build(idDentist,null, day,deriveDayStatus(slots),null,slots);
 
     }
 
