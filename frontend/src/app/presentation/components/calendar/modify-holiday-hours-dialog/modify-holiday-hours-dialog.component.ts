@@ -41,6 +41,7 @@ import { SnackbarTypeEnum } from "../../../../utils/enums/snackbar-type.enum";
 export class ModifyHolidayHoursDialogComponent implements OnInit {
   holiday: HolidayInterface;
   date: Date;
+  dentistHolidayId: number;
   workForm!: FormGroup;
   isSaving = false;
 
@@ -54,11 +55,16 @@ export class ModifyHolidayHoursDialogComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { holiday: HolidayInterface; date: Date },
+    public data: {
+      holiday: HolidayInterface;
+      date: Date;
+      dentistHolidayId: number;
+    },
     private dialogRef: MatDialogRef<ModifyHolidayHoursDialogComponent>,
   ) {
     this.holiday = data.holiday;
     this.date = data.date;
+    this.dentistHolidayId = data.dentistHolidayId;
   }
 
   ngOnInit(): void {
@@ -119,7 +125,7 @@ export class ModifyHolidayHoursDialogComponent implements OnInit {
 
     // Build DTO matching API structure
     const dto: HolidayUpdateAvailabilityDtoInterface = {
-      idDentistHoliday: 0, // Por ahora en 0 como indicaste
+      idDentistHoliday: this.dentistHolidayId,
       startTime: startTimeStr,
       endTime: endTimeStr,
       enabled: true,

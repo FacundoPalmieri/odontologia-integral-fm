@@ -657,7 +657,99 @@ export class CalendarComponent implements OnInit, AfterViewInit {
             data: {
               holiday: dayData.holiday,
               date: date,
+              dentistHolidayId: dayData.dentistHolidayId,
               isWorking: isWorking,
+              viewType: "month" as const,
+            },
+          },
+        );
+
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result?.workConfigured) {
+            // Recargar la vista del calendario
+            this.refreshCurrentView();
+          }
+        });
+      },
+    );
+  }
+
+  /**
+   * Open holiday detail dialog from day view
+   */
+  openHolidayDetailDayView(event: Event): void {
+    event.stopPropagation();
+
+    const dayData = this.calendarDayData();
+    if (!dayData?.holiday) {
+      return;
+    }
+
+    // Verificar si el día tiene badge "Disponible" (FREE status)
+    const isWorking =
+      dayData.calendarDayStatus?.key === CalendarMonthDayStatusEnum.FREE;
+
+    // Obtener dentistHolidayId desde el día
+    const dentistHolidayId = dayData.dentistHolidayId || 0;
+
+    import("./holiday-detail-dialog/holiday-detail-dialog.component").then(
+      (module) => {
+        const dialogRef = this.dialog.open(
+          module.HolidayDetailDialogComponent,
+          {
+            width: "600px",
+            maxWidth: "90vw",
+            data: {
+              holiday: dayData.holiday,
+              date: this.selectedDate,
+              dentistHolidayId: dentistHolidayId,
+              isWorking: isWorking,
+              viewType: "day" as const,
+            },
+          },
+        );
+
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result?.workConfigured) {
+            // Recargar la vista del calendario
+            this.refreshCurrentView();
+          }
+        });
+      },
+    );
+  }
+
+  /**
+   * Open holiday detail dialog from week view
+   */
+  openHolidayDetailWeekView(date: Date, event: Event): void {
+    event.stopPropagation();
+
+    const dayData = this.getWeekDayData(date);
+    if (!dayData?.holiday) {
+      return;
+    }
+
+    // Verificar si el día tiene badge "Disponible" (FREE status)
+    const isWorking =
+      dayData.calendarDayStatus?.key === CalendarMonthDayStatusEnum.FREE;
+
+    // Obtener dentistHolidayId desde el día
+    const dentistHolidayId = dayData.dentistHolidayId || 0;
+
+    import("./holiday-detail-dialog/holiday-detail-dialog.component").then(
+      (module) => {
+        const dialogRef = this.dialog.open(
+          module.HolidayDetailDialogComponent,
+          {
+            width: "600px",
+            maxWidth: "90vw",
+            data: {
+              holiday: dayData.holiday,
+              date: date,
+              dentistHolidayId: dentistHolidayId,
+              isWorking: isWorking,
+              viewType: "week" as const,
             },
           },
         );

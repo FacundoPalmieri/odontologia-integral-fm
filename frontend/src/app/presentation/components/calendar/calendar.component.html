@@ -518,6 +518,8 @@
                           <span
                             class="day-holiday-badge"
                             [style.background]="getDayViewHolidayColor()"
+                            (click)="openHolidayDetailDayView($event)"
+                            style="cursor: pointer"
                           >
                             <span class="badge-icon">🎉</span>
                             <span class="badge-text">{{
@@ -739,6 +741,13 @@
                               [style.background]="
                                 getWeekDayHolidayColor(getWeekDates()[i])
                               "
+                              (click)="
+                                openHolidayDetailWeekView(
+                                  getWeekDates()[i],
+                                  $event
+                                )
+                              "
+                              style="cursor: pointer"
                             >
                               <span class="badge-icon">🎉</span>
                               <span class="badge-text">{{

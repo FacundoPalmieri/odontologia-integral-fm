@@ -88,6 +88,7 @@ export class DentistService {
   ): Observable<
     ApiResponseInterface<HolidayWorkConfigCreateResponseDtoInterface>
   > {
+    console.log(availability);
     return this.http.patch<
       ApiResponseInterface<HolidayWorkConfigCreateResponseDtoInterface>
     >(`${this.apiUrl}/dentist-holiday/${userId}`, availability);

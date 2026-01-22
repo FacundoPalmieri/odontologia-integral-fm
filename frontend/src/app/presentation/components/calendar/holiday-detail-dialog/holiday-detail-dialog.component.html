@@ -111,12 +111,19 @@
           <span>No trabajar este día</span>
         </div>
       </button>
-      <button mat-flat-button color="primary" (click)="openModifyHoursDialog()">
-        <div class="flex items-center gap-2">
-          <i-tabler name="clock"></i-tabler>
-          <span>Modificar rango horario</span>
-        </div>
-      </button>
+      <!-- Solo mostrar botón de modificar en vistas semanal/diaria -->
+      @if (viewType === "week" || viewType === "day") {
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="openModifyHoursDialog()"
+        >
+          <div class="flex items-center gap-2">
+            <i-tabler name="clock"></i-tabler>
+            <span>Modificar rango horario</span>
+          </div>
+        </button>
+      }
     } @else {
       <!-- Botón cuando no está trabajando -->
       <button

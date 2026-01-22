@@ -31,7 +31,9 @@ import { HolidayUpdateAvailabilityDtoInterface } from "../../../../domain/dto/ho
 export class HolidayDetailDialogComponent {
   holiday: HolidayInterface;
   date: Date;
+  dentistHolidayId: number;
   isWorking: boolean = false; // Indica si el feriado ya está configurado para trabajar
+  viewType: "month" | "week" | "day" = "month"; // Tipo de vista desde donde se abrió
   private dialog = inject(MatDialog);
   private readonly dentistService = inject(DentistService);
   private readonly authService = inject(AuthService);
@@ -42,14 +44,18 @@ export class HolidayDetailDialogComponent {
     public data: {
       holiday: HolidayInterface;
       date: Date;
+      dentistHolidayId: number;
       isWorking?: boolean;
+      viewType?: "month" | "week" | "day";
     },
     private dialogRef: MatDialogRef<HolidayDetailDialogComponent>,
   ) {
     this.holiday = data.holiday;
     this.date = data.date;
+    this.dentistHolidayId = data.dentistHolidayId;
     // Si el badge es "Disponible", significa que ya está configurado para trabajar
     this.isWorking = data.isWorking || false;
+    this.viewType = data.viewType || "month";
   }
 
   /**
@@ -106,6 +112,7 @@ export class HolidayDetailDialogComponent {
             data: {
               holiday: this.holiday,
               date: this.date,
+              dentistHolidayId: this.dentistHolidayId,
             },
           },
         );
@@ -138,7 +145,7 @@ export class HolidayDetailDialogComponent {
 
     // Build DTO with empty time range and enabled = false
     const dto: HolidayUpdateAvailabilityDtoInterface = {
-      idDentistHoliday: 0, // Por ahora en 0 como indicaste
+      idDentistHoliday: this.dentistHolidayId,
       startTime: "00:00",
       endTime: "00:00",
       enabled: false,
