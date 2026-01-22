@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.catalogs.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationCreate;
-import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessAppointmentsManagementOrConfigurationRead;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationUpdate;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockModeResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.CalendarLockTypeCreateRequestDTO;
@@ -41,7 +41,7 @@ public class CalendarLockTypeController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
+    @OnlyAccessAppointmentsManagementOrConfigurationRead
     public ResponseEntity<Response<List<CalendarLockTypeResponseDTO>>> getAll(){
         Response<List<CalendarLockTypeResponseDTO>> response = calendarLockTypeService.getAll();
         return ResponseEntity.ok(response);
@@ -57,7 +57,7 @@ public class CalendarLockTypeController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/{id}")
-    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
+    @OnlyAccessAppointmentsManagementOrConfigurationRead
     public ResponseEntity<Response<CalendarLockTypeResponseDTO>> getById(@PathVariable @NotNull Long id){
         Response<CalendarLockTypeResponseDTO> response = calendarLockTypeService.getById(id);
         return ResponseEntity.ok(response);
@@ -72,7 +72,7 @@ public class CalendarLockTypeController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/mode")
-    @OnlyAccessUserProfileAndAppointmentsManagementOrConfigurationRead
+    @OnlyAccessAppointmentsManagementOrConfigurationRead
     public ResponseEntity<Response<Set<CalendarLockModeResponseDTO>>> getMode(){
         Response<Set<CalendarLockModeResponseDTO>> response = calendarLockTypeService.getModes();
         return ResponseEntity.ok(response);
