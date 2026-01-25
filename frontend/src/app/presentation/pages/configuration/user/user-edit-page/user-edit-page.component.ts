@@ -49,6 +49,7 @@ import { MatTableModule } from "@angular/material/table";
 import { AttachedFileComponent } from "../../../../components/attached-file/attached-file.component";
 import { EntityTypeEnum } from "../../../../../utils/enums/entity-type.enum";
 import { RoleEnum } from "../../../../../utils/enums/role.enum";
+import { CardIconTitleComponent } from "../../../../components/card-icon-title/card-icon-title.component";
 
 @Component({
   selector: "app-user-edit-page",
@@ -67,6 +68,7 @@ import { RoleEnum } from "../../../../../utils/enums/role.enum";
     MatIconModule,
     MatTableModule,
     AttachedFileComponent,
+    CardIconTitleComponent,
   ],
 })
 export class UserEditPageComponent implements OnInit, OnDestroy {
@@ -213,9 +215,9 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
               dentistSpecialty:
                 new FormControl<DentistSpecialtyInterface | null>(
                   null,
-                  validators
+                  validators,
                 ),
-            })
+            }),
           );
         } else if (
           !hasDentistOrAdministratorRole &&
@@ -301,7 +303,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       | PhoneTypeInterface
       | RoleInterface
       | DentistSpecialtyInterface
-      | null
+      | null,
   ): boolean => {
     return item1 && item2 ? item1.id === item2.id : item1 === item2;
   };
@@ -315,7 +317,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
         6000,
         "center",
         "bottom",
-        SnackbarTypeEnum.Error
+        SnackbarTypeEnum.Error,
       );
       return;
     }
@@ -340,7 +342,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
               6000,
               "center",
               "top",
-              SnackbarTypeEnum.Success
+              SnackbarTypeEnum.Success,
             );
             this.canDeleteAvatar.set(true);
           },
@@ -387,7 +389,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
         6000,
         "center",
         "bottom",
-        SnackbarTypeEnum.Error
+        SnackbarTypeEnum.Error,
       );
       return;
     }
@@ -402,14 +404,14 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
             .subscribe(
               (response: ApiResponseInterface<FileMetadataInterface[]>) => {
                 this.filesMetadata.set(response.data);
-              }
+              },
             );
           this.snackbarService.openSnackbar(
             "Archivo subido correctamente.",
             6000,
             "center",
             "top",
-            SnackbarTypeEnum.Success
+            SnackbarTypeEnum.Success,
           );
         },
         error: () => {},
@@ -442,7 +444,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
         6000,
         "center",
         "top",
-        SnackbarTypeEnum.Success
+        SnackbarTypeEnum.Success,
       );
     });
   }
@@ -463,7 +465,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
           6000,
           "center",
           "top",
-          SnackbarTypeEnum.Success
+          SnackbarTypeEnum.Success,
         );
         this._loadUserData();
       });
@@ -534,7 +536,7 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
           6000,
           "center",
           "bottom",
-          SnackbarTypeEnum.Error
+          SnackbarTypeEnum.Error,
         );
         this.goBack();
       }
@@ -627,9 +629,9 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
           ]),
           dentistSpecialty: new FormControl<DentistSpecialtyInterface | null>(
             null,
-            validators
+            validators,
           ),
-        })
+        }),
       );
     }
 

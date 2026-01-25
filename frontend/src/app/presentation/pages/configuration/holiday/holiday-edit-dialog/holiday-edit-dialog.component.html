@@ -1,9 +1,15 @@
-<h2 mat-dialog-title>Editar feriado</h2>
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler
+    name="calendar-cancel"
+    class="text-[var(--mat-sys-primary)]"
+  ></i-tabler>
+  <span>Editar feriado</span>
+</h2>
 <mat-dialog-content>
   <div
-    class="mt-1 p-4 bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)]"
+    class="p-4 bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)]"
   >
-    <form [formGroup]="holidayForm" class="mt-1 flex flex-col">
+    <form [formGroup]="holidayForm" class="flex flex-col">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>ID</mat-label>
         <input matInput formControlName="id" readonly />
@@ -27,8 +33,8 @@
       <mat-form-field appearance="outline" class="w-full !mb-0">
         <mat-label><span>Tipo</span></mat-label>
         <mat-select formControlName="type" [compareWith]="compareHolidayTypes">
-          @for(type of holidaysTypes(); track $index){
-          <mat-option [value]="type">{{ type.label }}</mat-option>
+          @for (type of holidaysTypes(); track $index) {
+            <mat-option [value]="type">{{ type.label }}</mat-option>
           }
         </mat-select>
       </mat-form-field>

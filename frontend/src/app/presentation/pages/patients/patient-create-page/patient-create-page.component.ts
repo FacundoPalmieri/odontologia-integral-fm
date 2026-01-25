@@ -46,6 +46,7 @@ import {
 import { PatientService } from "../../../../services/patient.service";
 import { PatientDtoInterface } from "../../../../domain/dto/patient.dto";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { CardIconTitleComponent } from "../../../components/card-icon-title/card-icon-title.component";
 
 @Component({
   selector: "app-patient-create-page",
@@ -63,6 +64,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     MatDatepickerModule,
     MatIconModule,
     MatTooltipModule,
+    CardIconTitleComponent,
   ],
 })
 export class PatientCreatePageComponent implements OnInit, OnDestroy {
@@ -82,13 +84,13 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
   localities = signal<LocalityInterface[]>([]);
   provinces = signal<ProvinceInterface[]>([]);
 
-  defaultAvatar = (() => {
+  defaultAvatar = () => {
     const gender = this.patientForm.get("person.gender")?.value;
     const genderName = gender?.name?.toLowerCase();
-    return genderName === "femenino" 
-      ? "img/women-avatar.png" 
+    return genderName === "femenino"
+      ? "img/women-avatar.png"
       : "img/men-avatar.png";
-  });
+  };
 
   constructor() {
     this._loadForm();
@@ -151,7 +153,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
       | DniTypeInterface
       | PhoneTypeInterface
       | HealthPlanInterface
-      | null
+      | null,
   ): boolean => {
     return item1 && item2 ? item1.id === item2.id : item1 === item2;
   };
@@ -165,7 +167,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
           6000,
           "center",
           "bottom",
-          SnackbarTypeEnum.Error
+          SnackbarTypeEnum.Error,
         );
         return;
       }
@@ -200,7 +202,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
           6000,
           "center",
           "top",
-          SnackbarTypeEnum.Success
+          SnackbarTypeEnum.Success,
         );
 
         const personId = response.data.person.id;
@@ -217,7 +219,7 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
                   6000,
                   "center",
                   "bottom",
-                  SnackbarTypeEnum.Error
+                  SnackbarTypeEnum.Error,
                 );
                 this.router.navigate(["/patients/edit/", personId]);
               },
@@ -325,10 +327,10 @@ export class PatientCreatePageComponent implements OnInit, OnDestroy {
       new FormGroup({
         selectedRisk: new FormControl<MedicalHistoryRiskInterface | null>(
           null,
-          [Validators.required]
+          [Validators.required],
         ),
         observation: new FormControl<string>("", [Validators.maxLength(500)]),
-      })
+      }),
     );
   }
 

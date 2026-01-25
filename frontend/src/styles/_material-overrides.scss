@@ -83,7 +83,7 @@ body {
   .list-item-menu {
     @include mat.list-overrides(
       (
-        active-indicator-shape: var(--mat-sys-corner-large),
+        active-indicator-shape: var(--mat-sys-corner-medium),
       )
     );
   }
@@ -384,7 +384,7 @@ body {
       }
 
       &:hover .mdc-tab__content {
-        background-color: var(--mat-sys-surface-variant);
+        background-color: var(--mat-sys-primary-container);
         opacity: 0.8;
       }
     }

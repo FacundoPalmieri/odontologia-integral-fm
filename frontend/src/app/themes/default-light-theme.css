@@ -256,19 +256,24 @@
 
   /* Elevation level system variables. These are used as the value for box-shadow CSS property. */
   --mat-sys-level0: none;
-  --mat-sys-level1: 0px 1px 4px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level1:
+    0px 1px 4px -1px var(--mat-sys-umbra-color),
     0px 1px 6px -1px var(--mat-sys-penumbra-color),
     0px 1px 8px -2px var(--mat-sys-ambient-color);
-  --mat-sys-level2: 0px 2px 6px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level2:
+    0px 2px 6px -1px var(--mat-sys-umbra-color),
     0px 2px 8px -1px var(--mat-sys-penumbra-color),
     0px 1px 10px -2px var(--mat-sys-ambient-color);
-  --mat-sys-level3: 0px 2px 8px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level3:
+    0px 2px 8px -1px var(--mat-sys-umbra-color),
     0px 2px 10px -1px var(--mat-sys-penumbra-color),
     0px 1px 12px -2px var(--mat-sys-ambient-color);
-  --mat-sys-level4: 0px 2px 10px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level4:
+    0px 2px 10px -1px var(--mat-sys-umbra-color),
     0px 2px 12px -1px var(--mat-sys-penumbra-color),
     0px 1px 14px -2px var(--mat-sys-ambient-color);
-  --mat-sys-level5: 0px 2px 12px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level5:
+    0px 2px 12px -1px var(--mat-sys-umbra-color),
     0px 2px 14px -1px var(--mat-sys-penumbra-color),
     0px 1px 16px -2px var(--mat-sys-ambient-color);
 
@@ -302,6 +307,11 @@
   --mat-sys-content-container-color: light-dark(
     var(--mat-sys-background),
     var(--mat-sys-background)
+  );
+
+  --mat-sys-content-toolbar-container-color: light-dark(
+    rgba(229, 231, 235, 0.5),
+    transparent
   );
 
   --mat-sys-odontogram-container-background: light-dark(

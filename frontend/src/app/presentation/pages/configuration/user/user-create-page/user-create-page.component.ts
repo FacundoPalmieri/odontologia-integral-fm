@@ -47,6 +47,7 @@ import {
 import { DentistSpecialtyInterface } from "../../../../../domain/interfaces/dentist.interface";
 import { UserDtoInterface } from "../../../../../domain/dto/user.dto";
 import { RoleEnum } from "../../../../../utils/enums/role.enum";
+import { CardIconTitleComponent } from "../../../../components/card-icon-title/card-icon-title.component";
 
 @Component({
   selector: "app-user-create-page",
@@ -63,6 +64,7 @@ import { RoleEnum } from "../../../../../utils/enums/role.enum";
     MatSelectModule,
     MatDatepickerModule,
     MatIconModule,
+    CardIconTitleComponent,
   ],
 })
 export class UserCreatePageComponent implements OnInit, OnDestroy {
@@ -199,9 +201,9 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
               dentistSpecialty:
                 new FormControl<DentistSpecialtyInterface | null>(
                   null,
-                  validators
+                  validators,
                 ),
-            })
+            }),
           );
         } else if (
           !hasDentistOrAdministratorRole &&
@@ -294,7 +296,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
       | PhoneTypeInterface
       | RoleInterface
       | DentistSpecialtyInterface
-      | null
+      | null,
   ): boolean => {
     return item1 && item2 ? item1.id === item2.id : item1 === item2;
   };
@@ -308,7 +310,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
           6000,
           "center",
           "bottom",
-          SnackbarTypeEnum.Error
+          SnackbarTypeEnum.Error,
         );
         return;
       }
@@ -349,7 +351,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
           6000,
           "center",
           "top",
-          SnackbarTypeEnum.Success
+          SnackbarTypeEnum.Success,
         );
         const personId = response.data.person.id;
         if (personId && this.selectedAvatarFile) {
@@ -368,7 +370,7 @@ export class UserCreatePageComponent implements OnInit, OnDestroy {
                   6000,
                   "center",
                   "bottom",
-                  SnackbarTypeEnum.Error
+                  SnackbarTypeEnum.Error,
                 );
                 this.router.navigate([
                   "/configuration/users/edit/",

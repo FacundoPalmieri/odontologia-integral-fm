@@ -31,6 +31,7 @@ import { AttachedFileComponent } from "../../components/attached-file/attached-f
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { PersonDataEditDialogComponent } from "./person-data-edit-dialog/person-data-edit-dialog.component";
 import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
+import { CardIconTitleComponent } from "../../components/card-icon-title/card-icon-title.component";
 
 @Component({
   selector: "app-user-profile",
@@ -49,6 +50,7 @@ import { EntityTypeEnum } from "../../../utils/enums/entity-type.enum";
     MatTooltipModule,
     AttachedFileComponent,
     MatDialogModule,
+    CardIconTitleComponent,
   ],
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
@@ -84,7 +86,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
                 6000,
                 "center",
                 "bottom",
-                SnackbarTypeEnum.Error
+                SnackbarTypeEnum.Error,
               );
               this.router.navigate(["/"]);
             } else {
@@ -144,7 +146,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           6000,
           "center",
           "top",
-          SnackbarTypeEnum.Success
+          SnackbarTypeEnum.Success,
         );
       });
   }
@@ -158,7 +160,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         6000,
         "center",
         "bottom",
-        SnackbarTypeEnum.Error
+        SnackbarTypeEnum.Error,
       );
       return;
     }
@@ -180,7 +182,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               6000,
               "center",
               "top",
-              SnackbarTypeEnum.Success
+              SnackbarTypeEnum.Success,
             );
             this.canDeleteAvatar.set(true);
           },
@@ -217,7 +219,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
                 6000,
                 "center",
                 "top",
-                SnackbarTypeEnum.Success
+                SnackbarTypeEnum.Success,
               );
 
               this.userService
@@ -226,7 +228,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
                 .subscribe(
                   (userResponse: ApiResponseInterface<UserInterface>) => {
                     this.user.set(userResponse.data);
-                  }
+                  },
                 );
             },
           });
@@ -243,7 +245,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         6000,
         "center",
         "bottom",
-        SnackbarTypeEnum.Error
+        SnackbarTypeEnum.Error,
       );
       return;
     }
@@ -258,7 +260,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             6000,
             "center",
             "top",
-            SnackbarTypeEnum.Success
+            SnackbarTypeEnum.Success,
           );
         },
       });

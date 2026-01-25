@@ -28,6 +28,7 @@ import { Subject, takeUntil } from "rxjs";
 import { DayEnum } from "../../../utils/enums/day.enum";
 import { SlotStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
 import { RoleEnum } from "../../../utils/enums/role.enum";
+import { CardIconTitleComponent } from "../../components/card-icon-title/card-icon-title.component";
 
 @Component({
   selector: "app-home",
@@ -42,6 +43,7 @@ import { RoleEnum } from "../../../utils/enums/role.enum";
     MatButtonModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    CardIconTitleComponent,
   ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
@@ -53,7 +55,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   userData = signal<UserDataInterface | null>(null);
   dentistAvailability = signal<DentistAvailabilityResponseInterface | null>(
-    null
+    null,
   );
   isLoadingAvailability = signal<boolean>(false);
   currentTime = signal<string>("");
@@ -70,7 +72,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       (slot) =>
         slot.status !== SlotStatusEnum.FREE &&
         slot.status !== SlotStatusEnum.NOT_AVAILABLE &&
-        slot.status !== SlotStatusEnum.LOCKED
+        slot.status !== SlotStatusEnum.LOCKED,
     );
   });
 
@@ -85,12 +87,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     const now = new Date();
     const currentTimeString = `${String(now.getHours()).padStart(
       2,
-      "0"
+      "0",
     )}:${String(now.getMinutes()).padStart(2, "0")}:00`;
 
     const appointments = this.todayAppointments();
     const upcoming = appointments.filter(
-      (slot) => slot.startTime >= currentTimeString
+      (slot) => slot.startTime >= currentTimeString,
     );
 
     return upcoming.length > 0 ? upcoming[0] : null;
@@ -158,7 +160,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       now.toLocaleTimeString("es-AR", {
         hour: "2-digit",
         minute: "2-digit",
-      })
+      }),
     );
     this.currentDate.set(
       now.toLocaleDateString("es-AR", {
@@ -166,7 +168,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         day: "numeric",
         month: "long",
         year: "numeric",
-      })
+      }),
     );
   }
 
@@ -180,7 +182,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isAdmin(): boolean {
     return (
       this.userData()?.roles?.some(
-        (role) => role.name === RoleEnum.ADMINISTRATOR
+        (role) => role.name === RoleEnum.ADMINISTRATOR,
       ) || false
     );
   }
@@ -192,7 +194,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   getWeeklyDays() {
     return (
       this.dentistAvailability()?.days?.filter(
-        (day) => day.recurrence === "WEEKLY"
+        (day) => day.recurrence === "WEEKLY",
       ) || []
     );
   }
@@ -200,7 +202,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   getSpecificDays() {
     return (
       this.dentistAvailability()?.days?.filter(
-        (day) => !day.recurrence || day.recurrence === "NONE"
+        (day) => !day.recurrence || day.recurrence === "NONE",
       ) || []
     );
   }

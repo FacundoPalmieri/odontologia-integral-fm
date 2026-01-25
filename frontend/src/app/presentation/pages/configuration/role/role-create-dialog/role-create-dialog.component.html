@@ -1,6 +1,11 @@
-<h2 mat-dialog-title>Crear Rol</h2>
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler name="user-shield" class="text-[var(--mat-sys-primary)]"></i-tabler>
+  <span>Crear rol</span>
+</h2>
 <mat-dialog-content>
-  <div class="mt-1">
+  <div
+    class="p-4 bg-[var(--mat-sys-content-toolbar-container-color)] rounded-[var(--mat-sys-corner-large)]"
+  >
     <form [formGroup]="roleForm" class="mt-1">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Nombre</mat-label>
@@ -20,8 +25,8 @@
           multiple
           [compareWith]="comparePermissions"
         >
-          @for(permission of permissions; track $index){
-          <mat-option [value]="permission">{{ permission.label }}</mat-option>
+          @for (permission of permissions; track $index) {
+            <mat-option [value]="permission">{{ permission.label }}</mat-option>
           }
         </mat-select>
       </mat-form-field>

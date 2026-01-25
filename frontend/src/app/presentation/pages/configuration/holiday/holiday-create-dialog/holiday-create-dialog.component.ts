@@ -37,12 +37,12 @@ import { HolidayTypeFactory } from "../../../../../utils/factories/holiday-type.
 })
 export class HolidayCreateDialogComponent {
   private readonly dialogRef = inject(
-    MatDialogRef<HolidayCreateDialogComponent>
+    MatDialogRef<HolidayCreateDialogComponent>,
   );
 
   holidayForm: FormGroup = new FormGroup({});
   holidaysTypes = signal<HolidayTypeInterface[]>(
-    HolidayTypeFactory.createHolidayTypes()
+    HolidayTypeFactory.createHolidayTypes(),
   );
 
   constructor() {
@@ -77,7 +77,7 @@ export class HolidayCreateDialogComponent {
 
   compareHolidayTypes(
     type1: HolidayTypeInterface,
-    type2: HolidayTypeInterface
+    type2: HolidayTypeInterface,
   ): boolean {
     return type1 && type2 ? type1.value === type2.value : type1 === type2;
   }

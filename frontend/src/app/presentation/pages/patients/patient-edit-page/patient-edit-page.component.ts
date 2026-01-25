@@ -58,6 +58,7 @@ import {
 } from "../../../../utils/enums/permissions.enum";
 import { EntityTypeEnum } from "../../../../utils/enums/entity-type.enum";
 import { AttachedFileComponent } from "../../../components/attached-file/attached-file.component";
+import { CardIconTitleComponent } from "../../../components/card-icon-title/card-icon-title.component";
 
 //QUITAR
 interface OdontogramInterface {
@@ -86,6 +87,7 @@ interface OdontogramInterface {
     MatTableModule,
     MatTooltipModule,
     AttachedFileComponent,
+    CardIconTitleComponent,
   ],
 })
 export class PatientEditPageComponent implements OnInit, OnDestroy {
@@ -205,7 +207,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
       | DniTypeInterface
       | PhoneTypeInterface
       | HealthPlanInterface
-      | null
+      | null,
   ): boolean => {
     return item1 && item2 ? item1.id === item2.id : item1 === item2;
   };
@@ -219,7 +221,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         6000,
         "center",
         "bottom",
-        SnackbarTypeEnum.Error
+        SnackbarTypeEnum.Error,
       );
       return;
     }
@@ -244,7 +246,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
               6000,
               "center",
               "top",
-              SnackbarTypeEnum.Success
+              SnackbarTypeEnum.Success,
             );
           },
           error: () => {
@@ -253,7 +255,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
               6000,
               "center",
               "top",
-              SnackbarTypeEnum.Error
+              SnackbarTypeEnum.Error,
             );
           },
         });
@@ -273,7 +275,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             this.avatarUrl.set(
               genderName === "femenino"
                 ? "img/women-avatar.png"
-                : "img/men-avatar.png"
+                : "img/men-avatar.png",
             );
           }
         });
@@ -283,7 +285,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
         6000,
         "center",
         "top",
-        SnackbarTypeEnum.Success
+        SnackbarTypeEnum.Success,
       );
     });
   }
@@ -318,7 +320,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
             6000,
             "center",
             "top",
-            SnackbarTypeEnum.Success
+            SnackbarTypeEnum.Success,
           );
           this.router.navigate(["/patients/edit/", response.data.person.id]);
         }
@@ -347,14 +349,14 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     this.canUpdate.set(
       this.accessControlService.can(
         PermissionsEnum.PATIENTS,
-        ActionsEnum.UPDATE
-      )
+        ActionsEnum.UPDATE,
+      ),
     );
     this.canUpload.set(
       this.accessControlService.can(
         PermissionsEnum.PATIENTS,
-        ActionsEnum.UPLOAD
-      )
+        ActionsEnum.UPLOAD,
+      ),
     );
   }
 
@@ -437,7 +439,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
           6000,
           "center",
           "bottom",
-          SnackbarTypeEnum.Error
+          SnackbarTypeEnum.Error,
         );
         this.goBack();
       }
@@ -465,7 +467,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
                 this.avatarUrl.set(
                   gender === "femenino"
                     ? "img/women-avatar.png"
-                    : "img/men-avatar.png"
+                    : "img/men-avatar.png",
                 );
               }
             });
