@@ -118,10 +118,11 @@ public class DentistHolidayService implements IDentistHolidayService {
                 throw new ConflictException("exception.dentistHolidayService.create.validateStartTimeBeforeEndTime.user",null,"exception.dentistHolidayService.create.validateStartTimeBeforeEndTime.log", new Object[]{id,holiday.getId(),holiday.getName(),holiday.getDate(),dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(),"Dentist Holiday Service","create"},LogLevel.ERROR);
             }
 
-
+            /*
             //Valída que la fecha del feriado coincida con alguna jornada laboral.(Debe si o si coincidir, el feriado solo se opta por trabajarlo o no, si está dentro de una jornada)
-            DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(dentists.getId(), holiday.getDate());
-
+            List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(dentists.getId());
+            DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(dentists.getId(), holiday.getDate(),dentistAvailabilities);
+            */
 
             //Valída que la hora de inicio y fin cubra al menos la parametrización de la duración de un turno.
             if(! dentistAvailabilityService.validateDurationLessThanAppointmentDuration(dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(), dentistHolidayRequestCreateDTO.appointmentDuration())){

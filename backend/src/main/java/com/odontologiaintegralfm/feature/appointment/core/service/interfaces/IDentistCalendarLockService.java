@@ -11,6 +11,7 @@ import com.odontologiaintegralfm.shared.dto.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface IDentistCalendarLockService {
 
@@ -50,6 +51,13 @@ public interface IDentistCalendarLockService {
      */
     List<DentistCalendarLock> getByDate(Long dentistId, LocalDate date);
 
+    /**
+     * Método para obtener todos los bloqueos que corresponde a una semana
+     * @param dentistId : id dentista
+     * @param weekStart : Fecha inicio semana a consulta por bloqueo.
+     * @param weekEnd   : Fecha fin semana a consulta por bloqueo.
+     */
+    Map<LocalDate, List<DentistCalendarLock>> getByDateRange(Long dentistId, LocalDate weekStart, LocalDate weekEnd);
 
 
 

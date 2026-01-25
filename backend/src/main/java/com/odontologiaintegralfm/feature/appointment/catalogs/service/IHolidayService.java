@@ -4,10 +4,12 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayCreateR
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.dto.HolidayUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
+import com.odontologiaintegralfm.feature.appointment.core.model.DentistCalendarLock;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.internal.SchedulerResultDTO;
 import com.odontologiaintegralfm.shared.dto.Response;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -43,6 +45,12 @@ public interface IHolidayService {
      */
     Optional<Holiday> getByDate(LocalDate date);
 
+
+    /**
+     * Método para obtener un map de feriados para un rango de fechas.
+     * @return Map con fecha -> holiday
+     */
+    Map<LocalDate, Holiday> getByDateRange(LocalDate start,LocalDate end);
 
 
     /**

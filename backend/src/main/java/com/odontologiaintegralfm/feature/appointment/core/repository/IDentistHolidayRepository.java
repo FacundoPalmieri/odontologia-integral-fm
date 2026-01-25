@@ -1,11 +1,14 @@
 package com.odontologiaintegralfm.feature.appointment.core.repository;
 
 
+import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistHoliday;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,5 +29,6 @@ public interface IDentistHolidayRepository extends JpaRepository<DentistHoliday,
 
 
    Optional<DentistHoliday> findByDentistIdAndHolidayId(Long dentistId, Long holidayId);
+
 
 }

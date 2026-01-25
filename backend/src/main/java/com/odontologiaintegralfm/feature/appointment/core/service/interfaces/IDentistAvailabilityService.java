@@ -69,9 +69,10 @@ public interface IDentistAvailabilityService {
      * Método que verifica si una fecha dada es coincidente con la alguna jornada laboral de dentista.
      * @param dentist : id Dentist.
      * @param date : Fecha a consultar
+     * @param dentistAvailabilities : Lista de disponibilidades laborales.
      * @return : La jornada laboral.
      */
-    DentistAvailability getDentistAvailabilityByDate(Long dentist, LocalDate date);
+    DentistAvailability getDentistAvailabilityByDate(Long dentist, LocalDate date, List<DentistAvailability> dentistAvailabilities);
 
 
 
