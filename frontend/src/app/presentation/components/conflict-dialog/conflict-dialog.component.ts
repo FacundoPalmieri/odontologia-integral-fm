@@ -111,35 +111,35 @@ export class ConflictDialogComponent implements OnInit {
 
   rescheduleAppointment(conflict: AppointmentConflictInterface) {
     // Importar dinámicamente el componente para evitar dependencias circulares
-    import(
-      "../calendar/create-appointment-dialog/create-appointment-dialog.component"
-    ).then((module) => {
-      const dialogRef = this.dialog.open(
-        module.CreateAppointmentDialogComponent,
-        {
-          data: {
-            idPatient: conflict.idPatient,
-            appointmentId: conflict.appointmentId,
+    import("../calendar/create-appointment-dialog/create-appointment-dialog.component").then(
+      (module) => {
+        const dialogRef = this.dialog.open(
+          module.CreateAppointmentDialogComponent,
+          {
+            data: {
+              idPatient: conflict.idPatient,
+              appointmentId: conflict.appointmentId,
+            },
           },
-        }
-      );
+        );
 
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result?.success) {
-          this.snackbarService.openSnackbar(
-            "Turno reprogramado exitosamente",
-            6000,
-            "center",
-            "top",
-            SnackbarTypeEnum.Success
-          );
-          // Remover el conflicto de la lista ya que fue reprogramado
-          this.conflicts = this.conflicts.filter(
-            (c) => c.appointmentId !== conflict.appointmentId
-          );
-        }
-      });
-    });
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result?.success) {
+            this.snackbarService.openSnackbar(
+              "Turno reprogramado exitosamente",
+              6000,
+              "center",
+              "top",
+              SnackbarTypeEnum.Success,
+            );
+            // Remover el conflicto de la lista ya que fue reprogramado
+            this.conflicts = this.conflicts.filter(
+              (c) => c.appointmentId !== conflict.appointmentId,
+            );
+          }
+        });
+      },
+    );
   }
 
   cancelAppointment(conflict: AppointmentConflictInterface) {
@@ -157,7 +157,7 @@ export class ConflictDialogComponent implements OnInit {
 
   private performCancelAppointment(
     conflict: AppointmentConflictInterface,
-    observation: string
+    observation: string,
   ) {
     const appointmentData: AppointmentCancelDtoInterface = {
       observation: observation,
@@ -173,11 +173,11 @@ export class ConflictDialogComponent implements OnInit {
             6000,
             "center",
             "top",
-            SnackbarTypeEnum.Success
+            SnackbarTypeEnum.Success,
           );
           // Remover el conflicto de la lista
           this.conflicts = this.conflicts.filter(
-            (c) => c.appointmentId !== conflict.appointmentId
+            (c) => c.appointmentId !== conflict.appointmentId,
           );
         },
       });

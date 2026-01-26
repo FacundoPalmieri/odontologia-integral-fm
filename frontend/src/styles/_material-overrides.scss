@@ -261,8 +261,14 @@ body {
     background-color: var(--mat-sys-surface-container-low);
     width: 100%;
 
-    &:hover:not(:has(.mat-mdc-radio-checked)) {
+    // Hover solo cuando el radio button NO está checked
+    &:hover:not(:has(input[type="radio"]:checked)) {
       background-color: var(--mat-sys-surface-container-high);
+    }
+
+    // Asegurar que el cursor pointer funcione en todo el elemento
+    * {
+      cursor: pointer;
     }
 
     .mdc-radio {
