@@ -6,7 +6,9 @@ import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
 import com.odontologiaintegralfm.shared.dto.Response;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 public interface IAppointmentService {
@@ -81,6 +83,17 @@ public interface IAppointmentService {
      * @param date : Fecha
      */
     List<Appointment> getAppointmentByDentistAndDate(Long idDentist, LocalDate date, AppointmentStatus status);
+
+
+    /**
+     * Obtiene turnos de un dentista en estado Reservado en un período específico.
+     * @param idDentist : id Dentista
+     * @param start : Inicio del período
+     * @param end : Fin del período
+     * @param status : Estado del turno.
+     * @return : Map Fecha -> Turno
+     */
+    Map<LocalDate, List<Appointment>> getByDateRange(Long idDentist, LocalDateTime start, LocalDateTime end, AppointmentStatus status);
 
 
     /**

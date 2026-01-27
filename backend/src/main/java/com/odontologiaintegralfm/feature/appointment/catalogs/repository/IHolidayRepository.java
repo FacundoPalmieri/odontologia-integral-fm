@@ -4,6 +4,7 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -38,6 +39,20 @@ public interface IHolidayRepository extends JpaRepository<Holiday, Long> {
      * @return
      */
     Optional<Holiday> findByDate(LocalDate date);
+
+
+    /**
+     * Obtiene lista de feriados entre un periodo de fechas
+     * @param start : Inicio
+     * @param end : Fin
+     */
+    @Query("""
+            SELECT h
+            FROM Holiday h
+            WHERE h.date BETWEEN :start AND :end
+            """)
+    List<Holiday> findAllDateRange(@Param("start") LocalDate start,
+                                   @Param("end") LocalDate end);
 
 
 }

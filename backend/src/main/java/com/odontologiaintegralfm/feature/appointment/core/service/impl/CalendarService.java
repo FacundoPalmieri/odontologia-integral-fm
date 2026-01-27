@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 
+import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockMode;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarDayStatus;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarHoliday;
 import com.odontologiaintegralfm.feature.appointment.core.enums.SlotStatus;
@@ -15,6 +16,7 @@ import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentis
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.dto.Response;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -101,41 +103,71 @@ public class CalendarService implements ICalendarService {
 
 
     /**
-     * Obtiene el calendario detallado de un día específico para un dentista, incluyendo
-     * slots libres, reservados y bloqueados.
+     * Obtiene el calendario detallado de un día específico para un dentista.
      *
-     * <p>El método realiza las siguientes operaciones:</p>
+     * <p>
+     * Este método actúa como punto de entrada del flujo de construcción del calendario diario.
+     * Se encarga exclusivamente de:
+     * </p>
      * <ul>
-     *     <li>Valida que el dentista exista; en caso contrario, lanza {@link ConflictException}.</li>
-     *     <li>Obtiene la disponibilidad configurada del dentista para la fecha indicada.</li>
-     *     <li>Si no existe disponibilidad para ese día, devuelve un calendario vacío con información básica.</li>
-     *     <li>Verifica si la fecha es feriado y, de serlo, comprueba si el dentista trabaja en dicho feriado.</li>
-     *     <li>Genera los slots del día (según jornada habitual o feriado) y los completa con turnos y bloqueos existentes.</li>
-     *     <li>Si es feriado y el dentista no trabaja, devuelve un calendario vacío.</li>
+     *   <li>Validar la existencia del dentista.</li>
+     *   <li>Verificar que el dentista tenga al menos una disponibilidad configurada.</li>
+     *   <li>Recuperar todos los datos necesarios para la construcción del día:
+     *       <ul>
+     *         <li>Disponibilidad efectiva del dentista para la fecha.</li>
+     *         <li>Bloqueos de agenda que apliquen a la fecha.</li>
+     *         <li>Feriado (si existe).</li>
+     *         <li>Turnos reservados del día.</li>
+     *       </ul>
+     *   </li>
      * </ul>
      *
-     * @param idDentist ID del dentista del cual se desea obtener el calendario.
+     * <p>
+     * La lógica de negocio y la resolución de escenarios (feriados, vacaciones,
+     * días no laborables, generación de slots y estados del día) se delega al método
+     * {@link #buildDay(Long, LocalDate, DentistAvailability, List, Optional, List)}.
+     * </p>
+     *
+     * @param idDentist Identificador único del dentista.
      * @param day       Fecha específica a consultar.
      *
-     * @return Un {@link Response} que contiene un {@link CalendarDayResponseDTO} con:
-     *         <ul>
-     *             <li>ID del dentista,</li>
-     *             <li>fecha consultada,</li>
-     *             <li>lista de {@link SlotResponseDTO} con su estado (FREE, RESERVED, LOCKED)
-     *                 e información asociada según corresponda.</li>
-     *         </ul>
+     * @return Un {@link Response} que contiene un {@link CalendarDayResponseDTO}
+     *         con el detalle completo del calendario diario.
      *
-     * @throws ConflictException Si no existe un dentista con el ID indicado.
+     * @throws ConflictException Si el dentista no existe o no posee ninguna disponibilidad configurada.
      *
-     * @see #generateSlot(LocalTime, LocalTime, int) Para la generación de los slots diarios.
+     * @see #buildDay(Long, LocalDate, DentistAvailability, List, Optional, List)
      */
+
 
     @Override
     public Response<CalendarDayResponseDTO> getCalendarDay(Long idDentist, LocalDate day) {
 
         //Validar dentista.
         validateDentist(idDentist);
-        return new Response<>(true, null, buildCalendarDay(idDentist,day));
+
+        //Verifica que al menos exista una disponibilidad(puede tener disponibilidad en otro día)
+        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
+
+        if (dentistAvailabilities.isEmpty()) {
+            throw new ConflictException("exception.calendarService.user", null, "exception.calendarService.log", new Object[]{idDentist, "CalendarService", "getCalendarDay"}, LogLevel.ERROR);
+        }
+
+
+        //se obtiene la jornada para ese día puntual
+        DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,day,dentistAvailabilities);
+
+        //Se recuperan bloqueos si existen
+        List<DentistCalendarLock> dentistCalendarLocks = dentistCalendarLockService.getByDate(idDentist,day);
+
+        //Validar si es feriado.
+        Optional<Holiday> holidayOptional = holidayService.getByDate(day);
+
+        //Buscar turnos del día
+        List<Appointment> appointments = appointmentService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
+
+        //Se llama a construir día y se retorna respuesta.
+        return new Response<>(true, null, buildDay(idDentist,day, dentistAvailability,dentistCalendarLocks,holidayOptional, appointments));
     }
 
 
@@ -166,28 +198,29 @@ public class CalendarService implements ICalendarService {
      * @throws ConflictException Si no existe un dentista con el ID indicado.
      *
      * @see #getCalendarDay(Long, LocalDate) Para consultar el calendario de un día específico.
-     * @see #buildCalendarDay(Long, LocalDate) Para construir el detalle diario utilizado en esta generación semanal.
+     * @see #buildDay(Long, LocalDate, DentistAvailability, List, Optional, List) Para construir el detalle diario utilizado en esta generación semanal.
      */
 
     @Override
     public Response<CalendarWeekResponseDTO> getCalendarWeek(Long idDentist,LocalDate day) {
 
+        //Validar dentista.
         validateDentist(idDentist);
 
-        //Obtener la semana calendario a partir del día recibido.
-        LocalDate weekStart =  day.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        LocalDate weekEnd   = day.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
+        //Verifica que al menos exista una disponibilidad.
+        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
 
-        List<CalendarDayResponseDTO> days = new ArrayList<>();
 
-        for (LocalDate d = weekStart; !d.isAfter(weekEnd); d = d.plusDays(1)) {
-            CalendarDayResponseDTO dayDTO = buildCalendarDay(idDentist, d);
-            days.add(dayDTO);
-        }
+        //Obtiene la semana calendario a partir del día recibido.
+        LocalDate start =  day.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate end   = day.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
 
-        return new Response<>(true, null, new CalendarWeekResponseDTO(weekStart, weekEnd, days));
+
+        //Construye la vista.
+        List<CalendarDayResponseDTO> days = buildCalendarDays(idDentist,dentistAvailabilities,start,end);
+
+        return new Response<>(true, null, new CalendarWeekResponseDTO(start, end, days));
     }
-
 
 
 
@@ -216,7 +249,7 @@ public class CalendarService implements ICalendarService {
      *
      * @throws ConflictException Si no existe un dentista con el ID indicado.
      *
-     * @see #buildCalendarDay(Long, LocalDate) Para obtener el detalle completo de cada día.
+     * @see #buildDay(Long, LocalDate, DentistAvailability, List, Optional, List) Para obtener el detalle completo de cada día.
      * @see CalendarMonthResponseDTO Para la estructura de la respuesta mensual.
      */
 
@@ -226,22 +259,99 @@ public class CalendarService implements ICalendarService {
         //Validar dentista.
         validateDentist(idDentist);
 
+        //Verifica que al menos exista una disponibilidad.
+        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
+
         // Calcular mes
         YearMonth ym = YearMonth.of(year, month);
         LocalDate start = ym.atDay(1);
         LocalDate end   = ym.atEndOfMonth();
 
-        List<CalendarDayResponseDTO> days = new ArrayList<>();
-
-        for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
-            CalendarDayResponseDTO dayDTO = buildCalendarDay(idDentist, d);
-            dayDTO.setSlots(Collections.emptyList());
-            days.add(dayDTO);
-        }
+        //Construye la vista.
+        List<CalendarDayResponseDTO> days = buildCalendarDays(idDentist,dentistAvailabilities,start,end);
 
 
         CalendarMonthResponseDTO responseDTO = new CalendarMonthResponseDTO(year, month, days);
         return new Response<>(true, null, responseDTO);
+    }
+
+
+
+
+    /**
+     * Construye la vista de calendario para un rango de fechas determinado
+     * generando un {@link CalendarDayResponseDTO} por cada día comprendido
+     * entre {@code start} y {@code end}.
+     *
+     * Se utiliza en Vista Semanal y Mensual (Lógica compartida)
+     *
+     * <p>
+     * Este método centraliza la lógica de armado del calendario y es utilizado por la vista semanal y mensual.
+     * </p>
+     *
+     * <p>
+     * Para optimizar performance, los datos necesarios se obtienen previamente
+     * en forma agrupada:
+     * </p>
+     * <ul>
+     *     <li>Bloqueos del dentista, agrupados por fecha</li>
+     *     <li>Feriados del rango</li>
+     *     <li>Turnos del rango</li>
+     * </ul>
+     *
+     * <p>
+     * Luego, por cada día del rango:
+     * </p>
+     * <ul>
+     *     <li>Se obtiene la disponibilidad correspondiente</li>
+     *     <li>Se filtran los bloqueos aplicables al día</li>
+     *     <li>Se determina si el día es feriado</li>
+     *     <li>Se asocian los turnos del día</li>
+     *     <li>Se construye el {@link CalendarDayResponseDTO}</li>
+     * </ul>
+     *
+     * @param idDentist             identificador del dentista
+     * @param dentistAvailabilities lista de disponibilidades del dentista
+     * @param start                fecha inicial del rango (inclusive)
+     * @param end                  fecha final del rango (inclusive)
+     *
+     * @return lista de {@link CalendarDayResponseDTO} representando el calendario día por día dentro del rango indicado
+     */
+
+    private  List<CalendarDayResponseDTO> buildCalendarDays(Long idDentist,List<DentistAvailability> dentistAvailabilities, LocalDate start, LocalDate end){
+
+        //Obtiene bloqueos. Se obtiene un map para bloqueos del mes.
+        Map<LocalDate, List<DentistCalendarLock>> locksByDate = dentistCalendarLockService.getByDateRange(idDentist,start,end);
+
+
+        //Obtiene feriados para el mes
+        Map<LocalDate, Holiday> holidaysByDate = holidayService.getByDateRange(start, end);
+
+
+        //Obtener turnos para el mes
+        Map<LocalDate, List<Appointment>> appointmentsByDate = appointmentService.getByDateRange(idDentist,start.atStartOfDay(),end.atTime(LocalTime.MAX),AppointmentStatus.RESERVED);
+
+
+        List<CalendarDayResponseDTO> days = new ArrayList<>();
+
+        for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
+            //se obtiene la jornada para el día de iteración.
+            DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,d,dentistAvailabilities);
+
+            //Se obtiene bloqueo solo del día de iteración
+            List<DentistCalendarLock> dayLocks = locksByDate.getOrDefault(d, Collections.emptyList());
+
+            //Obtiene feriado para el día de la iteración.
+            Optional<Holiday> holiday = Optional.ofNullable(holidaysByDate.get(d));
+
+            //Obtiene turnos para el día de iteración.
+            List<Appointment> appointments = appointmentsByDate.getOrDefault(d, Collections.emptyList());
+
+            CalendarDayResponseDTO dayDTO = buildDay(idDentist, d,dentistAvailability ,dayLocks, holiday,appointments );
+            days.add(dayDTO);
+        }
+
+        return days;
     }
 
 
@@ -319,9 +429,12 @@ public class CalendarService implements ICalendarService {
 
         // Ordeno appointments del día por hora
         appointments.sort(Comparator.comparing(a -> a.getDate().toLocalTime()));
+        locks.sort(Comparator.comparing(DentistCalendarLock::getStartTime));
+
 
         // índice para avanzar en appointments sin volver atrás
         int apptIndex = 0;
+        int lockIndex = 0;
 
         for (SlotResponseDTO s : slots) {
 
@@ -339,18 +452,33 @@ public class CalendarService implements ICalendarService {
             }
 
 
-            //Revisar bloqueos (no optimizo porque suelen ser pocos)
-            for (DentistCalendarLock d : locks) {
-                if (d.getStartTime().isBefore(slotEnd) && d.getEndTime().isAfter(slotStart)) {
-                    s.setStatus(SlotStatus.LOCKED);
-                    s.setColor(SlotStatus.LOCKED.getColorHex());
-                    s.setAppointment(null);
-                    s.setCalendarLock(DentistCalendarLockResponseDTO.build(d));
+            //Revisar bloqueos
+            while (lockIndex < locks.size()) {
+
+                DentistCalendarLock lock = locks.get(lockIndex);
+
+                // Si el bloqueo terminó antes del slot -> avanzar
+                if (lock.getEndTime().isBefore(slotStart)) {
+                    lockIndex++;
+                    continue;
+                }
+
+                // Si el bloqueo empieza después del slot -> no hay solapamiento
+                if (lock.getStartTime().isAfter(slotEnd)) {
                     break;
                 }
+
+                // Hay solapamiento
+                s.setStatus(SlotStatus.LOCKED);
+                s.setColor(SlotStatus.LOCKED.getColorHex());
+                s.setCalendarLock(DentistCalendarLockResponseDTO.build(lock));
+                s.setAppointment(null);
+                break;
             }
 
-            if (s.getStatus() == SlotStatus.LOCKED) continue;
+            if (s.getStatus() == SlotStatus.LOCKED) {
+                continue;
+            }
 
             //Revisar turnos
             while (apptIndex < appointments.size()) {
@@ -434,51 +562,54 @@ public class CalendarService implements ICalendarService {
 
 
     /**
-     * Obtiene el calendario de un día específico para un dentista, incluyendo slots libres, reservados y bloqueados.
+     * Construye el calendario diario de un dentista resolviendo todos los escenarios
+     * de negocio posibles para una fecha determinada.
+     *
      * <p>
-     * El método realiza las siguientes validaciones y acciones:
-     * <ul>
-     *     <li>Obtiene la disponibilidad del dentista, solo para verificar que exista alguna, independientemente de la fecha del feriado..</li>
-     *     <li>Si no hay disponibilidad, devuelve un calendario vacío con un mensaje informativo.</li>
-     *     <li>Valida si el día es feriado y, en caso que sea, verifica si el dentista trabaja ese feriado.</li>
-     *     <li>Genera los slots del día (según horario de disponibilidad o feriado) y los llena con los turnos reservados y bloqueos.</li>
-     *     <li>Si el dentista no trabaja en el feriado, se devuelve un calendario vacío.</li>
-     *     <li>Para días normales, se obtiene la jornada habitual del dentista y los bloqueos, se generan los slots y se llenan con los turnos y bloqueos correspondientes.</li>
-     * </ul>
+     * Este método centraliza la lógica de decisión del calendario diario y evalúa,
+     * en orden de precedencia:
+     * </p>
      *
-     * @param idDentist El identificador único del dentista para el cual se consulta el calendario.
-     * @param day       La fecha específica del calendario a consultar.
-     * @return Un  {@link CalendarDayResponseDTO} con:
-     *         <ul>
-     *             <li>El ID del dentista.</li>
-     *             <li>La fecha consultada.</li>
-     *             <li>La lista de {@link SlotResponseDTO} con el estado de cada slot (LIBRE, RESERVADO, BLOQUEADO) y, si corresponde, la información del turno o bloqueo.</li>
-     *         </ul>
-     * @throws ConflictException Si el dentista con {@code idDentist} no se encuentra en la base de datos.
+     * <ol>
+     *   <li><b>Feriados</b>: determina si la fecha es feriado y si el dentista trabaja o no.</li>
      *
-     * @see #generateSlot(LocalTime, LocalTime, int) Para la generación de slots según horario y duración.
+     *   <li><b>Bloqueos de día completo</b> (vacaciones, licencias):
+     *       si existe un bloqueo continuo, el día se marca como {@code LOCKED} independientemente de la disponibilidad habitual.</li>
+     *
+     *   <li><b>Disponibilidad habitual</b>: si no existe jornada configurada para ese día se considera {@code NOT_AVAILABLE}.</li>
+     *
+     *
+     *   <li><b>Generación de slots</b>: se crean los slots horarios según la jornada (habitual o feriado).</li>
+     *
+     *   <li><b>Ocupación de slots</b>: los slots se completan con turnos, bloqueos parciales y breaks.</li>
+     * </ol>
+     *
+     * <p>
+     * La generación de slots se delega a {@link #generateSlot(LocalTime, LocalTime, int)}
+     * y su posterior resolución a {@link #fillSlot(List, List, List, LocalTime, LocalTime)}.
+     * El estado global del día se calcula mediante
+     * {@link #deriveDayStatus(List, List, List)}.
+     * </p>
+     *
+     * @param idDentist            Identificador del dentista.
+     * @param date                 Fecha del calendario a construir.
+     * @param dentistAvailability Disponibilidad efectiva del dentista para la fecha,
+     *                             o {@code null} si no trabaja ese día.
+     * @param dentistCalendarLocks Bloqueos que aplican a la fecha.
+     * @param holidayOptional      Feriado correspondiente a la fecha, si existe.
+     * @param appointments         Turnos reservados del día.
+     *
+     * @return Un {@link CalendarDayResponseDTO} con el estado del día y sus slots,
+     *         o sin slots si el día no es laborable o está completamente bloqueado.
+     *
+     * @see #generateSlot(LocalTime, LocalTime, int)
+     * @see #fillSlot(List, List, List, LocalTime, LocalTime)
+     * @see #deriveDayStatus(List, List, List)
      */
-    private CalendarDayResponseDTO buildCalendarDay(Long idDentist, LocalDate day){
 
-        //Verifica que al menos exista una disponibilidad.
-        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
-
-        if (dentistAvailabilities.isEmpty()) {
-
-            return CalendarDayResponseDTO.build(
-                    idDentist,
-                    null,
-                    day,
-                    CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
-                    null,
-                    Collections.emptyList()
-            );
-
-        }
-
+    private CalendarDayResponseDTO buildDay(Long idDentist, LocalDate date, DentistAvailability dentistAvailability, List<DentistCalendarLock> dentistCalendarLocks , Optional<Holiday> holidayOptional, List<Appointment> appointments){
 
         //1. Validar si es feriado.
-        Optional<Holiday> holidayOptional = holidayService.getByDate(day);
 
         //Si es feriado, valída que lo trabaje el dentista.
         if(holidayOptional.isPresent()) {
@@ -498,8 +629,6 @@ public class CalendarService implements ICalendarService {
                 //Generar slots vacíos.
                 List<SlotResponseDTO> slots = generateSlot(startTime, endTime, durationSlot);
 
-                //Buscar turnos del día
-                List<Appointment> appointments = appointmentService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
 
                 //Llenar slots.
                 fillSlot(slots,appointments, Collections.emptyList(),dentistHoliday.getBreakStartTime(),dentistHoliday.getBreakEndTime());
@@ -507,9 +636,10 @@ public class CalendarService implements ICalendarService {
                 return  CalendarDayResponseDTO.build(
                         idDentist,
                         dentistHoliday.getId(),
-                        day,
-                        deriveDayStatus(slots),
+                        date,
+                        deriveDayStatus(slots, Collections.emptyList(), Collections.emptyList()), //Arma el estado general del día
                         CalendarHolidayResponseDTO.build(holiday.getId(), CalendarHoliday.HOLIDAY,holiday.getName(),holiday.getType().getLabel()),
+                        Collections.emptyList(),
                         slots
                 );
 
@@ -517,9 +647,10 @@ public class CalendarService implements ICalendarService {
                 return  CalendarDayResponseDTO.build(
                         idDentist,
                         null,
-                        day,
+                        date,
                         CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),
                         CalendarHolidayResponseDTO.build(holiday.getId(),CalendarHoliday.HOLIDAY,holiday.getName(),holiday.getType().getLabel()),
+                        Collections.emptyList(),
                         Collections.emptyList()
                 );
             }
@@ -529,27 +660,57 @@ public class CalendarService implements ICalendarService {
 
         //2. Valida jornada de trabajo habitual.
 
-        //Habiendo validado que exista al menos una jornada, y sabiendo que no es feriado, se obtiene la jornada para ese día puntual
-        DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(idDentist,day);
+        //A. Valída si está de vacaciones o de licencia por enfermedad.
 
+        //Lista de bloqueos para el encabezado del día. Se completa y se devuelve en la respuesta. Es independiente de los slots.
+        List<CalendarDentistLock> calendarLocks = new ArrayList<>(List.of());
 
-        //Si no hay jornada para ese día, se devuelve como NO DISPONIBLE.
-        if(dentistAvailability == null) {
-            return  CalendarDayResponseDTO.build(idDentist,null, day,CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),null,null);
+        for(DentistCalendarLock dcl : dentistCalendarLocks){
+            if(dcl.getType().getModes().contains(CalendarLockMode.DAILY_CONTINUOUS)){
+                CalendarDentistLock calendarDentistLock = new CalendarDentistLock(
+                        dcl.getId(),
+                        dcl.getType().getName()
+                );
+
+                calendarLocks.add(calendarDentistLock);
+
+                //Si está de vacaciones o licencia se retorna respuesta. No hay que evaluar más.
+               return CalendarDayResponseDTO.build(
+                        idDentist,
+                        idDentist,
+                        date,
+                        CalendarDayStatusResponseDTO.build(CalendarDayStatus.LOCKED),
+                        null,
+                        calendarLocks,
+                        Collections.emptyList()
+                );
+            }
         }
 
-        List<DentistCalendarLock> dentistCalendarLocks = dentistCalendarLockService.getByDate(idDentist,day);
+
+
+        //B. Si no hay jornada para ese día, se devuelve como NO DISPONIBLE.
+        if(dentistAvailability == null) {
+            return  CalendarDayResponseDTO.build(idDentist,null, date,CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),null,null,null);
+        }
+
+        //C. Sabemos que ese día trabaja y no tiene bloqueos.
 
         //Generar slots vacíos.
         List<SlotResponseDTO> slots = generateSlot(dentistAvailability.getStartTime(), dentistAvailability.getEndTime(), dentistAvailability.getAppointmentDuration());
 
-        //Buscar turnos del día
-        List<Appointment> appointments = appointmentService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
 
         //Llenar slots.
         fillSlot(slots,appointments, dentistCalendarLocks,dentistAvailability.getBreakStartTime(),dentistAvailability.getBreakEndTime());
 
-        return  CalendarDayResponseDTO.build(idDentist,null, day,deriveDayStatus(slots),null,slots);
+        return  CalendarDayResponseDTO.build(
+                idDentist,
+                null,
+                date,
+                deriveDayStatus(slots,dentistCalendarLocks,calendarLocks), // Se pasa dentistLockList para que sea llenada dentro del método y utilizado en este mismo return.
+                null,
+                calendarLocks,
+                slots);
 
     }
 
@@ -575,11 +736,13 @@ public class CalendarService implements ICalendarService {
      * @see CalendarDayStatus Para los estados globales posibles del día.
      */
 
-    private CalendarDayStatusResponseDTO deriveDayStatus(List<SlotResponseDTO> slots) {
+    private CalendarDayStatusResponseDTO deriveDayStatus(List<SlotResponseDTO> slots, List<DentistCalendarLock> dentistCalendarLock, List<CalendarDentistLock> calendarLocks) {
 
         if (slots.isEmpty()) {
             return CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE);
         }
+
+
 
         boolean anyFree   = slots.stream().anyMatch(s -> s.getStatus() == SlotStatus.FREE);
         boolean allLocked = slots.stream().allMatch(s -> s.getStatus() == SlotStatus.LOCKED);

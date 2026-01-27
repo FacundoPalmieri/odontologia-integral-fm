@@ -1,7 +1,6 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
-import com.odontologiaintegralfm.feature.appointment.catalogs.enums.CalendarLockMode;
 import com.odontologiaintegralfm.feature.appointment.core.dto.*;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
@@ -254,7 +253,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
 
 
         //Recupera todos los bloqueos cuyo inicio sea <= y el fin sea => a una fecha dada.
-        List<DentistCalendarLock> dentistCalendarLocks =  dentistLockCalendarRepository.findByDentistIdAndDateRange(dentistId,date);
+        List<DentistCalendarLock> dentistCalendarLocks =  dentistLockCalendarRepository.findByDentistIdAndDate(dentistId,date);
 
         if(dentistCalendarLocks == null){
            return Collections.emptyList();
@@ -277,16 +276,22 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             //Si él date recibido es la misma semana que el inicio "ancla" del bloqueo, comparo los días.
             if ((date.get(WeekFields.ISO.weekOfWeekBasedYear()) == dentistCalendarLock.getStartDate().get(WeekFields.ISO.weekOfWeekBasedYear()))) {
 
-                dentistCalendarLockDetails.stream()
-                        .forEach(details -> {
-                            if (date.getDayOfWeek() == details.getDayName().toDayOfWeek()) {
-                                filteredDentistCalendarLocks.add(dentistCalendarLock);
-                            }
-                        });
+                if(dentistCalendarLockDetails.isEmpty()){
+                    filteredDentistCalendarLocks.add(dentistCalendarLock);
+                }else{
+                    dentistCalendarLockDetails.stream()
+                            .forEach(details -> {
+                                if (date.getDayOfWeek() == details.getDayName().toDayOfWeek()) {
+                                    filteredDentistCalendarLocks.add(dentistCalendarLock);
+                                }
+                            });
 
-                continue;
+                    continue;
+
+                }
 
             }
+
 
 
             //Bloqueo recurrente.
@@ -304,12 +309,46 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
 
     }
 
+    /**
+     * Método para obtener todos los bloqueos que corresponde a una semana
+     *
+     * @param dentistId : id dentista
+     * @param weekStart : Fecha inicio semana a consulta por bloqueo.
+     * @param weekEnd   : Fecha fin semana a consulta por bloqueo.
+     */
+    @Override
+    public Map<LocalDate, List<DentistCalendarLock>> getByDateRange(Long dentistId, LocalDate weekStart, LocalDate weekEnd) {
+        List<DentistCalendarLock> locks = dentistLockCalendarRepository.findByDentistIdAndDateRange(dentistId, weekStart, weekEnd);
 
 
+        Map<LocalDate, List<DentistCalendarLock>> locksByDay = new HashMap<>();
 
 
+        for (DentistCalendarLock lock : locks) {
 
+            //Obtengo detalles por cada bloqueo.
+           List <DentistCalendarLockDetail> dentistCalendarLockDetail = dentistCalendarLockDetailService.getAllByDentistCalendarLock(lock.getId());
 
+            List<LocalDate> effectiveDates =
+                    generateEffectiveDates(
+                            lock.getStartDate(),    // ancla real
+                            weekStart,
+                            weekEnd,
+                            lock.getRecurrence(),
+                            dentistCalendarLockDetail.stream()
+                                    .map(DentistCalendarLockDetail::getDayName)
+                                    .toList()
+                    );
+
+            for (LocalDate date : effectiveDates) {
+                locksByDay
+                        .computeIfAbsent(date, d -> new ArrayList<>())
+                        .add(lock);
+            }
+        }
+
+        return locksByDay;
+    }
 
 
     /**
@@ -322,7 +361,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
     public void validateByIdDentistAndDateTime(Long idDentist, LocalDateTime dateTime) {
 
         //Obtener bloqueos.
-        List<DentistCalendarLock> dentistCalendarLock = dentistLockCalendarRepository.findByDentistIdAndDateRange(idDentist, dateTime.toLocalDate());
+        List<DentistCalendarLock> dentistCalendarLock = dentistLockCalendarRepository.findByDentistIdAndDate(idDentist, dateTime.toLocalDate());
 
         //Validar esos bloqueos con la fecha del turno.
         for (DentistCalendarLock dc : dentistCalendarLock) {
@@ -438,9 +477,9 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
      *     El rango de fechas se considera inclusivo.
      *   </li>
      * </ul>
-     *
-     * @param startDate fecha de inicio del bloqueo.
-     * @param endDate fecha de fin del bloqueo.
+     * @param realStartDate fecha real de inicio del bloqueo.
+     * @param startDate fecha de inicio a evaluar (varía según la vista)
+     * @param endDate fecha de fin a evaluar del bloqueo (varía según la vista)
      * @param recurrence tipo de recurrencia del bloqueo.
      * @param days lista opcional de días de la semana en los que aplica el bloqueo.
      *
@@ -451,8 +490,9 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
      */
 
     private List<LocalDate> generateEffectiveDates(
-            LocalDate startDate,
-            LocalDate endDate,
+            LocalDate realStartDate,  // Ancla real
+            LocalDate startDate,      // Inicio del rango a evaluar (para cada vista)
+            LocalDate endDate,        // Fin del rango a evaluar
             CalendarLockRecurrenceName recurrence,
             List<DayName> days
     ) {
@@ -477,7 +517,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
                  !dayIteration.isAfter(endDate);
                  dayIteration = dayIteration.plusDays(1)) {
 
-                if (!recurrence.matches(startDate, dayIteration)) {
+                if (!recurrence.matches(realStartDate, dayIteration)) {
                     continue;
                 }
 
@@ -520,11 +560,11 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
              */
             LocalDate effectiveEnd = CalendarUtils.findLastMatchingDate(endDate, dayOfWeek);
 
-            for (LocalDate dayIteration = effectiveStart; !dayIteration.isAfter(effectiveEnd); dayIteration = dayIteration.plusDays(1)) {
+            for (LocalDate dayIteration = effectiveStart; !dayIteration.isAfter(effectiveEnd); dayIteration = dayIteration.plusWeeks(1)) {
 
                 /*
                  * Validamos la recurrencia usando el enum, PERO usando effectiveStart como fecha base */
-                if (!recurrence.matches(effectiveStart, dayIteration)) {
+                if (!recurrence.matches(realStartDate, dayIteration)) {
                     continue;
                 }
                 dates.add(dayIteration);
@@ -569,6 +609,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
         // Fechas efectivas del nuevo bloqueo
         List<LocalDate> newBlockDates = generateEffectiveDates(
                 dentistCalendarLockRequestCreateDTO.getStartDate(),
+                dentistCalendarLockRequestCreateDTO.getStartDate(),
                 dentistCalendarLockRequestCreateDTO.getEndDate(),
                 dentistCalendarLockRequestCreateDTO.getRecurrence(),
                 dentistCalendarLockRequestCreateDTO.getDays()
@@ -583,6 +624,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
                     .toList();
 
             Set<LocalDate> existingDates = new HashSet<>(generateEffectiveDates(
+                    lock.getStartDate(),
                     lock.getStartDate(),
                     lock.getEndDate(),
                     lock.getRecurrence(),
@@ -817,6 +859,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             dentistAvailabilityService.validateCoverage(
                     idPerson,
                     generateEffectiveDates(
+                            dentistCalendarLockRequestCreateDTO.getStartDate(),
                             dentistCalendarLockRequestCreateDTO.getStartDate(),
                             dentistCalendarLockRequestCreateDTO.getEndDate(),
                             dentistCalendarLockRequestCreateDTO.getRecurrence(),

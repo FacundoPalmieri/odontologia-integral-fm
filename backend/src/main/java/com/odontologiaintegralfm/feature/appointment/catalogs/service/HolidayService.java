@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author [Facundo Palmieri]
@@ -212,6 +213,26 @@ public class HolidayService implements IHolidayService {
 
 
 
+
+    /**
+     * Método para obtener un map de feriados para un rango de fechas.
+     *
+     * @param start : Inicio
+     * @param end : Fin
+     * @return Map con fecha -> holiday
+     */
+    @Override
+    public Map<LocalDate, Holiday> getByDateRange(LocalDate start, LocalDate end) {
+        List<Holiday> holidayList = holidayRepository.findAllDateRange(start, end);
+
+        Map<LocalDate, Holiday> holidaysByDate = holidayList.stream()
+                .collect(Collectors.toMap(
+                        Holiday::getDate,
+                        h -> h
+                ));
+
+        return holidaysByDate;
+    }
 
 
     /**

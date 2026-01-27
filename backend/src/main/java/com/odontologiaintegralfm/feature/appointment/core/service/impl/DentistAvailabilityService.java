@@ -267,14 +267,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
      * @return : La jornada laboral.
      */
     @Override
-    public DentistAvailability getDentistAvailabilityByDate(Long dentist, LocalDate date) {
-
-        //Obtiene todas las jornadas laborales.
-        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityRepository.findAllByDentistIdAndEnabledTrue(dentist);
-
-        if (dentistAvailabilities.isEmpty()) {
-            throw new ConflictException("exception.dentistAvailability.empty.user", null, "exception.dentistAvailability.empty.log", new Object[]{dentist, "DentistAvailabilityService", "getDentistAvailabilityByDate"}, LogLevel.ERROR);
-        }
+    public DentistAvailability getDentistAvailabilityByDate(Long dentist, LocalDate date,List<DentistAvailability> dentistAvailabilities) {
 
         //Verifica jornada específica, ya que si es así solo puede haber un elemento en la lista.
         if (((dentistAvailabilities.get(0).getSpecificDate())!= null)) {

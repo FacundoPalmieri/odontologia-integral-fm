@@ -36,6 +36,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -566,6 +567,28 @@ public class AppointmentService implements IAppointmentService {
     }
 
     /**
+     * Obtiene turnos de un dentista en estado Reservado en un período específico.
+     *
+     * @param idDentist : id Dentista
+     * @param start     : Inicio del período
+     * @param end       : Fin del período
+     * @param status    : Estado del turno.
+     * @return : Map Fecha -> Turno
+     */
+    @Override
+    public Map<LocalDate, List<Appointment>> getByDateRange(Long idDentist, LocalDateTime start, LocalDateTime end, AppointmentStatus status) {
+        List<Appointment> appointments = appointmentRepository.findByDentistIdAndDateBetweenAndStatus(idDentist,start,end,status);
+
+        Map<LocalDate, List<Appointment>> appointmentsByDate = appointments.stream()
+                .collect(Collectors.groupingBy(
+                        appointment -> appointment.getDate().toLocalDate()
+
+                ));
+
+        return appointmentsByDate;
+    }
+
+    /**
      * Obtiene la información de un turno. En caso de no encontrarlo arroja exception.
      *
      * @param idAppointment : id del turno
@@ -736,8 +759,11 @@ public class AppointmentService implements IAppointmentService {
 
     private void normalizeTime(AppointmentCreateRequestDTO appointment){
 
+        //Obtiene las jornadas laborales del dentista.
+        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(appointment.getIdDentist());
+
         //Obtiene la disponibilidad que se encuentran dentro del turno elegido
-        DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(appointment.getIdDentist(), appointment.getDateTime().toLocalDate());
+        DentistAvailability dentistAvailability = dentistAvailabilityService.getDentistAvailabilityByDate(appointment.getIdDentist(), appointment.getDateTime().toLocalDate(), dentistAvailabilities);
 
         //Obtiene el slot
         int slot = dentistAvailability.getAppointmentDuration();
