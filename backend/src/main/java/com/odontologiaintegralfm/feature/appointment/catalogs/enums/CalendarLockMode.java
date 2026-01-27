@@ -25,7 +25,7 @@ public enum CalendarLockMode {
 
     DAILY_CONTINUOUS(
             "Días continuos",
-            "Bloquea todos los días entre la fecha de inicio y fin, solo con recurrencia 'Diaria' y sin especificación de días."
+            "Bloquea todos los días entre la fecha de inicio y fin, solo con recurrencia 'Diaria' y sin especificación de días y horarios."
     ),
 
     RECURRENT_PATTERN(

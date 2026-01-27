@@ -276,16 +276,22 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             //Si él date recibido es la misma semana que el inicio "ancla" del bloqueo, comparo los días.
             if ((date.get(WeekFields.ISO.weekOfWeekBasedYear()) == dentistCalendarLock.getStartDate().get(WeekFields.ISO.weekOfWeekBasedYear()))) {
 
-                dentistCalendarLockDetails.stream()
-                        .forEach(details -> {
-                            if (date.getDayOfWeek() == details.getDayName().toDayOfWeek()) {
-                                filteredDentistCalendarLocks.add(dentistCalendarLock);
-                            }
-                        });
+                if(dentistCalendarLockDetails.isEmpty()){
+                    filteredDentistCalendarLocks.add(dentistCalendarLock);
+                }else{
+                    dentistCalendarLockDetails.stream()
+                            .forEach(details -> {
+                                if (date.getDayOfWeek() == details.getDayName().toDayOfWeek()) {
+                                    filteredDentistCalendarLocks.add(dentistCalendarLock);
+                                }
+                            });
 
-                continue;
+                    continue;
+
+                }
 
             }
+
 
 
             //Bloqueo recurrente.
