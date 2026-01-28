@@ -1266,6 +1266,11 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    * Refresca la vista actual del calendario
    */
   private refreshCurrentView(): void {
+    console.log("Refreshing current view:", this.currentView);
+
+    // Limpiar el caché para forzar una recarga desde la API
+    this.monthCache.clear();
+
     switch (this.currentView) {
       case "month":
         this.loadMonthView();
@@ -1342,7 +1347,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     // Suscribirse al cierre del diálogo para recargar la vista
     dialogRef.afterClosed().subscribe((result) => {
-      console.log(result);
       if (result?.success) {
         // Si se creó un bloqueo exitosamente, recargar la vista actual
         this.refreshCurrentView();

@@ -185,7 +185,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
       .subscribe(
         (response: ApiResponseInterface<CalendarLockTypeInterface[]>) => {
           this.calendarLockTypes.set(response.data);
-        }
+        },
       );
   }
 
@@ -418,7 +418,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
 
   // Helper method to extract mode name from either string or object
   private getModeNameFromValue(
-    mode: CalendarLockTypeModeInterface | string | null
+    mode: CalendarLockTypeModeInterface | string | null,
   ): LockTypeModeEnum | null {
     if (!mode) return null;
     return typeof mode === "string"
@@ -446,7 +446,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
   }
 
   getModeDescription(
-    mode: CalendarLockTypeModeInterface | string | null
+    mode: CalendarLockTypeModeInterface | string | null,
   ): string {
     if (!mode) return "Selecciona un modo para continuar";
     if (typeof mode === "string") {
@@ -657,7 +657,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
 
     // Filter weekDays to only include days in range
     this.availableDays = this.allWeekDays.filter((day) =>
-      daysInRange.has(day.value)
+      daysInRange.has(day.value),
     );
   }
 
@@ -679,7 +679,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
     // Remove selected days that are no longer available
     const availableDayValues = this.availableDays.map((day) => day.value);
     this.selectedDays = this.selectedDays.filter((day) =>
-      availableDayValues.includes(day)
+      availableDayValues.includes(day),
     );
     this.eventForm.get("days")?.setValue(this.selectedDays);
     this.allDaysSelected =
@@ -796,7 +796,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
               6000,
               "center",
               "top",
-              SnackbarTypeEnum.Success
+              SnackbarTypeEnum.Success,
             );
             this.dialogRef.close({ success: true, data: response.data });
           }
@@ -809,7 +809,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
             6000,
             "center",
             "top",
-            SnackbarTypeEnum.Error
+            SnackbarTypeEnum.Error,
           );
         },
       });
@@ -817,7 +817,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
 
   private _showConflictDialogWithSaveOption(
     calendarLock: CalendarLockInterface,
-    conflicts: AppointmentConflictInterface[]
+    conflicts: AppointmentConflictInterface[],
   ): void {
     const conflictDialogRef = this.dialog.open(ConflictDialogComponent, {
       data: {
@@ -833,9 +833,39 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
     conflictDialogRef.afterClosed().subscribe((result) => {
       if (result?.saveAnyway) {
         // El usuario decidió guardar igualmente
-        this._performSave(calendarLock);
+        this.calendarService
+          .createCalendarLock(calendarLock, this.data.personId)
+          .pipe(takeUntil(this._destroy$))
+          .subscribe({
+            next: (response: ApiResponseInterface<CalendarLockInterface>) => {
+              if (response.success) {
+                this.snackbarService.openSnackbar(
+                  response.message,
+                  6000,
+                  "center",
+                  "top",
+                  SnackbarTypeEnum.Success,
+                );
+                // Cerrar el diálogo principal con éxito
+                this.dialogRef.close({ success: true, data: response.data });
+              }
+            },
+            error: (error) => {
+              console.error("Error creating calendar lock:", error);
+              this.snackbarService.openSnackbar(
+                error?.error?.message ||
+                  "Error al crear el bloqueo. Por favor, intente nuevamente.",
+                6000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Error,
+              );
+            },
+          });
+      } else {
+        // Si el usuario cancela, cerrar el diálogo principal sin éxito
+        this.dialogRef.close({ success: false });
       }
-      // Si result es falsy o result.saveAnyway es false, no hacer nada (cancelar)
     });
   }
 
