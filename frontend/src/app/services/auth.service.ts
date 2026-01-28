@@ -112,6 +112,7 @@ export class AuthService {
       roles: authUserData.roles,
       username: authUserData.username,
       person: authUserData.person,
+      dentist: authUserData.dentist,
     };
 
     localStorage.setItem("userData", JSON.stringify(userData));
@@ -164,7 +165,7 @@ export class AuthService {
    * Verifica si el usuario es dentista
    */
   isDentist(): boolean {
-    return this.hasRole(RoleEnum.DENTIST);
+    return this.getUserData()?.dentist!;
   }
 
   /**

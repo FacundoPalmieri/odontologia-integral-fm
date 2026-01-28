@@ -1,7 +1,7 @@
 <app-page-toolbar
   [title]="'Disponibilidad laboral'"
   [showBackButton]="true"
-  [showActionButton]="isConfigured()"
+  [showActionButton]="!isLoading()"
   [actionButtonDisabled]="!isFormValid()"
   (back)="goBack()"
   (action)="saveAvailability()"
@@ -22,36 +22,8 @@
   </mat-card>
 }
 
-<!-- Estado no configurado: Mostrar botón para inicializar -->
-@if (!isConfigured() && !isLoading()) {
-  <mat-card appearance="outlined" class="mt-4">
-    <mat-card-content class="p-8">
-      <div class="flex flex-col items-center justify-center gap-4 py-8">
-        <div
-          class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center"
-        >
-          <i-tabler
-            name="calendar-plus"
-            class="text-blue-600 scale-[2]"
-          ></i-tabler>
-        </div>
-        <p class="text-center max-w-md">
-          No tienes una configuración de disponibilidad laboral. Haz clic en el
-          botón para comenzar a configurar tus horarios de trabajo.
-        </p>
-        <button mat-flat-button (click)="initializeConfiguration()">
-          <div class="flex items-center gap-2">
-            <i-tabler name="settings"></i-tabler>
-            <span>Iniciar configuración</span>
-          </div>
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
-}
-
-<!-- Estado configurado: Mostrar tabs con formularios -->
-@if (isConfigured()) {
+<!-- Formulario de configuración -->
+@if (!isLoading()) {
   <mat-card appearance="outlined" class="mt-4">
     <mat-tab-group [(selectedIndex)]="selectedTabIndex">
       <!-- Tab 1: Configuración semanal recurrente -->

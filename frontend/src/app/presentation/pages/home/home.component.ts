@@ -27,7 +27,6 @@ import {
 import { Subject, takeUntil } from "rxjs";
 import { DayEnum } from "../../../utils/enums/day.enum";
 import { SlotStatusEnum } from "../../../utils/enums/appointment/appointment-status.enum";
-import { RoleEnum } from "../../../utils/enums/role.enum";
 import { CardIconTitleComponent } from "../../components/card-icon-title/card-icon-title.component";
 
 @Component({
@@ -172,23 +171,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
-  isDentist(): boolean {
-    return (
-      this.userData()?.roles?.some((role) => role.name === RoleEnum.DENTIST) ||
-      false
-    );
-  }
-
-  isAdmin(): boolean {
-    return (
-      this.userData()?.roles?.some(
-        (role) => role.name === RoleEnum.ADMINISTRATOR,
-      ) || false
-    );
-  }
-
   shouldShowDentistInfo(): boolean {
-    return this.isDentist() || this.isAdmin();
+    return this.authService.isDentist();
   }
 
   getWeeklyDays() {

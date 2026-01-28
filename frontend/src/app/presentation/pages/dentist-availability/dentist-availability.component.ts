@@ -79,7 +79,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   });
 
   dentistAvailability = signal<DentistAvailabilityResponseInterface | null>(
-    null
+    null,
   );
 
   // Estado de inicialización
@@ -148,25 +148,33 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
         next: (response) => {
           this.dentistAvailability.set(response.data);
 
-          // Si hay datos, marcar como configurado y poblar formularios
+          // Siempre inicializar el formulario
+          this._initializeWeeklyForm();
+          this.isConfigured.set(true);
+
+          // Si hay datos, poblar formularios
           if (
             response.data &&
             response.data.days &&
             response.data.days.length > 0
           ) {
-            this.isConfigured.set(true);
-            this._initializeWeeklyForm();
             this._populateForms();
-            // Actualizar validez después de cargar los datos
-            this._updateFormValidity();
           }
+
+          // Actualizar validez después de cargar los datos
+          this._updateFormValidity();
 
           // Set loading state to false
           this.isLoading.set(false);
         },
         error: () => {
           this.dentistAvailability.set(null);
-          this.isConfigured.set(false);
+
+          // Incluso en error, inicializar el formulario vacío
+          this._initializeWeeklyForm();
+          this.isConfigured.set(true);
+          this._updateFormValidity();
+
           // Set loading state to false even on error
           this.isLoading.set(false);
         },
@@ -227,7 +235,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   private _updateConfigurationStatus(): void {
     // Verificar si hay configuración semanal
     const hasWeekly = this.weeklyAvailability.controls.some(
-      (control: AbstractControl) => control.get("isWorking")?.value === true
+      (control: AbstractControl) => control.get("isWorking")?.value === true,
     );
 
     // Verificar si hay días específicos
@@ -242,7 +250,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
     const hasValidWeeklyData =
       this.weeklyAvailabilityForm.valid &&
       this.weeklyAvailability.controls.some(
-        (control: AbstractControl) => control.get("isWorking")?.value === true
+        (control: AbstractControl) => control.get("isWorking")?.value === true,
       );
 
     const hasValidSpecificDays =
@@ -531,10 +539,10 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
     // Separar días semanales de días específicos
     // Los días semanales tienen recurrence, los específicos no
     const weeklyDays = availabilityData.days.filter(
-      (d) => d.recurrence === RecurrenceEnum.WEEKLY
+      (d) => d.recurrence === RecurrenceEnum.WEEKLY,
     );
     const specificDays = availabilityData.days.filter(
-      (d) => !d.recurrence || d.recurrence === RecurrenceEnum.NONE
+      (d) => !d.recurrence || d.recurrence === RecurrenceEnum.NONE,
     );
 
     // Poblar formulario semanal
@@ -573,7 +581,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
               appointmentDuration: dayData.appointmentDuration,
             });
           }
-        }
+        },
       );
     }
 
@@ -710,7 +718,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
             this._showConflictDialogWithSaveOption(
               dentistId,
               allDays,
-              conflicts
+              conflicts,
             );
           }
         },
@@ -724,7 +732,8 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
     const workingDays: DentistDayAvailabilityInterface[] =
       this.weeklyAvailability.controls
         .filter(
-          (control: AbstractControl) => control.get("isWorking")?.value === true
+          (control: AbstractControl) =>
+            control.get("isWorking")?.value === true,
         )
         .map((control: AbstractControl) => {
           const hasBreak = control.get("hasBreak")?.value;
@@ -799,21 +808,21 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
 
   private _performSave(
     dentistId: number,
-    allDays: DentistDayAvailabilityInterface[]
+    allDays: DentistDayAvailabilityInterface[],
   ): void {
     this.dentistService
       .saveAvailability(dentistId, allDays)
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (
-          response: ApiResponseInterface<DentistAvailabilitySaveResponseInterface>
+          response: ApiResponseInterface<DentistAvailabilitySaveResponseInterface>,
         ) => {
           this.snackbarService.openSnackbar(
             response.message,
             6000,
             "center",
             "top",
-            SnackbarTypeEnum.Success
+            SnackbarTypeEnum.Success,
           );
           // Recargar la disponibilidad para reflejar los cambios
           this._loadAvailability();
@@ -825,7 +834,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
             6000,
             "center",
             "top",
-            SnackbarTypeEnum.Error
+            SnackbarTypeEnum.Error,
           );
         },
       });
@@ -834,7 +843,7 @@ export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   private _showConflictDialogWithSaveOption(
     dentistId: number,
     allDays: DentistDayAvailabilityInterface[],
-    conflicts: AppointmentConflictInterface[]
+    conflicts: AppointmentConflictInterface[],
   ): void {
     const dialogRef = this.dialog.open(ConflictDialogComponent, {
       data: {

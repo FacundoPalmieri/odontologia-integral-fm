@@ -8,4 +8,5 @@ export interface UserDataInterface {
   roles: RoleInterface[];
   username: string;
   person: PersonDtoInterface;
+  dentist: boolean;
 }
