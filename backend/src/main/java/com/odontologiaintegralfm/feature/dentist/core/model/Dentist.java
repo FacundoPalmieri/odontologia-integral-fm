@@ -6,7 +6,9 @@ import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
+import org.hibernate.sql.ast.Clause;
 
 import java.time.LocalTime;
 
@@ -21,6 +23,7 @@ import java.time.LocalTime;
 @Table(name ="dentists", uniqueConstraints = {
         @UniqueConstraint(columnNames = "licenseNumber")
 })
+@Where(clause = "enabled = true")
 public class Dentist extends Auditable {
     @Id
     private Long id;

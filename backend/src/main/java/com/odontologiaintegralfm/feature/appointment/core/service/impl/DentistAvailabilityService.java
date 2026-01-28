@@ -521,10 +521,10 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
         return days.stream()
                 .map(dto -> {
 
-                    //Valída que la hora de inicio y fin cubra al menos la parametrización de la duración de un turno.
-                    if(validateDurationLessThanAppointmentDuration(dto.getStartTime(),dto.getEndTime(), dto.getAppointmentDuration())){
-                        throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{dto.getStartTime(),dto.getEndTime(), dto.getAppointmentDuration(),"DentistAvailabilityService","entityFromDto"},LogLevel.ERROR);
-                    }
+//                    //Valída que la hora de inicio y fin cubra al menos la parametrización de la duración de un turno.
+//                    if(validateDurationLessThanAppointmentDuration(dto.getStartTime(),dto.getEndTime(), dto.getAppointmentDuration())){
+//                        throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{dto.getStartTime(),dto.getEndTime(), dto.getAppointmentDuration(),"DentistAvailabilityService","entityFromDto"},LogLevel.ERROR);
+//                    }
 
 
                     DentistAvailability dentistAvailability = DentistAvailability.build(dentistAvailabilityExisting.dentist(), dto);
