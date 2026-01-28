@@ -20,4 +20,5 @@ public class AuthLoginResponseDTO {
     private String jwt;
     private String refreshToken;
     private PersonResponseDTO person;
+    private boolean isDentist;
 }

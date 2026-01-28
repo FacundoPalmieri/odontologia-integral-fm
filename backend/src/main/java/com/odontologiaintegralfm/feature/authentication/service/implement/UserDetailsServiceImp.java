@@ -1,4 +1,6 @@
 package com.odontologiaintegralfm.feature.authentication.service.implement;
+import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.core.service.implement.DentistService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.ForbiddenException;
@@ -96,7 +98,8 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
     @Autowired
     private IRoleService roleService;
-
+    @Autowired
+    private DentistService dentistService;
 
 
     /**
@@ -194,12 +197,23 @@ public class UserDetailsServiceImp implements UserDetailsService {
             //Obtiene datos del usuario desde la base de datos.
             UserSec userSec = userService.getByUsername(username);
 
+            //Flag para la response.
+            boolean isDentist = false;
 
-            //
             PersonResponseDTO personResponseDTO = null;
             if (userSec.getPerson() != null) {
                 personResponseDTO = personService.convertToDTO(userSec.getPerson());
+
+                //Verifica si es dentista
+                Optional <Dentist> dentist = dentistService.getById(userSec.getPerson().getId());
+
+                if(dentist.isPresent()){
+                    isDentist = true;
+                }
+
             }
+
+
 
             // Elimina el RefreshToken anterior.
             refreshTokenService.deleteRefreshToken(userSec.getId());
@@ -226,6 +240,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
                     .jwt(accessToken)
                     .refreshToken(refreshToken.getRefreshToken())
                     .person(personResponseDTO)
+                    .isDentist(isDentist)
                     .build();
 
             return new Response<> (true,"", authLoginResponseDTO);
