@@ -447,15 +447,18 @@ public class CalendarService implements ICalendarService {
             LocalTime slotStart = s.getStartTime();
             LocalTime slotEnd = s.getEndTime();
 
-            //Revisa Breaks
-            if(s.getStartTime().isBefore(breakEndTime) && s.getEndTime().isAfter(breakStartTime)) {
-                s.setStatus(SlotStatus.BREAK);
-                s.setColor(SlotStatus.BREAK.getColorHex());
-                s.setAppointment(null);
-                s.setCalendarLock(null);
-                continue;
+            //Revisa Breaks, siempre que exista
+            if(breakStartTime != null || breakEndTime != null) {
+                if(s.getStartTime().isBefore(breakEndTime) && s.getEndTime().isAfter(breakStartTime)) {
+                    s.setStatus(SlotStatus.BREAK);
+                    s.setColor(SlotStatus.BREAK.getColorHex());
+                    s.setAppointment(null);
+                    s.setCalendarLock(null);
+                    continue;
 
+                }
             }
+
 
 
             //Revisar bloqueos
