@@ -270,6 +270,12 @@ public class CalendarService implements ICalendarService {
         //Construye la vista.
         List<CalendarDayResponseDTO> days = buildCalendarDays(idDentist,dentistAvailabilities,start,end);
 
+        //Quita el detalle de los slot.
+        days.stream()
+                .forEach(
+                        day -> day.setSlots(Collections.emptyList())
+                );
+
 
         CalendarMonthResponseDTO responseDTO = new CalendarMonthResponseDTO(year, month, days);
         return new Response<>(true, null, responseDTO);

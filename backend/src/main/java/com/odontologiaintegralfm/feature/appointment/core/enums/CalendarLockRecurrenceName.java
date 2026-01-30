@@ -16,7 +16,8 @@ public enum CalendarLockRecurrenceName {
     DAILY("Diario") {
         @Override
         public boolean matches(LocalDate startDate, LocalDate currentDate) {
-            return true;
+
+            return !currentDate.isBefore(startDate);
         }
     },
 
