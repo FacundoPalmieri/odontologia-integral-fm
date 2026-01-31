@@ -333,7 +333,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
                     generateEffectiveDates(
                             lock.getStartDate(),    // ancla real
                             weekStart,
-                            weekEnd,
+                            lock.getEndDate(),
                             lock.getRecurrence(),
                             dentistCalendarLockDetail.stream()
                                     .map(DentistCalendarLockDetail::getDayName)
@@ -492,7 +492,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
     private List<LocalDate> generateEffectiveDates(
             LocalDate realStartDate,  // Ancla real
             LocalDate startDate,      // Inicio del rango a evaluar (para cada vista)
-            LocalDate endDate,        // Fin del rango a evaluar
+            LocalDate endDate,        // Fin del evento
             CalendarLockRecurrenceName recurrence,
             List<DayName> days
     ) {
