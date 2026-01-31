@@ -16,7 +16,10 @@ export class HolidayService {
   apiUrl = environment.apiUrl;
 
   getAll(): Observable<ApiResponseInterface<HolidayInterface[]>> {
-    let params = new HttpParams().set("year", 2025);
+    let params = new HttpParams().set(
+      "year",
+      new Date().getFullYear().toString(),
+    );
 
     return this.http
       .get<
