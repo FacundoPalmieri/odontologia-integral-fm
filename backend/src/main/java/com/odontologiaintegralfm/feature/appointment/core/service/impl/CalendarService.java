@@ -466,6 +466,14 @@ public class CalendarService implements ICalendarService {
 
                 DentistCalendarLock lock = locks.get(lockIndex);
 
+                if(lock.isFullDay()){
+                    s.setStatus(SlotStatus.LOCKED);
+                    s.setColor(SlotStatus.LOCKED.getColorHex());
+                    s.setCalendarLock(DentistCalendarLockResponseDTO.build(lock));
+                    s.setAppointment(null);
+                    break;
+                }
+
                 // Si el bloqueo terminó antes del slot -> avanzar
                 if (lock.getEndTime().isBefore(slotStart)) {
                     lockIndex++;

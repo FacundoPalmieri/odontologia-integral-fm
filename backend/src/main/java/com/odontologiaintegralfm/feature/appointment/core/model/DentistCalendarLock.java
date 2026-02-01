@@ -124,6 +124,8 @@ public class DentistCalendarLock extends Auditable {
     @Column(nullable = false)
     private LocalTime endTime;
 
+    private boolean isFullDay;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id", nullable = false)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
@@ -150,24 +152,26 @@ public class DentistCalendarLock extends Auditable {
     private String observationUpdate;
 
 
-    private DentistCalendarLock(Dentist dentist, LocalDate startDate, LocalDate endDate,LocalTime startTime,LocalTime endTime ,CalendarLockType type, CalendarLockRecurrenceName recurrence, String observation) {
+    private DentistCalendarLock(Dentist dentist, LocalDate startDate, LocalDate endDate,LocalTime startTime,LocalTime endTime,boolean isFullDay,CalendarLockType type, CalendarLockRecurrenceName recurrence, String observation) {
         this.dentist = dentist;
         this.startDate = startDate;
         this.endDate = endDate;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.isFullDay = isFullDay;
         this.type = type;
         this.recurrence = recurrence;
         this.observation = observation;
     }
 
-    public static DentistCalendarLock build(Dentist dentist, LocalDate startDate, LocalDate endDate, LocalTime startTime,LocalTime endTime, CalendarLockType type, CalendarLockRecurrenceName recurrence, String observation){
+    public static DentistCalendarLock build(Dentist dentist, LocalDate startDate, LocalDate endDate, LocalTime startTime,LocalTime endTime,boolean isFullDay ,CalendarLockType type, CalendarLockRecurrenceName recurrence, String observation){
         return new DentistCalendarLock(
                 dentist,
                 startDate,
                 endDate,
                 startTime,
                 endTime,
+                isFullDay,
                 type,
                 recurrence,
                 observation

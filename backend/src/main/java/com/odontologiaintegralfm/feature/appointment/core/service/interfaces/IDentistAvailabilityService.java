@@ -82,9 +82,10 @@ public interface IDentistAvailabilityService {
      * @param blocksDate Fechas de bloqueos
      * @param starTimeBlock Hora de inicio del bloqueo.
      * @param endTimeBlock Hora de fin del bloqueo.
+     * @param fullDay indica si el bloqueo ocupa toda la jornada.
      * @throws BadRequestException Si el bloqueo no cumple con la cobertura requerida según la recurrencia y jornada del dentista.
      */
-    void validateCoverage(Long idDentist, List<LocalDate> blocksDate, LocalTime starTimeBlock, LocalTime endTimeBlock);
+    void validateCoverage(Long idDentist, List<LocalDate> blocksDate, LocalTime starTimeBlock, LocalTime endTimeBlock, boolean fullDay);
 
 
 

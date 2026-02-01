@@ -293,7 +293,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
 
     /**
-     * Valída que un bloqueo de calendario propuesto coincida con la jornada laboral del dentista.
+     * Valída que un bloqueo de calendario propuesto coincida y este totalmente contenido dentro de la jornada laboral del dentista.
      *
      * <p>Dependiendo del tipo de recurrencia del bloqueo:</p>
      * <ul>
@@ -302,7 +302,11 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
      * </ul>
      *
      * <p>El método obtiene las disponibilidades del dentista y verifica si las fechas y horarios del bloqueo
-     * están completamente cubiertos según la recurrencia.</p>
+     * están completamente cubiertos según la recurrencia.
+     *
+     * Impide que un bloqueo quede por partes fuera de la jornada laboral.
+     *
+     * </p>
      *
      * @param idDentist Id del dentista cuyo calendario se valida.
      * @param blocksDate Fechas de bloqueos
@@ -312,7 +316,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
      * @throws BadRequestException Si el bloqueo no cumple con la cobertura requerida según la recurrencia y jornada del dentista.
      */
     @Override
-    public void validateCoverage(Long idDentist,List<LocalDate> blocksDate, LocalTime startTimeBlock, LocalTime endTimeBlock) {
+    public void validateCoverage(Long idDentist,List<LocalDate> blocksDate, LocalTime startTimeBlock, LocalTime endTimeBlock, boolean fullDay) {
 
         List<DentistAvailability> availabilities = dentistAvailabilityRepository.findAllByDentistIdAndEnabledTrue(idDentist);
 
@@ -327,6 +331,12 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
                     if (!availability.getEffectiveDate().equals(blockDate)) {
                         continue;
+                    }
+
+                    //Evalúa horarios SOLO si el flag de fullDay es false
+                    if(fullDay){
+                        covered = true;
+                        break;
                     }
 
                     if (availability.getStartTime().isAfter(startTimeBlock) && availability.getEndTime().isBefore(endTimeBlock)) {
@@ -346,6 +356,12 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                         continue;
                     }
 
+
+                    //Evalúa horarios SOLO si el flag de fullDay es false
+                    if(fullDay){
+                        covered = true;
+                        break;
+                    }
                     if (availability.getStartTime().isAfter(startTimeBlock) && availability.getEndTime().isBefore(endTimeBlock)) {
                         continue;
                     }
@@ -366,6 +382,13 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                 }
 
                 // 3. Rango horario
+
+                //Evalúa horarios SOLO si el flag de fullDay es false
+                if(fullDay){
+                    covered = true;
+                    break;
+                }
+
                 if (availability.getStartTime().isAfter(startTimeBlock) || availability.getEndTime().isBefore(endTimeBlock)) {
                     continue;
                 }

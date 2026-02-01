@@ -16,6 +16,7 @@ public record DentistCalendarLockResponseDTO(
         LocalDate endDate,
         LocalTime startTime,
         LocalTime endTime,
+        boolean isFullDay,
         String observation,
         String observationUpdate,
         List<AppointmentConflictResponseDTO> appointmentConflict
@@ -31,6 +32,7 @@ public record DentistCalendarLockResponseDTO(
                 dentistCalendarLock.getEndDate(),
                 dentistCalendarLock.getStartTime(),
                 dentistCalendarLock.getEndTime(),
+                dentistCalendarLock.isFullDay(),
                 dentistCalendarLock.getObservation(),
                 dentistCalendarLock.getObservationUpdate(),
                 null
@@ -48,6 +50,7 @@ public record DentistCalendarLockResponseDTO(
                 dentistCalendarLock.getEndDate(),
                 dentistCalendarLock.getStartTime(),
                 dentistCalendarLock.getEndTime(),
+                dentistCalendarLock.isFullDay(),
                 dentistCalendarLock.getObservation(),
                 dentistCalendarLock.getObservationUpdate(),
                 appointmentConflictResponseDTO

@@ -866,7 +866,8 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
                             dentistCalendarLockRequestCreateDTO.getDays()
                     ),
                     dentistCalendarLockRequestCreateDTO.getStartTime(),
-                    dentistCalendarLockRequestCreateDTO.getEndTime()
+                    dentistCalendarLockRequestCreateDTO.getEndTime(),
+                    dentistCalendarLockRequestCreateDTO.isFullDay()
             );
         }
 
@@ -881,6 +882,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
                 dentistCalendarLockRequestCreateDTO.getEndDate(),
                 dentistCalendarLockRequestCreateDTO.getStartTime(),
                 dentistCalendarLockRequestCreateDTO.getEndTime(),
+                dentistCalendarLockRequestCreateDTO.isFullDay(),
                 calendarLockType,
                 dentistCalendarLockRequestCreateDTO.getRecurrence(),
                 dentistCalendarLockRequestCreateDTO.getObservation()

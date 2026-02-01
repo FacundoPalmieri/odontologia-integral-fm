@@ -81,6 +81,8 @@ public class DentistCalendarLockRequestCreateDTO {
  @NotNull(message = "dentistCalendarLockRequestCreateDTO.endDate.empty")
  private LocalDate endDate;
 
+ /** Indica que el bloqueo ocupa todo el día */
+ private boolean fullDay;
 
 
  private LocalTime startTime;
