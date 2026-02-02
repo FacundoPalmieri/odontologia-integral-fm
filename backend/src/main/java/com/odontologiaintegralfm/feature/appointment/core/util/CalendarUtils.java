@@ -3,10 +3,7 @@ package com.odontologiaintegralfm.feature.appointment.core.util;
 
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 
 public final class CalendarUtils {
 
@@ -145,6 +142,21 @@ public final class CalendarUtils {
         }
 
         return appointmentTime.isAfter(breakStart) && appointmentTime.isBefore(breakEnd);
+    }
+
+
+
+
+    /**
+     * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
+     * @param startTime: Hora inicio jornada de feriado
+     * @param endTime    : Hora fin jornada de feriado
+     */
+    public static boolean validateDurationLessThanAppointmentDuration(LocalTime startTime, LocalTime endTime, Integer appointmentDuration) {
+
+        long holidayDurationMinutes = Duration.between(startTime, endTime).toMinutes();
+
+        return holidayDurationMinutes >= appointmentDuration;
     }
 
 

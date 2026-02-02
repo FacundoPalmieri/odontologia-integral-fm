@@ -2,12 +2,15 @@ package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
+import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
+import com.odontologiaintegralfm.feature.appointment.catalogs.service.HolidayService;
 import com.odontologiaintegralfm.feature.appointment.core.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityContextInternalDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointment.core.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistAvailability;
+import com.odontologiaintegralfm.feature.appointment.core.model.DentistHoliday;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IDentistAvailabilityRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IConflictManagerService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistAvailabilityService;
@@ -47,19 +50,23 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
     private final MessageSource messageSource;
     private final AuthenticatedUserService authenticatedUserService;
     private final IConflictManagerService conflictManagerService;
+    private final DentistHolidayService dentistHolidayService;
+    private final HolidayService holidayService;
 
     public DentistAvailabilityService(
             IDentistService dentistService,
             IDentistAvailabilityRepository dentistAvailabilityRepository,
             MessageSource messageSource,
             AuthenticatedUserService authenticatedUserService,
-            IConflictManagerService conflictManagerService
-    ) {
+            IConflictManagerService conflictManagerService,
+            DentistHolidayService dentistHolidayService, HolidayService holidayService) {
         this.dentistService = dentistService;
         this.dentistAvailabilityRepository = dentistAvailabilityRepository;
         this.messageSource = messageSource;
         this.authenticatedUserService = authenticatedUserService;
         this.conflictManagerService = conflictManagerService;
+        this.dentistHolidayService = dentistHolidayService;
+        this.holidayService = holidayService;
     }
 
 
@@ -245,17 +252,6 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
 
 
-    /**
-     * Método privado que valída que la fecha de inicio y fin cubra al menos la parametrización de la duración de un turno.
-     * @param startTime: Hora inicio jornada de feriado
-     * @param endTime    : Hora fin jornada de feriado
-     */
-    public boolean validateDurationLessThanAppointmentDuration(LocalTime startTime, LocalTime endTime, Integer appointmentDuration) {
-
-        long holidayDurationMinutes = Duration.between(startTime, endTime).toMinutes();
-
-        return holidayDurationMinutes >= appointmentDuration;
-    }
 
 
 
@@ -343,6 +339,14 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                         continue;
                     }
 
+                    //Valída sí existe relación feriado-dentista. Si es así, deshabilita la relación ya qué prevalece el bloqueo.
+                    Optional <Holiday> holiday = holidayService.getByDate(blockDate);
+                    if(holiday.isPresent()){
+                       dentistHolidayService.VerifyAndDisabled(holiday.get().getId(), idDentist);
+                    }
+
+
+
                     covered = true;
                     break;
                 }
@@ -364,6 +368,12 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                     }
                     if (availability.getStartTime().isAfter(startTimeBlock) && availability.getEndTime().isBefore(endTimeBlock)) {
                         continue;
+                    }
+
+                    //Valída sí existe relación feriado-dentista. Si es así, deshabilita la relación ya qué prevalece el bloqueo.
+                    Optional <Holiday> holiday = holidayService.getByDate(blockDate);
+                    if(holiday.isPresent()){
+                        dentistHolidayService.VerifyAndDisabled(holiday.get().getId(), idDentist);
                     }
 
                     covered = true;
@@ -391,6 +401,12 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
                 if (availability.getStartTime().isAfter(startTimeBlock) || availability.getEndTime().isBefore(endTimeBlock)) {
                     continue;
+                }
+
+                //Valída sí existe relación feriado-dentista. Si es así, deshabilita la relación ya qué prevalece el bloqueo.
+                Optional <Holiday> holiday = holidayService.getByDate(blockDate);
+                if(holiday.isPresent()){
+                    dentistHolidayService.VerifyAndDisabled(holiday.get().getId(), idDentist);
                 }
 
                 covered = true;

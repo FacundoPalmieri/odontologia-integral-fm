@@ -1,6 +1,8 @@
 package com.odontologiaintegralfm.feature.appointment.core.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.appointment.catalogs.model.Holiday;
+import com.odontologiaintegralfm.feature.appointment.catalogs.service.HolidayService;
 import com.odontologiaintegralfm.feature.appointment.core.dto.*;
 import com.odontologiaintegralfm.feature.appointment.core.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointment.catalogs.enums.DayName;
@@ -9,6 +11,7 @@ import com.odontologiaintegralfm.feature.appointment.catalogs.service.ICalendarL
 import com.odontologiaintegralfm.feature.appointment.core.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistCalendarLock;
 import com.odontologiaintegralfm.feature.appointment.core.model.DentistCalendarLockDetail;
+import com.odontologiaintegralfm.feature.appointment.core.model.DentistHoliday;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IDentistCalendarLockRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IConflictManagerService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistAvailabilityService;
@@ -51,6 +54,8 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
     private final IConflictManagerService conflictManagerService;
     private final MessageSource messageSource;
     private final DentistCalendarLockDetailService dentistCalendarLockDetailService;
+    private final DentistHolidayService dentistHolidayService;
+    private final HolidayService holidayService;
 
     public DentistCalendarLockService(
             IDentistService dentistService,
@@ -60,8 +65,8 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             IDentistCalendarLockRepository dentistLockCalendarRepository,
             IConflictManagerService conflictManagerService,
             @Qualifier("messageSource") MessageSource messageSource,
-            DentistCalendarLockDetailService dentistCalendarLockDetailService
-    ) {
+            DentistCalendarLockDetailService dentistCalendarLockDetailService,
+            DentistHolidayService dentistHolidayService, HolidayService holidayService) {
         this.dentistService = dentistService;
         this.calendarLockTypeService = calendarLockTypeService;
         this.dentistAvailabilityService = dentistAvailabilityService;
@@ -70,6 +75,8 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
         this.conflictManagerService = conflictManagerService;
         this.messageSource = messageSource;
         this.dentistCalendarLockDetailService = dentistCalendarLockDetailService;
+        this.dentistHolidayService = dentistHolidayService;
+        this.holidayService = holidayService;
     }
 
     /**
@@ -871,8 +878,20 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             );
         }
 
+
+        //Valída sí existe relación feriado-dentista. Si es así, deshabilita la relación ya qué prevalece el bloqueo.
+        //Busca entre fecha inicio y fin todos los feriados. Verificar uno x uno si hay relación de trabajo y deshabilitarlos.
+        Map<LocalDate, Holiday> holidayList = holidayService.getByDateRange(dentistCalendarLockRequestCreateDTO.getStartDate(), dentistCalendarLockRequestCreateDTO.getEndDate());
+        holidayList.forEach((date, holiday) -> {
+                        dentistHolidayService.VerifyAndDisabled(holiday.getId(), idPerson);
+
+        });
+
+
+
         //Valída que no exista otro bloqueo que sea misma Fecha inicio - fin - recurrencia - dias.
         verifyLockMatchWithLock(idPerson, dentistCalendarLockRequestCreateDTO);
+
 
 
         //Crea el bloqueo.

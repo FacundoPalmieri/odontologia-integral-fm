@@ -11,6 +11,7 @@ import com.odontologiaintegralfm.feature.appointment.core.model.DentistHoliday;
 import com.odontologiaintegralfm.feature.appointment.core.repository.IDentistHolidayRepository;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistAvailabilityService;
 import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IDentistHolidayService;
+import com.odontologiaintegralfm.feature.appointment.core.util.CalendarUtils;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
@@ -57,8 +58,6 @@ public class DentistHolidayService implements IDentistHolidayService {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private IDentistAvailabilityService dentistAvailabilityService;
 
     /**
      * Crea una relación entre un dentista y un feriado específico.
@@ -125,7 +124,7 @@ public class DentistHolidayService implements IDentistHolidayService {
             */
 
             //Valída que la hora de inicio y fin cubra al menos la parametrización de la duración de un turno.
-            if(! dentistAvailabilityService.validateDurationLessThanAppointmentDuration(dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(), dentistHolidayRequestCreateDTO.appointmentDuration())){
+            if(! CalendarUtils.validateDurationLessThanAppointmentDuration(dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(), dentistHolidayRequestCreateDTO.appointmentDuration())){
                 throw new ConflictException("exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.user",null,"exception.dentistHolidayService.create.validateDurationLessThanAppointmentDuration.log", new Object[]{dentistHolidayRequestCreateDTO.startTime(),dentistHolidayRequestCreateDTO.endTime(), dentistHolidayRequestCreateDTO.appointmentDuration(),"DentistAvailabilityService","entityFromDto"},LogLevel.ERROR);
             }
 
@@ -244,6 +243,24 @@ public class DentistHolidayService implements IDentistHolidayService {
                     .orElseThrow(() -> new ConflictException("exception.dentistHolidayService.validateHoliday.user", null, "exception.dentistHolidayService.validateHoliday.log",new Object[]{idDentist ,holiday.get().getId(), "dentistHolidayService", "validateHoliday"}, LogLevel.ERROR));
         }
     }
+
+
+    /**
+     * Verifica si existe relación entre un Holiday y dentista. Caso afirmativo, deshabilita la relación.
+     */
+    @Override
+    public void VerifyAndDisabled(Long idHoliday, Long idDentist) {
+        Optional<DentistHoliday> dentistHoliday = dentistHolidayRepository.findByDentistIdAndHolidayId(idDentist, idHoliday);
+        if (dentistHoliday.isPresent()) {
+            DentistHoliday dh = dentistHoliday.get();
+
+            dh.setEnabled(false);
+            dh.setDisabledAt(LocalDateTime.now());
+            dh.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
+        }
+    }
+
+
 
 
 }

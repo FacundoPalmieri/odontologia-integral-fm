@@ -49,4 +49,10 @@ public interface IDentistHolidayService {
      * @param date : Fecha
      */
     void validateDentistIdAndDate(Long idDentist, LocalDate date);
+
+
+    /**
+     * Verifica si existe relación entre un Holiday y dentista. Caso afirmativo, deshabilita la relación.
+     */
+    void VerifyAndDisabled (Long idHoliday ,Long idDentist);
 }
