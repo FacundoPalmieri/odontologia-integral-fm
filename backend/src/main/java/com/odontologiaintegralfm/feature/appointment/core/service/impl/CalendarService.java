@@ -683,7 +683,7 @@ public class CalendarService implements ICalendarService {
         List<CalendarDentistLock> calendarLocks = new ArrayList<>(List.of());
 
         for(DentistCalendarLock dcl : dentistCalendarLocks){
-            if(dcl.getType().getModes().contains(CalendarLockMode.DAILY_CONTINUOUS)){
+            if(dcl.getType().getModes().contains(CalendarLockMode.DAILY_CONTINUOUS) || dcl.isFullDay()){
                 CalendarDentistLock calendarDentistLock = new CalendarDentistLock(
                         dcl.getId(),
                         dcl.getType().getName()
@@ -691,7 +691,7 @@ public class CalendarService implements ICalendarService {
 
                 calendarLocks.add(calendarDentistLock);
 
-                //Si está de vacaciones o licencia se retorna respuesta. No hay que evaluar más.
+                //Si está de vacaciones, licencia o el bloque es fullDay se retorna respuesta. No hay que evaluar más.
                return CalendarDayResponseDTO.build(
                         idDentist,
                         idDentist,
@@ -710,6 +710,9 @@ public class CalendarService implements ICalendarService {
         if(dentistAvailability == null) {
             return  CalendarDayResponseDTO.build(idDentist,null, date,CalendarDayStatusResponseDTO.build(CalendarDayStatus.NOT_AVAILABLE),null,null,null);
         }
+
+
+
 
         //C. Sabemos que ese día trabaja y no tiene bloqueos.
 
