@@ -1,0 +1,188 @@
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  signal,
+  AfterViewInit,
+  ElementRef,
+  viewChild,
+} from "@angular/core";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatIconModule } from "@angular/material/icon";
+import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
+import {
+  LoginInterface,
+  UserDataInterface,
+} from "../../../domain/interfaces/auth.interface";
+import { LoaderService } from "../../../../../core/services/loader.service";
+import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
+import { ApiResponseInterface } from "../../../../../shared/interfaces/api-response.interface";
+import { Router } from "@angular/router";
+import { Subject, takeUntil } from "rxjs";
+import { ThemeService } from "../../../../../core/services/theme.service";
+import lottie, { AnimationItem } from "lottie-web";
+import { SnackbarService } from "../../../../../shared/services/snackbar.service";
+import { AuthService } from "../../../services/auth.service";
+
+@Component({
+  selector: "app-login",
+  templateUrl: "./login.component.html",
+  styleUrls: ["./login.component.scss"],
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatIconModule,
+    IconsModule,
+  ],
+})
+export class LoginComponent implements AfterViewInit, OnDestroy {
+  private readonly _destroy$ = new Subject<void>();
+  authService = inject(AuthService);
+  loaderService = inject(LoaderService);
+  snackbarService = inject(SnackbarService);
+  router = inject(Router);
+  themeService = inject(ThemeService);
+  loginForm: FormGroup;
+  forgotPasswordForm: FormGroup;
+  hidePassword = signal(true);
+  isForgotPassword = signal(false);
+  resetPasswordSent = signal(false);
+
+  logoPath = computed(() => {
+    const currentTheme = this.themeService.currentTheme();
+    const isDarkTheme = currentTheme.id.includes("dark");
+    return isDarkTheme
+      ? "img/logo_transparent.svg"
+      : "img/logo_inverted_transparent.svg";
+  });
+
+  constructor() {
+    this.loginForm = new FormGroup({
+      username: new FormControl<string>("fmazzota@gmail.com", [
+        Validators.required,
+        Validators.email,
+      ]),
+      password: new FormControl<string>("$FlorMazzotta12345678", [
+        Validators.required,
+      ]),
+      // username: new FormControl<string>("equintans@gmail.com", [
+      //   Validators.required,
+      //   Validators.email,
+      // ]),
+      // password: new FormControl<string>("$EmmaQuintans12345678", [
+      //   Validators.required,
+      // ]),
+      // username: new FormControl<string>(
+      //   "matiasnicolasiglesiasseliman@gmail.com",
+      //   [Validators.required, Validators.email]
+      // ),
+      // password: new FormControl<string>("$MatiasIglesias12345678", [
+      //   Validators.required,
+      // ]),
+    });
+
+    this.forgotPasswordForm = new FormGroup({
+      email: new FormControl<string>("", [
+        Validators.required,
+        Validators.email,
+      ]),
+    });
+  }
+
+  lottieContainer = viewChild<ElementRef>("lottieContainer");
+  private lottieAnimation: AnimationItem | null = null;
+
+  ngAfterViewInit(): void {
+    const container = this.lottieContainer()?.nativeElement;
+    if (container) {
+      this.lottieAnimation = lottie.loadAnimation({
+        container: container,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "img/preventive-health-care.json",
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.lottieAnimation) {
+      this.lottieAnimation.destroy();
+    }
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
+  clickEvent(event: MouseEvent) {
+    this.hidePassword.set(!this.hidePassword());
+    event.stopPropagation();
+  }
+
+  toggleForgotPassword() {
+    this.isForgotPassword.set(!this.isForgotPassword());
+    this.resetPasswordSent.set(false);
+  }
+
+  login() {
+    if (this.loginForm.invalid) return;
+
+    const loginData: LoginInterface = this.loginForm.value;
+    this.loaderService.show();
+    this.authService
+      .login(loginData)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (response: ApiResponseInterface<UserDataInterface>) => {
+          this.authService.doLogin(response.data);
+          this.loaderService.hide();
+          this.router.navigate(["/"]);
+        },
+        error: () => {
+          this.loaderService.hide();
+        },
+      });
+  }
+
+  requestPasswordReset() {
+    if (this.forgotPasswordForm.invalid) return;
+
+    const email: string = this.forgotPasswordForm.value.email;
+    this.loaderService.show();
+
+    this.authService
+      .resetPasswordRequest(email)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (response: ApiResponseInterface<string>) => {
+          this.resetPasswordSent.set(true);
+          this.loaderService.hide();
+          this.snackbarService.openSnackbar(
+            response.message,
+            6000,
+            "center",
+            "bottom",
+            SnackbarTypeEnum.Success,
+          );
+        },
+        error: () => {
+          this.loaderService.hide();
+        },
+      });
+  }
+}

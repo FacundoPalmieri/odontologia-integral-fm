@@ -1,0 +1,493 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler
+    [name]="appointmentId ? 'calendar-event' : 'calendar-plus'"
+    class="text-[var(--mat-sys-primary)]"
+  ></i-tabler>
+  <span>{{ appointmentId ? "Reprogramar cita" : "Nueva cita" }}</span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  @if (idDentist) {
+    <div class="dentist-view">
+      @if (!idPatient) {
+        <mat-form-field appearance="outline" class="patient-search-field">
+          <mat-label>Buscar paciente</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="patientSearchControl"
+            [matAutocomplete]="auto"
+            placeholder="Nombre, apellido o DNI (mín. 3 caracteres)"
+          />
+          @if (selectedPatient()) {
+            <button
+              matSuffix
+              mat-icon-button
+              aria-label="Limpiar"
+              (click)="
+                patientSearchControl.setValue(''); selectedPatient.set(null)
+              "
+              matTooltip="Limpiar búsqueda"
+            >
+              <i-tabler name="xbox-x" class="text-red-500"></i-tabler>
+            </button>
+          }
+
+          <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            [displayWith]="displayPatient.bind(this)"
+            (optionSelected)="onPatientSelected($event.option.value)"
+          >
+            @if (filteredPatients().length === 0 && isSearchValueValid()) {
+              <mat-option disabled>
+                <i-tabler name="user-off" class="no-results-icon"></i-tabler>
+                No se encontraron pacientes
+              </mat-option>
+            }
+            @for (patient of filteredPatients(); track patient.person.id) {
+              <mat-option [value]="patient">
+                <div class="patient-option">
+                  <div class="patient-name">
+                    {{ patient.person.firstName }} {{ patient.person.lastName }}
+                  </div>
+                  <div class="patient-dni">DNI: {{ patient.person.dni }}</div>
+                </div>
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      } @else {
+        <div class="selected-patient-info p-4 rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <i-tabler
+              name="user"
+              class="text-[var(--mat-sys-primary)]"
+            ></i-tabler>
+            <span class="font-medium">Paciente</span>
+          </div>
+          @if (selectedPatient()) {
+            <div class="text-lg font-semibold">
+              {{ selectedPatient()!.person.firstName }}
+              {{ selectedPatient()!.person.lastName }}
+            </div>
+            <div class="text-sm text-[var(--mat-sys-on-surface-variant)]">
+              DNI: {{ selectedPatient()!.person.dni }}
+            </div>
+          }
+        </div>
+      }
+
+      @if (appointmentId) {
+        <mat-form-field appearance="outline" class="w-full mb-2">
+          <mat-label>Motivo de la reprogramación</mat-label>
+          <textarea
+            matInput
+            [formControl]="observationControl"
+            required
+          ></textarea>
+          @if (observationControl.invalid && observationControl.touched) {
+            <mat-error>El motivo de la reprogramación es obligatorio</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      <div class="week-selector-container pb-4">
+        <h3 class="month-year">{{ currentMonthYear }}</h3>
+
+        @if (isLoadingWeek()) {
+          <div class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+          </div>
+        } @else {
+          <div class="week-navigation">
+            <button
+              mat-icon-button
+              (click)="previousWeek()"
+              class="nav-btn"
+              aria-label="Semana anterior"
+            >
+              <i-tabler name="chevron-left"></i-tabler>
+            </button>
+
+            <div class="week-days">
+              @for (day of weekDays(); track day.day) {
+                <button
+                  mat-icon-button
+                  class="day-circle"
+                  [class.selected]="isSelectedDay(day)"
+                  [disabled]="!isDayAvailable(day)"
+                  (click)="selectDay(day)"
+                >
+                  <div class="day-content">
+                    <div class="day-name">{{ getDayName(day.day) }}</div>
+                    <div class="day-number">{{ getDayNumber(day.day) }}</div>
+                  </div>
+                </button>
+              }
+            </div>
+
+            <button
+              mat-icon-button
+              (click)="nextWeek()"
+              class="nav-btn"
+              aria-label="Semana siguiente"
+            >
+              <i-tabler name="chevron-right"></i-tabler>
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (selectedDay()) {
+        <div class="slots-container">
+          <div class="slots-header mb-2">
+            <i-tabler name="clock"></i-tabler>
+            <span class="font-medium">Horarios disponibles</span>
+          </div>
+
+          @if (isLoadingSlots()) {
+            <div class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          } @else if (availableSlots().length === 0) {
+            <div class="no-slots-message">
+              <i-tabler name="calendar-off" class="no-slots-icon"></i-tabler>
+              <p>No hay horarios disponibles para este día</p>
+            </div>
+          } @else {
+            <mat-chip-set aria-label="Horarios disponibles">
+              @for (slot of availableSlots(); track slot.startTime) {
+                <mat-chip-option
+                  [selected]="isSelectedSlot(slot)"
+                  (click)="selectSlot(slot)"
+                >
+                  {{ formatTime(slot.startTime) }} -
+                  {{ formatTime(slot.endTime) }}
+                </mat-chip-option>
+              }
+            </mat-chip-set>
+          }
+        </div>
+
+        @if (selectedSlot()) {
+          <div class="appointment-summary">
+            <h4 class="summary-title">
+              <i-tabler name="receipt"></i-tabler>
+              Resumen del turno
+            </h4>
+            <div class="summary-content">
+              @if (selectedPatient()) {
+                <div class="summary-item">
+                  <i-tabler name="user"></i-tabler>
+                  <span>
+                    {{ selectedPatient()!.person.firstName }}
+                    {{ selectedPatient()!.person.lastName }}
+                  </span>
+                </div>
+              }
+              <div class="summary-item">
+                <i-tabler name="calendar"></i-tabler>
+                <span>{{ getSelectedDayLabel() }}</span>
+              </div>
+              <div class="summary-item">
+                <i-tabler name="clock"></i-tabler>
+                <span>
+                  {{ formatTime(selectedSlot()!.startTime) }} -
+                  {{ formatTime(selectedSlot()!.endTime) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+
+  @if (!idDentist) {
+    <div class="secretary-view">
+      @if (!idPatient) {
+        <mat-form-field appearance="outline" class="patient-search-field mt-2">
+          <mat-label>Buscar paciente</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="patientSearchControl"
+            [matAutocomplete]="autoSecretary"
+            placeholder="Nombre, apellido o DNI (mín. 3 caracteres)"
+          />
+          @if (selectedPatient()) {
+            <button
+              matSuffix
+              mat-icon-button
+              aria-label="Limpiar"
+              (click)="
+                patientSearchControl.setValue(''); selectedPatient.set(null)
+              "
+              matTooltip="Limpiar búsqueda"
+            >
+              <i-tabler name="xbox-x" class="text-red-500"></i-tabler>
+            </button>
+          }
+
+          <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
+
+          <mat-autocomplete
+            #autoSecretary="matAutocomplete"
+            [displayWith]="displayPatient.bind(this)"
+            (optionSelected)="onPatientSelected($event.option.value)"
+          >
+            @if (filteredPatients().length === 0 && isSearchValueValid()) {
+              <mat-option disabled>
+                <i-tabler name="user-off" class="no-results-icon"></i-tabler>
+                No se encontraron pacientes
+              </mat-option>
+            }
+            @for (patient of filteredPatients(); track patient.person.id) {
+              <mat-option [value]="patient">
+                <div class="patient-option">
+                  <div class="patient-name">
+                    {{ patient.person.firstName }} {{ patient.person.lastName }}
+                  </div>
+                  <div class="patient-dni">DNI: {{ patient.person.dni }}</div>
+                </div>
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      } @else {
+        <div class="selected-patient-info p-4 mt-2 rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <i-tabler
+              name="user"
+              class="text-[var(--mat-sys-primary)]"
+            ></i-tabler>
+            <span class="font-medium">Paciente</span>
+          </div>
+          @if (selectedPatient()) {
+            <div class="text-lg font-semibold">
+              {{ selectedPatient()!.person.firstName }}
+              {{ selectedPatient()!.person.lastName }}
+            </div>
+            <div class="text-sm text-[var(--mat-sys-on-surface-variant)]">
+              DNI: {{ selectedPatient()!.person.dni }}
+            </div>
+          }
+        </div>
+      }
+
+      @if (appointmentId) {
+        <mat-form-field appearance="outline" class="w-full mb-2">
+          <mat-label>Motivo de la reprogramación</mat-label>
+          <textarea
+            matInput
+            [formControl]="observationControl"
+            required
+          ></textarea>
+          @if (observationControl.invalid && observationControl.touched) {
+            <mat-error>El motivo de la reprogramación es obligatorio</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      <div class="specialty-selector-container p-4 mb-4">
+        <h3 class="section-title mb-2">
+          <i-tabler name="stethoscope"></i-tabler>
+          Seleccionar especialidad
+        </h3>
+
+        @if (specialtyGroups().length > 0) {
+          <mat-chip-set aria-label="Especialidades">
+            @for (group of specialtyGroups(); track group.specialtyName) {
+              <mat-chip-option
+                [selected]="selectedSpecialty() === group.specialtyName"
+                (click)="onSpecialtySelected(group.specialtyName)"
+              >
+                {{ group.specialtyName }}
+              </mat-chip-option>
+            }
+          </mat-chip-set>
+        } @else {
+          <div class="no-data-message">
+            <i-tabler name="alert-circle" class="no-data-icon"></i-tabler>
+            <p>No hay especialidades disponibles</p>
+          </div>
+        }
+      </div>
+
+      @if (selectedSpecialty()) {
+        <div class="week-selector-container mb-4">
+          <h3 class="month-year">{{ currentMonthYear }}</h3>
+
+          @if (isLoadingDentistWeeks()) {
+            <div class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p class="loading-text">Cargando disponibilidad...</p>
+            </div>
+          } @else {
+            <div class="week-navigation">
+              <button
+                mat-icon-button
+                (click)="previousWeek()"
+                class="nav-btn"
+                aria-label="Semana anterior"
+              >
+                <i-tabler name="chevron-left"></i-tabler>
+              </button>
+
+              <div class="week-days">
+                @for (day of weekDays(); track day.day) {
+                  <button
+                    mat-icon-button
+                    class="day-circle"
+                    [class.selected]="isSelectedDay(day)"
+                    [disabled]="!isDayAvailableForSecretary(day)"
+                    (click)="selectDayForSecretary(day)"
+                  >
+                    <div class="day-content">
+                      <div class="day-name">{{ getDayName(day.day) }}</div>
+                      <div class="day-number">{{ getDayNumber(day.day) }}</div>
+                    </div>
+                  </button>
+                }
+              </div>
+
+              <button
+                mat-icon-button
+                (click)="nextWeek()"
+                class="nav-btn"
+                aria-label="Semana siguiente"
+              >
+                <i-tabler name="chevron-right"></i-tabler>
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (selectedDay()) {
+          <div class="dentists-container p-4 mb-4">
+            <div class="section-title mb-2">
+              <i-tabler name="user-check"></i-tabler>
+              <span class="font-medium">Profesionales disponibles</span>
+            </div>
+
+            @if (availableDentistsForDay().length === 0) {
+              <div class="no-dentists-message">
+                <i-tabler name="user-off" class="no-dentists-icon"></i-tabler>
+                <p>No hay profesionales disponibles para este día</p>
+              </div>
+            } @else {
+              <mat-chip-set aria-label="Profesionales disponibles">
+                @for (
+                  dentist of availableDentistsForDay();
+                  track dentist.person.id
+                ) {
+                  <mat-chip-option
+                    [selected]="isSelectedDentist(dentist)"
+                    (click)="onDentistSelected(dentist)"
+                  >
+                    {{ getDentistFullName(dentist) }}
+                  </mat-chip-option>
+                }
+              </mat-chip-set>
+            }
+          </div>
+
+          @if (selectedDentist()) {
+            <div class="slots-container">
+              <div class="slots-header mb-2">
+                <i-tabler name="clock"></i-tabler>
+                <span class="font-medium">Horarios disponibles</span>
+              </div>
+
+              @if (availableSlots().length === 0) {
+                <div class="no-slots-message">
+                  <i-tabler
+                    name="calendar-off"
+                    class="no-slots-icon"
+                  ></i-tabler>
+                  <p>No hay horarios disponibles</p>
+                </div>
+              } @else {
+                <mat-chip-set aria-label="Horarios disponibles">
+                  @for (slot of availableSlots(); track slot.startTime) {
+                    <mat-chip-option
+                      [selected]="isSelectedSlot(slot)"
+                      (click)="selectSlot(slot)"
+                    >
+                      {{ formatTime(slot.startTime) }} -
+                      {{ formatTime(slot.endTime) }}
+                    </mat-chip-option>
+                  }
+                </mat-chip-set>
+              }
+            </div>
+
+            @if (selectedSlot()) {
+              <div class="appointment-summary">
+                <h4 class="summary-title">
+                  <i-tabler name="receipt"></i-tabler>
+                  Resumen del turno
+                </h4>
+                <div class="summary-content">
+                  @if (selectedPatient()) {
+                    <div class="summary-item">
+                      <i-tabler name="user"></i-tabler>
+                      <span>
+                        {{ selectedPatient()!.person.firstName }}
+                        {{ selectedPatient()!.person.lastName }}
+                      </span>
+                    </div>
+                  }
+                  <div class="summary-item">
+                    <i-tabler name="user-check"></i-tabler>
+                    <span>{{ getDentistFullName(selectedDentist()!) }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <i-tabler name="calendar"></i-tabler>
+                    <span>{{ getSelectedDayLabel() }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <i-tabler name="clock"></i-tabler>
+                    <span>
+                      {{ formatTime(selectedSlot()!.startTime) }} -
+                      {{ formatTime(selectedSlot()!.endTime) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+        }
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="gap-2">
+  <button mat-button (click)="onCancel()" [disabled]="isSaving()">
+    Cancelar
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="onSave()"
+    [disabled]="!canSave() || isSaving()"
+  >
+    <div class="flex items-center gap-2">
+      @if (isSaving()) {
+        <mat-spinner diameter="20"></mat-spinner>
+      }
+      <span>{{
+        isSaving()
+          ? appointmentId
+            ? "Reprogramando..."
+            : "Guardando..."
+          : appointmentId
+            ? "Reprogramar"
+            : "Agendar"
+      }}</span>
+    </div>
+  </button>
+</mat-dialog-actions>

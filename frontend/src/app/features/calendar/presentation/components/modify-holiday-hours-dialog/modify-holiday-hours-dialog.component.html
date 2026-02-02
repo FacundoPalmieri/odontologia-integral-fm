@@ -1,0 +1,114 @@
+<h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+  <i-tabler name="clock-edit" class="text-[var(--mat-sys-primary)]"></i-tabler>
+  <span>Modificar rango horario</span>
+</h2>
+
+<mat-dialog-content class="!p-6 !pt-4">
+  <form [formGroup]="workForm" class="flex flex-col gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+      <div class="col-span-1">
+        <label class="block text-sm font-medium mb-2">Hora de inicio</label>
+        <div formGroupName="startTime" class="flex gap-2">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Hora</mat-label>
+            <mat-select formControlName="hour">
+              @for (hour of hours; track trackByValue($index, hour)) {
+                <mat-option [value]="hour">{{
+                  hour.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Min</mat-label>
+            <mat-select formControlName="minute">
+              @for (minute of minutes; track trackByValue($index, minute)) {
+                <mat-option [value]="minute">{{
+                  minute.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="block text-sm font-medium mb-2">Hora de fin</label>
+        <div formGroupName="endTime" class="flex gap-2">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Hora</mat-label>
+            <mat-select formControlName="hour">
+              @for (hour of hours; track trackByValue($index, hour)) {
+                <mat-option [value]="hour">{{
+                  hour.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Min</mat-label>
+            <mat-select formControlName="minute">
+              @for (minute of minutes; track trackByValue($index, minute)) {
+                <mat-option [value]="minute">{{
+                  minute.toString().padStart(2, "0")
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    @if (
+      workForm.get("startTime.hour")?.hasError("required") ||
+      workForm.get("startTime.minute")?.hasError("required")
+    ) {
+      <div class="text-red-500 text-sm mt-2">
+        *La hora de inicio es requerida
+      </div>
+    }
+    @if (
+      workForm.get("endTime.hour")?.hasError("required") ||
+      workForm.get("endTime.minute")?.hasError("required")
+    ) {
+      <div class="text-red-500 text-sm mt-2">*La hora de fin es requerida</div>
+    }
+
+    <div
+      class="flex items-start gap-3 p-4 rounded-lg bg-[var(--mat-sys-primary-container)] text-[var(--mat-sys-on-primary-container)]"
+    >
+      <i-tabler
+        name="info-circle"
+        class="w-5 h-5 flex-shrink-0 mt-0.5"
+      ></i-tabler>
+      <p class="text-sm leading-relaxed">
+        Modifica únicamente el rango horario en el que trabajarás durante este
+        feriado. La duración de citas y descansos se mantendrán según tu
+        configuración original.
+      </p>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions class="!p-4 !flex !justify-end gap-2">
+  <button mat-button (click)="cancel()" [disabled]="isSaving">Cancelar</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="updateAvailability()"
+    [disabled]="workForm.invalid || isSaving"
+    class="!flex items-center gap-2"
+  >
+    @if (isSaving) {
+      <div class="flex items-center gap-2">
+        <mat-spinner diameter="20" class="!w-5 !h-5"></mat-spinner>
+        <span>Guardando...</span>
+      </div>
+    } @else {
+      <div class="flex items-center gap-2">
+        <i-tabler name="device-floppy" class="w-4 h-4"></i-tabler>
+        <span>Guardar Cambios</span>
+      </div>
+    }
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,168 @@
+<div class="login-container">
+  <!-- Panel Decorativo Izquierdo -->
+  <div class="branding-panel">
+    <!-- Contenido después (frente) -->
+    <div class="branding-content">
+      <div class="lottie-container" #lottieContainer></div>
+      <h1 class="app-name">DentalWise</h1>
+      <p class="tagline">Gestión dental inteligente</p>
+    </div>
+
+    <!-- Desarrolladores -->
+    <div class="developers-section-branding">
+      <span class="developers-text">Desarrollado por</span>
+      <a
+        href="https://astrowise.com.ar"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="developers-link"
+      >
+        <img
+          src="img/logo_symbol_transparent.svg"
+          alt="Astrowise Logo"
+          class="developers-logo"
+        />
+        <span class="developers-name">Astrowise</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Panel de Formulario Derecho -->
+  <div class="form-panel">
+    <div class="form-container">
+      <!-- Login Form -->
+      @if (!isForgotPassword()) {
+        <div class="form-header">
+          <h2 class="form-title">Bienvenido/a</h2>
+          <p class="form-subtitle">Ingresa tus credenciales para continuar</p>
+        </div>
+
+        <form [formGroup]="loginForm" class="login-form">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Correo electrónico</mat-label>
+            <input
+              matInput
+              placeholder="tu_mail@ejemplo.com"
+              formControlName="username"
+              type="email"
+            />
+            <mat-icon matPrefix class="field-icon">email</mat-icon>
+            @if (loginForm.get("username")?.hasError("email")) {
+              <mat-error>Ingresa un correo válido</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Contraseña</mat-label>
+            <input
+              matInput
+              [type]="hidePassword() ? 'password' : 'text'"
+              formControlName="password"
+            />
+            <mat-icon matPrefix class="field-icon">lock</mat-icon>
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="clickEvent($event)"
+              type="button"
+              class="visibility-toggle"
+            >
+              <mat-icon>{{
+                hidePassword() ? "visibility_off" : "visibility"
+              }}</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <div class="forgot-password-link">
+            <a
+              href=""
+              class="link-text"
+              (click)="toggleForgotPassword(); $event.preventDefault()"
+              >¿Olvidaste tu contraseña?</a
+            >
+          </div>
+
+          <button
+            mat-flat-button
+            class="submit-button"
+            (click)="login()"
+            [disabled]="!loginForm.valid"
+          >
+            Iniciar Sesión
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <span class="footer-text">¿No tienes una cuenta?</span>
+          <span class="footer-link">Contacta a un administrador</span>
+        </div>
+      }
+
+      <!-- Forgot Password Form -->
+      @if (isForgotPassword() && !resetPasswordSent()) {
+        <div class="form-header">
+          <h2 class="form-title">Recuperar contraseña</h2>
+          <p class="form-subtitle">
+            Ingresa tu correo y te enviaremos un enlace de recuperación
+          </p>
+        </div>
+
+        <form [formGroup]="forgotPasswordForm" class="login-form">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Correo electrónico</mat-label>
+            <input
+              matInput
+              placeholder="tu_mail@ejemplo.com"
+              formControlName="email"
+              type="email"
+            />
+            <mat-icon matPrefix class="field-icon">email</mat-icon>
+            @if (forgotPasswordForm.get("email")?.hasError("email")) {
+              <mat-error>Ingresa un correo válido</mat-error>
+            }
+          </mat-form-field>
+
+          <button
+            mat-flat-button
+            class="submit-button"
+            (click)="requestPasswordReset()"
+            [disabled]="!forgotPasswordForm.valid"
+          >
+            Enviar enlace de recuperación
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <a
+            href=""
+            class="back-link"
+            (click)="toggleForgotPassword(); $event.preventDefault()"
+          >
+            <mat-icon class="back-icon">arrow_back</mat-icon>
+            Volver al inicio de sesión
+          </a>
+        </div>
+      }
+
+      <!-- Password Reset Sent -->
+      @if (resetPasswordSent()) {
+        <div class="success-message">
+          <mat-icon class="success-icon">check_circle</mat-icon>
+          <h2 class="success-title">¡Correo enviado!</h2>
+          <p class="success-text">
+            Revisa tu bandeja de entrada y sigue las instrucciones para
+            recuperar tu contraseña.
+          </p>
+          <a
+            href=""
+            class="back-link"
+            (click)="toggleForgotPassword(); $event.preventDefault()"
+          >
+            <mat-icon class="back-icon">arrow_back</mat-icon>
+            Volver al inicio de sesión
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</div>

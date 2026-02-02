@@ -1,0 +1,131 @@
+<div class="holiday-detail-dialog">
+  <h2 mat-dialog-title class="!p-4 !flex items-center gap-2">
+    <i-tabler
+      name="calendar-event"
+      class="text-[var(--mat-sys-primary)]"
+    ></i-tabler>
+    <span>Detalle del Feriado</span>
+  </h2>
+
+  <mat-dialog-content class="!p-6 !pt-0">
+    <div class="grid grid-cols-2 gap-x-6 gap-y-4 pb-4">
+      <div class="col-span-2">
+        <div
+          class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+        >
+          <i-tabler
+            name="calendar"
+            class="w-4 h-4 text-[var(--mat-sys-primary)]"
+          ></i-tabler>
+          <span>Fecha</span>
+        </div>
+        <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
+          {{ formatDate(date) }}
+        </div>
+      </div>
+
+      <div class="col-span-2">
+        <div
+          class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+        >
+          <i-tabler
+            name="tag"
+            class="w-4 h-4 text-[var(--mat-sys-primary)]"
+          ></i-tabler>
+          <span>Feriado</span>
+        </div>
+        <div class="text-lg font-semibold text-[var(--mat-sys-on-surface)]">
+          {{ holiday.name }}
+        </div>
+      </div>
+
+      <div>
+        <div
+          class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+        >
+          <i-tabler
+            name="category"
+            class="w-4 h-4 text-[var(--mat-sys-secondary)]"
+          ></i-tabler>
+          <span>Tipo</span>
+        </div>
+        <div class="text-base font-medium">
+          <span
+            class="inline-flex items-center px-3 py-1 rounded-full text-white text-sm font-medium bg-[var(--mat-sys-primary)]"
+          >
+            {{ holiday.type.label }}
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <div
+          class="text-xs uppercase tracking-wide text-[var(--mat-sys-on-surface-variant)] mb-2 flex items-center gap-2"
+        >
+          <i-tabler
+            name="info-circle"
+            class="w-4 h-4 text-[var(--mat-sys-tertiary)]"
+          ></i-tabler>
+          <span>Estado</span>
+        </div>
+        <div class="text-base font-medium text-[var(--mat-sys-on-surface)]">
+          {{ isWorking ? "Trabajando" : "No trabajando" }}
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="flex items-start gap-3 p-4 rounded-lg bg-[var(--mat-sys-primary-container)] text-[var(--mat-sys-on-primary-container)]"
+    >
+      <i-tabler
+        name="info-circle"
+        class="w-5 h-5 flex-shrink-0 mt-0.5"
+      ></i-tabler>
+      <p class="text-sm leading-relaxed">
+        @if (isWorking) {
+          Ya estás trabajando en este feriado. Puedes modificar el rango horario
+          o dejar de trabajar este día.
+        } @else {
+          Este día está marcado como feriado. Si deseas trabajar igualmente,
+          utiliza el botón "Trabajar este día" para configurar tu horario.
+        }
+      </p>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="!p-4 !flex !justify-end gap-2">
+    <button mat-button [mat-dialog-close]="null">Cerrar</button>
+
+    @if (isWorking) {
+      <button mat-stroked-button color="warn" (click)="stopWorkingOnHoliday()">
+        <div class="flex items-center gap-2">
+          <i-tabler name="x"></i-tabler>
+          <span>No trabajar este día</span>
+        </div>
+      </button>
+      @if (viewType === "week" || viewType === "day") {
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="openModifyHoursDialog()"
+        >
+          <div class="flex items-center gap-2">
+            <i-tabler name="clock"></i-tabler>
+            <span>Modificar rango horario</span>
+          </div>
+        </button>
+      }
+    } @else {
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="openWorkOnHolidayDialog()"
+      >
+        <div class="flex items-center gap-2">
+          <i-tabler name="briefcase"></i-tabler>
+          <span>Trabajar este día</span>
+        </div>
+      </button>
+    }
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,5 @@
+export enum HolidayTypeEnum {
+  IMMOVABLE = "IMMOVABLE",
+  MOVEABLE = "MOVEABLE",
+  LONG_WEEKEND = "LONG_WEEKEND",
+}
