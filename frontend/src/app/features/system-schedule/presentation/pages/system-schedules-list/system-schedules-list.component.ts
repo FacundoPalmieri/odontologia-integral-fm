@@ -27,10 +27,11 @@ import { SnackbarService } from "../../../../../shared/services/snackbar.service
 import { SystemScheduleService } from "../../../services/system-schedule.service";
 import { SystemScheduleInterface } from "../../../domain/interfaces/system-schedule.interface";
 import { SystemScheduleUpdateDto } from "../../../domain/dtos/system-schedule.dto";
+import { PageToolbarComponent } from "../../../../../shared/components/page-toolbar/page-toolbar.component";
 
 @Component({
-  selector: "app-schedules-list",
-  templateUrl: "./schedules-list.component.html",
+  selector: "app-system-schedules-list",
+  templateUrl: "./system-schedules-list.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -46,6 +47,7 @@ import { SystemScheduleUpdateDto } from "../../../domain/dtos/system-schedule.dt
     MatPaginatorModule,
     MatTooltipModule,
     MatDialogModule,
+    PageToolbarComponent,
   ],
 })
 export class SystemSchedulesListComponent implements OnDestroy {

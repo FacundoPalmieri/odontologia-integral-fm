@@ -40,7 +40,6 @@ import { AppointmentsConflictDialogComponent } from "../../../../../shared/compo
 @Component({
   selector: "app-dentist-availability",
   templateUrl: "./dentist-availability.component.html",
-  styleUrl: "./dentist-availability.component.scss",
   standalone: true,
   imports: [
     CommonModule,
