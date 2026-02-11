@@ -10,15 +10,17 @@ import { Router } from "@angular/router";
 import { RefreshTokenDataDto } from "../../features/auth/domain/dtos/auth.dto";
 import { AuthService } from "../../features/auth/services/auth.service";
 import { UserDataInterface } from "../../features/auth/domain/interfaces/auth.interface";
+import { LocalStorageService } from "../../shared/services/local-storage.service";
 
 export const tokenInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn,
 ) => {
   const authService = inject(AuthService);
+  const localStorageService = inject(LocalStorageService);
   const router = inject(Router);
-  const token = authService.getJwtToken();
-  const userData: UserDataInterface | null = authService.getUserData();
+  const token = localStorageService.getJwtToken();
+  const userData: UserDataInterface | null = localStorageService.getUserData();
 
   const excludedUrls = [
     "/auth/login",
@@ -67,7 +69,7 @@ export const tokenInterceptor: HttpInterceptorFn = (
             }),
             catchError((refreshError) => {
               authService.refreshTokenInProgress = false;
-              authService.dologout();
+              localStorageService.doLogout();
               router.navigateByUrl("/login");
               return throwError(() => refreshError);
             }),

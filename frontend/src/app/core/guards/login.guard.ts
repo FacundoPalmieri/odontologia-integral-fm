@@ -1,17 +1,16 @@
 import { inject, Injectable } from "@angular/core";
 import { CanActivate, Router } from "@angular/router";
-import { AuthService } from "../../features/auth/services/auth.service";
+import { LocalStorageService } from "../../shared/services/local-storage.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class LoginGuard implements CanActivate {
-  authService = inject(AuthService);
-  router = inject(Router);
-  constructor() {}
+  private readonly localStorageService = inject(LocalStorageService);
+  private readonly router = inject(Router);
 
   canActivate(): boolean {
-    if (this.authService.isLoggedIn()) {
+    if (this.localStorageService.isLoggedIn()) {
       this.router.navigate(["/"]);
       return false;
     }

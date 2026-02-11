@@ -34,6 +34,7 @@ import { ThemeService } from "../../../../../core/services/theme.service";
 import lottie, { AnimationItem } from "lottie-web";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { AuthService } from "../../../services/auth.service";
+import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 @Component({
   selector: "app-login",
@@ -53,11 +54,12 @@ import { AuthService } from "../../../services/auth.service";
 })
 export class LoginComponent implements AfterViewInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
-  authService = inject(AuthService);
-  loaderService = inject(LoaderService);
-  snackbarService = inject(SnackbarService);
-  router = inject(Router);
-  themeService = inject(ThemeService);
+  private readonly authService = inject(AuthService);
+  private readonly localStorageService = inject(LocalStorageService);
+  private readonly loaderService = inject(LoaderService);
+  private readonly snackbarService = inject(SnackbarService);
+  private readonly router = inject(Router);
+  private readonly themeService = inject(ThemeService);
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   hidePassword = signal(true);
@@ -149,7 +151,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (response: ApiResponseInterface<UserDataInterface>) => {
-          this.authService.doLogin(response.data);
+          this.localStorageService.doLogin(response.data);
           this.loaderService.hide();
           this.router.navigate(["/"]);
         },

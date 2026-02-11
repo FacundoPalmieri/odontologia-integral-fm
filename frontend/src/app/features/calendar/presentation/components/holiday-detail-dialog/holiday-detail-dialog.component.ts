@@ -10,13 +10,13 @@ import { MatDividerModule } from "@angular/material/divider";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { HolidayInterface } from "../../../../holidays/domain/interfaces/holiday.interface";
-import { AuthService } from "../../../../auth/services/auth.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { HolidayUpdateAvailabilityDto } from "../../../domain/dtos/calendar-holiday.dto";
 import { DentistHolidayService } from "../../../services/dentist-holiday.service";
 import { WorkOnHolidayDialogComponent } from "../work-on-holiday-dialog/work-on-holiday-dialog.component";
 import { ModifyHolidayHoursDialogComponent } from "../modify-holiday-hours-dialog/modify-holiday-hours-dialog.component";
+import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 @Component({
   selector: "app-holiday-detail-dialog",
@@ -38,7 +38,7 @@ export class HolidayDetailDialogComponent {
   viewType: "month" | "week" | "day" = "month";
   private dialog = inject(MatDialog);
   private readonly dentistHolidayService = inject(DentistHolidayService);
-  private readonly authService = inject(AuthService);
+  private readonly localStorageService = inject(LocalStorageService);
   private readonly snackbarService = inject(SnackbarService);
 
   constructor(
@@ -119,7 +119,7 @@ export class HolidayDetailDialogComponent {
    * Stop working on this holiday
    */
   stopWorkingOnHoliday(): void {
-    const userData = this.authService.getUserData();
+    const userData = this.localStorageService.getUserData();
     if (!userData) {
       this.snackbarService.openSnackbar(
         "Error: Usuario no autenticado",

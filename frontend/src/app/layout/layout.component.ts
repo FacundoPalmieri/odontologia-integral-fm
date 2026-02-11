@@ -31,6 +31,7 @@ import { AccessControlService } from "../core/services/access-control.service";
 import { AuthService } from "../features/auth/services/auth.service";
 import { UserDataInterface } from "../features/auth/domain/interfaces/auth.interface";
 import { PermissionInterface } from "../features/roles/domain/interfaces/permission.interface";
+import { LocalStorageService } from "../shared/services/local-storage.service";
 
 @Component({
   selector: "app-layout",
@@ -59,6 +60,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   private readonly personDataService = inject(PersonDataService);
   private readonly accessControlService = inject(AccessControlService);
   private readonly router = inject(Router);
+  private readonly localStorageService = inject(LocalStorageService);
 
   fullScreenService = inject(FullscreenService);
   currentTheme = computed(() => this.themeService.currentTheme());
@@ -68,7 +70,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
       ? "img/odontologia_fm.jpg"
       : "img/odontologia_fm.jpg";
   });
-  userData: UserDataInterface | null = this.authService.getUserData();
+  userData: UserDataInterface | null = this.localStorageService.getUserData();
   permissions: string[] = [];
   private menuItems = PermissionFactory.createPermissions();
   filteredMenuItems: MenuItemInterface[] = [];
@@ -84,7 +86,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   };
 
   constructor() {
-    if (this.authService.isLoggedIn()) {
+    if (this.localStorageService.isLoggedIn()) {
       this.accessControlService.initializePermissions();
     }
   }
@@ -143,13 +145,13 @@ export class LayoutComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    const logoutData = this.authService.getLogoutData();
+    const logoutData = this.localStorageService.getLogoutData();
     this.authService
       .logout(logoutData!)
       .pipe(takeUntil(this._destroy$))
       .subscribe((response: ApiResponseInterface<string>) => {
         if (response.success) {
-          this.authService.dologout();
+          this.localStorageService.doLogout();
           this.router.navigate(["/login"]);
         }
       });

@@ -23,7 +23,6 @@ import { DentistDto } from "../../../domain/dtos/dentist.dto";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CalendarService } from "../../../services/calendar.service";
 import { AppointmentService } from "../../../../appointments/services/appointment.service";
-import { AuthService } from "../../../../auth/services/auth.service";
 import { DentistService } from "../../../services/dentist.service";
 import { PatientSerializer } from "../../../../patients/domain/serializers/patient.serializer";
 import { PatientDto } from "../../../../patients/domain/dtos/patient.dto";
@@ -38,6 +37,7 @@ import {
   PagedDataInterface,
 } from "../../../../../shared/interfaces/api-response.interface";
 import { PatientInterface } from "../../../../patients/domain/interfaces/patient.interface";
+import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 interface SpecialtyGroup {
   specialtyName: string;
@@ -81,7 +81,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
   private readonly calendarService = inject(CalendarService);
   private readonly patientService = inject(PatientService);
   private readonly appointmentService = inject(AppointmentService);
-  private readonly authService = inject(AuthService);
+  private readonly localStorageService = inject(LocalStorageService);
   private readonly dentistService = inject(DentistService);
   private readonly patientSerializer = new PatientSerializer();
 
@@ -137,7 +137,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const userRole = this.authService.getUserRole();
+    const userRole = this.localStorageService.getUserRole();
 
     this.loadPatients();
 
@@ -557,7 +557,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
         apartment: dentistDto.address.apartment,
       };
     } else {
-      const userData = this.authService.getUserData();
+      const userData = this.localStorageService.getUserData();
       if (!userData || !userData.person) {
         console.error("No se pudo obtener la información del usuario");
         return;

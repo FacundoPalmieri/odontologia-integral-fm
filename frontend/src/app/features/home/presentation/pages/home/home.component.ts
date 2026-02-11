@@ -17,7 +17,6 @@ import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
-import { AuthService } from "../../../../auth/services/auth.service";
 import { UserDataInterface } from "../../../../auth/domain/interfaces/auth.interface";
 import { DentistAvailabilityResponseInterface } from "../../../../dentist-availability/domain/interfaces/dentist-availability.interface";
 import {
@@ -28,6 +27,7 @@ import { DentistAvailabilityService } from "../../../../dentist-availability/ser
 import { DayEnum } from "../../../../../shared/utils/enums/day.enum";
 import { CalendarService } from "../../../../calendar/services/calendar.service";
 import { SlotStatusEnum } from "../../../../calendar/utils/enums/slot-status.enum";
+import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 @Component({
   selector: "app-home",
@@ -47,7 +47,7 @@ import { SlotStatusEnum } from "../../../../calendar/utils/enums/slot-status.enu
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
-  private readonly authService = inject(AuthService);
+  private readonly localStorageService = inject(LocalStorageService);
   private readonly dentistAvailabilityService = inject(
     DentistAvailabilityService,
   );
@@ -138,7 +138,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userData.set(this.authService.getUserData());
+    this.userData.set(this.localStorageService.getUserData());
     this.updateTime();
     setInterval(() => this.updateTime(), 60000);
   }
@@ -167,7 +167,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   shouldShowDentistInfo(): boolean {
-    return this.authService.isDentist();
+    return this.localStorageService.isDentist();
   }
 
   getWeeklyDays() {

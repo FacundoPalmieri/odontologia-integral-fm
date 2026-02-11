@@ -32,6 +32,7 @@ import { AuthService } from "../../../../auth/services/auth.service";
 import { AttachedFileComponent } from "../../../../../shared/components/attached-file/attached-file.component";
 import { UserService } from "../../../services/user.service";
 import { UserInterface } from "../../../domain/interfaces/user.interface";
+import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 @Component({
   selector: "app-user-profile",
@@ -61,6 +62,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly personDataService = inject(PersonDataService);
   private readonly dialog = inject(MatDialog);
+  private readonly localStorageService = inject(LocalStorageService);
 
   @ViewChild("inputAvatar") inputAvatar!: ElementRef<HTMLInputElement>;
 
@@ -114,7 +116,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userId.set(this.authService.getUserData()!.idUser);
+    this.userId.set(this.localStorageService.getUserData()!.idUser);
   }
 
   ngOnDestroy(): void {

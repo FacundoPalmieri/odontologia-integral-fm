@@ -18,11 +18,11 @@ import {
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { HolidayInterface } from "../../../../holidays/domain/interfaces/holiday.interface";
-import { AuthService } from "../../../../auth/services/auth.service";
 import { DentistHolidayService } from "../../../services/dentist-holiday.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { HolidayWorkConfigDto } from "../../../domain/dtos/calendar-holiday.dto";
+import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 @Component({
   selector: "app-work-on-holiday-dialog",
@@ -52,7 +52,7 @@ export class WorkOnHolidayDialogComponent implements OnInit {
   durations = [15, 30, 45, 60];
 
   private fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
+  private readonly localStorageService = inject(LocalStorageService);
   private readonly dentistHolidayService = inject(DentistHolidayService);
   private readonly snackbarService = inject(SnackbarService);
 
@@ -147,7 +147,7 @@ export class WorkOnHolidayDialogComponent implements OnInit {
       return;
     }
 
-    const userData = this.authService.getUserData();
+    const userData = this.localStorageService.getUserData();
     if (!userData) {
       this.snackbarService.openSnackbar(
         "Error: Usuario no autenticado",

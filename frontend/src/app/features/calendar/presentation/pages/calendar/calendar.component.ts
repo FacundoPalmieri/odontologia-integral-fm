@@ -37,7 +37,6 @@ import { DentistService } from "../../../services/dentist.service";
 import { AppointmentService } from "../../../../appointments/services/appointment.service";
 import { DentistDto } from "../../../domain/dtos/dentist.dto";
 import { CalendarService } from "../../../services/calendar.service";
-import { AuthService } from "../../../../auth/services/auth.service";
 import {
   CalendarDayInterface,
   CalendarMonthDayInterface,
@@ -57,6 +56,7 @@ import { AppointmentDetailDialogComponent } from "../../components/appointment-d
 import { CalendarMonthDayStatusEnum } from "../../../utils/enums/calendar-month-day-status.enum";
 import { SlotStatusEnum } from "../../../utils/enums/slot-status.enum";
 import { PatientInterface } from "../../../../patients/domain/interfaces/patient.interface";
+import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 export type CalendarView = "day" | "week" | "month";
 
@@ -100,8 +100,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly snackbarService = inject(SnackbarService);
   private readonly dentistService = inject(DentistService);
   private readonly appointmentService = inject(AppointmentService);
-  readonly authService = inject(AuthService);
-
+  readonly localStorageService = inject(LocalStorageService);
   dialog = inject(MatDialog);
   loading$ = this.loaderService.loading$;
 
@@ -167,15 +166,15 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.personId = this.authService.getUserData()?.person.id || 0;
+    this.personId = this.localStorageService.getUserData()?.person.id || 0;
     this.updateSelectedDate();
 
-    if (this.authService.isSecretary()) {
+    if (this.localStorageService.isSecretary()) {
       this.sidebarCollapsed = true;
       this.showDentistSelection.set(true);
       this.loadDentists();
       this.loadSidebarDentists();
-    } else if (this.authService.isAdministrator()) {
+    } else if (this.localStorageService.isAdministrator()) {
       this.loadSidebarDentists();
       this.selectedSidebarDentistId.set(this.personId);
 
@@ -1129,7 +1128,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   createAppointment() {
-    const userRole = this.authService.getUserRole();
+    const userRole = this.localStorageService.getUserRole();
 
     const dialogRef = this.dialog.open(CreateAppointmentDialogComponent, {
       width: "800px",
@@ -1403,7 +1402,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.selectedSidebarDentistId.set(dentist.person.id);
     this.personId = dentist.person.id;
 
-    if (this.authService.isSecretary()) {
+    if (this.localStorageService.isSecretary()) {
       this.selectedDentist.set(dentist);
       this.showDentistSelection.set(false);
     }
@@ -1424,7 +1423,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    * Maneja la selección del calendario del usuario logueado ("Yo")
    */
   onMyCalendarSelect(): void {
-    const userId = this.authService.getUserData()?.person.id;
+    const userId = this.localStorageService.getUserData()?.person.id;
 
     if (!userId) {
       console.error("No se pudo obtener el ID del usuario logueado");
