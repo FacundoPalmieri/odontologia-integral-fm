@@ -7,11 +7,28 @@ import { RoleInterface } from "../domain/interfaces/role.interface";
 import { RoleSerializer } from "../domain/serializers/role.serializer";
 import { RoleDto } from "../domain/dtos/role.dto";
 
+/**
+ * Service for managing user roles.
+ *
+ * Roles group permissions together and are assigned to users to define
+ * their access level in the system. This service handles:
+ * - CRUD operations for roles
+ * - Retrieving roles with their associated permissions
+ * - Data serialization between DTOs and domain models
+ */
 @Injectable({ providedIn: "root" })
 export class RoleService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
+  /**
+   * Retrieves all roles in the system.
+   *
+   * Returns a list of all roles with their associated permissions.
+   * The data is deserialized from DTOs to domain models.
+   *
+   * @returns Observable with array of role data
+   */
   getAll(): Observable<ApiResponseInterface<RoleInterface[]>> {
     return this.http
       .get<ApiResponseInterface<RoleDto[]>>(`${this.apiUrl}/role/all`)
@@ -23,6 +40,15 @@ export class RoleService {
       );
   }
 
+  /**
+   * Retrieves a specific role by its ID.
+   *
+   * Returns detailed information about a single role including
+   * all its associated permissions. The data is deserialized from DTO to domain model.
+   *
+   * @param id - The ID of the role to retrieve
+   * @returns Observable with the role data
+   */
   getById(id: number): Observable<ApiResponseInterface<RoleInterface>> {
     return this.http
       .get<ApiResponseInterface<RoleDto>>(`${this.apiUrl}/role/${id}`)
@@ -34,6 +60,15 @@ export class RoleService {
       );
   }
 
+  /**
+   * Creates a new role.
+   *
+   * Serializes the role data and sends it to the backend API.
+   * The response is deserialized back to the domain model.
+   *
+   * @param role - The role data to create
+   * @returns Observable with the created role data
+   */
   create(role: RoleInterface): Observable<ApiResponseInterface<RoleInterface>> {
     const roleCreateDto = RoleSerializer.toCreateDto(role);
     return this.http
@@ -46,6 +81,15 @@ export class RoleService {
       );
   }
 
+  /**
+   * Updates an existing role.
+   *
+   * Serializes the updated role data and sends it to the backend API.
+   * The response is deserialized back to the domain model.
+   *
+   * @param role - The updated role data
+   * @returns Observable with the updated role data
+   */
   update(role: RoleInterface): Observable<ApiResponseInterface<RoleInterface>> {
     const roleUpdateDto = RoleSerializer.toUpdateDto(role);
     return this.http

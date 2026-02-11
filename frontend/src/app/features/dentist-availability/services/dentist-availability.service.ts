@@ -10,11 +10,27 @@ import {
 } from "../domain/interfaces/dentist-availability.interface";
 import { DentistAvailabilitySerializer } from "../domain/serializers/dentist-availability.serializer";
 
+/**
+ * Service for managing dentist weekly availability schedules.
+ *
+ * This service handles the configuration of a dentist's regular weekly schedule,
+ * including working days, time slots, and availability patterns.
+ * It also provides conflict preview functionality when updating schedules.
+ */
 @Injectable({ providedIn: "root" })
 export class DentistAvailabilityService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
+  /**
+   * Retrieves the current availability schedule for a dentist.
+   *
+   * Returns the dentist's weekly schedule including working days,
+   * time slots, and any configured patterns.
+   *
+   * @param dentistId - The ID of the dentist
+   * @returns Observable with the dentist's availability configuration
+   */
   get(
     dentistId: number,
   ): Observable<ApiResponseInterface<DentistAvailabilityResponseInterface>> {
@@ -36,6 +52,16 @@ export class DentistAvailabilityService {
       );
   }
 
+  /**
+   * Updates the dentist's availability schedule.
+   *
+   * Saves changes to the dentist's weekly schedule including modifications
+   * to working days, time slots, and availability patterns.
+   *
+   * @param dentistId - The ID of the dentist
+   * @param days - Array of day availability configurations
+   * @returns Observable with the save operation response
+   */
   update(
     dentistId: number,
     days: DentistDayAvailabilityInterface[],
@@ -47,6 +73,17 @@ export class DentistAvailabilityService {
     >(`${this.apiUrl}/dentist-availability/${dentistId}`, daysDto);
   }
 
+  /**
+   * Previews potential conflicts before updating availability.
+   *
+   * Checks if the proposed schedule changes would conflict with existing
+   * appointments or other calendar constraints. This allows users to see
+   * potential issues before committing the changes.
+   *
+   * @param dentistId - The ID of the dentist
+   * @param days - Array of proposed day availability configurations
+   * @returns Observable with conflict preview data
+   */
   previewConflicts(
     dentistId: number,
     days: DentistDayAvailabilityInterface[],

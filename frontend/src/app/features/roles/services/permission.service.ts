@@ -7,11 +7,28 @@ import { PermissionSerializer } from "../domain/serializers/permission.serialize
 import { PermissionDto } from "../domain/dtos/permission.dto";
 import { PermissionInterface } from "../domain/interfaces/permission.interface";
 
+/**
+ * Service for managing permissions.
+ *
+ * Permissions define what resources can be accessed and what actions
+ * can be performed on those resources. This service handles:
+ * - Retrieving all permissions
+ * - Getting specific permissions by ID
+ * - Data serialization between DTOs and domain models
+ */
 @Injectable({ providedIn: "root" })
 export class PermissionService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
+  /**
+   * Retrieves all available permissions in the system.
+   *
+   * Returns a list of all permissions with their associated actions.
+   * The data is deserialized from DTOs to domain models.
+   *
+   * @returns Observable with array of permission data
+   */
   getAll(): Observable<ApiResponseInterface<PermissionInterface[]>> {
     return this.http
       .get<
@@ -27,6 +44,15 @@ export class PermissionService {
       );
   }
 
+  /**
+   * Retrieves a specific permission by its ID.
+   *
+   * Returns detailed information about a single permission including
+   * all its associated actions. The data is deserialized from DTO to domain model.
+   *
+   * @param id - The ID of the permission to retrieve
+   * @returns Observable with the permission data
+   */
   getById(id: number): Observable<ApiResponseInterface<PermissionInterface>> {
     return this.http
       .get<

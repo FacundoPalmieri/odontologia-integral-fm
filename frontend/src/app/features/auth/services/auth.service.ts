@@ -16,6 +16,15 @@ import { RefreshTokenDataDto } from "../domain/dtos/auth.dto";
 import { RoleInterface } from "../../roles/domain/interfaces/role.interface";
 import { LocalStorageService } from "../../../shared/services/local-storage.service";
 
+/**
+ * Service for handling user authentication and authorization.
+ *
+ * This service manages:
+ * - User login and logout operations
+ * - JWT token refresh mechanism
+ * - Password reset functionality
+ * - User role updates
+ */
 @Injectable({ providedIn: "root" })
 export class AuthService {
   http = inject(HttpClient);
@@ -25,11 +34,20 @@ export class AuthService {
   localStorageService = inject(LocalStorageService);
   apiUrl = environment.apiUrl;
 
+  /** Flag indicating if a token refresh is currently in progress */
   refreshTokenInProgress = false;
+
+  /** Subject for managing token refresh state */
   refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >(null);
 
+  /**
+   * Authenticates a user with their credentials.
+   *
+   * @param login - Login credentials (username/email and password)
+   * @returns Observable with user data including JWT tokens
+   */
   login(
     login: LoginInterface,
   ): Observable<ApiResponseInterface<UserDataInterface>> {
@@ -39,6 +57,12 @@ export class AuthService {
     );
   }
 
+  /**
+   * Logs out the current user and invalidates their tokens.
+   *
+   * @param logout - Logout data containing user ID and tokens
+   * @returns Observable with logout confirmation
+   */
   logout(logout: LogoutInterface): Observable<ApiResponseInterface<string>> {
     return this.http.delete<ApiResponseInterface<string>>(
       `${this.apiUrl}/auth/logout`,
@@ -48,6 +72,15 @@ export class AuthService {
     );
   }
 
+  /**
+   * Refreshes the JWT access token using the refresh token.
+   *
+   * This method is called when the access token expires to obtain a new one
+   * without requiring the user to log in again.
+   *
+   * @param refreshTokenData - Data containing the refresh token
+   * @returns Observable with new user data including refreshed JWT
+   */
   refreshToken(
     refreshTokenData: RefreshTokenDataDto,
   ): Observable<ApiResponseInterface<UserDataInterface>> {
@@ -75,6 +108,14 @@ export class AuthService {
       );
   }
 
+  /**
+   * Initiates a password reset request for a user.
+   *
+   * Sends a password reset email to the specified email address.
+   *
+   * @param email - Email address of the user requesting password reset
+   * @returns Observable with confirmation message
+   */
   resetPasswordRequest(
     email: string,
   ): Observable<ApiResponseInterface<string>> {
@@ -87,6 +128,12 @@ export class AuthService {
     );
   }
 
+  /**
+   * Completes the password reset process with a new password.
+   *
+   * @param resetData - Password reset data including token and new password
+   * @returns Observable with confirmation message
+   */
   resetPassword(
     resetData: ResetPasswordInterface,
   ): Observable<ApiResponseInterface<string>> {
@@ -96,6 +143,14 @@ export class AuthService {
     );
   }
 
+  /**
+   * Updates the user's roles in localStorage.
+   *
+   * This method is used to refresh role information without requiring a full re-login.
+   *
+   * @param roles - Updated array of user roles
+   * @returns void
+   */
   updateRoles(roles: RoleInterface[]) {
     let userData = this.localStorageService.getUserData();
     userData = {

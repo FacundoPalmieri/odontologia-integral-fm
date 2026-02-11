@@ -1,40 +1,73 @@
 import { Injectable } from "@angular/core";
 import * as handTrack from "handtrackjs";
 
+/**
+ * Service for hand tracking and gesture recognition using HandTrack.js.
+ *
+ * This service provides real-time hand detection and tracking capabilities
+ * using the device camera. It can detect hand positions and gestures,
+ * useful for touchless interaction with the application.
+ *
+ * Features:
+ * - Hand position tracking
+ * - Gesture recognition (open, closed, point, pinch)
+ * - Real-time video processing
+ * - Configurable detection parameters
+ */
 @Injectable({
   providedIn: "root",
 })
 export class HandTrackingService {
+  /** HandTrack.js model instance */
   private model: any = null;
+  /** Flag indicating if tracking is currently active */
   private isTracking = false;
+  /** Reference to the video element */
   private video: HTMLVideoElement | null = null;
+  /** Reference to the canvas element for drawing */
   private canvas: HTMLCanvasElement | null = null;
+  /** Canvas rendering context */
   private context: CanvasRenderingContext2D | null = null;
+  /** Animation frame ID for tracking loop */
   private animationFrameId: number | null = null;
 
-  // Configuración del modelo
+  /**
+   * Configuration parameters for the hand tracking model.
+   */
   private modelParams = {
-    flipHorizontal: true, // Espejo de la cámara
-    maxNumBoxes: 1, // Solo detectar una mano
-    iouThreshold: 0.5, // Umbral de intersección
-    scoreThreshold: 0.7, // Umbral de confianza (aumentado para mejor precisión)
-    modelType: "ssd320fpnlite" as const, // Modelo optimizado para manos
+    flipHorizontal: true, // Mirror the camera feed
+    maxNumBoxes: 1, // Detect only one hand
+    iouThreshold: 0.5, // Intersection over union threshold
+    scoreThreshold: 0.7, // Confidence threshold (increased for better accuracy)
+    modelType: "ssd320fpnlite" as const, // Optimized model for hand detection
   };
 
-  // Callback para cuando se detecta movimiento
+  /**
+   * Callback function invoked when hand movement is detected.
+   * @private
+   */
   private onHandMoveCallback: ((x: number, y: number) => void) | null = null;
 
-  // Callback para gestos de la mano
+  /**
+   * Callback function invoked when hand gestures are detected.
+   * @private
+   */
   private onHandGestureCallback: ((handClass: string) => void) | null = null;
 
   constructor() {}
 
   /**
-   * Carga el modelo de HandTrack.js
+   * Loads the HandTrack.js model.
+   *
+   * This method initializes the hand tracking model. It only loads once
+   * and subsequent calls will return immediately if already loaded.
+   *
+   * @returns Promise that resolves when the model is loaded
+   * @throws Error if model loading fails
    */
   async loadModel(): Promise<void> {
     if (this.model) {
-      return; // Ya está cargado
+      return; // Already loaded
     }
 
     try {
@@ -47,7 +80,17 @@ export class HandTrackingService {
   }
 
   /**
-   * Inicia el tracking de la mano
+   * Starts hand tracking.
+   *
+   * Initializes the video stream from the camera and begins detecting hands.
+   * The model is automatically loaded if not already loaded.
+   *
+   * @param videoElement - HTML video element to display the camera feed
+   * @param canvasElement - HTML canvas element for drawing detection boxes
+   * @param onHandMove - Callback function called when hand movement is detected, receives normalized x,y coordinates (0-1)
+   * @param onHandGesture - Optional callback function called when hand gestures are detected
+   * @returns Promise that resolves when tracking starts
+   * @throws Error if video stream cannot be started
    */
   async startTracking(
     videoElement: HTMLVideoElement,
@@ -65,12 +108,12 @@ export class HandTrackingService {
     this.onHandMoveCallback = onHandMove;
     this.onHandGestureCallback = onHandGesture || null;
 
-    // Cargar modelo si no está cargado
+    // Load model if not already loaded
     if (!this.model) {
       await this.loadModel();
     }
 
-    // Iniciar video
+    // Start video stream
     try {
       const stream = await handTrack.startVideo(this.video);
       this.isTracking = true;
@@ -82,7 +125,11 @@ export class HandTrackingService {
   }
 
   /**
-   * Detiene el tracking
+   * Stops hand tracking.
+   *
+   * Stops the video stream, cancels the animation loop, and cleans up resources.
+   *
+   * @returns void
    */
   stopTracking(): void {
     this.isTracking = false;
@@ -103,7 +150,13 @@ export class HandTrackingService {
   }
 
   /**
-   * Ejecuta la detección en cada frame
+   * Executes hand detection on each video frame.
+   *
+   * This method runs in a loop, processing each frame to detect hands
+   * and calling the appropriate callbacks when hands are found.
+   *
+   * @returns void
+   * @private
    */
   private runDetection(): void {
     if (!this.isTracking || !this.video || !this.canvas || !this.context) {
@@ -111,55 +164,55 @@ export class HandTrackingService {
     }
 
     this.model.detect(this.video).then((predictions: any[]) => {
-      // Limpiar canvas
+      // Clear canvas
       this.context!.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
 
-      // Log para debug (ver qué está detectando)
+      // Log for debugging (see what is being detected)
       if (predictions.length > 0) {
         console.log(
-          "Detecciones:",
+          "Detections:",
           predictions.map((p) => ({ class: p.class, score: p.score })),
         );
       }
 
-      // Filtrar detecciones de manos (más permisivo)
-      // HandTrack.js puede detectar: 'open', 'closed', 'point', 'pinch', 'face'
+      // Filter hand detections (more permissive)
+      // HandTrack.js can detect: 'open', 'closed', 'point', 'pinch', 'face'
       let handPredictions = predictions.filter(
-        (pred) => pred.class !== "face", // Excluir solo caras
+        (pred) => pred.class !== "face", // Exclude only faces
       );
 
-      // Si no hay detecciones de manos específicas, usar la primera predicción si no es cara
+      // If no specific hand detections, use the first prediction if it's not a face
       if (handPredictions.length === 0 && predictions.length > 0) {
         handPredictions = predictions.filter((pred) => pred.class !== "face");
       }
 
       if (handPredictions.length > 0) {
-        // Tomar la primera mano detectada
+        // Take the first detected hand
         const hand = handPredictions[0];
 
-        // Dibujar el bounding box (opcional, para debug)
+        // Draw the bounding box (optional, for debugging)
         this.drawBoundingBox(hand);
 
-        // Calcular el centro de la mano (punto de control)
+        // Calculate the center of the hand (control point)
         const centerX = hand.bbox[0] + hand.bbox[2] / 2;
         const centerY = hand.bbox[1] + hand.bbox[3] / 2;
 
-        // Normalizar coordenadas (0-1) basado en el tamaño del canvas
+        // Normalize coordinates (0-1) based on canvas size
         const normalizedX = centerX / this.canvas!.width;
         const normalizedY = centerY / this.canvas!.height;
 
-        // Llamar al callback de movimiento con las coordenadas normalizadas
+        // Call the movement callback with normalized coordinates
         if (this.onHandMoveCallback) {
           this.onHandMoveCallback(normalizedX, normalizedY);
         }
 
-        // Llamar al callback de gestos con la clase de la mano
+        // Call the gesture callback with the hand class
         if (this.onHandGestureCallback) {
           this.onHandGestureCallback(hand.class);
         }
       }
 
-      // Continuar con el siguiente frame
+      // Continue with the next frame
       if (this.isTracking) {
         this.animationFrameId = requestAnimationFrame(() =>
           this.runDetection(),
@@ -169,7 +222,13 @@ export class HandTrackingService {
   }
 
   /**
-   * Dibuja el bounding box de la mano detectada
+   * Draws the bounding box of the detected hand on the canvas.
+   *
+   * This is useful for debugging and visualizing the detection.
+   *
+   * @param prediction - The hand prediction object containing bbox and other data
+   * @returns void
+   * @private
    */
   private drawBoundingBox(prediction: any): void {
     if (!this.context) return;
@@ -180,7 +239,7 @@ export class HandTrackingService {
     this.context.lineWidth = 3;
     this.context.strokeRect(x, y, width, height);
 
-    // Dibujar punto central
+    // Draw center point
     const centerX = x + width / 2;
     const centerY = y + height / 2;
 
@@ -191,14 +250,21 @@ export class HandTrackingService {
   }
 
   /**
-   * Verifica si el tracking está activo
+   * Checks if tracking is currently active.
+   *
+   * @returns True if tracking is active, false otherwise
    */
   isActive(): boolean {
     return this.isTracking;
   }
 
   /**
-   * Libera recursos del modelo
+   * Releases model resources and stops tracking.
+   *
+   * This should be called when the service is no longer needed
+   * to free up memory and GPU resources.
+   *
+   * @returns void
    */
   dispose(): void {
     this.stopTracking();

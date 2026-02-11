@@ -9,11 +9,32 @@ import {
   CalendarWeekInterface,
 } from "../domain/interfaces/calendar.interface";
 
+/**
+ * Service for retrieving calendar data for dentists.
+ *
+ * This service provides methods to fetch calendar information in different views:
+ * - Monthly view: Overview of an entire month
+ * - Weekly view: Detailed view of a specific week
+ * - Daily view: Detailed view of a specific day
+ *
+ * Each view includes appointment slots, availability, and calendar locks.
+ */
 @Injectable({ providedIn: "root" })
 export class CalendarService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
+  /**
+   * Retrieves calendar data for a specific month.
+   *
+   * Returns an overview of the entire month including all appointments,
+   * availability, and calendar locks for the specified dentist.
+   *
+   * @param idDentist - The ID of the dentist
+   * @param year - The year (e.g., 2024)
+   * @param month - The month (1-12)
+   * @returns Observable with monthly calendar data
+   */
   getMonth(
     idDentist: number,
     year: number,
@@ -29,6 +50,16 @@ export class CalendarService {
     );
   }
 
+  /**
+   * Retrieves calendar data for a specific week.
+   *
+   * Returns detailed information for the week containing the specified date,
+   * including time slots, appointments, and availability.
+   *
+   * @param idDentist - The ID of the dentist
+   * @param date - Any date within the desired week
+   * @returns Observable with weekly calendar data
+   */
   getWeek(
     idDentist: number,
     date: Date,
@@ -46,6 +77,16 @@ export class CalendarService {
     );
   }
 
+  /**
+   * Retrieves calendar data for a specific day.
+   *
+   * Returns detailed information for a single day including all time slots,
+   * appointments, and availability status.
+   *
+   * @param idDentist - The ID of the dentist
+   * @param date - The specific date to retrieve
+   * @returns Observable with daily calendar data
+   */
   getDay(
     idDentist: number,
     date: Date,
