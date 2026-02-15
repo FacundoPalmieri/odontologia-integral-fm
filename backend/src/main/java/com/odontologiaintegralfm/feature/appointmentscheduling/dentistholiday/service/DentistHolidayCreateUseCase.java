@@ -76,7 +76,7 @@ public class DentistHolidayCreateUseCase implements IDentistHolidayCreateUseCase
         //Valida si no existe un bloqueo para esa fecha.
         List<DentistCalendarLock> dentistCalendarLocks = dentistCalendarLockService.getByDate(dentist.getId(), holiday.getDate());
         if(!dentistCalendarLocks.isEmpty()) {
-            throw new ConflictException("exception.validateByIdDentistAndDate.dentistHolidayCreate.user", null, "exception.validateByIdDentistAndDate.dentistHolidayCreate.log", new Object[]{dentistCalendarLocks.get(0).getId(),holiday.getId(), "DentistHolidayCreateUseCase", "execute"}, LogLevel.ERROR);
+            throw new ConflictException("exception.validateByIdDentistAndDate.dentistHolidayCreate.user", new Object[]{dentistCalendarLocks.get(0).getId()}, "exception.validateByIdDentistAndDate.dentistHolidayCreate.log", new Object[]{dentistCalendarLocks.get(0).getId(),holiday.getId(), "DentistHolidayCreateUseCase", "execute"}, LogLevel.ERROR);
         }
 
         // Crear relación
