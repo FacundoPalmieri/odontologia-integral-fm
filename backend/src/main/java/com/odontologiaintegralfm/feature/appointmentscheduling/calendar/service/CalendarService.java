@@ -476,7 +476,7 @@ public class CalendarService implements ICalendarService {
                 if(lock.isFullDay()){
                     s.setStatus(SlotStatus.LOCKED);
                     s.setColor(SlotStatus.LOCKED.getColorHex());
-                    s.setCalendarLock(DentistCalendarLockResponseDTO.build(lock));
+                    s.setCalendarLock(DentistCalendarLockResponseDTO.build(lock,null));
                     s.setAppointment(null);
                     break;
                 }
@@ -495,7 +495,7 @@ public class CalendarService implements ICalendarService {
                 // Hay solapamiento
                 s.setStatus(SlotStatus.LOCKED);
                 s.setColor(SlotStatus.LOCKED.getColorHex());
-                s.setCalendarLock(DentistCalendarLockResponseDTO.build(lock));
+                s.setCalendarLock(DentistCalendarLockResponseDTO.build(lock,null));
                 s.setAppointment(null);
                 break;
             }

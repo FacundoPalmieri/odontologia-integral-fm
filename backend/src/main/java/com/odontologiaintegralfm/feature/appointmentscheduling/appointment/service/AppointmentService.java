@@ -12,6 +12,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.repos
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.IDentistAvailabilityService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.model.DentistAvailability;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.service.IDentistHolidayService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.model.DentistCalendarLock;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IDentistCalendarLockService;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
@@ -608,6 +609,15 @@ public class AppointmentService implements IAppointmentService {
 
     }
 
+    /**
+     * @param idDentist
+     * @return
+     */
+    @Override
+    public List<Appointment> getFutureAppointmentsReservedByDentist(Long idDentist) {
+        return appointmentRepository.findFutureAppointmentsReservedByDentist(idDentist,LocalDateTime.now(), AppointmentStatus.RESERVED);
+    }
+
 
     /**
      * Envía email  a todos los contactos asociados al paciente del turno recibido, utilizando un template HTML.
@@ -834,8 +844,6 @@ public class AppointmentService implements IAppointmentService {
 
         return appointment;
     }
-
-
 
 }
 

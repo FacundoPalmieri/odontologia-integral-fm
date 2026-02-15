@@ -23,7 +23,7 @@ public interface IDentistCalendarLockService {
      * @param dentistCalendarLockContextInternalDTO  : DTO interno del servicio DentistCalendarLock. Se utiliza para preparar el contexto de validación de dentist y su jornada actual, antes de Crear una nueva, o hacer un preview de los posibles conflictos ante la intención de actualizar la misma.
      * @param dentistCalendarLockRequestCreateDTO : Datos del evento.
      */
-   Response<DentistCalendarLockResponseDTO> create (DentistCalendarLockContextInternalDTO dentistCalendarLockContextInternalDTO, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO);
+    DentistCalendarLock create (DentistCalendarLockContextInternalDTO dentistCalendarLockContextInternalDTO, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO);
 
 
 
@@ -33,7 +33,7 @@ public interface IDentistCalendarLockService {
      * Método para actualizar una relación entre dentista y evento de bloqueo de agenda.
      * @param dentistCalendarLockRequestUpdateDTO : Datos del evento.
      */
-    Response<DentistCalendarLockResponseDTO> update (DentistCalendarLockRequestUpdateDTO dentistCalendarLockRequestUpdateDTO);
+    DentistCalendarLock update (DentistCalendarLockRequestUpdateDTO dentistCalendarLockRequestUpdateDTO);
 
 
 

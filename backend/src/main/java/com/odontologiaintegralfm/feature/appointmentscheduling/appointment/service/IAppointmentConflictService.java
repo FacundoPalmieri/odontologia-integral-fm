@@ -4,8 +4,10 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.A
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.model.DentistCalendarLock;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.dto.Response;
+import org.springframework.security.core.userdetails.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -82,5 +84,19 @@ public interface IAppointmentConflictService {
 
 
 
+    /**
+     * Resuelve los turnos en conflicto cuando un bloqueo de calendario se finaliza anticipadamente.
+     * <p>
+     * El método obtiene todos los conflictos asociados al bloqueo y, si existen, los marca como resueltos
+     * mediante el servicio de gestión de conflictos.
+     *
+     * @param dentistCalendarLock Bloqueo de calendario que se está finalizando anticipadamente.
+     */
+    void resolvedAppointmentConflictByFinishLock(DentistCalendarLock dentistCalendarLock, UserSec userSec);
 
+
+    /**
+     * Actualiza turnos en conflictos como resueltos.
+     */
+    void updateResolvedConflicts(List<AppointmentConflict> appointmentConflicts, UserSec userSec);
 }

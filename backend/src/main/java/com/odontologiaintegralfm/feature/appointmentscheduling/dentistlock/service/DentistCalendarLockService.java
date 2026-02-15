@@ -1,14 +1,11 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointmentscheduling.shared.DayName;
-import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.model.DentistCalendarLock;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.model.DentistCalendarLockDetail;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.repository.IDentistCalendarLockRepository;
-import com.odontologiaintegralfm.feature.appointmentscheduling.conflictmanager.service.IConflictManagerService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.util.CalendarUtils;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockContextInternalDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockRequestCreateDTO;
@@ -23,11 +20,9 @@ import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.dto.Response;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,21 +37,16 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
 
     private final AuthenticatedUserService authenticatedUserService;
     private final IDentistCalendarLockRepository dentistLockCalendarRepository;
-    private final IConflictManagerService conflictManagerService;
-    private final MessageSource messageSource;
     private final DentistCalendarLockDetailService dentistCalendarLockDetailService;
 
 
     public DentistCalendarLockService(
             AuthenticatedUserService authenticatedUserService,
             IDentistCalendarLockRepository dentistLockCalendarRepository,
-            IConflictManagerService conflictManagerService,
             @Qualifier("messageSource") MessageSource messageSource,
             DentistCalendarLockDetailService dentistCalendarLockDetailService) {
         this.authenticatedUserService = authenticatedUserService;
         this.dentistLockCalendarRepository = dentistLockCalendarRepository;
-        this.conflictManagerService = conflictManagerService;
-        this.messageSource = messageSource;
         this.dentistCalendarLockDetailService = dentistCalendarLockDetailService;
     }
 
@@ -73,7 +63,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
      */
 
     @Override
-    public Response<DentistCalendarLockResponseDTO> create(DentistCalendarLockContextInternalDTO dentistCalendarLock, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO) {
+    public  DentistCalendarLock create(DentistCalendarLockContextInternalDTO dentistCalendarLock, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO) {
         try{
 
             //Se persiste
@@ -93,23 +83,7 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
                 dentistCalendarLockDetailService.saveAll(dentistCalendarLockDetails);
             }
 
-
-
-            //Seteo recurrencia, id y origen de posible conflicto en el DTO.
-            dentistCalendarLockRequestCreateDTO.setIdOriginConflict(dentistCalendarLockSaved.getId());
-            dentistCalendarLockRequestCreateDTO.setOriginConflict(OriginConflict.DENTIST_CALENDAR_LOCK);
-
-            //Validar si existen turnos conflictivos.
-            List<AppointmentConflictResponseDTO> appointmentConflicts = conflictManagerService.verifyConflictsByDentistCalendarLock(dentistCalendarLockRequestCreateDTO,dentistCalendarLock.dentistCalendarLock().getDentist());
-
-            return new Response<>(
-                    true,
-                    (appointmentConflicts.isEmpty())
-                            ? messageSource.getMessage("dentistCalendarLockService.create.ok.user",null, LocaleContextHolder.getLocale())
-                            : messageSource.getMessage("dentistLockCalendarService.create.okWithConflict.user", null, LocaleContextHolder.getLocale()),
-                    DentistCalendarLockResponseDTO.build(dentistCalendarLockSaved,appointmentConflicts)
-            );
-
+            return dentistCalendarLockSaved;
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
             throw new DataBaseException(e, "DentistCalendarLockService", null, null, "create");
@@ -149,11 +123,12 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
             type  = LogType.SYSTEM,
             level = LogLevel.INFO
     )
-    public Response<DentistCalendarLockResponseDTO> update(DentistCalendarLockRequestUpdateDTO dentistCalendarLockRequestUpdateDTO) {
+    public DentistCalendarLock update(DentistCalendarLockRequestUpdateDTO dentistCalendarLockRequestUpdateDTO) {
 
         //Recuperamos el Evento.
         DentistCalendarLock dentistCalendarLock = dentistLockCalendarRepository.findById(dentistCalendarLockRequestUpdateDTO.idDentistCalendarLock())
                 .orElseThrow(()-> new BadRequestException("exception.dentistLockCalendarService.notFound.user", null,"exception.dentistLockCalendarService.notFound.log", new Object[]{dentistCalendarLockRequestUpdateDTO.idDentistCalendarLock(),"Dentist LockCalendar Service", "Update"}, LogLevel.ERROR));
+
 
         //Verificamos que esté vigente.
         if (dentistCalendarLock.getEndDate().isBefore(LocalDate.now()) ||
@@ -162,19 +137,8 @@ public class DentistCalendarLockService implements IDentistCalendarLockService {
         }
 
 
-        //Resuelve turnos en conflicto posterior a la finalización anticipada del bloqueo.
-        conflictManagerService.resolvedAppointmentConflictByFinishLock(dentistCalendarLock);
-
-
         //Actualizamos la fecha de finalización del evento.
-        DentistCalendarLock dentistCalendarLockSaved = finishCalendarLock(dentistCalendarLock,dentistCalendarLockRequestUpdateDTO.observationUpdate());
-
-
-        return new Response<>(
-                true,
-                messageSource.getMessage("dentistCalendarLockService.update.ok.user",null, LocaleContextHolder.getLocale()),
-                DentistCalendarLockResponseDTO.build(dentistCalendarLockSaved)
-        );
+        return finishCalendarLock(dentistCalendarLock,dentistCalendarLockRequestUpdateDTO.observationUpdate());
 
     }
 

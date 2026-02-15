@@ -1,12 +1,11 @@
-package com.odontologiaintegralfm.feature.appointmentscheduling.conflictmanager.dto;
+package com.odontologiaintegralfm.feature.appointmentscheduling.shared;
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
 import java.util.List;
 
 /**
- * DTO interno del servicio de Conflict Manager.
- * Se utiliza para preparar el contexto de validación de turnos y turnos en conflicto.
+ * DTO interno que se utiliza para preparar el contexto de validación de turnos y turnos en conflicto.
  */
 public record ConflictManagerContextInternalDTO(
         List<Appointment> appointments,

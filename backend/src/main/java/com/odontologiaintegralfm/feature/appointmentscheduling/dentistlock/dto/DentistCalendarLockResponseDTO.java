@@ -12,6 +12,7 @@ public record DentistCalendarLockResponseDTO(
         Long id,
         Long idDentist,
         String lockType,
+        String mode,
         String recurrence,
         LocalDate startDate,
         LocalDate endDate,
@@ -23,29 +24,12 @@ public record DentistCalendarLockResponseDTO(
         List<AppointmentConflictResponseDTO> appointmentConflict
 ) {
 
-    public static DentistCalendarLockResponseDTO build(DentistCalendarLock dentistCalendarLock){
-        return new DentistCalendarLockResponseDTO(
-                dentistCalendarLock.getId(),
-                dentistCalendarLock.getDentist().getId(),
-                dentistCalendarLock.getType().getName(),
-                dentistCalendarLock.getRecurrence().getLabel(),
-                dentistCalendarLock.getStartDate(),
-                dentistCalendarLock.getEndDate(),
-                dentistCalendarLock.getStartTime(),
-                dentistCalendarLock.getEndTime(),
-                dentistCalendarLock.isFullDay(),
-                dentistCalendarLock.getObservation(),
-                dentistCalendarLock.getObservationUpdate(),
-                null
-        );
-    }
-
-
     public static DentistCalendarLockResponseDTO build(DentistCalendarLock dentistCalendarLock, List<AppointmentConflictResponseDTO> appointmentConflictResponseDTO){
         return new DentistCalendarLockResponseDTO(
                 dentistCalendarLock.getId(),
                 dentistCalendarLock.getDentist().getId(),
                 dentistCalendarLock.getType().getName(),
+                dentistCalendarLock.getMode().getLabel(),
                 dentistCalendarLock.getRecurrence().getLabel(),
                 dentistCalendarLock.getStartDate(),
                 dentistCalendarLock.getEndDate(),

@@ -1,8 +1,13 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service;
 
+import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.DentistAvailabilityContextInternalDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.model.DentistAvailability;
+import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.dto.Response;
 
 import java.time.LocalDate;
@@ -15,19 +20,9 @@ import java.util.List;
 public interface IDentistAvailabilityService {
 
     /**
-     * Método para crear una nueva jornada laboral de un dentista.
-     * - Inicio de jornada.
-     * - Fin de jornada.
-     * - Duración de turno.
-     * @param days : DTO con datos de parametrización de la jornada.
+     * Método de dominio para mapear, y persistir la entidad.
      */
-    Response<DentistAvailabilityResponseDTO> create(Long id, List<WorkingDayDTO> days);
-
-
-    /**
-     * Método para simular una nueva jornada laboral de un dentista.
-     */
-    Response<DentistAvailabilityResponseDTO> createPreview(Long id, List<WorkingDayDTO> days);
+    List<DentistAvailability> create( List<WorkingDayDTO> days,DentistAvailabilityContextInternalDTO availability, UserSec userSec);
 
 
     /**
@@ -47,12 +42,15 @@ public interface IDentistAvailabilityService {
     List<DentistAvailability> getByIdInternal(Long idDentist);
 
 
+
+
     /**
-     * Método para obtener el tiempo de duración de un turno por ID de dentista.
+     * Método para deshabilitar una disponibilidad
+     * @param dentistAvailability : Lista de disponibilidades (días)
+     * @param authenticatedUserService : Usuario autenticado.
+     * @param now : Fecha y hora actual.
      */
-    Integer getAppointmentDuration(Long idDentist);
-
-
+    void disabledAvailability(List<DentistAvailability> dentistAvailability, AuthenticatedUserService authenticatedUserService, LocalDateTime now);
 
 
     /**
@@ -77,5 +75,36 @@ public interface IDentistAvailabilityService {
     void isDateTimeWithinAvailability(Long idDentist, LocalDateTime appointmentDateTime);
 
 
+    /**
+     * Valída lo siguiente:
+     * - Fin del break no puede ser anterior al inicio.
+     * - Si un campo tiene datos, el otro también.
+     */
+    void validateBreak(List <DentistAvailability> dentistAvailability);
+
+
+
+
+
+    /**
+     * Detecta y genera conflictos de turnos que se encuentran fuera de la nueva jornada laboral de un dentista.
+     * <p>
+     * Este método compara cada turno futuro del dentista con la lista de {@link WorkingDayDTO} que define la nueva
+     * disponibilidad laboral. Para cada turno que no se encuentra dentro de los días y horarios permitidos,
+     * se genera un objeto {@link AppointmentConflict} indicando que está fuera de horario.
+     * </p>
+     *
+     * @param appointments Lista de {@link Appointment} que representa los turnos futuros del dentista.
+     * @param workingDays  Lista de {@link WorkingDayDTO} que define la nueva jornada laboral a evaluar.
+     * @return Lista de {@link AppointmentConflict} representando los turnos que no se ajustan a la nueva jornada laboral.
+     */
+    List<AppointmentConflict> evaluateAppointmentDentistAvailability(List<Appointment> appointments, List<WorkingDayDTO> workingDays);
+
+    /**
+     * Método privado del servicio que permite mapea cada jornada laboral de la request a una entidad.
+     * @param days : DTO con la jornada
+     * @param dentistAvailabilityExisting : DTO interno del servicio que posea un dentista y una lista de disponibilidades.
+     */
+    List<DentistAvailability> entityFromDto(List<WorkingDayDTO> days, DentistAvailabilityContextInternalDTO dentistAvailabilityExisting, UserSec authenticatedUserService);
 
 }

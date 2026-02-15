@@ -6,7 +6,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.D
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IDentistCalendarLockCreateUseCase;
-import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IDentistCalendarLockService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IDentistCalendarLockUpdateUseCase;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class DentistCalendarLockController {
 
-    private final IDentistCalendarLockService dentistCalendarLockService;
+    private final IDentistCalendarLockUpdateUseCase dentistCalendarLockUpdateService;
     private final IDentistCalendarLockCreateUseCase dentistCalendarLockCreateUseCase;
 
-    public DentistCalendarLockController(IDentistCalendarLockCreateUseCase dentistCalendarLockCreateUseCase, IDentistCalendarLockService dentistCalendarLockService) {
+    public DentistCalendarLockController(IDentistCalendarLockCreateUseCase dentistCalendarLockCreateUseCase, IDentistCalendarLockUpdateUseCase dentistCalendarLockUpdateService) {
         this.dentistCalendarLockCreateUseCase = dentistCalendarLockCreateUseCase;
-        this.dentistCalendarLockService = dentistCalendarLockService;
+        this.dentistCalendarLockUpdateService = dentistCalendarLockUpdateService;
     }
 
 
@@ -86,7 +86,7 @@ public class DentistCalendarLockController {
     public ResponseEntity<Response<DentistCalendarLockResponseDTO>> update(@PathVariable("idPerson")Long idPerson,
                                                                            @Valid @RequestBody DentistCalendarLockRequestUpdateDTO dentistCalendarLockRequestUpdateDTO) {
 
-        Response<DentistCalendarLockResponseDTO> response = dentistCalendarLockService.update(dentistCalendarLockRequestUpdateDTO);
+        Response<DentistCalendarLockResponseDTO> response = dentistCalendarLockUpdateService.execute(dentistCalendarLockRequestUpdateDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }

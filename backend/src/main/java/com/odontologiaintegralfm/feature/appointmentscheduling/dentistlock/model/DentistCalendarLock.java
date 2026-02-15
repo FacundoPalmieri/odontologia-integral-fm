@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.model;
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.CalendarLockRecurrenceName;
+import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.enums.CalendarLockMode;
 import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.model.CalendarLockType;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.shared.model.Auditable;
@@ -131,6 +132,9 @@ public class DentistCalendarLock extends Auditable {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private CalendarLockType type;
 
+    @Enumerated(EnumType.STRING)
+    private CalendarLockMode mode;
+
 
     /**
      * Frecuencia del bloqueo.
@@ -152,7 +156,7 @@ public class DentistCalendarLock extends Auditable {
     private String observationUpdate;
 
 
-    private DentistCalendarLock(Dentist dentist, LocalDate startDate, LocalDate endDate,LocalTime startTime,LocalTime endTime,boolean isFullDay,CalendarLockType type, CalendarLockRecurrenceName recurrence, String observation) {
+    private DentistCalendarLock(Dentist dentist, LocalDate startDate, LocalDate endDate,LocalTime startTime,LocalTime endTime,boolean isFullDay,CalendarLockType type, CalendarLockMode mode,CalendarLockRecurrenceName recurrence, String observation) {
         this.dentist = dentist;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -160,11 +164,12 @@ public class DentistCalendarLock extends Auditable {
         this.endTime = endTime;
         this.isFullDay = isFullDay;
         this.type = type;
+        this.mode = mode;
         this.recurrence = recurrence;
         this.observation = observation;
     }
 
-    public static DentistCalendarLock build(Dentist dentist, LocalDate startDate, LocalDate endDate, LocalTime startTime,LocalTime endTime,boolean isFullDay ,CalendarLockType type, CalendarLockRecurrenceName recurrence, String observation){
+    public static DentistCalendarLock build(Dentist dentist, LocalDate startDate, LocalDate endDate, LocalTime startTime,LocalTime endTime,boolean isFullDay,CalendarLockType type,CalendarLockMode mode, CalendarLockRecurrenceName recurrence, String observation){
         return new DentistCalendarLock(
                 dentist,
                 startDate,
@@ -173,6 +178,7 @@ public class DentistCalendarLock extends Auditable {
                 endTime,
                 isFullDay,
                 type,
+                mode,
                 recurrence,
                 observation
         );

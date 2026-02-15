@@ -3,9 +3,14 @@ package com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.serv
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.AppointmentConflictResponseDTO;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentConflictService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.OriginConflict;
-import com.odontologiaintegralfm.feature.appointmentscheduling.conflictmanager.service.IConflictManagerService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.util.CalendarUtils;
+import com.odontologiaintegralfm.feature.appointmentscheduling.shared.ConflictManagerContextInternalDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.model.DentistAvailability;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.IDentistAvailabilityService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.service.IDentistHolidayService;
@@ -18,8 +23,11 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.holiday.service.I
 import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.model.CalendarLockType;
 import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.service.ICalendarLockTypeService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.shared.DayName;
+import com.odontologiaintegralfm.feature.authentication.enums.Role;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
+import com.odontologiaintegralfm.feature.user.service.IUserService;
+import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -34,9 +42,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
+import static com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.CalendarLockRecurrenceName.DAILY;
 
 @Service
 public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCreateUseCase {
@@ -50,7 +58,10 @@ public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCr
     private final IDentistAvailabilityService dentistAvailabilityService;
     private final AuthenticatedUserService authenticatedUserService;
     private final MessageSource messageSource;
-    private final IConflictManagerService conflictManagerService;
+    private final IAppointmentConflictService appointmentConflictService;
+    private final IEmailService emailService;
+    private final IUserService userService;
+    private final IAppointmentService appointmentService;
 
     public DentistCalendarLockCreateUseCase(
             IDentistCalendarLockService dentistCalendarLockService,
@@ -61,7 +72,10 @@ public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCr
             IDentistAvailabilityService dentistAvailabilityService,
             AuthenticatedUserService authenticatedUserService,
             MessageSource messageSource,
-            IConflictManagerService conflictManagerService
+            IAppointmentConflictService appointmentConflictService,
+            IEmailService emailService,
+            IUserService userService,
+            IAppointmentService appointmentService
 
     ){
         this.dentistCalendarLockService = dentistCalendarLockService;
@@ -72,7 +86,10 @@ public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCr
         this.dentistAvailabilityService = dentistAvailabilityService;
         this.authenticatedUserService = authenticatedUserService;
         this.messageSource = messageSource;
-        this.conflictManagerService = conflictManagerService;
+        this.appointmentConflictService = appointmentConflictService;
+        this.emailService = emailService;
+        this.userService = userService;
+        this.appointmentService = appointmentService;
     }
 
 
@@ -90,7 +107,14 @@ public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCr
     @Transactional
     @LogAction(
             value = "dentistCalendarLockCreateUseCase.logAction.execute",
-            args  = {"#idDentist", "#result.data.startDate", "#result.data.endDate","#result.data.recurrence","#result.data.conflict"},
+            args  = {
+                    "#idPerson",
+                    "#result.data.startDate",
+                    "#result.data.endDate",
+                    "#result.data.mode",
+                    "#result.data.recurrence",
+                    "#result.data.appointmentConflict != null ? #result.data.appointmentConflict.size() : 0"
+            },
             type  = LogType.SYSTEM,
             level = LogLevel.INFO
     )
@@ -99,11 +123,27 @@ public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCr
 
 
         // Prepara contexto (validaciones + construcción de objeto en memoria)
-        DentistCalendarLockContextInternalDTO dentistCalendarLock = prepareContextDentistCalendarLock(idPerson,dentistCalendarLockRequestCreateDTO);
+        DentistCalendarLockContextInternalDTO dentistCalendarLock = prepareContextDentistCalendarLock(idPerson, dentistCalendarLockRequestCreateDTO);
 
         //Persiste y crea el detalle de bloqueo si corresponde.
-        return dentistCalendarLockService.create(dentistCalendarLock, dentistCalendarLockRequestCreateDTO);
+        DentistCalendarLock dentistCalendarLockSaved = dentistCalendarLockService.create(dentistCalendarLock, dentistCalendarLockRequestCreateDTO);
 
+
+        //Seteo recurrencia, id y origen de posible conflicto en el DTO.
+        dentistCalendarLockRequestCreateDTO.setIdOriginConflict(dentistCalendarLockSaved.getId());
+        dentistCalendarLockRequestCreateDTO.setOriginConflict(OriginConflict.DENTIST_CALENDAR_LOCK);
+
+        //Validar si existen turnos conflictivos.
+        List<AppointmentConflictResponseDTO> appointmentConflicts = verifyConflictsByDentistCalendarLock(dentistCalendarLockRequestCreateDTO, dentistCalendarLock.dentistCalendarLock().getDentist());
+
+
+        return new Response<>(
+                true,
+                (appointmentConflicts.isEmpty())
+                        ? messageSource.getMessage("dentistCalendarLockCreateUseCase.execute.ok.user", null, LocaleContextHolder.getLocale())
+                        : messageSource.getMessage("dentistCalendarLockCreateUseCase.execute.okWithConflict.user", null, LocaleContextHolder.getLocale()),
+                DentistCalendarLockResponseDTO.build(dentistCalendarLockSaved, appointmentConflicts)
+        );
     }
 
 
@@ -129,7 +169,7 @@ public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCr
         dentistCalendarLockRequestCreateDTO.setOriginConflict(OriginConflict.DENTIST_CALENDAR_LOCK);
 
         //Validar si existen turnos conflictivos.
-        List<AppointmentConflictResponseDTO> appointmentConflicts = conflictManagerService.PreviewVerifyConflictsByDentistCalendarLock(dentistCalendarLockRequestCreateDTO,dentistCalendarLock.dentistCalendarLock().getDentist());
+        List<AppointmentConflictResponseDTO> appointmentConflicts = PreviewVerifyConflictsByDentistCalendarLock(dentistCalendarLockRequestCreateDTO,dentistCalendarLock.dentistCalendarLock().getDentist());
 
         return new Response<>(
                 true,
@@ -248,6 +288,7 @@ public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCr
                 dentistCalendarLockRequestCreateDTO.getEndTime(),
                 dentistCalendarLockRequestCreateDTO.isFullDay(),
                 calendarLockType,
+                dentistCalendarLockRequestCreateDTO.getMode(),
                 dentistCalendarLockRequestCreateDTO.getRecurrence(),
                 dentistCalendarLockRequestCreateDTO.getObservation()
         );
@@ -393,6 +434,188 @@ public class DentistCalendarLockCreateUseCase  implements IDentistCalendarLockCr
                 throw new BadRequestException("exception.dentistLockCalendarService.validateDentistAvailability.user", null, "exception.dentistLockCalendarService.validateDentistAvailability.log", new Object[]{idDentist, blockDate}, LogLevel.ERROR);
             }
         }
+    }
+
+
+
+
+    /**
+     * Evalúa si la creación de un nuevo bloqueo en el calendario de un dentista genera conflictos con turnos ya reservados.
+     * <p>
+     * El método analiza los turnos futuros del dentista y determina cuáles se superponen con el bloqueo propuesto,
+     * considerando las fechas, horarios y tipo de recurrencia configurados. En caso de detectar conflictos,
+     * los actualiza en la base de datos y los devuelve en la respuesta.
+     * </p>
+     *
+     * <p>Flujo general:</p>
+     * <ol>
+     *   <li>Obtiene los turnos futuros del dentista afectado.</li>
+     *   <li>Detecta los turnos en conflicto con el bloqueo según la configuración recibida.</li>
+     *   <li>Si no hay conflictos, devuelve una lista vacía.</li>
+     *   <li>Si hay conflictos, los persiste mediante el servicio correspondiente y los mapea a DTOs.</li>
+     * </ol>
+     *
+     * @param dentistCalendarLockRequestCreateDTO Objeto que contiene los datos del bloqueo a registrar (fechas, días, horarios, etc.).
+     * @param dentists Entidad {@link Dentist} afectada por el nuevo bloqueo.
+     * @return Lista de {@link AppointmentConflictResponseDTO} con los turnos en conflicto detectados,
+     *         o una lista vacía si no se encontraron conflictos.
+     */
+    private List<AppointmentConflictResponseDTO> verifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists) {
+
+        //Obtiene turnos y turnos conflictivos.
+        ConflictManagerContextInternalDTO context = prepareContextByCalendarLock(dentistCalendarLockRequestCreateDTO, dentists);
+
+        //Retorna en caso de lista vacía. Caso contrario, persiste conflictos y retorna
+        if (context.appointments().isEmpty() && context.appointmentConflicts().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        //Persistimos en base solo los nuevos conflictos
+        List<AppointmentConflict> conflictSaved = appointmentConflictService.create(context.appointmentConflicts());
+
+        //Notificación por mail.
+        emailService.sendEmail(
+                userService.getEmailByRole(List.of(Role.SECRETARY.toString(), Role.ADMINISTRATOR.toString())),
+                messageSource.getMessage("conflictManagerService.dentistLockCalendar.notifyEmail.subject", new Object[]{authenticatedUserService.getAuthenticatedUser().getUsername()}, LocaleContextHolder.getLocale()),
+                messageSource.getMessage("conflictManagerService.dentistLockCalendar.notifyEmail.body", new Object[]{authenticatedUserService.getAuthenticatedUser().getUsername()}, LocaleContextHolder.getLocale())
+        );
+
+
+        //Mapea conflictos y devuelve
+        return conflictSaved.stream()
+                .map(AppointmentConflictResponseDTO::build)
+                .toList();
+    }
+
+
+    /**
+     * Método privado del servicio.
+     * Permite obtener turnos y turnos en conflicto.
+     * Este método puede ser llamado por:
+     * El método para detecta y persistir turnos en conflictos ante nuevo bloqueo de calendario.
+     * El método que preview de Bloqueo de calendario, para consultar los posibles conflictos antes de crear
+     */
+    private ConflictManagerContextInternalDTO prepareContextByCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentist){
+
+        //Obtiene turno por dentista.
+        List<Appointment> appointments = appointmentService.getFutureAppointmentsReservedByDentist(dentist.getId());
+
+        // Identificar si hay turnos en conflictos.
+        List<AppointmentConflict> appointmentConflicts = evaluateAppointmentDentistCalendarLock(appointments, dentistCalendarLockRequestCreateDTO,dentistCalendarLockRequestCreateDTO.getRecurrence());
+
+        return ConflictManagerContextInternalDTO.build(appointments, appointmentConflicts);
+
+    }
+
+
+    /**
+     * Detecta y genera conflictos de turnos en función de un nuevo bloqueo aplicado al calendario de un dentista.
+     * <p>
+     * Este método compara cada turno futuro del dentista con los parámetros del bloqueo definido en
+     * {@link DentistCalendarLockRequestCreateDTO} (fechas, días, horarios y recurrencia). Para cada turno que
+     * se superpone con el bloqueo, se genera un {@link AppointmentConflict} indicando que está fuera de horario.
+     * </p>
+     *
+     * @param appointments Lista de {@link Appointment} que representa los turnos futuros del dentista.
+     * @param dentistCalendarLockRequestCreateDTO Objeto con los datos del bloqueo a evaluar (rango de fechas, días, horarios, etc.).
+
+     * @param recurrence Tipo de recurrencia del bloqueo ({@link CalendarLockRecurrenceName}).
+     * @return Lista de {@link AppointmentConflict} representando los turnos que entran en conflicto con el bloqueo.
+     */
+
+    private List<AppointmentConflict> evaluateAppointmentDentistCalendarLock(List<Appointment> appointments, DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, CalendarLockRecurrenceName recurrence) {
+        List<AppointmentConflict> conflicts = new ArrayList<>();
+
+
+        //Si la recurrencia es diaria, no hay Days en el DTO, agregamos provisoriamente para iterar.
+        List<DayName> daysToEvaluate =
+                dentistCalendarLockRequestCreateDTO.getRecurrence() == DAILY
+                        ? DayName.listDayName()
+                        : dentistCalendarLockRequestCreateDTO.getDays();
+
+
+        for (Appointment appointment : appointments) {
+
+            //flag para el for interno de days.
+            boolean conflictDetected = false;
+
+            //Si el bloqueo es PUNTUAL, no iteramos.
+            if ((dentistCalendarLockRequestCreateDTO.getRecurrence() == null || dentistCalendarLockRequestCreateDTO.getRecurrence() == CalendarLockRecurrenceName.NONE)
+                    && dentistCalendarLockRequestCreateDTO.getDays().isEmpty()
+            ) {
+                conflictDetected = CalendarUtils.isDateTimeWithinEvent(
+                        appointment.getDate(),
+                        dentistCalendarLockRequestCreateDTO.getStartDate(),
+                        dentistCalendarLockRequestCreateDTO.getEndDate(),
+                        null,
+                        dentistCalendarLockRequestCreateDTO.getStartTime(),
+                        dentistCalendarLockRequestCreateDTO.getEndTime(),
+                        recurrence
+                );
+            }
+            //Caso contrario, iteramos.
+            else {
+                for (DayName day : daysToEvaluate) {
+                    if (CalendarUtils.isDateTimeWithinEvent(
+                            appointment.getDate(),
+                            dentistCalendarLockRequestCreateDTO.getStartDate(),
+                            dentistCalendarLockRequestCreateDTO.getEndDate(),
+                            day.toDayOfWeek(),
+                            dentistCalendarLockRequestCreateDTO.getStartTime(),
+                            dentistCalendarLockRequestCreateDTO.getEndTime(),
+                            recurrence
+                    )){
+                        conflictDetected = true;
+                        break; //cortamos el for para no seguir iterando por día
+
+                    }
+                }
+            }
+
+            if (conflictDetected) {
+                AppointmentConflict ac = AppointmentConflict.build(
+                        appointment,
+                        dentistCalendarLockRequestCreateDTO.getIdOriginConflict(),
+                        dentistCalendarLockRequestCreateDTO.getOriginConflict().name()
+                );
+                ac.setCreatedAt(LocalDateTime.now());
+                ac.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+                ac.setEnabled(true);
+
+                conflicts.add(ac);
+            }
+        }
+        return conflicts;
+    }
+
+
+
+
+
+
+    /**
+     * Método para verificar conflictos ante un preview de bloqueo de calendario dentista.
+     *
+     * @param dentistCalendarLockRequestCreateDTO :
+     * @param dentists                            :
+     */
+    private List<AppointmentConflictResponseDTO> PreviewVerifyConflictsByDentistCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentists) {
+
+        //Obtiene turnos y turnos conflictivos.
+        ConflictManagerContextInternalDTO context = prepareContextByCalendarLock(dentistCalendarLockRequestCreateDTO, dentists);
+
+        //Retorna en caso de lista vacía. Caso contrario, persiste conflictos y retorna
+        if (context.appointments().isEmpty() && context.appointmentConflicts().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+
+        //Mapea conflictos y devuelve
+        return context.appointmentConflicts().stream()
+                .map(AppointmentConflictResponseDTO::build)
+                .toList();
+
+
     }
 
 

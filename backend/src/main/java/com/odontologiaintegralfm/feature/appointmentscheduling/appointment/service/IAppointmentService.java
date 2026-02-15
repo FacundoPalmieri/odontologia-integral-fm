@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.appointmentscheduling.appointment.serv
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.*;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.enums.AppointmentStatus;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
 import com.odontologiaintegralfm.shared.dto.Response;
 
 import java.time.LocalDate;
@@ -101,5 +102,17 @@ public interface IAppointmentService {
      * @param idAppointment : id del turno
      */
     Appointment getById(Long idAppointment);
+
+
+    /**
+     *Recuperar turnos con estado "Reserved" para el dentista y día solicitado.
+     */
+
+    List<Appointment> getFutureAppointmentsReservedByDentist(Long idDentist);
+
+
+
+
+
 
 }

@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.Or
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.repository.IAppointmentConflictRepository;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.model.DentistCalendarLock;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.dto.Response;
@@ -132,4 +133,44 @@ public class AppointmentConflictService implements IAppointmentConflictService {
             throw new DataBaseException(e, "AppointmentConflictService", appointment.getId(), null, "update");
         }
     }
+
+
+
+
+    /**
+     * Resuelve los turnos en conflicto cuando un bloqueo de calendario se finaliza anticipadamente.
+     * <p>
+     * El método obtiene todos los conflictos asociados al bloqueo y, si existen, los marca como resueltos
+     * mediante el servicio de gestión de conflictos.
+     *
+     * @param dentistCalendarLock Bloqueo de calendario que se está finalizando anticipadamente.
+     */
+    @Override
+    public void resolvedAppointmentConflictByFinishLock(DentistCalendarLock dentistCalendarLock, UserSec userSec) {
+        List<AppointmentConflict> appointmentConflicts = appointmentConflictRepository.findAllByDentistIdAndIdOriginConflict(dentistCalendarLock.getDentist().getId(), dentistCalendarLock.getId());
+
+        if(!appointmentConflicts.isEmpty()){
+            this.updateResolvedConflicts(appointmentConflicts, userSec);
+        }
+    }
+
+
+
+
+    /**
+     * Marca como resueltos los conflictos de turnos de un dentista recibida
+     * @param appointmentConflicts Lista de {@link AppointmentConflict} que indica los turnos que deben marcarse como resueltos.
+     */
+    @Override
+    public void updateResolvedConflicts(List<AppointmentConflict> appointmentConflicts, UserSec userSec) {
+
+        List<Long> ids = appointmentConflicts.stream()
+                .map(AppointmentConflict::getId)
+                .toList();
+
+        resolvedAll(ids, LocalDateTime.now(), userSec);
+
+    }
+
+
 }

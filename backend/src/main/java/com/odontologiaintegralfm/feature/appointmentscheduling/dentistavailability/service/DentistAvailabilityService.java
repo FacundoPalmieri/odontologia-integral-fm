@@ -1,17 +1,18 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.AppointmentConflictResponseDTO;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.DentistAvailabilityContextInternalDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.WorkingDayDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.model.DentistAvailability;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.repository.IDentistAvailabilityRepository;
-import com.odontologiaintegralfm.feature.appointmentscheduling.conflictmanager.service.IConflictManagerService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.util.CalendarUtils;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
+import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -30,9 +31,7 @@ import java.util.*;
 import static com.odontologiaintegralfm.feature.appointmentscheduling.calendar.util.CalendarUtils.isDateTimeWithinBreak;
 
 
-/**
- * @author [Facundo Palmieri]
- */
+
 @Service
 @Slf4j
 public class DentistAvailabilityService implements IDentistAvailabilityService {
@@ -42,136 +41,37 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
     private final IDentistAvailabilityRepository dentistAvailabilityRepository;
     private final MessageSource messageSource;
     private final AuthenticatedUserService authenticatedUserService;
-    private final IConflictManagerService conflictManagerService;
 
     public DentistAvailabilityService(
             IDentistService dentistService,
             IDentistAvailabilityRepository dentistAvailabilityRepository,
             MessageSource messageSource,
-            AuthenticatedUserService authenticatedUserService,
-            IConflictManagerService conflictManagerService) {
+            AuthenticatedUserService authenticatedUserService
+    ){
         this.dentistService = dentistService;
         this.dentistAvailabilityRepository = dentistAvailabilityRepository;
         this.messageSource = messageSource;
         this.authenticatedUserService = authenticatedUserService;
-        this.conflictManagerService = conflictManagerService;
     }
 
 
-
-
     /**
-     * Crea o actualiza la disponibilidad de turnos de un dentista.
+     * Método de dominio para mapear, y persistir la entidad.
      *
-     * <p>Este método realiza las siguientes acciones:</p>
-     * <ol>
-     *     <li>Valida que el dentista exista.</li>
-     *     <li>Deshabilita las disponibilidades actuales activas para evitar inconsistencias con la nueva jornada.</li>
-     *     <li>Crea y persiste las nuevas disponibilidades según la lista de {@link WorkingDayDTO} recibida.</li>
-     *     <li>Asocia cada disponibilidad creada con un posible origen de conflicto ({@link OriginConflict AVAILABILITY}).</li>
-     *     <li>Verifica si existen turnos existentes que se vean afectados por la nueva disponibilidad, generando {@link AppointmentConflictResponseDTO}.</li>
-     *     <li>Construye y retorna un {@link DentistAvailabilityResponseDTO} con las nuevas disponibilidades y los conflictos detectados.</li>
-     * </ol>
-     *
-     * <p>Notas importantes:</p>
-     * <ul>
-     *     <li>La jornada siempre entra en vigencia a partir del día siguiente de la actualización para evitar superposición con jornadas activas y turnos ya generados.</li>
-     *     <li>Si existen disponibilidades previas, se deshabilitan antes de persistir las nuevas.</li>
-     *     <li>Las disponibilidades contienen información de auditoría: {@code createdAt} y {@code createdBy}.</li>
-     * </ul>
-     *
-     * @param id   ID del dentista cuya disponibilidad se actualizará. No puede ser {@code null}.
-     * @param days Lista de {@link WorkingDayDTO} que define la nueva jornada laboral.
-     * @return {@link Response} con un {@link DentistAvailabilityResponseDTO} que contiene:
-     * <ul>
-     *     <li>El ID del dentista.</li>
-     *     <li>La lista de nuevas disponibilidades con horarios, recurrencias y duración de turno.</li>
-     *     <li>Los conflictos detectados respecto a turnos existentes ({@link AppointmentConflictResponseDTO}).</li>
-     * </ul>
-     * @throws ConflictException si el dentista no existe en la base de datos.
-     * @throws DataBaseException si ocurre un error de acceso a la base de datos o fallo en la transacción.
-     */
-
-    public Response<DentistAvailabilityResponseDTO> create(Long id, List<WorkingDayDTO> days) {
-        try {
-
-            DentistAvailabilityContextInternalDTO dentistAvailabilityExisting = prepareContext(id);
-
-
-            //Si la lista no está vacía existe relación previa entre dentista y disponibilidad. Se deshabilitan las mismas.
-            if (!dentistAvailabilityExisting.dentistAvailabilities().isEmpty()) {
-                disabledAvailability(dentistAvailabilityExisting.dentistAvailabilities());
-            }
-
-
-            //Mapeo a entidad
-            List<DentistAvailability> newAvailabilities = entityFromDto(days, dentistAvailabilityExisting);
-
-
-            //Se persiste la nueva relación.
-            List<DentistAvailability> dentistAvailabilitiesSaved = dentistAvailabilityRepository.saveAll(newAvailabilities);
-
-
-            //Se completa el mapeo del DTO con los datos para posible origen de conflicto (Id entidad persistida en cada jornada DTO)
-            completeDto(days,dentistAvailabilitiesSaved);
-
-
-            //Verificar si hay turnos existentes que se vean afectados.
-            List<AppointmentConflictResponseDTO> appointmentsConflict = conflictManagerService.verifyConflictsByDentistAvailability(id, days);
-
-
-            return new Response<>(
-                    true,
-                    (appointmentsConflict.isEmpty())
-                            ? messageSource.getMessage("dentistAvailabilityService.update.ok.user",null, LocaleContextHolder.getLocale())
-                            : messageSource.getMessage("dentistAvailabilityService.update.okWithConflict.user", null, LocaleContextHolder.getLocale()),
-                    DentistAvailabilityResponseDTO.build(dentistAvailabilitiesSaved,appointmentsConflict));
-        } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "DentistAvailabilityService", id, null, "update");
-        }
-    }
-
-
-
-    /**
-     * Método para simular una nueva jornada laboral de un dentista.
-     *
-     * @param id : id dentista
-     * @param days : Lista de jornadas.
+     * @param availability: disponibilidad a persistir.
      */
     @Override
-    public Response<DentistAvailabilityResponseDTO> createPreview(Long id, List<WorkingDayDTO> days) {
-
-        DentistAvailabilityContextInternalDTO dentistAvailabilityExisting = prepareContext(id);
-
+    public List<DentistAvailability> create( List<WorkingDayDTO> days,DentistAvailabilityContextInternalDTO availability, UserSec userSec) {
 
         //Mapeo a entidad
-        List<DentistAvailability> newAvailabilities = entityFromDto(days, dentistAvailabilityExisting);
+        List<DentistAvailability> newAvailabilities = entityFromDto(days, availability, userSec);
 
-
-        //Si no hay disponibilidades previas, no hay conflictos. Se retorna.
-        if(dentistAvailabilityExisting.dentistAvailabilities().isEmpty()) {
-           return new Response<>(
-                   true,
-                   messageSource.getMessage("dentistAvailabilityService.preview.ok.user", null, LocaleContextHolder.getLocale()),
-                   DentistAvailabilityResponseDTO.build(newAvailabilities,List.of()));
-        }
-
-
-        //Se completa el mapeo del DTO con los datos para posible origen de conflicto.
-        completeDto(days,newAvailabilities);
-
-        //Verificar si hay turnos existentes que se vean afectados.
-        List<AppointmentConflictResponseDTO> appointmentsConflict = conflictManagerService.PreviewVerifyConflictsByDentistAvailability(id, days);
-
-        return new Response<>(
-                true,
-                (appointmentsConflict.isEmpty())
-                        ? messageSource.getMessage("dentistAvailabilityService.preview.ok.user",null, LocaleContextHolder.getLocale())
-                        : messageSource.getMessage("dentistAvailabilityService.preview.okWithConflict.user", null, LocaleContextHolder.getLocale()),
-                DentistAvailabilityResponseDTO.build(newAvailabilities,appointmentsConflict));
-
+        //Se persiste la nueva relación.
+         return  dentistAvailabilityRepository.saveAll(newAvailabilities);
     }
+
+
+
 
 
     /**
@@ -220,19 +120,33 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
     }
 
 
+
+
+
+
+
+
+
     /**
-     * Método para obtener el tiempo de duración de un turno por ID de dentista.
-     * @param idDentistAvailability: id disponibilidad laboral.
+     * Método para deshabilitar jornadas laborales.
+     *
+     * @param dentistAvailability      : Lista de disponibilidades (días)
+     * @param authenticatedUserService : Usuario autenticado.
+     * @param now                      : Fecha y hora actual.
      */
     @Override
-    public Integer getAppointmentDuration(Long idDentistAvailability) {
-        return dentistAvailabilityRepository.findAppointmentDurationById(idDentistAvailability);
+    public void disabledAvailability(List<DentistAvailability> dentistAvailability, AuthenticatedUserService authenticatedUserService, LocalDateTime now) {
+        List<DentistAvailability> disabledAvailability = new ArrayList<>();
+
+        for (DentistAvailability da : dentistAvailability) {
+            da.setEnabled(false);
+            da.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
+            da.setDisabledAt(now);
+            disabledAvailability.add(da);
+        }
+
+        dentistAvailabilityRepository.saveAll(disabledAvailability);
     }
-
-
-
-
-
 
 
     /**
@@ -323,78 +237,6 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
 
     }
 
-    /**
-     * Deshabilita una jornada laboral
-     */
-    private void disabledAvailability(List<DentistAvailability> dentistAvailability) {
-
-        List<DentistAvailability> disabledAvailability = new ArrayList<>();
-
-        for (DentistAvailability da : dentistAvailability) {
-            da.setEnabled(false);
-            da.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
-            da.setDisabledAt(LocalDateTime.now());
-            disabledAvailability.add(da);
-        }
-
-        dentistAvailabilityRepository.saveAll(disabledAvailability);
-    }
-
-
-
-
-
-    /**
-     * Valída lo siguiente:
-     * - Fin del break no puede ser anterior al inicio.
-     * - Si un campo tiene datos, el otro también.
-     */
-    private void validateBreak(List <DentistAvailability> dentistAvailability) {
-        dentistAvailability.stream()
-                .forEach(da -> {
-                    if (da.getBreakStartTime() != null && da.getBreakEndTime() != null) {
-                        if (da.getBreakEndTime().isBefore(da.getBreakStartTime())) {
-                            throw new BadRequestException("exception.dentistAvailability.validateBreak.endBeforeStart.user",null,"exception.dentistAvailability.validateBreak.endBeforeStart.log", new Object[]{da.getId(),da.getBreakStartTime(),da.getBreakEndTime(),"DentistAvailabilityService","validateBreak"}, LogLevel.ERROR);
-
-                        }
-                    }
-
-                    if (da.getBreakStartTime() != null && da.getBreakEndTime() == null) {
-                        throw new BadRequestException("exception.dentistAvailability.validateBreak.breakEndEmpty.user",null,"exception.dentistAvailability.validateBreak.breakEndEmpty.log", new Object[]{da.getId(),da.getBreakStartTime(),da.getBreakEndTime(),"DentistAvailabilityService","validateBreak"}, LogLevel.ERROR);
-                    }
-
-                    if (da.getBreakStartTime() == null && da.getBreakEndTime() != null) {
-                        throw new BadRequestException("exception.dentistAvailability.validateBreak.breakStartEmpty.user",null,"exception.dentistAvailability.validateBreak.breakStartEmpty.log", new Object[]{da.getId(),da.getBreakStartTime(),da.getBreakEndTime(),"DentistAvailabilityService","validateBreak"}, LogLevel.ERROR);
-                    }
-
-                });
-    }
-
-
-
-
-
-
-    /**
-     * Método privado que prepara el contexto con la validación del dentista y sus disponibiliades actuales,
-     * para la creación de una nueva jornada, o preview de conflicto ante la intención de actualizar la misma
-     * @param dentistId : id dentista.
-     */
-    private DentistAvailabilityContextInternalDTO prepareContext(Long dentistId){
-        //Valida que exista dentista
-        Dentist dentist = dentistService.getById(dentistId)
-                .orElseThrow(() -> new ConflictException("exception.dentistNotFound.user", null, "exception.dentistNotFound.log", new Object[]{dentistId, "Dentist Availability Service", "prepareContext"}, LogLevel.ERROR));
-
-
-        //Buscar si existe relación:
-        List<DentistAvailability> dentistAvailabilityExisting = dentistAvailabilityRepository.findAllByDentistIdAndEnabledTrue(dentistId);
-
-
-        //Valída times de los breaks.
-        validateBreak(dentistAvailabilityExisting);
-
-        return DentistAvailabilityContextInternalDTO.build(dentist, dentistAvailabilityExisting);
-    }
 
 
     /**
@@ -402,7 +244,8 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
      * @param days : DTO con la jornada
      * @param dentistAvailabilityExisting : DTO interno del servicio que posea un dentista y una lista de disponibilidades.
      */
-    private List<DentistAvailability> entityFromDto(List<WorkingDayDTO> days, DentistAvailabilityContextInternalDTO dentistAvailabilityExisting) {
+    @Override
+    public List<DentistAvailability> entityFromDto(List<WorkingDayDTO> days, DentistAvailabilityContextInternalDTO dentistAvailabilityExisting, UserSec authenticatedUserService) {
 
         return days.stream()
                 .map(dto -> {
@@ -416,7 +259,7 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
                     DentistAvailability dentistAvailability = DentistAvailability.build(dentistAvailabilityExisting.dentist(), dto);
 
                     //Campos auditoría.
-                    dentistAvailability.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+                    dentistAvailability.setCreatedBy(authenticatedUserService);
                     dentistAvailability.setCreatedAt(LocalDateTime.now());
                     dentistAvailability.setEnabled(true);
 
@@ -427,24 +270,150 @@ public class DentistAvailabilityService implements IDentistAvailabilityService {
     }
 
 
+
     /**
-     * Método interno del servicio.
-     * Permite agregar datos al DTO de jornadas de trabajo, agregando el ID de la disponibilidad ya persistida y un motivo de conflicto.
-     *
-     * @param days                  : DTO con la jornada
-     * @param dentistAvailabilities : Jornada persistida que cuenta con el ID.
+     * Valída lo siguiente:
+     * - Fin del break no puede ser anterior al inicio.
+     * - Si un campo tiene datos, el otro también.
      */
-    private void completeDto(List<WorkingDayDTO> days, List<DentistAvailability> dentistAvailabilities) {
+    @Override
+    public void validateBreak(List <DentistAvailability> dentistAvailability) {
+        dentistAvailability.stream()
+                .forEach(da -> {
+                    if (da.getBreakStartTime() != null && da.getBreakEndTime() != null) {
+                        if (da.getBreakEndTime().isBefore(da.getBreakStartTime())) {
+                            throw new BadRequestException("exception.dentistAvailability.validateBreak.endBeforeStart.user",null,"exception.dentistAvailability.validateBreak.endBeforeStart.log", new Object[]{da.getId(),da.getBreakStartTime(),da.getBreakEndTime(),"dentistAvailability","validateBreak"}, LogLevel.ERROR);
 
-        for (int x = 0; x < dentistAvailabilities.size(); x++) {
-            WorkingDayDTO day = days.get(x);
-            DentistAvailability dentistAvailability = dentistAvailabilities.get(x);
+                        }
+                    }
 
-            day.setEffectiveDate(dentistAvailability.getEffectiveDate());
-            day.setIdOriginConflict(dentistAvailability.getId());
-            day.setOriginConflict(OriginConflict.DENTIST_AVAILABILITIES);
-        }
+                    if (da.getBreakStartTime() != null && da.getBreakEndTime() == null) {
+                        throw new BadRequestException("exception.dentistAvailability.validateBreak.breakEndEmpty.user",null,"exception.dentistAvailability.validateBreak.breakEndEmpty.log", new Object[]{da.getId(),da.getBreakStartTime(),da.getBreakEndTime(),"dentistAvailability","validateBreak"}, LogLevel.ERROR);
+                    }
+
+                    if (da.getBreakStartTime() == null && da.getBreakEndTime() != null) {
+                        throw new BadRequestException("exception.dentistAvailability.validateBreak.breakStartEmpty.user",null,"exception.dentistAvailability.validateBreak.breakStartEmpty.log", new Object[]{da.getId(),da.getBreakStartTime(),da.getBreakEndTime(),"dentistAvailability","validateBreak"}, LogLevel.ERROR);
+                    }
+
+                });
     }
+
+
+
+
+
+    /**
+     * Detecta y genera conflictos de turnos que se encuentran fuera de la nueva jornada laboral de un dentista.
+     * <p>
+     * Este método compara cada turno futuro del dentista con la lista de {@link WorkingDayDTO} que define la nueva
+     * disponibilidad laboral. Para cada turno que no se encuentra dentro de los días y horarios permitidos,
+     * se genera un objeto {@link AppointmentConflict} indicando que está fuera de horario.
+     * </p>
+     *
+     * @param appointments Lista de {@link Appointment} que representa los turnos futuros del dentista.
+     * @param workingDays  Lista de {@link WorkingDayDTO} que define la nueva jornada laboral a evaluar.
+     * @return Lista de {@link AppointmentConflict} representando los turnos que no se ajustan a la nueva jornada laboral.
+     */
+    @Override
+    public List<AppointmentConflict> evaluateAppointmentDentistAvailability(List<Appointment> appointments, List<WorkingDayDTO> workingDays) {
+
+        List<AppointmentConflict> conflicts = new ArrayList<>();
+
+        for (Appointment appointment : appointments) {
+            boolean covered = false;
+            Long idOriginConflict = null;
+            OriginConflict originConflict = null;
+
+
+            for (WorkingDayDTO workingDay : workingDays) {
+
+                LocalDate startDate;
+                LocalDate endDate;
+                DayOfWeek day;
+
+
+                // Jornada recurrente (semanal)
+                if (workingDay.getSpecificDate() == null) {
+
+                    startDate = workingDay.getEffectiveDate();
+
+                    //Fecha fín (Hasta donde evalúa). Último turno encontrado.
+                    endDate = appointments.stream()
+                            .map(a -> a.getDate().toLocalDate())
+                            .max(Comparator.naturalOrder())
+                            .orElse(null);
+
+                    day = workingDay.getDayName().toDayOfWeek();
+                }
+
+
+
+
+
+                // Jornada por fecha específica
+                else {
+                    startDate = workingDay.getEffectiveDate();
+                    endDate = workingDay.getEffectiveDate();
+                    day = null;
+                }
+
+
+
+
+                // Evalúa si el turno NO está cubierto por la jornada.
+                if (!CalendarUtils.isDateTimeWithinEvent(appointment.getDate(), startDate, endDate, day, workingDay.getStartTime(), workingDay.getEndTime(), workingDay.getRecurrence())) {
+
+                    // Guardamos último origen posible (si ninguna cubre)
+                    idOriginConflict = workingDay.getIdOriginConflict();
+                    originConflict = workingDay.getOriginConflict();
+
+                    continue;
+                }
+
+
+                // A partir de acá el turno cae dentro de la jornada
+
+                //Evalúa si hay break
+                if (workingDay.getBreakStartTime() != null && workingDay.getBreakEndTime() != null) {
+
+                    //Si el turno cae dentro del break, no está cubierta.
+                    if (CalendarUtils.isDateTimeWithinBreak(appointment.getDate().toLocalTime(), workingDay.getBreakStartTime(), workingDay.getBreakEndTime())) {
+
+                        // Guardamos último origen posible (si ninguna cubre)
+                        idOriginConflict = workingDay.getIdOriginConflict();
+                        originConflict = workingDay.getOriginConflict();
+
+                        continue; //corta el flujo, itera al siguiente.
+                    }
+                }
+
+                //Si no hay break, la jornada está totalmente cubierta.
+                covered = true;
+
+
+            }
+
+            if (!covered) {
+
+                AppointmentConflict ac = AppointmentConflict.build(
+                        appointment,
+                        idOriginConflict,
+                        originConflict.name()
+
+                );
+                ac.setCreatedAt(LocalDateTime.now());
+                ac.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+                ac.setEnabled(true);
+
+                conflicts.add(ac);
+            }
+        }
+
+
+        return conflicts;
+    }
+
+
 
 
 

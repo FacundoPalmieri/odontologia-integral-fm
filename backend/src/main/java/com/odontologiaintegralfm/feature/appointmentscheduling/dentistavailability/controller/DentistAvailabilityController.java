@@ -4,6 +4,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationUpdate;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.WorkingDayDTO;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.IDentistAvailabilityCreateUseCase;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.IDentistAvailabilityService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,10 +22,12 @@ import java.util.List;
 @RequestMapping("/api/dentist-availability")
 public class DentistAvailabilityController {
 
+    private final IDentistAvailabilityCreateUseCase dentistAvailabilityCreateUseCase;
     private final IDentistAvailabilityService dentistAvailabilityService;
 
-    public DentistAvailabilityController(IDentistAvailabilityService dentistAvailabilityService) {
+    public DentistAvailabilityController(IDentistAvailabilityService dentistAvailabilityService,IDentistAvailabilityCreateUseCase dentistAvailabilityCreateUseCase) {
         this.dentistAvailabilityService = dentistAvailabilityService;
+        this.dentistAvailabilityCreateUseCase = dentistAvailabilityCreateUseCase;
     }
 
 
@@ -48,7 +51,7 @@ public class DentistAvailabilityController {
     public ResponseEntity<Response<DentistAvailabilityResponseDTO>> update(@Validated @PathVariable Long id,
                                                                            @Valid @RequestBody List<WorkingDayDTO> days ) {
 
-        Response<DentistAvailabilityResponseDTO> response  =  dentistAvailabilityService.create(id, days);
+        Response<DentistAvailabilityResponseDTO> response  =  dentistAvailabilityCreateUseCase.execute(id, days);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
@@ -72,7 +75,7 @@ public class DentistAvailabilityController {
     public ResponseEntity<Response<DentistAvailabilityResponseDTO>> updatePreview(@Validated @PathVariable Long id,
                                                                                   @Valid @RequestBody List<WorkingDayDTO> days ) {
 
-        Response<DentistAvailabilityResponseDTO> response  =  dentistAvailabilityService.createPreview(id, days);
+        Response<DentistAvailabilityResponseDTO> response  =  dentistAvailabilityCreateUseCase.executePreview(id, days);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
