@@ -2,8 +2,8 @@ package com.odontologiaintegralfm.feature.consultation.core.service.impl;
 
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
-import com.odontologiaintegralfm.feature.appointment.core.model.Appointment;
-import com.odontologiaintegralfm.feature.appointment.core.service.interfaces.IAppointmentService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
 import com.odontologiaintegralfm.feature.consultation.core.dto.ConsultationCorrectionRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationEventType;

@@ -1,0 +1,23 @@
+package com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums;
+
+import lombok.Getter;
+
+/**
+ * Tipo de información brindada al día para la vista diaria.
+ */
+@Getter
+public enum SlotStatus {
+    FREE("Disponible", "#4CAF50"),         // verde
+    RESERVED("Reservado", "#F44336"),      // rojo
+    LOCKED("Bloqueo de agenda", "#FF9800"),// naranja
+    BREAK("Break","#533C47");              //Gris violaceo
+
+
+    private final String description;
+    private final String colorHex;
+
+    SlotStatus(String description, String colorHex) {
+        this.description = description;
+        this.colorHex = colorHex;
+    }
+}
