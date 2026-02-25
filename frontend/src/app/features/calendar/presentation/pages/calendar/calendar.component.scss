@@ -756,7 +756,24 @@
                   content: "• ";
                   font-size: 10px;
                 }
+
+                // Item clickeable (cuando hay múltiples locks)
+                &.lock-item-clickable {
+                  cursor: pointer;
+                  text-decoration: underline;
+                  text-underline-offset: 2px;
+
+                  &:hover {
+                    color: white;
+                    opacity: 0.8;
+                  }
+                }
               }
+            }
+
+            // Badge completo clickeable (cuando hay un solo lock)
+            &.locked-badge-clickable {
+              cursor: pointer;
             }
           }
         }
@@ -1203,7 +1220,24 @@
               content: "• ";
               font-size: 10px;
             }
+
+            // Item clickeable (cuando hay múltiples locks)
+            &.lock-item-clickable {
+              cursor: pointer;
+              text-decoration: underline;
+              text-underline-offset: 2px;
+
+              &:hover {
+                color: white;
+                opacity: 0.8;
+              }
+            }
           }
+        }
+
+        // Badge completo clickeable (cuando hay un solo lock)
+        &.locked-badge-clickable {
+          cursor: pointer;
         }
       }
 

@@ -52,6 +52,10 @@ import { AppointmentInterface } from "../../../../appointments/domain/interfaces
 import { PersonInterface } from "../../../../../shared/interfaces/person.interface";
 import { HolidayDetailDialogComponent } from "../../components/holiday-detail-dialog/holiday-detail-dialog.component";
 import { CalendarLockDetailDialogComponent } from "../../components/calendar-lock-detail-dialog/calendar-lock-detail-dialog.component";
+import { UnlockCalendarDialog } from "../../components/unlock-calendar-dialog/unlock-calendar-dialog.component";
+import { CalendarLockService } from "../../../services/calendar-lock.service";
+import { CalendarLockDayInterface } from "../../../domain/interfaces/calendar-lock.interface";
+import { DentistLockMonthInterface } from "../../../domain/interfaces/calendar.interface";
 import { AppointmentDetailDialogComponent } from "../../components/appointment-detail-dialog/appointment-detail-dialog.component";
 import { CalendarMonthDayStatusEnum } from "../../../utils/enums/calendar-month-day-status.enum";
 import { SlotStatusEnum } from "../../../utils/enums/slot-status.enum";
@@ -91,6 +95,7 @@ export interface SpecialtyGroup {
     MatNativeDateModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
+    UnlockCalendarDialog,
   ],
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
@@ -98,6 +103,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly calendarService = inject(CalendarService);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly calendarLockService = inject(CalendarLockService);
   private readonly dentistService = inject(DentistService);
   private readonly appointmentService = inject(AppointmentService);
   readonly localStorageService = inject(LocalStorageService);
@@ -974,6 +980,86 @@ export class CalendarComponent implements OnInit, AfterViewInit {
       return [];
     }
     return dayData.dentistLock.map((lock) => lock.lockType);
+  }
+
+  /**
+   * Open unlock dialog from month view badge.
+   * Uses DentistLockMonthInterface which only has dentistCalendarLockId.
+   * Constructs a minimal CalendarLockDayInterface with just the id needed by the serializer.
+   */
+  openUnlockFromMonthBadge(
+    event: Event,
+    lock: DentistLockMonthInterface,
+  ): void {
+    event.stopPropagation();
+
+    const minimalLock: CalendarLockDayInterface = {
+      id: lock.dentistCalendarLockId,
+      idDentist: this.personId,
+      appointmentConflict: null,
+      startDate: "",
+      startTime: "",
+      endDate: "",
+      endTime: "",
+      lockType: lock.lockType,
+      observation: "",
+      observationUpdate: null,
+      recurrence: "",
+    };
+
+    const dialogRef = this.dialog.open(UnlockCalendarDialog, {
+      data: { calendarLock: minimalLock },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.confirmed && result?.observation) {
+        this.calendarLockService
+          .update(minimalLock, result.observation, this.personId)
+          .subscribe({
+            next: (response) => {
+              this.snackbarService.openSnackbar(
+                response.message || "Bloqueo eliminado exitosamente",
+                6000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Success,
+              );
+              this.refreshCurrentView();
+            },
+          });
+      }
+    });
+  }
+
+  /**
+   * Open unlock dialog from week view badge.
+   * Uses CalendarLockDayInterface which already has all fields.
+   */
+  openUnlockFromWeekBadge(event: Event, lock: CalendarLockDayInterface): void {
+    event.stopPropagation();
+
+    const dialogRef = this.dialog.open(UnlockCalendarDialog, {
+      data: { calendarLock: lock },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.confirmed && result?.observation) {
+        this.calendarLockService
+          .update(lock, result.observation, this.personId)
+          .subscribe({
+            next: (response) => {
+              this.snackbarService.openSnackbar(
+                response.message || "Bloqueo eliminado exitosamente",
+                6000,
+                "center",
+                "top",
+                SnackbarTypeEnum.Success,
+              );
+              this.refreshCurrentView();
+            },
+          });
+      }
+    });
   }
 
   /**

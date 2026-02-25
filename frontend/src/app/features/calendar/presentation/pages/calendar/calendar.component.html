@@ -805,6 +805,20 @@
                               [style.background]="
                                 getWeekDayLockedColor(getWeekDates()[i])
                               "
+                              [class.locked-badge-clickable]="
+                                getWeekDentistLockTypes(getWeekDates()[i])
+                                  .length === 1
+                              "
+                              (click)="
+                                getWeekDentistLockTypes(getWeekDates()[i])
+                                  .length === 1
+                                  ? openUnlockFromWeekBadge(
+                                      $event,
+                                      getWeekDayData(getWeekDates()[i])!
+                                        .dentistLock[0]
+                                    )
+                                  : null
+                              "
                             >
                               <div class="badge-header">
                                 <span class="badge-icon">🔒</span>
@@ -818,13 +832,29 @@
                               ) {
                                 <ul class="lock-type-list">
                                   @for (
-                                    lockType of getWeekDentistLockTypes(
-                                      getWeekDates()[i]
-                                    );
-                                    track lockType
+                                    lock of getWeekDayData(getWeekDates()[i])!
+                                      .dentistLock;
+                                    track lock.id
                                   ) {
-                                    <li class="lock-type-item">
-                                      {{ lockType }}
+                                    <li
+                                      class="lock-type-item"
+                                      [class.lock-item-clickable]="
+                                        getWeekDentistLockTypes(
+                                          getWeekDates()[i]
+                                        ).length > 1
+                                      "
+                                      (click)="
+                                        getWeekDentistLockTypes(
+                                          getWeekDates()[i]
+                                        ).length > 1
+                                          ? openUnlockFromWeekBadge(
+                                              $event,
+                                              lock
+                                            )
+                                          : null
+                                      "
+                                    >
+                                      {{ lock.lockType }}
                                     </li>
                                   }
                                 </ul>
@@ -965,6 +995,17 @@
                       *ngIf="getDayDescription(date)"
                       class="day-badge"
                       [style.background-color]="getDayColor(date)"
+                      [class.locked-badge-clickable]="
+                        getDentistLockTypes(date).length === 1
+                      "
+                      (click)="
+                        getDentistLockTypes(date).length === 1
+                          ? openUnlockFromMonthBadge(
+                              $event,
+                              getDayFromBackend(date)!.dentistLock[0]
+                            )
+                          : null
+                      "
                     >
                       <div class="badge-header">
                         <span class="badge-icon">{{ getDayIcon(date) }}</span>
@@ -976,10 +1017,22 @@
                       @if (getDentistLockTypes(date).length > 0) {
                         <ul class="lock-type-list">
                           @for (
-                            lockType of getDentistLockTypes(date);
-                            track lockType
+                            lock of getDayFromBackend(date)!.dentistLock;
+                            track lock.dentistCalendarLockId
                           ) {
-                            <li class="lock-type-item">{{ lockType }}</li>
+                            <li
+                              class="lock-type-item"
+                              [class.lock-item-clickable]="
+                                getDentistLockTypes(date).length > 1
+                              "
+                              (click)="
+                                getDentistLockTypes(date).length > 1
+                                  ? openUnlockFromMonthBadge($event, lock)
+                                  : null
+                              "
+                            >
+                              {{ lock.lockType }}
+                            </li>
                           }
                         </ul>
                       }
