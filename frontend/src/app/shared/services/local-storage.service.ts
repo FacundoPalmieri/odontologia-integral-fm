@@ -161,7 +161,6 @@ export class LocalStorageService {
     const userData = this.getUserData();
     if (userData != null) {
       const logoutData: LogoutInterface = {
-        jwt: userData?.jwt,
         refreshToken: userData.refreshToken,
         idUser: userData.idUser,
         username: userData.username,
