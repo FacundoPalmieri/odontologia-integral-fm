@@ -22,6 +22,7 @@ export interface CalendarLockInterface {
   recurrence: RecurrenceEnum;
   startDate: Date;
   endDate: Date;
+  fullDay: boolean;
   startTime: string;
   endTime: string;
   observation: string;

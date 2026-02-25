@@ -9,6 +9,7 @@ export interface CalendarLockCreateDto {
   recurrence: RecurrenceEnum;
   startDate: Date;
   endDate: Date;
+  fullDay: boolean;
   startTime: string;
   endTime: string;
   observation: string;

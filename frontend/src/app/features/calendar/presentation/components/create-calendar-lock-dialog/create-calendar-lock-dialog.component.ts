@@ -85,6 +85,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
     endDate: new FormControl<Date | null>(null, [Validators.required]),
     startTime: new FormControl<string>(""),
     endTime: new FormControl<string>(""),
+    fullDay: new FormControl<boolean>(false),
     recurrence: new FormControl<RecurrenceEnum>(RecurrenceEnum.NONE),
     observation: new FormControl<string>(""),
   });
@@ -646,6 +647,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
   }
 
   onAllDayChange(isAllDay: boolean): void {
+    this.eventForm.get("fullDay")?.setValue(isAllDay);
     if (isAllDay) {
       this.eventForm.get("startTime")?.setValue("00:00");
       this.eventForm.get("endTime")?.setValue("23:59");
@@ -680,6 +682,7 @@ export class CreateCalendarLockDialogComponent implements OnDestroy {
         calendarLockType: formValue.calendarLockType!,
         mode: modeName,
         days: formValue.days || [],
+        fullDay: formValue.fullDay || false,
         recurrence: formValue.recurrence || RecurrenceEnum.NONE,
         startDate: formValue.startDate!,
         endDate: formValue.endDate!,

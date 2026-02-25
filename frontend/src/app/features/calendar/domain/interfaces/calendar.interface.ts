@@ -13,8 +13,14 @@ export interface CalendarMonthDayInterface {
   day: string;
   dentistHolidayId: number;
   dentistId: number;
+  dentistLock: DentistLockMonthInterface[];
   holiday: CalendarHolidayInterface;
   slots: CalendarSlotInterface[];
+}
+
+export interface DentistLockMonthInterface {
+  dentistCalendarLockId: number;
+  lockType: string;
 }
 
 export interface CalendarWeekInterface {
@@ -30,6 +36,7 @@ export interface CalendarDayInterface {
   calendarDayStatus: CalendarDayStatusInterface;
   slots: CalendarSlotInterface[];
   holiday: CalendarHolidayInterface;
+  dentistLock: CalendarLockDayInterface[];
 }
 
 export interface CalendarHolidayInterface {

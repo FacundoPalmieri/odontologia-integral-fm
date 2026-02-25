@@ -647,11 +647,10 @@
             color: var(--mat-sys-on-surface);
           }
 
-          // Badges en vista semanal - estilos compartidos
+          // Badges en vista semanal - estilos compartidos (excepto locked)
           .week-day-holiday-badge,
           .week-day-full-badge,
-          .week-day-free-badge,
-          .week-day-locked-badge {
+          .week-day-free-badge {
             display: inline-flex;
             align-items: center;
             gap: 3px;
@@ -687,6 +686,77 @@
               box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
               max-width: none;
               white-space: normal;
+            }
+          }
+
+          // Badge de bloqueo - layout en columna para mostrar lista de lockType
+          .week-day-locked-badge {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            padding: 4px 6px;
+            margin-top: 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            max-width: 90px;
+            width: fit-content;
+
+            &:hover {
+              transform: translateY(-1px);
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+              max-width: none;
+            }
+
+            .badge-header {
+              display: flex;
+              align-items: center;
+              gap: 3px;
+              width: 100%;
+
+              .badge-icon {
+                font-size: 12px;
+                line-height: 1;
+                flex-shrink: 0;
+              }
+
+              .badge-text {
+                line-height: 1.2;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 12px;
+              }
+            }
+
+            .lock-type-list {
+              list-style: none;
+              margin: 2px 0 0 0;
+              padding: 0;
+              display: flex;
+              flex-direction: column;
+              gap: 1px;
+              width: 100%;
+
+              .lock-type-item {
+                font-size: 9px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.9);
+                line-height: 1.3;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+
+                &::before {
+                  content: "• ";
+                  font-size: 10px;
+                }
+              }
             }
           }
         }
@@ -1060,8 +1130,9 @@
 
       .day-badge {
         display: inline-flex;
-        align-items: center;
-        gap: 4px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
         padding: 4px 8px;
         margin-bottom: 6px;
         border-radius: 12px;
@@ -1075,6 +1146,14 @@
         transition: all 0.3s ease;
         cursor: pointer;
         position: relative;
+
+        // Fila superior: icono + texto
+        .badge-header {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          width: 100%;
+        }
 
         &:hover {
           transform: translateY(-2px) scale(1.05);
@@ -1100,6 +1179,31 @@
           white-space: nowrap;
           line-height: 1.2;
           transition: all 0.3s ease;
+        }
+
+        .lock-type-list {
+          list-style: none;
+          margin: 4px 0 0 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          width: 100%;
+
+          .lock-type-item {
+            font-size: 9px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            &::before {
+              content: "• ";
+              font-size: 10px;
+            }
+          }
         }
       }
 

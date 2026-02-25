@@ -806,10 +806,29 @@
                                 getWeekDayLockedColor(getWeekDates()[i])
                               "
                             >
-                              <span class="badge-icon">🔒</span>
-                              <span class="badge-text">{{
-                                getWeekDayLockedDescription(getWeekDates()[i])
-                              }}</span>
+                              <div class="badge-header">
+                                <span class="badge-icon">🔒</span>
+                                <span class="badge-text">{{
+                                  getWeekDayLockedDescription(getWeekDates()[i])
+                                }}</span>
+                              </div>
+                              @if (
+                                getWeekDentistLockTypes(getWeekDates()[i])
+                                  .length > 0
+                              ) {
+                                <ul class="lock-type-list">
+                                  @for (
+                                    lockType of getWeekDentistLockTypes(
+                                      getWeekDates()[i]
+                                    );
+                                    track lockType
+                                  ) {
+                                    <li class="lock-type-item">
+                                      {{ lockType }}
+                                    </li>
+                                  }
+                                </ul>
+                              }
                             </div>
                           }
                         </div>
@@ -947,10 +966,23 @@
                       class="day-badge"
                       [style.background-color]="getDayColor(date)"
                     >
-                      <span class="badge-icon">{{ getDayIcon(date) }}</span>
-                      <span class="badge-text">{{
-                        getDayDescription(date)
-                      }}</span>
+                      <div class="badge-header">
+                        <span class="badge-icon">{{ getDayIcon(date) }}</span>
+                        <span class="badge-text">{{
+                          getDayDescription(date)
+                        }}</span>
+                      </div>
+                      <!-- Lista de lockType cuando el día está bloqueado -->
+                      @if (getDentistLockTypes(date).length > 0) {
+                        <ul class="lock-type-list">
+                          @for (
+                            lockType of getDentistLockTypes(date);
+                            track lockType
+                          ) {
+                            <li class="lock-type-item">{{ lockType }}</li>
+                          }
+                        </ul>
+                      }
                     </div>
 
                     <!-- Badge de feriado (holiday) - siempre visible si existe -->
@@ -960,10 +992,12 @@
                       [style.background-color]="getHolidayColor(date)"
                       (click)="openHolidayDetail(date, $event)"
                     >
-                      <span class="badge-icon">🎉</span>
-                      <span class="badge-text">{{
-                        getHolidayDescription(date)
-                      }}</span>
+                      <div class="badge-header">
+                        <span class="badge-icon">🎉</span>
+                        <span class="badge-text">{{
+                          getHolidayDescription(date)
+                        }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>

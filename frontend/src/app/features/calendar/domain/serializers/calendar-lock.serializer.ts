@@ -15,6 +15,7 @@ export class CalendarLockSerializer {
       idLockType: calendarLock.calendarLockType.id,
       mode: calendarLock.mode,
       days: calendarLock.days,
+      fullDay: calendarLock.fullDay,
       recurrence: calendarLock.recurrence,
       startDate: calendarLock.startDate,
       endDate: calendarLock.endDate,

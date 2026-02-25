@@ -966,6 +966,28 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Get the list of lockType values from dentistLock array for a day in month view
+   */
+  getDentistLockTypes(date: Date): string[] {
+    const dayData = this.getDayFromBackend(date);
+    if (!dayData?.dentistLock || dayData.dentistLock.length === 0) {
+      return [];
+    }
+    return dayData.dentistLock.map((lock) => lock.lockType);
+  }
+
+  /**
+   * Get the list of lockType values from dentistLock array for a day in week view
+   */
+  getWeekDentistLockTypes(date: Date): string[] {
+    const dayData = this.getWeekDayData(date);
+    if (!dayData?.dentistLock || dayData.dentistLock.length === 0) {
+      return [];
+    }
+    return dayData.dentistLock.map((lock) => lock.lockType);
+  }
+
+  /**
    * Calculate the top position of a slot in pixels based on its start time
    * Each hour = 60px (matching the time-slot height)
    */
