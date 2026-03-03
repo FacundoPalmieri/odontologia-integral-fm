@@ -1,18 +1,17 @@
 // ========================================
 // Estilos Globales de la Aplicación
 // ========================================
+// Importar módulos de estilos
+@use "styles/scrollbar";
+@use "styles/utilities";
+@use "styles/components";
+@use "styles/animations";
+@use "styles/material-overrides";
 
 // Custom Theming for Angular Material
 @use "@angular/material" as mat;
 @use "tailwindcss";
 @import "./app/themes/themes.css";
-
-// Importar módulos de estilos
-@import "styles/scrollbar";
-@import "styles/utilities";
-@import "styles/components";
-@import "styles/animations";
-@import "styles/material-overrides";
 
 // ========================================
 // Estilos Base del Body

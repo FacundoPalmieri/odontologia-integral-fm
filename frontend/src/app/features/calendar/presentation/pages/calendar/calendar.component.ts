@@ -95,7 +95,6 @@ export interface SpecialtyGroup {
     MatNativeDateModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
-    UnlockCalendarDialog,
   ],
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
