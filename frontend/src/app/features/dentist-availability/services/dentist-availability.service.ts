@@ -7,8 +7,8 @@ import {
   DentistAvailabilityResponseInterface,
   DentistAvailabilitySaveResponseInterface,
   DentistDayAvailabilityInterface,
-} from "../domain/interfaces/dentist-availability.interface";
-import { DentistAvailabilitySerializer } from "../domain/serializers/dentist-availability.serializer";
+} from "../data/interfaces/dentist-availability.interface";
+import { DentistAvailabilitySerializer } from "../data/serializers/dentist-availability.serializer";
 
 /**
  * Service for managing dentist weekly availability schedules.

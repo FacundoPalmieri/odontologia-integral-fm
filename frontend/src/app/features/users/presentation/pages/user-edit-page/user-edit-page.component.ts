@@ -48,10 +48,10 @@ import { CardIconTitleComponent } from "../../../../../shared/components/card-ic
 import {
   DentistSpecialtyInterface,
   UserInterface,
-} from "../../../domain/interfaces/user.interface";
-import { RoleInterface } from "../../../../roles/domain/interfaces/role.interface";
+} from "../../../data/interfaces/user.interface";
 import { FileMetadataInterface } from "../../../../../shared/interfaces/file-metadata.interface";
-import { UserDto } from "../../../domain/dtos/user.dto";
+import { UserDto } from "../../../data/dtos/user.dto";
+import { RoleInterface } from "../../../../roles/data/interfaces/role.interface";
 
 @Component({
   selector: "app-user-edit-page",

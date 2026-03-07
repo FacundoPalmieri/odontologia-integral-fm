@@ -1,4 +1,4 @@
-import { OdontogramInterface } from "../../../features/odontogram/domain/interfaces/odontogram.interface";
+import { OdontogramInterface } from "../../../features/odontogram/data/interfaces/odontogram.interface";
 import { ToothFaceEnum } from "../../../features/odontogram/utils/enums/tooth-face.enum";
 import {
   TreatmentEnum,

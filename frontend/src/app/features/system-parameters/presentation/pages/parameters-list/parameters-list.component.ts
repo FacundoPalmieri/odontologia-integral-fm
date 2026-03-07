@@ -25,8 +25,8 @@ import { ApiResponseInterface } from "../../../../../shared/interfaces/api-respo
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { ParametersEditDialogComponent } from "../../components/parameter-edit-dialog/parameter-edit-dialog.component";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
-import { SystemParameterUpdateDto } from "../../../domain/dtos/system-parameter.dto";
-import { SystemParameterInterface } from "../../../domain/interfaces/system-parameter.interface";
+import { SystemParameterUpdateDto } from "../../../data/dtos/system-parameter.dto";
+import { SystemParameterInterface } from "../../../data/interfaces/system-parameter.interface";
 import { SystemParameterService } from "../../../services/system-parameter.service";
 
 @Component({

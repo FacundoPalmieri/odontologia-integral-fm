@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { ToothFaceLocationEnum } from "../../../utils/enums/tooth-face.enum";
-import { TreatmentInterfaceOld } from "../../../domain/interfaces/treatment.interface";
+import { TreatmentInterfaceOld } from "../../../data/interfaces/treatment.interface";
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
 import { TreatmentTypeEnum } from "../../../utils/enums/treatment.enum";
 

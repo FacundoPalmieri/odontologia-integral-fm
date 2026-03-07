@@ -25,8 +25,8 @@ import { ApiResponseInterface } from "../../../../../shared/interfaces/api-respo
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { RoleService } from "../../../services/role.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
-import { RoleInterface } from "../../../domain/interfaces/role.interface";
 import { RoleEditDialogComponent } from "../../components/role-edit-dialog/role-edit-dialog.component";
+import { RoleInterface } from "../../../data/interfaces/role.interface";
 
 @Component({
   selector: "app-roles-list",

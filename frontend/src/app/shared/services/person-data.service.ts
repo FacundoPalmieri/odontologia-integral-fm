@@ -13,8 +13,8 @@ import {
   PhoneTypeInterface,
   ProvinceInterface,
 } from "../interfaces/person-data.interface";
-import { DentistSpecialtyInterface } from "../../features/users/domain/interfaces/user.interface";
-import { MedicalHistoryRiskInterface } from "../../features/patients/domain/interfaces/medical-history.interface";
+import { DentistSpecialtyInterface } from "../../features/users/data/interfaces/user.interface";
+import { MedicalHistoryRiskInterface } from "../../features/patients/data/interfaces/medical-history.interface";
 
 /**
  * Service for managing person-related catalog data and avatars.

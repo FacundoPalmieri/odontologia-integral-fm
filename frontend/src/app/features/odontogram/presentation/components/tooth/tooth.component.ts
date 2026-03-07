@@ -11,7 +11,7 @@ import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatListModule } from "@angular/material/list";
-import { TreatmentInterfaceOld } from "../../../domain/interfaces/treatment.interface";
+import { TreatmentInterfaceOld } from "../../../data/interfaces/treatment.interface";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { AddTreatmentDialogComponent } from "../add-treatment-dialog/add-treatment-dialog.component";

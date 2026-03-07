@@ -6,7 +6,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { ReactiveFormsModule, FormControl, Validators } from "@angular/forms";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
-import { AppointmentConflictInterface } from "../../../../appointments/domain/interfaces/appointment.inteface";
+import { AppointmentConflictInterface } from "../../../../appointments/data/interfaces/appointment.inteface";
 
 @Component({
   selector: "app-cancel-appointment-dialog",

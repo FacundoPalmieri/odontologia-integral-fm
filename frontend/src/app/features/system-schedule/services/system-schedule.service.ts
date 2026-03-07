@@ -2,11 +2,11 @@ import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../../../environments/environment";
-import { SystemScheduleInterface } from "../domain/interfaces/system-schedule.interface";
+import { SystemScheduleInterface } from "../data/interfaces/system-schedule.interface";
 import {
   SystemScheduleDto,
   SystemScheduleUpdateDto,
-} from "../domain/dtos/system-schedule.dto";
+} from "../data/dtos/system-schedule.dto";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
 
 /**

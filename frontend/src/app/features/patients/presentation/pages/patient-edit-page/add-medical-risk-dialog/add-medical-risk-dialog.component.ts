@@ -23,7 +23,7 @@ import { Subject, takeUntil } from "rxjs";
 import { SnackbarTypeEnum } from "../../../../../../shared/utils/enums/snackbar-type.enum";
 import { SnackbarService } from "../../../../../../shared/services/snackbar.service";
 import { PatientService } from "../../../../services/patient.service";
-import { MedicalHistoryRiskInterface } from "../../../../domain/interfaces/medical-history.interface";
+import { MedicalHistoryRiskInterface } from "../../../../data/interfaces/medical-history.interface";
 
 @Component({
   selector: "app-add-medical-risk-dialog",

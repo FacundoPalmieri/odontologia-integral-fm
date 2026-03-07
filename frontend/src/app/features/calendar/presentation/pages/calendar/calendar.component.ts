@@ -35,32 +35,32 @@ import { LoaderService } from "../../../../../core/services/loader.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { DentistService } from "../../../services/dentist.service";
 import { AppointmentService } from "../../../../appointments/services/appointment.service";
-import { DentistDto } from "../../../domain/dtos/dentist.dto";
 import { CalendarService } from "../../../services/calendar.service";
-import {
-  CalendarDayInterface,
-  CalendarMonthDayInterface,
-  CalendarMonthInterface,
-  CalendarWeekInterface,
-} from "../../../domain/interfaces/calendar.interface";
 import { RoleEnum } from "../../../../../shared/utils/enums/role.enum";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { AppointmentsConflictDialogComponent } from "../../../../../shared/components/appointments-conflict-dialog/appointments-conflict-dialog.component";
 import { CancelAllAppointmentsDialog } from "../../components/cancel-all-appointments-dialog/cancel-all-appointments-dialog.component";
 import { RequestSourceEnum } from "../../../../../shared/utils/enums/request-source.enum";
-import { AppointmentInterface } from "../../../../appointments/domain/interfaces/appointment.inteface";
 import { PersonInterface } from "../../../../../shared/interfaces/person.interface";
 import { HolidayDetailDialogComponent } from "../../components/holiday-detail-dialog/holiday-detail-dialog.component";
 import { CalendarLockDetailDialogComponent } from "../../components/calendar-lock-detail-dialog/calendar-lock-detail-dialog.component";
 import { UnlockCalendarDialog } from "../../components/unlock-calendar-dialog/unlock-calendar-dialog.component";
 import { CalendarLockService } from "../../../services/calendar-lock.service";
-import { CalendarLockDayInterface } from "../../../domain/interfaces/calendar-lock.interface";
-import { DentistLockMonthInterface } from "../../../domain/interfaces/calendar.interface";
 import { AppointmentDetailDialogComponent } from "../../components/appointment-detail-dialog/appointment-detail-dialog.component";
 import { CalendarMonthDayStatusEnum } from "../../../utils/enums/calendar-month-day-status.enum";
 import { SlotStatusEnum } from "../../../utils/enums/slot-status.enum";
-import { PatientInterface } from "../../../../patients/domain/interfaces/patient.interface";
+import { PatientInterface } from "../../../../patients/data/interfaces/patient.interface";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
+import { DentistDto } from "../../../data/dtos/dentist.dto";
+import {
+  CalendarDayInterface,
+  CalendarMonthDayInterface,
+  CalendarMonthInterface,
+  CalendarWeekInterface,
+  DentistLockMonthInterface,
+} from "../../../data/interfaces/calendar.interface";
+import { CalendarLockDayInterface } from "../../../data/interfaces/calendar-lock.interface";
+import { AppointmentInterface } from "../../../../appointments/data/interfaces/appointment.inteface";
 
 export type CalendarView = "day" | "week" | "month";
 

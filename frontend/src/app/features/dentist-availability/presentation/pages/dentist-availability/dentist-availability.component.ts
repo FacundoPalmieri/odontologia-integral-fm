@@ -26,16 +26,16 @@ import { MatCardModule } from "@angular/material/card";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatDialog } from "@angular/material/dialog";
-import { AppointmentConflictInterface } from "../../../../appointments/domain/interfaces/appointment.inteface";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { RecurrenceEnum } from "../../../../../shared/utils/enums/recurrence.enum";
+import { DentistAvailabilityService } from "../../../services/dentist-availability.service";
+import { AppointmentsConflictDialogComponent } from "../../../../../shared/components/appointments-conflict-dialog/appointments-conflict-dialog.component";
 import {
   DentistAvailabilityResponseInterface,
   DentistAvailabilitySaveResponseInterface,
   DentistDayAvailabilityInterface,
-} from "../../../domain/interfaces/dentist-availability.interface";
-import { DentistAvailabilityService } from "../../../services/dentist-availability.service";
-import { AppointmentsConflictDialogComponent } from "../../../../../shared/components/appointments-conflict-dialog/appointments-conflict-dialog.component";
+} from "../../../data/interfaces/dentist-availability.interface";
+import { AppointmentConflictInterface } from "../../../../appointments/data/interfaces/appointment.inteface";
 
 @Component({
   selector: "app-dentist-availability",

@@ -38,7 +38,7 @@ import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-typ
 import { AccessControlService } from "../../../../../core/services/access-control.service";
 import { UserService } from "../../../services/user.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
-import { UserDto } from "../../../domain/dtos/user.dto";
+import { UserDto } from "../../../data/dtos/user.dto";
 
 @Component({
   selector: "app-users-list",

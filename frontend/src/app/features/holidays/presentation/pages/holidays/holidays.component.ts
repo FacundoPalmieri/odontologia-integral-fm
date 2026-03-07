@@ -20,8 +20,8 @@ import { AccessControlService } from "../../../../../core/services/access-contro
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { HolidayCreateDialogComponent } from "../../components/holiday-create-dialog/holiday-create-dialog.component";
 import { HolidayEditDialogComponent } from "../../components/holiday-edit-dialog/holiday-edit-dialog.component";
-import { HolidayInterface } from "../../../domain/interfaces/holiday.interface";
 import { PageToolbarComponent } from "../../../../../shared/components/page-toolbar/page-toolbar.component";
+import { HolidayInterface } from "../../../data/interfaces/holiday.interface";
 
 @Component({
   selector: "app-holidays",

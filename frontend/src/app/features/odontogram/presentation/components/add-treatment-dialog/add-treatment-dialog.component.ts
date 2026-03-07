@@ -18,7 +18,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import {
   TreatmentInterfaceOld,
   ShowTreatmentInterface,
-} from "../../../domain/interfaces/treatment.interface";
+} from "../../../data/interfaces/treatment.interface";
 import { ToothFaceFactory } from "../../../utils/factories/tooth-face.factory";
 import {
   TreatmentEnum,
@@ -26,7 +26,7 @@ import {
 } from "../../../utils/enums/treatment.enum";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
-import { ToothFaceInterface } from "../../../domain/interfaces/tooth.interface";
+import { ToothFaceInterface } from "../../../data/interfaces/tooth.interface";
 
 interface AddTreatmentDialogData {
   toothNumber: number;

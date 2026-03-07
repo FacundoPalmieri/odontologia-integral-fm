@@ -6,7 +6,7 @@ import {
 import { PersonSerializer } from "../../../../shared/serializers/person.serializer";
 import { PersonDataService } from "../../../../shared/services/person-data.service";
 import { UserCreateDto, UserDto } from "../dtos/user.dto";
-import { RoleInterface } from "../../../roles/domain/interfaces/role.interface";
+import { RoleInterface } from "../../../roles/data/interfaces/role.interface";
 
 export class UserSerializer {
   private readonly personSerializer = new PersonSerializer();

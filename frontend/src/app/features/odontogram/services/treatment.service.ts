@@ -6,7 +6,7 @@ import { ApiResponseInterface } from "../../../shared/interfaces/api-response.in
 import {
   TreatmentConditionDto,
   TreatmentDto,
-} from "../domain/dtos/treatment.dto";
+} from "../data/dtos/treatment.dto";
 
 /**
  * Service for managing dental treatments and treatment conditions.

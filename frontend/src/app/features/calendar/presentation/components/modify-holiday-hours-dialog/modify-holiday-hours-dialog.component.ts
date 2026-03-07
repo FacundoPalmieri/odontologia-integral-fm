@@ -16,11 +16,11 @@ import {
 } from "@angular/forms";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
-import { HolidayInterface } from "../../../../holidays/domain/interfaces/holiday.interface";
+import { HolidayInterface } from "../../../../holidays/data/interfaces/holiday.interface";
 import { DentistHolidayService } from "../../../services/dentist-holiday.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
-import { HolidayUpdateAvailabilityDto } from "../../../domain/dtos/calendar-holiday.dto";
+import { HolidayUpdateAvailabilityDto } from "../../../data/dtos/calendar-holiday.dto";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 @Component({

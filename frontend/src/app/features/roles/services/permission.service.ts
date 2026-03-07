@@ -3,9 +3,9 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import { map, Observable } from "rxjs";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
-import { PermissionSerializer } from "../domain/serializers/permission.serializer";
-import { PermissionDto } from "../domain/dtos/permission.dto";
-import { PermissionInterface } from "../domain/interfaces/permission.interface";
+import { PermissionInterface } from "../data/interfaces/permission.interface";
+import { PermissionDto } from "../data/dtos/permission.dto";
+import { PermissionSerializer } from "../data/serializers/permission.serializer";
 
 /**
  * Service for managing permissions.

@@ -1,12 +1,12 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
-import { SystemParameterInterface } from "../domain/interfaces/system-parameter.interface";
+import { SystemParameterInterface } from "../data/interfaces/system-parameter.interface";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
 import {
   SystemParameterDto,
   SystemParameterUpdateDto,
-} from "../domain/dtos/system-parameter.dto";
+} from "../data/dtos/system-parameter.dto";
 import { environment } from "../../../environments/environment";
 
 /**

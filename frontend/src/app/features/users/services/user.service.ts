@@ -1,14 +1,14 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
-import { UserSerializer } from "../domain/serializers/user.serializer";
+import { UserSerializer } from "../data/serializers/user.serializer";
 import { environment } from "../../../environments/environment";
 import {
   ApiResponseInterface,
   PagedDataInterface,
 } from "../../../shared/interfaces/api-response.interface";
-import { UserInterface } from "../domain/interfaces/user.interface";
-import { UserDto } from "../domain/dtos/user.dto";
+import { UserInterface } from "../data/interfaces/user.interface";
+import { UserDto } from "../data/dtos/user.dto";
 
 /**
  * Service for managing system users.

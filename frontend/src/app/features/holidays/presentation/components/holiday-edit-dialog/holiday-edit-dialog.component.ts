@@ -21,7 +21,7 @@ import { HolidayTypeFactory } from "../../../../../features/holidays/utils/facto
 import {
   HolidayInterface,
   HolidayTypeInterface,
-} from "../../../domain/interfaces/holiday.interface";
+} from "../../../data/interfaces/holiday.interface";
 
 @Component({
   selector: "app-holiday-edit-dialog",

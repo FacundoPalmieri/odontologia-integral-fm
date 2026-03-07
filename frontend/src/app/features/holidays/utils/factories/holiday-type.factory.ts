@@ -1,5 +1,5 @@
 import { HolidayTypeEnum } from "../../../../shared/utils/enums/holiday-type.enum";
-import { HolidayTypeInterface } from "../../domain/interfaces/holiday.interface";
+import { HolidayTypeInterface } from "../../data/interfaces/holiday.interface";
 
 export class HolidayTypeFactory {
   static createHolidayTypes(): HolidayTypeInterface[] {

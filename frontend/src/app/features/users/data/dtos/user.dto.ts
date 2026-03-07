@@ -2,8 +2,8 @@ import { PersonCreateDto, PersonDto } from "../../../../shared/dtos/person.dto";
 import {
   DentistCreateDto,
   DentistDataDto,
-} from "../../../calendar/domain/dtos/dentist.dto";
-import { RoleDto } from "../../../roles/domain/dtos/role.dto";
+} from "../../../calendar/data/dtos/dentist.dto";
+import { RoleDto } from "../../../roles/data/dtos/role.dto";
 
 export interface UserDto {
   id: number;

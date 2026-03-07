@@ -24,7 +24,7 @@ import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import {
   LoginInterface,
   UserDataInterface,
-} from "../../../domain/interfaces/auth.interface";
+} from "../../../data/interfaces/auth.interface";
 import { LoaderService } from "../../../../../core/services/loader.service";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { ApiResponseInterface } from "../../../../../shared/interfaces/api-response.interface";

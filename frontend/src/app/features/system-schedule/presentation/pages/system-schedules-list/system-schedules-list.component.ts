@@ -25,8 +25,8 @@ import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-typ
 import { ScheduleEditDialogComponent } from "../../components/schedule-edit-dialog/edit-schedule-dialog.component";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { SystemScheduleService } from "../../../services/system-schedule.service";
-import { SystemScheduleInterface } from "../../../domain/interfaces/system-schedule.interface";
-import { SystemScheduleUpdateDto } from "../../../domain/dtos/system-schedule.dto";
+import { SystemScheduleInterface } from "../../../data/interfaces/system-schedule.interface";
+import { SystemScheduleUpdateDto } from "../../../data/dtos/system-schedule.dto";
 import { PageToolbarComponent } from "../../../../../shared/components/page-toolbar/page-toolbar.component";
 
 @Component({

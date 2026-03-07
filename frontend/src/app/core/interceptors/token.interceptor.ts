@@ -7,9 +7,9 @@ import {
 import { inject } from "@angular/core";
 import { catchError, switchMap, throwError, filter, take } from "rxjs";
 import { Router } from "@angular/router";
-import { RefreshTokenDataDto } from "../../features/auth/domain/dtos/auth.dto";
+import { RefreshTokenDataDto } from "../../features/auth/data/dtos/auth.dto";
 import { AuthService } from "../../features/auth/services/auth.service";
-import { UserDataInterface } from "../../features/auth/domain/interfaces/auth.interface";
+import { UserDataInterface } from "../../features/auth/data/interfaces/auth.interface";
 import { LocalStorageService } from "../../shared/services/local-storage.service";
 
 export const tokenInterceptor: HttpInterceptorFn = (

@@ -11,7 +11,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CalendarLockService } from "../../../services/calendar-lock.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
-import { CalendarSlotInterface } from "../../../domain/interfaces/calendar.interface";
+import { CalendarSlotInterface } from "../../../data/interfaces/calendar.interface";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { UnlockCalendarDialog } from "../unlock-calendar-dialog/unlock-calendar-dialog.component";
 

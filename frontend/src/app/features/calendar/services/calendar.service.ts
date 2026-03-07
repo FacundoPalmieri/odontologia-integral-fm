@@ -7,7 +7,7 @@ import {
   CalendarDayInterface,
   CalendarMonthInterface,
   CalendarWeekInterface,
-} from "../domain/interfaces/calendar.interface";
+} from "../data/interfaces/calendar.interface";
 
 /**
  * Service for retrieving calendar data for dentists.

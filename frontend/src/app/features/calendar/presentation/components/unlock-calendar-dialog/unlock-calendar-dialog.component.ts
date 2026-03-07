@@ -6,7 +6,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { ReactiveFormsModule, FormControl, Validators } from "@angular/forms";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
-import { CalendarLockDayInterface } from "../../../domain/interfaces/calendar-lock.interface";
+import { CalendarLockDayInterface } from "../../../data/interfaces/calendar-lock.interface";
 
 @Component({
   selector: "app-unlock-calendar-dialog",

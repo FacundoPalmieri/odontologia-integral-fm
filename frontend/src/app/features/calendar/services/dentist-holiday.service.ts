@@ -7,7 +7,7 @@ import {
   HolidayUpdateAvailabilityDto,
   HolidayWorkConfigCreateResponseDto,
   HolidayWorkConfigDto,
-} from "../domain/dtos/calendar-holiday.dto";
+} from "../data/dtos/calendar-holiday.dto";
 
 /**
  * Service for managing dentist holiday work configurations.

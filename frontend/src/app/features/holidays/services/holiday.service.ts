@@ -3,9 +3,9 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import { Observable, map } from "rxjs";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
-import { HolidayInterface } from "../domain/interfaces/holiday.interface";
-import { HolidaySerializer } from "../domain/serializers/holiday.serializer";
-import { HolidayUpdateDtoInterface } from "../domain/dtos/holiday.dto";
+import { HolidayInterface } from "../data/interfaces/holiday.interface";
+import { HolidaySerializer } from "../data/serializers/holiday.serializer";
+import { HolidayUpdateDtoInterface } from "../data/dtos/holiday.dto";
 
 /**
  * Service for managing public holidays.

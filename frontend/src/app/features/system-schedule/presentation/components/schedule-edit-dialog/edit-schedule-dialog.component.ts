@@ -13,8 +13,8 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
-import { SystemScheduleInterface } from "../../../domain/interfaces/system-schedule.interface";
-import { SystemScheduleUpdateDto } from "../../../domain/dtos/system-schedule.dto";
+import { SystemScheduleInterface } from "../../../data/interfaces/system-schedule.interface";
+import { SystemScheduleUpdateDto } from "../../../data/dtos/system-schedule.dto";
 
 @Component({
   selector: "app-edit-schedule-dialog",

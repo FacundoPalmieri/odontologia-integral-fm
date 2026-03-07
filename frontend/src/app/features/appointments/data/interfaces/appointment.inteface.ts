@@ -1,6 +1,6 @@
 import { RequestSourceEnum } from "../../../../shared/utils/enums/request-source.enum";
 import { PersonInterface } from "../../../../shared/interfaces/person.interface";
-import { PatientInterface } from "../../../patients/domain/interfaces/patient.interface";
+import { PatientInterface } from "../../../patients/data/interfaces/patient.interface";
 
 export interface AppointmentInterface {
   patient: PatientInterface;

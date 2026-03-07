@@ -36,8 +36,8 @@ import {
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { AccessControlService } from "../../../../../core/services/access-control.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
-import { InventoryDto } from "../../../domain/dtos/inventory.dto";
 import { InventoryService } from "../../../services/inventory.service";
+import { InventoryDto } from "../../../data/dtos/inventory.dto";
 
 @Component({
   selector: "app-inventory",

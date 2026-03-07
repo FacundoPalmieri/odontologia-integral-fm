@@ -6,10 +6,10 @@ import {
 } from "../../../shared/interfaces/api-response.interface";
 import { map, Observable } from "rxjs";
 import { environment } from "../../../environments/environment";
-import { PatientSerializer } from "../domain/serializers/patient.serializer";
-import { PatientDto } from "../domain/dtos/patient.dto";
-import { PatientInterface } from "../domain/interfaces/patient.interface";
-import { MedicalRiskCreateDto } from "../domain/dtos/medical-history.dto";
+import { PatientSerializer } from "../data/serializers/patient.serializer";
+import { PatientDto } from "../data/dtos/patient.dto";
+import { PatientInterface } from "../data/interfaces/patient.interface";
+import { MedicalRiskCreateDto } from "../data/dtos/medical-history.dto";
 
 /**
  * Service for managing patient data and medical information.

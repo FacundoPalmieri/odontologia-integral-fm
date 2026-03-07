@@ -42,9 +42,9 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { PatientService } from "../../../services/patient.service";
-import { MedicalHistoryRiskInterface } from "../../../domain/interfaces/medical-history.interface";
-import { PatientInterface } from "../../../domain/interfaces/patient.interface";
-import { PatientDto } from "../../../domain/dtos/patient.dto";
+import { MedicalHistoryRiskInterface } from "../../../data/interfaces/medical-history.interface";
+import { PatientInterface } from "../../../data/interfaces/patient.interface";
+import { PatientDto } from "../../../data/dtos/patient.dto";
 
 @Component({
   selector: "app-patient-create-page",

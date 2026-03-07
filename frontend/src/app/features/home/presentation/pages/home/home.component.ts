@@ -17,17 +17,17 @@ import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
-import { UserDataInterface } from "../../../../auth/domain/interfaces/auth.interface";
-import { DentistAvailabilityResponseInterface } from "../../../../dentist-availability/domain/interfaces/dentist-availability.interface";
-import {
-  CalendarDayInterface,
-  CalendarSlotInterface,
-} from "../../../../calendar/domain/interfaces/calendar.interface";
+import { UserDataInterface } from "../../../../auth/data/interfaces/auth.interface";
 import { DentistAvailabilityService } from "../../../../dentist-availability/services/dentist-availability.service";
 import { DayEnum } from "../../../../../shared/utils/enums/day.enum";
 import { CalendarService } from "../../../../calendar/services/calendar.service";
 import { SlotStatusEnum } from "../../../../calendar/utils/enums/slot-status.enum";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
+import { DentistAvailabilityResponseInterface } from "../../../../dentist-availability/data/interfaces/dentist-availability.interface";
+import {
+  CalendarDayInterface,
+  CalendarSlotInterface,
+} from "../../../../calendar/data/interfaces/calendar.interface";
 
 @Component({
   selector: "app-home",

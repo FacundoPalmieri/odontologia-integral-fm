@@ -21,11 +21,11 @@ import { PermissionService } from "../../../services/permission.service";
 import { ActionService } from "../../../services/action.service";
 import { RoleService } from "../../../services/role.service";
 import { ApiResponseInterface } from "../../../../../shared/interfaces/api-response.interface";
-import { RoleInterface } from "../../../domain/interfaces/role.interface";
+import { RoleInterface } from "../../../data/interfaces/role.interface";
 import {
   ActionInterface,
   PermissionInterface,
-} from "../../../domain/interfaces/permission.interface";
+} from "../../../data/interfaces/permission.interface";
 
 @Component({
   selector: "app-role-edit-dialog",

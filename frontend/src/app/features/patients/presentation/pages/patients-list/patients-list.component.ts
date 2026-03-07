@@ -36,7 +36,7 @@ import {
 } from "../../../../../shared/utils/enums/permissions.enum";
 import { PatientService } from "../../../services/patient.service";
 import { AccessControlService } from "../../../../../core/services/access-control.service";
-import { PatientDto } from "../../../domain/dtos/patient.dto";
+import { PatientDto } from "../../../data/dtos/patient.dto";
 
 @Component({
   selector: "app-patients-list",

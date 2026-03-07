@@ -12,14 +12,14 @@ import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { IconsModule } from "../../../core/modules/tabler-icons.module";
-import { AppointmentConflictInterface } from "../../../features/appointments/domain/interfaces/appointment.inteface";
 import { RequestSourceEnum } from "../../utils/enums/request-source.enum";
 import { SnackbarTypeEnum } from "../../utils/enums/snackbar-type.enum";
 import { CancelAppointmentDialog } from "../../../features/calendar/presentation/components/cancel-appointment-dialog/cancel-appointment-dialog.component";
 import { SnackbarService } from "../../services/snackbar.service";
 import { AppointmentService } from "../../../features/appointments/services/appointment.service";
 import { CreateAppointmentDialogComponent } from "../../../features/calendar/presentation/components/create-appointment-dialog/create-appointment-dialog.component";
-import { AppointmentCancelDto } from "../../../features/appointments/domain/dtos/appointment.dto";
+import { AppointmentConflictInterface } from "../../../features/appointments/data/interfaces/appointment.inteface";
+import { AppointmentCancelDto } from "../../../features/appointments/data/dtos/appointment.dto";
 
 @Component({
   selector: "app-appointments-conflict-dialog",

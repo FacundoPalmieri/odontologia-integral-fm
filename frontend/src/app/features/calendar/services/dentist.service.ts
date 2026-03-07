@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
 import { Observable } from "rxjs";
-import { DentistDto } from "../domain/dtos/dentist.dto";
+import { DentistDto } from "../data/dtos/dentist.dto";
 
 /**
  * Service for managing dentist data.

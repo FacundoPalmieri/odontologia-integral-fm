@@ -3,9 +3,9 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import { map, Observable } from "rxjs";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
-import { RoleInterface } from "../domain/interfaces/role.interface";
-import { RoleSerializer } from "../domain/serializers/role.serializer";
-import { RoleDto } from "../domain/dtos/role.dto";
+import { RoleInterface } from "../data/interfaces/role.interface";
+import { RoleDto } from "../data/dtos/role.dto";
+import { RoleSerializer } from "../data/serializers/role.serializer";
 
 /**
  * Service for managing user roles.

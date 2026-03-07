@@ -17,8 +17,8 @@ import { MatInputModule } from "@angular/material/input";
 import {
   ShowTreatmentInterface,
   TreatmentInterfaceOld,
-} from "../../../domain/interfaces/treatment.interface";
-import { OdontogramInterface } from "../../../domain/interfaces/odontogram.interface";
+} from "../../../data/interfaces/treatment.interface";
+import { OdontogramInterface } from "../../../data/interfaces/odontogram.interface";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { ToothComponent } from "../../components/tooth/tooth.component";
 import {

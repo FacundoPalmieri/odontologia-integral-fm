@@ -8,8 +8,8 @@ import {
   CalendarLockInterface,
   CalendarLockTypeInterface,
   CalendarLockTypeModeInterface,
-} from "../domain/interfaces/calendar-lock.interface";
-import { CalendarLockSerializer } from "../domain/serializers/calendar-lock.serializer";
+} from "../data/interfaces/calendar-lock.interface";
+import { CalendarLockSerializer } from "../data/serializers/calendar-lock.serializer";
 
 /**
  * Service for managing calendar locks and restrictions.

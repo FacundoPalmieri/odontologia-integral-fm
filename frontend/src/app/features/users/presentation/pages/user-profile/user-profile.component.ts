@@ -31,7 +31,7 @@ import { PersonDataEditDialogComponent } from "../../components/person-data-edit
 import { AuthService } from "../../../../auth/services/auth.service";
 import { AttachedFileComponent } from "../../../../../shared/components/attached-file/attached-file.component";
 import { UserService } from "../../../services/user.service";
-import { UserInterface } from "../../../domain/interfaces/user.interface";
+import { UserInterface } from "../../../data/interfaces/user.interface";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 
 @Component({

@@ -1,5 +1,5 @@
 import { PersonInterface } from "../../../../shared/interfaces/person.interface";
-import { RoleInterface } from "../../../roles/domain/interfaces/role.interface";
+import { RoleInterface } from "../../../roles/data/interfaces/role.interface";
 
 export interface UserInterface {
   id?: number;

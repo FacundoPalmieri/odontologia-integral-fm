@@ -20,7 +20,7 @@ import { LoaderService } from "../../../../../core/services/loader.service";
 import { ApiResponseInterface } from "../../../../../shared/interfaces/api-response.interface";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { AuthService } from "../../../services/auth.service";
-import { ResetPasswordInterface } from "../../../domain/interfaces/auth.interface";
+import { ResetPasswordInterface } from "../../../data/interfaces/auth.interface";
 
 @Component({
   selector: "app-password-recovery",

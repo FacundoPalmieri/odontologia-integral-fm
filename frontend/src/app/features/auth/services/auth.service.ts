@@ -10,10 +10,10 @@ import {
   LogoutInterface,
   ResetPasswordInterface,
   UserDataInterface,
-} from "../domain/interfaces/auth.interface";
+} from "../data/interfaces/auth.interface";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
-import { RefreshTokenDataDto } from "../domain/dtos/auth.dto";
-import { RoleInterface } from "../../roles/domain/interfaces/role.interface";
+import { RefreshTokenDataDto } from "../data/dtos/auth.dto";
+import { RoleInterface } from "../../roles/data/interfaces/role.interface";
 import { LocalStorageService } from "../../../shared/services/local-storage.service";
 
 /**

@@ -11,11 +11,11 @@ import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
-import { CalendarSlotInterface } from "../../../domain/interfaces/calendar.interface";
+import { CalendarSlotInterface } from "../../../data/interfaces/calendar.interface";
 import { AppointmentService } from "../../../../appointments/services/appointment.service";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { RequestSourceEnum } from "../../../../../shared/utils/enums/request-source.enum";
-import { AppointmentCancelDto } from "../../../../appointments/domain/dtos/appointment.dto";
+import { AppointmentCancelDto } from "../../../../appointments/data/dtos/appointment.dto";
 import { CreateAppointmentDialogComponent } from "../create-appointment-dialog/create-appointment-dialog.component";
 import { CancelAppointmentDialog } from "../cancel-appointment-dialog/cancel-appointment-dialog.component";
 

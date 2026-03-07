@@ -47,9 +47,9 @@ import { UserService } from "../../../services/user.service";
 import {
   DentistSpecialtyInterface,
   UserInterface,
-} from "../../../domain/interfaces/user.interface";
-import { RoleInterface } from "../../../../roles/domain/interfaces/role.interface";
-import { UserDto } from "../../../domain/dtos/user.dto";
+} from "../../../data/interfaces/user.interface";
+import { UserDto } from "../../../data/dtos/user.dto";
+import { RoleInterface } from "../../../../roles/data/interfaces/role.interface";
 
 @Component({
   selector: "app-user-create-page",

@@ -1,4 +1,4 @@
-import { ShowTreatmentInterface } from "../../domain/interfaces/treatment.interface";
+import { ShowTreatmentInterface } from "../../data/interfaces/treatment.interface";
 import { TreatmentEnum, TreatmentTypeEnum } from "../enums/treatment.enum";
 
 export class TreatmentFactory {

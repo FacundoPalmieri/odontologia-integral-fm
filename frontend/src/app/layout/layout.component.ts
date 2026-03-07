@@ -29,9 +29,9 @@ import { PersonDataService } from "../shared/services/person-data.service";
 import { PermissionsEnum } from "../shared/utils/enums/permissions.enum";
 import { AccessControlService } from "../core/services/access-control.service";
 import { AuthService } from "../features/auth/services/auth.service";
-import { UserDataInterface } from "../features/auth/domain/interfaces/auth.interface";
-import { PermissionInterface } from "../features/roles/domain/interfaces/permission.interface";
+import { UserDataInterface } from "../features/auth/data/interfaces/auth.interface";
 import { LocalStorageService } from "../shared/services/local-storage.service";
+import { PermissionInterface } from "../features/roles/data/interfaces/permission.interface";
 
 @Component({
   selector: "app-layout",

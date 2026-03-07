@@ -33,11 +33,11 @@ import {
   CalendarLockInterface,
   CalendarLockTypeInterface,
   CalendarLockTypeModeInterface,
-} from "../../../domain/interfaces/calendar-lock.interface";
+} from "../../../data/interfaces/calendar-lock.interface";
 import { DayEnum } from "../../../../../shared/utils/enums/day.enum";
 import { ApiResponseInterface } from "../../../../../shared/interfaces/api-response.interface";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
-import { AppointmentConflictInterface } from "../../../../appointments/domain/interfaces/appointment.inteface";
+import { AppointmentConflictInterface } from "../../../../appointments/data/interfaces/appointment.inteface";
 import { AppointmentsConflictDialogComponent } from "../../../../../shared/components/appointments-conflict-dialog/appointments-conflict-dialog.component";
 
 @Component({

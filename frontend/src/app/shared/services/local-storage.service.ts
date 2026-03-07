@@ -3,7 +3,7 @@ import { AccessControlService } from "../../core/services/access-control.service
 import {
   LogoutInterface,
   UserDataInterface,
-} from "../../features/auth/domain/interfaces/auth.interface";
+} from "../../features/auth/data/interfaces/auth.interface";
 import { RoleEnum } from "../utils/enums/role.enum";
 
 /**

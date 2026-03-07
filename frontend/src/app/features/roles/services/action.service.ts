@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import { Observable } from "rxjs";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
-import { ActionInterface } from "../domain/interfaces/permission.interface";
+import { ActionInterface } from "../data/interfaces/permission.interface";
 
 /**
  * Service for managing permission actions.

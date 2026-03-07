@@ -14,30 +14,31 @@ import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { debounceTime, distinctUntilChanged, map, forkJoin } from "rxjs";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import {
-  CalendarDayInterface,
-  CalendarSlotInterface,
-  CalendarWeekInterface,
-} from "../../../domain/interfaces/calendar.interface";
-import { DentistDto } from "../../../domain/dtos/dentist.dto";
+
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CalendarService } from "../../../services/calendar.service";
 import { AppointmentService } from "../../../../appointments/services/appointment.service";
 import { DentistService } from "../../../services/dentist.service";
-import { PatientSerializer } from "../../../../patients/domain/serializers/patient.serializer";
-import { PatientDto } from "../../../../patients/domain/dtos/patient.dto";
 import { RoleEnum } from "../../../../../shared/utils/enums/role.enum";
 import { PersonInterface } from "../../../../../shared/interfaces/person.interface";
 import { RequestSourceEnum } from "../../../../../shared/utils/enums/request-source.enum";
-import { AppointmentInterface } from "../../../../appointments/domain/interfaces/appointment.inteface";
 import { PatientService } from "../../../../patients/services/patient.service";
 import { SlotStatusEnum } from "../../../utils/enums/slot-status.enum";
 import {
   ApiResponseInterface,
   PagedDataInterface,
 } from "../../../../../shared/interfaces/api-response.interface";
-import { PatientInterface } from "../../../../patients/domain/interfaces/patient.interface";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
+import { DentistDto } from "../../../data/dtos/dentist.dto";
+import {
+  CalendarDayInterface,
+  CalendarSlotInterface,
+  CalendarWeekInterface,
+} from "../../../data/interfaces/calendar.interface";
+import { PatientSerializer } from "../../../../patients/data/serializers/patient.serializer";
+import { PatientInterface } from "../../../../patients/data/interfaces/patient.interface";
+import { PatientDto } from "../../../../patients/data/dtos/patient.dto";
+import { AppointmentInterface } from "../../../../appointments/data/interfaces/appointment.inteface";
 
 interface SpecialtyGroup {
   specialtyName: string;

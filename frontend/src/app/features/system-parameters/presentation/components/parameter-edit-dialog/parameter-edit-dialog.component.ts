@@ -13,8 +13,8 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
-import { SystemParameterInterface } from "../../../domain/interfaces/system-parameter.interface";
-import { SystemParameterUpdateDto } from "../../../domain/dtos/system-parameter.dto";
+import { SystemParameterInterface } from "../../../data/interfaces/system-parameter.interface";
+import { SystemParameterUpdateDto } from "../../../data/dtos/system-parameter.dto";
 
 @Component({
   selector: "app-parameter-edit-dialog",

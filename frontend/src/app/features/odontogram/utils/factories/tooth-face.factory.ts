@@ -1,4 +1,4 @@
-import { ToothFaceInterface } from "../../domain/interfaces/tooth.interface";
+import { ToothFaceInterface } from "../../data/interfaces/tooth.interface";
 import { ToothFaceEnum } from "../enums/tooth-face.enum";
 
 export class ToothFaceFactory {

@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { Observable, of, delay } from "rxjs";
-import { InventoryDto } from "../domain/dtos/inventory.dto";
 import {
   ApiResponseInterface,
   PagedDataInterface,
 } from "../../../shared/interfaces/api-response.interface";
+import { InventoryDto } from "../data/dtos/inventory.dto";
 
 /**
  * Service for managing dental clinic inventory.

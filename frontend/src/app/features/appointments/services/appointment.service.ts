@@ -4,14 +4,14 @@ import { Observable } from "rxjs";
 import {
   AppointmentConflictInterface,
   AppointmentInterface,
-} from "../domain/interfaces/appointment.inteface";
+} from "../data/interfaces/appointment.inteface";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
 import { environment } from "../../../environments/environment";
-import { AppointmentSerializer } from "../domain/serializers/appointment.serializer";
+import { AppointmentSerializer } from "../data/serializers/appointment.serializer";
 import {
   AppointmentCancelDto,
   AppointmentCreateResponseDto,
-} from "../domain/dtos/appointment.dto";
+} from "../data/dtos/appointment.dto";
 
 /**
  * Service for managing dental appointments.

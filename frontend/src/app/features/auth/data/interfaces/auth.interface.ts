@@ -1,5 +1,5 @@
 import { PersonDto } from "../../../../shared/dtos/person.dto";
-import { RoleInterface } from "../../../roles/domain/interfaces/role.interface";
+import { RoleInterface } from "../../../roles/data/interfaces/role.interface";
 
 export interface LoginInterface {
   username: string;

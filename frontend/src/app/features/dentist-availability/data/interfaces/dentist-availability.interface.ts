@@ -1,4 +1,4 @@
-import { AppointmentConflictInterface } from "../../../appointments/domain/interfaces/appointment.inteface";
+import { AppointmentConflictInterface } from "../../../appointments/data/interfaces/appointment.inteface";
 import { DayEnum } from "../../../../shared/utils/enums/day.enum";
 import { RecurrenceEnum } from "../../../../shared/utils/enums/recurrence.enum";
 
