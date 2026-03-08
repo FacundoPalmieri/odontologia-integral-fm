@@ -12,28 +12,33 @@ import { catchError, of, pipe, switchMap, tap } from "rxjs";
 import { PersonDataService } from "../../../../shared/services/person-data.service";
 import { SnackbarService } from "../../../../shared/services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../shared/utils/enums/snackbar-type.enum";
-import { UserDto } from "../dtos/user.dto";
-import { initialUserListState, LoadUsersParams } from "./user-list.state";
-import { UserService } from "../../services/user.service";
+import { PatientDto } from "../dtos/patient.dto";
+import {
+  initialPatientListState,
+  LoadPatientsParams,
+} from "./patient-list.state";
+import { PatientService } from "../../services/patient.service";
 import {
   ApiResponseInterface,
   PagedDataInterface,
 } from "../../../../shared/interfaces/api-response.interface";
 
-export const UserListStore = signalStore(
+export const PatientListStore = signalStore(
   { providedIn: "root" },
 
-  withState(initialUserListState),
+  withState(initialPatientListState),
 
   withComputed((state) => ({
-    hasUsers: computed(() => state.users().length > 0),
-    isEmpty: computed(() => !state.isLoading() && state.users().length === 0),
+    hasPatients: computed(() => state.patients().length > 0),
+    isEmpty: computed(
+      () => !state.isLoading() && state.patients().length === 0,
+    ),
   })),
 
   withMethods(
     (
       store,
-      userService = inject(UserService),
+      patientService = inject(PatientService),
       personDataService = inject(PersonDataService),
       snackbarService = inject(SnackbarService),
       destroyRef = inject(DestroyRef),
@@ -42,42 +47,49 @@ export const UserListStore = signalStore(
         patchState(store, { sortBy, sortDirection: direction, pageIndex: 0 });
       },
 
-      loadUsers: rxMethod<LoadUsersParams>(
+      loadPatients: rxMethod<LoadPatientsParams>(
         pipe(
           tap(() => patchState(store, { isLoading: true, error: null })),
 
           switchMap(({ page, size, sortBy, direction }) =>
-            userService.getAll(page, size, sortBy, direction).pipe(
+            patientService.getAll(page, size, sortBy, direction).pipe(
               tap(
                 (
-                  response: ApiResponseInterface<PagedDataInterface<UserDto[]>>,
+                  response: ApiResponseInterface<
+                    PagedDataInterface<PatientDto[]>
+                  >,
                 ) => {
-                  const users = response.data?.content ?? [];
+                  const patients = response.data?.content ?? [];
 
                   patchState(store, {
-                    users,
+                    patients,
                     totalElements: response.data?.totalElements ?? 0,
                     isLoading: false,
                   });
 
-                  users
-                    .filter((user) => !!user.person?.id)
-                    .forEach((user) => {
+                  patients
+                    .filter((patient) => !!patient.person?.id)
+                    .forEach((patient) => {
+                      const gender = patient.person?.gender?.toLowerCase();
+                      const fallbackAvatar =
+                        gender === "femenino"
+                          ? "img/women-avatar.png"
+                          : "img/men-avatar.png";
+
                       personDataService
-                        .getAvatar(user.person.id)
+                        .getAvatar(patient.person.id)
                         .pipe(takeUntilDestroyed(destroyRef))
                         .subscribe((avatar: string | null) => {
                           patchState(store, {
-                            users: store
-                              .users()
-                              .map((u) =>
-                                u.id === user.id
+                            patients: store
+                              .patients()
+                              .map((p) =>
+                                p.person.id === patient.person.id
                                   ? {
-                                      ...u,
-                                      avatarUrl:
-                                        avatar ?? "img/doctor-avatar.png",
+                                      ...p,
+                                      avatarUrl: avatar ?? fallbackAvatar,
                                     }
-                                  : u,
+                                  : p,
                               ),
                           });
                         });
@@ -86,9 +98,12 @@ export const UserListStore = signalStore(
               ),
 
               catchError((err) => {
-                console.error("[UserListStore] Failed to load users:", err);
+                console.error(
+                  "[PatientListStore] Failed to load patients:",
+                  err,
+                );
                 snackbarService.openSnackbar(
-                  "Error al cargar usuarios.",
+                  "Error al cargar pacientes.",
                   6000,
                   "center",
                   "top",
@@ -96,7 +111,7 @@ export const UserListStore = signalStore(
                 );
                 patchState(store, {
                   isLoading: false,
-                  error: "Error al cargar usuarios",
+                  error: "Error al cargar pacientes",
                 });
                 return of(null);
               }),

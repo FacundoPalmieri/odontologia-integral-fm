@@ -53,54 +53,22 @@ import { UserListStore } from "../../../data/store/user-list.store";
   ],
 })
 export class UsersListComponent implements OnInit, AfterViewInit {
-  // ─── Infrastructure ─────────────────────────────────────────────────────────
   private readonly router = inject(Router);
   private readonly accessControlService = inject(AccessControlService);
-
-  /**
-   * DestroyRef is injected here (in the constructor injection context) so it can
-   * be passed to takeUntilDestroyed() inside ngAfterViewInit and private methods,
-   * which run outside of an active injection context.
-   */
   private readonly destroyRef = inject(DestroyRef);
 
-  // ─── Store ──────────────────────────────────────────────────────────────────
-  // Single source of truth for the user list state.
   readonly store = inject(UserListStore);
 
-  // ─── Table ──────────────────────────────────────────────────────────────────
-
-  /** Reactive form control bound to the search input for client-side filtering. */
   readonly userFilter = new FormControl("");
-
-  /**
-   * MatTableDataSource wraps the user array and handles client-side filtering,
-   * sorting, and pagination. The data is kept in sync with the store via effect().
-   */
   readonly usersDataSource = new MatTableDataSource<UserDto>([]);
-
-  /**
-   * Placeholder rows shown during the initial load (skeleton UI pattern).
-   * Array of empty objects — same length as the default page size — so the
-   * table renders the correct number of shimmer rows while data is loading.
-   */
   readonly skeletonRows: UserDto[] = Array(5).fill({}) as UserDto[];
 
-  /**
-   * Returns true when there are no visible rows in the table.
-   * Covers two cases:
-   *   1. The API returned an empty list (store has no users).
-   *   2. The user typed a search term that didn't match any row.
-   *
-   * Uses filteredData (not users()) so it reflects the active filter state.
-   */
   get isTableEmpty(): boolean {
     return (
       !this.store.isLoading() && this.usersDataSource.filteredData.length === 0
     );
   }
 
-  /** Columns rendered by the Material table. Action buttons live inside "enabled" as a hover overlay. */
   readonly userDisplayedColumns: string[] = [
     "avatar",
     "username",
@@ -108,20 +76,10 @@ export class UsersListComponent implements OnInit, AfterViewInit {
     "enabled",
   ];
 
-  // ─── Permissions ────────────────────────────────────────────────────────────
-  // Resolved once in ngOnInit from AccessControlService. Plain booleans are
-  // enough here — no need for signals since permissions don't change at runtime.
   canCreate = false;
   canRead = false;
   canUpdate = false;
 
-  // ─── ViewChild ──────────────────────────────────────────────────────────────
-
-  /**
-   * Paginator setter: assigns the paginator to the DataSource as soon as the
-   * view renders it. A setter is used because @if(canRead) in the template
-   * delays the paginator's creation past AfterViewInit.
-   */
   @ViewChild(MatPaginator) set paginator(p: MatPaginator) {
     if (p) this.usersDataSource.paginator = p;
   }
@@ -129,18 +87,12 @@ export class UsersListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) usersSort!: MatSort;
 
   constructor() {
-    /**
-     * Keeps MatTableDataSource in sync with the store's users signal.
-     * effect() re-runs automatically whenever store.users() emits a new value,
-     * including incremental avatar updates that happen after the initial load.
-     */
     effect(() => {
       this.usersDataSource.data = this.store.users();
     });
   }
 
   ngOnInit(): void {
-    // Resolve permissions synchronously — AccessControlService reads from in-memory state.
     this.canCreate = this.accessControlService.can(
       PermissionsEnum.CONFIGURATION,
       ActionsEnum.CREATE,
@@ -154,7 +106,6 @@ export class UsersListComponent implements OnInit, AfterViewInit {
       ActionsEnum.UPDATE,
     );
 
-    // Guard: do not load data or set up listeners if the user has no READ permission.
     if (!this.canRead) return;
 
     this._loadUsers();
@@ -164,15 +115,6 @@ export class UsersListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     if (!this.usersSort) return;
 
-    /**
-     * Listen to sort changes from Angular Material's MatSort.
-     * On each change:
-     *   1. Update the sort params in the store (also resets pageIndex to 0).
-     *   2. Re-fetch users with the new sort order.
-     *
-     * takeUntilDestroyed(destroyRef) automatically unsubscribes when the
-     * component is destroyed, preventing memory leaks.
-     */
     this.usersSort.sortChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((sort) => {
@@ -189,13 +131,6 @@ export class UsersListComponent implements OnInit, AfterViewInit {
     this.router.navigate(["/configuration/users/edit", user.id]);
   }
 
-  // ─── Private ────────────────────────────────────────────────────────────────
-
-  /**
-   * Reads the current pagination/sort params from the store and triggers a
-   * data fetch. Centralizing this avoids duplicating the cast and the
-   * store.pageIndex() / store.sortBy() calls at every call site.
-   */
   private _loadUsers(): void {
     this.store.loadUsers({
       page: this.store.pageIndex(),
@@ -205,12 +140,6 @@ export class UsersListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  /**
-   * Subscribes to the search input and applies client-side filtering on the
-   * MatTableDataSource. Resets to the first page on every new filter value.
-   *
-   * takeUntilDestroyed(destroyRef) cleans up the subscription on destroy.
-   */
   private _setupFilterListener(): void {
     this.userFilter.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))

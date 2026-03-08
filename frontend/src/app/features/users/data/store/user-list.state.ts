@@ -16,7 +16,7 @@ export const initialUserListState: UserListState = {
   users: [],
   totalElements: 0,
   pageIndex: 0,
-  pageSize: 1000, // TODO: change to 5 when backend accept searching
+  pageSize: 1000, // TODO: change to 5 when backend accepts server-side search
   sortBy: "username",
   sortDirection: "asc",
   isLoading: false,
