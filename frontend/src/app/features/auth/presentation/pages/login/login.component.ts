@@ -35,11 +35,11 @@ import lottie, { AnimationItem } from "lottie-web";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { AuthService } from "../../../services/auth.service";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-login",
   templateUrl: "./login.component.html",
-  styleUrls: ["./login.component.scss"],
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -50,6 +50,7 @@ import { LocalStorageService } from "../../../../../shared/services/local-storag
     MatCheckboxModule,
     MatIconModule,
     IconsModule,
+    CommonModule,
   ],
 })
 export class LoginComponent implements AfterViewInit, OnDestroy {
@@ -66,10 +67,12 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
   isForgotPassword = signal(false);
   resetPasswordSent = signal(false);
 
+  isDarkTheme = computed(() => {
+    return this.themeService.currentTheme().id.includes("dark");
+  });
+
   logoPath = computed(() => {
-    const currentTheme = this.themeService.currentTheme();
-    const isDarkTheme = currentTheme.id.includes("dark");
-    return isDarkTheme
+    return this.isDarkTheme()
       ? "img/logo_transparent.svg"
       : "img/logo_inverted_transparent.svg";
   });

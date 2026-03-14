@@ -81,16 +81,14 @@ export const PatientListStore = signalStore(
                         .pipe(takeUntilDestroyed(destroyRef))
                         .subscribe((avatar: string | null) => {
                           patchState(store, {
-                            patients: store
-                              .patients()
-                              .map((p) =>
-                                p.person.id === patient.person.id
-                                  ? {
-                                      ...p,
-                                      avatarUrl: avatar ?? fallbackAvatar,
-                                    }
-                                  : p,
-                              ),
+                            patients: store.patients().map((p) =>
+                              p.person.id === patient.person.id
+                                ? {
+                                    ...p,
+                                    avatarUrl: avatar ?? fallbackAvatar,
+                                  }
+                                : p,
+                            ),
                           });
                         });
                     });

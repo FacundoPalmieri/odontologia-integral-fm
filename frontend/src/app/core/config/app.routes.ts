@@ -136,4 +136,8 @@ export const routes: Routes = [
         (m) => m.PasswordRecoveryComponent,
       ),
   },
+  {
+    path: "**",
+    redirectTo: "home",
+  },
 ];

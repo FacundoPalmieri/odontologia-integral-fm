@@ -1,168 +1,293 @@
-<div class="login-container">
-  <!-- Panel Decorativo Izquierdo -->
-  <div class="branding-panel">
-    <!-- Contenido después (frente) -->
-    <div class="branding-content">
-      <div class="lottie-container" #lottieContainer></div>
-      <h1 class="app-name">DentalWise</h1>
-      <p class="tagline">Gestión dental inteligente</p>
+<main class="flex h-full w-full h-screen">
+  <!-- BEGIN: LeftHeroPanel -->
+  <section
+    class="hidden lg:flex w-1/2 flex-col items-center justify-center p-12 text-white relative transition-all duration-300 bg-[linear-gradient(135deg,var(--mat-sys-primary)_0%,var(--mat-sys-secondary)_100%)]"
+  >
+    <!-- Decorative background elements -->
+    <div
+      class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none"
+    >
+      <svg
+        class="w-full h-full"
+        preserveAspectRatio="none"
+        viewBox="0 0 100 100"
+      >
+        <circle cx="10" cy="10" r="30" fill="white"></circle>
+        <circle cx="90" cy="80" r="40" fill="white"></circle>
+      </svg>
     </div>
 
-    <!-- Desarrolladores -->
-    <div class="developers-section-branding">
-      <span class="developers-text">Desarrollado por</span>
+    <div class="z-10 text-center space-y-8">
+      <!-- Main Logo Area -->
+      <div class="flex flex-col items-center">
+        <div
+          class="w-48 h-48 mb-6 flex items-center justify-center rounded-3xl shadow-2xl overflow-hidden relative transition-colors duration-300 bg-[var(--mat-sys-surface)]"
+          style="padding: 10px"
+        >
+          <div
+            class="w-full h-full flex items-center justify-center"
+            #lottieContainer
+          ></div>
+        </div>
+        <h1 class="text-6xl font-extrabold tracking-tight">DentalWise</h1>
+        <p class="mt-4 text-xl font-medium text-white/90">
+          Gestión dental inteligente
+        </p>
+      </div>
+
+      <!-- Tagline/Info -->
+      <div class="max-w-md mx-auto">
+        <p class="text-lg text-white/80 leading-relaxed">
+          Optimiza tu clínica, mejora la experiencia de tus pacientes y
+          centraliza toda tu información en un solo lugar.
+        </p>
+      </div>
+    </div>
+
+    <!-- Developer Credit -->
+    <div class="absolute bottom-12 flex flex-col items-center">
+      <span class="text-xs uppercase tracking-widest opacity-60 mb-3"
+        >Desarrollado por</span
+      >
       <a
         href="https://astrowise.com.ar"
         target="_blank"
         rel="noopener noreferrer"
-        class="developers-link"
+        class="bg-white/20 backdrop-blur-md border border-white/30 px-6 py-2 rounded-full flex items-center space-x-2 hover:bg-white/30 transition-all cursor-pointer"
       >
         <img
           src="img/logo_symbol_transparent.svg"
           alt="Astrowise Logo"
-          class="developers-logo"
+          class="w-6 h-6"
         />
-        <span class="developers-name">Astrowise</span>
+        <span class="font-bold tracking-wide">Astrowise</span>
       </a>
     </div>
-  </div>
+  </section>
+  <!-- END: LeftHeroPanel -->
 
-  <!-- Panel de Formulario Derecho -->
-  <div class="form-panel">
-    <div class="form-container">
-      <!-- Login Form -->
-      @if (!isForgotPassword()) {
-        <div class="form-header">
-          <h2 class="form-title">Bienvenido/a</h2>
-          <p class="form-subtitle">Ingresa tus credenciales para continuar</p>
+  <!-- BEGIN: RightLoginForm -->
+  <section
+    class="w-full lg:w-1/2 flex items-center justify-center p-6 relative overflow-y-auto w-screen lg:w-full h-screen transition-colors duration-300"
+  >
+    <div class="max-w-md w-full my-auto py-8">
+      <!-- Mobile Logo -->
+      <div class="lg:hidden flex flex-col items-center mb-8">
+        <div
+          class="w-32 h-32 mb-4 flex items-center justify-center rounded-3xl shadow-lg border overflow-hidden relative transition-colors duration-300 bg-[var(--mat-sys-surface)]"
+          style="padding: 10px"
+        >
+          <!-- Fallback logo representation if Lottie only loads on desktop -->
+          <svg
+            class="w-20 h-20 text-brand-primary absolute opacity-10"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 2C7.03 2 3 6.03 3 11s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm1-11h-2v3H8v2h3v3h2v-3h3v-2h-3V7z"
+            ></path>
+          </svg>
+          <img
+            src="img/logo_transparent.svg"
+            class="w-24 h-24 object-contain z-10"
+            alt="DentalWise"
+          />
         </div>
+        <div class="text-brand-primary text-4xl font-bold mb-2">DentalWise</div>
+        <div class="text-sm font-medium transition-colors duration-300">
+          Gestión dental inteligente
+        </div>
+      </div>
 
-        <form [formGroup]="loginForm" class="login-form">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Correo electrónico</mat-label>
-            <input
-              matInput
-              placeholder="tu_mail@ejemplo.com"
-              formControlName="username"
-              type="email"
-            />
-            <mat-icon matPrefix class="field-icon">email</mat-icon>
-            @if (loginForm.get("username")?.hasError("email")) {
-              <mat-error>Ingresa un correo válido</mat-error>
-            }
-          </mat-form-field>
+      @if (!isForgotPassword()) {
+        <!-- Login Form Header -->
+        <header
+          class="mb-10 text-center lg:text-left transition-colors duration-300"
+        >
+          <h2 class="text-3xl font-bold mb-2">Bienvenido/a</h2>
+          <p>Ingresa tus credenciales para continuar al panel</p>
+        </header>
 
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Contraseña</mat-label>
-            <input
-              matInput
-              [type]="hidePassword() ? 'password' : 'text'"
-              formControlName="password"
-            />
-            <mat-icon matPrefix class="field-icon">lock</mat-icon>
-            <button
-              mat-icon-button
-              matSuffix
-              (click)="clickEvent($event)"
-              type="button"
-              class="visibility-toggle"
-            >
-              <mat-icon>{{
-                hidePassword() ? "visibility_off" : "visibility"
-              }}</mat-icon>
-            </button>
-          </mat-form-field>
-
-          <div class="forgot-password-link">
-            <a
-              href=""
-              class="link-text"
-              (click)="toggleForgotPassword(); $event.preventDefault()"
-              >¿Olvidaste tu contraseña?</a
-            >
+        <!-- Login Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="login()" class="space-y-6">
+          <!-- Email Input -->
+          <div class="w-full">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Correo electrónico</mat-label>
+              <input
+                matInput
+                id="email"
+                type="email"
+                formControlName="username"
+                placeholder="nombre@ejemplo.com"
+                required
+              />
+              <i-tabler
+                matPrefix
+                name="mail"
+                class="text-slate-400 ml-2 mr-2 flex items-center justify-center w-6 h-6"
+              ></i-tabler>
+              @if (
+                loginForm.get("username")?.hasError("email") &&
+                loginForm.get("username")?.touched
+              ) {
+                <mat-error>Ingresa un correo válido</mat-error>
+              }
+            </mat-form-field>
           </div>
 
+          <!-- Password Input -->
+          <div class="w-full">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Contraseña</mat-label>
+              <input
+                matInput
+                id="password"
+                [type]="hidePassword() ? 'password' : 'text'"
+                formControlName="password"
+                placeholder="••••••••••••"
+                required
+              />
+              <i-tabler
+                matPrefix
+                name="lock"
+                class="text-slate-400 ml-2 mr-2 flex items-center justify-center w-6 h-6"
+              ></i-tabler>
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="clickEvent($event)"
+                class="text-slate-400 mr-1 flex items-center justify-center"
+                title="Mostrar/ocultar contraseña"
+              >
+                <i-tabler
+                  [name]="hidePassword() ? 'eye-off' : 'eye'"
+                  class="flex items-center justify-center w-6 h-6"
+                ></i-tabler>
+              </button>
+            </mat-form-field>
+
+            <div class="flex justify-end -mt-2 mb-2">
+              <a
+                href="#"
+                (click)="toggleForgotPassword(); $event.preventDefault()"
+                class="text-xs font-medium text-brand-primary hover:text-brand-dark transition-colors"
+              >
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
           <button
-            mat-flat-button
-            class="submit-button"
-            (click)="login()"
-            [disabled]="!loginForm.valid"
+            matButton="filled"
+            type="submit"
+            [disabled]="loginForm.invalid"
+            class="w-full !h-12 !rounded-xl !text-lg hover:opacity-90 !text-white font-bold shadow-lg shadow-brand-primary/20 transform active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
           >
             Iniciar Sesión
           </button>
         </form>
 
-        <div class="form-footer">
-          <span class="footer-text">¿No tienes una cuenta?</span>
-          <span class="footer-link">Contacta a un administrador</span>
-        </div>
+        <!-- Footer -->
+        <footer class="mt-12 text-center transition-colors duration-300">
+          <p class="text-sm">
+            ¿No tienes una cuenta? <br class="lg:hidden" />
+            <a
+              href="mailto:admin@astrowise.com.ar"
+              class="text-brand-primary font-semibold hover:underline decoration-2 underline-offset-4"
+              >Contacta a un administrador</a
+            >
+          </p>
+        </footer>
       }
 
-      <!-- Forgot Password Form -->
       @if (isForgotPassword() && !resetPasswordSent()) {
-        <div class="form-header">
-          <h2 class="form-title">Recuperar contraseña</h2>
-          <p class="form-subtitle">
-            Ingresa tu correo y te enviaremos un enlace de recuperación
-          </p>
-        </div>
+        <!-- Forgot Password Header -->
+        <header
+          class="mb-10 text-center lg:text-left transition-colors duration-300"
+        >
+          <h2 class="text-3xl font-bold mb-2">Recuperar contraseña</h2>
+          <p>Ingresa tu correo y te enviaremos un enlace de recuperación</p>
+        </header>
 
-        <form [formGroup]="forgotPasswordForm" class="login-form">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Correo electrónico</mat-label>
-            <input
-              matInput
-              placeholder="tu_mail@ejemplo.com"
-              formControlName="email"
-              type="email"
-            />
-            <mat-icon matPrefix class="field-icon">email</mat-icon>
-            @if (forgotPasswordForm.get("email")?.hasError("email")) {
-              <mat-error>Ingresa un correo válido</mat-error>
-            }
-          </mat-form-field>
+        <!-- Forgot Password Form -->
+        <form
+          [formGroup]="forgotPasswordForm"
+          (ngSubmit)="requestPasswordReset()"
+          class="space-y-6"
+        >
+          <div class="w-full">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Correo electrónico</mat-label>
+              <input
+                matInput
+                id="reset-email"
+                type="email"
+                formControlName="email"
+                placeholder="nombre@ejemplo.com"
+                required
+              />
+              <i-tabler
+                matPrefix
+                name="mail"
+                class="text-slate-400 ml-2 mr-2 flex items-center justify-center w-6 h-6"
+              ></i-tabler>
+              @if (
+                forgotPasswordForm.get("email")?.hasError("email") &&
+                forgotPasswordForm.get("email")?.touched
+              ) {
+                <mat-error>Ingresa un correo válido</mat-error>
+              }
+            </mat-form-field>
+          </div>
 
           <button
             mat-flat-button
-            class="submit-button"
-            (click)="requestPasswordReset()"
-            [disabled]="!forgotPasswordForm.valid"
+            type="submit"
+            [disabled]="forgotPasswordForm.invalid"
+            class="w-full !h-12 !rounded-xl !text-lg bg-[linear-gradient(90deg,#00C9FF_0%,#92FE9D_100%)] hover:opacity-90 !text-white font-bold shadow-lg shadow-brand-primary/20 transform active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
           >
             Enviar enlace de recuperación
           </button>
         </form>
 
-        <div class="form-footer">
+        <div class="mt-8 text-center">
           <a
-            href=""
-            class="back-link"
+            href="#"
             (click)="toggleForgotPassword(); $event.preventDefault()"
+            class="inline-flex items-center justify-center space-x-2 hover:text-brand-primary transition-colors text-sm font-medium"
           >
-            <mat-icon class="back-icon">arrow_back</mat-icon>
-            Volver al inicio de sesión
+            <i-tabler name="arrow-left" class="w-4 h-4"></i-tabler>
+            <span>Volver al inicio de sesión</span>
           </a>
         </div>
       }
 
-      <!-- Password Reset Sent -->
       @if (resetPasswordSent()) {
-        <div class="success-message">
-          <mat-icon class="success-icon">check_circle</mat-icon>
-          <h2 class="success-title">¡Correo enviado!</h2>
-          <p class="success-text">
+        <div class="text-center py-8 transition-colors duration-300">
+          <div
+            class="mx-auto flex items-center justify-center h-20 w-20 rounded-full mb-6"
+          >
+            <i-tabler name="check" class="h-10 w-10 text-green-500"></i-tabler>
+          </div>
+          <h2 class="text-3xl font-bold mb-4">¡Correo enviado!</h2>
+          <p class="mb-8 max-w-sm mx-auto">
             Revisa tu bandeja de entrada y sigue las instrucciones para
             recuperar tu contraseña.
           </p>
           <a
-            href=""
-            class="back-link"
+            href="#"
             (click)="toggleForgotPassword(); $event.preventDefault()"
+            class="inline-flex items-center justify-center space-x-2 hover:text-brand-primary transition-colors text-sm font-medium"
           >
-            <mat-icon class="back-icon">arrow_back</mat-icon>
-            Volver al inicio de sesión
+            <i-tabler name="arrow-left" class="w-4 h-4"></i-tabler>
+            <span>Volver al inicio de sesión</span>
           </a>
         </div>
       }
     </div>
-  </div>
-</div>
+  </section>
+  <!-- END: RightLoginForm -->
+</main>
