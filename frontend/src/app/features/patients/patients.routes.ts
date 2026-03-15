@@ -23,10 +23,10 @@ export const PATIENT_ROUTES: Routes = [
       ),
   },
   {
-    path: ":id/odontogram/:odontogramId",
+    path: ":id/consultation",
     loadComponent: () =>
-      import("./presentation/pages/odontogram-edit/odontogram-edit.component").then(
-        (m) => m.OdontogramEditComponent,
+      import("./presentation/pages/consultation-page/consultation-page.component").then(
+        (m) => m.ConsultationPageComponent,
       ),
   },
 ];

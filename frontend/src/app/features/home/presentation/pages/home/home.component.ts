@@ -18,12 +18,9 @@ import { Subject, takeUntil } from "rxjs";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
 import { UserDataInterface } from "../../../../auth/data/interfaces/auth.interface";
-import { DentistAvailabilityService } from "../../../../dentist-availability/services/dentist-availability.service";
-import { DayEnum } from "../../../../../shared/utils/enums/day.enum";
 import { CalendarService } from "../../../../calendar/services/calendar.service";
 import { SlotStatusEnum } from "../../../../calendar/utils/enums/slot-status.enum";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
-import { DentistAvailabilityResponseInterface } from "../../../../dentist-availability/data/interfaces/dentist-availability.interface";
 import {
   CalendarDayInterface,
   CalendarSlotInterface,
@@ -32,7 +29,6 @@ import {
 @Component({
   selector: "app-home",
   templateUrl: "./home.component.html",
-  styleUrl: "./home.component.scss",
   standalone: true,
   imports: [
     CommonModule,
@@ -48,17 +44,10 @@ import {
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly localStorageService = inject(LocalStorageService);
-  private readonly dentistAvailabilityService = inject(
-    DentistAvailabilityService,
-  );
   private readonly calendarService = inject(CalendarService);
   private readonly router = inject(Router);
 
   userData = signal<UserDataInterface | null>(null);
-  dentistAvailability = signal<DentistAvailabilityResponseInterface | null>(
-    null,
-  );
-  isLoadingAvailability = signal<boolean>(false);
   currentTime = signal<string>("");
   currentDate = signal<string>("");
 
@@ -73,11 +62,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         slot.status !== SlotStatusEnum.NOT_AVAILABLE &&
         slot.status !== SlotStatusEnum.LOCKED,
     );
-  });
-
-  hasAvailability = computed(() => {
-    const availability = this.dentistAvailability();
-    return availability && availability.days && availability.days.length > 0;
   });
 
   nextAppointment = computed(() => {
@@ -108,29 +92,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.userData() &&
         this.shouldShowDentistInfo() &&
         this.userData()?.person?.id
-      ) {
-        this.isLoadingAvailability.set(true);
-        this.dentistAvailabilityService
-          .get(this.userData()?.person?.id!)
-          .pipe(takeUntil(this._destroy$))
-          .subscribe({
-            next: (response) => {
-              this.dentistAvailability.set(response.data);
-              this.isLoadingAvailability.set(false);
-            },
-            error: () => {
-              this.isLoadingAvailability.set(false);
-            },
-          });
-      }
-    });
-
-    effect(() => {
-      if (
-        this.userData() &&
-        this.shouldShowDentistInfo() &&
-        this.userData()?.person?.id &&
-        this.hasAvailability()
       ) {
         this.loadTodayAppointments();
       }
@@ -168,36 +129,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   shouldShowDentistInfo(): boolean {
     return this.localStorageService.isDentist();
-  }
-
-  getWeeklyDays() {
-    return (
-      this.dentistAvailability()?.days?.filter(
-        (day) => day.recurrence === "WEEKLY",
-      ) || []
-    );
-  }
-
-  getSpecificDays() {
-    return (
-      this.dentistAvailability()?.days?.filter(
-        (day) => !day.recurrence || day.recurrence === "NONE",
-      ) || []
-    );
-  }
-
-  getDayLabel(day: DayEnum | null | undefined): string {
-    if (!day) return "-";
-    const dayLabels: Record<DayEnum, string> = {
-      [DayEnum.MONDAY]: "Lunes",
-      [DayEnum.TUESDAY]: "Martes",
-      [DayEnum.WEDNESDAY]: "Miércoles",
-      [DayEnum.THURSDAY]: "Jueves",
-      [DayEnum.FRIDAY]: "Viernes",
-      [DayEnum.SATURDAY]: "Sábado",
-      [DayEnum.SUNDAY]: "Domingo",
-    };
-    return dayLabels[day] || day;
   }
 
   formatTime(time: { hour: number; minute: number }): string {
@@ -253,14 +184,5 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   goToAppointments(): void {
     this.router.navigate(["/appointments"]);
-  }
-
-  goToAvailability(): void {
-    if (this.userData()?.person?.id) {
-      this.router.navigate([
-        "/dentist-availability",
-        this.userData()?.person?.id,
-      ]);
-    }
   }
 }

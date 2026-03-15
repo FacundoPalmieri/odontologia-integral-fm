@@ -75,6 +75,7 @@ import {
   IconFolderSearch,
   IconFriends,
   IconGenderBigender,
+  IconGridDots,
   IconHandMove,
   IconHandOff,
   IconHome,
@@ -113,6 +114,7 @@ import {
   IconRectangleRoundedTop,
   IconRefresh,
   IconRepeat,
+  IconReportSearch,
   IconSchool,
   IconSearch,
   IconSettings,
@@ -271,6 +273,8 @@ const ICONS = {
   IconUsers,
   IconX,
   IconXboxX,
+  IconReportSearch,
+  IconGridDots,
 } as const;
 
 @NgModule({

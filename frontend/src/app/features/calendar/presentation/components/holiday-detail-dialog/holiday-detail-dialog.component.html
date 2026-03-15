@@ -94,10 +94,14 @@
   </mat-dialog-content>
 
   <mat-dialog-actions class="!p-4 !flex !justify-end gap-2">
-    <button mat-button [mat-dialog-close]="null">Cerrar</button>
+    <button matButton [mat-dialog-close]="null">Cerrar</button>
 
     @if (isWorking) {
-      <button mat-stroked-button color="warn" (click)="stopWorkingOnHoliday()">
+      <button
+        matButton="outlined"
+        color="warn"
+        (click)="stopWorkingOnHoliday()"
+      >
         <div class="flex items-center gap-2">
           <i-tabler name="x"></i-tabler>
           <span>No trabajar este día</span>
@@ -105,7 +109,7 @@
       </button>
       @if (viewType === "week" || viewType === "day") {
         <button
-          mat-flat-button
+          matButton="filled"
           color="primary"
           (click)="openModifyHoursDialog()"
         >
@@ -117,7 +121,7 @@
       }
     } @else {
       <button
-        mat-flat-button
+        matButton="filled"
         color="primary"
         (click)="openWorkOnHolidayDialog()"
       >

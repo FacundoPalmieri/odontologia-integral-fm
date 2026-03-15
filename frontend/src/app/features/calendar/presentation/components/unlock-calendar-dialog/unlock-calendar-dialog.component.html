@@ -26,9 +26,9 @@
   </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="gap-2">
-  <button mat-button [mat-dialog-close]="{ confirmed: false }">Cancelar</button>
+  <button matButton [mat-dialog-close]="{ confirmed: false }">Cancelar</button>
   <button
-    mat-flat-button
+    matButton="filled"
     color="warn"
     [disabled]="observationControl.invalid"
     [mat-dialog-close]="{

@@ -4,7 +4,7 @@
     class="inline-flex items-end justify-end bg-[var(--mat-sys-home-sidenav-content-background)] rounded-full shadow-sm"
   >
     <button
-      mat-icon-button
+      matIconButton
       matTooltip="Vista de listado"
       [class.text-blue-500]="viewMode() === 'list'"
       (click)="viewMode.set('list')"
@@ -12,7 +12,7 @@
       <i-tabler class="mb-1" name="list-details"></i-tabler>
     </button>
     <button
-      mat-icon-button
+      matIconButton
       matTooltip="Vista de grilla"
       [class.text-blue-500]="viewMode() === 'grid'"
       (click)="viewMode.set('grid')"
@@ -35,7 +35,7 @@
           <th mat-header-cell *matHeaderCellDef>Acción</th>
           <td mat-cell *matCellDef="let element">
             <button
-              mat-icon-button
+              matIconButton
               matTooltip="Ver"
               matTooltipPosition="left"
               (click)="viewFile(element.id)"
@@ -43,7 +43,7 @@
               <i-tabler name="eye"></i-tabler>
             </button>
             <button
-              mat-icon-button
+              matIconButton
               matTooltip="Descargar"
               matTooltipPosition="right"
               (click)="downloadFile(element.id, element.originalFileName)"
@@ -51,7 +51,7 @@
               <i-tabler name="download"></i-tabler>
             </button>
             <button
-              mat-icon-button
+              matIconButton
               matTooltip="Eliminar"
               matTooltipPosition="right"
               (click)="deleteFile(element.id)"
@@ -112,7 +112,7 @@
               <!-- Actions -->
               <div class="flex gap-1">
                 <button
-                  mat-icon-button
+                  matIconButton
                   matTooltip="Ver"
                   matTooltipPosition="above"
                   (click)="viewFile(file.id)"
@@ -120,7 +120,7 @@
                   <i-tabler name="eye" class="w-4 h-4"></i-tabler>
                 </button>
                 <button
-                  mat-icon-button
+                  matIconButton
                   matTooltip="Descargar"
                   matTooltipPosition="above"
                   (click)="downloadFile(file.id, file.originalFileName)"
@@ -128,7 +128,7 @@
                   <i-tabler name="download" class="w-4 h-4"></i-tabler>
                 </button>
                 <button
-                  mat-icon-button
+                  matIconButton
                   matTooltip="Eliminar"
                   matTooltipPosition="above"
                   (click)="deleteFile(file.id)"
@@ -149,7 +149,7 @@
   </ng-container>
 
   <!-- Upload Button -->
-  <button mat-flat-button (click)="triggerAttachedFileInput()">
+  <button matButton="filled" (click)="triggerAttachedFileInput()">
     <div class="flex items-center gap-2">
       <i-tabler name="file-import"></i-tabler>
       <span>Subir archivo</span>

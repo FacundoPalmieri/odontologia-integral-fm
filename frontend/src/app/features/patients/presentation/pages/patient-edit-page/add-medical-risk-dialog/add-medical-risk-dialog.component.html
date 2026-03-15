@@ -11,52 +11,54 @@
   >
     <form [formGroup]="medicalRisksForm" class="w-full">
       <div formArrayName="medicalRisks">
-        @for(medicalRisk of medicalRisks.controls; track $index){
-        <div [formGroupName]="$index" class="flex flex-col md:flex-row gap-4">
-          <mat-form-field appearance="outline" class="w-full !mb-0">
-            <mat-label class="items-center flex gap-1">
-              <i-tabler name="stethoscope"></i-tabler>
-              <span class="font-bold">Antecedente</span>
-            </mat-label>
-            <mat-select
-              name="medicalRiskSelect"
-              formControlName="selectedRisk"
-              [compareWith]="compare"
+        @for (medicalRisk of medicalRisks.controls; track $index) {
+          <div [formGroupName]="$index" class="flex flex-col md:flex-row gap-4">
+            <mat-form-field appearance="outline" class="w-full !mb-0">
+              <mat-label class="items-center flex gap-1">
+                <i-tabler name="stethoscope"></i-tabler>
+                <span class="font-bold">Antecedente</span>
+              </mat-label>
+              <mat-select
+                name="medicalRiskSelect"
+                formControlName="selectedRisk"
+                [compareWith]="compare"
+              >
+                @for (
+                  medicalRisk of personDataService.medicalHistoryRisks();
+                  track $index
+                ) {
+                  <mat-option [value]="medicalRisk">{{
+                    medicalRisk.name
+                  }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full !mb-0">
+              <mat-label class="items-center flex gap-1">
+                <i-tabler name="medical-cross"></i-tabler>
+                <span class="font-bold">Observaciones</span>
+              </mat-label>
+              <textarea
+                matInput
+                formControlName="observation"
+                maxlength="500"
+              ></textarea>
+            </mat-form-field>
+
+            <button
+              matIconButton
+              aria-label="Eliminar antecedente"
+              (click)="removeMedicalRisk($index)"
+              class="mt-1"
+              matTooltip="Eliminar"
             >
-              @for(medicalRisk of personDataService.medicalHistoryRisks(); track
-              $index){
-              <mat-option [value]="medicalRisk">{{
-                medicalRisk.name
-              }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="w-full !mb-0">
-            <mat-label class="items-center flex gap-1">
-              <i-tabler name="medical-cross"></i-tabler>
-              <span class="font-bold">Observaciones</span>
-            </mat-label>
-            <textarea
-              matInput
-              formControlName="observation"
-              maxlength="500"
-            ></textarea>
-          </mat-form-field>
-
-          <button
-            mat-icon-button
-            aria-label="Eliminar antecedente"
-            (click)="removeMedicalRisk($index)"
-            class="mt-1"
-            matTooltip="Eliminar"
-          >
-            <i-tabler class="text-[#ef4444] mb-1" name="xbox-x"></i-tabler>
-          </button>
-        </div>
+              <i-tabler class="text-[#ef4444] mb-1" name="xbox-x"></i-tabler>
+            </button>
+          </div>
         }
 
-        <button mat-button type="button" (click)="addMedicalRisk()">
+        <button matButton type="button" (click)="addMedicalRisk()">
           <mat-icon>add</mat-icon> Agregar antecedente
         </button>
       </div>
@@ -64,6 +66,6 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-flat-button type="button" (click)="submit()">Confirmar</button>
+  <button matButton mat-dialog-close>Cancelar</button>
+  <button matButton="filled" type="button" (click)="submit()">Confirmar</button>
 </mat-dialog-actions>

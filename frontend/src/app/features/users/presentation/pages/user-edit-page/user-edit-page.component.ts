@@ -452,7 +452,6 @@ export class UserEditPageComponent implements OnInit, OnDestroy {
       ...formValue,
       rolesList: formValue.rolesList ? [formValue.rolesList] : [],
     };
-    console.log(user);
     this.userService
       .update(user)
       .subscribe((response: ApiResponseInterface<UserDto>) => {

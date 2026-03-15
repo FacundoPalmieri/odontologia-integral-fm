@@ -4,77 +4,82 @@
       <div
         class="inline-flex items-center justify-center background-odontogram-utilities"
       >
-        @if(showToolbox){
-        <button
-          mat-icon-button
-          (click)="toggleReferences()"
-          [matTooltip]="
-            referencesOpen ? 'Cerrar referencias' : 'Abrir referencias'
-          "
-          matTooltipPosition="above"
+        @if (showToolbox) {
+          <button
+            matIconButton
+            (click)="toggleReferences()"
+            [matTooltip]="
+              referencesOpen ? 'Cerrar referencias' : 'Abrir referencias'
+            "
+            matTooltipPosition="above"
+          >
+            <i-tabler class="mb-1" name="notebook"></i-tabler>
+          </button>
+        }
+      </div>
+
+      @if (referencesOpen) {
+        <div
+          class="references-breadcrumb background-odontogram-utilities flex justify-center items-center gap-2 px-3 py-1.5 flex-wrap flex-1"
         >
-          <i-tabler class="mb-1" name="notebook"></i-tabler>
-        </button>
-        }
-      </div>
-
-      @if(referencesOpen){
-      <div
-        class="references-breadcrumb background-odontogram-utilities flex justify-center items-center gap-2 px-3 py-1.5 flex-wrap flex-1"
-      >
-        @for(treatment of treatments; track $index){
-        <div class="flex items-center gap-0.5">
-          @if(treatment.name === treatmentEnum.PUENTE){
-          <i-tabler name="space" class="rotate-180 text-xs scale-75"></i-tabler>
-          } @else {
-          <div class="flex scale-[0.75]">
-            @for(icon of treatment.icons; track $index){
-            <i-tabler
-              [name]="icon"
-              [ngClass]="[calculateMargin($index, treatment.icons!.length)]"
-            ></i-tabler>
-            }
-          </div>
+          @for (treatment of treatments; track $index) {
+            <div class="flex items-center gap-0.5">
+              @if (treatment.name === treatmentEnum.PUENTE) {
+                <i-tabler
+                  name="space"
+                  class="rotate-180 text-xs scale-75"
+                ></i-tabler>
+              } @else {
+                <div class="flex scale-[0.75]">
+                  @for (icon of treatment.icons; track $index) {
+                    <i-tabler
+                      [name]="icon"
+                      [ngClass]="[
+                        calculateMargin($index, treatment.icons!.length),
+                      ]"
+                    ></i-tabler>
+                  }
+                </div>
+              }
+              <span class="text-[10px] whitespace-nowrap">{{
+                treatment.label
+              }}</span>
+              @if ($index < treatments.length - 1) {
+                <span class="text-gray-400 mx-0.5 text-[10px]">•</span>
+              }
+            </div>
           }
-          <span class="text-[10px] whitespace-nowrap">{{
-            treatment.label
-          }}</span>
-          @if($index < treatments.length - 1){
-          <span class="text-gray-400 mx-0.5 text-[10px]">•</span>
-          }
-        </div>
-        }
 
-        <div class="flex items-center gap-2 ml-1 pl-2 border-l">
-          <div class="flex items-center gap-0.5">
-            <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-            <span class="text-[10px]">Existente</span>
-          </div>
-          <div class="flex items-center gap-0.5">
-            <div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-            <span class="text-[10px]">Requerida</span>
+          <div class="flex items-center gap-2 ml-1 pl-2 border-l">
+            <div class="flex items-center gap-0.5">
+              <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+              <span class="text-[10px]">Existente</span>
+            </div>
+            <div class="flex items-center gap-0.5">
+              <div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+              <span class="text-[10px]">Requerida</span>
+            </div>
           </div>
         </div>
-      </div>
       }
     </div>
 
-    @if(showDateSelector){
-    <div class="background-odontogram-utilities">
-      <mat-form-field appearance="outline" class="p-2 !-mb-5">
-        <mat-label>Seleccionar fecha</mat-label>
-        <mat-select
-          [(ngModel)]="selectedDate"
-          (selectionChange)="onDateChange($event.value)"
-        >
-          @for(date of odontogramDates; track date.date){
-          <mat-option [value]="date">
-            {{ date.date | date : "dd/MM/yyyy" }}
-          </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
+    @if (showDateSelector) {
+      <div class="background-odontogram-utilities">
+        <mat-form-field appearance="outline" class="p-2 !-mb-5">
+          <mat-label>Seleccionar fecha</mat-label>
+          <mat-select
+            [(ngModel)]="selectedDate"
+            (selectionChange)="onDateChange($event.value)"
+          >
+            @for (date of odontogramDates; track date.date) {
+              <mat-option [value]="date">
+                {{ date.date | date: "dd/MM/yyyy" }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
     }
   </div>
 
@@ -84,203 +89,207 @@
       style="z-index: 10"
     >
       <!-- Puentes superiores -->
-      @for(bridge of bridgeConnections; track bridge.startTooth){
-      @if(isUpperTooth(bridge.startTooth) && isUpperTooth(bridge.endTooth)){
-      <!-- Línea horizontal principal -->
-      <line
-        [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.startTooth).y + 5"
-        [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.endTooth).y + 5"
-        [attr.stroke]="
-          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-            ? '#2b7fff'
-            : '#fb2c36'
-        "
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        opacity="0.8"
-      />
-      <!-- Línea vertical para el diente inicial -->
-      <line
-        [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.startTooth).y + 5"
-        [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.startTooth).y + 20"
-        [attr.stroke]="
-          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-            ? '#2b7fff'
-            : '#fb2c36'
-        "
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        opacity="0.8"
-      />
-      <!-- Línea vertical para el diente final -->
-      <line
-        [attr.x1]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.endTooth).y + 5"
-        [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.endTooth).y + 20"
-        [attr.stroke]="
-          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-            ? '#2b7fff'
-            : '#fb2c36'
-        "
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        opacity="0.8"
-      />
-      } }
+      @for (bridge of bridgeConnections; track bridge.startTooth) {
+        @if (isUpperTooth(bridge.startTooth) && isUpperTooth(bridge.endTooth)) {
+          <!-- Línea horizontal principal -->
+          <line
+            [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
+            [attr.y1]="getToothPosition(bridge.startTooth).y + 5"
+            [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
+            [attr.y2]="getToothPosition(bridge.endTooth).y + 5"
+            [attr.stroke]="
+              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+                ? '#2b7fff'
+                : '#fb2c36'
+            "
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.8"
+          />
+          <!-- Línea vertical para el diente inicial -->
+          <line
+            [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
+            [attr.y1]="getToothPosition(bridge.startTooth).y + 5"
+            [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
+            [attr.y2]="getToothPosition(bridge.startTooth).y + 20"
+            [attr.stroke]="
+              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+                ? '#2b7fff'
+                : '#fb2c36'
+            "
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.8"
+          />
+          <!-- Línea vertical para el diente final -->
+          <line
+            [attr.x1]="getToothPosition(bridge.endTooth).x + 3"
+            [attr.y1]="getToothPosition(bridge.endTooth).y + 5"
+            [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
+            [attr.y2]="getToothPosition(bridge.endTooth).y + 20"
+            [attr.stroke]="
+              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+                ? '#2b7fff'
+                : '#fb2c36'
+            "
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.8"
+          />
+        }
+      }
 
       <!-- Puentes inferiores -->
-      @for(bridge of bridgeConnections; track bridge.startTooth){
-      @if(!isUpperTooth(bridge.startTooth) && !isUpperTooth(bridge.endTooth)){
-      <!-- Línea horizontal principal -->
-      <line
-        [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.startTooth).y + 56"
-        [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.endTooth).y + 56"
-        [attr.stroke]="
-          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-            ? '#2b7fff'
-            : '#fb2c36'
-        "
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        opacity="0.8"
-      />
-      <!-- Línea vertical para el diente inicial -->
-      <line
-        [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.startTooth).y + 56"
-        [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.startTooth).y + 70"
-        [attr.stroke]="
-          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-            ? '#2b7fff'
-            : '#fb2c36'
-        "
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        opacity="0.8"
-      />
-      <!-- Línea vertical para el diente final -->
-      <line
-        [attr.x1]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y1]="getToothPosition(bridge.endTooth).y + 56"
-        [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
-        [attr.y2]="getToothPosition(bridge.endTooth).y + 70"
-        [attr.stroke]="
-          bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-            ? '#2b7fff'
-            : '#fb2c36'
-        "
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        opacity="0.8"
-      />
-      } }
+      @for (bridge of bridgeConnections; track bridge.startTooth) {
+        @if (
+          !isUpperTooth(bridge.startTooth) && !isUpperTooth(bridge.endTooth)
+        ) {
+          <!-- Línea horizontal principal -->
+          <line
+            [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
+            [attr.y1]="getToothPosition(bridge.startTooth).y + 56"
+            [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
+            [attr.y2]="getToothPosition(bridge.endTooth).y + 56"
+            [attr.stroke]="
+              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+                ? '#2b7fff'
+                : '#fb2c36'
+            "
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.8"
+          />
+          <!-- Línea vertical para el diente inicial -->
+          <line
+            [attr.x1]="getToothPosition(bridge.startTooth).x + 3"
+            [attr.y1]="getToothPosition(bridge.startTooth).y + 56"
+            [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
+            [attr.y2]="getToothPosition(bridge.startTooth).y + 70"
+            [attr.stroke]="
+              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+                ? '#2b7fff'
+                : '#fb2c36'
+            "
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.8"
+          />
+          <!-- Línea vertical para el diente final -->
+          <line
+            [attr.x1]="getToothPosition(bridge.endTooth).x + 3"
+            [attr.y1]="getToothPosition(bridge.endTooth).y + 56"
+            [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
+            [attr.y2]="getToothPosition(bridge.endTooth).y + 70"
+            [attr.stroke]="
+              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
+                ? '#2b7fff'
+                : '#fb2c36'
+            "
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.8"
+          />
+        }
+      }
     </svg>
 
     <div class="flex justify-center mt-4">
       <div class="flex mb-2 mr-2">
-        @for(tooth of odontogram.upperTeethLeft; track $index){
-        <app-tooth
-          [toothNumber]="tooth.number"
-          [treatments]="tooth.treatments!"
-          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
-        ></app-tooth>
+        @for (tooth of odontogram.upperTeethLeft; track $index) {
+          <app-tooth
+            [toothNumber]="tooth.number"
+            [treatments]="tooth.treatments!"
+            (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
+          ></app-tooth>
         }
       </div>
       <mat-divider vertical="true"></mat-divider>
       <div class="flex ml-2">
-        @for(tooth of odontogram.upperTeethRight; track $index){
-        <app-tooth
-          [toothNumber]="tooth.number"
-          [treatments]="tooth.treatments!"
-          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
-        ></app-tooth>
+        @for (tooth of odontogram.upperTeethRight; track $index) {
+          <app-tooth
+            [toothNumber]="tooth.number"
+            [treatments]="tooth.treatments!"
+            (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
+          ></app-tooth>
         }
       </div>
     </div>
     <mat-divider></mat-divider>
     <div class="flex justify-center">
       <div class="flex mr-2">
-        @for(tooth of odontogram.lowerTeethLeft; track $index){
-        <app-tooth
-          [toothNumber]="tooth.number"
-          [treatments]="tooth.treatments!"
-          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
-        ></app-tooth>
+        @for (tooth of odontogram.lowerTeethLeft; track $index) {
+          <app-tooth
+            [toothNumber]="tooth.number"
+            [treatments]="tooth.treatments!"
+            (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
+          ></app-tooth>
         }
       </div>
       <mat-divider vertical="true"></mat-divider>
       <div class="flex ml-2">
-        @for(tooth of odontogram.lowerTeethRight; track $index){
-        <app-tooth
-          [toothNumber]="tooth.number"
-          [treatments]="tooth.treatments!"
-          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
-        ></app-tooth>
+        @for (tooth of odontogram.lowerTeethRight; track $index) {
+          <app-tooth
+            [toothNumber]="tooth.number"
+            [treatments]="tooth.treatments!"
+            (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
+          ></app-tooth>
         }
       </div>
     </div>
   </div>
 
-  @if(showTemporaries){
-  <div class="flex flex-col mt-4">
-    <div class="flex justify-center">
-      <div class="flex mb-2 mr-2">
-        @for(tooth of odontogram.temporaryUpperLeft; track $index){
-        <app-tooth
-          [toothNumber]="tooth.number"
-          [treatments]="tooth.treatments!"
-          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
-        ></app-tooth>
-        }
+  @if (showTemporaries) {
+    <div class="flex flex-col mt-4">
+      <div class="flex justify-center">
+        <div class="flex mb-2 mr-2">
+          @for (tooth of odontogram.temporaryUpperLeft; track $index) {
+            <app-tooth
+              [toothNumber]="tooth.number"
+              [treatments]="tooth.treatments!"
+              (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
+            ></app-tooth>
+          }
+        </div>
+        <mat-divider vertical="true"></mat-divider>
+        <div class="flex ml-2">
+          @for (tooth of odontogram.temporaryUpperRight; track $index) {
+            <app-tooth
+              [toothNumber]="tooth.number"
+              [treatments]="tooth.treatments!"
+              (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
+            ></app-tooth>
+          }
+        </div>
       </div>
-      <mat-divider vertical="true"></mat-divider>
-      <div class="flex ml-2">
-        @for(tooth of odontogram.temporaryUpperRight; track $index){
-        <app-tooth
-          [toothNumber]="tooth.number"
-          [treatments]="tooth.treatments!"
-          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
-        ></app-tooth>
-        }
+      <mat-divider></mat-divider>
+      <div class="flex justify-center">
+        <div class="flex mr-2">
+          @for (tooth of odontogram.temporaryLowerLeft; track $index) {
+            <app-tooth
+              [toothNumber]="tooth.number"
+              [treatments]="tooth.treatments!"
+              (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
+            ></app-tooth>
+          }
+        </div>
+        <mat-divider vertical="true"></mat-divider>
+        <div class="flex ml-2">
+          @for (tooth of odontogram.temporaryLowerRight; track $index) {
+            <app-tooth
+              [toothNumber]="tooth.number"
+              [treatments]="tooth.treatments!"
+              (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
+            ></app-tooth>
+          }
+        </div>
       </div>
     </div>
-    <mat-divider></mat-divider>
-    <div class="flex justify-center">
-      <div class="flex mr-2">
-        @for(tooth of odontogram.temporaryLowerLeft; track $index){
-        <app-tooth
-          [toothNumber]="tooth.number"
-          [treatments]="tooth.treatments!"
-          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
-        ></app-tooth>
-        }
-      </div>
-      <mat-divider vertical="true"></mat-divider>
-      <div class="flex ml-2">
-        @for(tooth of odontogram.temporaryLowerRight; track $index){
-        <app-tooth
-          [toothNumber]="tooth.number"
-          [treatments]="tooth.treatments!"
-          (treatmentsChange)="onTreatmentsChange(tooth.number, $event)"
-        ></app-tooth>
-        }
-      </div>
-    </div>
-  </div>
   }
   <div class="mt-4">
     <!-- <form [formGroup]="patientForm"> -->

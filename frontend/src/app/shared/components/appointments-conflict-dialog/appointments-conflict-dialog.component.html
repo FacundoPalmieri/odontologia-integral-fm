@@ -7,174 +7,189 @@
 </h2>
 <mat-dialog-content class="!p-4 !pt-0">
   @if (isLoading) {
-  <div class="flex flex-col items-center justify-center p-8">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p class="mt-4 text-[var(--mat-sys-on-surface-variant)]">
-      Cargando conflictos...
-    </p>
-  </div>
-  } @else { @if (conflicts.length > 0) {
-  <!-- Mensaje de cantidad de conflictos -->
-  <div class="mb-4">
-    <p class="text-[var(--mat-sys-on-surface-variant)]">
-      Se {{ conflicts.length === 1 ? "detectó" : "detectaron" }}
-      {{ conflicts.length }} conflicto{{ conflicts.length !== 1 ? "s" : "" }}
-      con turnos ya agendados. Por favor, revisa los siguientes turnos:
-    </p>
-  </div>
-
-  <!-- Mensaje informativo cuando no se permite reprogramar (preview mode) -->
-  @if (data.showSaveOption && !data.allowReschedule) {
-  <div
-    class="mb-4 p-3 rounded-[var(--mat-sys-corner-medium)] bg-[var(--mat-sys-primary-container)] text-[var(--mat-sys-on-primary-container)]"
-  >
-    <div class="flex items-start gap-2">
-      <i-tabler name="info-circle" class="mt-0.5 flex-shrink-0"></i-tabler>
-      <div class="text-sm">
-        <strong>Nota:</strong> Las reprogramaciones se deben realizar desde el
-        calendario después de guardar la disponibilidad. Por ahora, puede
-        cancelar los turnos en conflicto o presionar "Guardar igualmente" para
-        mantener ambos.
-      </div>
+    <div class="flex flex-col items-center justify-center p-8">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="mt-4 text-[var(--mat-sys-on-surface-variant)]">
+        Cargando conflictos...
+      </p>
     </div>
-  </div>
-  }
-
-  <div class="max-h-[60vh] overflow-y-auto">
-    <mat-card
-      appearance="outlined"
-      class="!bg-[var(--mat-sys-file-container-background)]"
-    >
-      <mat-card-content>
-        <div class="overflow-x-auto">
-          <table mat-table [dataSource]="conflicts" class="w-full">
-            <!-- Patient Name Column -->
-            <ng-container matColumnDef="patientName">
-              <th mat-header-cell *matHeaderCellDef>Paciente</th>
-              <td mat-cell *matCellDef="let element">
-                <div class="flex items-center gap-2">
-                  <span class="font-medium">{{ element.patientName }}</span>
-                </div>
-              </td>
-            </ng-container>
-
-            <!-- Date Column -->
-            <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>Fecha y Hora</th>
-              <td mat-cell *matCellDef="let element">
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center gap-1">
-                    <i-tabler name="calendar" class="scale-90"></i-tabler>
-                    <span>{{ formatDate(element.appointmentDateTime) }}</span>
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <i-tabler name="clock" class="scale-90"></i-tabler>
-                    <span class="font-bold">{{
-                      formatTime(element.appointmentDateTime)
-                    }}</span>
-                  </div>
-                </div>
-              </td>
-            </ng-container>
-
-            <!-- Origin Conflict Column -->
-            <ng-container matColumnDef="origin">
-              <th mat-header-cell *matHeaderCellDef>Motivo</th>
-              <td mat-cell *matCellDef="let element">
-                <div class="flex items-center gap-2">
-                  @if (element.nameOriginConflict) {
-                  <span
-                    class="px-3 py-1 rounded-xl text-white text-sm font-medium bg-[#f56565]"
-                  >
-                    {{ element.nameOriginConflict }}
-                  </span>
-                  } @else {
-                  <span
-                    class="text-sm text-[var(--mat-sys-on-surface-variant)]"
-                  >
-                    Sin información
-                  </span>
-                  }
-                </div>
-              </td>
-            </ng-container>
-
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Acciones</th>
-              <td mat-cell *matCellDef="let element">
-                <div class="flex items-center gap-2">
-                  @if (data.allowReschedule !== false) {
-                  <button
-                    mat-icon-button
-                    color="primary"
-                    matTooltip="Reprogramar"
-                    (click)="rescheduleAppointment(element)"
-                  >
-                    <i-tabler name="calendar-event" class="scale-90"></i-tabler>
-                  </button>
-                  }
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    matTooltip="Cancelar"
-                    (click)="cancelAppointment(element)"
-                  >
-                    <i-tabler
-                      name="cancel"
-                      class="scale-90 text-red-500"
-                    ></i-tabler>
-                  </button>
-                </div>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          </table>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
   } @else {
-  <!-- Mensaje cuando no hay conflictos -->
-  <div class="flex flex-col items-center justify-center p-12 text-center">
-    <div class="mb-4 rounded-[var(--mat-sys-corner-full)]">
-      <i-tabler
-        name="circle-check"
-        class="text-[var(--mat-sys-primary)] scale-[3]"
-      ></i-tabler>
-    </div>
-    <h3 class="text-xl font-semibold mb-2 text-[var(--mat-sys-on-surface)]">
-      ¡Todos los conflictos resueltos!
-    </h3>
-    <p class="text-[var(--mat-sys-on-surface-variant)] max-w-md">
-      No hay conflictos pendientes. Todos los turnos han sido cancelados o
-      reprogramados exitosamente.
-    </p>
-  </div>
-  } }
+    @if (conflicts.length > 0) {
+      <!-- Mensaje de cantidad de conflictos -->
+      <div class="mb-4">
+        <p class="text-[var(--mat-sys-on-surface-variant)]">
+          Se {{ conflicts.length === 1 ? "detectó" : "detectaron" }}
+          {{ conflicts.length }} conflicto{{
+            conflicts.length !== 1 ? "s" : ""
+          }}
+          con turnos ya agendados. Por favor, revisa los siguientes turnos:
+        </p>
+      </div>
+
+      <!-- Mensaje informativo cuando no se permite reprogramar (preview mode) -->
+      @if (data.showSaveOption && !data.allowReschedule) {
+        <div
+          class="mb-4 p-3 rounded-[var(--mat-sys-corner-medium)] bg-[var(--mat-sys-primary-container)] text-[var(--mat-sys-on-primary-container)]"
+        >
+          <div class="flex items-start gap-2">
+            <i-tabler
+              name="info-circle"
+              class="mt-0.5 flex-shrink-0"
+            ></i-tabler>
+            <div class="text-sm">
+              <strong>Nota:</strong> Las reprogramaciones se deben realizar
+              desde el calendario después de guardar la disponibilidad. Por
+              ahora, puede cancelar los turnos en conflicto o presionar "Guardar
+              igualmente" para mantener ambos.
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="max-h-[60vh] overflow-y-auto">
+        <mat-card
+          appearance="outlined"
+          class="!bg-[var(--mat-sys-file-container-background)]"
+        >
+          <mat-card-content>
+            <div class="overflow-x-auto">
+              <table mat-table [dataSource]="conflicts" class="w-full">
+                <!-- Patient Name Column -->
+                <ng-container matColumnDef="patientName">
+                  <th mat-header-cell *matHeaderCellDef>Paciente</th>
+                  <td mat-cell *matCellDef="let element">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium">{{ element.patientName }}</span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Date Column -->
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef>Fecha y Hora</th>
+                  <td mat-cell *matCellDef="let element">
+                    <div class="flex items-center gap-3">
+                      <div class="flex items-center gap-1">
+                        <i-tabler name="calendar" class="scale-90"></i-tabler>
+                        <span>{{
+                          formatDate(element.appointmentDateTime)
+                        }}</span>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <i-tabler name="clock" class="scale-90"></i-tabler>
+                        <span class="font-bold">{{
+                          formatTime(element.appointmentDateTime)
+                        }}</span>
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Origin Conflict Column -->
+                <ng-container matColumnDef="origin">
+                  <th mat-header-cell *matHeaderCellDef>Motivo</th>
+                  <td mat-cell *matCellDef="let element">
+                    <div class="flex items-center gap-2">
+                      @if (element.nameOriginConflict) {
+                        <span
+                          class="px-3 py-1 rounded-xl text-white text-sm font-medium bg-[#f56565]"
+                        >
+                          {{ element.nameOriginConflict }}
+                        </span>
+                      } @else {
+                        <span
+                          class="text-sm text-[var(--mat-sys-on-surface-variant)]"
+                        >
+                          Sin información
+                        </span>
+                      }
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                  <td mat-cell *matCellDef="let element">
+                    <div class="flex items-center gap-2">
+                      @if (data.allowReschedule !== false) {
+                        <button
+                          matIconButton
+                          color="primary"
+                          matTooltip="Reprogramar"
+                          (click)="rescheduleAppointment(element)"
+                        >
+                          <i-tabler
+                            name="calendar-event"
+                            class="scale-90"
+                          ></i-tabler>
+                        </button>
+                      }
+                      <button
+                        matIconButton
+                        color="warn"
+                        matTooltip="Cancelar"
+                        (click)="cancelAppointment(element)"
+                      >
+                        <i-tabler
+                          name="cancel"
+                          class="scale-90 text-red-500"
+                        ></i-tabler>
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: displayedColumns"
+                ></tr>
+              </table>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    } @else {
+      <!-- Mensaje cuando no hay conflictos -->
+      <div class="flex flex-col items-center justify-center p-12 text-center">
+        <div class="mb-4 rounded-[var(--mat-sys-corner-full)]">
+          <i-tabler
+            name="circle-check"
+            class="text-[var(--mat-sys-primary)] scale-[3]"
+          ></i-tabler>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 text-[var(--mat-sys-on-surface)]">
+          ¡Todos los conflictos resueltos!
+        </h3>
+        <p class="text-[var(--mat-sys-on-surface-variant)] max-w-md">
+          No hay conflictos pendientes. Todos los turnos han sido cancelados o
+          reprogramados exitosamente.
+        </p>
+      </div>
+    }
+  }
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   @if (data.showSaveOption) {
-  <!-- Botones cuando se muestra desde el flujo de guardar disponibilidad -->
-  <button
-    mat-stroked-button
-    [mat-dialog-close]="{ saveAnyway: false }"
-    class="!text-[var(--mat-sys-on-surface)]"
-  >
-    Cancelar
-  </button>
-  <div class="flex-1"></div>
-  <button
-    mat-flat-button
-    color="primary"
-    [mat-dialog-close]="{ saveAnyway: true }"
-  >
-    {{ conflicts.length > 0 ? "Guardar igualmente" : "Guardar" }}
-  </button>
+    <!-- Botones cuando se muestra desde el flujo de guardar disponibilidad -->
+    <button
+      matButton="outlined"
+      [mat-dialog-close]="{ saveAnyway: false }"
+      class="!text-[var(--mat-sys-on-surface)]"
+    >
+      Cancelar
+    </button>
+    <div class="flex-1"></div>
+    <button
+      matButton="filled"
+      color="primary"
+      [mat-dialog-close]="{ saveAnyway: true }"
+    >
+      {{ conflicts.length > 0 ? "Guardar igualmente" : "Guardar" }}
+    </button>
   } @else {
-  <!-- Botones por defecto (cuando se muestra después de guardar) -->
-  <button mat-button [mat-dialog-close]="false">Cerrar</button>
+    <!-- Botones por defecto (cuando se muestra después de guardar) -->
+    <button matButton [mat-dialog-close]="false">Cerrar</button>
   }
 </mat-dialog-actions>

@@ -1,0 +1,47 @@
+<div class="relative hidden sm:block">
+  <i-tabler
+    name="search"
+    class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--mat-sys-on-surface-variant)] z-10 pointer-events-none"
+  ></i-tabler>
+  <input
+    type="text"
+    placeholder="Buscar paciente"
+    [ngModel]="searchQuery()"
+    (ngModelChange)="searchQuery.set($event)"
+    [matAutocomplete]="patientAuto"
+    class="w-48 h-12 lg:w-72 pl-10 pr-4 py-2 bg-[var(--mat-sys-surface-container-high)] focus:bg-[var(--mat-sys-surface)] focus:border-[var(--mat-sys-primary)] rounded-[var(--mat-sys-corner-medium)] text-sm outline-none transition-all placeholder:text-[var(--mat-sys-on-surface-variant)] text-[var(--mat-sys-on-surface)]"
+  />
+  <mat-autocomplete
+    #patientAuto="matAutocomplete"
+    [displayWith]="getPatientFullName"
+    (optionSelected)="selectPatient($event.option.value)"
+  >
+    @for (patient of filteredPatients(); track patient.person.id) {
+      <mat-option [value]="patient" class="py-1">
+        <div class="flex items-center gap-2">
+          <img
+            [src]="patient.avatarUrl || 'img/men-avatar.png'"
+            alt="Avatar"
+            class="w-7 h-7 rounded-full object-cover shrink-0"
+          />
+          <div class="flex flex-col leading-tight">
+            <span class="text-sm font-medium"
+              >{{ patient.person.firstName }}
+              {{ patient.person.lastName }}</span
+            >
+            <span class="text-xs text-[var(--mat-sys-on-surface-variant)]"
+              >DNI: {{ patient.person.dni }}</span
+            >
+          </div>
+        </div>
+      </mat-option>
+    }
+    @if (searchQuery().length >= 3 && filteredPatients().length === 0) {
+      <mat-option disabled>
+        <span class="text-sm text-[var(--mat-sys-on-surface-variant)]"
+          >Sin resultados para "{{ searchQuery() }}"</span
+        >
+      </mat-option>
+    }
+  </mat-autocomplete>
+</div>

@@ -131,10 +131,8 @@ export class PatientsListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  openOdontogram(patient: PatientDto): void {
-    this.router.navigate([
-      `patients/${patient.person.id}/odontogram/${patient.person.id}`,
-    ]);
+  openConsultation(patient: PatientDto): void {
+    this.router.navigate([`patients/${patient.person.id}/consultation`]);
   }
 
   private _loadPatients(): void {

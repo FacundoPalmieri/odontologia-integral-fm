@@ -72,6 +72,8 @@ export class UsersListComponent implements OnInit, AfterViewInit {
   readonly userDisplayedColumns: string[] = [
     "avatar",
     "username",
+    "firstName",
+    "lastName",
     "rolesList",
     "enabled",
   ];

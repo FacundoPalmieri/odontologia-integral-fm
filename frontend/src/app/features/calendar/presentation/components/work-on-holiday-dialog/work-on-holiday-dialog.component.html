@@ -159,9 +159,9 @@
 </mat-dialog-content>
 
 <mat-dialog-actions class="!p-4 !flex !justify-end gap-2">
-  <button mat-button (click)="cancel()" [disabled]="isSaving">Cancelar</button>
+  <button matButton (click)="cancel()" [disabled]="isSaving">Cancelar</button>
   <button
-    mat-flat-button
+    matButton="filled"
     color="primary"
     (click)="saveAvailability()"
     [disabled]="workForm.invalid || isSaving"

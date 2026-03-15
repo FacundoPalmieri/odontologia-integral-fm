@@ -1,5 +1,5 @@
 <app-page-toolbar
-  [title]="'Odontograma'"
+  [title]="'Consulta'"
   [showBackButton]="true"
   (back)="goBack()"
 ></app-page-toolbar>
@@ -19,7 +19,7 @@
   </mat-card-content>
 
   <mat-card-actions align="end">
-    <button mat-flat-button (click)="saveOdontogram()">
+    <button matButton="filled" (click)="saveOdontogram()">
       <div class="flex items-center">
         <span>Guardar</span>
       </div>

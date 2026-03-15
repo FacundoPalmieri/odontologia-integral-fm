@@ -69,8 +69,8 @@
                 <span class="font-bold">Género</span>
               </mat-label>
               <mat-select name="genderSelect" formControlName="gender">
-                @for(gender of genders(); track $index){
-                <mat-option [value]="gender">{{ gender.alias }}</mat-option>
+                @for (gender of genders(); track $index) {
+                  <mat-option [value]="gender">{{ gender.alias }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -81,10 +81,10 @@
                 <span class="font-bold">Nacionalidad</span>
               </mat-label>
               <mat-select name="genderSelect" formControlName="nationality">
-                @for(nationality of nationalities(); track $index){
-                <mat-option [value]="nationality">{{
-                  nationality.name
-                }}</mat-option>
+                @for (nationality of nationalities(); track $index) {
+                  <mat-option [value]="nationality">{{
+                    nationality.name
+                  }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -113,10 +113,10 @@
                 <span class="font-bold">Tipo de Teléfono</span>
               </mat-label>
               <mat-select name="genderSelect" formControlName="phoneType">
-                @for(phoneType of phoneTypes(); track $index){
-                <mat-option [value]="phoneType">{{
-                  phoneType.name
-                }}</mat-option>
+                @for (phoneType of phoneTypes(); track $index) {
+                  <mat-option [value]="phoneType">{{
+                    phoneType.name
+                  }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -146,8 +146,8 @@
                 <span class="font-bold">País</span>
               </mat-label>
               <mat-select name="genderSelect" formControlName="country">
-                @for(country of countries(); track $index){
-                <mat-option [value]="country">{{ country.name }}</mat-option>
+                @for (country of countries(); track $index) {
+                  <mat-option [value]="country">{{ country.name }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -158,8 +158,10 @@
                 <span class="font-bold">Provincia</span>
               </mat-label>
               <mat-select name="genderSelect" formControlName="province">
-                @for(province of provinces(); track $index){
-                <mat-option [value]="province">{{ province.name }}</mat-option>
+                @for (province of provinces(); track $index) {
+                  <mat-option [value]="province">{{
+                    province.name
+                  }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -170,8 +172,10 @@
                 <span class="font-bold">Localidad</span>
               </mat-label>
               <mat-select name="genderSelect" formControlName="locality">
-                @for(locality of localities(); track $index){
-                <mat-option [value]="locality">{{ locality.name }}</mat-option>
+                @for (locality of localities(); track $index) {
+                  <mat-option [value]="locality">{{
+                    locality.name
+                  }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -224,10 +228,10 @@
                 <span class="font-bold">Obra social</span>
               </mat-label>
               <mat-select name="genderSelect" formControlName="nationality">
-                @for(healthPlan of healthPlans(); track $index){
-                <mat-option [value]="healthPlan">{{
-                  healthPlan.name
-                }}</mat-option>
+                @for (healthPlan of healthPlans(); track $index) {
+                  <mat-option [value]="healthPlan">{{
+                    healthPlan.name
+                  }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -249,9 +253,9 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
+  <button matButton mat-dialog-close>Cancelar</button>
   <button
-    mat-flat-button
+    matButton="filled"
     [mat-dialog-close]="patientForm.value"
     [disabled]="!patientForm.valid"
   >

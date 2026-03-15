@@ -8,7 +8,7 @@
         localStorageService.isAdministrator() || localStorageService.isDentist()
       ) {
         <button
-          mat-fab
+          matFab
           extended
           class="!w-full !mb-4"
           [matMenuTriggerFor]="createEventMenu"
@@ -59,7 +59,11 @@
         localStorageService.isAdministrator() || localStorageService.isDentist()
       ) {
         <div class="flex justify-center !mb-4">
-          <button mat-flat-button class="!w-[90%]" (click)="goToAvailability()">
+          <button
+            matButton="filled"
+            class="!w-[90%]"
+            (click)="goToAvailability()"
+          >
             <div class="flex items-center gap-2">
               <i-tabler name="settings"></i-tabler>
               <span>Disponibilidad laboral</span>
@@ -69,7 +73,7 @@
         @if (hasConflicts()) {
           <div class="flex justify-center !mb-4">
             <button
-              mat-stroked-button
+              matButton="outlined"
               class="!w-[90%]"
               (click)="viewConflicts()"
               [matBadge]="getConflictCount()"
@@ -88,7 +92,7 @@
         <!-- Mini Calendar -->
         <div class="mini-calendar mb-4">
           <div class="mini-calendar-header">
-            <button mat-icon-button (click)="navigateDate('prev')">
+            <button matIconButton (click)="navigateDate('prev')">
               <div class="flex items-center">
                 <i-tabler class="scale-80" name="chevron-left"></i-tabler>
               </div>
@@ -97,7 +101,7 @@
               >{{ months[selectedDate.getMonth()] }}
               {{ selectedDate.getFullYear() }}</span
             >
-            <button mat-icon-button (click)="navigateDate('next')">
+            <button matIconButton (click)="navigateDate('next')">
               <div class="flex items-center">
                 <i-tabler class="scale-80" name="chevron-right"></i-tabler>
               </div>
@@ -194,7 +198,7 @@
       @if (localStorageService.isSecretary() && selectedDentist()) {
         <div class="dentist-selection-bar">
           <button
-            mat-button
+            matButton
             (click)="backToDentistSelection()"
             class="back-to-selection-btn"
           >
@@ -219,7 +223,7 @@
           <div class="header-left">
             <!-- Toggle Button (always visible) -->
             <button
-              mat-icon-button
+              matIconButton
               (click)="toggleSidebar()"
               [matTooltip]="
                 sidebarCollapsed ? 'Expandir panel' : 'Minimizar panel'
@@ -287,7 +291,7 @@
                   localStorageService.isDentist()
                 ) {
                   <button
-                    mat-icon-button
+                    matIconButton
                     class="mr-2"
                     matTooltip="Disponibilidad laboral"
                     (click)="goToAvailability()"
@@ -296,7 +300,7 @@
                   </button>
                   @if (hasConflicts()) {
                     <button
-                      mat-icon-button
+                      matIconButton
                       class="mr-2"
                       matTooltip="Ver conflictos"
                       (click)="viewConflicts()"
@@ -311,7 +315,7 @@
               }
 
               <button
-                mat-icon-button
+                matIconButton
                 (click)="navigateDate('prev')"
                 matTooltip="Anterior"
               >
@@ -320,7 +324,7 @@
                 </div>
               </button>
               <button
-                mat-icon-button
+                matIconButton
                 (click)="navigateDate('next')"
                 matTooltip="Siguiente"
               >
@@ -328,7 +332,7 @@
                   <i-tabler name="chevron-right"></i-tabler>
                 </div>
               </button>
-              <button mat-button (click)="goToToday()" class="today-btn">
+              <button matButton (click)="goToToday()" class="today-btn">
                 <mat-icon>today</mat-icon>
                 Hoy
               </button>
@@ -387,7 +391,7 @@
             <!-- Right side -->
             <div class="header-right">
               <button
-                mat-button
+                matButton
                 [class.active]="currentView === 'day'"
                 (click)="setView('day')"
                 class="view-btn"
@@ -396,7 +400,7 @@
                 Día
               </button>
               <button
-                mat-button
+                matButton
                 [class.active]="currentView === 'week'"
                 (click)="setView('week')"
                 class="view-btn"
@@ -405,7 +409,7 @@
                 Semana
               </button>
               <button
-                mat-button
+                matButton
                 [class.active]="currentView === 'month'"
                 (click)="setView('month')"
                 class="view-btn"
@@ -580,7 +584,7 @@
                           canCancelDayViewAppointments()
                         ) {
                           <button
-                            mat-icon-button
+                            matIconButton
                             [matMenuTriggerFor]="dayActionsMenu"
                             matTooltip="Acciones del día"
                             class="ml-2"
@@ -721,7 +725,7 @@
                               canCancelWeekDayAppointments(getWeekDates()[i])
                             ) {
                               <button
-                                mat-icon-button
+                                matIconButton
                                 [matMenuTriggerFor]="weekDayActionsMenu"
                                 matTooltip="Acciones del día"
                                 class="week-day-actions-btn-inline"

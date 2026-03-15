@@ -12,9 +12,9 @@ import { PageToolbarComponent } from "../../../../../shared/components/page-tool
 import { mockOdontogram1 } from "../../../../../shared/utils/mocks/odontogram.mock";
 
 @Component({
-  selector: "app-odontogram-edit",
-  templateUrl: "./odontogram-edit.component.html",
-  styleUrls: ["./odontogram-edit.component.scss"],
+  selector: "app-consultation-page",
+  templateUrl: "./consultation-page.component.html",
+  styleUrls: ["./consultation-page.component.scss"],
   standalone: true,
   imports: [
     CommonModule,
@@ -28,7 +28,7 @@ import { mockOdontogram1 } from "../../../../../shared/utils/mocks/odontogram.mo
     MatInputModule,
   ],
 })
-export class OdontogramEditComponent {
+export class ConsultationPageComponent {
   private readonly router = inject(Router);
   odontogram = mockOdontogram1;
 

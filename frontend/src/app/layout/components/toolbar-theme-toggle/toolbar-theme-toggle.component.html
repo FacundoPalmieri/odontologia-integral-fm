@@ -1,0 +1,69 @@
+<button matIconButton [matMenuTriggerFor]="themeMenu" matTooltip="Cambiar tema">
+  <i-tabler name="palette"></i-tabler>
+</button>
+
+<mat-menu #themeMenu="matMenu">
+  <div class="px-4 py-2 font-medium text-sm">Tema Default</div>
+  @for (theme of getAvailableThemes(); track theme.id) {
+    @if (theme.category === "default") {
+      <button
+        mat-menu-item
+        (click)="setTheme(theme.id); $event.stopPropagation()"
+        [class.bg-primary-container]="isCurrentTheme(theme.id)"
+      >
+        <div class="flex items-center justify-between w-full">
+          <div class="flex items-center gap-2">
+            <i-tabler
+              [name]="theme.id.includes('dark') ? 'moon' : 'sun'"
+              class="mr-1"
+            ></i-tabler>
+            <div class="flex gap-1">
+              @for (color of theme.previewColors; track $index) {
+                <div
+                  class="w-4 h-4 rounded-full border border-gray-300"
+                  [style.background-color]="color"
+                ></div>
+              }
+            </div>
+            <span>{{ theme.displayName }}</span>
+          </div>
+          @if (isCurrentTheme(theme.id)) {
+            <i-tabler name="check" class="ml-2"></i-tabler>
+          }
+        </div>
+      </button>
+    }
+  }
+  <mat-divider class="my-2"></mat-divider>
+  <div class="px-4 py-2 font-medium text-sm">Tema FM</div>
+  @for (theme of getAvailableThemes(); track theme.id) {
+    @if (theme.category === "fm") {
+      <button
+        mat-menu-item
+        (click)="setTheme(theme.id); $event.stopPropagation()"
+        [class.bg-primary-container]="isCurrentTheme(theme.id)"
+      >
+        <div class="flex items-center justify-between w-full">
+          <div class="flex items-center gap-2">
+            <i-tabler
+              [name]="theme.id.includes('dark') ? 'moon' : 'sun'"
+              class="mr-1"
+            ></i-tabler>
+            <div class="flex gap-1">
+              @for (color of theme.previewColors; track $index) {
+                <div
+                  class="w-4 h-4 rounded-full border border-gray-300"
+                  [style.background-color]="color"
+                ></div>
+              }
+            </div>
+            <span>{{ theme.displayName }}</span>
+          </div>
+          @if (isCurrentTheme(theme.id)) {
+            <i-tabler name="check" class="ml-2"></i-tabler>
+          }
+        </div>
+      </button>
+    }
+  }
+</mat-menu>

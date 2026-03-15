@@ -1,0 +1,52 @@
+<button matButton [matMenuTriggerFor]="userMenu">
+  <div class="flex items-center gap-2">
+    <img
+      [src]="avatar ? avatar : 'img/doctor-avatar.png'"
+      alt="Avatar"
+      class="w-9 h-9 rounded-full object-cover bg-black/10"
+    />
+    <div class="hidden sm:flex flex-col items-start leading-tight">
+      <span class="text-sm font-medium">{{ userData?.person?.lastName }}</span>
+      <span class="text-xs text-[var(--mat-sys-on-surface-variant)]">{{
+        userData?.person?.firstName
+      }}</span>
+    </div>
+    <i-tabler name="chevron-down"></i-tabler>
+  </div>
+</button>
+
+<mat-menu #userMenu="matMenu">
+  <div class="flex flex-col items-center justify-center px-6 py-5 gap-3">
+    <img
+      [src]="avatar ? avatar : 'img/doctor-avatar.png'"
+      alt="Avatar"
+      class="w-[70px] h-[70px] rounded-full object-cover bg-black/10"
+    />
+    <div class="overflow-hidden text-ellipsis flex flex-col items-center gap-1">
+      <span class="text-base font-semibold"
+        >{{ userData?.person?.lastName }},
+        {{ userData?.person?.firstName }}</span
+      >
+      <span class="text-sm text-[var(--mat-sys-on-surface-variant)]">{{ userData?.username }}</span>
+      <span class="text-xs text-blue-500 uppercase font-medium">{{ getRoles() }}</span>
+    </div>
+  </div>
+  <mat-divider class="custom-divider"></mat-divider>
+  <div class="py-2">
+    @if (!isDeveloper()) {
+      <button mat-menu-item (click)="goToProfile()">
+        <div class="flex items-center gap-2 py-1">
+          <i-tabler name="user-circle"></i-tabler>
+          <span>Mi perfil</span>
+        </div>
+      </button>
+    }
+    <mat-divider class="custom-divider"></mat-divider>
+    <button mat-menu-item (click)="logout()">
+      <div class="flex items-center gap-2 py-1">
+        <i-tabler name="logout-2" class="text-red-500"></i-tabler>
+        <span class="text-red-500">Cerrar sesión</span>
+      </div>
+    </button>
+  </div>
+</mat-menu>

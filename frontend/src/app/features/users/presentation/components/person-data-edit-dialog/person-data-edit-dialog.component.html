@@ -15,12 +15,12 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="!p-4">
-  <button mat-button mat-dialog-close>
+  <button matButton mat-dialog-close>
     <div class="flex items-center gap-2">
       <span>Cancelar</span>
     </div>
   </button>
-  <button mat-flat-button [disabled]="!isFormValid" (click)="save()">
+  <button matButton="filled" [disabled]="!isFormValid" (click)="save()">
     <div class="flex items-center gap-2">
       <span>Guardar</span>
     </div>

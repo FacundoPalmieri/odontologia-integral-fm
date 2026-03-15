@@ -12,11 +12,11 @@
               <div
                 class="absolute bg-black/30 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity"
               >
-                <button mat-icon-button (click)="triggerFileInput()">
+                <button matIconButton (click)="triggerFileInput()">
                   <i-tabler name="edit" class="text-white"></i-tabler>
                 </button>
                 @if (avatar() && canDeleteAvatar()) {
-                  <button mat-icon-button (click)="removeAvatar()">
+                  <button matIconButton (click)="removeAvatar()">
                     <i-tabler name="trash" class="text-red-500"></i-tabler>
                   </button>
                 }
@@ -48,7 +48,7 @@
       </mat-card-content>
     </mat-card>
     <div class="flex justify-center mt-4">
-      <button mat-flat-button (click)="requestPasswordReset()">
+      <button matButton="filled" (click)="requestPasswordReset()">
         <div class="flex items-center justify-center gap-2">
           <i-tabler name="lock-open"></i-tabler>
           <span>Restablecer Contraseña</span>
@@ -194,7 +194,7 @@
         </div>
       </mat-card-content>
       <mat-card-actions align="end">
-        <button mat-flat-button (click)="openEditPersonDialog()">
+        <button matButton="filled" (click)="openEditPersonDialog()">
           <div class="flex items-center justify-center gap-2">
             <i-tabler name="edit"></i-tabler>
             <span>Modificar</span>

@@ -342,7 +342,7 @@
           @if (!hasWeeklyConfiguration()) {
             <div class="mb-4 flex justify-end">
               <button
-                mat-stroked-button
+                matButton="outlined"
                 type="button"
                 (click)="addSpecificDay()"
               >
@@ -593,7 +593,7 @@
                 </div>
 
                 <button
-                  mat-icon-button
+                  matIconButton
                   type="button"
                   (click)="removeSpecificDay($index)"
                   matTooltip="Eliminar día"

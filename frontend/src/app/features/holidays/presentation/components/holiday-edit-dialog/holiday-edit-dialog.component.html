@@ -42,9 +42,9 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="flex flex-col md:flex-row gap-2">
-  <button mat-button mat-dialog-close class="w-full md:w-auto">Cancelar</button>
+  <button matButton mat-dialog-close class="w-full md:w-auto">Cancelar</button>
   <button
-    mat-flat-button
+    matButton="filled"
     (click)="save()"
     [disabled]="!holidayForm.valid"
     cdkFocusInitial

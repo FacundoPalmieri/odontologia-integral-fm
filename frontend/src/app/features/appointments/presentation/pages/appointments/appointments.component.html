@@ -133,7 +133,7 @@
             <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
           </mat-form-field>
 
-          <button mat-flat-button matTooltipPosition="left">
+          <button matButton="filled" matTooltipPosition="left">
             <div class="flex items-center justify-center gap-2">
               <i-tabler name="plus"></i-tabler>
               <span>Nuevo turno</span>
@@ -201,21 +201,21 @@
               <th mat-header-cell *matHeaderCellDef>Acción</th>
               <td mat-cell *matCellDef="let element">
                 <button
-                  mat-icon-button
+                  matIconButton
                   matTooltip="Editar"
                   matTooltipPosition="above"
                 >
                   <i-tabler name="edit"></i-tabler>
                 </button>
                 <button
-                  mat-icon-button
+                  matIconButton
                   matTooltip="Ver"
                   matTooltipPosition="above"
                 >
                   <i-tabler name="eye"></i-tabler>
                 </button>
                 <button
-                  mat-icon-button
+                  matIconButton
                   matTooltip="Cambiar estado"
                   matTooltipPosition="above"
                 >

@@ -2,7 +2,7 @@
   class="page-toolbar gap-2 !rounded-[var(--mat-sys-corner-medium)] !bg-[var(--mat-sys-content-container-color)]"
 >
   @if (showBackButton) {
-    <button mat-icon-button matTooltip="Volver" (click)="back.emit()">
+    <button matIconButton matTooltip="Volver" (click)="back.emit()">
       <i-tabler name="arrow-left" />
     </button>
   }
@@ -22,7 +22,7 @@
   <span class="flex-1"></span>
   @if (showActionButton) {
     <button
-      mat-flat-button
+      matButton="filled"
       [disabled]="actionButtonDisabled"
       (click)="action.emit()"
     >

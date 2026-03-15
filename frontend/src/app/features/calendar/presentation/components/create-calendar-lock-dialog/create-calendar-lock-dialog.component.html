@@ -13,9 +13,9 @@
         <mat-label>Tipo de bloqueo</mat-label>
         <mat-select formControlName="calendarLockType">
           @for (lockType of calendarLockTypes(); track lockType.id) {
-          <mat-option [value]="lockType">
-            {{ lockType.name }}
-          </mat-option>
+            <mat-option [value]="lockType">
+              {{ lockType.name }}
+            </mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -23,236 +23,242 @@
 
     <!-- Mode Selector (only if multiple modes available) -->
     @if (shouldShowModeSelector) {
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="settings"></i-tabler>
-        <span class="font-medium">Modo de bloqueo</span>
-      </div>
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Selecciona el modo</mat-label>
-        <mat-select formControlName="mode">
-          @for (mode of availableModes(); track getModeName(mode)) {
-          <mat-option [value]="mode">
-            {{ getModeLabel(mode) }}
-          </mat-option>
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <i-tabler name="settings"></i-tabler>
+          <span class="font-medium">Modo de bloqueo</span>
+        </div>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Selecciona el modo</mat-label>
+          <mat-select formControlName="mode">
+            @for (mode of availableModes(); track getModeName(mode)) {
+              <mat-option [value]="mode">
+                {{ getModeLabel(mode) }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>{{ getModeDescription(selectedMode()) }}</mat-hint>
+          @if (modeSelectionError) {
+            <mat-error>{{ modeSelectionError }}</mat-error>
           }
-        </mat-select>
-        <mat-hint>{{ getModeDescription(selectedMode()) }}</mat-hint>
-        @if (modeSelectionError) {
-        <mat-error>{{ modeSelectionError }}</mat-error>
-        }
-      </mat-form-field>
-    </div>
+        </mat-form-field>
+      </div>
     }
 
     <!-- Date Range Section -->
     @if (selectedMode()) {
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="calendar"></i-tabler>
-        <span class="font-medium">Rango de fechas</span>
-      </div>
-
-      <div class="flex flex-row gap-4">
-        <div class="flex flex-col flex-1">
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha desde</mat-label>
-            <input
-              matInput
-              [matDatepicker]="startPicker"
-              formControlName="startDate"
-              (click)="openStartDatePicker()"
-              [min]="minDate"
-              placeholder="Seleccionar fecha"
-              readonly
-            />
-            <mat-datepicker-toggle
-              matIconSuffix
-              [for]="startPicker"
-            ></mat-datepicker-toggle>
-            <mat-datepicker #startPicker></mat-datepicker>
-          </mat-form-field>
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <i-tabler name="calendar"></i-tabler>
+          <span class="font-medium">Rango de fechas</span>
         </div>
 
-        <div class="flex flex-col flex-1">
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha hasta</mat-label>
-            <input
-              matInput
-              [matDatepicker]="endPicker"
-              formControlName="endDate"
-              (click)="openEndDatePicker()"
-              [min]="eventForm.get('startDate')?.value || minDate"
-              [matDatepickerFilter]="getEndDateFilter"
-              [disabled]="shouldDisableEndDate"
-              placeholder="Seleccionar fecha"
-              readonly
-            />
-            <mat-datepicker-toggle
-              matIconSuffix
-              [for]="endPicker"
-              [disabled]="shouldDisableEndDate"
-            ></mat-datepicker-toggle>
-            <mat-datepicker #endPicker></mat-datepicker>
-            @if (shouldDisableEndDate) {
-            <mat-hint
-              >Para bloqueo puntual, la fecha de fin es la misma que la de
-              inicio</mat-hint
-            >
-            } @else if (maxDateRange && !endDateRangeError) {
-            <mat-hint>Máximo {{ maxDateRange }} días</mat-hint>
-            } @if (endDateRangeError) {
-            <mat-error>{{ endDateRangeError }}</mat-error>
-            }
-          </mat-form-field>
+        <div class="flex flex-row gap-4">
+          <div class="flex flex-col flex-1">
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha desde</mat-label>
+              <input
+                matInput
+                [matDatepicker]="startPicker"
+                formControlName="startDate"
+                (click)="openStartDatePicker()"
+                [min]="minDate"
+                placeholder="Seleccionar fecha"
+                readonly
+              />
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="startPicker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <div class="flex flex-col flex-1">
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha hasta</mat-label>
+              <input
+                matInput
+                [matDatepicker]="endPicker"
+                formControlName="endDate"
+                (click)="openEndDatePicker()"
+                [min]="eventForm.get('startDate')?.value || minDate"
+                [matDatepickerFilter]="getEndDateFilter"
+                [disabled]="shouldDisableEndDate"
+                placeholder="Seleccionar fecha"
+                readonly
+              />
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="endPicker"
+                [disabled]="shouldDisableEndDate"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+              @if (shouldDisableEndDate) {
+                <mat-hint
+                  >Para bloqueo puntual, la fecha de fin es la misma que la de
+                  inicio</mat-hint
+                >
+              } @else if (maxDateRange && !endDateRangeError) {
+                <mat-hint>Máximo {{ maxDateRange }} días</mat-hint>
+              }
+              @if (endDateRangeError) {
+                <mat-error>{{ endDateRangeError }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
         </div>
       </div>
-    </div>
     }
 
     <!-- Days of Week Section -->
     @if (shouldShowDaysSelector && selectedMode()) {
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="calendar-week"></i-tabler>
-        <span class="font-medium">Días de la semana</span>
-      </div>
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <i-tabler name="calendar-week"></i-tabler>
+          <span class="font-medium">Días de la semana</span>
+        </div>
 
-      <div class="flex flex-col">
-        <!-- Select All Days -->
-        @if (availableDays.length > 0) {
-        <mat-checkbox
-          class="checkbox-item"
-          [disableRipple]="true"
-          [checked]="allDaysSelected"
-          (change)="toggleAllDays($event)"
-        >
-          Todos los días
-        </mat-checkbox>
-        }
+        <div class="flex flex-col">
+          <!-- Select All Days -->
+          @if (availableDays.length > 0) {
+            <mat-checkbox
+              class="checkbox-item"
+              [disableRipple]="true"
+              [checked]="allDaysSelected"
+              (change)="toggleAllDays($event)"
+            >
+              Todos los días
+            </mat-checkbox>
+          }
 
-        <!-- Individual Days -->
-        @if (availableDays.length > 0) {
-        <div class="flex flex-wrap">
-          @for (day of availableDays; track day.value) {
-          <mat-checkbox
-            class="checkbox-item"
-            [checked]="isDaySelected(day.value)"
-            [disableRipple]="true"
-            (change)="toggleDay(day.value)"
-          >
-            {{ day.label }}
-          </mat-checkbox>
+          <!-- Individual Days -->
+          @if (availableDays.length > 0) {
+            <div class="flex flex-wrap">
+              @for (day of availableDays; track day.value) {
+                <mat-checkbox
+                  class="checkbox-item"
+                  [checked]="isDaySelected(day.value)"
+                  [disableRipple]="true"
+                  (change)="toggleDay(day.value)"
+                >
+                  {{ day.label }}
+                </mat-checkbox>
+              }
+            </div>
+          } @else {
+            <p>Selecciona un rango de fechas para ver los días disponibles</p>
           }
         </div>
-        } @else {
-        <p>Selecciona un rango de fechas para ver los días disponibles</p>
-        }
       </div>
-    </div>
     }
 
     <!-- Recurrence Section -->
-    @if (shouldShowRecurrenceSelector && selectedMode() &&
-    availableRecurrences().length > 0) {
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="repeat"></i-tabler>
-        <span class="font-medium">Recurrencia</span>
-      </div>
+    @if (
+      shouldShowRecurrenceSelector &&
+      selectedMode() &&
+      availableRecurrences().length > 0
+    ) {
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <i-tabler name="repeat"></i-tabler>
+          <span class="font-medium">Recurrencia</span>
+        </div>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Frecuencia de repetición</mat-label>
-        <mat-select formControlName="recurrence">
-          @for (rec of availableRecurrences(); track rec.value) {
-          <mat-option [value]="rec.value">
-            {{ rec.label }}
-          </mat-option>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Frecuencia de repetición</mat-label>
+          <mat-select formControlName="recurrence">
+            @for (rec of availableRecurrences(); track rec.value) {
+              <mat-option [value]="rec.value">
+                {{ rec.label }}
+              </mat-option>
+            }
+          </mat-select>
+          @if (availableRecurrences().length === 1) {
+            <mat-hint
+              >Solo hay una opción disponible para el rango de fechas
+              seleccionado</mat-hint
+            >
+          } @else {
+            <mat-hint
+              >Selecciona la frecuencia de repetición del bloqueo</mat-hint
+            >
           }
-        </mat-select>
-        @if (availableRecurrences().length === 1) {
-        <mat-hint
-          >Solo hay una opción disponible para el rango de fechas
-          seleccionado</mat-hint
-        >
-        } @else {
-        <mat-hint>Selecciona la frecuencia de repetición del bloqueo</mat-hint>
-        }
-      </mat-form-field>
-    </div>
+        </mat-form-field>
+      </div>
     }
 
     <!-- Time Range Section -->
     @if (shouldShowTimeSelector && selectedMode()) {
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="clock"></i-tabler>
-        <span class="font-medium">Rango horario</span>
-      </div>
-
       <div class="flex flex-col gap-2">
-        <mat-checkbox
-          class="checkbox-item"
-          [disableRipple]="true"
-          [(ngModel)]="isAllDay"
-          (ngModelChange)="onAllDayChange($event)"
-          [ngModelOptions]="{ standalone: true }"
-        >
-          Todo el día
-        </mat-checkbox>
+        <div class="flex items-center gap-2">
+          <i-tabler name="clock"></i-tabler>
+          <span class="font-medium">Rango horario</span>
+        </div>
 
-        <div class="flex flex-row gap-4">
-          <mat-form-field appearance="outline" class="w-32">
-            <mat-label>Inicio</mat-label>
-            <input
-              matInput
-              type="time"
-              formControlName="startTime"
-              [disabled]="isAllDay"
-              placeholder="--:--"
-            />
-          </mat-form-field>
+        <div class="flex flex-col gap-2">
+          <mat-checkbox
+            class="checkbox-item"
+            [disableRipple]="true"
+            [(ngModel)]="isAllDay"
+            (ngModelChange)="onAllDayChange($event)"
+            [ngModelOptions]="{ standalone: true }"
+          >
+            Todo el día
+          </mat-checkbox>
 
-          <mat-form-field appearance="outline" class="w-32">
-            <mat-label>Fin</mat-label>
-            <input
-              matInput
-              type="time"
-              formControlName="endTime"
-              [disabled]="isAllDay"
-              placeholder="--:--"
-            />
-          </mat-form-field>
+          <div class="flex flex-row gap-4">
+            <mat-form-field appearance="outline" class="w-32">
+              <mat-label>Inicio</mat-label>
+              <input
+                matInput
+                type="time"
+                formControlName="startTime"
+                [disabled]="isAllDay"
+                placeholder="--:--"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-32">
+              <mat-label>Fin</mat-label>
+              <input
+                matInput
+                type="time"
+                formControlName="endTime"
+                [disabled]="isAllDay"
+                placeholder="--:--"
+              />
+            </mat-form-field>
+          </div>
         </div>
       </div>
-    </div>
     }
 
     <!-- Observation Section -->
     @if (selectedMode()) {
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-2">
-        <i-tabler name="file-text"></i-tabler>
-        <span class="font-medium">Observación</span>
-      </div>
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <i-tabler name="file-text"></i-tabler>
+          <span class="font-medium">Observación</span>
+        </div>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Observación (opcional)</mat-label>
-        <textarea
-          matInput
-          formControlName="observation"
-          rows="3"
-          placeholder="Agregar observación o notas sobre el bloqueo..."
-        ></textarea>
-      </mat-form-field>
-    </div>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Observación (opcional)</mat-label>
+          <textarea
+            matInput
+            formControlName="observation"
+            rows="3"
+            placeholder="Agregar observación o notas sobre el bloqueo..."
+          ></textarea>
+        </mat-form-field>
+      </div>
     }
   </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">Cancelar</button>
-  <button mat-flat-button (click)="save()" [disabled]="eventForm.invalid">
+  <button matButton (click)="onCancel()">Cancelar</button>
+  <button matButton="filled" (click)="save()" [disabled]="eventForm.invalid">
     <div class="flex items-center gap-2">
       <span>Bloquear</span>
     </div>

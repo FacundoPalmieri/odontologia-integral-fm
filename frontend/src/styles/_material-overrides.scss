@@ -199,6 +199,12 @@ body {
     )
   );
 
+  @include mat.autocomplete-overrides(
+    (
+      container-shape: var(--mat-sys-corner-medium),
+    )
+  );
+
   mat-expansion-panel {
     box-shadow: var(--mat-sys-level1) !important;
   }

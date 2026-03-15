@@ -63,7 +63,7 @@
             </mat-form-field>
 
             <button
-              mat-icon-button
+              matIconButton
               aria-label="Eliminar permiso"
               (click)="removePermission($index)"
               class="mt-1 self-end md:self-auto"
@@ -75,7 +75,7 @@
         }
 
         <button
-          mat-flat-button
+          matButton="filled"
           type="button"
           (click)="addPermission()"
           class="w-full md:w-auto mt-2"
@@ -87,9 +87,9 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="flex flex-col md:flex-row gap-2">
-  <button mat-button mat-dialog-close class="w-full md:w-auto">Cancelar</button>
+  <button matButton mat-dialog-close class="w-full md:w-auto">Cancelar</button>
   <button
-    mat-flat-button
+    matButton="filled"
     (click)="save()"
     [disabled]="!roleForm.valid"
     cdkFocusInitial

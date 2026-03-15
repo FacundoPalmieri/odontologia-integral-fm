@@ -1263,8 +1263,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
    * Refresca la vista actual del calendario
    */
   private refreshCurrentView(): void {
-    console.log("Refreshing current view:", this.currentView);
-
     this.monthCache.clear();
 
     switch (this.currentView) {

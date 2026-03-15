@@ -22,7 +22,7 @@
           @if (selectedPatient()) {
             <button
               matSuffix
-              mat-icon-button
+              matIconButton
               aria-label="Limpiar"
               (click)="
                 patientSearchControl.setValue(''); selectedPatient.set(null)
@@ -103,7 +103,7 @@
         } @else {
           <div class="week-navigation">
             <button
-              mat-icon-button
+              matIconButton
               (click)="previousWeek()"
               class="nav-btn"
               aria-label="Semana anterior"
@@ -114,7 +114,7 @@
             <div class="week-days">
               @for (day of weekDays(); track day.day) {
                 <button
-                  mat-icon-button
+                  matIconButton
                   class="day-circle"
                   [class.selected]="isSelectedDay(day)"
                   [disabled]="!isDayAvailable(day)"
@@ -129,7 +129,7 @@
             </div>
 
             <button
-              mat-icon-button
+              matIconButton
               (click)="nextWeek()"
               class="nav-btn"
               aria-label="Semana siguiente"
@@ -220,7 +220,7 @@
           @if (selectedPatient()) {
             <button
               matSuffix
-              mat-icon-button
+              matIconButton
               aria-label="Limpiar"
               (click)="
                 patientSearchControl.setValue(''); selectedPatient.set(null)
@@ -328,7 +328,7 @@
           } @else {
             <div class="week-navigation">
               <button
-                mat-icon-button
+                matIconButton
                 (click)="previousWeek()"
                 class="nav-btn"
                 aria-label="Semana anterior"
@@ -339,7 +339,7 @@
               <div class="week-days">
                 @for (day of weekDays(); track day.day) {
                   <button
-                    mat-icon-button
+                    matIconButton
                     class="day-circle"
                     [class.selected]="isSelectedDay(day)"
                     [disabled]="!isDayAvailableForSecretary(day)"
@@ -354,7 +354,7 @@
               </div>
 
               <button
-                mat-icon-button
+                matIconButton
                 (click)="nextWeek()"
                 class="nav-btn"
                 aria-label="Semana siguiente"
@@ -466,11 +466,11 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="gap-2">
-  <button mat-button (click)="onCancel()" [disabled]="isSaving()">
+  <button matButton (click)="onCancel()" [disabled]="isSaving()">
     Cancelar
   </button>
   <button
-    mat-flat-button
+    matButton="filled"
     color="primary"
     (click)="onSave()"
     [disabled]="!canSave() || isSaving()"

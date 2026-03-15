@@ -1,5 +1,10 @@
 <mat-drawer-container class="drawer-container" autosize>
-  <mat-drawer #drawer class="sidenav m-2" mode="side" opened>
+  <mat-drawer
+    #drawer
+    class="sidenav m-2"
+    mode="side"
+    [opened]="isDrawerOpened()"
+  >
     <div class="flex justify-center p-4">
       <img
         [src]="logoSrc()"
@@ -10,60 +15,59 @@
 
     <mat-nav-list>
       <div class="space-y-2 p-3">
-        @for(menu of filteredMenuItems; track menu.label){
-        <ng-container
-          *ngIf="menu.children && menu.children.length > 0; else noChildren"
-        >
-          <mat-list-item
-            class="list-item-menu cursor-pointer"
-            (click)="toggleSubmenu(menu.label)"
-          >
-            <div class="flex flex-row items-center">
-              <i-tabler [name]="menu.icon"></i-tabler>
-              <span
-                class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
-                >{{ menu.label }}</span
-              >
-              <i-tabler
-                name="chevron-down"
-                class="ml-2 text-sm transition-transform duration-200"
-                [ngClass]="{ 'rotate-180': expandedMenus[menu.label] }"
-              ></i-tabler>
-            </div>
-          </mat-list-item>
-          <div class="pl-4" *ngIf="expandedMenus[menu.label]">
-            @for(child of menu.children; track child.label){
+        @for (menu of filteredMenuItems; track menu.label) {
+          @if (menu.children && menu.children.length > 0) {
             <mat-list-item
-              class="list-item-menu mb-1"
-              [routerLink]="child.route"
+              class="list-item-menu cursor-pointer"
+              (click)="toggleSubmenu(menu.label)"
+            >
+              <div class="flex flex-row items-center">
+                <i-tabler [name]="menu.icon"></i-tabler>
+                <span
+                  class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+                  >{{ menu.label }}</span
+                >
+                <i-tabler
+                  name="chevron-down"
+                  class="ml-2 text-sm transition-transform duration-200"
+                  [ngClass]="{ 'rotate-180': expandedMenus[menu.label] }"
+                ></i-tabler>
+              </div>
+            </mat-list-item>
+            @if (expandedMenus[menu.label]) {
+              <div class="pl-4">
+                @for (child of menu.children; track child.label) {
+                  <mat-list-item
+                    class="list-item-menu mb-1"
+                    [routerLink]="child.route"
+                    routerLinkActive="active-link"
+                  >
+                    <div class="flex flex-row items-center">
+                      <i-tabler [name]="child.icon"></i-tabler>
+                      <span
+                        class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
+                        >{{ child.label }}</span
+                      >
+                    </div>
+                  </mat-list-item>
+                }
+              </div>
+            }
+          } @else {
+            <mat-list-item
+              class="list-item-menu"
+              [routerLink]="menu.route"
               routerLinkActive="active-link"
             >
               <div class="flex flex-row items-center">
-                <i-tabler [name]="child.icon"></i-tabler>
+                <i-tabler [name]="menu.icon"></i-tabler>
                 <span
                   class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
-                  >{{ child.label }}</span
+                  >{{ menu.label }}</span
                 >
               </div>
             </mat-list-item>
-            }
-          </div>
-        </ng-container>
-        <ng-template #noChildren>
-          <mat-list-item
-            class="list-item-menu"
-            [routerLink]="menu.route"
-            routerLinkActive="active-link"
-          >
-            <div class="flex flex-row items-center">
-              <i-tabler [name]="menu.icon"></i-tabler>
-              <span
-                class="block text-left whitespace-normal break-words flex-1 ml-2 text-sm"
-                >{{ menu.label }}</span
-              >
-            </div>
-          </mat-list-item>
-        </ng-template>
+          }
         }
       </div>
     </mat-nav-list>
@@ -71,17 +75,137 @@
 
   <div class="sidenav-content">
     <mat-toolbar class="gap-3 main-toolbar">
-      <button mat-icon-button (click)="drawer.toggle()">
+      <!-- Logo visible cuando el sidenav está cerrado (debe ser el primer elemento) -->
+      @if (!drawer.opened) {
+        <img
+          [src]="logoSrc()"
+          alt="Logo"
+          class="logo-collapsed rounded-[var(--mat-sys-corner-medium)] avatar-gradient"
+        />
+      }
+
+      <button matIconButton (click)="toggleDrawer()">
         <i-tabler name="menu"></i-tabler>
       </button>
 
-      <!-- Logo visible cuando el sidenav está cerrado -->
-      @if(!drawer.opened) {
-      <img
-        [src]="logoSrc()"
-        alt="Logo"
-        class="logo-collapsed rounded-[var(--mat-sys-corner-medium)] avatar-gradient"
-      />
+      @if (!drawer.opened) {
+        <button
+          matIconButton
+          [matMenuTriggerFor]="sidenavMenu"
+          #sidenavTrigger="matMenuTrigger"
+        >
+          <i-tabler name="grid-dots"></i-tabler>
+        </button>
+        <mat-menu
+          #sidenavMenu="matMenu"
+          class="custom-sidenav-menu"
+          xPosition="after"
+          yPosition="below"
+        >
+          <div
+            class="p-6 w-[650px] max-w-[90vw]"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+              @for (menu of filteredMenuItems; track menu.label) {
+                @if (menu.children && menu.children.length > 0) {
+                  <div
+                    class="flex items-center gap-2 p-2 rounded-[var(--mat-sys-corner-large)] hover:bg-[var(--mat-sys-surface-variant)] cursor-pointer transition-colors"
+                    [matMenuTriggerFor]="nestedMenu"
+                  >
+                    <div
+                      class="flex items-center justify-center rounded-2xl w-[48px] h-[48px] shrink-0"
+                      [ngClass]="[
+                        menu.bgColor || 'bg-gray-100',
+                        menu.textColor || 'text-gray-600',
+                      ]"
+                    >
+                      <i-tabler
+                        [name]="menu.icon"
+                        class="w-6 h-6 stroke-[1.5]"
+                      ></i-tabler>
+                    </div>
+                    <div class="flex flex-col flex-1 min-w-0">
+                      <span
+                        class="font-semibold text-[var(--mat-sys-on-surface)] text-base mb-0.5 leading-tight"
+                        >{{ menu.label }}</span
+                      >
+                      <span
+                        class="text-[var(--mat-sys-on-surface-variant)] text-xs opacity-80 leading-tight"
+                        >{{ menu.subtitle || "Opciones adicionales" }}</span
+                      >
+                    </div>
+                  </div>
+                  <mat-menu #nestedMenu="matMenu" class="custom-nested-menu">
+                    <div class="p-2 flex flex-col gap-1 min-w-[240px]">
+                      @for (child of menu.children; track child.label) {
+                        <div
+                          class="flex items-center gap-3 p-2 rounded-[var(--mat-sys-corner-medium)] hover:bg-[var(--mat-sys-surface-variant)] cursor-pointer transition-colors"
+                          [routerLink]="child.route"
+                          (click)="sidenavTrigger.closeMenu()"
+                        >
+                          <div
+                            class="flex items-center justify-center rounded-xl w-[38px] h-[38px] shrink-0"
+                            [ngClass]="[
+                              child.bgColor || 'bg-gray-100',
+                              child.textColor || 'text-gray-600',
+                            ]"
+                          >
+                            <i-tabler
+                              [name]="child.icon"
+                              class="w-5 h-5 stroke-[1.5]"
+                            ></i-tabler>
+                          </div>
+                          <div class="flex flex-col flex-1 min-w-0">
+                            <span
+                              class="font-medium text-[var(--mat-sys-on-surface)] text-sm leading-tight"
+                              >{{ child.label }}</span
+                            >
+                            @if (child.subtitle) {
+                              <span
+                                class="text-[var(--mat-sys-on-surface-variant)] text-xs opacity-80 leading-tight mt-0.5"
+                                >{{ child.subtitle }}</span
+                              >
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </mat-menu>
+                } @else {
+                  <div
+                    class="flex items-center gap-3 p-2.5 rounded-[var(--mat-sys-corner-large)] hover:bg-[var(--mat-sys-surface-variant)] cursor-pointer transition-colors"
+                    [routerLink]="menu.route"
+                    (click)="sidenavTrigger.closeMenu()"
+                  >
+                    <div
+                      class="flex items-center justify-center rounded-2xl w-[48px] h-[48px] shrink-0"
+                      [ngClass]="[
+                        menu.bgColor || 'bg-gray-100',
+                        menu.textColor || 'text-gray-600',
+                      ]"
+                    >
+                      <i-tabler
+                        [name]="menu.icon"
+                        class="w-6 h-6 stroke-[1.5]"
+                      ></i-tabler>
+                    </div>
+                    <div class="flex flex-col flex-1 min-w-0">
+                      <span
+                        class="font-semibold text-[var(--mat-sys-on-surface)] text-base mb-0.5 leading-tight"
+                        >{{ menu.label }}</span
+                      >
+                      <span
+                        class="text-[var(--mat-sys-on-surface-variant)] text-xs opacity-80 leading-tight"
+                        >{{ menu.subtitle }}</span
+                      >
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </mat-menu>
       }
 
       <mat-nav-list>
@@ -101,9 +225,11 @@
       </mat-nav-list>
 
       <span class="spacer"></span>
-      <!-- <app-notifications></app-notifications> -->
+
+      <app-toolbar-patient-search />
+
       <button
-        mat-icon-button
+        matIconButton
         (click)="fullScreenService.toggleFullscreen()"
         matTooltip="Pantalla completa"
       >
@@ -113,120 +239,10 @@
           "
         ></i-tabler>
       </button>
-      <button
-        mat-icon-button
-        [matMenuTriggerFor]="themeMenu"
-        matTooltip="Cambiar tema"
-      >
-        <i-tabler name="palette"></i-tabler>
-      </button>
 
-      <mat-menu #themeMenu="matMenu">
-        <div class="px-4 py-2 font-medium text-sm">Tema Default</div>
-        @for(theme of getAvailableThemes(); track theme.id) { @if(theme.category
-        === 'default') {
-        <button
-          mat-menu-item
-          (click)="setTheme(theme.id); $event.stopPropagation()"
-          [class.bg-primary-container]="isCurrentTheme(theme.id)"
-        >
-          <div class="flex items-center justify-between w-full">
-            <div class="flex items-center gap-2">
-              <i-tabler
-                [name]="theme.id.includes('dark') ? 'moon' : 'sun'"
-                class="mr-1"
-              ></i-tabler>
-              <div class="flex gap-1">
-                @for(color of theme.previewColors; track $index) {
-                <div
-                  class="w-4 h-4 rounded-full border border-gray-300"
-                  [style.background-color]="color"
-                ></div>
-                }
-              </div>
-              <span>{{ theme.displayName }}</span>
-            </div>
-            @if(isCurrentTheme(theme.id)) {
-            <i-tabler name="check" class="ml-2"></i-tabler>
-            }
-          </div>
-        </button>
-        } }
-        <mat-divider class="my-2"></mat-divider>
-        <div class="px-4 py-2 font-medium text-sm">Tema FM</div>
-        @for(theme of getAvailableThemes(); track theme.id) { @if(theme.category
-        === 'fm') {
-        <button
-          mat-menu-item
-          (click)="setTheme(theme.id); $event.stopPropagation()"
-          [class.bg-primary-container]="isCurrentTheme(theme.id)"
-        >
-          <div class="flex items-center justify-between w-full">
-            <div class="flex items-center gap-2">
-              <i-tabler
-                [name]="theme.id.includes('dark') ? 'moon' : 'sun'"
-                class="mr-1"
-              ></i-tabler>
-              <div class="flex gap-1">
-                @for(color of theme.previewColors; track $index) {
-                <div
-                  class="w-4 h-4 rounded-full border border-gray-300"
-                  [style.background-color]="color"
-                ></div>
-                }
-              </div>
-              <span>{{ theme.displayName }}</span>
-            </div>
-            @if(isCurrentTheme(theme.id)) {
-            <i-tabler name="check" class="ml-2"></i-tabler>
-            }
-          </div>
-        </button>
-        } }
-      </mat-menu>
+      <app-toolbar-theme-toggle />
 
-      <button mat-button [matMenuTriggerFor]="menu">
-        <div class="flex items-center gap-1">
-          <img
-            [src]="avatar ? avatar : 'img/doctor-avatar.png'"
-            alt="Avatar"
-            class="avatar-icon object-cover"
-          />
-          <i-tabler name="chevron-down"></i-tabler>
-        </div>
-      </button>
-
-      <mat-menu #menu="matMenu">
-        <div class="flex flex-col items-center justify-center p-4">
-          <img
-            [src]="avatar ? avatar : 'img/doctor-avatar.png'"
-            alt="Avatar"
-            class="avatar-icon-menu object-cover"
-          />
-          <div class="overflow-hidden text-ellipsis flex flex-col items-center">
-            <span class="text-lg"
-              >{{ userData?.person?.firstName }}
-              {{ userData?.person?.lastName }}</span
-            >
-            <span> {{ userData?.username }} </span>
-            <span class="text-blue-500 uppercase"> {{ getRoles() }} </span>
-          </div>
-        </div>
-        <mat-divider class="custom-divider"></mat-divider>
-        @if(!isDeveloper()){
-        <button mat-menu-item (click)="goToProfile()">
-          <div class="flex items-center">
-            <i-tabler name="user-circle"></i-tabler>
-            <span class="ml-1">Mi perfil</span>
-          </div></button
-        >}
-        <button mat-menu-item (click)="logout()">
-          <div class="flex items-center">
-            <i-tabler name="logout-2"></i-tabler>
-            <span class="ml-1">Cerrar sesión</span>
-          </div>
-        </button>
-      </mat-menu>
+      <app-toolbar-user-menu />
     </mat-toolbar>
     <div class="content-background flex-grow overflow-y-auto p-4 mx-4 mb-4">
       <router-outlet></router-outlet>
