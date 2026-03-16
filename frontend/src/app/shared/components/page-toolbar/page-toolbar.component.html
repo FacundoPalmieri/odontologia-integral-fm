@@ -1,33 +1,26 @@
-<mat-toolbar
-  class="page-toolbar gap-2 !rounded-[var(--mat-sys-corner-medium)] !bg-[var(--mat-sys-content-container-color)]"
+<mat-card
+  appearance="outlined"
+  class="!rounded-[var(--mat-sys-corner-medium)] overflow-hidden"
 >
-  @if (showBackButton) {
-    <app-back-button />
-  }
-  <div class="flex items-center gap-3">
-    @if (titleIcon) {
-      <div
-        [class]="
-          'w-10 h-10 rounded-[var(--mat-sys-corner-small)] flex items-center justify-center flex-shrink-0 ' +
-          titleIconContainerColor
-        "
+  <div class="flex items-center justify-between px-4 py-3 min-h-18 w-full">
+    <div class="flex items-center gap-2">
+      @if (showBackButton) {
+        <app-back-button />
+      }
+      <span class="text-xl font-semibold">{{ title }}</span>
+    </div>
+
+    @if (showActionButton) {
+      <button
+        matButton="filled"
+        [disabled]="actionButtonDisabled"
+        (click)="action.emit()"
       >
-        <i-tabler [name]="titleIcon" [class]="titleIconColor"></i-tabler>
-      </div>
+        <div class="flex items-center gap-2">
+          <i-tabler [name]="actionButtonIcon" />
+          <span>{{ actionButtonText }}</span>
+        </div>
+      </button>
     }
-    <span>{{ title }}</span>
   </div>
-  <span class="flex-1"></span>
-  @if (showActionButton) {
-    <button
-      matButton="filled"
-      [disabled]="actionButtonDisabled"
-      (click)="action.emit()"
-    >
-      <div class="flex items-center gap-2">
-        <i-tabler [name]="actionButtonIcon" />
-        <span>{{ actionButtonText }}</span>
-      </div>
-    </button>
-  }
-</mat-toolbar>
+</mat-card>

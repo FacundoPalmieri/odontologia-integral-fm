@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { IconsModule } from "../../../core/modules/tabler-icons.module";
-import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { BackButtonComponent } from "../back-button/back-button.component";
@@ -13,7 +13,7 @@ import { BackButtonComponent } from "../back-button/back-button.component";
   imports: [
     CommonModule,
     IconsModule,
-    MatToolbarModule,
+    MatCardModule,
     MatButtonModule,
     MatTooltipModule,
     BackButtonComponent,
@@ -21,9 +21,6 @@ import { BackButtonComponent } from "../back-button/back-button.component";
 })
 export class PageToolbarComponent {
   @Input() title: string = "";
-  @Input() titleIcon: string = "";
-  @Input() titleIconContainerColor: string = "bg-blue-100";
-  @Input() titleIconColor: string = "text-blue-600";
   @Input() showBackButton: boolean = false;
   @Input() showActionButton: boolean = false;
   @Input() actionButtonText: string = "Guardar";

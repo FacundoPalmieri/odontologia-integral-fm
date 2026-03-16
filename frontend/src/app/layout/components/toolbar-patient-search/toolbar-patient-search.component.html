@@ -9,7 +9,7 @@
     [ngModel]="searchQuery()"
     (ngModelChange)="searchQuery.set($event)"
     [matAutocomplete]="patientAuto"
-    class="w-48 h-12 lg:w-72 pl-10 pr-4 py-2 bg-[var(--mat-sys-surface-container-high)] focus:bg-[var(--mat-sys-surface)] focus:border-[var(--mat-sys-primary)] rounded-[var(--mat-sys-corner-medium)] text-sm outline-none transition-all placeholder:text-[var(--mat-sys-on-surface-variant)] text-[var(--mat-sys-on-surface)]"
+    class="w-48 h-12 lg:w-82 pl-10 pr-4 py-2 bg-[var(--mat-sys-surface-container-high)] focus:bg-[var(--mat-sys-surface)] rounded-[var(--mat-sys-corner-medium)] text-sm outline-none transition-all placeholder:text-[var(--mat-sys-on-surface-variant)] text-[var(--mat-sys-on-surface)]"
   />
   <mat-autocomplete
     #patientAuto="matAutocomplete"

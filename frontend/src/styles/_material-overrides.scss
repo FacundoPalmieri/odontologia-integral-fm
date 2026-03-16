@@ -133,14 +133,6 @@ body {
     )
   );
 
-  @include mat.card-overrides(
-    (
-      outlined-container-color: var(--mat-sys-content-container-color),
-      outlined-container-shape: var(--mat-sys-corner-large),
-      outlined-outline-width: 0,
-    )
-  );
-
   @include mat.form-field-overrides(
     (
       container-height: 50px,
@@ -175,18 +167,6 @@ body {
     )
   );
 
-  @include mat.paginator-overrides(
-    (
-      container-background-color: var(--mat-sys-content-container-color),
-    )
-  );
-
-  @include mat.stepper-overrides(
-    (
-      container-color: var(--mat-sys-content-toolbar-container-color),
-    )
-  );
-
   @include mat.dialog-overrides(
     (
       container-max-width: 1200px,
@@ -195,18 +175,14 @@ body {
 
   @include mat.expansion-overrides(
     (
-      container-background-color: var(--mat-sys-content-container-color),
-    )
-  );
-
-  @include mat.autocomplete-overrides(
-    (
       container-shape: var(--mat-sys-corner-medium),
+      container-elevation-shadow: none,
     )
   );
 
-  mat-expansion-panel {
-    box-shadow: var(--mat-sys-level1) !important;
+  .mat-expansion-panel {
+    border: 1px solid var(--mat-sys-outline-variant);
+    overflow: hidden;
   }
 
   .checkbox-item {
@@ -406,4 +382,9 @@ body {
       border-radius: var(--mat-sys-corner-extra-large);
     }
   }
+}
+
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel {
+  border-radius: var(--mat-sys-corner-medium) !important;
 }

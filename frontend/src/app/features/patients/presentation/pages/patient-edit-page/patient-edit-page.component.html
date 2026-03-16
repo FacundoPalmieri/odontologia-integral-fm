@@ -655,68 +655,61 @@
             @if (medicalRisks().length > 0) {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 @for (risk of medicalRisks(); track $index) {
-                  <div
-                    class="relative overflow-hidden rounded-2xl p-5"
-                    style="
-                      background: var(
-                        --mat-sys-home-sidenav-content-background
-                      );
-                      border: 1px solid
-                        color-mix(in srgb, #f97316 20%, transparent 80%);
-                    "
-                  >
-                    <!-- Content -->
-                    <div class="relative flex items-start gap-4">
-                      <!-- Icon container -->
-                      <div
-                        class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
-                        style="
-                          background: linear-gradient(
-                            135deg,
-                            color-mix(in srgb, #f97316 80%, white 20%) 0%,
-                            #f97316 100%
-                          );
-                          box-shadow: 0 4px 12px
-                            color-mix(in srgb, #f97316 30%, transparent 70%);
-                        "
-                      >
-                        <i-tabler
-                          name="alert-triangle"
-                          class="text-white"
-                          style="width: 24px; height: 24px"
-                        ></i-tabler>
-                      </div>
-
-                      <!-- Text content -->
-                      <div class="flex-1 min-w-0">
-                        <!-- Badge-styled risk name -->
-                        <div class="inline-block mb-3">
-                          <span
-                            class="px-3 py-1.5 rounded-full text-sm font-semibold"
-                            style="
-                              background: color-mix(
-                                in srgb,
-                                #f97316 15%,
-                                transparent 85%
-                              );
-                              color: #f97316;
-                            "
-                          >
-                            {{ risk.name }}
-                          </span>
+                  <mat-card appearance="filled">
+                    <div class="relative overflow-hidden rounded-2xl p-5">
+                      <!-- Content -->
+                      <div class="relative flex items-start gap-4">
+                        <!-- Icon container -->
+                        <div
+                          class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+                          style="
+                            background: linear-gradient(
+                              135deg,
+                              color-mix(in srgb, #f97316 80%, white 20%) 0%,
+                              #f97316 100%
+                            );
+                            box-shadow: 0 4px 12px
+                              color-mix(in srgb, #f97316 30%, transparent 70%);
+                          "
+                        >
+                          <i-tabler
+                            name="alert-triangle"
+                            class="text-white"
+                            style="width: 24px; height: 24px"
+                          ></i-tabler>
                         </div>
 
-                        @if (risk.observation) {
-                          <p
-                            class="text-sm leading-relaxed break-words whitespace-normal"
-                            style="color: var(--mat-sys-on-surface-variant)"
-                          >
-                            {{ risk.observation }}
-                          </p>
-                        }
+                        <!-- Text content -->
+                        <div class="flex-1 min-w-0">
+                          <!-- Badge-styled risk name -->
+                          <div class="inline-block mb-3">
+                            <span
+                              class="px-3 py-1.5 rounded-full text-sm font-semibold"
+                              style="
+                                background: color-mix(
+                                  in srgb,
+                                  #f97316 15%,
+                                  transparent 85%
+                                );
+                                color: #f97316;
+                              "
+                            >
+                              {{ risk.name }}
+                            </span>
+                          </div>
+
+                          @if (risk.observation) {
+                            <p
+                              class="text-sm leading-relaxed break-words whitespace-normal"
+                              style="color: var(--mat-sys-on-surface-variant)"
+                            >
+                              {{ risk.observation }}
+                            </p>
+                          }
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </mat-card>
                 }
               </div>
             } @else {
