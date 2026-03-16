@@ -1,0 +1,44 @@
+import {
+  Component,
+  ChangeDetectionStrategy,
+  input,
+  computed,
+} from "@angular/core";
+import { ReactiveFormsModule, FormControl } from "@angular/forms";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatButtonModule } from "@angular/material/button";
+import { TreatmentRow } from "../consultation-treatments-table/consultation-treatments-table.component";
+import { MatCardModule } from "@angular/material/card";
+import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
+import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
+
+const IVA_RATE = 0.15;
+
+@Component({
+  selector: "app-consultation-summary-panel",
+  templateUrl: "./consultation-summary-panel.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule,
+    IconsModule,
+    CardIconTitleComponent,
+  ],
+})
+export class ConsultationSummaryPanelComponent {
+  treatments = input<TreatmentRow[]>([]);
+
+  subtotal = computed(() =>
+    this.treatments().reduce((acc, t) => acc + t.cost, 0),
+  );
+
+  iva = computed(() => this.subtotal() * IVA_RATE);
+
+  total = computed(() => this.subtotal() + this.iva());
+
+  observationsControl = new FormControl("");
+}

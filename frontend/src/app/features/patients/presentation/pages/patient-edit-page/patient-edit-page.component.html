@@ -720,26 +720,7 @@
                 }
               </div>
             } @else {
-              <div class="flex flex-col items-center justify-center gap-3 py-8">
-                <div
-                  class="w-20 h-20 rounded-full flex items-center justify-center"
-                  style="
-                    background: color-mix(
-                      in srgb,
-                      var(--mat-sys-surface-variant) 50%,
-                      transparent 50%
-                    );
-                  "
-                >
-                  <i-tabler
-                    name="medical-cross"
-                    style="
-                      width: 40px;
-                      height: 40px;
-                      color: var(--mat-sys-on-surface-variant);
-                    "
-                  ></i-tabler>
-                </div>
+              <div class="flex flex-col items-center justify-center">
                 <span style="color: var(--mat-sys-on-surface-variant)">
                   El paciente aún no registra antecedentes clínicos.
                 </span>
@@ -766,14 +747,14 @@
       <mat-card appearance="outlined">
         <mat-card-header>
           <app-card-icon-title
-            [title]="'Odontograma'"
-            [icon]="'dental'"
+            [title]="'Consultas'"
+            [icon]="'stethoscope'"
             [backgroundColor]="'green'"
           ></app-card-icon-title>
         </mat-card-header>
         <mat-card-content>
           <div class="p-4">
-            <table mat-table [dataSource]="odontogramData" class="w-full">
+            <table mat-table [dataSource]="consultationsData" class="w-full">
               <ng-container matColumnDef="creationDate">
                 <th mat-header-cell *matHeaderCellDef>Fecha de creación</th>
                 <td mat-cell *matCellDef="let element">
@@ -793,8 +774,8 @@
                 <td mat-cell *matCellDef="let element">
                   <button
                     matIconButton
-                    matTooltip="Ver"
-                    (click)="openOdontogram()"
+                    matTooltip="Ver consulta"
+                    (click)="viewConsultation()"
                   >
                     <i-tabler name="eye"></i-tabler>
                   </button>
@@ -805,13 +786,13 @@
               <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
 
-            @if (!odontogramData!.length) {
+            @if (!consultationsData!.length) {
               <div class="flex flex-col items-center justify-center gap-4 mt-4">
-                <span>Aún no tienes odontogramas cargados.</span>
+                <span>Aún no tiene consultas registradas.</span>
                 <button matButton="filled">
                   <div class="flex items-center gap-2">
                     <i-tabler name="plus"></i-tabler>
-                    <span>Crear odontograma</span>
+                    <span>Crear consulta</span>
                   </div>
                 </button>
               </div>

@@ -4,6 +4,7 @@ import { IconsModule } from "../../../core/modules/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { BackButtonComponent } from "../back-button/back-button.component";
 
 @Component({
   selector: "app-page-toolbar",
@@ -15,6 +16,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     MatToolbarModule,
     MatButtonModule,
     MatTooltipModule,
+    BackButtonComponent,
   ],
 })
 export class PageToolbarComponent {

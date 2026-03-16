@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
@@ -38,16 +45,21 @@ export class ToolbarPatientSearchComponent implements OnInit {
       .slice(0, 15);
   });
 
-  ngOnInit(): void {
-    if (!this.patientListStore.hasPatients()) {
-      this.patientListStore.loadPatients({
-        page: 0,
-        size: 500,
-        sortBy: "id",
-        direction: "asc",
-      });
-    }
+  constructor() {
+    effect(() => {
+      const query = this.searchQuery();
+      if (query.length >= 3 && !this.patientListStore.hasPatients()) {
+        this.patientListStore.loadPatients({
+          page: 0,
+          size: 500,
+          sortBy: "person.lastName",
+          direction: "asc",
+        });
+      }
+    });
   }
+
+  ngOnInit(): void {}
 
   selectPatient(patient: PatientDto): void {
     this.searchQuery.set("");

@@ -1,28 +1,53 @@
-<app-page-toolbar
-  [title]="'Consulta'"
-  [showBackButton]="true"
-  (back)="goBack()"
-></app-page-toolbar>
+<div class="flex flex-col gap-4">
+  <!-- Patient Header Card -->
+  <app-consultation-patient-header
+    [patientName]="patientName()"
+    [patientDni]="patientDni()"
+    [patientAge]="patientAge()"
+    [avatarUrl]="avatarUrl()"
+    [lastVisit]="lastVisit()"
+    [consultations]="consultations()"
+    [selectedConsultation]="selectedConsultation()"
+    (consultationChange)="onConsultationChange($event)"
+  />
 
-<mat-card appearance="outlined" class="mt-4">
-  <mat-card-content>
-    <div class="w-full odontogram-container">
-      <div class="odontogram-wrapper">
-        <app-odontogram
-          [odontogram]="odontogram"
-          [showToolbox]="true"
-          [showTemporaries]="true"
-          [showDateSelector]="true"
-        ></app-odontogram>
-      </div>
+  <!-- Odontogram: full-width expansion panel -->
+  <mat-expansion-panel [expanded]="false" class="!shadow-none">
+    <mat-expansion-panel-header
+      collapsedHeight="80px"
+      expandedHeight="80px"
+      class="!p-4"
+    >
+      <mat-panel-title class="[&_.card-header]:!mb-0">
+        <app-card-icon-title
+          [title]="'Odontograma Interactivo'"
+          [subtitle]="'Revisá el estado dental del paciente'"
+          [icon]="'dental'"
+          [backgroundColor]="'green'"
+        />
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="overflow-x-auto">
+      <app-odontogram
+        [odontogram]="odontogram"
+        [showToolbox]="true"
+        [showTemporaries]="true"
+        [showDateSelector]="false"
+      />
     </div>
-  </mat-card-content>
+  </mat-expansion-panel>
 
-  <mat-card-actions align="end">
-    <button matButton="filled" (click)="saveOdontogram()">
-      <div class="flex items-center">
-        <span>Guardar</span>
-      </div>
-    </button>
-  </mat-card-actions>
-</mat-card>
+  <!-- 2-column grid: treatments + summary -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left: treatments table -->
+    <div class="lg:col-span-2">
+      <app-consultation-treatments-table [treatments]="treatments()" />
+    </div>
+
+    <!-- Right: cost summary + observations -->
+    <div class="flex flex-col gap-4">
+      <app-consultation-summary-panel [treatments]="treatments()" />
+    </div>
+  </div>
+</div>

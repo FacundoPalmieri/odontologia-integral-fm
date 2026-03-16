@@ -10,6 +10,7 @@ import {
   IconArrowNarrowLeft,
   IconArrowRight,
   IconArrowsMaximize,
+  IconBandage,
   IconBeach,
   IconBell,
   IconBellOff,
@@ -24,6 +25,7 @@ import {
   IconBubbleText,
   IconBuilding,
   IconBuildingBridge2,
+  IconCake,
   IconCalendar,
   IconCalendarBolt,
   IconCalendarCancel,
@@ -104,6 +106,7 @@ import {
   IconMessageReport,
   IconMoon,
   IconNotebook,
+  IconNotes,
   IconPackages,
   IconPalette,
   IconPassword,
@@ -275,6 +278,9 @@ const ICONS = {
   IconXboxX,
   IconReportSearch,
   IconGridDots,
+  IconCake,
+  IconNotes,
+  IconBandage,
 } as const;
 
 @NgModule({

@@ -27,8 +27,12 @@
         >{{ userData?.person?.lastName }},
         {{ userData?.person?.firstName }}</span
       >
-      <span class="text-sm text-[var(--mat-sys-on-surface-variant)]">{{ userData?.username }}</span>
-      <span class="text-xs text-blue-500 uppercase font-medium">{{ getRoles() }}</span>
+      <span class="text-sm text-[var(--mat-sys-on-surface-variant)]">{{
+        userData?.username
+      }}</span>
+      <span class="text-xs text-blue-500 uppercase font-medium">{{
+        getRoles()
+      }}</span>
     </div>
   </div>
   <mat-divider class="custom-divider"></mat-divider>

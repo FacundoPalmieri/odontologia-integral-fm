@@ -2,9 +2,7 @@
   class="page-toolbar gap-2 !rounded-[var(--mat-sys-corner-medium)] !bg-[var(--mat-sys-content-container-color)]"
 >
   @if (showBackButton) {
-    <button matIconButton matTooltip="Volver" (click)="back.emit()">
-      <i-tabler name="arrow-left" />
-    </button>
+    <app-back-button />
   }
   <div class="flex items-center gap-3">
     @if (titleIcon) {

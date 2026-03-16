@@ -59,7 +59,7 @@ import { MedicalHistoryRiskInterface } from "../../../data/interfaces/medical-hi
 import { PatientDto } from "../../../data/dtos/patient.dto";
 
 //QUITAR
-interface OdontogramInterface {
+interface ConsultationInterface {
   id: number;
   creationDate: Date;
   lastModified: Date;
@@ -106,7 +106,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   maxDate = new Date();
   patientId: number | null = null;
   displayedColumns: string[] = ["creationDate", "lastModified", "actions"];
-  odontogramData: OdontogramInterface[] = [
+  consultationsData: ConsultationInterface[] = [
     {
       id: 1,
       creationDate: new Date("2024-03-12 14:46:00"),
@@ -289,10 +289,10 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   }
 
   //QUITAR
-  openOdontogram() {
-    // this.router.navigate([
-    //   `patients/${this.patient()!.id}/odontogram/${this.odontogramData[0].id}`,
-    // ]);
+  viewConsultation() {
+    this.router.navigate([
+      `patients/${this.patient()!.person.id}/consultation/`,
+    ]);
   }
 
   save() {

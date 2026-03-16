@@ -10,18 +10,14 @@
   margin-bottom: 24px;
 
   .header-icon-container {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     border-radius: var(--mat-sys-corner-small);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     transition: transform 0.2s ease;
-
-    &:hover {
-      transform: scale(1.05);
-    }
 
     &.bg-blue {
       background: linear-gradient(
