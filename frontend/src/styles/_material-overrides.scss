@@ -111,7 +111,7 @@ body {
 
   @include mat.menu-overrides(
     (
-      container-shape: var(--mat-sys-corner-extra-large),
+      container-shape: var(--mat-sys-corner-medium),
     )
   );
 
