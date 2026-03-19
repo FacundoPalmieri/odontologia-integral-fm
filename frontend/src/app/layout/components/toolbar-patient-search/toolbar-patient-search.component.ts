@@ -13,6 +13,7 @@ import { MatOptionModule } from "@angular/material/core";
 import { IconsModule } from "../../../core/modules/tabler-icons.module";
 import { PatientListStore } from "../../../features/patients/data/store/patient-list.store";
 import { PatientDto } from "../../../features/patients/data/dtos/patient.dto";
+import { normalizeString } from "../../../core/utils/string.utils";
 import { ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
@@ -28,14 +29,14 @@ export class ToolbarPatientSearchComponent implements OnInit {
   searchQuery = signal<string>("");
 
   filteredPatients = computed<PatientDto[]>(() => {
-    const query = this.searchQuery().toLowerCase().trim();
+    const query = normalizeString(this.searchQuery());
     if (query.length < 3) return [];
     return this.patientListStore
       .patients()
       .filter((p) => {
-        const firstName = p.person?.firstName?.toLowerCase() ?? "";
-        const lastName = p.person?.lastName?.toLowerCase() ?? "";
-        const dni = p.person?.dni?.toLowerCase() ?? "";
+        const firstName = normalizeString(p.person?.firstName ?? "");
+        const lastName = normalizeString(p.person?.lastName ?? "");
+        const dni = normalizeString(p.person?.dni ?? "");
         return (
           firstName.includes(query) ||
           lastName.includes(query) ||
