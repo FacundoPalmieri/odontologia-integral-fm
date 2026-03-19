@@ -4,6 +4,7 @@ export enum ToothFaceEnum {
   PALATINO = "palatino",
   MESIAL = "mesial",
   OCLUSAL = "oclusal",
+  VESTIBULAR = "vestibular",
 }
 
 export enum ToothFaceLocationEnum {

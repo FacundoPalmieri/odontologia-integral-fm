@@ -52,13 +52,50 @@ export class ToothComponent implements OnChanges {
   TreatmentEnum = TreatmentEnum;
   private treatmentsList = TreatmentFactory.createTreatments();
 
-  private faceToPositionMap = {
-    [ToothFaceEnum.OCLUSAL]: ToothFaceLocationEnum.CENTER,
-    [ToothFaceEnum.LINGUAL]: ToothFaceLocationEnum.TOP,
-    [ToothFaceEnum.MESIAL]: ToothFaceLocationEnum.RIGHT,
-    [ToothFaceEnum.DISTAL]: ToothFaceLocationEnum.LEFT,
-    [ToothFaceEnum.PALATINO]: ToothFaceLocationEnum.BOTTOM,
-  };
+  get faceToPositionMap(): Record<ToothFaceEnum, ToothFaceLocationEnum> {
+    const toothStr = this.toothNumber.toString();
+    const quadrantStr = toothStr.charAt(0);
+    const quadrant = parseInt(quadrantStr, 10);
+
+    const isUpperRight = quadrant === 1 || quadrant === 5;
+    const isUpperLeft = quadrant === 2 || quadrant === 6;
+    const isLowerRight = quadrant === 4 || quadrant === 8;
+
+    if (isUpperRight) {
+      return {
+        [ToothFaceEnum.VESTIBULAR]: ToothFaceLocationEnum.TOP,
+        [ToothFaceEnum.PALATINO]: ToothFaceLocationEnum.BOTTOM,
+        [ToothFaceEnum.DISTAL]: ToothFaceLocationEnum.LEFT,
+        [ToothFaceEnum.MESIAL]: ToothFaceLocationEnum.RIGHT,
+        [ToothFaceEnum.OCLUSAL]: ToothFaceLocationEnum.CENTER,
+      } as Record<ToothFaceEnum, ToothFaceLocationEnum>;
+    } else if (isUpperLeft) {
+      return {
+        [ToothFaceEnum.VESTIBULAR]: ToothFaceLocationEnum.TOP,
+        [ToothFaceEnum.PALATINO]: ToothFaceLocationEnum.BOTTOM,
+        [ToothFaceEnum.MESIAL]: ToothFaceLocationEnum.LEFT,
+        [ToothFaceEnum.DISTAL]: ToothFaceLocationEnum.RIGHT,
+        [ToothFaceEnum.OCLUSAL]: ToothFaceLocationEnum.CENTER,
+      } as Record<ToothFaceEnum, ToothFaceLocationEnum>;
+    } else if (isLowerRight) {
+      return {
+        [ToothFaceEnum.LINGUAL]: ToothFaceLocationEnum.TOP,
+        [ToothFaceEnum.VESTIBULAR]: ToothFaceLocationEnum.BOTTOM,
+        [ToothFaceEnum.DISTAL]: ToothFaceLocationEnum.LEFT,
+        [ToothFaceEnum.MESIAL]: ToothFaceLocationEnum.RIGHT,
+        [ToothFaceEnum.OCLUSAL]: ToothFaceLocationEnum.CENTER,
+      } as Record<ToothFaceEnum, ToothFaceLocationEnum>;
+    } else {
+      // Lower Left
+      return {
+        [ToothFaceEnum.LINGUAL]: ToothFaceLocationEnum.TOP,
+        [ToothFaceEnum.VESTIBULAR]: ToothFaceLocationEnum.BOTTOM,
+        [ToothFaceEnum.MESIAL]: ToothFaceLocationEnum.LEFT,
+        [ToothFaceEnum.DISTAL]: ToothFaceLocationEnum.RIGHT,
+        [ToothFaceEnum.OCLUSAL]: ToothFaceLocationEnum.CENTER,
+      } as Record<ToothFaceEnum, ToothFaceLocationEnum>;
+    }
+  }
 
   cariesFaces: { [key in ToothFaceLocationEnum]?: TreatmentInterfaceOld } = {};
 

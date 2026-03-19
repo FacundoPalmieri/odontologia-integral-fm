@@ -70,9 +70,10 @@ export class AddTreatmentDialogComponent implements OnInit {
     "actions",
   ];
 
-  toothFaces: ToothFaceInterface[] = ToothFaceFactory.createToothFaces();
+  toothFaces: ToothFaceInterface[] = [];
 
   constructor() {
+    this.toothFaces = ToothFaceFactory.createToothFaces(this.data.toothNumber);
     this._loadForm();
     if (this.data.treatments?.length > 0) {
       this.treatmentsList = [...this.data.treatments];
