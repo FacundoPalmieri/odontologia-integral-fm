@@ -12,6 +12,12 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { AppointmentService } from "../../../services/appointment.service";
+import { RoleEnum } from "../../../../../shared/utils/enums/role.enum";
+import { MatDialogModule, MatDialog } from "@angular/material/dialog";
+import { CreateAppointmentDialogComponent } from "../../../../calendar/presentation/components/create-appointment-dialog/create-appointment-dialog.component";
+import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
+import { SnackbarService } from "../../../../../shared/services/snackbar.service";
+import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 
 @Component({
   selector: "app-appointments",
@@ -30,10 +36,14 @@ import { AppointmentService } from "../../../services/appointment.service";
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
+    MatDialogModule,
   ],
 })
 export class AppointmentsComponent {
   private readonly appointmentService = inject(AppointmentService);
+  private readonly dialog = inject(MatDialog);
+  private readonly localStorageService = inject(LocalStorageService);
+  private readonly snackbarService = inject(SnackbarService);
   @ViewChild(MatPaginator)
   paginator!: MatPaginator;
   @ViewChild(MatSort)
@@ -49,6 +59,8 @@ export class AppointmentsComponent {
     "status",
     "action",
   ];
+
+  canCreate: boolean = true;
 
   constructor() {
     this._loadData();
@@ -89,5 +101,31 @@ export class AppointmentsComponent {
     this.appointments.set(this.appointmentService.getScheduled());
     this.appointmentsDataSource.paginator = this.paginator;
     this.appointmentsDataSource.sort = this.sort;
+  }
+
+  createAppointment() {
+    const userRole = this.localStorageService.getUserRole();
+    const personId = this.localStorageService.getUserData()?.person?.id || 0;
+
+    const dialogRef = this.dialog.open(CreateAppointmentDialogComponent, {
+      width: "800px",
+      maxWidth: "90vw",
+      data: {
+        idDentist: userRole === RoleEnum.DENTIST ? personId : undefined,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.success) {
+        this.snackbarService.openSnackbar(
+          "Turno creado exitosamente",
+          6000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Success,
+        );
+        this._loadData();
+      }
+    });
   }
 }

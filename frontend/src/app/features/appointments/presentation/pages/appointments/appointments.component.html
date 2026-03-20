@@ -1,5 +1,11 @@
 <div class="flex flex-col h-full">
-  <app-page-toolbar [title]="'Gestión de Turnos'"></app-page-toolbar>
+  <app-page-toolbar
+    [title]="'Gestión de Turnos'"
+    [showActionButton]="canCreate"
+    [actionButtonIcon]="'plus'"
+    [actionButtonText]="'Nuevo turno'"
+    (action)="createAppointment()"
+  ></app-page-toolbar>
 
   <div class="mt-4 overflow-y-auto mt-4 rounded-[var(--mat-sys-corner-medium)]">
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-4">
@@ -124,7 +130,7 @@
       </mat-card>
     </div>
 
-    <mat-card appearance="outlined" class="mt-4 no-padding-card">
+    <!-- <mat-card appearance="outlined" class="mt-4 no-padding-card">
       <mat-card-content>
         <div class="flex w-full items-center justify-between gap-4 p-4">
           <mat-form-field appearance="outline" class="w-[50%]">
@@ -132,16 +138,9 @@
             <input type="text" matInput />
             <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
           </mat-form-field>
-
-          <button matButton="filled" matTooltipPosition="left">
-            <div class="flex items-center justify-center gap-2">
-              <i-tabler name="plus"></i-tabler>
-              <span>Nuevo turno</span>
-            </div>
-          </button>
         </div>
       </mat-card-content>
-    </mat-card>
+    </mat-card> -->
 
     <mat-card appearance="outlined" class="mt-4">
       <mat-card-content>

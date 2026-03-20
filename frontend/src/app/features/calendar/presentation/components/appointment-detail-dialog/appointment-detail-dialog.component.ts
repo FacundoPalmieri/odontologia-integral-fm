@@ -106,7 +106,7 @@ export class AppointmentDetailDialogComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.success && result?.isReschedule) {
         this.snackbarService.openSnackbar(
-          "Cita reprogramada exitosamente",
+          "Turno reprogramado exitosamente",
           6000,
           "center",
           "top",
