@@ -147,6 +147,22 @@ export class AppointmentService {
   ];
 
   /**
+   * Retrieves all appointments (scheduled, waiting, etc.).
+   *
+   * @returns Array of all appointments (mock data)
+   */
+  getAll(): any[] {
+    return [
+      ...this.scheduled_appointments,
+      ...this.waiting_appointments,
+      ...this.in_progress_appointments,
+      ...this.pending_payment_appointments,
+      ...this.finalized_appointments,
+      ...this.canceled_appointments,
+    ];
+  }
+
+  /**
    * Retrieves all scheduled appointments.
    *
    * @returns Array of scheduled appointments (mock data)

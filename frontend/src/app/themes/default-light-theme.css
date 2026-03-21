@@ -66,6 +66,7 @@
   /* Neutral variant palette variables */
   --mat-sys-surface-variant: light-dark(#f5f7fa, #334155);
   --mat-sys-on-surface-variant: light-dark(#334155, #f5f7fa);
+  --mat-sys-on-surface-variant-muted: light-dark(#374558, #cbd5e1);
   --mat-sys-neutral-variant20: light-dark(
     #352f2d,
     #352f2d

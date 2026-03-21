@@ -1,0 +1,140 @@
+import {
+  Injectable,
+  computed,
+  signal,
+  PLATFORM_ID,
+  inject,
+} from "@angular/core";
+import { isPlatformBrowser } from "@angular/common";
+import { RxStomp, RxStompState } from "@stomp/rx-stomp";
+import { Observable } from "rxjs";
+import { environment } from "../../environments/environment";
+import { LocalStorageService } from "../../shared/services/local-storage.service";
+
+export type ConnectionStatus =
+  | "connected"
+  | "disconnected"
+  | "connecting"
+  | "error";
+
+@Injectable({
+  providedIn: "root",
+})
+export class WebsocketService {
+  private rxStomp: RxStomp;
+  private platformId = inject(PLATFORM_ID);
+  private localStorageService = inject(LocalStorageService);
+
+  // Expose connection status via Angular Signal
+  private readonly _status = signal<ConnectionStatus>("disconnected");
+  public readonly status = computed(() => this._status());
+
+  constructor() {
+    this.rxStomp = new RxStomp();
+
+    // Listen to STOMP connection state changes
+    this.rxStomp.connectionState$.subscribe((state: RxStompState) => {
+      switch (state) {
+        case RxStompState.CONNECTING:
+          this._status.set("connecting");
+          break;
+        case RxStompState.OPEN:
+          this._status.set("connected");
+          console.log("[WebSocket STOMP] Connection established.");
+          break;
+        case RxStompState.CLOSED:
+          this._status.set("disconnected");
+          console.log("[WebSocket STOMP] Connection closed.");
+          break;
+      }
+    });
+
+    this.rxStomp.stompErrors$.subscribe((error) => {
+      this._status.set("error");
+      console.error("[WebSocket STOMP] Protocol Error:", error);
+    });
+
+    this.rxStomp.webSocketErrors$.subscribe((error) => {
+      this._status.set("error");
+      console.error("[WebSocket STOMP] WebSocket Error:", error);
+    });
+  }
+
+  /**
+   * Initializes the WebSocket connection using STOMP.
+   */
+  public connect(url: string = environment.wsUrl): void {
+    // WebSockets only work in the browser, prevent execution in SSR
+    if (!isPlatformBrowser(this.platformId)) {
+      console.warn("[WebSocket] Cannot connect on server side (SSR).");
+      return;
+    }
+
+    if (this._status() === "connected" || this._status() === "connecting") {
+      console.log("[WebSocket] Already connected or connecting.");
+      return;
+    }
+
+    // Retrieve JWT from local storage (or your Auth/Person Data service)
+    const token = this.localStorageService.getJwtToken();
+
+    // The backend's JwtHandshakeInterceptor expects logic like ws://localhost:8080/ws?token=EY...
+    const finalUrl = token ? `${url}?token=${token}` : url;
+
+    this.rxStomp.configure({
+      brokerURL: finalUrl,
+
+      // Optional: You could pass tokens via headers, depending on how strict the backend config is
+      // connectHeaders: {
+      //   Authorization: `Bearer ${token}`
+      // },
+
+      // How often to send/receive heartbeats to keep the connection alive (in ms).
+      heartbeatIncoming: 0, // 0 = disable
+      heartbeatOutgoing: 20000,
+
+      // Reconnect automatically if dropped
+      reconnectDelay: 5000,
+
+      // Useful for testing to see what STOMP is talking under the hood:
+      // debug: (msg: string): void => console.log(new Date(), msg)
+    });
+
+    this.rxStomp.activate();
+  }
+
+  /**
+   * Disconnects the WebSocket intentionally.
+   */
+  public disconnect(): void {
+    this.rxStomp.deactivate();
+    this._status.set("disconnected");
+  }
+
+  /**
+   * Subscribes to a STOMP topic (e.g. backend websocket.broker-prefix: /topic/consultas)
+   * Listen to messages pushed from backend.
+   *
+   * @param destination e.g '/topic/messages'
+   * @returns Observable stream with message payload
+   */
+  public watch(destination: string): Observable<any> {
+    return this.rxStomp.watch(destination);
+  }
+
+  /**
+   * Sends a payload to the WebSocket server if connected.
+   * The destination must start with backend websocket.app-prefix (e.g. /app/send)
+   *
+   * @param destination e.g '/app/chat'
+   * @param message Body of the message (will be JSON stringified automatically)
+   */
+  public publish(destination: string, message: any): void {
+    if (this._status() !== "connected") {
+      console.warn("[WebSocket] Cannot send message: not connected.");
+      return;
+    }
+
+    this.rxStomp.publish({ destination, body: JSON.stringify(message) } as any);
+  }
+}

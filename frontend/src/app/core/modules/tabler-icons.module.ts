@@ -46,6 +46,7 @@ import {
   IconChevronRight,
   IconChevronUp,
   IconCircle,
+  IconCircleCaretRight,
   IconCircleCheck,
   IconCircleFilled,
   IconCircleX,
@@ -281,6 +282,7 @@ const ICONS = {
   IconCake,
   IconNotes,
   IconBandage,
+  IconCircleCaretRight,
 } as const;
 
 @NgModule({

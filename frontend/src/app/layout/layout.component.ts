@@ -30,6 +30,7 @@ import { PermissionInterface } from "../features/roles/data/interfaces/permissio
 import { ToolbarPatientSearchComponent } from "./components/toolbar-patient-search/toolbar-patient-search.component";
 import { ToolbarUserMenuComponent } from "./components/toolbar-user-menu/toolbar-user-menu.component";
 import { ToolbarThemeToggleComponent } from "./components/toolbar-theme-toggle/toolbar-theme-toggle.component";
+import { WebsocketService } from "../core/services/websocket.service";
 
 @Component({
   selector: "app-layout",
@@ -57,6 +58,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   private readonly personDataService = inject(PersonDataService);
   private readonly accessControlService = inject(AccessControlService);
   private readonly localStorageService = inject(LocalStorageService);
+  private readonly websocketService = inject(WebsocketService);
 
   fullScreenService = inject(FullscreenService);
   currentTheme = computed(() => this.themeService.currentTheme());
@@ -95,6 +97,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.websocketService.connect();
     if (this.userData?.roles && this.userData?.roles.length > 0) {
       this.userData.roles.forEach((role) => {
         if (role.permissionsList) {
@@ -117,6 +120,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.websocketService.disconnect();
     this._destroy$.next();
     this._destroy$.complete();
   }

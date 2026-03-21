@@ -7,29 +7,16 @@
     (action)="createAppointment()"
   ></app-page-toolbar>
 
-  <div class="mt-4 overflow-y-auto mt-4 rounded-[var(--mat-sys-corner-medium)]">
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-4">
+  <div class="mt-4 rounded-[var(--mat-sys-corner-medium)]">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
       <mat-card
-        class="cursor-pointer background-scheduled"
+        class="cursor-pointer background-waiting transition-all duration-300"
         appearance="outlined"
-        (click)="toggleScheduled()"
-      >
-        <mat-card-content>
-          <div class="flex items-center justify-start gap-4">
-            <div class="rounded-xl bg-[#38bdf8] flex p-2">
-              <i-tabler class="text-white scale-130" name="calendar"></i-tabler>
-            </div>
-            <div class="flex-col flex">
-              <span class="text-sm">Agendados</span>
-              <span class="font-bold">12 pacientes</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card
-        class="cursor-pointer background-waiting"
-        appearance="outlined"
+        [class.scale-102]="activeFilter() === 'waiting'"
+        [style.borderColor]="activeFilter() === 'waiting' ? '#f9c20a' : ''"
+        [style.boxShadow]="
+          activeFilter() === 'waiting' ? '0 0 0 1px #f9c20a' : ''
+        "
         (click)="toggleWaiting()"
       >
         <mat-card-content>
@@ -49,8 +36,13 @@
       </mat-card>
 
       <mat-card
-        class="cursor-pointer background-in-progress"
+        class="cursor-pointer background-in-progress transition-all duration-300"
         appearance="outlined"
+        [class.scale-102]="activeFilter() === 'in-progress'"
+        [style.borderColor]="activeFilter() === 'in-progress' ? '#fb923c' : ''"
+        [style.boxShadow]="
+          activeFilter() === 'in-progress' ? '0 0 0 1px #fb923c' : ''
+        "
         (click)="toggleInProgress()"
       >
         <mat-card-content>
@@ -70,8 +62,15 @@
       </mat-card>
 
       <mat-card
-        class="cursor-pointer background-pending-payment"
+        class="cursor-pointer background-pending-payment transition-all duration-300"
         appearance="outlined"
+        [class.scale-102]="activeFilter() === 'pending-payment'"
+        [style.borderColor]="
+          activeFilter() === 'pending-payment' ? '#635bff' : ''
+        "
+        [style.boxShadow]="
+          activeFilter() === 'pending-payment' ? '0 0 0 1px #635bff' : ''
+        "
         (click)="togglePendingPayment()"
       >
         <mat-card-content>
@@ -91,8 +90,12 @@
       </mat-card>
 
       <mat-card
-        class="cursor-pointer background-finalized"
+        class="cursor-pointer background-finalized transition-all duration-300"
         appearance="outlined"
+        [style.borderColor]="activeFilter() === 'finalized' ? '#10b981' : ''"
+        [style.boxShadow]="
+          activeFilter() === 'finalized' ? '0 0 0 1px #10b981' : ''
+        "
         (click)="toggleFinalized()"
       >
         <mat-card-content>
@@ -112,8 +115,13 @@
       </mat-card>
 
       <mat-card
-        class="cursor-pointer background-canceled"
+        class="cursor-pointer background-canceled transition-all duration-300"
         appearance="outlined"
+        [class.scale-102]="activeFilter() === 'canceled'"
+        [style.borderColor]="activeFilter() === 'canceled' ? '#f56565' : ''"
+        [style.boxShadow]="
+          activeFilter() === 'canceled' ? '0 0 0 1px #f56565' : ''
+        "
         (click)="toggleCanceled()"
       >
         <mat-card-content>
@@ -129,18 +137,6 @@
         </mat-card-content>
       </mat-card>
     </div>
-
-    <!-- <mat-card appearance="outlined" class="mt-4 no-padding-card">
-      <mat-card-content>
-        <div class="flex w-full items-center justify-between gap-4 p-4">
-          <mat-form-field appearance="outline" class="w-[50%]">
-            <mat-label>Buscar paciente</mat-label>
-            <input type="text" matInput />
-            <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
-          </mat-form-field>
-        </div>
-      </mat-card-content>
-    </mat-card> -->
 
     <mat-card appearance="outlined" class="mt-4">
       <mat-card-content>
@@ -179,7 +175,7 @@
 
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef>Estado</th>
-              <td mat-cell *matCellDef="let element">
+              <td mat-cell *matCellDef="let element" class="relative">
                 <span
                   class="p-1.5 rounded-xl text-white"
                   [ngClass]="{
@@ -193,38 +189,77 @@
                 >
                   {{ element.status }}
                 </span>
-              </td>
-            </ng-container>
 
-            <ng-container matColumnDef="action">
-              <th mat-header-cell *matHeaderCellDef>Acción</th>
-              <td mat-cell *matCellDef="let element">
-                <button
-                  matIconButton
-                  matTooltip="Editar"
-                  matTooltipPosition="above"
+                <div
+                  class="absolute inset-y-0 right-0 flex items-center pr-2 pl-12 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-gradient-to-l from-[var(--mat-sys-surface-container-high)] from-70% to-transparent"
                 >
-                  <i-tabler name="edit"></i-tabler>
-                </button>
-                <button
-                  matIconButton
-                  matTooltip="Ver"
-                  matTooltipPosition="above"
-                >
-                  <i-tabler name="eye"></i-tabler>
-                </button>
-                <button
-                  matIconButton
-                  matTooltip="Cambiar estado"
-                  matTooltipPosition="above"
-                >
-                  <i-tabler name="refresh"></i-tabler>
-                </button>
+                  <button
+                    matIconButton
+                    [matMenuTriggerFor]="menu"
+                    matTooltip="Acciones"
+                    matTooltipPosition="left"
+                  >
+                    <i-tabler name="dots-vertical"></i-tabler>
+                  </button>
+                  <mat-menu #menu="matMenu" xPosition="before">
+                    <button mat-menu-item>
+                      <div
+                        class="flex items-center gap-2 text-[var(--mat-sys-primary)]"
+                      >
+                        <i-tabler name="circle-caret-right"></i-tabler>
+                        <span>Iniciar consulta</span>
+                      </div>
+                    </button>
+                    <button mat-menu-item>
+                      <div
+                        class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
+                      >
+                        <i-tabler name="report-search"></i-tabler>
+                        <span>Ver ficha médica</span>
+                      </div>
+                    </button>
+                    <button mat-menu-item>
+                      <div
+                        class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
+                      >
+                        <i-tabler name="calendar-time"></i-tabler>
+                        <span>Reprogramar</span>
+                      </div>
+                    </button>
+                    <button mat-menu-item>
+                      <div
+                        class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
+                      >
+                        <i-tabler name="refresh"></i-tabler>
+                        <span>Cambiar de estado</span>
+                      </div>
+                    </button>
+                    <button mat-menu-item>
+                      <div
+                        class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
+                      >
+                        <i-tabler name="credit-card-pay"></i-tabler>
+                        <span>Registrar pago</span>
+                      </div>
+                    </button>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item>
+                      <div class="flex items-center gap-2 text-red-500">
+                        <i-tabler name="calendar-cancel"></i-tabler>
+                        <span>Cancelar turno</span>
+                      </div>
+                    </button>
+                  </mat-menu>
+                </div>
               </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns"
+              class="group transition-colors hover:![background:var(--mat-sys-surface-container-high)]"
+            ></tr>
           </table>
           <mat-paginator
             [pageSizeOptions]="[5, 10]"

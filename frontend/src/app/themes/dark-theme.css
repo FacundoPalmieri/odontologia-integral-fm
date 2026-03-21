@@ -66,6 +66,7 @@
   /* Neutral variant palette variables */
   --mat-sys-surface-variant: light-dark(#f0dee4, #504349);
   --mat-sys-on-surface-variant: light-dark(#504349, #d4c2c8);
+  --mat-sys-on-surface-variant-muted: light-dark(#5a4c52, #baabb2);
   --mat-sys-neutral-variant20: light-dark(
     #382d32,
     #382d32
@@ -256,19 +257,24 @@
 
   /* Elevation level system variables. These are used as the value for box-shadow CSS property. */
   --mat-sys-level0: none;
-  --mat-sys-level1: 0px 1px 4px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level1:
+    0px 1px 4px -1px var(--mat-sys-umbra-color),
     0px 1px 6px -1px var(--mat-sys-penumbra-color),
     0px 1px 8px -2px var(--mat-sys-ambient-color);
-  --mat-sys-level2: 0px 2px 6px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level2:
+    0px 2px 6px -1px var(--mat-sys-umbra-color),
     0px 2px 8px -1px var(--mat-sys-penumbra-color),
     0px 1px 10px -2px var(--mat-sys-ambient-color);
-  --mat-sys-level3: 0px 2px 8px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level3:
+    0px 2px 8px -1px var(--mat-sys-umbra-color),
     0px 2px 10px -1px var(--mat-sys-penumbra-color),
     0px 1px 12px -2px var(--mat-sys-ambient-color);
-  --mat-sys-level4: 0px 2px 10px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level4:
+    0px 2px 10px -1px var(--mat-sys-umbra-color),
     0px 2px 12px -1px var(--mat-sys-penumbra-color),
     0px 1px 14px -2px var(--mat-sys-ambient-color);
-  --mat-sys-level5: 0px 2px 12px -1px var(--mat-sys-umbra-color),
+  --mat-sys-level5:
+    0px 2px 12px -1px var(--mat-sys-umbra-color),
     0px 2px 14px -1px var(--mat-sys-penumbra-color),
     0px 1px 16px -2px var(--mat-sys-ambient-color);
 
