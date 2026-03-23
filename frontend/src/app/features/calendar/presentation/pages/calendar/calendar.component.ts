@@ -36,6 +36,7 @@ import { SnackbarService } from "../../../../../shared/services/snackbar.service
 import { DentistService } from "../../../services/dentist.service";
 import { AppointmentService } from "../../../../appointments/services/appointment.service";
 import { CalendarService } from "../../../services/calendar.service";
+import { DentistAvailabilityService } from "../../../../dentist-availability/services/dentist-availability.service";
 import { RoleEnum } from "../../../../../shared/utils/enums/role.enum";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { AppointmentsConflictDialogComponent } from "../../../../../shared/components/appointments-conflict-dialog/appointments-conflict-dialog.component";
@@ -105,6 +106,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly calendarLockService = inject(CalendarLockService);
   private readonly dentistService = inject(DentistService);
   private readonly appointmentService = inject(AppointmentService);
+  private readonly dentistAvailabilityService = inject(
+    DentistAvailabilityService,
+  );
   readonly localStorageService = inject(LocalStorageService);
   dialog = inject(MatDialog);
   loading$ = this.loaderService.loading$;
@@ -120,6 +124,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   calendarMonthData = signal<CalendarMonthInterface | null>(null);
   calendarWeekData = signal<CalendarWeekInterface | null>(null);
   calendarDayData = signal<CalendarDayInterface | null>(null);
+
+  hasAvailability = signal<boolean | null>(null);
 
   appointmentConflicts = signal<any[]>([]);
   hasConflicts = signal<boolean>(false);
@@ -185,21 +191,13 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
       this.loadConflicts();
 
-      if (this.currentView === "month") {
-        this.loadMonthView();
-      } else if (this.currentView === "week") {
-        this.loadWeekView();
-      } else if (this.currentView === "day") {
-        this.loadDayView();
-      }
+      this.checkAvailabilityAndLoad();
     } else {
       this.selectedSidebarDentistId.set(this.personId);
 
       this.loadConflicts();
 
-      if (this.currentView === "month") {
-        this.loadMonthView();
-      }
+      this.checkAvailabilityAndLoad();
     }
   }
 
@@ -387,13 +385,15 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   setView(view: CalendarView) {
     this.currentView = view;
 
-    if (view === "month") {
-      this.monthCache.clear();
-      this.loadMonthView();
-    } else if (view === "week") {
-      this.loadWeekView();
-    } else if (view === "day") {
-      this.loadDayView();
+    if (this.hasAvailability() === true) {
+      if (view === "month") {
+        this.monthCache.clear();
+        this.loadMonthView();
+      } else if (view === "week") {
+        this.loadWeekView();
+      } else if (view === "day") {
+        this.loadDayView();
+      }
     }
 
     setTimeout(() => {
@@ -419,12 +419,14 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.selectedDate = newDate;
     this.updateSelectedDate();
 
-    if (this.currentView === "month") {
-      this.loadMonthView();
-    } else if (this.currentView === "week") {
-      this.loadWeekView();
-    } else if (this.currentView === "day") {
-      this.loadDayView();
+    if (this.hasAvailability() === true) {
+      if (this.currentView === "month") {
+        this.loadMonthView();
+      } else if (this.currentView === "week") {
+        this.loadWeekView();
+      } else if (this.currentView === "day") {
+        this.loadDayView();
+      }
     }
   }
 
@@ -432,12 +434,14 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.selectedDate = new Date();
     this.updateSelectedDate();
 
-    if (this.currentView === "month") {
-      this.loadMonthView();
-    } else if (this.currentView === "week") {
-      this.loadWeekView();
-    } else if (this.currentView === "day") {
-      this.loadDayView();
+    if (this.hasAvailability() === true) {
+      if (this.currentView === "month") {
+        this.loadMonthView();
+      } else if (this.currentView === "week") {
+        this.loadWeekView();
+      } else if (this.currentView === "day") {
+        this.loadDayView();
+      }
     }
   }
 
@@ -1445,13 +1449,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     this.selectedSidebarDentistId.set(dentist.person.id);
 
-    if (this.currentView === "month") {
-      this.loadMonthView();
-    } else if (this.currentView === "week") {
-      this.loadWeekView();
-    } else if (this.currentView === "day") {
-      this.loadDayView();
-    }
+    this.checkAvailabilityAndLoad();
   }
 
   /**
@@ -1515,13 +1513,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.calendarMonthData.set(null);
     this.calendarWeekData.set(null);
     this.calendarDayData.set(null);
-    if (this.currentView === "month") {
-      this.loadMonthView();
-    } else if (this.currentView === "week") {
-      this.loadWeekView();
-    } else if (this.currentView === "day") {
-      this.loadDayView();
-    }
+
+    this.checkAvailabilityAndLoad();
   }
 
   /**
@@ -1545,13 +1538,8 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.calendarMonthData.set(null);
     this.calendarWeekData.set(null);
     this.calendarDayData.set(null);
-    if (this.currentView === "month") {
-      this.loadMonthView();
-    } else if (this.currentView === "week") {
-      this.loadWeekView();
-    } else if (this.currentView === "day") {
-      this.loadDayView();
-    }
+
+    this.checkAvailabilityAndLoad();
   }
 
   /**
@@ -1642,5 +1630,61 @@ export class CalendarComponent implements OnInit, AfterViewInit {
           });
       }
     });
+  }
+
+  /**
+   * Check availability and load calendar view if available
+   */
+  checkAvailabilityAndLoad(): void {
+    if (!this.personId) {
+      console.error("No person ID available");
+      this.hasAvailability.set(false);
+      return;
+    }
+
+    this.isLoadingCalendar.set(true);
+    this.hasAvailability.set(null);
+
+    this.dentistAvailabilityService.get(this.personId).subscribe({
+      next: (response) => {
+        const days = response.data?.days || [];
+        if (days.length > 0) {
+          this.hasAvailability.set(true);
+          this.refreshCurrentView();
+        } else {
+          this.hasAvailability.set(false);
+          this.isLoadingCalendar.set(false);
+        }
+      },
+      error: (error) => {
+        console.error("Error checking availability:", error);
+        this.hasAvailability.set(false);
+        this.isLoadingCalendar.set(false);
+      },
+    });
+  }
+
+  /**
+   * Determine if the current user can configure the availability
+   */
+  canConfigureAvailability(): boolean {
+    const loggedInUser = this.localStorageService.getUserData();
+    if (!loggedInUser) return false;
+
+    if (this.localStorageService.isAdministrator()) {
+      return true;
+    }
+
+    return this.personId === loggedInUser.person.id;
+  }
+
+  /**
+   * Determine if the user is currently viewing their own calendar
+   */
+  isViewingOwnCalendar(): boolean {
+    const loggedInUser = this.localStorageService.getUserData();
+    if (!loggedInUser) return false;
+
+    return this.personId === loggedInUser.person.id;
   }
 }

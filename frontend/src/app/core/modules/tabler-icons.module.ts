@@ -30,6 +30,7 @@ import {
   IconCalendarBolt,
   IconCalendarCancel,
   IconCalendarEvent,
+  IconCalendarOff,
   IconCalendarPlus,
   IconCalendarTime,
   IconCalendarWeek,
@@ -283,6 +284,7 @@ const ICONS = {
   IconNotes,
   IconBandage,
   IconCircleCaretRight,
+  IconCalendarOff,
 } as const;
 
 @NgModule({
