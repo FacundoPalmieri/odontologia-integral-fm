@@ -1,11 +1,6 @@
 @use "@angular/material" as mat;
 
-// ========================================
-// Overrides de Angular Material
-// ========================================
-
 body {
-  //Revisar el motivo (barra en label) por el que es necesario agregar esta línea
   *,
   ::after,
   ::before,
@@ -303,88 +298,8 @@ body {
     }
   }
 
-  // ========================================
-  // Estilos personalizados para tabs
-  // ========================================
-  .mat-mdc-tab-group {
-    .mat-mdc-tab-header {
-      border-radius: var(--mat-sys-corner-medium) var(--mat-sys-corner-medium) 0
-        0;
-      overflow: hidden;
-    }
-
-    // Ocultar la línea indicadora predeterminada
-    .mat-mdc-tab-header-pagination-chevron,
-    .mdc-tab-indicator {
-      display: none !important;
-    }
-
-    // Estilos para los labels de los tabs
-    .mdc-tab {
-      padding: 0 !important;
-      margin: 6px !important;
-      min-width: auto !important;
-      flex: 1;
-      height: 40px !important;
-
-      .mdc-tab__content {
-        width: 100%;
-        border-radius: var(--mat-sys-corner-large);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      // Desactivar transiciones de color en el texto
-      .mdc-tab__text-label {
-        transition: none !important;
-      }
-    }
-
-    // Tab activo - fondo con color primario
-    .mdc-tab--active {
-      .mdc-tab__content {
-        background-color: var(--mat-sys-primary);
-        color: var(--mat-sys-on-primary) !important;
-      }
-
-      .mdc-tab__text-label {
-        color: var(--mat-sys-on-primary) !important;
-      }
-
-      // Forzar color blanco en los iconos de Tabler
-      i-tabler,
-      i-tabler svg {
-        color: var(--mat-sys-on-primary) !important;
-        stroke: var(--mat-sys-on-primary) !important;
-      }
-    }
-
-    // Tab inactivo - sin fondo
-    .mdc-tab:not(.mdc-tab--active) {
-      .mdc-tab__content {
-        background-color: transparent;
-      }
-
-      .mdc-tab__text-label {
-        color: var(--mat-sys-on-surface);
-        opacity: 0.8;
-      }
-
-      &:hover .mdc-tab__content {
-        background-color: var(--mat-sys-primary-container);
-        opacity: 0.8;
-      }
-    }
-
-    // Ajustar el ripple para que no se vea fuera del border radius
-    .mat-mdc-tab-ripple {
-      border-radius: var(--mat-sys-corner-extra-large);
-    }
+  .mat-mdc-select-panel,
+  .mat-mdc-autocomplete-panel {
+    border-radius: var(--mat-sys-corner-medium) !important;
   }
-}
-
-.mat-mdc-select-panel,
-.mat-mdc-autocomplete-panel {
-  border-radius: var(--mat-sys-corner-medium) !important;
 }
