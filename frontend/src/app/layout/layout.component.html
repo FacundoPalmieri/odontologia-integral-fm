@@ -1,7 +1,7 @@
-<mat-drawer-container class="drawer-container" autosize>
+<mat-drawer-container class="h-[100vh]" autosize>
   <mat-drawer
     #drawer
-    class="sidenav m-2"
+    class="!bg-[var(--mat-sys-home-sidenav-content-background)] !w-[220px] !rounded-[var(--mat-sys-corner-extra-large)] m-2"
     mode="side"
     [opened]="isDrawerOpened()"
   >
@@ -73,20 +73,24 @@
     </mat-nav-list>
   </mat-drawer>
 
-  <div class="sidenav-content">
-    <mat-toolbar class="gap-3 main-toolbar">
-      <!-- Logo visible cuando el sidenav está cerrado (debe ser el primer elemento) -->
+  <div class="flex flex-col h-[100%]">
+    <mat-toolbar
+      class="gap-3 !sticky !bg-transparent !top-0 !z-50 !min-h-[80px]"
+    >
       @if (!drawer.opened) {
         <img
           [src]="logoSrc()"
           alt="Logo"
-          class="logo-collapsed rounded-[var(--mat-sys-corner-medium)] avatar-gradient"
+          class="h-[60px] w-auto object-cover transition-all duration-300 ease-in-out rounded-[var(--mat-sys-corner-medium)] avatar-gradient"
         />
       }
 
       <button matIconButton (click)="toggleDrawer()">
         <i-tabler name="menu"></i-tabler>
       </button>
+
+      <!-- Búsqueda de pacientes (izquierda, junto al menú) -->
+      <app-toolbar-patient-search />
 
       @if (!drawer.opened) {
         <button
@@ -208,6 +212,9 @@
         </mat-menu>
       }
 
+      <span class="flex-1"></span>
+
+      <!-- Mi Agenda (derecha, antes del separador) -->
       <mat-nav-list>
         <mat-list-item
           class="list-item-menu"
@@ -224,9 +231,9 @@
         </mat-list-item>
       </mat-nav-list>
 
-      <span class="spacer"></span>
-
-      <app-toolbar-patient-search />
+      <div
+        class="w-px h-[25px] bg-[var(--mat-sys-on-surface-variant)] opacity-20 shrink-0"
+      ></div>
 
       <button
         matIconButton
@@ -244,7 +251,9 @@
 
       <app-toolbar-user-menu />
     </mat-toolbar>
-    <div class="content-background flex-grow overflow-y-auto p-4 mx-4 mb-4">
+    <div
+      class="bg-[var(--mat-sys-home-sidenav-content-background)] rounded-[var(--mat-sys-corner-extra-large)] flex-grow overflow-y-auto p-4 mx-4 mb-4"
+    >
       <router-outlet></router-outlet>
     </div>
   </div>

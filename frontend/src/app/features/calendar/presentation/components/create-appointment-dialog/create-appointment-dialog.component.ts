@@ -12,13 +12,14 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
-import { debounceTime, distinctUntilChanged, map, forkJoin } from "rxjs";
+import { debounceTime, distinctUntilChanged, map, forkJoin, catchError, of } from "rxjs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CalendarService } from "../../../services/calendar.service";
 import { AppointmentService } from "../../../../appointments/services/appointment.service";
 import { DentistService } from "../../../services/dentist.service";
+import { DentistAvailabilityService } from "../../../../dentist-availability/services/dentist-availability.service";
 import { RoleEnum } from "../../../../../shared/utils/enums/role.enum";
 import { PersonInterface } from "../../../../../shared/interfaces/person.interface";
 import { RequestSourceEnum } from "../../../../../shared/utils/enums/request-source.enum";
@@ -84,6 +85,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly localStorageService = inject(LocalStorageService);
   private readonly dentistService = inject(DentistService);
+  private readonly dentistAvailabilityService = inject(DentistAvailabilityService);
   private readonly patientSerializer = new PatientSerializer();
 
   idDentist?: number;
@@ -164,7 +166,7 @@ export class CreateAppointmentDialogComponent implements OnInit {
       this.dentistService.getAll().subscribe({
         next: (response) => {
           if (response.data) {
-            this.groupDentistsBySpecialty(response.data);
+            this.filterDentistsByAvailability(response.data);
           }
         },
       });
@@ -661,6 +663,41 @@ export class CreateAppointmentDialogComponent implements OnInit {
     const dateTime = new Date(year, month, dayOfMonth, hours, minutes, 0, 0);
 
     return dateTime;
+  }
+
+  /**
+   * Verifica qué dentistas tienen disponibilidad laboral configurada
+   * y filtra el listado antes de armar los grupos de especialidad.
+   */
+  private filterDentistsByAvailability(dentists: DentistDto[]): void {
+    if (dentists.length === 0) {
+      this.specialtyGroups.set([]);
+      return;
+    }
+
+    const availabilityChecks = dentists.map((dentist) =>
+      this.dentistAvailabilityService.get(dentist.person.id).pipe(
+        map((response) => ({
+          dentist,
+          hasAvailability:
+            !!response.data?.days && response.data.days.length > 0,
+        })),
+        catchError(() => of({ dentist, hasAvailability: false })),
+      ),
+    );
+
+    forkJoin(availabilityChecks).subscribe({
+      next: (results) => {
+        const dentistsWithAvailability = results
+          .filter((r) => r.hasAvailability)
+          .map((r) => r.dentist);
+
+        this.groupDentistsBySpecialty(dentistsWithAvailability);
+      },
+      error: () => {
+        this.specialtyGroups.set([]);
+      },
+    });
   }
 
   /**
