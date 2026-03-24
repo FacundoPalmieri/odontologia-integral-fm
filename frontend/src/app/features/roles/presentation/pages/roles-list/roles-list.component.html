@@ -12,7 +12,10 @@
     <mat-card appearance="outlined">
       <mat-card-content>
         <div class="overflow-x-auto">
-          <table
+          @if (rolesDataSource.filteredData.length === 0) {
+            <app-empty-state [message]="'No se encontraron roles'"></app-empty-state>
+          } @else {
+            <table
             mat-table
             [dataSource]="rolesDataSource"
             matSort
@@ -61,6 +64,7 @@
             showFirstLastButtons="true"
             aria-label="Seleccionar página de usuarios"
           ></mat-paginator>
+          }
         </div>
       </mat-card-content>
     </mat-card>

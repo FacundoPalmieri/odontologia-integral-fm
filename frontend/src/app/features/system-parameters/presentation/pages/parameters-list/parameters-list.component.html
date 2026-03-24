@@ -1,21 +1,22 @@
 <div class="flex flex-col h-full">
-  <app-page-toolbar [title]="'Parámetros del sistema'"></app-page-toolbar>
+  <app-page-toolbar
+    [title]="'Parámetros del sistema'"
+    [totalCount]="systemParametersDataSource.filteredData.length"
+    [showSearch]="true"
+    [searchPlaceholder]="'Buscar parámetro'"
+    [searchValue]="systemParametersFilter.value || ''"
+    (searchChange)="systemParametersFilter.setValue($event)"
+  ></app-page-toolbar>
 
   <div class="overflow-y-auto mt-4 rounded-[var(--mat-sys-corner-medium)]">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <div class="w-1/2 flex mt-4">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Buscar parámetro</mat-label>
-            <input
-              type="text"
-              matInput
-              [formControl]="systemParametersFilter"
-            />
-            <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
-          </mat-form-field>
-        </div>
-        <div class="overflow-x-auto">
+        @if (isTableEmpty) {
+          <app-empty-state
+            [message]="'No se encontraron parámetros'"
+          ></app-empty-state>
+        } @else {
+          <div class="overflow-x-auto">
           <table
             mat-table
             [dataSource]="systemParametersDataSource"
@@ -66,9 +67,10 @@
             #systemParametersPaginator
             [pageSizeOptions]="[5, 10]"
             showFirstLastButtons="true"
-            aria-label="Seleccionar página de usuarios"
+            aria-label="Seleccionar página de parámetros"
           ></mat-paginator>
         </div>
+        }
       </mat-card-content>
     </mat-card>
   </div>

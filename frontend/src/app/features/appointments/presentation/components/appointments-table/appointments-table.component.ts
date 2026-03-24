@@ -15,6 +15,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { AppointmentActionsMenuComponent } from "../appointment-actions-menu/appointment-actions-menu.component";
+import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 
 @Component({
   selector: "app-appointments-table",
@@ -30,13 +31,19 @@ import { AppointmentActionsMenuComponent } from "../appointment-actions-menu/app
     MatTooltipModule,
     IconsModule,
     AppointmentActionsMenuComponent,
+    EmptyStateComponent,
   ],
 })
 export class AppointmentsTableComponent implements AfterViewInit {
   readonly appointments = input.required<any[]>();
+  readonly isLoading = input(false);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   readonly dataSource = new MatTableDataSource<any>();
   readonly displayedColumns = ["patient", "schedule", "professional", "status"];
@@ -44,13 +51,8 @@ export class AppointmentsTableComponent implements AfterViewInit {
   constructor() {
     effect(() => {
       this.dataSource.data = this.appointments();
-      if (this.paginator) this.dataSource.paginator = this.paginator;
-      if (this.sort) this.dataSource.sort = this.sort;
     });
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
+  ngAfterViewInit() {}
 }

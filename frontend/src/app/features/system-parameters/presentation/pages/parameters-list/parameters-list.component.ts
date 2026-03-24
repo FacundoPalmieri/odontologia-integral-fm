@@ -4,6 +4,7 @@ import {
   inject,
   OnDestroy,
   signal,
+  computed,
   ViewChild,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
@@ -28,6 +29,7 @@ import { SnackbarService } from "../../../../../shared/services/snackbar.service
 import { SystemParameterUpdateDto } from "../../../data/dtos/system-parameter.dto";
 import { SystemParameterInterface } from "../../../data/interfaces/system-parameter.interface";
 import { SystemParameterService } from "../../../services/system-parameter.service";
+import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 
 @Component({
   selector: "app-parameters-list",
@@ -48,6 +50,7 @@ import { SystemParameterService } from "../../../services/system-parameter.servi
     MatPaginatorModule,
     MatTooltipModule,
     MatDialogModule,
+    EmptyStateComponent,
   ],
 })
 export class ParametersListComponent implements OnDestroy {
@@ -67,9 +70,21 @@ export class ParametersListComponent implements OnDestroy {
     "action",
   ];
 
-  @ViewChild("systemParametersPaginator")
-  systemParametersPaginator!: MatPaginator;
-  @ViewChild("systemParametersSort") systemParametersSort!: MatSort;
+  @ViewChild("systemParametersPaginator") set paginator(
+    paginator: MatPaginator,
+  ) {
+    this.systemParametersDataSource.paginator = paginator;
+  }
+  @ViewChild("systemParametersSort") set sort(sort: MatSort) {
+    this.systemParametersDataSource.sort = sort;
+  }
+
+  get isTableEmpty(): boolean {
+    return (
+      !this.systemParameters() ||
+      this.systemParametersDataSource.filteredData.length === 0
+    );
+  }
 
   constructor() {
     this.loadInitialData();
@@ -77,9 +92,6 @@ export class ParametersListComponent implements OnDestroy {
     effect(() => {
       if (this.systemParameters()) {
         this.systemParametersDataSource.data = this.systemParameters();
-        this.systemParametersDataSource.paginator =
-          this.systemParametersPaginator;
-        this.systemParametersDataSource.sort = this.systemParametersSort;
       }
     });
   }

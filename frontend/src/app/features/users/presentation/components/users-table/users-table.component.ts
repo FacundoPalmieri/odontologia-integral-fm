@@ -9,6 +9,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { UserDto } from "../../../data/dtos/user.dto";
+import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 
 @Component({
   selector: "app-users-table",
@@ -25,6 +26,7 @@ import { UserDto } from "../../../data/dtos/user.dto";
     MatButtonModule,
     MatChipsModule,
     IconsModule,
+    EmptyStateComponent,
   ],
 })
 export class UsersTableComponent implements AfterViewInit {
@@ -35,8 +37,12 @@ export class UsersTableComponent implements AfterViewInit {
 
   readonly editUser = output<UserDto>();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   readonly dataSource = new MatTableDataSource<UserDto>();
   readonly displayedColumns = [
@@ -52,15 +58,10 @@ export class UsersTableComponent implements AfterViewInit {
   constructor() {
     effect(() => {
       this.dataSource.data = this.users();
-      if (this.paginator) this.dataSource.paginator = this.paginator;
-      if (this.sort) this.dataSource.sort = this.sort;
     });
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
+  ngAfterViewInit() {}
 
   get isTableEmpty(): boolean {
     return !this.isLoading() && this.dataSource.filteredData.length === 0;

@@ -27,6 +27,7 @@ import { RoleService } from "../../../services/role.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { RoleEditDialogComponent } from "../../components/role-edit-dialog/role-edit-dialog.component";
 import { RoleInterface } from "../../../data/interfaces/role.interface";
+import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 
 @Component({
   selector: "app-roles-list",
@@ -47,6 +48,7 @@ import { RoleInterface } from "../../../data/interfaces/role.interface";
     MatPaginatorModule,
     MatTooltipModule,
     MatDialogModule,
+    EmptyStateComponent,
   ],
 })
 export class RolesListComponent implements OnDestroy {
@@ -60,9 +62,12 @@ export class RolesListComponent implements OnDestroy {
   rolesDataSource: MatTableDataSource<any> = new MatTableDataSource();
   rolesDisplayedColumns: string[] = ["id", "label", "name", "action"];
 
-  @ViewChild("rolesPaginator")
-  rolesPaginator!: MatPaginator;
-  @ViewChild("rolesSort") rolesSort!: MatSort;
+  @ViewChild("rolesPaginator") set paginator(paginator: MatPaginator) {
+    this.rolesDataSource.paginator = paginator;
+  }
+  @ViewChild("rolesSort") set sort(sort: MatSort) {
+    this.rolesDataSource.sort = sort;
+  }
 
   constructor() {
     this.loadInitialData();
@@ -70,8 +75,6 @@ export class RolesListComponent implements OnDestroy {
     effect(() => {
       if (this.roles()) {
         this.rolesDataSource.data = this.roles();
-        this.rolesDataSource.paginator = this.rolesPaginator;
-        this.rolesDataSource.sort = this.rolesSort;
       }
     });
   }

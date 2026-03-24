@@ -16,6 +16,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { PatientDto } from "../../../data/dtos/patient.dto";
+import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 
 @Component({
   selector: "app-patients-table",
@@ -30,6 +31,7 @@ import { PatientDto } from "../../../data/dtos/patient.dto";
     MatButtonModule,
     MatTooltipModule,
     IconsModule,
+    EmptyStateComponent,
   ],
 })
 export class PatientsTableComponent implements AfterViewInit {
@@ -40,8 +42,12 @@ export class PatientsTableComponent implements AfterViewInit {
   readonly viewProfile = output<PatientDto>();
   readonly openConsultation = output<PatientDto>();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   readonly dataSource = new MatTableDataSource<PatientDto>();
   readonly displayedColumns = [
@@ -56,15 +62,10 @@ export class PatientsTableComponent implements AfterViewInit {
   constructor() {
     effect(() => {
       this.dataSource.data = this.patients();
-      if (this.paginator) this.dataSource.paginator = this.paginator;
-      if (this.sort) this.dataSource.sort = this.sort;
     });
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
+  ngAfterViewInit() {}
 
   get isTableEmpty(): boolean {
     return !this.isLoading() && this.dataSource.filteredData.length === 0;

@@ -4,6 +4,7 @@ import {
   inject,
   OnDestroy,
   signal,
+  computed,
   ViewChild,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
@@ -28,6 +29,7 @@ import { SystemScheduleService } from "../../../services/system-schedule.service
 import { SystemScheduleInterface } from "../../../data/interfaces/system-schedule.interface";
 import { SystemScheduleUpdateDto } from "../../../data/dtos/system-schedule.dto";
 import { PageToolbarComponent } from "../../../../../shared/components/page-toolbar/page-toolbar.component";
+import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 
 @Component({
   selector: "app-system-schedules-list",
@@ -48,6 +50,7 @@ import { PageToolbarComponent } from "../../../../../shared/components/page-tool
     MatTooltipModule,
     MatDialogModule,
     PageToolbarComponent,
+    EmptyStateComponent,
   ],
 })
 export class SystemSchedulesListComponent implements OnDestroy {
@@ -61,8 +64,18 @@ export class SystemSchedulesListComponent implements OnDestroy {
   schedulesDataSource: MatTableDataSource<any> = new MatTableDataSource();
   schedulesDisplayedColumns: string[] = ["id", "label", "cron", "action"];
 
-  @ViewChild("schedulePaginator") schedulePaginator!: MatPaginator;
-  @ViewChild("scheduleSort") scheduleSort!: MatSort;
+  @ViewChild("schedulePaginator") set paginator(paginator: MatPaginator) {
+    this.schedulesDataSource.paginator = paginator;
+  }
+  @ViewChild("scheduleSort") set sort(sort: MatSort) {
+    this.schedulesDataSource.sort = sort;
+  }
+
+  get isTableEmpty(): boolean {
+    return (
+      !this.schedules() || this.schedulesDataSource.filteredData.length === 0
+    );
+  }
 
   constructor() {
     this.loadInitialData();
@@ -70,8 +83,6 @@ export class SystemSchedulesListComponent implements OnDestroy {
     effect(() => {
       if (this.schedules()) {
         this.schedulesDataSource.data = this.schedules();
-        this.schedulesDataSource.paginator = this.schedulePaginator;
-        this.schedulesDataSource.sort = this.scheduleSort;
       }
     });
   }
