@@ -2,13 +2,15 @@ import {
   Component,
   inject,
   signal,
+  effect,
+  computed,
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormControl } from "@angular/forms";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { PageToolbarComponent } from "../../../../../shared/components/page-toolbar/page-toolbar.component";
+import { PageToolbarComponent, ToolbarSelectOption } from "../../../../../shared/components/page-toolbar/page-toolbar.component";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
@@ -66,12 +68,25 @@ export class AppointmentsComponent {
   // Filter card
   patientSearchControl = new FormControl<string>("", { nonNullable: true });
   professionalsControl = new FormControl<number[]>([], { nonNullable: true });
-  viewMode = signal<"table" | "cards">("table");
+  viewMode = signal<"table" | "cards">(
+    (localStorage.getItem("appointmentsViewMode") as "table" | "cards") ||
+      "table",
+  );
   dentists = signal<DentistDto[]>([]);
+
+  readonly dentistsOptions = computed<ToolbarSelectOption[]>(() => {
+    return this.dentists().map((d) => ({
+      id: d.person.id,
+      label: `${d.person.firstName} ${d.person.lastName}`,
+    }));
+  });
 
   constructor() {
     this._loadData();
     this._loadDentists();
+    effect(() => {
+      localStorage.setItem("appointmentsViewMode", this.viewMode());
+    });
   }
 
   toggleFilter(filter: string, fetchFn: () => any[]) {

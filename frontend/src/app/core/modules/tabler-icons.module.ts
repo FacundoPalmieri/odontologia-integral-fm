@@ -144,6 +144,7 @@ import {
   IconUsers,
   IconX,
   IconXboxX,
+  IconShieldHeart,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -289,6 +290,7 @@ const ICONS = {
   IconCalendarOff,
   IconNurse,
   IconList,
+  IconShieldHeart,
 } as const;
 
 @NgModule({

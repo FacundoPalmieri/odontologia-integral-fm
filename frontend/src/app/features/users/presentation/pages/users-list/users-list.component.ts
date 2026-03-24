@@ -4,22 +4,19 @@ import {
   effect,
   DestroyRef,
   AfterViewInit,
-  ViewChild,
   OnInit,
+  signal,
+  computed,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
-import { MatSort, MatSortModule } from "@angular/material/sort";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { Router } from "@angular/router";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { PageToolbarComponent } from "../../../../../shared/components/page-toolbar/page-toolbar.component";
@@ -30,6 +27,8 @@ import {
 import { AccessControlService } from "../../../../../core/services/access-control.service";
 import { UserDto } from "../../../data/dtos/user.dto";
 import { UserListStore } from "../../../data/store/user-list.store";
+import { UsersTableComponent } from "../../components/users-table/users-table.component";
+import { UsersCardsComponent } from "../../components/users-cards/users-cards.component";
 
 @Component({
   selector: "app-users-list",
@@ -41,56 +40,52 @@ import { UserListStore } from "../../../data/store/user-list.store";
     MatToolbarModule,
     PageToolbarComponent,
     MatCardModule,
-    MatTableModule,
-    MatTooltipModule,
-    MatButtonModule,
     MatChipsModule,
-    MatPaginatorModule,
-    MatSortModule,
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
+    MatButtonToggleModule,
+    UsersTableComponent,
+    UsersCardsComponent,
   ],
 })
 export class UsersListComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly accessControlService = inject(AccessControlService);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly store = inject(UserListStore);
 
   readonly userFilter = new FormControl("");
-  readonly usersDataSource = new MatTableDataSource<UserDto>([]);
-  readonly skeletonRows: UserDto[] = Array(5).fill({}) as UserDto[];
+  readonly filterValue = toSignal(this.userFilter.valueChanges, {
+    initialValue: "",
+  });
 
-  get isTableEmpty(): boolean {
-    return (
-      !this.store.isLoading() && this.usersDataSource.filteredData.length === 0
-    );
-  }
+  readonly filteredUsers = computed(() => {
+    const filter = (this.filterValue() ?? "").trim().toLowerCase();
+    const allUsers = this.store.users();
 
-  readonly userDisplayedColumns: string[] = [
-    "avatar",
-    "username",
-    "firstName",
-    "lastName",
-    "rolesList",
-    "enabled",
-  ];
+    if (!filter) return allUsers;
+
+    return allUsers.filter((u) => {
+      const term =
+        `${u.username} ${u.person.firstName} ${u.person.lastName} ${u.person.dni} ${u.person.contactEmails?.[0] || ""} ${u.person.contactPhone?.[0]?.phone || ""}`.toLowerCase();
+      return term.includes(filter);
+    });
+  });
+
+  readonly tableSkeletonRows: UserDto[] = Array(5).fill({}) as UserDto[];
+  readonly cardsSkeletonRows: UserDto[] = Array(6).fill({}) as UserDto[];
+  readonly viewMode = signal<"table" | "cards">(
+    (localStorage.getItem("usersViewMode") as "table" | "cards") || "table",
+  );
 
   canCreate = false;
   canRead = false;
   canUpdate = false;
 
-  @ViewChild(MatPaginator) set paginator(p: MatPaginator) {
-    if (p) this.usersDataSource.paginator = p;
-  }
-
-  @ViewChild(MatSort) usersSort!: MatSort;
-
   constructor() {
     effect(() => {
-      this.usersDataSource.data = this.store.users();
+      localStorage.setItem("usersViewMode", this.viewMode());
     });
   }
 
@@ -111,18 +106,11 @@ export class UsersListComponent implements OnInit, AfterViewInit {
     if (!this.canRead) return;
 
     this._loadUsers();
-    this._setupFilterListener();
   }
 
   ngAfterViewInit(): void {
-    if (!this.usersSort) return;
-
-    this.usersSort.sortChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((sort) => {
-        this.store.updateSort(sort.active, sort.direction);
-        this._loadUsers();
-      });
+    // We could bind table sort changes to store if we had a dedicated sort child.
+    // Right now table works locally with paginator/sort.
   }
 
   createUser(): void {
@@ -140,14 +128,5 @@ export class UsersListComponent implements OnInit, AfterViewInit {
       sortBy: this.store.sortBy(),
       direction: this.store.sortDirection() as "asc" | "desc",
     });
-  }
-
-  private _setupFilterListener(): void {
-    this.userFilter.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        this.usersDataSource.filter = value?.trim().toLowerCase() ?? "";
-        this.usersDataSource.paginator?.firstPage();
-      });
   }
 }

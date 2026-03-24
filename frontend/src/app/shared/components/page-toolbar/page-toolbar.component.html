@@ -2,25 +2,118 @@
   appearance="outlined"
   class="!rounded-[var(--mat-sys-corner-medium)] overflow-hidden"
 >
-  <div class="flex items-center justify-between px-4 py-3 min-h-18 w-full">
-    <div class="flex items-center gap-2">
-      @if (showBackButton) {
-        <app-back-button />
+  <div
+    class="flex items-center justify-between px-4 py-3 min-h-18 w-full gap-4"
+  >
+    <!-- Left side: Back button, Title, Badge, Divider, Search -->
+    <div class="flex flex-wrap items-center gap-3 shrink-0">
+      @if (showBackButton()) {
+        <app-back-button (click)="back.emit()" />
       }
-      <span class="text-xl font-semibold">{{ title }}</span>
+      <span class="text-xl font-semibold">{{ title() }}</span>
+
+      @if (totalCount() !== null) {
+        <span
+          class="bg-[var(--mat-sys-primary-container)] text-[var(--mat-sys-on-primary-container)] text-xs font-bold px-2 py-0.5 rounded-full"
+        >
+          {{ totalCount() }}
+        </span>
+      }
+
+      <!-- Divider -->
+      @if (showSearch() || showViewMode()) {
+        <div
+          class="h-6 w-px bg-[var(--mat-sys-outline-variant)] shrink-0 mx-1 hidden sm:block"
+        ></div>
+      }
+
+      <!-- Search Input -->
+      @if (showSearch()) {
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="w-64 max-w-full"
+        >
+          <mat-label class="flex items-center gap-1">
+            <i-tabler name="search"></i-tabler>
+            <span>{{ searchPlaceholder() }}</span>
+          </mat-label>
+          <input 
+            type="text" 
+            matInput 
+            [ngModel]="searchValue()"
+            (ngModelChange)="onSearchChange($event)" 
+          />
+        </mat-form-field>
+      }
+
+      <!-- Select Filter -->
+      @if (showSelectFilter()) {
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="w-56 max-w-full"
+        >
+          <mat-label class="flex items-center gap-1">
+            <i-tabler [name]="selectFilterIcon()"></i-tabler>
+            <span>{{ selectFilterPlaceholder() }}</span>
+          </mat-label>
+          <mat-select
+            multiple
+            [ngModel]="selectFilterValue()"
+            (ngModelChange)="onSelectFilterChange($event)"
+          >
+            @for (option of selectFilterOptions(); track option.id) {
+              <mat-option [value]="option.id">
+                {{ option.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
     </div>
 
-    @if (showActionButton) {
-      <button
-        matButton="filled"
-        [disabled]="actionButtonDisabled"
-        (click)="action.emit()"
-      >
-        <div class="flex items-center gap-2">
-          <i-tabler [name]="actionButtonIcon" />
-          <span>{{ actionButtonText }}</span>
-        </div>
-      </button>
-    }
+    <!-- Spacer -->
+    <div class="flex-1"></div>
+
+    <!-- Right side: View Mode, Action Button -->
+    <div class="flex items-center gap-3 shrink-0">
+      @if (showViewMode()) {
+        <mat-button-toggle-group
+          [value]="viewMode()"
+          (change)="onViewModeChange($event.value)"
+          aria-label="Modo de vista"
+          hideSingleSelectionIndicator
+        >
+          <mat-button-toggle
+            value="table"
+            matTooltip="Vista de tabla"
+            matTooltipPosition="above"
+          >
+            <i-tabler name="list"></i-tabler>
+          </mat-button-toggle>
+          <mat-button-toggle
+            value="cards"
+            matTooltip="Vista de tarjetas"
+            matTooltipPosition="above"
+          >
+            <i-tabler name="layout-grid"></i-tabler>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      }
+
+      @if (showActionButton()) {
+        <button
+          matButton="filled"
+          [disabled]="actionButtonDisabled()"
+          (click)="action.emit()"
+        >
+          <div class="flex items-center gap-2">
+            <i-tabler [name]="actionButtonIcon()" />
+            <span>{{ actionButtonText() }}</span>
+          </div>
+        </button>
+      }
+    </div>
   </div>
 </mat-card>

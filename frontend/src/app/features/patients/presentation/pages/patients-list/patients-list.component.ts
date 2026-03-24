@@ -6,20 +6,20 @@ import {
   AfterViewInit,
   ViewChild,
   OnInit,
+  signal,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
-import { MatSort, MatSortModule } from "@angular/material/sort";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatButtonModule } from "@angular/material/button";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatInputModule } from "@angular/material/input";
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { Router } from "@angular/router";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { computed } from "@angular/core";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { PageToolbarComponent } from "../../../../../shared/components/page-toolbar/page-toolbar.component";
@@ -30,26 +30,30 @@ import {
 import { AccessControlService } from "../../../../../core/services/access-control.service";
 import { PatientDto } from "../../../data/dtos/patient.dto";
 import { PatientListStore } from "../../../data/store/patient-list.store";
+import { PatientsTableComponent } from "../../components/patients-table/patients-table.component";
+import { PatientsCardsComponent } from "../../components/patients-cards/patients-cards.component";
+import { MatSort, MatSortModule } from "@angular/material/sort";
 
 @Component({
   selector: "app-patients-list",
   templateUrl: "./patients-list.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     IconsModule,
     MatToolbarModule,
     PageToolbarComponent,
     MatCardModule,
-    MatTableModule,
-    MatTooltipModule,
-    MatButtonModule,
     MatChipsModule,
-    MatPaginatorModule,
-    MatSortModule,
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
+    MatButtonToggleModule,
+    MatTooltipModule,
+    MatSortModule,
+    PatientsTableComponent,
+    PatientsCardsComponent,
   ],
 })
 export class PatientsListComponent implements OnInit, AfterViewInit {
@@ -60,37 +64,37 @@ export class PatientsListComponent implements OnInit, AfterViewInit {
   readonly store = inject(PatientListStore);
 
   readonly patientsFilter = new FormControl("");
-  readonly patientsDataSource = new MatTableDataSource<PatientDto>([]);
-  readonly skeletonRows: PatientDto[] = Array(5).fill({}) as PatientDto[];
+  readonly filterValue = toSignal(this.patientsFilter.valueChanges, {
+    initialValue: "",
+  });
 
-  get isTableEmpty(): boolean {
-    return (
-      !this.store.isLoading() &&
-      this.patientsDataSource.filteredData.length === 0
-    );
-  }
+  readonly filteredPatients = computed(() => {
+    const filter = (this.filterValue() ?? "").trim().toLowerCase();
+    const allPatients = this.store.patients();
 
-  readonly displayedColumns: string[] = [
-    "avatar",
-    "person.firstName",
-    "person.lastName",
-    "person.contactEmails",
-    "person.dni",
-    "person.contactPhone",
-  ];
+    if (!filter) return allPatients;
+
+    return allPatients.filter((p) => {
+      const term =
+        `${p.person.firstName} ${p.person.lastName} ${p.person.dni} ${p.person.contactEmails?.[0] || ""} ${p.person.contactPhone?.[0]?.phone || ""}`.toLowerCase();
+      return term.includes(filter);
+    });
+  });
+
+  readonly tableSkeletonRows: PatientDto[] = Array(5).fill({}) as PatientDto[];
+  readonly cardsSkeletonRows: PatientDto[] = Array(4).fill({}) as PatientDto[];
+  readonly viewMode = signal<"table" | "cards">(
+    (localStorage.getItem("patientsViewMode") as "table" | "cards") || "table",
+  );
+
+  @ViewChild(MatSort) patientsSort!: MatSort;
 
   canCreate = false;
   canRead = false;
 
-  @ViewChild(MatPaginator) set paginator(p: MatPaginator) {
-    if (p) this.patientsDataSource.paginator = p;
-  }
-
-  @ViewChild(MatSort) patientsSort!: MatSort;
-
   constructor() {
     effect(() => {
-      this.patientsDataSource.data = this.store.patients();
+      localStorage.setItem("patientsViewMode", this.viewMode());
     });
   }
 
@@ -107,7 +111,6 @@ export class PatientsListComponent implements OnInit, AfterViewInit {
     if (!this.canRead) return;
 
     this._loadPatients();
-    this._setupFilterListener();
   }
 
   ngAfterViewInit(): void {
@@ -142,14 +145,5 @@ export class PatientsListComponent implements OnInit, AfterViewInit {
       sortBy: this.store.sortBy(),
       direction: this.store.sortDirection() as "asc" | "desc",
     });
-  }
-
-  private _setupFilterListener(): void {
-    this.patientsFilter.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        this.patientsDataSource.filter = value?.trim().toLowerCase() ?? "";
-        this.patientsDataSource.paginator?.firstPage();
-      });
   }
 }

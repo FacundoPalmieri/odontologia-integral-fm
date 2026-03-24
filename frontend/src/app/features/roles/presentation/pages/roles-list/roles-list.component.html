@@ -1,16 +1,16 @@
 <div class="flex flex-col h-full">
-  <app-page-toolbar [title]="'Roles'"></app-page-toolbar>
+  <app-page-toolbar
+    [title]="'Roles'"
+    [totalCount]="rolesDataSource.filteredData.length"
+    [showSearch]="true"
+    [searchPlaceholder]="'Buscar rol'"
+    [searchValue]="rolesFilter.value || ''"
+    (searchChange)="rolesFilter.setValue($event)"
+  ></app-page-toolbar>
 
   <div class="overflow-y-auto mt-4 rounded-[var(--mat-sys-corner-medium)]">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <div class="w-1/2 flex">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Buscar rol</mat-label>
-            <input type="text" matInput [formControl]="rolesFilter" />
-            <i-tabler matSuffix name="search" class="mx-4"></i-tabler>
-          </mat-form-field>
-        </div>
         <div class="overflow-x-auto">
           <table
             mat-table

@@ -1,0 +1,129 @@
+<mat-card
+  appearance="outlined"
+  class="h-full flex flex-col relative overflow-hidden"
+>
+  <!-- Enabled Status Top Right -->
+  <div class="absolute top-3 right-3 z-10">
+    @if (user().enabled) {
+      <i-tabler
+        name="circle-check"
+        class="text-[#22c55e]"
+        matTooltip="Habilitado"
+        matTooltipPosition="left"
+      ></i-tabler>
+    } @else {
+      <i-tabler
+        name="xbox-x"
+        class="text-[#ef4444]"
+        matTooltip="Deshabilitado"
+        matTooltipPosition="left"
+      ></i-tabler>
+    }
+  </div>
+
+  <!-- HEADER -->
+  <mat-card-header class="flex items-start gap-3 !pb-0 mt-1">
+    <div
+      class="w-14 h-14 rounded-full overflow-hidden border-2 border-[var(--mat-sys-outline-variant)] shrink-0 mt-1"
+    >
+      <img
+        [src]="user().avatarUrl"
+        [alt]="user().person.firstName + ' ' + user().person.lastName"
+        class="w-full h-full object-cover"
+      />
+    </div>
+    <div class="flex flex-col flex-1 min-w-0">
+      <div class="flex items-center gap-2 pr-7">
+        <span class="font-semibold text-base leading-tight break-words">
+          {{ user().person.firstName }} {{ user().person.lastName }}
+        </span>
+      </div>
+      <span
+        class="text-xs text-[var(--mat-sys-on-surface-variant)] mt-0.5 opacity-80"
+      >
+        @<span class="font-medium">{{ user().username }}</span>
+      </span>
+      <span class="text-xs text-[var(--mat-sys-on-surface-variant)] mt-0.5">
+        DNI: {{ user().person.dni }}
+      </span>
+
+      <!-- Role Badges -->
+      <div class="flex flex-wrap gap-1 mt-1.5">
+        @for (role of user().rolesList; track $index) {
+          <span
+            class="bg-[var(--mat-sys-secondary-container)] text-[var(--mat-sys-on-secondary-container)] text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
+          >
+            {{ role.label }}
+          </span>
+        }
+        @if (!user().rolesList || user().rolesList.length === 0) {
+          <span
+            class="bg-[var(--mat-sys-surface-variant)] text-[var(--mat-sys-on-surface-variant)] text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
+          >
+            Sin Rol
+          </span>
+        }
+        @if (user().dentist) {
+          <span
+            class="bg-[var(--mat-sys-tertiary-container)] text-[var(--mat-sys-on-tertiary-container)] text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
+          >
+            {{ user().dentist.dentistSpecialty.name }}
+          </span>
+        }
+      </div>
+    </div>
+  </mat-card-header>
+
+  <!-- CONTENT -->
+  <mat-card-content class="!flex !flex-col !gap-3 !flex-1 !pt-4 mt-2">
+    <mat-divider class="!my-1 opacity-40"></mat-divider>
+
+    <!-- Email -->
+    <div class="flex flex-col gap-0.5">
+      <span
+        class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
+      >
+        Email
+      </span>
+      <div class="flex items-center gap-1.5">
+        <i-tabler
+          name="mail"
+          class="text-[var(--mat-sys-on-surface-variant)] scale-90 shrink-0"
+        ></i-tabler>
+        <span class="text-sm truncate">
+          {{ user().person.contactEmails[0] || "—" }}
+        </span>
+      </div>
+    </div>
+
+    @if (user().dentist) {
+      <!-- Licencia -->
+      <div class="flex flex-col gap-0.5">
+        <span
+          class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
+        >
+          Licencia (M.P.)
+        </span>
+        <div class="flex items-center gap-1.5">
+          <i-tabler
+            name="id"
+            class="text-[var(--mat-sys-on-surface-variant)] scale-90 shrink-0"
+          ></i-tabler>
+          <span class="text-sm font-mono truncate">
+            {{ user().dentist.licenseNumber }}
+          </span>
+        </div>
+      </div>
+    }
+  </mat-card-content>
+
+  <!-- ACTIONS FOOTER -->
+  <mat-card-actions align="end">
+    <button mat-button (click)="editUser.emit(user())">
+      <div class="flex items-center gap-2">
+        <i-tabler name="edit" class="scale-90"></i-tabler>
+        <span>Editar</span>
+      </div>
+    </button>
+  </mat-card-actions>
+</mat-card>

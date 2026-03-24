@@ -2,26 +2,31 @@ import {
   Component,
   ChangeDetectionStrategy,
   input,
+  output,
   signal,
   computed,
 } from "@angular/core";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
-import { AppointmentPatientCardComponent } from "../appointment-patient-card/appointment-patient-card.component";
+import { UserDto } from "../../../data/dtos/user.dto";
+import { UserCardComponent } from "../user-card/user-card.component";
 import { SkeletonCardComponent } from "../../../../../shared/components/skeleton-card/skeleton-card.component";
 
 @Component({
-  selector: "app-appointments-cards",
+  selector: "app-users-cards",
   template: `
     <div
-      class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
     >
       @if (isLoading()) {
         @for (row of skeletonRows(); track $index) {
           <app-skeleton-card />
         }
       } @else {
-        @for (appointment of pagedAppointments(); track appointment.dni) {
-          <app-appointment-patient-card [appointment]="appointment" />
+        @for (user of pagedUsers(); track user.id) {
+          <app-user-card
+            [user]="user"
+            (editUser)="editUser.emit($event)"
+          />
         }
       }
     </div>
@@ -29,29 +34,30 @@ import { SkeletonCardComponent } from "../../../../../shared/components/skeleton
     @if (!isLoading()) {
       <mat-paginator
         class="mt-4 rounded-[var(--mat-sys-corner-medium)]"
-        [length]="appointments().length"
+        [length]="users().length"
         [pageSize]="12"
         [pageSizeOptions]="[12, 24, 36]"
         showFirstLastButtons="true"
-        aria-label="Seleccionar página de turnos"
+        aria-label="Seleccionar página de usuarios"
         (page)="onPage($event)"
       ></mat-paginator>
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppointmentPatientCardComponent, SkeletonCardComponent, MatPaginatorModule],
+  imports: [UserCardComponent, SkeletonCardComponent, MatPaginatorModule],
 })
-export class AppointmentsCardsComponent {
-  readonly appointments = input.required<any[]>();
+export class UsersCardsComponent {
+  readonly users = input.required<UserDto[]>();
   readonly isLoading = input(false);
-  readonly skeletonRows = input<any[]>([]);
+  readonly skeletonRows = input<unknown[]>([]);
+  readonly editUser = output<UserDto>();
 
   private readonly pageIndex = signal(0);
   private readonly pageSize = signal(12);
 
-  readonly pagedAppointments = computed(() => {
+  readonly pagedUsers = computed(() => {
     const start = this.pageIndex() * this.pageSize();
-    return this.appointments().slice(start, start + this.pageSize());
+    return this.users().slice(start, start + this.pageSize());
   });
 
   onPage(event: PageEvent) {
