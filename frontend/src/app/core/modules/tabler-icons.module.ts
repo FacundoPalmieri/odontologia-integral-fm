@@ -93,6 +93,7 @@ import {
   IconLetterISmall,
   IconLetterMSmall,
   IconLetterTSmall,
+  IconList,
   IconListDetails,
   IconLock,
   IconLockOpen,
@@ -109,6 +110,7 @@ import {
   IconMoon,
   IconNotebook,
   IconNotes,
+  IconNurse,
   IconPackages,
   IconPalette,
   IconPassword,
@@ -285,6 +287,8 @@ const ICONS = {
   IconBandage,
   IconCircleCaretRight,
   IconCalendarOff,
+  IconNurse,
+  IconList,
 } as const;
 
 @NgModule({

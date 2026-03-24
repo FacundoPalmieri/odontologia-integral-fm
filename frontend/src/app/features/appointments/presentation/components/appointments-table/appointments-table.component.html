@@ -1,0 +1,110 @@
+<mat-card appearance="outlined">
+  <mat-card-content>
+    <div class="overflow-x-auto">
+      <table mat-table [dataSource]="dataSource" matSort>
+        <!-- PATIENT -->
+        <ng-container matColumnDef="patient">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Paciente</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="flex items-center gap-3 py-2">
+              <div
+                class="w-9 h-9 rounded-full overflow-hidden border-2 border-[var(--mat-sys-outline-variant)] shrink-0"
+                [attr.aria-label]="element.firstName + ' ' + element.lastName"
+              >
+                <img
+                  src="/img/men-avatar.png"
+                  [alt]="element.firstName + ' ' + element.lastName"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <div class="flex flex-col">
+                <span class="font-medium leading-tight">
+                  {{ element.firstName }} {{ element.lastName }}
+                </span>
+                <span
+                  class="text-xs text-[var(--mat-sys-on-surface-variant)] mt-0.5"
+                >
+                  DNI: {{ element.dni }}
+                </span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- SCHEDULE -->
+        <ng-container matColumnDef="schedule">
+          <th mat-header-cell *matHeaderCellDef>Horario</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="flex flex-col py-2">
+              <span class="font-semibold text-lg leading-tight">
+                {{ element.appointmentDateTime | date: "HH:mm" }}
+              </span>
+              <span
+                class="text-xs text-[var(--mat-sys-on-surface-variant)] mt-0.5"
+              >
+                Duración: {{ element.duration }} min
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- PROFESSIONAL -->
+        <ng-container matColumnDef="professional">
+          <th mat-header-cell *matHeaderCellDef>Profesional</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="flex items-center gap-3 py-2">
+              <div
+                class="w-9 h-9 rounded-full overflow-hidden border-2 border-[var(--mat-sys-outline-variant)] shrink-0"
+              >
+                <img
+                  src="/img/doctor-avatar.png"
+                  [alt]="element.professional"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <span class="text-sm">{{ element.professional }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- STATUS + ACTIONS -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let element" class="relative">
+            <span
+              class="p-1.5 rounded-full text-white text-sm"
+              [ngClass]="{
+                'bg-[#38bdf8]': element.status === 'Agendado',
+                'bg-[#f9c20a]': element.status === 'En espera',
+                'bg-[#fb923c]': element.status === 'En consulta',
+                'bg-[#635bff]': element.status === 'Pendiente de pago',
+                'bg-[#10b981]': element.status === 'Finalizada',
+                'bg-[#f56565]': element.status === 'Cancelada',
+              }"
+            >
+              {{ element.status }}
+            </span>
+
+            <div
+              class="absolute inset-y-0 right-0 flex items-center pr-2 pl-12 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-gradient-to-l from-[var(--mat-sys-surface-container-high)] from-70% to-transparent"
+            >
+              <app-appointment-actions-menu />
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="group transition-colors hover:![background:var(--mat-sys-surface-container-high)]"
+        ></tr>
+      </table>
+      <mat-paginator
+        [pageSizeOptions]="[5, 10, 15]"
+        showFirstLastButtons="true"
+        aria-label="Seleccionar página de turnos"
+      ></mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>

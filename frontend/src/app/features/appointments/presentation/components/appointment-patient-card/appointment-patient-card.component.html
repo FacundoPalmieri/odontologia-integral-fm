@@ -1,0 +1,108 @@
+<mat-card appearance="outlined" class="h-full flex flex-col">
+  <!-- HEADER: status badge + actions -->
+  <mat-card-header class="flex items-center justify-between gap-2 !pb-0">
+    <span
+      class="px-3 py-1 rounded-full text-white text-xs font-semibold"
+      [ngClass]="{
+        'bg-[#38bdf8]': appointment().status === 'Agendado',
+        'bg-[#f9c20a]': appointment().status === 'En espera',
+        'bg-[#fb923c]': appointment().status === 'En consulta',
+        'bg-[#635bff]': appointment().status === 'Pendiente de pago',
+        'bg-[#10b981]': appointment().status === 'Finalizada',
+        'bg-[#f56565]': appointment().status === 'Cancelada',
+      }"
+    >
+      {{ appointment().status }}
+    </span>
+
+    <app-appointment-actions-menu class="!ml-auto shrink-0" />
+  </mat-card-header>
+
+  <!-- CONTENT -->
+  <mat-card-content class="flex flex-col gap-4 flex-1 !pt-4">
+    <!-- Patient info -->
+    <div class="flex items-center gap-3">
+      <div
+        class="w-14 h-14 rounded-full overflow-hidden border-2 border-[var(--mat-sys-outline-variant)] shrink-0"
+      >
+        <img
+          src="/img/men-avatar.png"
+          [alt]="appointment().firstName + ' ' + appointment().lastName"
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <div class="flex flex-col">
+        <span class="font-semibold text-base leading-tight">
+          {{ appointment().firstName }} {{ appointment().lastName }}
+        </span>
+        <span class="text-xs text-[var(--mat-sys-on-surface-variant)] mt-0.5">
+          DNI: {{ appointment().dni }}
+        </span>
+      </div>
+    </div>
+
+    <mat-divider class="!my-4 opacity-40"></mat-divider>
+
+    <!-- Schedule + duration side by side -->
+    <div class="flex gap-6">
+      <!-- Hora -->
+      <div class="flex flex-col gap-0.5">
+        <span
+          class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
+        >
+          Horario
+        </span>
+        <div class="flex items-center gap-1.5">
+          <i-tabler
+            name="clock"
+            class="text-[var(--mat-sys-on-surface-variant)] scale-90"
+          ></i-tabler>
+          <span class="text-lg font-bold leading-tight">
+            {{ appointment().appointmentDateTime | date: "HH:mm" }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Duración -->
+      <div class="flex flex-col gap-0.5">
+        <span
+          class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
+        >
+          Duración
+        </span>
+        <div class="flex items-center gap-1.5">
+          <i-tabler
+            name="hourglass"
+            class="text-[var(--mat-sys-on-surface-variant)] scale-90"
+          ></i-tabler>
+          <span
+            class="text-base leading-tight text-[var(--mat-sys-on-surface-variant)]"
+          >
+            {{ appointment().duration }} min
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Professional -->
+    <div class="flex flex-col gap-1 mt-4">
+      <span
+        class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
+      >
+        Profesional
+      </span>
+      <div class="flex items-center gap-2">
+        <div
+          class="w-7 h-7 rounded-full overflow-hidden border border-[var(--mat-sys-outline-variant)] shrink-0"
+        >
+          <img
+            src="/img/doctor-avatar.png"
+            [alt]="appointment().professional"
+            class="w-full h-full object-cover"
+          />
+        </div>
+        <span class="text-sm">{{ appointment().professional }}</span>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
