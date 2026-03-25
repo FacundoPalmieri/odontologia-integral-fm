@@ -12,7 +12,14 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
-import { debounceTime, distinctUntilChanged, map, forkJoin, catchError, of } from "rxjs";
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  forkJoin,
+  catchError,
+  of,
+} from "rxjs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
@@ -85,7 +92,9 @@ export class CreateAppointmentDialogComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly localStorageService = inject(LocalStorageService);
   private readonly dentistService = inject(DentistService);
-  private readonly dentistAvailabilityService = inject(DentistAvailabilityService);
+  private readonly dentistAvailabilityService = inject(
+    DentistAvailabilityService,
+  );
   private readonly patientSerializer = new PatientSerializer();
 
   idDentist?: number;
@@ -348,13 +357,30 @@ export class CreateAppointmentDialogComponent implements OnInit {
   }
 
   /**
-   * Carga los slots disponibles (FREE) del día seleccionado
+   * Carga los slots disponibles (FREE) del día seleccionado.
+   * Si es hoy, solo incluye slots que aún no han comenzado.
    */
   private loadAvailableSlots(day: CalendarDayInterface): void {
     this.isLoadingSlots.set(true);
 
+    const isToday = this.isDateToday(day.day);
+    const now = new Date();
+
     const freeSlots =
-      day.slots?.filter((slot) => slot.status === SlotStatusEnum.FREE) ?? [];
+      day.slots?.filter((slot) => {
+        if (slot.status !== SlotStatusEnum.FREE) return false;
+        if (!isToday) return true;
+
+        const [hours, minutes] = slot.startTime.split(":").map(Number);
+        const slotStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          hours,
+          minutes,
+        );
+        return slotStart > now;
+      }) ?? [];
 
     this.availableSlots.set(freeSlots);
     this.isLoadingSlots.set(false);
@@ -369,15 +395,32 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
   /**
    * Verifica si un día está disponible (tiene al menos un slot FREE y es hoy o futuro)
+   * Si es hoy, solo cuenta los slots que aún no han comenzado.
    */
   isDayAvailable(day: CalendarDayInterface): boolean {
     if (!this.isDateTodayOrFuture(day.day)) {
       return false;
     }
 
-    return (
-      day.slots?.some((slot) => slot.status === SlotStatusEnum.FREE) ?? false
-    );
+    const freeSlots =
+      day.slots?.filter((slot) => slot.status === SlotStatusEnum.FREE) ?? [];
+
+    if (this.isDateToday(day.day)) {
+      const now = new Date();
+      return freeSlots.some((slot) => {
+        const [hours, minutes] = slot.startTime.split(":").map(Number);
+        const slotStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          hours,
+          minutes,
+        );
+        return slotStart > now;
+      });
+    }
+
+    return freeSlots.length > 0;
   }
 
   /**
@@ -415,15 +458,38 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
   /**
    * Verifica si una fecha es hoy o futura (no permite fechas pasadas)
+   * Usa componentes UTC para la fecha del backend (ISO UTC) y locales para hoy,
+   * evitando que UTC midnight sea interpretado como el día anterior en zonas UTC-N.
    */
   private isDateTodayOrFuture(date: Date): boolean {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayMidnight = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
 
     const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
+    const checkMidnight = new Date(
+      checkDate.getUTCFullYear(),
+      checkDate.getUTCMonth(),
+      checkDate.getUTCDate(),
+    );
 
-    return checkDate >= today;
+    return checkMidnight >= todayMidnight;
+  }
+
+  /**
+   * Verifica si una fecha del backend corresponde al día de hoy (hora local)
+   */
+  private isDateToday(date: Date): boolean {
+    const today = new Date();
+    const checkDate = new Date(date);
+    return (
+      checkDate.getUTCFullYear() === today.getFullYear() &&
+      checkDate.getUTCMonth() === today.getMonth() &&
+      checkDate.getUTCDate() === today.getDate()
+    );
   }
 
   /**
@@ -809,21 +875,39 @@ export class CreateAppointmentDialogComponent implements OnInit {
   }
 
   /**
-   * Verifica si una semana tiene al menos un slot disponible
+   * Verifica si una semana tiene al menos un slot disponible.
+   * Si es hoy, solo cuenta slots que aún no han comenzado.
    */
   private checkWeekHasAvailability(
     availabilities: DentistAvailability[],
   ): boolean {
+    const now = new Date();
+
     return availabilities.some((availability) => {
       if (!availability.weekData) return false;
 
       return availability.weekData.days.some((day) => {
         if (!this.isDateTodayOrFuture(day.day)) return false;
 
-        return (
-          day.slots?.some((slot) => slot.status === SlotStatusEnum.FREE) ??
-          false
-        );
+        const freeSlots =
+          day.slots?.filter((slot) => slot.status === SlotStatusEnum.FREE) ??
+          [];
+
+        if (this.isDateToday(day.day)) {
+          return freeSlots.some((slot) => {
+            const [hours, minutes] = slot.startTime.split(":").map(Number);
+            const slotStart = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              now.getDate(),
+              hours,
+              minutes,
+            );
+            return slotStart > now;
+          });
+        }
+
+        return freeSlots.length > 0;
       });
     });
   }
@@ -888,7 +972,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
   }
 
   /**
-   * Verifica si un día tiene al menos un dentista con slots FREE y es hoy o futuro
+   * Verifica si un día tiene al menos un dentista con slots FREE y es hoy o futuro.
+   * Si es hoy, solo cuenta slots que aún no han comenzado.
    */
   isDayAvailableForSecretary(day: CalendarDayInterface): boolean {
     if (!this.isDateTodayOrFuture(day.day)) {
@@ -896,6 +981,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
     }
 
     const availabilities = this.dentistAvailabilities();
+    const isToday = this.isDateToday(day.day);
+    const now = new Date();
 
     return availabilities.some((availability) => {
       if (!availability.weekData) return false;
@@ -906,9 +993,20 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
       if (!dentistDay || !dentistDay.slots) return false;
 
-      return dentistDay.slots.some(
-        (slot) => slot.status === SlotStatusEnum.FREE,
-      );
+      return dentistDay.slots.some((slot) => {
+        if (slot.status !== SlotStatusEnum.FREE) return false;
+        if (!isToday) return true;
+
+        const [hours, minutes] = slot.startTime.split(":").map(Number);
+        const slotStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          hours,
+          minutes,
+        );
+        return slotStart > now;
+      });
     });
   }
 
@@ -931,6 +1029,8 @@ export class CreateAppointmentDialogComponent implements OnInit {
   private filterAvailableDentistsForDay(day: CalendarDayInterface): void {
     const availabilities = this.dentistAvailabilities();
     const availableDentists: DentistDto[] = [];
+    const isToday = this.isDateToday(day.day);
+    const now = new Date();
 
     availabilities.forEach((availability) => {
       if (!availability.weekData) return;
@@ -941,9 +1041,20 @@ export class CreateAppointmentDialogComponent implements OnInit {
 
       if (!dentistDay || !dentistDay.slots) return;
 
-      const hasFreeSlots = dentistDay.slots.some(
-        (slot) => slot.status === SlotStatusEnum.FREE,
-      );
+      const hasFreeSlots = dentistDay.slots.some((slot) => {
+        if (slot.status !== SlotStatusEnum.FREE) return false;
+        if (!isToday) return true;
+
+        const [hours, minutes] = slot.startTime.split(":").map(Number);
+        const slotStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          hours,
+          minutes,
+        );
+        return slotStart > now;
+      });
 
       if (hasFreeSlots) {
         availableDentists.push(availability.dentist);
@@ -991,9 +1102,23 @@ export class CreateAppointmentDialogComponent implements OnInit {
       return;
     }
 
-    const freeSlots = dentistDay.slots.filter(
-      (slot) => slot.status === SlotStatusEnum.FREE,
-    );
+    const isToday = this.isDateToday(day.day);
+    const now = new Date();
+
+    const freeSlots = dentistDay.slots.filter((slot) => {
+      if (slot.status !== SlotStatusEnum.FREE) return false;
+      if (!isToday) return true;
+
+      const [hours, minutes] = slot.startTime.split(":").map(Number);
+      const slotStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        hours,
+        minutes,
+      );
+      return slotStart > now;
+    });
 
     this.availableSlots.set(freeSlots);
   }

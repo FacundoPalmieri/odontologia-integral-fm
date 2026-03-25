@@ -17,8 +17,10 @@ import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
+import { NoWorkScheduleComponent } from "../../../../../shared/components/no-work-schedule/no-work-schedule.component";
 import { UserDataInterface } from "../../../../auth/data/interfaces/auth.interface";
 import { CalendarService } from "../../../../calendar/services/calendar.service";
+import { DentistAvailabilityService } from "../../../../dentist-availability/services/dentist-availability.service";
 import { SlotStatusEnum } from "../../../../calendar/utils/enums/slot-status.enum";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
 import {
@@ -39,12 +41,14 @@ import {
     MatChipsModule,
     MatProgressSpinnerModule,
     CardIconTitleComponent,
+    NoWorkScheduleComponent,
   ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly localStorageService = inject(LocalStorageService);
   private readonly calendarService = inject(CalendarService);
+  private readonly dentistAvailabilityService = inject(DentistAvailabilityService);
   private readonly router = inject(Router);
 
   userData = signal<UserDataInterface | null>(null);
@@ -53,6 +57,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   todayCalendarData = signal<CalendarDayInterface | null>(null);
   isLoadingTodayAppointments = signal<boolean>(false);
+  hasAvailability = signal<boolean | null>(null);
 
   todayAppointments = computed(() => {
     const slots = this.todayCalendarData()?.slots || [];
@@ -152,17 +157,38 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!personId) return;
 
     this.isLoadingTodayAppointments.set(true);
-    const today = new Date();
+    this.hasAvailability.set(null);
 
-    this.calendarService
-      .getDay(personId, today)
+    this.dentistAvailabilityService
+      .get(personId)
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (response) => {
-          this.todayCalendarData.set(response.data);
-          this.isLoadingTodayAppointments.set(false);
+          const days = response.data?.days || [];
+          if (days.length === 0) {
+            this.hasAvailability.set(false);
+            this.isLoadingTodayAppointments.set(false);
+            return;
+          }
+
+          this.hasAvailability.set(true);
+          const today = new Date();
+
+          this.calendarService
+            .getDay(personId, today)
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+              next: (calResponse) => {
+                this.todayCalendarData.set(calResponse.data);
+                this.isLoadingTodayAppointments.set(false);
+              },
+              error: () => {
+                this.isLoadingTodayAppointments.set(false);
+              },
+            });
         },
         error: () => {
+          this.hasAvailability.set(false);
           this.isLoadingTodayAppointments.set(false);
         },
       });
@@ -184,5 +210,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   goToAppointments(): void {
     this.router.navigate(["/appointments"]);
+  }
+
+  goToAvailability(): void {
+    const personId = this.userData()?.person?.id;
+    if (!personId) return;
+    this.router.navigate(["/dentist-availability/" + personId]);
   }
 }

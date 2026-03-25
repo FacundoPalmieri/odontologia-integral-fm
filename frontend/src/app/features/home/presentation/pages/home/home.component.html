@@ -35,202 +35,217 @@
   </div>
 
   @if (shouldShowDentistInfo()) {
-    <div
-      class="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] items-start gap-4"
-    >
-      <mat-card
-        appearance="outlined"
-        class="flex flex-col justify-center min-h-[200px]"
-      >
-        <mat-card-content class="flex flex-col justify-center min-h-[200px]">
-          <app-card-icon-title
-            title="Próximo Turno"
-            subtitle="Tu siguiente cita programada"
-            icon="calendar-bolt"
-            backgroundColor="green"
-          ></app-card-icon-title>
-
-          @if (isLoadingTodayAppointments()) {
-            <div
-              class="flex flex-col items-center justify-center text-center py-10 px-5 gap-4"
-            >
-              <mat-spinner diameter="40"></mat-spinner>
-              <p class="text-sm text-[var(--mat-sys-on-surface-variant)] m-0">
-                Cargando turnos...
-              </p>
-            </div>
-          } @else if (nextAppointment()) {
-            <div class="flex flex-col p-0 gap-2 mt-4">
-              <div
-                class="flex justify-between items-center py-2.5 px-3.5 bg-[var(--mat-sys-surface-container-low)] rounded-[var(--mat-sys-corner-medium)] transition-all duration-200"
-              >
-                <div
-                  class="flex items-center gap-2 text-sm font-medium text-[var(--mat-sys-on-surface-variant)]"
-                >
-                  <i-tabler
-                    name="clock"
-                    class="text-[20px] text-[var(--mat-sys-primary)]"
-                  ></i-tabler>
-                  <span>Horario</span>
-                </div>
-                <div
-                  class="text-sm font-semibold text-[var(--mat-sys-on-surface)] text-right"
-                >
-                  {{ nextAppointment()!.startTime.substring(0, 5) }} -
-                  {{ nextAppointment()!.endTime.substring(0, 5) }}
-                </div>
-              </div>
-              <div
-                class="flex justify-between items-center py-2.5 px-3.5 bg-[var(--mat-sys-surface-container-low)] rounded-[var(--mat-sys-corner-medium)] transition-all duration-200"
-              >
-                <div
-                  class="flex items-center gap-2 text-sm font-medium text-[var(--mat-sys-on-surface-variant)]"
-                >
-                  <i-tabler
-                    name="user"
-                    class="text-[20px] text-[var(--mat-sys-primary)]"
-                  ></i-tabler>
-                  <span>Paciente</span>
-                </div>
-                <div
-                  class="text-sm font-semibold text-[var(--mat-sys-on-surface)] text-right flex items-center"
-                >
-                  <span class="truncate block max-w-[200px]">{{
-                    getSlotPatientName(nextAppointment()!)
-                  }}</span>
-                </div>
-              </div>
-            </div>
-          } @else {
-            <div
-              class="flex flex-col items-center justify-center text-center mt-6"
-            >
-              <i-tabler
-                name="calendar-smile"
-                class="text-[64px] text-[var(--mat-sys-on-surface-variant)] opacity-40"
-              ></i-tabler>
-              <h4
-                class="text-lg font-semibold m-0 mb-2 mt-4 text-[var(--mat-sys-on-surface)]"
-              >
-                No hay turnos próximos
-              </h4>
-              <p
-                class="text-sm m-0 mb-6 text-[var(--mat-sys-on-surface-variant)] max-w-[300px]"
-              >
-                Revisa tu calendario para más información
-              </p>
-              <button matButton="filled" (click)="goToCalendar()">
-                <div class="flex items-center gap-2">
-                  <i-tabler name="calendar"></i-tabler>
-                  <span>Ver Agenda</span>
-                </div>
-              </button>
-            </div>
-          }
-        </mat-card-content>
-        @if (nextAppointment()) {
-          <mat-card-actions align="end">
-            <button matButton (click)="goToAppointments()">
+    @if (hasAvailability() === false) {
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <app-no-work-schedule>
+            <button matButton="filled" (click)="goToAvailability()">
               <div class="flex items-center gap-2">
-                <span>Ir a gestión de turnos</span>
-                <i-tabler name="arrow-right"></i-tabler>
+                <i-tabler name="settings"></i-tabler>
+                <span>Configurar disponibilidad</span>
               </div>
             </button>
-          </mat-card-actions>
-        }
-      </mat-card>
-
-      <mat-card
-        appearance="outlined"
-        class="flex flex-col justify-center min-h-[200px]"
-      >
-        <mat-card-content class="flex flex-col justify-center min-h-[200px]">
-          <app-card-icon-title
-            title="Turnos de Hoy"
-            subtitle="Agenda del día actual"
-            icon="calendar-time"
-            backgroundColor="orange"
-          ></app-card-icon-title>
-          @if (isLoadingTodayAppointments()) {
-            <div
-              class="flex flex-col items-center justify-center text-center py-10 px-5 gap-4"
-            >
-              <mat-spinner diameter="40"></mat-spinner>
-              <p class="text-sm text-[var(--mat-sys-on-surface-variant)] m-0">
-                Cargando turnos...
-              </p>
-            </div>
-          } @else if (todayAppointments().length > 0) {
-            <div class="flex flex-col gap-4 mt-4">
-              <div
-                class="flex flex-col rounded-[var(--mat-sys-corner-medium)] overflow-hidden border border-[var(--mat-sys-outline-variant)]"
-              >
-                <div
-                  class="hidden md:grid grid-cols-[140px_1fr] gap-3 py-3 px-4 bg-[var(--mat-sys-surface-container)] text-xs font-bold uppercase tracking-[0.5px] text-[var(--mat-sys-on-surface-variant)] border-b-2 border-[var(--mat-sys-outline-variant)]"
-                >
-                  <div class="flex items-center">Horario</div>
-                  <div class="flex items-center">Paciente</div>
-                </div>
-                <div class="flex flex-col">
-                  @for (slot of todayAppointments(); track slot.startTime) {
-                    <div
-                      class="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-3 p-3 md:p-4 border-l-4 border-transparent border-b border-[var(--mat-sys-outline-variant)] transition-all duration-200 bg-[var(--mat-sys-surface)] last:border-b-0 hover:bg-[var(--mat-sys-surface-container-low)]"
-                    >
-                      <div
-                        class="flex items-center justify-start md:justify-start gap-2"
-                      >
-                        <i-tabler
-                          name="clock"
-                          class="text-[18px] text-[var(--mat-sys-primary)] shrink-0"
-                        ></i-tabler>
-                        <span
-                          class="text-sm font-semibold text-[var(--mat-sys-on-surface)]"
-                        >
-                          {{ slot.startTime.substring(0, 5) }} -
-                          {{ slot.endTime.substring(0, 5) }}
-                        </span>
-                      </div>
-                      <div
-                        class="flex items-center justify-start md:justify-start"
-                      >
-                        <div class="flex items-center gap-3 w-full">
-                          <i-tabler
-                            [name]="slot.appointment ? 'user' : 'lock'"
-                            class="text-[20px] text-[var(--mat-sys-on-surface-variant)] shrink-0"
-                          ></i-tabler>
-                          <span
-                            class="text-sm font-semibold text-[var(--mat-sys-on-surface)] whitespace-nowrap overflow-hidden text-ellipsis"
-                            >{{ getSlotPatientName(slot) }}</span
-                          >
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
-          } @else {
-            <div
-              class="flex flex-col items-center justify-center text-center mt-6"
-            >
-              <i-tabler
-                name="calendar-stats"
-                class="text-[64px] text-[var(--mat-sys-on-surface-variant)] opacity-40"
-              ></i-tabler>
-              <h4
-                class="text-lg font-semibold m-0 mb-2 mt-4 text-[var(--mat-sys-on-surface)]"
-              >
-                Sin turnos para hoy
-              </h4>
-              <p
-                class="text-sm m-0 mb-6 text-[var(--mat-sys-on-surface-variant)] max-w-[300px]"
-              >
-                Disfrutá tu día libre
-              </p>
-            </div>
-          }
+          </app-no-work-schedule>
         </mat-card-content>
       </mat-card>
-    </div>
+    } @else {
+      <div
+        class="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] items-start gap-4"
+      >
+        <mat-card
+          appearance="outlined"
+          class="flex flex-col justify-center min-h-[200px]"
+        >
+          <mat-card-content class="flex flex-col justify-center min-h-[200px]">
+            <app-card-icon-title
+              title="Próximo Turno"
+              subtitle="Tu siguiente cita programada"
+              icon="calendar-bolt"
+              backgroundColor="green"
+            ></app-card-icon-title>
+
+            @if (isLoadingTodayAppointments()) {
+              <div
+                class="flex flex-col items-center justify-center text-center py-10 px-5 gap-4"
+              >
+                <mat-spinner diameter="40"></mat-spinner>
+                <p class="text-sm text-[var(--mat-sys-on-surface-variant)] m-0">
+                  Cargando turnos...
+                </p>
+              </div>
+            } @else if (nextAppointment()) {
+              <div class="flex flex-col p-0 gap-2 mt-4">
+                <div
+                  class="flex justify-between items-center py-2.5 px-3.5 bg-[var(--mat-sys-surface-container-low)] rounded-[var(--mat-sys-corner-medium)] transition-all duration-200"
+                >
+                  <div
+                    class="flex items-center gap-2 text-sm font-medium text-[var(--mat-sys-on-surface-variant)]"
+                  >
+                    <i-tabler
+                      name="clock"
+                      class="text-[20px] text-[var(--mat-sys-primary)]"
+                    ></i-tabler>
+                    <span>Horario</span>
+                  </div>
+                  <div
+                    class="text-sm font-semibold text-[var(--mat-sys-on-surface)] text-right"
+                  >
+                    {{ nextAppointment()!.startTime.substring(0, 5) }} -
+                    {{ nextAppointment()!.endTime.substring(0, 5) }}
+                  </div>
+                </div>
+                <div
+                  class="flex justify-between items-center py-2.5 px-3.5 bg-[var(--mat-sys-surface-container-low)] rounded-[var(--mat-sys-corner-medium)] transition-all duration-200"
+                >
+                  <div
+                    class="flex items-center gap-2 text-sm font-medium text-[var(--mat-sys-on-surface-variant)]"
+                  >
+                    <i-tabler
+                      name="user"
+                      class="text-[20px] text-[var(--mat-sys-primary)]"
+                    ></i-tabler>
+                    <span>Paciente</span>
+                  </div>
+                  <div
+                    class="text-sm font-semibold text-[var(--mat-sys-on-surface)] text-right flex items-center"
+                  >
+                    <span class="truncate block max-w-[200px]">{{
+                      getSlotPatientName(nextAppointment()!)
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div
+                class="flex flex-col items-center justify-center text-center mt-6"
+              >
+                <i-tabler
+                  name="calendar-smile"
+                  class="text-[64px] text-[var(--mat-sys-on-surface-variant)] opacity-40"
+                ></i-tabler>
+                <h4
+                  class="text-lg font-semibold m-0 mb-2 mt-4 text-[var(--mat-sys-on-surface)]"
+                >
+                  No hay turnos próximos
+                </h4>
+                <p
+                  class="text-sm m-0 mb-6 text-[var(--mat-sys-on-surface-variant)] max-w-[300px]"
+                >
+                  Revisa tu calendario para más información
+                </p>
+                <button matButton="filled" (click)="goToCalendar()">
+                  <div class="flex items-center gap-2">
+                    <i-tabler name="calendar"></i-tabler>
+                    <span>Ver Agenda</span>
+                  </div>
+                </button>
+              </div>
+            }
+          </mat-card-content>
+          @if (nextAppointment()) {
+            <mat-card-actions align="end">
+              <button matButton (click)="goToAppointments()">
+                <div class="flex items-center gap-2">
+                  <span>Ir a gestión de turnos</span>
+                  <i-tabler name="arrow-right"></i-tabler>
+                </div>
+              </button>
+            </mat-card-actions>
+          }
+        </mat-card>
+
+        <mat-card
+          appearance="outlined"
+          class="flex flex-col justify-center min-h-[200px]"
+        >
+          <mat-card-content class="flex flex-col justify-center min-h-[200px]">
+            <app-card-icon-title
+              title="Turnos de Hoy"
+              subtitle="Agenda del día actual"
+              icon="calendar-time"
+              backgroundColor="orange"
+            ></app-card-icon-title>
+            @if (isLoadingTodayAppointments()) {
+              <div
+                class="flex flex-col items-center justify-center text-center py-10 px-5 gap-4"
+              >
+                <mat-spinner diameter="40"></mat-spinner>
+                <p class="text-sm text-[var(--mat-sys-on-surface-variant)] m-0">
+                  Cargando turnos...
+                </p>
+              </div>
+            } @else if (todayAppointments().length > 0) {
+              <div class="flex flex-col gap-4 mt-4">
+                <div
+                  class="flex flex-col rounded-[var(--mat-sys-corner-medium)] overflow-hidden border border-[var(--mat-sys-outline-variant)]"
+                >
+                  <div
+                    class="hidden md:grid grid-cols-[140px_1fr] gap-3 py-3 px-4 bg-[var(--mat-sys-surface-container)] text-xs font-bold uppercase tracking-[0.5px] text-[var(--mat-sys-on-surface-variant)] border-b-2 border-[var(--mat-sys-outline-variant)]"
+                  >
+                    <div class="flex items-center">Horario</div>
+                    <div class="flex items-center">Paciente</div>
+                  </div>
+                  <div class="flex flex-col">
+                    @for (slot of todayAppointments(); track slot.startTime) {
+                      <div
+                        class="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-3 p-3 md:p-4 border-l-4 border-transparent border-b border-[var(--mat-sys-outline-variant)] transition-all duration-200 bg-[var(--mat-sys-surface)] last:border-b-0 hover:bg-[var(--mat-sys-surface-container-low)]"
+                      >
+                        <div
+                          class="flex items-center justify-start md:justify-start gap-2"
+                        >
+                          <i-tabler
+                            name="clock"
+                            class="text-[18px] text-[var(--mat-sys-primary)] shrink-0"
+                          ></i-tabler>
+                          <span
+                            class="text-sm font-semibold text-[var(--mat-sys-on-surface)]"
+                          >
+                            {{ slot.startTime.substring(0, 5) }} -
+                            {{ slot.endTime.substring(0, 5) }}
+                          </span>
+                        </div>
+                        <div
+                          class="flex items-center justify-start md:justify-start"
+                        >
+                          <div class="flex items-center gap-3 w-full">
+                            <i-tabler
+                              [name]="slot.appointment ? 'user' : 'lock'"
+                              class="text-[20px] text-[var(--mat-sys-on-surface-variant)] shrink-0"
+                            ></i-tabler>
+                            <span
+                              class="text-sm font-semibold text-[var(--mat-sys-on-surface)] whitespace-nowrap overflow-hidden text-ellipsis"
+                              >{{ getSlotPatientName(slot) }}</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div
+                class="flex flex-col items-center justify-center text-center mt-6"
+              >
+                <i-tabler
+                  name="calendar-stats"
+                  class="text-[64px] text-[var(--mat-sys-on-surface-variant)] opacity-40"
+                ></i-tabler>
+                <h4
+                  class="text-lg font-semibold m-0 mb-2 mt-4 text-[var(--mat-sys-on-surface)]"
+                >
+                  Sin turnos para hoy
+                </h4>
+                <p
+                  class="text-sm m-0 mb-6 text-[var(--mat-sys-on-surface-variant)] max-w-[300px]"
+                >
+                  Disfrutá tu día libre
+                </p>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
   }
 </div>

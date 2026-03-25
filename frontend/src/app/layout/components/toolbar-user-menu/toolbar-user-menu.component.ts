@@ -4,6 +4,7 @@ import {
   OnDestroy,
   OnInit,
   ChangeDetectionStrategy,
+  signal,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
@@ -31,14 +32,14 @@ export class ToolbarUserMenuComponent implements OnInit, OnDestroy {
   private readonly personDataService = inject(PersonDataService);
 
   userData: UserDataInterface | null = this.localStorageService.getUserData();
-  avatar: string | null = null;
+  avatar = signal<string>("img/doctor-avatar.png");
 
   ngOnInit(): void {
     if (this.userData?.person?.id) {
       this.personDataService
         .getAvatar(this.userData.person.id)
-        .subscribe((avatar) => {
-          this.avatar = avatar ?? "img/doctor-avatar.png";
+        .subscribe((avatarUrl) => {
+          this.avatar.set(avatarUrl ?? "img/doctor-avatar.png");
         });
     }
   }

@@ -1,0 +1,20 @@
+<div class="flex flex-col items-center justify-center p-6 text-center">
+  <div
+    class="flex items-center justify-center w-24 h-24 rounded-full mb-6"
+    style="background-color: var(--mat-sys-primary); color: var(--mat-sys-on-primary, #fff);"
+  >
+    <i-tabler name="calendar-off" class="scale-[3]"></i-tabler>
+  </div>
+  <h3
+    class="text-xl font-medium mb-2"
+    style="color: var(--mat-sys-primary)"
+  >
+    Sin jornada laboral configurada
+  </h3>
+  <p class="mb-6 max-w-md text-[var(--mat-sys-on-surface-variant)]">
+    {{ message() }}
+  </p>
+  <div class="flex flex-wrap items-center justify-center gap-4">
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -62,6 +62,7 @@ import {
 } from "../../../data/interfaces/calendar.interface";
 import { CalendarLockDayInterface } from "../../../data/interfaces/calendar-lock.interface";
 import { AppointmentInterface } from "../../../../appointments/data/interfaces/appointment.inteface";
+import { NoWorkScheduleComponent } from "../../../../../shared/components/no-work-schedule/no-work-schedule.component";
 
 export type CalendarView = "day" | "week" | "month";
 
@@ -96,6 +97,7 @@ export interface SpecialtyGroup {
     MatNativeDateModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
+    NoWorkScheduleComponent,
   ],
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
