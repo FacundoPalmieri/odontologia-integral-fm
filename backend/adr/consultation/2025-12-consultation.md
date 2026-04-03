@@ -298,6 +298,7 @@ finalAmount = price - promotionAmount - discountAmount
 
 ## Riesgos / Deuda técnica
 
+- Todos los enums ubicados en `consultation/catalogs/enums/` están hardcodeados también en el frontend → No existe un endpoint REST que exponga estos valores. Se debe crear endpoint para que el frontend consuma dinámicamente estos catálogos (ConsultationStatusType, PrestationStatusType, DiscountType, etc.)
 - Complejidad alta del modelo → requiere buena documentación y testing
 - Validaciones críticas deben centralizarse en servicios de dominio
 - Posible sobrecarga en queries (uso intensivo de relaciones LAZY)
