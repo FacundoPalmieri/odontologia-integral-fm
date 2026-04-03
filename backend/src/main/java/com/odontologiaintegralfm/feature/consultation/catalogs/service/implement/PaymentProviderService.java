@@ -8,6 +8,8 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.model.PaymentProv
 import com.odontologiaintegralfm.feature.consultation.catalogs.repository.IPaymentProviderRepository;
 import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.IPaymentProviderService;
 import com.odontologiaintegralfm.shared.dto.Response;
+import com.odontologiaintegralfm.shared.enums.LogLevel;
+import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -27,6 +29,13 @@ public class PaymentProviderService implements IPaymentProviderService {
         List<PaymentProvider> paymentProviders = paymentProviderRepository.findAll();
         List<PaymentProviderDTOResponse> paymentProviderDTOResponses = mapper.toDTOList(paymentProviders);
         return new Response<>(true, "",paymentProviderDTOResponses);
+    }
+
+    /**Obtiene Proveedor por ID*/
+    @Override
+    public PaymentProvider getById(Long id) {
+        return paymentProviderRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("exception.paymentProviderService.notFound.user",null,"exception.paymentProviderService.notFound.log",new Object[]{id,"PaymentProviderService","getById"}, LogLevel.ERROR));
     }
 
 

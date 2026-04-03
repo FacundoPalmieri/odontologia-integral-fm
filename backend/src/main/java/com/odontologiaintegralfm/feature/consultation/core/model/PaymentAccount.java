@@ -1,5 +1,6 @@
-package com.odontologiaintegralfm.feature.consultation.catalogs.model;
+package com.odontologiaintegralfm.feature.consultation.core.model;
 
+import com.odontologiaintegralfm.feature.consultation.catalogs.model.PaymentProvider;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,7 +21,6 @@ public class PaymentAccount extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private Long id;
 
     /**
@@ -33,6 +33,9 @@ public class PaymentAccount extends Auditable {
      * CBU o CVU según el tipo de proveedor
      */
     @Column(length = 22)
+
+
+    @EqualsAndHashCode.Include
     private String accountIdentifier;
 
     /**
@@ -48,16 +51,4 @@ public class PaymentAccount extends Auditable {
     @JoinColumn(name ="provider_id", nullable = false)
     private PaymentProvider provider;
 
-
-
-    private PaymentAccount(String alias, String accountIdentifier, String holderName, PaymentProvider provider) {
-        this.alias = alias;
-        this.accountIdentifier = accountIdentifier;
-        this.holderName = holderName;
-        this.provider = provider;
-    }
-
-    public static PaymentAccount build(String alias, String accountIdentifier, String holderName, PaymentProvider provider) {
-        return new PaymentAccount(alias, accountIdentifier, holderName, provider);
-    }
 }

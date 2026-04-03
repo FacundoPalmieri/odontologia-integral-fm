@@ -11,8 +11,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PaymentProviderMapper {
 
-    PaymentProviderMapper INSTANCE = Mappers.getMapper(PaymentProviderMapper.class);
-
     // De entidad a DTO Response
     PaymentProviderDTOResponse toDTO(PaymentProvider paymentProvider);
 
