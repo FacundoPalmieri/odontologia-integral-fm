@@ -9,7 +9,6 @@ import com.odontologiaintegralfm.feature.consultation.core.dto.ConsultationRespo
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationEventType;
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.model.*;
-import com.odontologiaintegralfm.feature.consultation.core.repository.IOdontogramHeaderRepository;
 import com.odontologiaintegralfm.feature.consultation.core.repository.IConsultationRepository;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.infrastructure.websocket.enums.WebSocketEventType;
@@ -45,7 +44,6 @@ public class ConsultationService implements IConsultationService {
     private final IWebSocketEventPublisher webSocketEventPublisher;
     private final MessageSource messageSource;
     private final ConsultationHistoryService consultationHistoryService;
-    private final IOdontogramHeaderRepository consultationOdontogramHeaderRepository;
     private final ConsultationEventService consultationEventService;
 
     public ConsultationService(IAppointmentService appointmentService,
@@ -53,14 +51,13 @@ public class ConsultationService implements IConsultationService {
                                AuthenticatedUserService authenticatedUserService,
                                IWebSocketEventPublisher webSocketEventPublisher,
                                @Qualifier("messageSource") MessageSource messageSource, ConsultationHistoryService consultationHistoryService,
-                               IOdontogramHeaderRepository consultationOdontogramHeaderRepository, ConsultationEventService consultationEventService) {
+                                ConsultationEventService consultationEventService) {
         this.appointmentService = appointmentService;
         this.consultationRepository = consultationRepository;
         this.authenticatedUserService = authenticatedUserService;
         this.webSocketEventPublisher = webSocketEventPublisher;
         this.messageSource = messageSource;
         this.consultationHistoryService = consultationHistoryService;
-        this.consultationOdontogramHeaderRepository = consultationOdontogramHeaderRepository;
         this.consultationEventService = consultationEventService;
     }
 
@@ -252,10 +249,7 @@ public class ConsultationService implements IConsultationService {
         }
 
         //Se verifica por las dudas que tampoco cuente con un odontograma.
-        List<OdontogramHeader> consultationOdontogramList = consultationOdontogramHeaderRepository.findAllByConsultationId(consultation.getId());
-        if(!consultationOdontogramList.isEmpty()){
-            throw new ConflictException("exception.consultationService.odontogram.user", null, "exception.consultationService.odontogram.log", new Object[]{consultation.getId(), consultation.getStatus(),consultation.getStatus(), "ConsultationService", "updateCorrectionStatus"}, LogLevel.ERROR);
-        }
+
 
         //Elimina la consulta
         consultation.setEnabled(false);
@@ -353,10 +347,7 @@ public class ConsultationService implements IConsultationService {
         }
 
         //Si la consulta ya tiene un odontograma, no puede volver a un estado WAITING_ROOM
-        List<OdontogramHeader> consultationOdontogramList = consultationOdontogramHeaderRepository.findAllByConsultationId(consultation.getId());
-        if(!consultationOdontogramList.isEmpty()){
-            throw new ConflictException("exception.consultationService.odontogram.user", null, "exception.consultationService.odontogram.log", new Object[]{consultation.getId(), consultation.getStatus(), "ConsultationService", "updateCorrectionStatus"}, LogLevel.ERROR);
-        }
+
 
 
         //Actualiza la consulta + crea historial  + envía webSocket.

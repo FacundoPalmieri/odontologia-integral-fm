@@ -48,19 +48,12 @@ public class Consultation extends Auditable {
     @Enumerated(EnumType.STRING)
     private ConsultationStatusType status;
 
-    @Column(nullable = false)
-    private BigDecimal price;
 
-    @Lob
-    private String observation;
-
-    private Consultation(Patient patient, Dentist dentist, Appointment appointment, ConsultationStatusType status, BigDecimal price, String observation) {
+    private Consultation(Patient patient, Dentist dentist, Appointment appointment, ConsultationStatusType status) {
         this.patient = patient;
         this.dentist = dentist;
         this.appointment = appointment;
         this.status = status;
-        this.price = price;
-        this.observation = observation;
     };
 
     public static Consultation build(Appointment appointment) {
@@ -68,9 +61,7 @@ public class Consultation extends Auditable {
                 appointment.getPatient(),
                 appointment.getDentist(),
                 appointment,
-                ConsultationStatusType.WAITING_ROOM,
-                BigDecimal.ZERO,
-                null
+                ConsultationStatusType.WAITING_ROOM
         );
     }
 }

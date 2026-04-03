@@ -2,8 +2,8 @@ package com.odontologiaintegralfm.feature.consultation.core.model;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.TreatmentCondition;
-import com.odontologiaintegralfm.feature.consultation.core.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.core.enums.ToothFace;
+import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
+import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,7 +30,7 @@ public class OdontogramDetail extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "odontogram_header_id", nullable = false)
-    private OdontogramHeader odontogramHeader;
+    private ConsultationInstance consultationInstance;
 
     @Enumerated(EnumType.STRING)
     private Tooth tooth;
@@ -51,17 +51,17 @@ public class OdontogramDetail extends Auditable {
 
 
 
-    private OdontogramDetail(OdontogramHeader odontogramHeader, Tooth tooth, ToothFace toothFace, Treatment treatment, TreatmentCondition treatmentCondition) {
-        this.odontogramHeader = odontogramHeader;
+    private OdontogramDetail(ConsultationInstance consultationInstance, Tooth tooth, ToothFace toothFace, Treatment treatment, TreatmentCondition treatmentCondition) {
+        this.consultationInstance = consultationInstance;
         this.tooth = tooth;
         this.toothFace = toothFace;
         this.treatment = treatment;
         this.treatmentCondition = treatmentCondition;
     }
 
-    public static OdontogramDetail build(OdontogramHeader odontogramHeader, Tooth tooth, ToothFace toothFace, Treatment treatment, TreatmentCondition treatmentCondition){
+    public static OdontogramDetail build(ConsultationInstance consultationInstance, Tooth tooth, ToothFace toothFace, Treatment treatment, TreatmentCondition treatmentCondition){
         return new OdontogramDetail(
-                odontogramHeader,
+                consultationInstance,
                 tooth,
                 toothFace,
                 treatment,

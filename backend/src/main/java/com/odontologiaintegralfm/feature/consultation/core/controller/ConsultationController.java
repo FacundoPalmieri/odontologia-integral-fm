@@ -2,7 +2,6 @@ package com.odontologiaintegralfm.feature.consultation.core.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.*;
 import com.odontologiaintegralfm.feature.consultation.core.dto.*;
-import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IOdontogramHeaderService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,12 +25,10 @@ import java.net.URI;
 public class ConsultationController {
 
     private final IConsultationService consultationService;
-    private final IOdontogramHeaderService odontogramHeaderService;
+;
 
-    public ConsultationController(IConsultationService consultationService,
-                                  IOdontogramHeaderService odontogramService) {
+    public ConsultationController(IConsultationService consultationService) {
         this.consultationService = consultationService;
-        this.odontogramHeaderService = odontogramService;
     }
 
 
@@ -61,7 +58,7 @@ public class ConsultationController {
     })
     @PostMapping("/{idConsultation}/callPatient")
     @OnlyAccessConsultationUpdate
-    public ResponseEntity<Response<ConsultationResponseDTO>> callPatient(@PathVariable @NotNull Long idConsultation) {
+    public ResponseEntity<Response<ConsultationResponseDTO>> start(@PathVariable @NotNull Long idConsultation) {
 
         Response<ConsultationResponseDTO> response = consultationService.callPatient(idConsultation);
         return ResponseEntity.ok(response);
@@ -127,55 +124,7 @@ public class ConsultationController {
 
 
 
-    @Operation(summary = "Crear odontograma", description = "Crea una odontograma.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Odontograma creada"),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
-    })
-    @PostMapping("/{idConsultation}/odontogram")
-    @OnlyAccessConsultationCreate
-    public ResponseEntity<Response<Void>> createOdontogram(@PathVariable @NotNull Long idConsultation,
-                                                           @RequestBody @Valid OdontogramCreateRequestDTO odontogram) {
-        Response<Void> response = odontogramHeaderService.create(idConsultation, odontogram);
-        return ResponseEntity
-                .created(URI.create("api/consultations/" + idConsultation + "/odontogram"))
-                .body(response);
-    }
 
-
-
-
-    @Operation(summary = "Actualizar odontograma", description = "Actualiza una odontograma.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Odontograma actualizado"),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
-    })
-    @PutMapping("/{idConsultation}/odontogram")
-    @OnlyAccessConsultationCreate
-    public ResponseEntity<Response<Void>> updateOdontogram(@PathVariable @NotNull Long idConsultation,
-                                                           @RequestBody  @Valid OdontogramCorrectionRequestDTO correctionRequestDTO) {
-        Response<Void> response = odontogramHeaderService.update(idConsultation, correctionRequestDTO);
-        return ResponseEntity
-                .created(URI.create("api/consultations/" + idConsultation + "/odontogram"))
-                .body(response);
-    }
-
-
-
-    @Operation(summary = "Obtener Odontograma", description = "Obtiene un Odontograma.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Odontograma recuperado"),
-            @ApiResponse(responseCode = "401", description = "No autenticado."),
-            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
-    })
-    @GetMapping("/{idConsultation}/odontogram")
-    @OnlyAccessConsultationRead
-    public ResponseEntity<Response<OdontogramResponseDTO>> getOdontogramById(@PathVariable @NotNull Long idConsultation) {
-        Response<OdontogramResponseDTO> response = odontogramHeaderService.getById(idConsultation);
-        return ResponseEntity.ok(response);
-    }
 
 
 

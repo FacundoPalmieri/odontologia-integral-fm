@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Entidad que representa si un tratamiento es Pre-Existente o Requerido.
+ * Entidad que representa la condición de tratamiento.
+ * PreExistente, Requerido, En Proceso, Finalizado.
  */
 @Entity
 @Getter

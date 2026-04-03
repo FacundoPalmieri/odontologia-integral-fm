@@ -8,8 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
-
-import java.math.BigDecimal;
 import java.util.Set;
 
 /**
@@ -32,6 +30,8 @@ public class Treatment extends Auditable {
     @Column(length = 50, nullable = false, unique = true)
     private String name;
 
+
+    /** No todos los tratamientos son requeridos o preexistentes. */
     @ManyToMany(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @JoinTable(
@@ -41,8 +41,4 @@ public class Treatment extends Auditable {
             uniqueConstraints = @UniqueConstraint(columnNames = {"treatment_id","condition_id"})
     )
     private Set<TreatmentCondition> condition;
-
-
-
-
 }

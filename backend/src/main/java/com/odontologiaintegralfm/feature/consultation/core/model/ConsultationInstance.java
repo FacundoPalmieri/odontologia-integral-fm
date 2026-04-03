@@ -2,25 +2,31 @@ package com.odontologiaintegralfm.feature.consultation.core.model;
 
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 
 /**
- * Entidad que representa el encabezado de un Odontograma. Engloba todos los {@Link OdontogramDetail} de una misma consulta.
+ * Entidad que representa una instancia de consulta.
  */
-
 @Entity
-@Table(name = "odontogram_headers")
-@Audited
 @Getter
 @Setter
 @NoArgsConstructor
-public class OdontogramHeader extends Auditable {
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@Table(name = "consultations_instances")
+@Where(clause = "enabled = true")
+@Audited
+public class ConsultationInstance extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,15 +36,13 @@ public class OdontogramHeader extends Auditable {
     @Lob
     private String observation;
 
-
-
-    private OdontogramHeader(Consultation consultation, String observation) {
+    private ConsultationInstance(Consultation consultation, String observation) {
         this.consultation = consultation;
         this.observation = observation;
     }
 
-    public static OdontogramHeader build(Consultation consultation, String observation) {
-        return new OdontogramHeader(consultation, observation);
-
+    public static ConsultationInstance build(Consultation consultation, String observation) {
+        return new ConsultationInstance(consultation, observation);
     }
 }
+
