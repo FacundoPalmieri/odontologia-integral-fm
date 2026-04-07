@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.model.TreatmentCo
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
 import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -21,7 +22,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "odontogram_details")
 @Audited
-public class OdontogramDetail extends Auditable {
+public class OdontogramDetail extends AuditableJPA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

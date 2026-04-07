@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.core.model;
 
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +16,7 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "consultations_status_history")
-public class ConsultationHistory extends Auditable {
+public class ConsultationHistory extends AuditableJPA {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

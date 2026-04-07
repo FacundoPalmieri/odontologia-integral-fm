@@ -1,7 +1,6 @@
 package com.odontologiaintegralfm.infrastructure.logging.aspect;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedSystemService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
@@ -18,18 +17,17 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
+@Slf4j
 @Aspect
 @Component
 public class LogActionAspect {
 
     @Autowired
     private AuthenticatedUserService authenticatedUserService;
-
-    @Autowired
-    private AuthenticatedSystemService authenticatedSystemService;
 
     @Autowired
     private ISystemLogService systemLogService;
@@ -70,10 +68,6 @@ public class LogActionAspect {
 
             //Obtiene le usuario autenticado
             userAuth = authenticatedUserService.getAuthenticatedUser().getUsername();
-            if(userAuth.equalsIgnoreCase("No autenticado")){
-                userAuth = authenticatedSystemService.getAuthenticatedUserSystem().getUsername();
-            }
-
 
             // Agregar resultado al contexto para evaluar en SpEL
             context.setVariable("result", result);

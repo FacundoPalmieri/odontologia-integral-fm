@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.catalogs.model;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.DiscountType;
 import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -24,7 +25,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "promotions")
 @Where(clause = "enabled = true")
-public class Promotion extends Auditable {
+public class Promotion extends AuditableJPA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

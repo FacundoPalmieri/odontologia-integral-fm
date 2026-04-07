@@ -106,9 +106,9 @@ public class ConsultationService implements IConsultationService {
         Consultation consultation  = Consultation.build(appointment);
 
         //Campos auditoría
-        consultation.setEnabled(true);
-        consultation.setCreatedAt(LocalDateTime.now());
-        consultation.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+//        consultation.setEnabled(true);
+//        consultation.setCreatedAt(LocalDateTime.now());
+//        consultation.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
 
         //Actualiza la consulta + crea historial + envía webSocket.
         //Si bien el estado es el mismo que al crear, se reutiliza para creár historial y webSocket
@@ -363,9 +363,9 @@ public class ConsultationService implements IConsultationService {
         );
 
         //Campos auditoría
-        consultationEvent.setEnabled(true);
-        consultationEvent.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
-        consultationEvent.setCreatedAt(LocalDateTime.now());
+//        consultationEvent.setEnabled(true);
+//        consultationEvent.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+//        consultationEvent.setCreatedAt(LocalDateTime.now());
 
         consultationEventService.create(consultationEvent);
 
@@ -382,8 +382,8 @@ public class ConsultationService implements IConsultationService {
 
         //1. Actualiza consulta.
         consultation.setStatus(newStatus);
-        consultation.setUpdatedAt(LocalDateTime.now());
-        consultation.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
+//        consultation.setUpdatedAt(LocalDateTime.now());
+//        consultation.setUpdatedBy(authenticatedUserService.getAuthenticatedUser());
 
         Consultation consultationSaved;
         try {
@@ -398,9 +398,9 @@ public class ConsultationService implements IConsultationService {
         ConsultationHistory consultationHistory =  ConsultationHistory.build(consultationSaved, newStatus);
 
         //Campos de auditoria.
-        consultationHistory.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
-        consultationHistory.setCreatedAt(LocalDateTime.now());
-        consultationHistory.setEnabled(true);
+//        consultationHistory.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
+//        consultationHistory.setCreatedAt(LocalDateTime.now());
+//        consultationHistory.setEnabled(true);
 
         consultationHistoryService.create(consultationHistory);
 

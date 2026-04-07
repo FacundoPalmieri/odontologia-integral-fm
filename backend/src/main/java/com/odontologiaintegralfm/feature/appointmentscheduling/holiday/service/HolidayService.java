@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.holiday.service;
 
-import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedSystemService;
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.holiday.dto.HolidayCreateRequestDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.holiday.dto.HolidayResponseDTO;
@@ -44,8 +43,6 @@ public class HolidayService implements IHolidayService {
     @Autowired
     private IHolidayRepository holidayRepository;
 
-    @Autowired
-    private AuthenticatedSystemService authenticatedSystemService;
 
     @Autowired
     private AuthenticatedUserService authenticatedUserService;
@@ -335,7 +332,7 @@ public class HolidayService implements IHolidayService {
                     holiday.setName(d.nombre());
                     holiday.setYear(Year.now().getValue() + 1);
                     holiday.setEnabled(true);
-                    holiday.setCreatedBy(authenticatedSystemService.getAuthenticatedUserSystem());
+                    holiday.setCreatedBy(authenticatedUserService.getSystemUser());
                     holiday.setCreatedAt(LocalDateTime.now());
 
                     count.incrementAndGet();

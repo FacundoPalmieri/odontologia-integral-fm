@@ -52,7 +52,7 @@ public class SystemLog {
     private String metadata;
 
     /** Detalle del stackTrace (Opcional - Solo para exception */
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String stackTrace;
 
 }

@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.model;
 
 import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -27,7 +28,7 @@ import org.hibernate.envers.Audited;
 )
 @Where(clause = "enabled = true")
 @Audited
-public class PrestationStep extends Auditable {
+public class PrestationStep extends AuditableJPA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

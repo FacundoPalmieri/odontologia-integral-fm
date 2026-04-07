@@ -3,6 +3,9 @@ package com.odontologiaintegralfm.configuration.securityconfig.filter;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odontologiaintegralfm.feature.user.model.UserSec;
+import com.odontologiaintegralfm.feature.user.repository.IUserRepository;
+import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -29,6 +32,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Filtro encargado de validar el token JWT en las solicitudes HTTP para asegurar que el usuario esté autenticado.
@@ -54,11 +58,13 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private JwtUtils jwtUtils;
     private MessageSource messageSource;
     private ISystemLogService systemLogService;
+    private IUserService userService;
 
-    public JwtTokenValidator(JwtUtils jwtUtils, MessageSource messageSource, ISystemLogService systemLogService) {
+    public JwtTokenValidator(JwtUtils jwtUtils, MessageSource messageSource, ISystemLogService systemLogService, IUserService userService) {
         this.jwtUtils = jwtUtils;
         this.messageSource = messageSource;
         this.systemLogService = systemLogService;
+        this.userService = userService;
     }
 
 
@@ -96,6 +102,8 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 //si el token es válido, le concedemos el acceso
                 String username = jwtUtils.extractUsername(decodedJWT);
 
+                UserSec user = userService.getByUsername(username);
+
                 //me devuelve claim, necesito pasarlo a String
                 String authorities = jwtUtils.getSpecificClaim(decodedJWT, "authorities").asString();
 
@@ -105,7 +113,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
                 //Si se valida el token, le damos acceso al usuario en el context holder
                 SecurityContext context = SecurityContextHolder.getContext();
-                Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authoritiesList);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authoritiesList);
                 context.setAuthentication(authentication);
                 SecurityContextHolder.setContext(context);
 

@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.core.model;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.PaymentMethods;
 import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -25,7 +26,7 @@ import java.math.BigDecimal;
 @Table(name = "payments")
 @Where(clause = "enabled = true")
 @Audited
-public class Payment extends Auditable {
+public class Payment extends AuditableJPA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

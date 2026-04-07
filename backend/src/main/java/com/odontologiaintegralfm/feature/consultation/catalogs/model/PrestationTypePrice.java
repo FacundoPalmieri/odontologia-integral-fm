@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.model;
 
 import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -34,7 +35,7 @@ import java.time.LocalDate;
 )
 @Where(clause = "enabled = true")
 @Audited
-public class PrestationTypePrice extends Auditable {
+public class PrestationTypePrice extends AuditableJPA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

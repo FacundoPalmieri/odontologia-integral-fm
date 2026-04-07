@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.core.model;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.PaymentProvider;
 import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
@@ -17,7 +18,7 @@ import org.hibernate.annotations.Where;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "payment_accounts")
 @Where(clause = "enabled = true")
-public class PaymentAccount extends Auditable {
+public class PaymentAccount extends AuditableJPA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

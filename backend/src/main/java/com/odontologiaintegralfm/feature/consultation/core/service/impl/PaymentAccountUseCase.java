@@ -19,8 +19,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -29,18 +27,14 @@ public class PaymentAccountUseCase implements IPaymentAccountUseCase {
 
     private final IPaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
-    private final AuthenticatedUserService authenticatedUserService;
     private final MessageSource messageSource;
     private final IPaymentProviderService paymentProviderService;
-    private final PaymentProviderMapper paymentProviderMapper;
 
-    public PaymentAccountUseCase(IPaymentAccountRepository paymentAccountRepository, PaymentAccountMapper paymentAccountMapper, AuthenticatedUserService authenticatedUserService, @Qualifier("messageSource") MessageSource messageSource, IPaymentProviderService paymentProviderService,PaymentProviderMapper paymentProviderMapper) {
+    public PaymentAccountUseCase(IPaymentAccountRepository paymentAccountRepository, PaymentAccountMapper paymentAccountMapper, @Qualifier("messageSource") MessageSource messageSource, IPaymentProviderService paymentProviderService) {
         this.paymentAccountRepository = paymentAccountRepository;
         this.paymentAccountMapper = paymentAccountMapper;
-        this.authenticatedUserService = authenticatedUserService;
         this.messageSource = messageSource;
         this.paymentProviderService = paymentProviderService;
-        this.paymentProviderMapper = paymentProviderMapper;
 
     }
 
@@ -63,9 +57,6 @@ public class PaymentAccountUseCase implements IPaymentAccountUseCase {
         //Mapeamos
         PaymentAccount paymentAccount = paymentAccountMapper.toEntity(paymentAccountDTORequest);
         paymentAccount.setProvider(paymentProvider);
-        paymentAccount.setCreatedAt(LocalDateTime.now());
-        paymentAccount.setCreatedBy(authenticatedUserService.getAuthenticatedUser());
-        paymentAccount.setEnabled(true);
 
 
         //Persistimos

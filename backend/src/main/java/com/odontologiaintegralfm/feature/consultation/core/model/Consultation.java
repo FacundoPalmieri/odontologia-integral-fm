@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
@@ -25,7 +26,7 @@ import java.math.BigDecimal;
 @Table(name = "consultations")
 @Where(clause = "enabled = true")
 @Audited
-public class Consultation extends Auditable {
+public class Consultation extends AuditableJPA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -76,9 +76,4 @@ public class PaymentAccountController {
         return ResponseEntity.ok(response);
     }
 
-
-
-
-
-
 }
