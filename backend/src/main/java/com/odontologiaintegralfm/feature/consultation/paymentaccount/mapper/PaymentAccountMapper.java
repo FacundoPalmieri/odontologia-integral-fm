@@ -1,10 +1,10 @@
-package com.odontologiaintegralfm.feature.consultation.core.mapper;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.mapper;
 
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.mapper.PaymentProviderMapper;
-import com.odontologiaintegralfm.feature.consultation.core.dto.PaymentAccountDTORequest;
-import com.odontologiaintegralfm.feature.consultation.core.dto.PaymentAccountDTOResponse;
-import com.odontologiaintegralfm.feature.consultation.core.model.PaymentAccount;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.model.PaymentAccount;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTORequest;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

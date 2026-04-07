@@ -1,11 +1,10 @@
-package com.odontologiaintegralfm.feature.consultation.core.service.impl;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.service;
 
 
-import com.odontologiaintegralfm.feature.consultation.core.dto.PaymentAccountDTOResponse;
-import com.odontologiaintegralfm.feature.consultation.core.mapper.PaymentAccountMapper;
-import com.odontologiaintegralfm.feature.consultation.core.model.PaymentAccount;
-import com.odontologiaintegralfm.feature.consultation.core.repository.IPaymentAccountRepository;
-import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IPaymentAccountQueryService;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.repository.IPaymentAccountRepository;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.mapper.PaymentAccountMapper;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.model.PaymentAccount;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
@@ -19,7 +18,7 @@ public class PaymentAccountQueryService implements IPaymentAccountQueryService {
     private final IPaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
 
-    public PaymentAccountQueryService(IPaymentAccountRepository paymentAccountRepository,PaymentAccountMapper paymentAccountMapper) {
+    public PaymentAccountQueryService(IPaymentAccountRepository paymentAccountRepository, PaymentAccountMapper paymentAccountMapper) {
         this.paymentAccountRepository = paymentAccountRepository;
         this.paymentAccountMapper = paymentAccountMapper;
     }
@@ -28,8 +27,8 @@ public class PaymentAccountQueryService implements IPaymentAccountQueryService {
     @Override
     public Response<PaymentAccountDTOResponse> getById(Long id) {
 
-        PaymentAccount paymentAccount = paymentAccountRepository.findById(id)
-                .orElseThrow(()-> new NotFoundException("exception.paymentAccountQueryService.notfound.user",null,"exception.paymentAccountQueryService.notfound.log", new Object[]{id,"PaymentAccountQueryService", "getById"}, LogLevel.ERROR));
+        PaymentAccount paymentAccount = paymentAccountRepository.findByIdAndEnabledTrue(id)
+                .orElseThrow(()-> new NotFoundException("exception.paymentAccount.notfound.user",null,"exception.paymentAccount.notfound.log", new Object[]{id,"PaymentAccountQueryService", "getById"}, LogLevel.ERROR));
 
 
         return new Response<>(

@@ -1,11 +1,12 @@
-package com.odontologiaintegralfm.feature.consultation.core.controller;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationCreate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationCreate;
-import com.odontologiaintegralfm.feature.consultation.core.dto.PaymentAccountDTORequest;
-import com.odontologiaintegralfm.feature.consultation.core.dto.PaymentAccountDTOResponse;
-import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IPaymentAccountUseCase;
-import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IPaymentAccountQueryService;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTORequest;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.ICreatePaymentAccountUseCase;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.IPaymentAccountQueryService;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.IUpdatePaymentAccountStateUseCase;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,12 +25,14 @@ import java.util.List;
 @RequestMapping("/api/payment-account")
 public class PaymentAccountController {
 
-    private final IPaymentAccountUseCase paymentAccountUseCase;
+    private final ICreatePaymentAccountUseCase createPaymentAccountUseCase;
     private final IPaymentAccountQueryService paymentAccountQueryService;
+    private final IUpdatePaymentAccountStateUseCase updatePaymentAccountStateUseCase;
 
-    public PaymentAccountController(IPaymentAccountUseCase paymentAccountUseCase,IPaymentAccountQueryService paymentAccountQueryService) {
-        this.paymentAccountUseCase = paymentAccountUseCase;
+    public PaymentAccountController(ICreatePaymentAccountUseCase createPaymentAccountUseCase, IPaymentAccountQueryService paymentAccountQueryService, IUpdatePaymentAccountStateUseCase updatePaymentAccountStateUseCase) {
+        this.createPaymentAccountUseCase = createPaymentAccountUseCase;
         this.paymentAccountQueryService = paymentAccountQueryService;
+        this.updatePaymentAccountStateUseCase = updatePaymentAccountStateUseCase;
     }
 
 
@@ -42,7 +45,7 @@ public class PaymentAccountController {
     @PostMapping
     @OnlyAccessConfigurationCreate
     public ResponseEntity<Response<PaymentAccountDTOResponse>> create (@RequestBody PaymentAccountDTORequest paymentAccountDTORequest){
-        Response<PaymentAccountDTOResponse> response = paymentAccountUseCase.execute(paymentAccountDTORequest);
+        Response<PaymentAccountDTOResponse> response = createPaymentAccountUseCase.execute(paymentAccountDTORequest);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -75,5 +78,41 @@ public class PaymentAccountController {
         Response<List<PaymentAccountDTOResponse>> response = paymentAccountQueryService.getAll();
         return ResponseEntity.ok(response);
     }
+
+
+
+
+
+    @Operation(summary = "Deshabilitar cuenta bancaria", description = "Deshabilita una cuenta bancaria.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cuenta deshabilitada exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @PatchMapping("/disabled/{id}")
+    @OnlyAccessConsultationCreate
+    public ResponseEntity<Response<PaymentAccountDTOResponse>> disabled (@PathVariable @Valid @NotNull Long id){
+        Response<PaymentAccountDTOResponse> response = updatePaymentAccountStateUseCase.disabled(id);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(summary = "Habilitar cuenta bancaria", description = "Habilita una cuenta bancaria.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cuenta habilitada exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @PatchMapping("/enabled/{id}")
+    @OnlyAccessConsultationCreate
+    public ResponseEntity<Response<PaymentAccountDTOResponse>> enabled (@PathVariable @Valid @NotNull Long id){
+        Response<PaymentAccountDTOResponse> response = updatePaymentAccountStateUseCase.enabled(id);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+
 
 }

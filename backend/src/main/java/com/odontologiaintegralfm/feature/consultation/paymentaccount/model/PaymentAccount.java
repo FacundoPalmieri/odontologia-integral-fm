@@ -1,7 +1,6 @@
-package com.odontologiaintegralfm.feature.consultation.core.model;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.model;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.PaymentProvider;
-import com.odontologiaintegralfm.shared.model.Auditable;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,8 +15,11 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
-@Table(name = "payment_accounts")
-@Where(clause = "enabled = true")
+@Table(name = "payment_accounts",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "alias"),
+                @UniqueConstraint(columnNames = "account_identifier")
+        })
 public class PaymentAccount extends AuditableJPA {
 
     @Id
@@ -28,6 +30,7 @@ public class PaymentAccount extends AuditableJPA {
      * Alias de la cuenta (ej: alias de Mercado Pago o banco)
      */
     @Column(length = 100)
+    @EqualsAndHashCode.Include
     private String alias;
 
     /**

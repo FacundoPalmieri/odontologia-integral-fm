@@ -44,6 +44,7 @@ public abstract class AuditableJPA {
     @JoinColumn(name = "disabled_by_id")
     private UserSec disabledBy;
 
+
     @PrePersist
     public void prePersist() {
         if (this.enabled == null) {

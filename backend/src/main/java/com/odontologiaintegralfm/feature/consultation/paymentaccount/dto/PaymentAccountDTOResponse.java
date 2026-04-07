@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.core.dto;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.dto;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.dto.PaymentProviderDTOResponse;
 import lombok.AllArgsConstructor;
@@ -16,4 +16,5 @@ public class PaymentAccountDTOResponse {
     private String accountIdentifier;
     private String holderName;
     private PaymentProviderDTOResponse provider;
+    private Boolean enabled;
 }

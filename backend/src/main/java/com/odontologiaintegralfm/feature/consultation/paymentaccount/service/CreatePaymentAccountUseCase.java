@@ -1,16 +1,13 @@
-package com.odontologiaintegralfm.feature.consultation.core.service.impl;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.service;
 
 
-import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
-import com.odontologiaintegralfm.feature.consultation.catalogs.mapper.PaymentProviderMapper;
-import com.odontologiaintegralfm.feature.consultation.core.dto.PaymentAccountDTORequest;
-import com.odontologiaintegralfm.feature.consultation.core.dto.PaymentAccountDTOResponse;
-import com.odontologiaintegralfm.feature.consultation.core.mapper.PaymentAccountMapper;
-import com.odontologiaintegralfm.feature.consultation.core.model.PaymentAccount;
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.PaymentProvider;
-import com.odontologiaintegralfm.feature.consultation.core.repository.IPaymentAccountRepository;
-import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IPaymentAccountUseCase;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.repository.IPaymentAccountRepository;
 import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.IPaymentProviderService;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTORequest;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.mapper.PaymentAccountMapper;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.model.PaymentAccount;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
@@ -23,14 +20,14 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class PaymentAccountUseCase implements IPaymentAccountUseCase {
+public class CreatePaymentAccountUseCase implements ICreatePaymentAccountUseCase {
 
     private final IPaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
     private final MessageSource messageSource;
     private final IPaymentProviderService paymentProviderService;
 
-    public PaymentAccountUseCase(IPaymentAccountRepository paymentAccountRepository, PaymentAccountMapper paymentAccountMapper, @Qualifier("messageSource") MessageSource messageSource, IPaymentProviderService paymentProviderService) {
+    public CreatePaymentAccountUseCase(IPaymentAccountRepository paymentAccountRepository, PaymentAccountMapper paymentAccountMapper, @Qualifier("messageSource") MessageSource messageSource, IPaymentProviderService paymentProviderService) {
         this.paymentAccountRepository = paymentAccountRepository;
         this.paymentAccountMapper = paymentAccountMapper;
         this.messageSource = messageSource;
@@ -45,9 +42,14 @@ public class PaymentAccountUseCase implements IPaymentAccountUseCase {
     public Response<PaymentAccountDTOResponse> execute(PaymentAccountDTORequest paymentAccountDTORequest) {
 
         //Validamos que la cuenta no exista.
-        Optional<PaymentAccount> paymentAccountExisting = paymentAccountRepository.findByAccountIdentifier(paymentAccountDTORequest.accountIdentifier());
-        if(paymentAccountExisting.isPresent()) {
-            throw new ConflictException("exception.paymentAccountUseCase.accountDuplicate.user",null,"exception.paymentAccountUseCase.accountDuplicate.log",new Object[]{paymentAccountExisting.get().getAccountIdentifier(),paymentAccountExisting.get().getId(),"paymentAccountUseCase","create"}, LogLevel.WARN);
+        Optional<PaymentAccount> paymentAccountCbu = paymentAccountRepository.findByAccountIdentifier(paymentAccountDTORequest.accountIdentifier());
+        if(paymentAccountCbu.isPresent()) {
+            throw new ConflictException("exception.createPaymentAccountUseCase.accountDuplicateCbu.user",null,"exception.createPaymentAccountUseCase.accountDuplicateCbu.log",new Object[]{paymentAccountCbu.get().getAccountIdentifier(),paymentAccountCbu.get().getId(),"paymentAccountUseCase","create"}, LogLevel.WARN);
+        }
+
+        Optional<PaymentAccount> paymentAccountAlias = paymentAccountRepository.findByAlias(paymentAccountDTORequest.alias());
+        if(paymentAccountAlias.isPresent()) {
+            throw new ConflictException("exception.createPaymentAccountUseCase.accountDuplicateAlias.user",null,"exception.createPaymentAccountUseCase.accountDuplicateAlias.log",new Object[]{paymentAccountAlias.get().getAccountIdentifier(),paymentAccountAlias.get().getId(),"paymentAccountUseCase","create"}, LogLevel.WARN);
         }
 
         //Buscamos el proveedor existente.

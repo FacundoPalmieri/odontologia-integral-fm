@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.core.dto;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

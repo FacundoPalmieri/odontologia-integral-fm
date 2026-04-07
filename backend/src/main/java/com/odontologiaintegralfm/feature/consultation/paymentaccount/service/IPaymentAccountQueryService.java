@@ -1,7 +1,7 @@
-package com.odontologiaintegralfm.feature.consultation.core.service.interfaces;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.service;
 
 
-import com.odontologiaintegralfm.feature.consultation.core.dto.PaymentAccountDTOResponse;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
 import com.odontologiaintegralfm.shared.dto.Response;
 
 
