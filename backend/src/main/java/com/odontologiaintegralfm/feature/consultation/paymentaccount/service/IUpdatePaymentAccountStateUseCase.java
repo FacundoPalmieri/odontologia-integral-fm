@@ -6,8 +6,5 @@ import com.odontologiaintegralfm.shared.dto.Response;
 
 public interface IUpdatePaymentAccountStateUseCase {
 
-    Response<PaymentAccountDTOResponse> disabled (Long idAccount);
-
-    Response<PaymentAccountDTOResponse> enabled (Long idAccount);
 
 }

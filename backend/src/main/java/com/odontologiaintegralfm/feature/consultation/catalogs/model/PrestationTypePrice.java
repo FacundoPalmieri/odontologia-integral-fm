@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.model;
 
-import com.odontologiaintegralfm.shared.model.Auditable;
+
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -64,11 +63,5 @@ public class PrestationTypePrice extends AuditableJPA {
     public static PrestationTypePrice build(PrestationType prestationType, BigDecimal price, LocalDate startDate, LocalDate endDate) {
         return new PrestationTypePrice(prestationType, price, startDate, endDate);
     }
-
-    /**
-     * Constraint lógico: end_date > start_date o null
-     */
-    @Check(constraints = "end_date IS NULL OR end_date > start_date")
-    private String checkConstraint;
 }
 

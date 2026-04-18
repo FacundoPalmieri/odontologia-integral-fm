@@ -4,9 +4,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationCreate;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTORequest;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
-import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.ICreatePaymentAccountUseCase;
-import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.IPaymentAccountQueryService;
-import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.IUpdatePaymentAccountStateUseCase;
+import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.*;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,11 +26,19 @@ public class PaymentAccountController {
     private final ICreatePaymentAccountUseCase createPaymentAccountUseCase;
     private final IPaymentAccountQueryService paymentAccountQueryService;
     private final IUpdatePaymentAccountStateUseCase updatePaymentAccountStateUseCase;
+    private final IActivatePaymentAccountUseCase activatePaymentAccountUseCase;
+    private final IDesactivatePaymentAccountUseCase desactivatePaymentAccountUseCase;
 
-    public PaymentAccountController(ICreatePaymentAccountUseCase createPaymentAccountUseCase, IPaymentAccountQueryService paymentAccountQueryService, IUpdatePaymentAccountStateUseCase updatePaymentAccountStateUseCase) {
+    public PaymentAccountController(ICreatePaymentAccountUseCase createPaymentAccountUseCase,
+                                    IPaymentAccountQueryService paymentAccountQueryService,
+                                    IUpdatePaymentAccountStateUseCase updatePaymentAccountStateUseCase,
+                                    IActivatePaymentAccountUseCase activatePaymentAccountUseCase,
+                                    IDesactivatePaymentAccountUseCase desactivatePaymentAccountUseCase) {
         this.createPaymentAccountUseCase = createPaymentAccountUseCase;
         this.paymentAccountQueryService = paymentAccountQueryService;
         this.updatePaymentAccountStateUseCase = updatePaymentAccountStateUseCase;
+        this.activatePaymentAccountUseCase = activatePaymentAccountUseCase;
+        this.desactivatePaymentAccountUseCase = desactivatePaymentAccountUseCase;
     }
 
 
@@ -92,7 +98,7 @@ public class PaymentAccountController {
     @PatchMapping("/disabled/{id}")
     @OnlyAccessConsultationCreate
     public ResponseEntity<Response<PaymentAccountDTOResponse>> disabled (@PathVariable @Valid @NotNull Long id){
-        Response<PaymentAccountDTOResponse> response = updatePaymentAccountStateUseCase.disabled(id);
+        Response<PaymentAccountDTOResponse> response = desactivatePaymentAccountUseCase.execute(id);
         return ResponseEntity.ok(response);
     }
 
@@ -106,7 +112,7 @@ public class PaymentAccountController {
     @PatchMapping("/enabled/{id}")
     @OnlyAccessConsultationCreate
     public ResponseEntity<Response<PaymentAccountDTOResponse>> enabled (@PathVariable @Valid @NotNull Long id){
-        Response<PaymentAccountDTOResponse> response = updatePaymentAccountStateUseCase.enabled(id);
+        Response<PaymentAccountDTOResponse> response = activatePaymentAccountUseCase.execute(id);
         return ResponseEntity.ok(response);
     }
 

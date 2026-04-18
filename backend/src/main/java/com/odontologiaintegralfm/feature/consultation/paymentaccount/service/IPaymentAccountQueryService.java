@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface IPaymentAccountQueryService {
 
-
     Response<PaymentAccountDTOResponse> getById (Long id);
 
     Response<List<PaymentAccountDTOResponse>> getAll ();

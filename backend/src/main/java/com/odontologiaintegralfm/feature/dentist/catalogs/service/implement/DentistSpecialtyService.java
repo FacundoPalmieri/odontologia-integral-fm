@@ -7,7 +7,7 @@ import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.feature.dentist.catalogs.model.DentistSpecialty;
 import com.odontologiaintegralfm.feature.dentist.catalogs.repository.IDentistSpecialtyRepository;
-import com.odontologiaintegralfm.feature.dentist.catalogs.service.interaces.IDentistSpecialtyService;
+import com.odontologiaintegralfm.feature.dentist.catalogs.service.interfaces.IDentistSpecialtyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;

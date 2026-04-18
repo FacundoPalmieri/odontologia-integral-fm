@@ -83,12 +83,12 @@ public class HolidayService implements IHolidayService {
      * @param id : id del feriado.
      */
     @Override
-    public Holiday getByIdInternal(Long id) {
+    public Holiday findById(Long id) {
         try{
             return holidayRepository.findById(id)
-                    .orElseThrow(()-> new NotFoundException("exception.holidayNotFound.user",null,"exception.holidayNotFound.log", new Object[]{id,"HolidayService","getByIdInternal"},LogLevel.ERROR));
+                    .orElseThrow(()-> new NotFoundException("exception.holidayNotFound.user",null,"exception.holidayNotFound.log", new Object[]{id,"HolidayService","findById"},LogLevel.ERROR));
         }catch(CannotCreateTransactionException | DataAccessException e ) {
-            throw new DataBaseException(e, "HolidayService",id,null, "getByIdInternal");
+            throw new DataBaseException(e, "HolidayService",id,null, "findById");
         }
     }
 

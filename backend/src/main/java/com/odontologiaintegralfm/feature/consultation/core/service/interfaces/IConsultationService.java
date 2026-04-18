@@ -20,7 +20,7 @@ public interface IConsultationService {
      * Recupera una consulta por su ID, si no existe arroja NotFound exception.
      * @param id : id de la consulta.
      */
-    Consultation getByIdInternal(Long id);
+    Consultation findById(Long id);
 
 
     /**

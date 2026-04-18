@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileOrConfigurationUpload;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileOrPatientsRead;
 import com.odontologiaintegralfm.shared.dto.Response;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IPersonService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IPersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

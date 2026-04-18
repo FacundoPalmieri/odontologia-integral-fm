@@ -31,7 +31,7 @@ public interface IPermissionService {
      * @param id El ID del permiso que se desea buscar.
      * @return Un {@link Optional} que contiene el permiso si se encuentra, o está vacío si no.
      */
-    Permission getByIdInternal(Long id);
+    Permission findById(Long id);
 
 
 }

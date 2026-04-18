@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.feature.dentist.core.service.implement;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.dentist.catalogs.dto.DentistSpecialtyResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -12,7 +11,7 @@ import com.odontologiaintegralfm.feature.dentist.core.dto.DentistResponseDTO;
 import com.odontologiaintegralfm.feature.dentist.core.dto.DentistUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.person.core.model.Person;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IPersonService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IPersonService;
 import com.odontologiaintegralfm.feature.dentist.core.repository.IDentistRepository;
 import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
 import com.odontologiaintegralfm.shared.dto.Response;

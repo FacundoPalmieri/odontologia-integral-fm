@@ -46,7 +46,7 @@ public class AuthenticatedUserService {
                         "userService.getById.error.user",
                         null,
                         "userService.getById.error.log",
-                        new Object[]{SystemUserId.SYSTEM, "UserService", "getByIdInternal"},
+                        new Object[]{SystemUserId.SYSTEM, "UserService", "findById"},
                         LogLevel.ERROR
                 ));
     }

@@ -61,7 +61,7 @@ public interface IPatientService {
      * @param id del paciente
      * @return La entidad recuperada
      */
-    Patient getByIdInternal(Long id);
+    Patient findById(Long id);
 
 
 

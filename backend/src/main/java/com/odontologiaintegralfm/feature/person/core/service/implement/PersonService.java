@@ -10,7 +10,7 @@ import com.odontologiaintegralfm.feature.person.core.model.ContactEmail;
 import com.odontologiaintegralfm.feature.person.core.model.Person;
 import com.odontologiaintegralfm.feature.person.core.dto.*;
 import com.odontologiaintegralfm.feature.person.core.repository.IPersonRepository;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.*;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.*;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IDniTypeService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IGenderService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.INationalityService;

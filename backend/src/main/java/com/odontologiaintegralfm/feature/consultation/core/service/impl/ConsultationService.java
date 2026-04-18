@@ -10,6 +10,8 @@ import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationEve
 import com.odontologiaintegralfm.feature.consultation.core.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.model.*;
 import com.odontologiaintegralfm.feature.consultation.core.repository.IConsultationRepository;
+import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationEventService;
+import com.odontologiaintegralfm.feature.consultation.core.service.interfaces.IConsultationHistoryService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.infrastructure.websocket.enums.WebSocketEventType;
 import com.odontologiaintegralfm.infrastructure.websocket.service.IWebSocketEventPublisher;
@@ -43,15 +45,16 @@ public class ConsultationService implements IConsultationService {
     private final AuthenticatedUserService authenticatedUserService;
     private final IWebSocketEventPublisher webSocketEventPublisher;
     private final MessageSource messageSource;
-    private final ConsultationHistoryService consultationHistoryService;
-    private final ConsultationEventService consultationEventService;
+    private final IConsultationHistoryService consultationHistoryService;
+    private final IConsultationEventService consultationEventService;
 
     public ConsultationService(IAppointmentService appointmentService,
                                IConsultationRepository consultationRepository,
                                AuthenticatedUserService authenticatedUserService,
                                IWebSocketEventPublisher webSocketEventPublisher,
-                               @Qualifier("messageSource") MessageSource messageSource, ConsultationHistoryService consultationHistoryService,
-                                ConsultationEventService consultationEventService) {
+                               @Qualifier("messageSource") MessageSource messageSource,
+                               IConsultationHistoryService consultationHistoryService,
+                               IConsultationEventService consultationEventService) {
         this.appointmentService = appointmentService;
         this.consultationRepository = consultationRepository;
         this.authenticatedUserService = authenticatedUserService;
@@ -128,7 +131,7 @@ public class ConsultationService implements IConsultationService {
      * @param id : id de la consulta.
      */
     @Override
-    public Consultation getByIdInternal(Long id) {
+    public Consultation findById(Long id) {
         try{
             return consultationRepository.findById(id)
                     .orElseThrow(()->new NotFoundException("exception.consultation.notFound.user", null, "exception.consultation.notFound.log",new Object[]{id, "ConsultationService","getById"}, LogLevel.ERROR));
@@ -193,7 +196,7 @@ public class ConsultationService implements IConsultationService {
     public Response<ConsultationResponseDTO> callPatient(Long idConsultation) {
 
         // Recuperamos la consulta.
-        Consultation consultation = getByIdInternal(idConsultation);
+        Consultation consultation = findById(idConsultation);
 
         //Validamos que la consulta no se encuentre finalizada.
         if (consultation.getStatus() == ConsultationStatusType.FINISHED) {
@@ -240,7 +243,7 @@ public class ConsultationService implements IConsultationService {
     )
     public Response<Void> disabled(Long idConsultation, String observation) {
         // Recuperamos la consulta.
-        Consultation consultation = getByIdInternal(idConsultation);
+        Consultation consultation = findById(idConsultation);
 
 
         //Si la consulta tiene otro estado, no puede cancelarse.
@@ -333,7 +336,7 @@ public class ConsultationService implements IConsultationService {
     public Response<ConsultationResponseDTO> updateCorrectionStatus(Long idConsultation, ConsultationCorrectionRequestDTO correction) {
 
         // Recuperamos la consulta.
-        Consultation consultation = getByIdInternal(idConsultation);
+        Consultation consultation = findById(idConsultation);
 
         //Validamos que la consulta no se encuentre finalizada.
         if (consultation.getStatus() == ConsultationStatusType.FINISHED) {

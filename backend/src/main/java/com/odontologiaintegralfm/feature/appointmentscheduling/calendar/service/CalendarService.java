@@ -154,7 +154,7 @@ public class CalendarService implements ICalendarService {
         validateDentist(idDentist);
 
         //Verifica que al menos exista una disponibilidad(puede tener disponibilidad en otro día)
-        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
+        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.findById(idDentist);
 
         if (dentistAvailabilities.isEmpty()) {
             throw new ConflictException("exception.calendarService.user", null, "exception.calendarService.log", new Object[]{idDentist, "CalendarService", "getCalendarDay"}, LogLevel.ERROR);
@@ -215,7 +215,7 @@ public class CalendarService implements ICalendarService {
         validateDentist(idDentist);
 
         //Verifica que al menos exista una disponibilidad.
-        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
+        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.findById(idDentist);
 
 
         //Obtiene la semana calendario a partir del día recibido.
@@ -267,7 +267,7 @@ public class CalendarService implements ICalendarService {
         validateDentist(idDentist);
 
         //Verifica que al menos exista una disponibilidad.
-        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.getByIdInternal(idDentist);
+        List<DentistAvailability> dentistAvailabilities = dentistAvailabilityService.findById(idDentist);
 
         // Calcular mes
         YearMonth ym = YearMonth.of(year, month);

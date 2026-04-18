@@ -6,7 +6,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.dto.DentistHolidayRequestCreateDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.dto.DentistHolidayRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.dto.DentistHolidayResponseDTO;
-import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.service.IDentistHolidayCreateUseCase;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.service.ICreateDentistHolidayUseCase;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.service.IDentistHolidayService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,10 +27,10 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class DentistHolidayController {
 
-    private final IDentistHolidayCreateUseCase createHolidayRelation;
+    private final ICreateDentistHolidayUseCase createHolidayRelation;
     private final IDentistHolidayService dentistHolidayService;
 
-    public DentistHolidayController(IDentistHolidayCreateUseCase createHolidayRelation, IDentistHolidayService dentistHolidayService) {
+    public DentistHolidayController(ICreateDentistHolidayUseCase createHolidayRelation, IDentistHolidayService dentistHolidayService) {
         this.createHolidayRelation = createHolidayRelation;
         this.dentistHolidayService = dentistHolidayService;
     }

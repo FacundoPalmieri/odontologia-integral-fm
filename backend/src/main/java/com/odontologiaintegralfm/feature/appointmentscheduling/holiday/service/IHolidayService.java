@@ -24,7 +24,7 @@ public interface IHolidayService {
      * Método interno de la aplicación para valida la existencia de un feriado.
      * @param id: id del feriado.
      */
-    Holiday getByIdInternal(Long id);
+    Holiday findById(Long id);
 
     /**
      * Método para crear un feriado.
