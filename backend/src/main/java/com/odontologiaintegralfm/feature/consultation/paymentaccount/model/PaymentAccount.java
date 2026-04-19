@@ -5,6 +5,9 @@ import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 /**
  * Entidad que representa una cuenta asociado a un método de pago electrónico.
@@ -15,6 +18,7 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@Audited
 @Table(name = "payment_accounts",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "alias"),
@@ -51,6 +55,7 @@ public class PaymentAccount extends AuditableJPA {
     /**
      * Banco o billetera virtual (ej: Santander, Galicia, Mercado Pago)
      */
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name ="provider_id", nullable = false)
     private PaymentProvider provider;

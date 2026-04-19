@@ -1,14 +1,13 @@
-package com.odontologiaintegralfm.feature.consultation.paymentaccount.service.impl;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.service;
 
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.PaymentProvider;
+import com.odontologiaintegralfm.feature.consultation.catalogs.service.PaymentProviderService;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.repository.IPaymentAccountRepository;
-import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.IPaymentProviderService;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTORequest;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.mapper.PaymentAccountMapper;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.model.PaymentAccount;
-import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.ICreatePaymentAccountUseCase;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
@@ -20,14 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
-public class CreatePaymentAccountUseCase implements ICreatePaymentAccountUseCase {
+public class CreatePaymentAccountUseCase {
 
     private final IPaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
     private final MessageSource messageSource;
-    private final IPaymentProviderService paymentProviderService;
+    private final PaymentProviderService paymentProviderService;
 
-    public CreatePaymentAccountUseCase(IPaymentAccountRepository paymentAccountRepository, PaymentAccountMapper paymentAccountMapper, @Qualifier("messageSource") MessageSource messageSource, IPaymentProviderService paymentProviderService) {
+    public CreatePaymentAccountUseCase(IPaymentAccountRepository paymentAccountRepository,
+                                       PaymentAccountMapper paymentAccountMapper,
+                                       @Qualifier("messageSource") MessageSource messageSource,
+                                       PaymentProviderService paymentProviderService
+    ){
         this.paymentAccountRepository = paymentAccountRepository;
         this.paymentAccountMapper = paymentAccountMapper;
         this.messageSource = messageSource;
@@ -35,10 +38,8 @@ public class CreatePaymentAccountUseCase implements ICreatePaymentAccountUseCase
 
     }
 
-    /**
-     * Crea una cuenta para cobros
-     */
-    @Override
+
+
     @Transactional
     public Response<PaymentAccountDTOResponse> execute(PaymentAccountDTORequest paymentAccountDTORequest) {
 

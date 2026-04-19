@@ -255,10 +255,9 @@ public class ConsultationService implements IConsultationService {
 
 
         //Elimina la consulta
-        consultation.setEnabled(false);
-        consultation.setDisabledAt(LocalDateTime.now());
-        consultation.setDisabledBy(authenticatedUserService.getAuthenticatedUser());
+        consultation.disable(authenticatedUserService.getAuthenticatedUser());
         consultationRepository.save(consultation);
+
 
         //Crea evento corrección
         ConsultationEvent consultationEvent = ConsultationEvent.build(

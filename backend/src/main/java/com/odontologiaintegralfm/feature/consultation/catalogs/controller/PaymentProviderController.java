@@ -1,9 +1,8 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
-import com.odontologiaintegralfm.feature.consultation.catalogs.dto.PaymentProviderDTORequest;
 import com.odontologiaintegralfm.feature.consultation.catalogs.dto.PaymentProviderDTOResponse;
-import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.IPaymentProviderService;
+import com.odontologiaintegralfm.feature.consultation.catalogs.service.PaymentProviderService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,15 +22,11 @@ import java.util.List;
 @RequestMapping("/api/payment-providers")
 public class PaymentProviderController {
 
-    private final IPaymentProviderService paymentProviderService;
+    private final PaymentProviderService paymentProviderService;
 
-    public PaymentProviderController(IPaymentProviderService paymentProviderService) {
+    public PaymentProviderController(PaymentProviderService paymentProviderService) {
         this.paymentProviderService = paymentProviderService;
     }
-
-
-
-
 
 
 

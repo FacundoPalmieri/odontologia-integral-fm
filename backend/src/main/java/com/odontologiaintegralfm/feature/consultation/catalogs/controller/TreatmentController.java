@@ -1,9 +1,9 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
+import com.odontologiaintegralfm.feature.consultation.catalogs.service.TreatmentService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.consultation.catalogs.dto.TreatmentResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.ITreatmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TreatmentController {
 
     @Autowired
-    private ITreatmentService treatmentService;
+    private TreatmentService treatmentService;
 
     @Value("${pagination.default-page}")
     private int defaultPage;

@@ -1,11 +1,10 @@
-package com.odontologiaintegralfm.feature.consultation.paymentaccount.service.impl;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.service;
 
 
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.repository.IPaymentAccountRepository;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.mapper.PaymentAccountMapper;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.model.PaymentAccount;
-import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.IPaymentAccountQueryService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PaymentAccountQueryService implements IPaymentAccountQueryService {
+public class PaymentAccountQueryService  {
 
     private final IPaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
@@ -25,7 +24,6 @@ public class PaymentAccountQueryService implements IPaymentAccountQueryService {
     }
 
 
-    @Override
     public Response<PaymentAccountDTOResponse> getById(Long id) {
 
         PaymentAccount paymentAccount = paymentAccountRepository.findByIdAndEnabledTrue(id)
@@ -41,7 +39,6 @@ public class PaymentAccountQueryService implements IPaymentAccountQueryService {
 
 
 
-    @Override
     public Response<List<PaymentAccountDTOResponse>> getAll() {
 
         List<PaymentAccount> paymentAccounts = paymentAccountRepository.findAll();

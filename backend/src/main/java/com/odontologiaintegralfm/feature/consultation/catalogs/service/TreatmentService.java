@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.catalogs.service.implement;
+package com.odontologiaintegralfm.feature.consultation.catalogs.service;
 
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.consultation.catalogs.dto.TreatmentResponseDTO;
@@ -7,7 +7,6 @@ import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.catalogs.repository.ITreatmentRepository;
-import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.ITreatmentService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +21,7 @@ import java.util.List;
  * @author [Facundo Palmieri]
  */
 @Service
-public class TreatmentService implements ITreatmentService {
+public class TreatmentService  {
 
     private final  ITreatmentRepository treatmentRepository;
 
@@ -36,7 +35,6 @@ public class TreatmentService implements ITreatmentService {
      *
      * @return {@link TreatmentResponseDTO}
      */
-    @Override
     public  Response<Page<TreatmentResponseDTO>> getAll(int pageValue,int sizeValue, String sortBy, String direction) {
        try{
            //Define criterio de ordenamiento
@@ -65,7 +63,6 @@ public class TreatmentService implements ITreatmentService {
     /**
      * Obtiene todos los tratamientos "habilitdos" en una lista para uso interno.
      */
-    @Override
     public List<Treatment> getAll() {
         try{
             return treatmentRepository.findAll();
@@ -79,7 +76,6 @@ public class TreatmentService implements ITreatmentService {
      *
      * @param id : id del tratamiento.
      */
-    @Override
     public Treatment getById(Long id) {
         try{
             return treatmentRepository.findById(id)

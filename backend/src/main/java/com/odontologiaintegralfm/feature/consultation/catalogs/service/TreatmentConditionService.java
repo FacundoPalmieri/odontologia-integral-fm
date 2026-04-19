@@ -1,10 +1,9 @@
-package com.odontologiaintegralfm.feature.consultation.catalogs.service.implement;
+package com.odontologiaintegralfm.feature.consultation.catalogs.service;
 
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.consultation.catalogs.model.TreatmentCondition;
 import com.odontologiaintegralfm.feature.consultation.catalogs.repository.ITreatmentConditionRepository;
-import com.odontologiaintegralfm.feature.consultation.catalogs.service.interfaces.ITreatmentConditionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -20,12 +19,11 @@ import java.util.List;
  * @author [Facundo Palmieri]
  */
 @Service
-public class TreatmentConditionService implements ITreatmentConditionService {
+public class TreatmentConditionService {
 
     @Autowired
     private ITreatmentConditionRepository treatmentConditionRepository;
 
-    @Override
     public Response<Page<TreatmentCondition>> getAll(int page, int size, String sortBy, String direction) {
         try{
 
@@ -48,7 +46,6 @@ public class TreatmentConditionService implements ITreatmentConditionService {
     }
 
 
-    @Override
     public List<TreatmentCondition> getAll() {
         return  treatmentConditionRepository.findAll();
     }

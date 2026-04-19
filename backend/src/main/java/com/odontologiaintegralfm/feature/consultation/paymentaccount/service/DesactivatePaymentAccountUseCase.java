@@ -1,11 +1,10 @@
-package com.odontologiaintegralfm.feature.consultation.paymentaccount.service.impl;
+package com.odontologiaintegralfm.feature.consultation.paymentaccount.service;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.mapper.PaymentAccountMapper;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.model.PaymentAccount;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.repository.IPaymentAccountRepository;
-import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.IActivatePaymentAccountUseCase;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
@@ -14,17 +13,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
-public class ActivatePaymentAccountUseCase implements IActivatePaymentAccountUseCase {
+public class DesactivatePaymentAccountUseCase {
 
     private final IPaymentAccountRepository paymentAccountRepository;
     private final PaymentAccountMapper paymentAccountMapper;
     private final MessageSource messageSource;
     private final AuthenticatedUserService authenticatedUserService;
 
-    ActivatePaymentAccountUseCase(IPaymentAccountRepository paymentAccountRepository, PaymentAccountMapper paymentAccountMapper, @Qualifier("messageSource") MessageSource messageSource,AuthenticatedUserService authenticatedUserService) {
+    DesactivatePaymentAccountUseCase(IPaymentAccountRepository paymentAccountRepository, PaymentAccountMapper paymentAccountMapper, @Qualifier("messageSource") MessageSource messageSource, AuthenticatedUserService authenticatedUserService) {
         this.paymentAccountRepository = paymentAccountRepository;
         this.paymentAccountMapper = paymentAccountMapper;
         this.messageSource = messageSource;
@@ -33,8 +32,7 @@ public class ActivatePaymentAccountUseCase implements IActivatePaymentAccountUse
 
 
 
-    @Override
-    @Transactional
+
     public Response<PaymentAccountDTOResponse> execute(Long idAccount) {
 
         //Recuperamos cuenta por ID
@@ -42,24 +40,22 @@ public class ActivatePaymentAccountUseCase implements IActivatePaymentAccountUse
                 .orElseThrow(()-> new NotFoundException("exception.paymentAccount.notfound.user",null,"exception.paymentAccount.notfound.log", new Object[]{idAccount,"UpdatePaymentAccountStateUseCase", "disabled"}, LogLevel.ERROR));
 
 
-        //Validamos que no esté habilitada
-        if(paymentAccount.getEnabled()){
-            throw new ConflictException("exception.paymentAccount.enabled.user",null,"exception.paymentAccount.enabled.log", new Object[]{idAccount,"UpdatePaymentAccountStateUseCase", "disabled"}, LogLevel.ERROR);
+        //Validamos que no esté deshabilitada
+        if(!paymentAccount.getEnabled()){
+            throw new ConflictException("exception.paymentAccount.disabled.user",null,"exception.paymentAccount.disabled.log", new Object[]{idAccount,"UpdatePaymentAccountStateUseCase", "disabled"}, LogLevel.ERROR);
         }
 
         //Actualizamos valor
-        paymentAccount.enable(authenticatedUserService.getAuthenticatedUser());
+        paymentAccount.disable(authenticatedUserService.getAuthenticatedUser());
 
         //persiste
         PaymentAccount paymentAccountSaved = paymentAccountRepository.save(paymentAccount);
 
-        PaymentAccountDTOResponse paymentAccountDTOResponse = paymentAccountMapper.toDTO(paymentAccountSaved);
-
         //Response
         return new Response<>(
                 true,
-                messageSource.getMessage("paymentAccount.enabled.ok", null, LocaleContextHolder.getLocale()),
-                paymentAccountDTOResponse
+                messageSource.getMessage("paymentAccount.disabled.ok", null, LocaleContextHolder.getLocale()),
+                paymentAccountMapper.toDTO(paymentAccountSaved)
         );
     }
 }

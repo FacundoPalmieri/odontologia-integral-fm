@@ -7,10 +7,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
+
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Audited
 @MappedSuperclass
 public abstract class Auditable {
 
