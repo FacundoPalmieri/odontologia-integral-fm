@@ -268,6 +268,12 @@ finalAmount = price - promotionAmount - discountAmount
 
 ---
 
+
+#### Cuentas Bancarias 
+
+- No pueden repetirse en la base de datos Alías o CBU(accountIdentifier), ya que Ids de negocios.
+- Son marcados como unique en la base. 
+
 ### Flujo
 
 1. **Creación de Consultation**

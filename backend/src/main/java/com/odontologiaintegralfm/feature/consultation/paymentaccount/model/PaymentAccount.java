@@ -33,16 +33,14 @@ public class PaymentAccount extends AuditableJPA {
     /**
      * Alias de la cuenta (ej: alias de Mercado Pago o banco)
      */
-    @Column(length = 100)
+    @Column(length = 100, unique = true, nullable = false)
     @EqualsAndHashCode.Include
     private String alias;
 
     /**
      * CBU o CVU según el tipo de proveedor
      */
-    @Column(length = 22)
-
-
+    @Column(length = 22, unique = true, nullable = false)
     @EqualsAndHashCode.Include
     private String accountIdentifier;
 

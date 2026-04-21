@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.consultation.paymentaccount.controller
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationCreate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationUpdate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationCreate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTORequest;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.service.*;
@@ -16,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -80,11 +80,25 @@ public class PaymentAccountController {
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
     @GetMapping("/all")
-    @OnlyAccessConsultationCreate
+    @OnlyAccessConsultationRead
     public ResponseEntity<Response<List<PaymentAccountDTOResponse>>> getAll (){
         Response<List<PaymentAccountDTOResponse>> response = paymentAccountQueryService.getAll();
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "Listar cuentas bancarias habilitadas", description = "Lista cuentas bancarias  habilitadas.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cuentas obtenidas exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @GetMapping("/all/enabled")
+    @OnlyAccessConsultationRead
+    public ResponseEntity<Response<List<PaymentAccountDTOResponse>>> getAllEnabled (){
+        Response<List<PaymentAccountDTOResponse>> response = paymentAccountQueryService.getAllEnabled();
+        return ResponseEntity.ok(response);
+    }
+
 
 
 

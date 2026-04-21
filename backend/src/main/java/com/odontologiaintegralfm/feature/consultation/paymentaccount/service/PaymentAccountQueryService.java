@@ -50,4 +50,15 @@ public class PaymentAccountQueryService  {
         );
 
     }
+
+
+    public Response<List<PaymentAccountDTOResponse>> getAllEnabled() {
+        List<PaymentAccount> paymentAccounts = paymentAccountRepository.findAllByEnabledTrue();
+        return new Response<>(
+                true,
+                null,
+                paymentAccountMapper.toDTOList(paymentAccounts)
+        );
+
+    }
 }

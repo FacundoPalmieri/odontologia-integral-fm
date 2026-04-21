@@ -72,21 +72,20 @@ public class UpdatePaymentAccountStateUseCase {
         }
 
         //Buscamos el proveedor existente.
-        PaymentProvider paymentProvider = null;
         if(!paymentAccount.getProvider().getId().equals(paymentAccountDTORequest.providerId())) {
-             paymentProvider = paymentProviderService.getById(paymentAccountDTORequest.providerId());
+            paymentAccount.setProvider( paymentProviderService.getById(paymentAccountDTORequest.providerId()));
+
         }
+
         //Mapeamos
-        PaymentAccount paymentAccountUpdate = paymentAccountMapper.toEntity(paymentAccountDTORequest);
-        paymentAccount.setProvider(
-                (paymentProvider == null) ? paymentAccount.getProvider() : paymentProvider
-        );
+        paymentAccountMapper.updateEntityFromDto(paymentAccountDTORequest, paymentAccount);
+
 
         //Persistimos
-        PaymentAccount paymentAccountSaved = paymentAccountRepository.save(paymentAccount);
+        PaymentAccount paymentAccountUpdate = paymentAccountRepository.save(paymentAccount);
 
         //Armamos response
-        PaymentAccountDTOResponse paymentAccountDTOResponse = paymentAccountMapper.toDTO(paymentAccountSaved);
+        PaymentAccountDTOResponse paymentAccountDTOResponse = paymentAccountMapper.toDTO(paymentAccountUpdate);
 
 
         return new Response<>(

@@ -7,6 +7,7 @@ import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.Payment
 import com.odontologiaintegralfm.feature.consultation.paymentaccount.dto.PaymentAccountDTOResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
@@ -22,6 +23,10 @@ public interface PaymentAccountMapper {
 
     //De Entidad a DTO Response (Lista)
     List<PaymentAccountDTOResponse> toDTOList (List<PaymentAccount> entities);
+
+
+    // Para actualización: modifica la entidad existente
+    void updateEntityFromDto(PaymentAccountDTORequest dto, @MappingTarget PaymentAccount entity);
 
 
 }
