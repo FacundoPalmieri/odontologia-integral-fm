@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.PaymentMethods;
-import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationInstance;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

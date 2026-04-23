@@ -1,10 +1,10 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.model.Treatment;
-import com.odontologiaintegralfm.feature.consultation.catalogs.model.TreatmentCondition;
+import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.Treatment;
+import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.TreatmentCondition;
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
-import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationInstance;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.*;

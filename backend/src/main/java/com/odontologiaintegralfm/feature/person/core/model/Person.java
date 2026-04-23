@@ -91,4 +91,10 @@ public class Person extends Auditable {
     @JoinColumn(name = "address_id")
     private Address address;
 
+
+
+    public String getFullName() {
+        return lastName + ", " + firstName;
+    }
+
 }

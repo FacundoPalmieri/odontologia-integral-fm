@@ -9,6 +9,7 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Quadrant;
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Maxillary;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationInstance;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
