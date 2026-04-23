@@ -18,10 +18,15 @@ import org.hibernate.envers.Audited;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "consultations")
-@Where(clause = "enabled = true")
 @Audited
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Where(clause = "enabled = true")
+
+@Table(name = "consultations", indexes = {
+        @Index(name = "idx_consultation_patient_id", columnList = "patient_id"),
+        @Index(name = "idx_consultation_dentist_id", columnList = "dentist_id"),
+        @Index(name = "idx_consultation_status", columnList = "status")
+})
 public class Consultation extends AuditableJPA {
 
     @Id
@@ -38,7 +43,7 @@ public class Consultation extends AuditableJPA {
     private Dentist dentist;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id")
+    @JoinColumn(name = "appointment_id", unique = true)
     private Appointment appointment;
 
 
