@@ -6,7 +6,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessUserProfileOrConfigurationUpload;
 import com.odontologiaintegralfm.feature.person.core.dto.AttachedFileResponseDTO;
 import com.odontologiaintegralfm.shared.dto.Response;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAttachedFilesService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IAttachedFilesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

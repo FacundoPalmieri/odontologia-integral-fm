@@ -8,7 +8,7 @@ import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.person.core.model.ContactPhone;
 import com.odontologiaintegralfm.feature.person.core.repository.IContactPhoneRepository;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IContactPhoneService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IContactPhoneService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IPhoneTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

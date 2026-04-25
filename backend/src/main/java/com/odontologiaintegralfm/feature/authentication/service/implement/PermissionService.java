@@ -122,12 +122,12 @@ public class PermissionService implements IPermissionService {
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
-    public Permission getByIdInternal(Long id) {
+    public Permission findById(Long id) {
         try{
             return permissionRepository.findById(id).orElseThrow(()->
              new NotFoundException("exception.refreshTokenConfigNotFoundException.user",null,"exception.refreshTokenConfigNotFoundException.log",new Object[]{id,"Refresh Token Config Service", "getExpiration"}, LogLevel.ERROR));
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"PermissionService", id, "","getByIdInternal");
+            throw new DataBaseException(e,"PermissionService", id, "","findById");
         }
     }
 

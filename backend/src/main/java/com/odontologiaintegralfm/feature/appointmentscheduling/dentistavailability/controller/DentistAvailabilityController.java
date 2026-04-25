@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessPersonProfileAndAppointmentsManagementOrConfigurationUpdate;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.DentistAvailabilityResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto.WorkingDayDTO;
-import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.IDentistAvailabilityCreateUseCase;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.ICreateDentistAvailabilityUseCase;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.IDentistAvailabilityService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,10 +22,10 @@ import java.util.List;
 @RequestMapping("/api/dentist-availability")
 public class DentistAvailabilityController {
 
-    private final IDentistAvailabilityCreateUseCase dentistAvailabilityCreateUseCase;
+    private final ICreateDentistAvailabilityUseCase dentistAvailabilityCreateUseCase;
     private final IDentistAvailabilityService dentistAvailabilityService;
 
-    public DentistAvailabilityController(IDentistAvailabilityService dentistAvailabilityService,IDentistAvailabilityCreateUseCase dentistAvailabilityCreateUseCase) {
+    public DentistAvailabilityController(IDentistAvailabilityService dentistAvailabilityService, ICreateDentistAvailabilityUseCase dentistAvailabilityCreateUseCase) {
         this.dentistAvailabilityService = dentistAvailabilityService;
         this.dentistAvailabilityCreateUseCase = dentistAvailabilityCreateUseCase;
     }

@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.infrastructure.scheduler.service;
 
 
-import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedSystemService;
+import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.infrastructure.scheduler.dto.ScheduleResponseDTO;
 import com.odontologiaintegralfm.infrastructure.logging.dto.SystemLogResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -36,7 +36,7 @@ public class ScheduledService implements IScheduleService {
     @Autowired
     private SystemLogService systemLogService;
     @Autowired
-    private AuthenticatedSystemService authenticatedSystemService;
+    private AuthenticatedUserService authenticatedUserService;
 
 
     /**
@@ -123,7 +123,7 @@ public class ScheduledService implements IScheduleService {
                         null,
                         message,
                         "LogActionAspect",
-                        authenticatedSystemService.getAuthenticatedUserSystem().getUsername(),
+                        authenticatedUserService.getSystemUser().getUsername(),
                         null,
                         null
                 );
@@ -140,7 +140,7 @@ public class ScheduledService implements IScheduleService {
                         null,
                         message,
                         "LogActionAspect",
-                        authenticatedSystemService.getAuthenticatedUserSystem().getUsername(),
+                        authenticatedUserService.getSystemUser().getUsername(),
                         null,
                         null
                 );

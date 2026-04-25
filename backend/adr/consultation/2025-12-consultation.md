@@ -1,211 +1,316 @@
-## ADR: Consultation
-
+# Feature: Gestión de Consultas Odontológicas (Consultation)
 ### Fecha: 13/12/2025
-### Contexto: Feature Consultation
+
+---
+
+## Objetivo
+Implementar un sistema integral para gestionar consultas odontológicas que permita:
+
+- Centralizar la información clínica del paciente
+- Registrar cada instancia de atención dentro de una consulta
+- Gestionar prestaciones (tratamientos) realizadas
+- Integrar odontograma, promociones, descuentos y pagos
+- Garantizar trazabilidad completa desde la apertura hasta el cierre de la consulta
+
+---
 
 ## Contexto
-Una Consultation representa un acto médico-asistencial concreto, fechado, asociado a un turno y a un odontólogo, con consecuencias clínicas y administrativas.
 
-El sistema gestiona consultas odontológicas con distintos estados a lo largo de su ciclo de vida (ej. WAITING_ROOM, IN_CONSULTATION, FINISHED).
-Cada cambio relevante debe quedar registrado en una bitácora histórica para fines de auditoría, trazabilidad y soporte.
+Actualmente el consultorio odontológico **no cuenta con una aplicación** para la gestión de consultas.
 
-Adicionalmente, durante una consulta puede producirse:
+Toda la operatoria se realiza de forma manual (papel, memoria del profesional o herramientas no integradas), lo que implica que:
 
--   Un error operativo (cambio de estado incorrecto).
+- No existe una entidad central que represente la consulta odontológica
+- La información clínica no está estructurada ni normalizada
+- El seguimiento del paciente depende de fichas físicas.
+- No hay integración entre diagnóstico, tratamiento y facturación
 
--   Una corrección del odontograma cargado durante la atención.
+Como resultado, el proceso completo de atención (desde la recepción hasta el cierre) carece de trazabilidad, consistencia y soporte tecnológico.
 
-El sistema ya cuenta con:
+Esta situación limita la capacidad del consultorio para escalar, auditar información y mejorar la calidad del servicio.
 
--   Persistencia de consultas.
+---
 
--   Entidad de historial (ConsultationHistory).
+## Problema
 
--   Comunicación en tiempo real mediante WebSocket.
+Esta forma de trabajo genera:
 
-Se busca definir un diseño que:
+- Falta de trazabilidad sobre las consultas realizadas
+- Dificultad para reconstruir el historial de atenciones de un paciente
+- Riesgo de inconsistencias o pérdida de información clínica
+- Ausencia de un flujo claro desde la recepción hasta el cierre de la consulta
+- Desacople entre diagnóstico clínico y prestaciones ejecutadas
+- Falta de control sobre precios, promociones y descuentos aplicados
 
--   Sea claro semánticamente.
+---
 
--   Mantenga trazabilidad.
+##  Opciones evaluadas
 
--   Permita reglas de negocio configurables.
+### Opción 1: Modelo simple centrado solo en Consultation
+- ✔ Pros:
+    - Fácil implementación
+    - Menor complejidad inicial
+- ❌ Contras:
+    - No permite múltiples instancias de atención
+    - No soporta evolución clínica
+    - Difícil integrar odontograma y prestaciones
+    - Baja escalabilidad
 
--   Evite sobrecargar el modelo con conceptos técnicos incorrectos.
+---
 
-## 1. Problema
+### Opción 2: Modelo desacoplado por dominios (Consultation + Instances + Prestations + Odontograma)
+- ✔ Pros:
+    - Alta escalabilidad
+    - Permite trazabilidad completa
+    - Separación clara de responsabilidades
+    - Soporta múltiples atenciones dentro de una consulta
+    - Permite modelar odontograma y prestaciones de forma consistente
+    - Integración con pagos, promociones y pricing versionado
+- ❌ Contras:
+    - Mayor complejidad de implementación
+    - Requiere más validaciones de negocio
 
-### 1.1 Corrección de estados de una consulta
+---
 
-Algunos estados de una consulta pueden necesitar corrección (por error humano u operativo).
-Pero hay que tener en cuenta lo siguiente:
+## Decisión
 
--   Una consulta finalizada no puede reabrirse.
+Se elige la **Opción 2: Modelo desacoplado por dominios**.
 
--   Debe quedar registro explícito de las correcciones.
+### Justificación
 
--   El historial debe diferenciar cambios normales de cambios por corrección.
+Se prioriza un modelo robusto y extensible que permita:
 
-### 1.2 Modificación del odontograma
+- Representar correctamente la realidad del dominio odontológico
+- Soportar crecimiento futuro (nuevos tratamientos, reglas, pricing, etc.)
+- Mantener consistencia entre diagnóstico, tratamiento y facturación
 
-El odontograma forma parte del registro clínico y:
+### Decisiones técnicas clave
 
--   No debe modificarse directamente (inmutabilidad).
+- Separación entre:
+    - **Consultation** (entidad raíz)
+    - **ConsultationInstance** (evolución clínica)
+    - **PrestationInstance** (tratamientos ejecutados)
+    - **OdontogramDetail** (diagnóstico por pieza dental)
+- Uso de enums para estados y tipos (status, scope, descuentos)
+- Versionado de precios mediante `PrestationTypePrice`
+- Aplicación exclusiva de **promoción o descuento manual (nunca ambos)**
+- Soporte para prestaciones con y sin ubicación (odontograma)
 
--   Puede requerir corrección, pero de forma controlada.
+---
 
--   El sistema debe permitir limitar la cantidad de correcciones(parámetro de sistema), sin bloquear futuras decisiones.
+## Diseño
 
-#### Se debe evitar:
+### Modelo conceptual
 
--   Pérdida de información histórica.
+- **Consultation**: representa una atención completa del paciente
+- **ConsultationInstance**: cada interacción clínica dentro de la consulta
+- **Patient**: paciente asociado
+- **Dentist**: profesional que atiende
+- **OdontogramDetail**: diagnóstico sobre piezas dentales
+- **Treatment / TreatmentCondition**: definición clínica
+- **PrestationType**: catálogo de prestaciones
+- **PrestationInstance**: ejecución real de una prestación
+- **PrestationStep / PrestationStepInstance**: workflow de pasos
+- **Promotion**: descuentos predefinidos
+- **Payment / PaymentDetail**: gestión de pagos
 
--   Uso indebido de mecanismos técnicos (ej. versionado para concurrencia).
+---
 
-## 2. Decisión principal
+### Relaciones
 
-### 2.1 Historial de consultas basado en eventos
+- Una **Consultation** pertenece a un **Patient**
+- Una **Consultation** pertenece a un **Dentist**
+- Una **Consultation** tiene un **Appointment**
+- Una **Consultation** tiene múltiples **ConsultationInstance**
 
-Se mantiene una única tabla de historial (ConsultationHistory) que registra:
+- Una **ConsultationInstance**:
+    - pertenece a una Consultation
+    - tiene múltiples **OdontogramDetail**
+    - tiene múltiples **PrestationInstance**
+    - tiene múltiples **Payment**
 
--   El estado de la consulta (ConsultationStatus).
+- Un **OdontogramDetail**:
+    - pertenece a una ConsultationInstance
+    - referencia un **Treatment**
+    - tiene un **TreatmentCondition**
 
--   Un evento asociado opcional (ConsultationEvent).
+- Un **PrestationInstance**:
+    - pertenece a una ConsultationInstance
+    - referencia un **PrestationType**
+    - puede estar asociado a un **OdontogramDetail** (opcional)
+    - puede tener múltiples **PrestationStepInstance**
 
--   Un campo de observación/motivo.
+- Un **PrestationType**:
+    - tiene múltiples **Treatment**
+    - tiene múltiples **PrestationStep**
+    - tiene precios versionados (**PrestationTypePrice**)
 
-El evento:
+- Un **Payment**:
+    - pertenece a una ConsultationInstance
+    - tiene múltiples **PaymentDetail**
 
--   Es null en transiciones normales.
+- Un **PaymentDetail**:
+    - pertenece a un Payment
+    - referencia una PrestationInstance
 
--   Se informa únicamente en situaciones excepcionales (correcciones, anulaciones).
+---
 
-Ejemplos de eventos:
+### Reglas de negocio
 
-CONSULTATION_CORRECTED
+#### Consultation
 
-CONSULTATION_VOIDED
+- Una consulta tiene un estado (`ConsultationStatusType`)
+- Debe estar asociada a un paciente y un odontólogo
 
-Esto permite:
+---
 
--   Un modelo simple.
+#### ConsultationInstance
 
--   Lectura cronológica clara.
+- Representa una evolución clínica
+- Permite registrar observaciones (texto libre)
 
--   Auditoría completa sin múltiples tablas.
+---
 
-### 2.2 Odontograma inmutable con correcciones por reemplazo
+#### Odontograma
 
-El odontograma:
+- Cada **OdontogramDetail**:
+    - Debe tener un `TreatmentCondition`
+    - Puede o no tener `ToothFace`
+- Permite representar:
+    - Diagnóstico preexistente
+    - Tratamientos requeridos
+    - Tratamientos en progreso o finalizados
 
--   Nunca se modifica una vez persistido.
+---
 
--   Cada corrección crea un nuevo odontograma completo.
+#### Prestaciones (PrestationInstance)
 
-El odontograma anterior queda:
+- Debe tener:
+    - tipo (`PrestationType`)
+    - Si tiene flag isUnique → no puede repetirse en la misma ConsultationInstance(odontogramDetail)
+    - precio congelado al momento de creación
+- Puede:
+    - Tener ubicación (odontograma)
+    - No tener ubicación → usar `scope`
 
--   Deshabilitado mediante baja lógica.
+---
 
--   Invisible para el uso operativo.
+#### Ubicación de prestación
 
--   Conservado para auditoría.
+Si **NO hay OdontogramDetail**:
 
-Solo el último odontograma activo se utiliza funcionalmente.
+- Se debe definir:
+    - `scope` (TOOTH, QUADRANT, FULL_MOUTH, etc.)
+    - Campos asociados según el scope:
+        - tooth
+        - toothFace
+        - quadrant
+        - maxillary
 
-### 2.3 Control de correcciones por política de sistema
+---
 
-La cantidad de correcciones permitidas:
+#### Estados de prestación
 
--   No se modela como atributo fijo en la entidad.
+- IN_PROGRESS
+- COMPLETED
+- CANCELLED
 
--   Se controla desde la capa de servicio.
+---
 
--   Se compara contra un parámetro de sistema (ej. MAX_ODONTOGRAM_CORRECTIONS).
+#### Descuentos y promociones
 
--   El modelo permite múltiples odontogramas, pero la política del producto define cuántos se aceptan.
+- Solo puede existir uno:
+    - ✔ Promoción
+    - ✔ Descuento manual
+    - ❌ Ambos al mismo tiempo
 
-### 2.4 Exclusión de @Version
+- Promoción:
+    - Siempre calculada → `promotionAmount`
 
-No se utiliza @Version para controlar correcciones funcionales, ya que:
+- Descuento manual:
+    - Puede ser:
+        - PERCENTAGE
+        - FIXED
+    - Se calcula → `discountAmount`
 
--   Está destinado exclusivamente a control de concurrencia.
+---
 
--   No representa semántica de negocio.
+#### Precio final
+finalAmount = price - promotionAmount - discountAmount
 
--   Introduce confusión conceptual.
 
-## 3. Alternativas consideradas
+- Nunca puede ser negativo
+- Debe persistirse
 
-### 3.1 Uso de @Version para correcciones
+---
 
-Descartada.
+#### PrestationType
 
--   Mezcla infraestructura con reglas de negocio.
+- `isUnique = true` → no puede repetirse en el mismo odontograma
+- `hasSteps = true` → requiere workflow de pasos
+- `requiresLocation = true` → debe tener odontograma o scope
 
--   Genera confusión para futuros mantenimientos.
+---
 
--   No representa correctamente el dominio.
+#### Workflow de pasos
 
-### 3.2 Modificación directa del odontograma
+- Ordenados (`order`)
+- Puede haber pasos obligatorios (`required`)
+- Cada instancia tiene su propio estado
 
-Descartada.
+---
 
--   Pierde trazabilidad.
+#### Pagos
 
--   Riesgo legal y clínico.
+- Un pago pertenece a una ConsultationInstance
+- Puede dividirse en múltiples prestaciones
+- `PaymentDetail` permite pagos parciales o totales
 
--   Dificulta auditorías y debugging.
+---
 
-### 3.3 Tabla separada de eventos y estados
 
--   Descartada para esta versión.
+#### Cuentas Bancarias 
 
--   Mayor complejidad conceptual.
+- No pueden repetirse en la base de datos Alías o CBU(accountIdentifier), ya que Ids de negocios.
+- Son marcados como unique en la base. 
 
--   Mayor costo de desarrollo.
+### Flujo
 
--   Poco valor agregado para el tamaño actual del producto.
+1. **Creación de Consultation**
+    - Se asigna paciente, odontólogo y turno
 
-### 3.4 Campo contador persistente en odontograma
+2. **Inicio de atención**
+    - Se crea una o más ConsultationInstance
 
-Postergada.
+3. **Registro clínico**
+    - Se completa odontograma (OdontogramDetail)
 
--   Puede agregarse en el futuro por performance o reporting.
+4. **Asignación de prestaciones**
+    - Se crean PrestationInstance
+    - Se define precio, descuentos o promociones
 
--   Actualmente es información derivable.
+5. **Ejecución de prestaciones**
+    - Cambio de estado
+    - Ejecución de pasos (si aplica)
 
--   No es necesaria para la regla de negocio inicial.
+6. **Facturación**
+    - Se generan pagos (Payment)
+    - Se distribuyen en PaymentDetail
 
-## 4. Consecuencias
+7. **Finalización**
+    - Se marca la consulta como completada
 
-### Positivas
+---
 
--   Modelo claro y expresivo.
+## Riesgos / Deuda técnica
 
--   Auditoría completa y cronológica.
+- Todos los enums ubicados en `consultation/catalogs/enums/` están hardcodeados también en el frontend → No existe un endpoint REST que exponga estos valores. Se debe crear endpoint para que el frontend consuma dinámicamente estos catálogos (ConsultationStatusType, PrestationStatusType, DiscountType, etc.)
+- Complejidad alta del modelo → requiere buena documentación y testing
+- Validaciones críticas deben centralizarse en servicios de dominio
+- Posible sobrecarga en queries (uso intensivo de relaciones LAZY)
+- Riesgo de inconsistencias si no se validan:
+    - promociones vs descuentos
+    - ubicación de prestaciones
+    - estados de workflow
 
--   Separación correcta entre dominio y política de producto.
-
--   Fácil extensión futura (más correcciones, más eventos).
-
--   Compatible con WebSocket y notificaciones en tiempo real.
-
-### Negativas / Trade-offs
-
--   Requiere lógica adicional en servicios.
-
--   El conteo de correcciones implica queries adicionales.
-
-## Conclusión
-
-El diseño prioriza:
-
--   Claridad semántica.
-
--   Inmutabilidad clínica.
-
--   Flexibilidad de negocio.
-
--   Simplicidad para un entorno SaaS en crecimiento.
-
-El sistema queda preparado para escalar reglas sin reestructurar el modelo.
+---

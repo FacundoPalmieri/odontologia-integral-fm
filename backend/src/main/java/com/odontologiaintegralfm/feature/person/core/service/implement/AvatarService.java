@@ -5,8 +5,8 @@ import com.odontologiaintegralfm.infrastructure.systemparameter.enums.SystemPara
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.feature.person.core.model.Person;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAvatarService;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IFileStorageService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IAvatarService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IFileStorageService;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.interfaces.ISystemParameterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;

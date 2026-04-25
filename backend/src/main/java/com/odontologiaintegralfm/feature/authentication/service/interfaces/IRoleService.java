@@ -65,7 +65,7 @@ public interface IRoleService {
      * @param id El ID del rol que se desea buscar.
      * @return Un {@link Optional} que contiene el rol si se encuentra, o está vacío si no.
      */
-    Role getByIdInternal(Long id);
+    Role findById(Long id);
 
 
 

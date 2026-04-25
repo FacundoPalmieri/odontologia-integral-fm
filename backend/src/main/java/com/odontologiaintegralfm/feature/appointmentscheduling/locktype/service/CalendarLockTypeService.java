@@ -105,12 +105,12 @@ public class CalendarLockTypeService implements ICalendarLockTypeService {
      * Método interno de validación.
      */
     @Override
-    public CalendarLockType getByIdInternal(Long id) {
+    public CalendarLockType findById(Long id) {
         try{
             return calendarLockTypeRepository.findById(id)
                     .orElseThrow(() -> new NotFoundException("exception.calendarLockType.notFound.user", null, "exception.calendarLockType.notFound.log", new Object[]{id, "DentistCalendarLockService", "create"}, LogLevel.ERROR));
         }catch (CannotCreateTransactionException | DataAccessException e) {
-            throw new DataBaseException(e, "CalendarLockTypeService", id, null, "getByIdInternal");
+            throw new DataBaseException(e, "CalendarLockTypeService", id, null, "findById");
         }
     }
 

@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.person.core.service.implement;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.feature.person.core.model.AttachedFile;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IFileStorageService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IFileStorageService;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;

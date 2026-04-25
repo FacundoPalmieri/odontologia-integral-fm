@@ -89,7 +89,7 @@ public class RolePermissionActionService implements IRolePermissionActionService
 
 
             for (PermissionActionRequestDTO permissionAction : permissionActions) {
-                Permission permission = permissionService.getByIdInternal(permissionAction.getPermissionId());
+                Permission permission = permissionService.findById(permissionAction.getPermissionId());
 
                 for (Long idAction : permissionAction.getActionId()) {
                     Action action = actionService.getById(idAction);

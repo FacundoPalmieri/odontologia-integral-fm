@@ -33,7 +33,7 @@ public interface ICalendarLockTypeService {
      * Obtiene un tipo de bloqueo por su ID.
      * Método interno de validación. Este método es llamado desde el servicio de "DentistCalendarLockService" método "create"
      */
-     CalendarLockType getByIdInternal(Long id);
+     CalendarLockType findById(Long id);
 
 
     /**

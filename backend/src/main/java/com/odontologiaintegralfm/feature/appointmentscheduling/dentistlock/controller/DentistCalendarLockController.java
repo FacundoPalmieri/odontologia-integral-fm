@@ -5,8 +5,8 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockRequestCreateDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockResponseDTO;
-import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IDentistCalendarLockCreateUseCase;
-import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IDentistCalendarLockUpdateUseCase;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.ICreateDentistCalendarLockUseCase;
+import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IUpdateDentistCalendarLockUseCase;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class DentistCalendarLockController {
 
-    private final IDentistCalendarLockUpdateUseCase dentistCalendarLockUpdateService;
-    private final IDentistCalendarLockCreateUseCase dentistCalendarLockCreateUseCase;
+    private final IUpdateDentistCalendarLockUseCase dentistCalendarLockUpdateService;
+    private final ICreateDentistCalendarLockUseCase dentistCalendarLockCreateUseCase;
 
-    public DentistCalendarLockController(IDentistCalendarLockCreateUseCase dentistCalendarLockCreateUseCase, IDentistCalendarLockUpdateUseCase dentistCalendarLockUpdateService) {
+    public DentistCalendarLockController(ICreateDentistCalendarLockUseCase dentistCalendarLockCreateUseCase, IUpdateDentistCalendarLockUseCase dentistCalendarLockUpdateService) {
         this.dentistCalendarLockCreateUseCase = dentistCalendarLockCreateUseCase;
         this.dentistCalendarLockUpdateService = dentistCalendarLockUpdateService;
     }

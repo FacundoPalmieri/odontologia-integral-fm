@@ -298,7 +298,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
         //Resetea intentos fallidos a 0.
         userService.resetFailedAttempts(username);
 
-
         return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
     }
 

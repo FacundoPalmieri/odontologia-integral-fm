@@ -9,7 +9,7 @@ import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.person.core.model.Address;
 import com.odontologiaintegralfm.feature.person.core.repository.IAddressRepository;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAddressService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IAddressService;
 import com.odontologiaintegralfm.feature.person.catalogs.service.interfaces.IGeoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

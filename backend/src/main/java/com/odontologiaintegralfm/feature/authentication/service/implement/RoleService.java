@@ -145,7 +145,7 @@ public class RoleService implements IRoleService {
     public RoleFullResponseDTO getFullByRoleId(Long idRole) {
 
         //Obtiene la entidad
-        Role role = this.getByIdInternal(idRole);
+        Role role = this.findById(idRole);
 
         //Obtiene la relación persistida desde la base de datos.
         Set<RolePermissionAction> savedRolePermissionAction = rolePermissionActionService.getAllByRoleId(role.getId());
@@ -205,13 +205,13 @@ public class RoleService implements IRoleService {
      * @throws DataBaseException Si ocurre un error de acceso a la base de datos o de transacción.
      */
     @Override
-    public Role getByIdInternal(Long id) {
+    public Role findById(Long id) {
         try{
             return roleRepository.findById(id).orElseThrow(()->
-                    new BadRequestException("exception.roleNotFoundUserCreationException.user",null,"exception.roleNotFoundUserCreationException.log",new Object[]{id,"RoleService", "getByIdInternal"},LogLevel.ERROR));
+                    new BadRequestException("exception.roleNotFoundUserCreationException.user",null,"exception.roleNotFoundUserCreationException.log",new Object[]{id,"RoleService", "findById"},LogLevel.ERROR));
 
         }catch(DataAccessException | CannotCreateTransactionException e){
-            throw new DataBaseException(e,"roleService", id, "", "getByIdInternal");
+            throw new DataBaseException(e,"roleService", id, "", "findById");
 
         }
     }
@@ -256,7 +256,7 @@ public class RoleService implements IRoleService {
             //Valída que existan todos los permisos del DTO en la base de datos.
             roleRequestDto.getPermissionsList()
                     .forEach(permissionId -> {
-                        permissionService.getByIdInternal(permissionId.getPermissionId());
+                        permissionService.findById(permissionId.getPermissionId());
                     });
 
             //Crea las nuevas relaciones.
@@ -303,7 +303,7 @@ public class RoleService implements IRoleService {
             //Valída que existan todos los permisos del DTO en la base de datos.
             roleRequestDto.getPermissionsList()
                     .forEach(permissionId -> {
-                        permissionService.getByIdInternal(permissionId.getPermissionId());
+                        permissionService.findById(permissionId.getPermissionId());
                     });
 
             //Crea las nuevas relaciones.

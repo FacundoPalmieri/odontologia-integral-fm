@@ -8,7 +8,7 @@ import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.person.core.model.ContactEmail;
 import com.odontologiaintegralfm.feature.person.core.repository.IContactEmailRepository;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IContactEmailService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IContactEmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

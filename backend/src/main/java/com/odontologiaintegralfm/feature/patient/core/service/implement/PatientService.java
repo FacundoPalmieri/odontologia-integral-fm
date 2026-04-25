@@ -229,13 +229,13 @@ public class PatientService implements IPatientService {
      * @return La entidad recuperada
      */
     @Override
-    public Patient getByIdInternal(Long id) {
+    public Patient findById(Long id) {
         try{
             return patientRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundException("exception.patientNotFound.user",null, "exception.patientNotFound.log", new Object[]{id, "PatientService", "getByIdInternal"}, LogLevel.ERROR ));
+                    .orElseThrow(() -> new NotFoundException("exception.patientNotFound.user",null, "exception.patientNotFound.log", new Object[]{id, "PatientService", "findById"}, LogLevel.ERROR ));
 
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PatientService",id,"<- Id Paciente", "getByIdInternal");
+            throw new DataBaseException(e, "PatientService",id,"<- Id Paciente", "findById");
         }
     }
 

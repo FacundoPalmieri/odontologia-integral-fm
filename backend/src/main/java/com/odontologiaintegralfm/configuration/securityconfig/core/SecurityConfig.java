@@ -1,8 +1,8 @@
 package com.odontologiaintegralfm.configuration.securityconfig.core;
 import com.odontologiaintegralfm.feature.user.repository.IUserRepository;
 import com.odontologiaintegralfm.configuration.securityconfig.filter.JwtTokenValidator;
-import com.odontologiaintegralfm.configuration.securityconfig.filter.OAuth2UserFilter;
 import com.odontologiaintegralfm.feature.authentication.service.interfaces.IRefreshTokenService;
+import com.odontologiaintegralfm.feature.user.service.UserService;
 import com.odontologiaintegralfm.infrastructure.logging.service.ISystemLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -21,7 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
 
 @Configuration
 @EnableWebSecurity
@@ -59,7 +59,7 @@ public class SecurityConfig {
      * @throws Exception Si ocurre algún error al configurar la seguridad.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, UserService userService) throws Exception {
         return httpSecurity
                 //Rutas que se excluyen del filtro de Spring(Pero ingresar a los filtros de JWT)
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
@@ -86,7 +86,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 //Se agregan filtros Personalizados.
-                .addFilterBefore(new JwtTokenValidator(jwtUtils, messageSource, systemLogService),UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenValidator(jwtUtils, messageSource, systemLogService,userService),UsernamePasswordAuthenticationFilter.class)
                 //.addFilterBefore(new OAuth2UserFilter(jwtUtils,userRepository,messageSource,refreshTokenService), BasicAuthenticationFilter.class)
                 //.oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/holaseg",true))//Redirección luego de autenticación.
                 .build();

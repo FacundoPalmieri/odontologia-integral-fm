@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.core.dto;
 
 
-import com.odontologiaintegralfm.feature.consultation.core.enums.ToothFace;
+import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
 
 
 /**

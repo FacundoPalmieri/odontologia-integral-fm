@@ -39,7 +39,7 @@ public interface IUserService {
       * @param id El ID del usuario a recuperar.
       * @return La entidad recuperada
       */
-      UserSec getByIdInternal(Long id);
+      UserSec findById(Long id);
 
 
      /**

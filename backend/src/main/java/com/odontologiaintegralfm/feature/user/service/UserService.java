@@ -247,11 +247,11 @@ public class UserService implements IUserService {
      */
     @Override
     @Transactional(readOnly = true)
-    public UserSec getByIdInternal(Long id) {
+    public UserSec findById(Long id) {
         try {
-            return userRepository.findByIdAndEnabledTrue(id).orElseThrow(() -> new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log",new Object[]{id,"UserService", "getByIdInternal"}, LogLevel.ERROR ));
+            return userRepository.findByIdAndEnabledTrue(id).orElseThrow(() -> new NotFoundException("userService.getById.error.user", null, "userService.getById.error.log",new Object[]{id,"UserService", "findById"}, LogLevel.ERROR ));
         }catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "userService", id, null, "getByIdInternal");
+            throw new DataBaseException(e, "userService", id, null, "findById");
         }
     }
 
@@ -808,7 +808,7 @@ public class UserService implements IUserService {
     private void validateNotDevRole(UserSecCreateDTO userSecCreateDto) {
         //Obtener los roles mediante el ID del DTO
         for (Long id : userSecCreateDto.getRolesList()) {
-            Role role = roleService.getByIdInternal(id);
+            Role role = roleService.findById(id);
 
             //Valída que la creación no sea a un rol DEV
             if (role.getName().equals(com.odontologiaintegralfm.feature.authentication.enums.Role.DEVELOPER.name())){
@@ -873,7 +873,7 @@ public class UserService implements IUserService {
 
         //Obtener los roles mediante el ID del DTO
         for (Long id : userSecUpdateDto.getRolesList()) {
-            Role role = roleService.getByIdInternal(id);
+            Role role = roleService.findById(id);
 
             //Valída que la actualización no sea a un rol DEV
             if (role.getName().equals(com.odontologiaintegralfm.feature.authentication.enums.Role.DEVELOPER.name())) {
@@ -961,7 +961,7 @@ public class UserService implements IUserService {
             //Obtener los roles mediante el ID del DTO
             Set<Role> roleList = new HashSet<>();
             for(Long id : userSecUpdateDTO.getRolesList()) {
-                Role role = roleService.getByIdInternal(id);
+                Role role = roleService.findById(id);
                 roleList.add(role);
             }
 
@@ -1066,7 +1066,7 @@ public class UserService implements IUserService {
     private Set<Role> getRolesForUser(Set<Long> rolesList) {
         Set<Role> validRoles = new HashSet<>();
         for (Long id : rolesList) {
-            Role foundRole = roleService.getByIdInternal(id);
+            Role foundRole = roleService.findById(id);
             validRoles.add(foundRole);
         }
         return validRoles;

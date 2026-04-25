@@ -39,7 +39,7 @@ public interface IDentistAvailabilityService {
      * Método para obtener las jornadas laborales de un dentista.
      * @param idDentist: Id dentista.
      */
-    List<DentistAvailability> getByIdInternal(Long idDentist);
+    List<DentistAvailability> findById(Long idDentist);
 
 
 

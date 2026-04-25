@@ -21,9 +21,9 @@ import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.person.core.repository.IAttachedFilesRepository;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.implement.SystemParameterService;
 import com.odontologiaintegralfm.feature.user.service.UserService;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IAttachedFilesService;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IFileStorageService;
-import com.odontologiaintegralfm.feature.person.core.service.intefaces.IPersonService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IAttachedFilesService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IFileStorageService;
+import com.odontologiaintegralfm.feature.person.core.service.interfaces.IPersonService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -116,7 +116,7 @@ public class AttachedFilesService implements IAttachedFilesService {
         sizeVerification(file);
 
         //Valída que Id recibido corresponda a un usuario.
-        UserSec userSec = userService.getByIdInternal(id);
+        UserSec userSec = userService.findById(id);
 
         if(userSec.getPerson() != null){
             //Obtiene la persona.
@@ -191,7 +191,7 @@ public class AttachedFilesService implements IAttachedFilesService {
         sizeVerification(file);
 
         //Valída que Id recibido corresponda a un paciente.
-        Patient patient = patientService.getByIdInternal(id);
+        Patient patient = patientService.findById(id);
 
         //Obtiene la persona.
         Person person = personService.getById(patient.getId());
@@ -245,7 +245,7 @@ public class AttachedFilesService implements IAttachedFilesService {
 
 
             //Control de acceso a la descarga de archivo.
-            UserSec userSec =  userService.getByIdInternal(authenticatedUserService.getAuthenticatedUser().getId());
+            UserSec userSec =  userService.findById(authenticatedUserService.getAuthenticatedUser().getId());
             boolean havePermission = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .anyMatch(auth -> auth.equals("PERMISO_CONFIGURATION_UPLOAD"));
@@ -298,7 +298,7 @@ public class AttachedFilesService implements IAttachedFilesService {
             //Se busca si existe el ID Person en el archivo, si no existe no es paciente.
             if(file.getPerson() != null){
                 // Validación: verifica que la persona asociada sea un paciente
-                patientService.getByIdInternal(file.getPerson().getId());
+                patientService.findById(file.getPerson().getId());
 
                 //Recupera el archivo físico y retorna
                 return fileStorageService.getDocument(file);
@@ -324,7 +324,7 @@ public class AttachedFilesService implements IAttachedFilesService {
         try {
 
             //Valída que Id recibido corresponda a un usuario.
-            UserSec userSec = userService.getByIdInternal(idUser);
+            UserSec userSec = userService.findById(idUser);
 
             if (userSec.getPerson() != null) {
                 //Obtiene la persona.
@@ -354,7 +354,7 @@ public class AttachedFilesService implements IAttachedFilesService {
     public Response<List<AttachedFileResponseDTO>> getAllDocumentsMetadataByIdPatient(Long idPatient) throws IOException {
         try{
             //Valída que Id recibido corresponda a un paciente.
-            Patient patient = patientService.getByIdInternal(idPatient);
+            Patient patient = patientService.findById(idPatient);
 
             //Obtiene la persona.
             Person person = personService.getById(patient.getId());
@@ -396,7 +396,7 @@ public class AttachedFilesService implements IAttachedFilesService {
 
 
             //Control de acceso a la eliminación de archivo.
-            UserSec userSec =  userService.getByIdInternal(authenticatedUserService.getAuthenticatedUser().getId());
+            UserSec userSec =  userService.findById(authenticatedUserService.getAuthenticatedUser().getId());
             boolean havePermission = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .anyMatch(auth -> auth.equals("PERMISO_CONFIGURATION_UPLOAD"));
@@ -455,7 +455,7 @@ public class AttachedFilesService implements IAttachedFilesService {
             //Se busca si existe el ID Person en el archivo, si no existe no es paciente.
             if(file.getPerson() != null){
                 // Validación: verifica que la persona asociada sea un paciente
-                patientService.getByIdInternal(file.getPerson().getId());
+                patientService.findById(file.getPerson().getId());
 
                 //Realiza la baja lógica.
                 file.setEnabled(false);
