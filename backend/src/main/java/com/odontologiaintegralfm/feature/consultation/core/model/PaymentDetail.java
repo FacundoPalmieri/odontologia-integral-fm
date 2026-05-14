@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.core.model;
 
-import com.odontologiaintegralfm.shared.model.Auditable;
+import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

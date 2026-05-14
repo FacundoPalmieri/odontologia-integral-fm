@@ -4,6 +4,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -30,6 +32,7 @@ class CreateConsultationUseCaseTest {
     @Mock private IAppointmentService appointmentService;
     @Mock private ChangeConsultationStatusUseCase changeStatusUseCase;
     @Mock private MessageSource messageSource;
+    @Mock private IConsultationRepository consultationRepository;
 
     @InjectMocks private CreateConsultationUseCase useCase;
 
@@ -43,13 +46,27 @@ class CreateConsultationUseCaseTest {
                 .isInstanceOf(ConflictException.class);
     }
 
+    /**
+     * CASO: El turno ya tiene una consulta activa asociada.
+     * Validación: Lanza ConflictException — no se puede crear una segunda consulta para el mismo turno.
+     */
+    @Test
+    void execute_whenAppointmentAlreadyHasConsultation_throwsConflictException() {
+        Appointment appointment = mock(Appointment.class);
+        when(appointment.getDate()).thenReturn(LocalDateTime.now());
+        when(appointmentService.getById(1L)).thenReturn(appointment);
+        when(consultationRepository.existsByAppointmentId(1L)).thenReturn(true);
 
+        assertThatThrownBy(() -> useCase.execute(1L))
+                .isInstanceOf(ConflictException.class);
+    }
 
     @Test
     void execute_whenAppointmentDateIsToday_createsConsultationInWaitingRoom() {
         Appointment appointment = mock(Appointment.class);
         when(appointment.getDate()).thenReturn(LocalDateTime.now());
         when(appointmentService.getById(1L)).thenReturn(appointment);
+        when(consultationRepository.existsByAppointmentId(anyLong())).thenReturn(false);
 
         ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, "Paciente", "Dentista", "Sala de Espera");
         when(changeStatusUseCase.execute(any(), eq(ConsultationStatusType.WAITING_ROOM))).thenReturn(dto);

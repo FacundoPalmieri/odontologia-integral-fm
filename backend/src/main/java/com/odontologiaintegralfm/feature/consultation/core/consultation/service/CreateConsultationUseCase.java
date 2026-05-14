@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.servi
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationHistory;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -22,14 +23,17 @@ public class CreateConsultationUseCase {
     private final IAppointmentService appointmentService;
     private final ChangeConsultationStatusUseCase changeStatusUseCase;
     private final MessageSource messageSource;
+    private final IConsultationRepository consultationRepository;
 
 
     public CreateConsultationUseCase(IAppointmentService appointmentService,
                                ChangeConsultationStatusUseCase changeConsultationStatusUseCase,
-                               @Qualifier("messageSource") MessageSource messageSource) {
+                               @Qualifier("messageSource") MessageSource messageSource,
+                                     IConsultationRepository consultationRepository) {
         this.appointmentService = appointmentService;
         this.changeStatusUseCase = changeConsultationStatusUseCase;
         this.messageSource = messageSource;
+        this.consultationRepository = consultationRepository;
     }
 
 
@@ -73,7 +77,11 @@ public class CreateConsultationUseCase {
             throw new ConflictException("exception.appointmentNotEqualsNow.user", null, "exception.appointmentNotEqualsNow.log", new Object[]{idAppointment, appointment.getDate(), "createConsultationUseCase", "execute"}, LogLevel.ERROR);
         }
 
-        //Validamos que no exista otra consulta creada para el turno
+        //Validamos que no exista otra consulta para ese turno
+        if(consultationRepository.existsByAppointmentId(idAppointment)) {
+            throw new ConflictException("exception.createConsultationUseCase.duplicateAppointment.user",null,"exception.createConsultationUseCase.duplicateAppointment.log",new Object[]{idAppointment,"createConsultationUseCase", "execute"}, LogLevel.ERROR);
+        }
+
 
 
         //Creamos la consulta

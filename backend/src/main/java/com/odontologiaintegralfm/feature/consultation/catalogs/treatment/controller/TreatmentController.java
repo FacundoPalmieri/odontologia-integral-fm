@@ -67,7 +67,7 @@ public class TreatmentController {
         String sortByValue = (sortBy != null)? sortBy : defaultTreatmenSortBy;
         String directionValue = (direction != null)? direction : defaultDirection;
 
-        Response<Page<TreatmentResponseDTO>> response = treatmentService.getAll(pageValue,sizeValue, sortByValue, directionValue);
+        Response<Page<TreatmentResponseDTO>> response = treatmentService.findAll(pageValue,sizeValue, sortByValue, directionValue);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
