@@ -58,13 +58,13 @@ public class TreatmentConditionController {
     @OnlyAccessConsultationRead
     public ResponseEntity<Response<Page<TreatmentCondition>>> getAll(@RequestParam (required = false) Integer page,
                                                                      @RequestParam (required = false) Integer size,
-                                                                     @RequestParam (required = false) String SortBy,
-                                                                     @RequestParam (required = false) String Direction){
+                                                                     @RequestParam (required = false) String sortBy,
+                                                                     @RequestParam (required = false) String direction){
 
         int pageValue = (page != null) ? page : defaultPage;
         int sizeValue = (size != null) ? size : defaultSize;
-        String sortByValue = (SortBy != null) ? SortBy : defaultSortBy;
-        String directionValue = (Direction != null) ? Direction : defaultDirection;
+        String sortByValue = (sortBy != null) ? sortBy : defaultSortBy;
+        String directionValue = (direction != null) ? direction : defaultDirection;
 
         Response<Page<TreatmentCondition>> response = treatmentConditionService.getAll(pageValue, sizeValue, sortByValue, directionValue);
         return new ResponseEntity<>(response, HttpStatus.OK);

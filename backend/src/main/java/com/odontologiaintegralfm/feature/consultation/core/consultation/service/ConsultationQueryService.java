@@ -27,23 +27,8 @@ public class ConsultationQueryService {
 
 
 
-    /**
-     * Recupera una consulta por su ID, si no existe arroja NotFound exception.
-     *
-     * @param id : id de la consulta.
-     */
-    public Consultation findById(Long id) {
-        try{
-            return consultationRepository.findById(id)
-                    .orElseThrow(()->new NotFoundException("exception.consultation.notFound.user", null, "exception.consultation.notFound.log",new Object[]{id, "ConsultationQueryService","getById"}, LogLevel.ERROR));
-        }catch(CannotCreateTransactionException | DataAccessException e){
-            throw new DataBaseException(e, "ConsultationService", id, null, "getById");
-        }
-    }
 
-
-
-
+    //------------------ Métodos Cliente-------------------------------//
     /**
      * Método que brinda respuesta al controller.
      * Recupera una consulta por su ID, si no existe arroja NotFound exception.
@@ -60,8 +45,28 @@ public class ConsultationQueryService {
                 null,
                 consultationMapper.toDTO(consultation)
         );
-
-
     }
+
+
+
+
+
+    //------------------ Métodos Internos-------------------------------//
+
+    /**
+     * Recupera una consulta por su ID, si no existe arroja NotFound exception.
+     *
+     * @param id : id de la consulta.
+     */
+    public Consultation findById(Long id) {
+        try{
+            return consultationRepository.findById(id)
+                    .orElseThrow(()->new NotFoundException("exception.consultation.notFound.user", null, "exception.consultation.notFound.log",new Object[]{id, "ConsultationQueryService","findById"}, LogLevel.ERROR));
+        }catch(CannotCreateTransactionException | DataAccessException e){
+            throw new DataBaseException(e, "ConsultationService", id, null, "getById");
+        }
+    }
+
+
 
 }

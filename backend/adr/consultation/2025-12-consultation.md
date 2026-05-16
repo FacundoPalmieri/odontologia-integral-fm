@@ -95,6 +95,10 @@ Se prioriza un modelo robusto y extensible que permita:
 - Versionado de precios mediante `PrestationTypePrice`
 - Aplicación exclusiva de **promoción o descuento manual (nunca ambos)**
 - Soporte para prestaciones con y sin ubicación (odontograma)
+- Modelo de persistencia **delta** para odontograma y prestaciones: solo se persisten cambios o registros nuevos, nunca copias completas por visita
+- `PrestationStepInstance` referencia la `ConsultationInstance` en la que fue ejecutado, permitiendo reconstruir el estado por fecha
+- `Consultation` y `ConsultationInstance` tienen relación **1:1**: cada visita genera exactamente una de cada una
+- El request al crear una `ConsultationInstance` está dividido en tres listas independientes: `odontogram[]`, `prestationNew[]` y `stepAdvancements[]`
 
 ---
 
@@ -140,6 +144,12 @@ Se prioriza un modelo robusto y extensible que permita:
     - puede estar asociado a un **OdontogramDetail** (opcional)
     - puede tener múltiples **PrestationStepInstance**
 
+- Un **PrestationStepInstance**:
+    - se crea en un ConsultationInstance
+    - avanza mediante relación a ConsultationInstance
+
+
+
 - Un **PrestationType**:
     - tiene múltiples **Treatment**
     - tiene múltiples **PrestationStep**
@@ -181,23 +191,49 @@ Se prioriza un modelo robusto y extensible que permita:
     - Tratamientos requeridos
     - Tratamientos en progreso o finalizados
 
----
+##### Modelo de persistencia (delta)
+
+- Cada registro es una **observación inmutable**: nunca se modifica, solo se inserta uno nuevo cuando algo cambia.
+- El frontend envía **solo los dientes que tuvieron algún cambio o son nuevos** en esa visita.
+- **Estado actual de la boca** = último registro por diente para ese paciente (`ORDER BY date DESC`).
+- **Snapshot en fecha X** = último registro por diente donde `consultation_date <= X`.
+
 
 #### Prestaciones (PrestationInstance)
 
 - Debe tener:
     - tipo (`PrestationType`)
-    - Si tiene flag isUnique → no puede repetirse en la misma ConsultationInstance(odontogramDetail)
+    - Si tiene flag isUnique → debe ser la única prestación en la ConsultationInstance; no puede combinarse con ninguna otra
     - precio congelado al momento de creación
 - Puede:
     - Tener ubicación (odontograma)
     - No tener ubicación → usar `scope`
 
+##### Modelo de persistencia (delta)
+
+- Una `PrestationInstance` se crea **una sola vez**, en la visita donde nació. No se copia entre visitas.
+- Las prestaciones `IN_PROGRESS` de visitas anteriores son visibles en nuevas consultas mediante query por paciente.
+- `PrestationStepInstance` registra en qué visita fue ejecutado cada step mediante FK a `ConsultationInstance`.
+- **Snapshot de prestaciones en fecha X**:
+    - Prestaciones: todas las del paciente con `createdAt <= X`
+    - Steps: todos los de esas prestaciones con `consultationInstance.date <= X`
+
+##### Regla: unicidad por ubicación en prestaciones IN_PROGRESS
+
+- No se puede crear una nueva `PrestationInstance` del mismo `PrestationType` en la misma ubicación (mismo diente + cara, o mismo scope) si ya existe una `PrestationInstance` `IN_PROGRESS` para ese paciente en esa ubicación → error
+
+
 ---
 
 #### Ubicación de prestación
 
-Si **NO hay OdontogramDetail**:
+**Caso 1 — Con tratamiento (odontograma)**
+
+- La prestación referencia un `OdontogramDetail` existente en el mismo request.
+- La ubicación (diente + cara) queda implícita en ese registro de odontograma.
+- No se envían campos de scope.
+
+**Caso 2 — Sin tratamiento (scope explícito)**
 
 - Se debe definir:
     - `scope` (TOOTH, QUADRANT, FULL_MOUTH, etc.)
@@ -206,6 +242,10 @@ Si **NO hay OdontogramDetail**:
         - toothFace
         - quadrant
         - maxillary
+- Se debe validar que el scope tenga relación con el campo enviado.
+    Ej: scope: TOOTH, se debe recibir solo un dato tooth.
+
+
 
 ---
 
@@ -246,7 +286,7 @@ finalAmount = price - promotionAmount - discountAmount
 
 #### PrestationType
 
-- `isUnique = true` → no puede repetirse en el mismo odontograma
+- `isUnique = true` → la prestación debe venir sola en la ConsultationInstance; no puede combinarse con ninguna otra prestación
 - `hasSteps = true` → requiere workflow de pasos
 - `requiresLocation = true` → debe tener odontograma o scope
 
@@ -256,7 +296,46 @@ finalAmount = price - promotionAmount - discountAmount
 
 - Ordenados (`order`)
 - Puede haber pasos obligatorios (`required`)
-- Cada instancia tiene su propio estado
+- Cada instancia tiene su propio estado (`PrestationStepStatus`)
+
+##### Estados de PrestationStepInstance
+
+| Estado | Descripción |
+|---|---|
+| `IN_PROGRESS` | El step fue iniciado pero aún no finalizado. Puede permanecer abierto entre visitas. |
+| `COMPLETED` | El step fue completado. |
+| `OMITTED` | El frontend lo envía explícitamente cuando el odontólogo decide no realizar un step opcional. El backend valida que el step no sea `required`. |
+| `CANCELLED` | Estado de corrección. No forma parte del flujo de creación de `ConsultationInstance`. Solo disponible en el flujo de corrección de instancias (use case dedicado, pendiente de implementación). |
+
+##### Reglas de transición de steps en una PrestationInstance
+
+- En `stepAdvancements[]`, únicamente se aceptan los estados `IN_PROGRESS`, `COMPLETED` y `OMITTED`
+- El estado `CANCELLED` no es válido en `stepAdvancements[]`
+- Una `PrestationInstance` con un estado diferente a `IN_PROGRESS` no puede recibir `stepAdvancements[]`
+- Si el step enviado en `stepAdvancements[]` no corresponde a ningún `PrestationStep` del `PrestationType` de la `PrestationInstance` referenciada → error
+- Si un `PrestationStepInstance` ya existe en la DB con estado `IN_PROGRESS` y llega nuevamente en `stepAdvancements[]`, el único estado válido es `COMPLETED` — no puede volver a enviarse como `IN_PROGRESS` ni como `OMITTED` → error si se envía otro estado
+- Un `PrestationStepInstance` puede crearse directamente como `COMPLETED` sin haber pasado por `IN_PROGRESS` — aplica cuando el step nace y se finaliza en la misma visita
+- Si existe un `PrestationStepInstance` en `IN_PROGRESS` para una `PrestationInstance`, y el request incluye un step con `order` mayor para esa misma prestación, el mismo request debe incluir la resolución del `IN_PROGRESS` anterior a `COMPLETED`; de lo contrario → error
+- Pueden enviarse múltiples entries para la misma `prestationInstanceId` en `stepAdvancements[]` — el sistema los procesa ordenados por `PrestationStep.order`, no por posición en el array
+- Un step con estado `COMPLETED` no puede volver a registrarse → error
+- Tras procesar cada step, el sistema evalúa automáticamente si la `PrestationInstance` puede cerrarse (ver *Finalización de PrestationInstance*)
+
+##### Finalización de PrestationInstance
+
+Una `PrestationInstance` pasa automáticamente a `COMPLETED` cuando se cumplen todas las siguientes condiciones:
+
+- Ningún `PrestationStepInstance` en estado `IN_PROGRESS`
+- Todos los `PrestationStep` marcados como `required` tienen un `PrestationStepInstance` con estado `COMPLETED`
+- Todos los `PrestationStep` no `required` tienen un `PrestationStepInstance` con estado `COMPLETED` u `OMITTED`
+
+La evaluación es automática tras cada procesamiento de step — no requiere una acción explícita adicional.
+
+**Caso: último step opcional no ejecutado**
+Si el odontólogo no desea realizar el último step y este no es `required`, el frontend lo envía explícitamente como `OMITTED`. El sistema crea el `PrestationStepInstance` con ese estado, evalúa las condiciones y cierra la `PrestationInstance` automáticamente.
+- `OMITTED` es un estado válido en `stepAdvancements[]` — el frontend lo envía explícitamente cuando el odontólogo decide no realizar un step; el backend crea el `PrestationStepInstance` con estado `OMITTED` para mantener trazabilidad
+- Un step enviado como `OMITTED` que sea `required` → error
+- Antes de registrar un step con `order` N, todos los steps con `order` menor deben estar en estado final (`COMPLETED` u `OMITTED`), ya sea en la DB o en el mismo request; si algún step previo no existe en ninguno de los dos → error
+- Si un step no llega en el request, no se registra — el backend no crea ni infiere nada por su ausencia
 
 ---
 
@@ -277,28 +356,43 @@ finalAmount = price - promotionAmount - discountAmount
 ### Flujo
 
 1. **Creación de Consultation**
-    - Se asigna paciente, odontólogo y turno
+    - Se asigna paciente, odontólogo y turno (`Appointment`)
 
-2. **Inicio de atención**
-    - Se crea una o más ConsultationInstance
+2. **Apertura de atención**
+    - Se crea la `ConsultationInstance` (1:1 con `Consultation`)
+    - El frontend pre-carga el estado actual de la boca del paciente (odontograma reconstruido por query delta) y la grilla de prestaciones `IN_PROGRESS` de visitas anteriores
 
-3. **Registro clínico**
-    - Se completa odontograma (OdontogramDetail)
+3. **El odontólogo trabaja durante la consulta**
+    - Registra cambios en dientes (nuevas condiciones o nuevos dientes)
+    - Crea prestaciones nuevas con o sin tratamiento
+    - Avanza steps de prestaciones existentes
 
-4. **Asignación de prestaciones**
-    - Se crean PrestationInstance
-    - Se define precio, descuentos o promociones
+4. **Finalización de la consulta — el frontend envía un único request**
 
-5. **Ejecución de prestaciones**
-    - Cambio de estado
-    - Ejecución de pasos (si aplica)
+    El request contiene tres listas:
 
-6. **Facturación**
-    - Se generan pagos (Payment)
-    - Se distribuyen en PaymentDetail
+    - `odontogram[]` — solo los dientes con observaciones **nuevas o condición modificada** en esta visita
+    - `prestationNew[]` — prestaciones que **nacen en esta visita**, con tipo, ubicación (odontograma o scope) y opcionalmente el primer step
+    - `stepAdvancements[]` — avances de steps de prestaciones **ya existentes** de visitas anteriores, identificadas por `prestationInstanceId`
 
-7. **Finalización**
-    - Se marca la consulta como completada
+5. **Cómo persiste la API (todo en una transacción)**
+    - Valida que no exista ya una `ConsultationInstance` para esa `Consultation` (1:1)
+    - Guarda `ConsultationInstance`
+    - Inserta los registros de `Odontogram` del request (delta)
+    - Para cada prestación nueva:
+        - Resuelve la referencia al `Odontogram` desde la lista del mismo request
+        - Crea la `PrestationInstance` con precio congelado
+        - Si viene step inicial, crea el `PrestationStepInstance` vinculado a la `ConsultationInstance` actual
+    - Para cada avance de step:
+        - Valida que la prestación pertenece al mismo paciente y está `IN_PROGRESS`
+        - Crea el `PrestationStepInstance` vinculado a la `ConsultationInstance` actual
+
+6. **Finalización**
+    - Se marca la `Consultation` como completada
+
+7. **Facturación**
+    - Se generan pagos (`Payment`) vinculados a la `ConsultationInstance`
+    - Se distribuyen en `PaymentDetail` por prestación (parcial o total)
 
 ---
 
@@ -312,5 +406,6 @@ finalAmount = price - promotionAmount - discountAmount
     - promociones vs descuentos
     - ubicación de prestaciones
     - estados de workflow
+- Cancelación y corrección de `PrestationStepInstance` y `PrestationInstance` no forman parte del flujo de creación de `ConsultationInstance` — cada tipo de corrección tendrá su propio flujo dedicado
 
 ---

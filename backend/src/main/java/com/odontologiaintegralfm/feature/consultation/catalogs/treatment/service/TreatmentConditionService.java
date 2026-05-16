@@ -1,9 +1,11 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service;
 
 import com.odontologiaintegralfm.shared.dto.Response;
+import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.TreatmentCondition;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.repository.ITreatmentConditionRepository;
+import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -15,9 +17,7 @@ import org.springframework.transaction.CannotCreateTransactionException;
 
 import java.util.List;
 
-/**
- * @author [Facundo Palmieri]
- */
+
 @Service
 public class TreatmentConditionService {
 
@@ -49,4 +49,12 @@ public class TreatmentConditionService {
     public List<TreatmentCondition> getAll() {
         return  treatmentConditionRepository.findAll();
     }
+
+
+    public TreatmentCondition findById(Long id) {
+        return  treatmentConditionRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("exceptionTreatmentConditionService.notFound.user",null,"exceptionTreatmentConditionService.notFound.log",new Object[]{id,"TreatmentConditionService", "findById"}, LogLevel.ERROR));
+    }
+
+
 }

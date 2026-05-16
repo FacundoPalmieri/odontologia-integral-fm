@@ -35,7 +35,7 @@ public class TreatmentService  {
      *
      * @return {@link TreatmentResponseDTO}
      */
-    public  Response<Page<TreatmentResponseDTO>> getAll(int pageValue,int sizeValue, String sortBy, String direction) {
+    public  Response<Page<TreatmentResponseDTO>> findAll(int pageValue, int sizeValue, String sortBy, String direction) {
        try{
            //Define criterio de ordenamiento
            Sort sort = direction.equalsIgnoreCase("desc")
@@ -63,7 +63,7 @@ public class TreatmentService  {
     /**
      * Obtiene todos los tratamientos "habilitdos" en una lista para uso interno.
      */
-    public List<Treatment> getAll() {
+    public List<Treatment> findAll() {
         try{
             return treatmentRepository.findAll();
         }catch(DataAccessException | CannotCreateTransactionException e){
@@ -76,7 +76,7 @@ public class TreatmentService  {
      *
      * @param id : id del tratamiento.
      */
-    public Treatment getById(Long id) {
+    public Treatment findById(Long id) {
         try{
             return treatmentRepository.findById(id)
                     .orElseThrow(() -> new ConflictException("exception.treatment.notFound.user",null,"exception.treatment.notFound.log",new Object[]{id,"TreatmentService","getById" }, LogLevel.ERROR));

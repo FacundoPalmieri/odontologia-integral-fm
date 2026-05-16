@@ -88,7 +88,7 @@ public class ConsultationController {
     })
     @PatchMapping("/{idConsultation}/correction")
     @OnlyAccessConsultationUpdate
-    public ResponseEntity<Response<ConsultationResponseDTO>> updateCorrection(@PathVariable @NotNull Long idConsultation, ConsultationCorrectionRequestDTO correction) {
+    public ResponseEntity<Response<ConsultationResponseDTO>> updateCorrection(@PathVariable @NotNull Long idConsultation,@RequestBody ConsultationCorrectionRequestDTO correction) {
 
         Response<ConsultationResponseDTO> response = updateConsultationCorrectionUseCase.execute(idConsultation,correction);
         return ResponseEntity.ok(response);
@@ -125,7 +125,7 @@ public class ConsultationController {
     })
     @DeleteMapping("/{idConsultation}/disabled")
     @OnlyAccessConsultationUpdate
-    public ResponseEntity<Response<Void>> disabled(@PathVariable @NotNull Long idConsultation, String observation) {
+    public ResponseEntity<Response<Void>> disabled(@PathVariable @NotNull Long idConsultation,@RequestBody String observation) {
 
         Response<Void> response = desactivateConsultationUseCase.execute(idConsultation, observation);
         return ResponseEntity.ok(response);
