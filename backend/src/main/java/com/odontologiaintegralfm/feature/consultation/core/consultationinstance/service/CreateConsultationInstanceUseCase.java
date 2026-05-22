@@ -8,8 +8,10 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.servic
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.PromotionService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service.TreatmentConditionService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service.TreatmentService;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ChangeConsultationStatusUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationQueryService;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
@@ -65,7 +67,7 @@ public class CreateConsultationInstanceUseCase {
     private final OdontogramMapper odontogramMapper;
     private final PrestationInstanceMapper prestationInstanceMapper;
     private final MessageSource messageSource;
-
+    private final ChangeConsultationStatusUseCase changeConsultationStatusUseCase;
     public CreateConsultationInstanceUseCase(ConsultationQueryService consultationQueryService,
                                              IConsultationInstanceRepository consultationInstanceRepository,
                                              PrestationInstanceDomainService prestationInstanceDomainService,
@@ -81,7 +83,8 @@ public class CreateConsultationInstanceUseCase {
                                              PromotionService promotionService,
                                              OdontogramMapper odontogramMapper,
                                              PrestationInstanceMapper prestationInstanceMapper,
-                                             MessageSource messageSource) {
+                                             MessageSource messageSource,
+                                             ChangeConsultationStatusUseCase changeConsultationStatusUseCase) {
         this.consultationQueryService = consultationQueryService;
         this.consultationInstanceRepository = consultationInstanceRepository;
         this.prestationInstanceDomainService = prestationInstanceDomainService;
@@ -98,6 +101,7 @@ public class CreateConsultationInstanceUseCase {
         this.odontogramMapper = odontogramMapper;
         this.prestationInstanceMapper = prestationInstanceMapper;
         this.messageSource = messageSource;
+        this.changeConsultationStatusUseCase = changeConsultationStatusUseCase;
     }
 
     @LogAction(
@@ -256,11 +260,17 @@ public class CreateConsultationInstanceUseCase {
             prestationStepInstanceRepository.saveAll(newStepInstances);
         }
 
+
+        //Actualiza la consulta + crea historial + envía webSocket.
+        ConsultationResponseDTO consultationResponseDTO = changeConsultationStatusUseCase.execute(consultation, ConsultationStatusType.PENDING_PAYMENT);
+
+
         return new Response<>(
                 true,
                 messageSource.getMessage("createConsultationInstanceUseCase.create.ok", null, LocaleContextHolder.getLocale()),
                 new ConsultationInstanceResponseDTO(
                         consultationInstance.getId(),
+                        consultationResponseDTO,
                         odontogramsSaved.stream().map(odontogramMapper::toDTO).toList(),
                         prestationInstanceList.stream().map(prestationInstanceMapper::toDTO).toList(),
                         consultationInstance.getObservation()
