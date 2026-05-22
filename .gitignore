@@ -21,6 +21,7 @@ target/
 *.sql
 *.log
 *.log.*
+*.env
 backend/logs/
 
 
