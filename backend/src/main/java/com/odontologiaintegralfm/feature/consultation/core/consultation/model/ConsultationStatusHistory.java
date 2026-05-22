@@ -15,7 +15,7 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "consultations_status_history")
-public class ConsultationHistory extends AuditableJPA {
+public class ConsultationStatusHistory extends AuditableJPA {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,13 +29,13 @@ public class ConsultationHistory extends AuditableJPA {
     private ConsultationStatusType consultationStatusType;
 
 
-    private ConsultationHistory(Consultation consultation, ConsultationStatusType consultationStatusType) {
+    private ConsultationStatusHistory(Consultation consultation, ConsultationStatusType consultationStatusType) {
         this.consultation = consultation;
         this.consultationStatusType = consultationStatusType;
     }
 
-    public static ConsultationHistory build(Consultation consultation, ConsultationStatusType type) {
-        return new ConsultationHistory(
+    public static ConsultationStatusHistory build(Consultation consultation, ConsultationStatusType type) {
+        return new ConsultationStatusHistory(
                 consultation,
                 type
         );
