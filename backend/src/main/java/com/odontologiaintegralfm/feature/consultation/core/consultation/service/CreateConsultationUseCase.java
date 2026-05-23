@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.consultation.core.consultation.service
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
-import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationHistory;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationStatusHistory;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
@@ -47,7 +47,7 @@ public class CreateConsultationUseCase {
      *     <li>Verifica que el turno corresponda al día actual.</li>
      *     <li>Construye una nueva {@link Consultation} en estado {@code WAITING_ROOM} utilizando factory.</li>
      *     <li>Persiste la consulta recién creada.</li>
-     *     <li>Registra la entrada inicial en el historial de estados mediante {@link ConsultationHistory#build}.</li>
+     *     <li>Registra la entrada inicial en el historial de estados mediante {@link ConsultationStatusHistory#build}.</li>
      *     <li>Retorna información relevante al cliente mediante un DTO simplificado.</li>
      * </ul>
      *

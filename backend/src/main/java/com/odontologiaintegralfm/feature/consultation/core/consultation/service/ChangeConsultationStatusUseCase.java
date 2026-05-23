@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.core.consultation.service
 
 import com.odontologiaintegralfm.feature.consultation.core.consultation.mapper.ConsultationMapper;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
-import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationHistory;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationStatusHistory;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
@@ -17,17 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChangeConsultationStatusUseCase {
 
     private final IConsultationRepository consultationRepository;
-    private final ConsultationHistoryService consultationHistoryService;
+    private final ConsultationStatusHistoryService consultationStatusHistoryService;
     private final WebSocketEventPublisher webSocketEventPublisher;
     private final ConsultationMapper consultationMapper;
 
 
     ChangeConsultationStatusUseCase(IConsultationRepository consultationRepository,
-                                    ConsultationHistoryService consultationHistoryService,
+                                    ConsultationStatusHistoryService consultationStatusHistoryService,
                                     WebSocketEventPublisher webSocketEventPublisher,
                                     ConsultationMapper consultationMapper) {
         this.consultationRepository = consultationRepository;
-        this.consultationHistoryService = consultationHistoryService;
+        this.consultationStatusHistoryService = consultationStatusHistoryService;
         this.webSocketEventPublisher = webSocketEventPublisher;
         this.consultationMapper = consultationMapper;
     }
@@ -50,8 +50,8 @@ public class ChangeConsultationStatusUseCase {
 
 
     private void createHistory(Consultation saved, ConsultationStatusType newStatus) {
-        consultationHistoryService.create(
-                ConsultationHistory.build(saved, newStatus)
+        consultationStatusHistoryService.create(
+                ConsultationStatusHistory.build(saved, newStatus)
         );
     }
 

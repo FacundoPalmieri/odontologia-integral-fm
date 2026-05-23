@@ -12,6 +12,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 public class ConsultationQueryService {
 
@@ -44,6 +48,19 @@ public class ConsultationQueryService {
                 true,
                 null,
                 consultationMapper.toDTO(consultation)
+        );
+    }
+
+
+
+    public Response<List<ConsultationResponseDTO>>getAllByDate() {
+        LocalDate today = LocalDate.now();
+        List<Consultation> consultations =  consultationRepository.findAllByDate(today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+
+        return new Response<>(
+                true,
+                null,
+                consultationMapper.toDTO(consultations)
         );
     }
 

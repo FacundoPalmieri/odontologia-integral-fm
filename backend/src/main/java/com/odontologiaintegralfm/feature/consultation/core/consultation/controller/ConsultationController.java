@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 /**
  * Controlador que representa la gestión de consultas.
@@ -110,6 +112,21 @@ public class ConsultationController {
         Response<ConsultationResponseDTO> response = consultationQueryService.getById(idConsultation);
         return ResponseEntity.ok(response);
     }
+
+
+    @Operation(summary = "Obtener estados de consulta por día", description = "Obtiene el estado actual de todas las consultas del día.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consultas recuperadas"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @GetMapping
+    @OnlyAccessConsultationRead
+    public ResponseEntity<Response<List<ConsultationResponseDTO>>> getAllByDate() {
+        Response<List<ConsultationResponseDTO>> response = consultationQueryService.getAllByDate();
+        return ResponseEntity.ok(response);
+    }
+
 
 
 
