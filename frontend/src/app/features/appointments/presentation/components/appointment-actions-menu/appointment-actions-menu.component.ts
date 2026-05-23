@@ -50,4 +50,28 @@ export class AppointmentActionsMenuComponent {
       }
     });
   }
+
+  callPatient() {
+    this.consultationService.callPatient(this.appointment().id).subscribe({
+      next: () => {
+        this.snackbarService.openSnackbar(
+          "Paciente llamado a consulta.",
+          4000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Success
+        );
+        this.actionPerformed.emit();
+      },
+      error: () => {
+        this.snackbarService.openSnackbar(
+          "Error al llamar al paciente a consulta",
+          4000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Error
+        );
+      }
+    });
+  }
 }

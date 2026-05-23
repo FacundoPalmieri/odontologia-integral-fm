@@ -44,4 +44,9 @@ export class ConsultationService {
     );
   }
 
+  getConsultations() {
+    return this.http.get<ApiResponseInterface<ConsultationResponse[]>>(
+      `${this.apiUrl}/consultation`
+    );
+  }
 }

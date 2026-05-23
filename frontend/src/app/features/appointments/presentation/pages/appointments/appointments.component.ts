@@ -20,7 +20,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { AppointmentService } from "../../../services/appointment.service";
 import { RoleEnum } from "../../../../../shared/utils/enums/role.enum";
 import { MatDialogModule, MatDialog } from "@angular/material/dialog";
 import { CreateAppointmentDialogComponent } from "../../../../calendar/presentation/components/create-appointment-dialog/create-appointment-dialog.component";
@@ -32,7 +31,7 @@ import { DentistDto } from "../../../../calendar/data/dtos/dentist.dto";
 import { AppointmentsTableComponent } from "../../components/appointments-table/appointments-table.component";
 import { AppointmentsCardsComponent } from "../../components/appointments-cards/appointments-cards.component";
 import { CalendarService } from "../../../../calendar/services/calendar.service";
-import { forkJoin } from "rxjs";
+import { ConsultationService } from "../../../services/consultation.service";
 
 @Component({
   selector: "app-appointments",
@@ -64,7 +63,9 @@ export class AppointmentsComponent {
   private readonly snackbarService = inject(SnackbarService);
   private readonly dentistService = inject(DentistService);
   private readonly websocketService = inject(WebsocketService);
-  private readonly calendarService = inject(CalendarService);
+  private readonly consultationService = inject(ConsultationService);
+
+  private readonly _appointmentStatuses = new Map<number, string>();
 
   appointments = signal<any[]>([]);
   allTodayAppointments = signal<any[]>([]);
@@ -109,16 +110,42 @@ export class AppointmentsComponent {
   constructor() {
     this._loadData();
     this._loadDentists();
+
     effect(() => {
       localStorage.setItem("appointmentsViewMode", this.viewMode());
     });
 
     this.websocketService.consultationUpdates$
       .pipe(takeUntilDestroyed())
-      .subscribe(() => {
-        console.log("[AppointmentsComponent] Consultation update received. Reloading today's appointments...");
-        this._loadData();
+      .subscribe((payload) => {
+        console.log("[AppointmentsComponent] Consultation update received:", payload);
+        const consultation = payload?.data;
+        const type = payload?.type;
+        if (consultation && consultation.id) {
+          const statusVal = type || consultation.consultationStatus;
+          const localStatus = this.mapSocketStatusToLocalStatus(statusVal);
+          this._appointmentStatuses.set(consultation.id, localStatus);
+          this._loadData(localStatus);
+        } else {
+          this._loadData();
+        }
       });
+  }
+
+  private mapSocketStatusToLocalStatus(socketStatusOrType: string): string {
+    const statusMap: { [key: string]: string } = {
+      // Map by type (event)
+      "PATIENT_RECEIVED": "En espera",
+      "ATTENTION_STARTED": "En consulta",
+      "PAYMENT_REGISTERED": "Pendiente de pago",
+      "ATTENTION_FINISHED": "Finalizada",
+      // Map by status string
+      "Sala de Espera": "En espera",
+      "En Atención": "En consulta",
+      "Pendiente de Pago": "Pendiente de pago",
+      "Finalizada": "Finalizada",
+    };
+    return statusMap[socketStatusOrType] || socketStatusOrType;
   }
 
   toggleFilter(status: string) {
@@ -157,39 +184,46 @@ export class AppointmentsComponent {
     this.toggleFilter("Cancelada");
   }
 
-  protected _loadData() {
-    const userRole = this.localStorageService.getUserRole();
-    const personId = this.localStorageService.getUserData()?.person?.id || 0;
-    const today = new Date();
-
-    if (userRole === RoleEnum.DENTIST) {
-      this.calendarService.getDay(personId, today).subscribe((response) => {
-        const slots = response.data?.slots || [];
-        const mapped = this._mapSlotsToAppointments(slots);
-        this.allTodayAppointments.set(mapped);
+  protected _loadData(targetFilter?: string | null) {
+    const applyFilter = (mapped: any[]) => {
+      this.allTodayAppointments.set(mapped);
+      
+      const filter = targetFilter !== undefined ? targetFilter : this.activeFilter();
+      this.activeFilter.set(filter);
+      
+      if (filter) {
+        this.appointments.set(mapped.filter((a) => a.status === filter));
+      } else {
         this.appointments.set(mapped);
-      });
-    } else {
-      this.dentistService.getAll().subscribe((response) => {
-        const dentists = response.data || [];
-        if (dentists.length === 0) {
-          this.allTodayAppointments.set([]);
-          this.appointments.set([]);
-          return;
-        }
+      }
+    };
 
-        const requests = dentists.map((d) =>
-          this.calendarService.getDay(d.person.id, today),
-        );
-
-        forkJoin(requests).subscribe((responses) => {
-          const allSlots = responses.flatMap((res) => res.data?.slots || []);
-          const mapped = this._mapSlotsToAppointments(allSlots);
-          this.allTodayAppointments.set(mapped);
-          this.appointments.set(mapped);
+    this.consultationService.getConsultations().subscribe({
+      next: (response) => {
+        console.log("[AppointmentsComponent] Active consultations fetched:", response);
+        const consultations = response.data || [];
+        const mapped = consultations.map((c: any) => {
+          const socketStatusOverride = this._appointmentStatuses.get(c.id);
+          const status = socketStatusOverride || this.mapSocketStatusToLocalStatus(c.consultationStatus);
+          
+          return {
+            id: c.id,
+            firstName: c.patientName,
+            lastName: "",
+            appointmentDateTime: null,
+            duration: null,
+            professional: c.dentistName,
+            status: status,
+          };
         });
-      });
-    }
+        applyFilter(mapped);
+      },
+      error: (err) => {
+        console.error("[AppointmentsComponent] Error loading consultations:", err);
+        this.allTodayAppointments.set([]);
+        this.appointments.set([]);
+      }
+    });
   }
 
   private _mapSlotsToAppointments(slots: any[]): any[] {
@@ -207,6 +241,8 @@ export class AppointmentsComponent {
         const lastName = nameParts[0] || appointment.patientName || "N/A";
         const firstName = nameParts[1] || "";
 
+        const localStatus = this._appointmentStatuses.get(appointment.id) || "Agendado";
+
         return {
           id: appointment.id,
           firstName,
@@ -214,7 +250,7 @@ export class AppointmentsComponent {
           appointmentDateTime: appointment.appointmentDateTime,
           duration,
           professional: appointment.dentistName,
-          status: "Agendado",
+          status: localStatus,
         };
       })
       .sort((a, b) => {
