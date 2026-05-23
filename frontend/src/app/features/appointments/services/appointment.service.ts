@@ -28,153 +28,12 @@ export class AppointmentService {
   http = inject(HttpClient);
   apiUrl = environment.apiUrl;
 
-  scheduled_appointments = [
-    {
-      firstName: "Lucía",
-      lastName: "Pérez",
-      dni: "34.567.890",
-      appointmentDateTime: "2025-07-29T09:00",
-      duration: 30,
-      professional: "Dr. Ana López",
-      status: "Agendado",
-    },
-    {
-      firstName: "Florencia",
-      lastName: "Acosta",
-      dni: "42.123.456",
-      appointmentDateTime: "2025-07-29T12:00",
-      duration: 45,
-      professional: "Dr. Pablo Méndez",
-      status: "Agendado",
-    },
-    {
-      firstName: "Ignacio",
-      lastName: "Herrera",
-      dni: "38.990.123",
-      appointmentDateTime: "2025-07-29T14:30",
-      duration: 20,
-      professional: "Dr. Juan Rodríguez",
-      status: "Agendado",
-    },
-  ];
-  waiting_appointments = [
-    {
-      firstName: "Martín",
-      lastName: "Gómez",
-      dni: "30.111.222",
-      appointmentDateTime: "2025-07-29T09:30",
-      duration: 30,
-      professional: "Dr. Juan Rodríguez",
-      status: "En espera",
-    },
-    {
-      firstName: "Mateo",
-      lastName: "Morales",
-      dni: "45.678.901",
-      appointmentDateTime: "2025-07-29T12:30",
-      duration: 45,
-      professional: "Dr. Juan Rodríguez",
-      status: "En espera",
-    },
-    {
-      firstName: "Franco",
-      lastName: "Vera",
-      dni: "33.456.789",
-      appointmentDateTime: "2025-07-29T15:30",
-      duration: 20,
-      professional: "Dr. Ana López",
-      status: "En espera",
-    },
-  ];
-  in_progress_appointments = [
-    {
-      firstName: "Camila",
-      lastName: "Ramírez",
-      dni: "29.876.543",
-      appointmentDateTime: "2025-07-29T10:00",
-      duration: 30,
-      professional: "Dr. Ana López",
-      status: "En consulta",
-    },
-    {
-      firstName: "Carla",
-      lastName: "Navarro",
-      dni: "41.234.567",
-      appointmentDateTime: "2025-07-29T13:00",
-      duration: 60,
-      professional: "Dr. Ana López",
-      status: "En consulta",
-    },
-    {
-      firstName: "Julieta",
-      lastName: "Benítez",
-      dni: "36.789.012",
-      appointmentDateTime: "2025-07-29T16:00",
-      duration: 45,
-      professional: "Dr. Juan Rodríguez",
-      status: "En consulta",
-    },
-  ];
-  pending_payment_appointments = [
-    {
-      firstName: "Julián",
-      lastName: "Fernández",
-      dni: "28.345.678",
-      appointmentDateTime: "2025-07-29T10:30",
-      duration: 30,
-      professional: "Dr. Pablo Méndez",
-      status: "Pendiente de pago",
-    },
-    {
-      firstName: "Micaela",
-      lastName: "Luna",
-      dni: "43.901.234",
-      appointmentDateTime: "2025-07-29T14:00",
-      duration: 20,
-      professional: "Dr. Ana López",
-      status: "Pendiente de pago",
-    },
-  ];
-  finalized_appointments = [
-    {
-      firstName: "Valentina",
-      lastName: "Silva",
-      dni: "31.567.890",
-      appointmentDateTime: "2025-07-29T11:00",
-      duration: 30,
-      professional: "Dr. Juan Rodríguez",
-      status: "Finalizada",
-    },
-    {
-      firstName: "Tomás",
-      lastName: "Castro",
-      dni: "39.012.345",
-      appointmentDateTime: "2025-07-29T13:30",
-      duration: 45,
-      professional: "Dr. Pablo Méndez",
-      status: "Finalizada",
-    },
-  ];
-  canceled_appointments = [
-    {
-      firstName: "Santiago",
-      lastName: "Díaz",
-      dni: "27.890.123",
-      appointmentDateTime: "2025-07-29T11:30",
-      duration: 30,
-      professional: "Dr. Ana López",
-      status: "Cancelada",
-    },
-    {
-      firstName: "Agustina",
-      lastName: "Sosa",
-      dni: "44.456.789",
-      appointmentDateTime: "2025-07-29T15:00",
-      duration: 20,
-      professional: "Dr. Pablo Méndez",
-      status: "Cancelada",
-    },
-  ];
+  scheduled_appointments = [];
+  waiting_appointments = [];
+  in_progress_appointments = [];
+  pending_payment_appointments = [];
+  finalized_appointments = [];
+  canceled_appointments = [];
 
   /**
    * Retrieves all appointments (scheduled, waiting, etc.).
@@ -198,17 +57,9 @@ export class AppointmentService {
    * @returns Array of scheduled appointments (mock data)
    */
   getScheduled(): any[] {
-    return this.scheduled_appointments;
+    return [...this.scheduled_appointments, ...this.waiting_appointments];
   }
 
-  /**
-   * Retrieves all appointments in waiting status.
-   *
-   * @returns Array of waiting appointments (mock data)
-   */
-  getWaiting(): any[] {
-    return this.waiting_appointments;
-  }
 
   /**
    * Retrieves all appointments currently in progress.

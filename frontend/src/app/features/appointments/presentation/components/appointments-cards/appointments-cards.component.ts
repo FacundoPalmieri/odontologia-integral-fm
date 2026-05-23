@@ -1,10 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  input,
-  signal,
-  computed,
-} from "@angular/core";
+import { Component, ChangeDetectionStrategy, input, output, computed, signal } from "@angular/core";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { AppointmentPatientCardComponent } from "../appointment-patient-card/appointment-patient-card.component";
 import { SkeletonCardComponent } from "../../../../../shared/components/skeleton-card/skeleton-card.component";
@@ -12,6 +6,7 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
 
 @Component({
   selector: "app-appointments-cards",
+  standalone: true,
   template: `
     @if (!isLoading() && appointments().length === 0) {
       <app-empty-state [message]="'No se encontraron turnos'"></app-empty-state>
@@ -24,8 +19,11 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
             <app-skeleton-card />
           }
         } @else {
-          @for (appointment of pagedAppointments(); track appointment.dni) {
-            <app-appointment-patient-card [appointment]="appointment" />
+          @for (appointment of pagedAppointments(); track appointment.id) {
+            <app-appointment-patient-card
+              [appointment]="appointment"
+              (actionPerformed)="actionPerformed.emit()"
+            />
           }
         }
       </div>
@@ -50,6 +48,7 @@ export class AppointmentsCardsComponent {
   readonly appointments = input.required<any[]>();
   readonly isLoading = input(false);
   readonly skeletonRows = input<any[]>([]);
+  readonly actionPerformed = output<void>();
 
   private readonly pageIndex = signal(0);
   private readonly pageSize = signal(12);

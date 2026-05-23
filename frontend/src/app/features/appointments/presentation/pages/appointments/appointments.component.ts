@@ -29,6 +29,8 @@ import { DentistService } from "../../../../calendar/services/dentist.service";
 import { DentistDto } from "../../../../calendar/data/dtos/dentist.dto";
 import { AppointmentsTableComponent } from "../../components/appointments-table/appointments-table.component";
 import { AppointmentsCardsComponent } from "../../components/appointments-cards/appointments-cards.component";
+import { CalendarService } from "../../../../calendar/services/calendar.service";
+import { forkJoin } from "rxjs";
 
 @Component({
   selector: "app-appointments",
@@ -55,13 +57,14 @@ import { AppointmentsCardsComponent } from "../../components/appointments-cards/
   ],
 })
 export class AppointmentsComponent {
-  private readonly appointmentService = inject(AppointmentService);
   private readonly dialog = inject(MatDialog);
   private readonly localStorageService = inject(LocalStorageService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly dentistService = inject(DentistService);
+  private readonly calendarService = inject(CalendarService);
 
   appointments = signal<any[]>([]);
+  allTodayAppointments = signal<any[]>([]);
   canCreate = true;
   activeFilter = signal<string | null>(null);
 
@@ -81,6 +84,25 @@ export class AppointmentsComponent {
     }));
   });
 
+  readonly scheduledCount = computed(() => 
+    this.allTodayAppointments().filter(a => a.status === 'Agendado').length
+  );
+  readonly inProgressCount = computed(() => 
+    this.allTodayAppointments().filter(a => a.status === 'En consulta').length
+  );
+  readonly pendingPaymentCount = computed(() => 
+    this.allTodayAppointments().filter(a => a.status === 'Pendiente de pago').length
+  );
+  readonly finalizedCount = computed(() => 
+    this.allTodayAppointments().filter(a => a.status === 'Finalizada').length
+  );
+  readonly canceledCount = computed(() => 
+    this.allTodayAppointments().filter(a => a.status === 'Cancelada').length
+  );
+  readonly waitingCount = computed(() => 
+    this.allTodayAppointments().filter(a => a.status === 'En espera').length
+  );
+
   constructor() {
     this._loadData();
     this._loadDentists();
@@ -89,44 +111,108 @@ export class AppointmentsComponent {
     });
   }
 
-  toggleFilter(filter: string, fetchFn: () => any[]) {
-    if (this.activeFilter() === filter) {
+  toggleFilter(status: string) {
+    if (this.activeFilter() === status) {
       this.activeFilter.set(null);
-      this._loadData();
+      this.appointments.set(this.allTodayAppointments());
     } else {
-      this.activeFilter.set(filter);
-      this.appointments.set(fetchFn());
+      this.activeFilter.set(status);
+      this.appointments.set(
+        this.allTodayAppointments().filter((a) => a.status === status)
+      );
     }
   }
 
+  toggleScheduled() {
+    this.toggleFilter("Agendado");
+  }
+
   toggleWaiting() {
-    this.toggleFilter("waiting", () => this.appointmentService.getWaiting());
+    this.toggleFilter("En espera");
   }
 
   toggleInProgress() {
-    this.toggleFilter("in-progress", () =>
-      this.appointmentService.getInProgress(),
-    );
+    this.toggleFilter("En consulta");
   }
 
   togglePendingPayment() {
-    this.toggleFilter("pending-payment", () =>
-      this.appointmentService.getPendingPayment(),
-    );
+    this.toggleFilter("Pendiente de pago");
   }
 
   toggleFinalized() {
-    this.toggleFilter("finalized", () =>
-      this.appointmentService.getFinalized(),
-    );
+    this.toggleFilter("Finalizada");
   }
 
   toggleCanceled() {
-    this.toggleFilter("canceled", () => this.appointmentService.getCanceled());
+    this.toggleFilter("Cancelada");
   }
 
-  private _loadData() {
-    this.appointments.set(this.appointmentService.getAll());
+  protected _loadData() {
+    const userRole = this.localStorageService.getUserRole();
+    const personId = this.localStorageService.getUserData()?.person?.id || 0;
+    const today = new Date();
+
+    if (userRole === RoleEnum.DENTIST) {
+      this.calendarService.getDay(personId, today).subscribe((response) => {
+        const slots = response.data?.slots || [];
+        const mapped = this._mapSlotsToAppointments(slots);
+        this.allTodayAppointments.set(mapped);
+        this.appointments.set(mapped);
+      });
+    } else {
+      this.dentistService.getAll().subscribe((response) => {
+        const dentists = response.data || [];
+        if (dentists.length === 0) {
+          this.allTodayAppointments.set([]);
+          this.appointments.set([]);
+          return;
+        }
+
+        const requests = dentists.map((d) =>
+          this.calendarService.getDay(d.person.id, today),
+        );
+
+        forkJoin(requests).subscribe((responses) => {
+          const allSlots = responses.flatMap((res) => res.data?.slots || []);
+          const mapped = this._mapSlotsToAppointments(allSlots);
+          this.allTodayAppointments.set(mapped);
+          this.appointments.set(mapped);
+        });
+      });
+    }
+  }
+
+  private _mapSlotsToAppointments(slots: any[]): any[] {
+    return slots
+      .filter((slot) => slot.status === "RESERVED" && slot.appointment)
+      .map((slot) => {
+        const appointment = slot.appointment;
+        const [startH, startM] = slot.startTime.split(":").map(Number);
+        const [endH, endM] = slot.endTime.split(":").map(Number);
+        const duration = endH * 60 + endM - (startH * 60 + startM);
+
+        const nameParts = appointment.patientName
+          ? appointment.patientName.split(",").map((s: string) => s.trim())
+          : [];
+        const lastName = nameParts[0] || appointment.patientName || "N/A";
+        const firstName = nameParts[1] || "";
+
+        return {
+          id: appointment.id,
+          firstName,
+          lastName,
+          appointmentDateTime: appointment.appointmentDateTime,
+          duration,
+          professional: appointment.dentistName,
+          status: "Agendado",
+        };
+      })
+      .sort((a, b) => {
+        return (
+          new Date(a.appointmentDateTime).getTime() -
+          new Date(b.appointmentDateTime).getTime()
+        );
+      });
   }
 
   private _loadDentists() {

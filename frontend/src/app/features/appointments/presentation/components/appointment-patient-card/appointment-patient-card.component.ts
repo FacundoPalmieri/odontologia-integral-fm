@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input } from "@angular/core";
+import { Component, ChangeDetectionStrategy, input, output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
@@ -23,4 +23,5 @@ import { AppointmentActionsMenuComponent } from "../appointment-actions-menu/app
 })
 export class AppointmentPatientCardComponent {
   readonly appointment = input.required<any>();
+  readonly actionPerformed = output<void>();
 }

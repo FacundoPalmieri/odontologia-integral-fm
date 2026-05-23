@@ -9,13 +9,17 @@
         'bg-[#fb923c]': appointment().status === 'En consulta',
         'bg-[#635bff]': appointment().status === 'Pendiente de pago',
         'bg-[#10b981]': appointment().status === 'Finalizada',
-        'bg-[#f56565]': appointment().status === 'Cancelada',
+        'bg-[#f56565]': appointment().status === 'Cancelada'
       }"
     >
       {{ appointment().status }}
     </span>
 
-    <app-appointment-actions-menu class="!ml-auto shrink-0" />
+    <app-appointment-actions-menu
+      class="!ml-auto shrink-0"
+      [appointment]="appointment()"
+      (actionPerformed)="actionPerformed.emit()"
+    />
   </mat-card-header>
 
   <!-- CONTENT -->
@@ -34,9 +38,6 @@
       <div class="flex flex-col">
         <span class="font-semibold text-base leading-tight">
           {{ appointment().firstName }} {{ appointment().lastName }}
-        </span>
-        <span class="text-xs text-[var(--mat-sys-on-surface-variant)] mt-0.5">
-          DNI: {{ appointment().dni }}
         </span>
       </div>
     </div>

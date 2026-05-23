@@ -5,6 +5,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   effect,
+  output,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MatTableModule, MatTableDataSource } from "@angular/material/table";
@@ -37,6 +38,7 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
 export class AppointmentsTableComponent implements AfterViewInit {
   readonly appointments = input.required<any[]>();
   readonly isLoading = input(false);
+  readonly actionPerformed = output<void>();
 
   @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
     this.dataSource.paginator = paginator;

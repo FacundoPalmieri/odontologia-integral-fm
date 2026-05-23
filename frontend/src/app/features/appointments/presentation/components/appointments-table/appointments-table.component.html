@@ -24,11 +24,6 @@
                   <span class="font-medium leading-tight">
                     {{ element.firstName }} {{ element.lastName }}
                   </span>
-                  <span
-                    class="text-xs text-[var(--mat-sys-on-surface-variant)] mt-0.5"
-                  >
-                    DNI: {{ element.dni }}
-                  </span>
                 </div>
               </div>
             </td>
@@ -82,7 +77,7 @@
                   'bg-[#fb923c]': element.status === 'En consulta',
                   'bg-[#635bff]': element.status === 'Pendiente de pago',
                   'bg-[#10b981]': element.status === 'Finalizada',
-                  'bg-[#f56565]': element.status === 'Cancelada',
+                  'bg-[#f56565]': element.status === 'Cancelada'
                 }"
               >
                 {{ element.status }}
@@ -91,7 +86,10 @@
               <div
                 class="absolute inset-y-0 right-0 flex items-center pr-2 pl-12 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-gradient-to-l from-[var(--mat-sys-surface-container-high)] from-70% to-transparent"
               >
-                <app-appointment-actions-menu />
+                <app-appointment-actions-menu
+                  [appointment]="element"
+                  (actionPerformed)="actionPerformed.emit()"
+                />
               </div>
             </td>
           </ng-container>

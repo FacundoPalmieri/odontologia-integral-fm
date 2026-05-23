@@ -7,7 +7,7 @@ import {
 } from "@angular/core";
 import { isPlatformBrowser } from "@angular/common";
 import { RxStomp, RxStompState } from "@stomp/rx-stomp";
-import { Observable } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { environment } from "../../environments/environment";
 import { LocalStorageService } from "../../shared/services/local-storage.service";
 
@@ -70,6 +70,8 @@ export class WebsocketService {
       return;
     }
 
+    console.log(`[WebSocket] Attempting to connect to: ${url}`);
+
     if (this._status() === "connected" || this._status() === "connecting") {
       console.log("[WebSocket] Already connected or connecting.");
       return;
@@ -97,7 +99,7 @@ export class WebsocketService {
       reconnectDelay: 5000,
 
       // Useful for testing to see what STOMP is talking under the hood:
-      // debug: (msg: string): void => console.log(new Date(), msg)
+      debug: (msg: string): void => console.log(`[WebSocket Debug] ${msg}`),
     });
 
     this.rxStomp.activate();
@@ -119,7 +121,12 @@ export class WebsocketService {
    * @returns Observable stream with message payload
    */
   public watch(destination: string): Observable<any> {
-    return this.rxStomp.watch(destination);
+    console.log(`[WebSocket] Subscribing to destination: ${destination}`);
+    return this.rxStomp.watch(destination).pipe(
+      tap((message) => {
+        console.log(`[WebSocket] Message received from ${destination}:`, message.body);
+      })
+    );
   }
 
   /**
@@ -135,6 +142,7 @@ export class WebsocketService {
       return;
     }
 
+    console.log(`[WebSocket] Publishing to ${destination}:`, message);
     this.rxStomp.publish({ destination, body: JSON.stringify(message) } as any);
   }
 }

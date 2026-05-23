@@ -1,12 +1,24 @@
-<button
-  matIconButton
-  [matMenuTriggerFor]="menu"
-  matTooltip="Acciones"
-  matTooltipPosition="left"
-  aria-label="Abrir menú de acciones"
->
-  <i-tabler name="dots-vertical"></i-tabler>
-</button>
+@if (appointment().status === 'Agendado') {
+  <button
+    matIconButton
+    class="text-[var(--mat-sys-primary)]"
+    matTooltip="Iniciar consulta"
+    matTooltipPosition="left"
+    (click)="startConsultation()"
+  >
+    <i-tabler name="circle-caret-right"></i-tabler>
+  </button>
+} @else {
+  <button
+    matIconButton
+    [matMenuTriggerFor]="menu"
+    matTooltip="Acciones"
+    matTooltipPosition="left"
+    aria-label="Abrir menú de acciones"
+  >
+    <i-tabler name="dots-vertical"></i-tabler>
+  </button>
+}
 
 <mat-menu #menu="matMenu" xPosition="before">
   <button mat-menu-item>

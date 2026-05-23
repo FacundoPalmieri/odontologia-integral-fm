@@ -22,14 +22,40 @@
   ></app-page-toolbar>
 
   <div class="mt-4 rounded-[var(--mat-sys-corner-medium)]">
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <mat-card
+        class="cursor-pointer background-scheduled transition-all duration-300"
+        appearance="outlined"
+        [class.scale-102]="activeFilter() === 'Agendado'"
+        [style.borderColor]="activeFilter() === 'Agendado' ? '#38bdf8' : ''"
+        [style.boxShadow]="
+          activeFilter() === 'Agendado' ? '0 0 0 1px #38bdf8' : ''
+        "
+        (click)="toggleScheduled()"
+      >
+        <mat-card-content>
+          <div class="flex items-center justify-start gap-4">
+            <div class="rounded-xl bg-[#38bdf8] flex p-2">
+              <i-tabler
+                class="text-white scale-130"
+                name="calendar-event"
+              ></i-tabler>
+            </div>
+            <div class="flex-col flex">
+              <span class="text-sm">Agendados</span>
+              <span class="font-bold">{{ scheduledCount() }} pacientes</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
       <mat-card
         class="cursor-pointer background-waiting transition-all duration-300"
         appearance="outlined"
-        [class.scale-102]="activeFilter() === 'waiting'"
-        [style.borderColor]="activeFilter() === 'waiting' ? '#f9c20a' : ''"
+        [class.scale-102]="activeFilter() === 'En espera'"
+        [style.borderColor]="activeFilter() === 'En espera' ? '#f9c20a' : ''"
         [style.boxShadow]="
-          activeFilter() === 'waiting' ? '0 0 0 1px #f9c20a' : ''
+          activeFilter() === 'En espera' ? '0 0 0 1px #f9c20a' : ''
         "
         (click)="toggleWaiting()"
       >
@@ -43,7 +69,7 @@
             </div>
             <div class="flex-col flex">
               <span class="text-sm">En espera</span>
-              <span class="font-bold">4 pacientes</span>
+              <span class="font-bold">{{ waitingCount() }} pacientes</span>
             </div>
           </div>
         </mat-card-content>
@@ -52,10 +78,10 @@
       <mat-card
         class="cursor-pointer background-in-progress transition-all duration-300"
         appearance="outlined"
-        [class.scale-102]="activeFilter() === 'in-progress'"
-        [style.borderColor]="activeFilter() === 'in-progress' ? '#fb923c' : ''"
+        [class.scale-102]="activeFilter() === 'En consulta'"
+        [style.borderColor]="activeFilter() === 'En consulta' ? '#fb923c' : ''"
         [style.boxShadow]="
-          activeFilter() === 'in-progress' ? '0 0 0 1px #fb923c' : ''
+          activeFilter() === 'En consulta' ? '0 0 0 1px #fb923c' : ''
         "
         (click)="toggleInProgress()"
       >
@@ -69,7 +95,7 @@
             </div>
             <div class="flex-col flex">
               <span class="text-sm">En consulta</span>
-              <span class="font-bold">2 pacientes</span>
+              <span class="font-bold">{{ inProgressCount() }} pacientes</span>
             </div>
           </div>
         </mat-card-content>
@@ -78,12 +104,12 @@
       <mat-card
         class="cursor-pointer background-pending-payment transition-all duration-300"
         appearance="outlined"
-        [class.scale-102]="activeFilter() === 'pending-payment'"
+        [class.scale-102]="activeFilter() === 'Pendiente de pago'"
         [style.borderColor]="
-          activeFilter() === 'pending-payment' ? '#635bff' : ''
+          activeFilter() === 'Pendiente de pago' ? '#635bff' : ''
         "
         [style.boxShadow]="
-          activeFilter() === 'pending-payment' ? '0 0 0 1px #635bff' : ''
+          activeFilter() === 'Pendiente de pago' ? '0 0 0 1px #635bff' : ''
         "
         (click)="togglePendingPayment()"
       >
@@ -97,7 +123,9 @@
             </div>
             <div class="flex-col flex">
               <span class="text-sm">Pendientes de pago</span>
-              <span class="font-bold">3 pacientes</span>
+              <span class="font-bold"
+                >{{ pendingPaymentCount() }} pacientes</span
+              >
             </div>
           </div>
         </mat-card-content>
@@ -106,9 +134,9 @@
       <mat-card
         class="cursor-pointer background-finalized transition-all duration-300"
         appearance="outlined"
-        [style.borderColor]="activeFilter() === 'finalized' ? '#10b981' : ''"
+        [style.borderColor]="activeFilter() === 'Finalizada' ? '#10b981' : ''"
         [style.boxShadow]="
-          activeFilter() === 'finalized' ? '0 0 0 1px #10b981' : ''
+          activeFilter() === 'Finalizada' ? '0 0 0 1px #10b981' : ''
         "
         (click)="toggleFinalized()"
       >
@@ -122,7 +150,7 @@
             </div>
             <div class="flex-col flex">
               <span class="text-sm">Finalizados</span>
-              <span class="font-bold">3 pacientes</span>
+              <span class="font-bold">{{ finalizedCount() }} pacientes</span>
             </div>
           </div>
         </mat-card-content>
@@ -131,10 +159,10 @@
       <mat-card
         class="cursor-pointer background-canceled transition-all duration-300"
         appearance="outlined"
-        [class.scale-102]="activeFilter() === 'canceled'"
-        [style.borderColor]="activeFilter() === 'canceled' ? '#f56565' : ''"
+        [class.scale-102]="activeFilter() === 'Cancelada'"
+        [style.borderColor]="activeFilter() === 'Cancelada' ? '#f56565' : ''"
         [style.boxShadow]="
-          activeFilter() === 'canceled' ? '0 0 0 1px #f56565' : ''
+          activeFilter() === 'Cancelada' ? '0 0 0 1px #f56565' : ''
         "
         (click)="toggleCanceled()"
       >
@@ -145,7 +173,7 @@
             </div>
             <div class="flex-col flex">
               <span class="text-sm">Cancelados</span>
-              <span class="font-bold">2 pacientes</span>
+              <span class="font-bold">{{ canceledCount() }} pacientes</span>
             </div>
           </div>
         </mat-card-content>
@@ -154,11 +182,17 @@
 
     @if (viewMode() === "table") {
       <div class="mt-4">
-        <app-appointments-table [appointments]="appointments()" />
+        <app-appointments-table
+          [appointments]="appointments()"
+          (actionPerformed)="_loadData()"
+        />
       </div>
     } @else {
       <div class="my-4">
-        <app-appointments-cards [appointments]="appointments()" />
+        <app-appointments-cards
+          [appointments]="appointments()"
+          (actionPerformed)="_loadData()"
+        />
       </div>
     }
   </div>
