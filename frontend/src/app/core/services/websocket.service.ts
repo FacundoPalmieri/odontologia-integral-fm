@@ -7,9 +7,11 @@ import {
 } from "@angular/core";
 import { isPlatformBrowser } from "@angular/common";
 import { RxStomp, RxStompState } from "@stomp/rx-stomp";
-import { Observable, tap } from "rxjs";
+import { Observable, tap, Subject } from "rxjs";
 import { environment } from "../../environments/environment";
 import { LocalStorageService } from "../../shared/services/local-storage.service";
+import { SnackbarService } from "../../shared/services/snackbar.service";
+import { SnackbarTypeEnum } from "../../shared/utils/enums/snackbar-type.enum";
 
 export type ConnectionStatus =
   | "connected"
@@ -24,10 +26,15 @@ export class WebsocketService {
   private rxStomp: RxStomp;
   private platformId = inject(PLATFORM_ID);
   private localStorageService = inject(LocalStorageService);
+  private snackbarService = inject(SnackbarService);
 
   // Expose connection status via Angular Signal
   private readonly _status = signal<ConnectionStatus>("disconnected");
   public readonly status = computed(() => this._status());
+
+  // Expose consultation updates via RxJS Subject
+  private readonly _consultationUpdates$ = new Subject<any>();
+  public readonly consultationUpdates$ = this._consultationUpdates$.asObservable();
 
   constructor() {
     this.rxStomp = new RxStomp();
@@ -57,6 +64,22 @@ export class WebsocketService {
     this.rxStomp.webSocketErrors$.subscribe((error) => {
       this._status.set("error");
       console.error("[WebSocket STOMP] WebSocket Error:", error);
+    });
+
+    // Automatically watch /topic/consultations
+    this.watch("/topic/consultations").subscribe({
+      next: (message) => {
+        try {
+          const payload = typeof message.body === "string" ? JSON.parse(message.body) : message.body;
+          this._consultationUpdates$.next(payload);
+        } catch (e) {
+          // If message is just a string or not parseable JSON
+          this._consultationUpdates$.next(message.body);
+        }
+      },
+      error: (error) => {
+        console.error("[WebSocket STOMP] Error in /topic/consultations subscription:", error);
+      }
     });
   }
 

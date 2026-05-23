@@ -6,6 +6,8 @@ import {
   computed,
   ChangeDetectionStrategy,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { WebsocketService } from "../../../../../core/services/websocket.service";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormControl } from "@angular/forms";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
@@ -61,6 +63,7 @@ export class AppointmentsComponent {
   private readonly localStorageService = inject(LocalStorageService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly dentistService = inject(DentistService);
+  private readonly websocketService = inject(WebsocketService);
   private readonly calendarService = inject(CalendarService);
 
   appointments = signal<any[]>([]);
@@ -109,6 +112,13 @@ export class AppointmentsComponent {
     effect(() => {
       localStorage.setItem("appointmentsViewMode", this.viewMode());
     });
+
+    this.websocketService.consultationUpdates$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        console.log("[AppointmentsComponent] Consultation update received. Reloading today's appointments...");
+        this._loadData();
+      });
   }
 
   toggleFilter(status: string) {
