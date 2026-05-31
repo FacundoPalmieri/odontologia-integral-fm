@@ -11,13 +11,15 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ConsultationMapper {
 
+
+    @Mapping(target = "appointmentId", expression = "java(consultation.getAppointment().getId())")
+    @Mapping(target = "dateTime", expression = "java(consultation.getAppointment().getDate())")
+    @Mapping(target = "patientId", expression = "java(consultation.getPatient().getId())")
     @Mapping(target = "patientName", expression = "java(consultation.getPatient().getPerson().getFullName())")
-    @Mapping(target = "dentistName",  expression = "java(consultation.getDentist().getPerson().getFullName())")
+    @Mapping(target = "dentistName", expression = "java(consultation.getDentist().getPerson().getFullName())")
     @Mapping(target = "consultationStatus", expression = "java(consultation.getStatus().getLabel())")
+    @Mapping(target = "webSocketStatus", expression = "java(consultation.getStatus().webSocketEvent().toString())")
     ConsultationResponseDTO toDTO(Consultation consultation);
 
-    @Mapping(target = "patientName", expression = "java(consultation.getPatient().getPerson().getFullName())")
-    @Mapping(target = "dentistName",  expression = "java(consultation.getDentist().getPerson().getFullName())")
-    @Mapping(target = "consultationStatus", expression = "java(consultation.getStatus().getLabel())")
     List<ConsultationResponseDTO>  toDTO(List<Consultation> consultations);
 }
