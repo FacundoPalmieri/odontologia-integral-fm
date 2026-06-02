@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.impl;
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentConflictService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.AppointmentConflictService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.dto.DentistCalendarLockResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.model.DentistCalendarLock;
@@ -24,10 +24,14 @@ public class UpdateDentistCalendarLockUseCase implements IUpdateDentistCalendarL
 
     private final DentistCalendarLockService dentistCalendarLockService;
     private final MessageSource messageSource;
-    private final IAppointmentConflictService appointmentConflictService;
+    private final AppointmentConflictService appointmentConflictService;
     private final AuthenticatedUserService authenticatedUserService;
 
-    public UpdateDentistCalendarLockUseCase(DentistCalendarLockService dentistCalendarLockService, MessageSource messageSource, IAppointmentConflictService appointmentConflictService, AuthenticatedUserService authenticatedUserService) {
+    public UpdateDentistCalendarLockUseCase(DentistCalendarLockService dentistCalendarLockService,
+                                            MessageSource messageSource,
+                                            AppointmentConflictService appointmentConflictService,
+                                            AuthenticatedUserService authenticatedUserService
+    ) {
         this.dentistCalendarLockService = dentistCalendarLockService;
         this.messageSource = messageSource;
         this.appointmentConflictService = appointmentConflictService;

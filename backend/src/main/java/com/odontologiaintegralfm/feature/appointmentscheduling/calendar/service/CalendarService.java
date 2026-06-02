@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.appointmentscheduling.calendar.service
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.AppointmentResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.AppointmentQueryService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.dto.*;
 import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.enums.CalendarLockMode;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.CalendarDayStatus;
@@ -71,7 +71,7 @@ import java.util.*;
  * Este servicio actúa como capa de orquestación entre:
  * <ul>
  *     <li>{@link IDentistAvailabilityService}</li>
- *     <li>{@link IAppointmentService}</li>
+ *     <li>{@link AppointmentQueryService}</li>
  *     <li>{@link IDentistCalendarLockService}</li>
  *     <li>{@link IHolidayService} y {@link IDentistHolidayService}</li>
  * </ul>
@@ -87,7 +87,7 @@ public class CalendarService implements ICalendarService {
     private final IDentistHolidayService dentistHolidayService;
     private final IDentistService dentistService;
     private final IDentistAvailabilityService dentistAvailabilityService;
-    private final IAppointmentService appointmentService;
+    private final AppointmentQueryService appointmentQueryService;
     private final IDentistCalendarLockService dentistCalendarLockService;
 
     public CalendarService(
@@ -95,14 +95,14 @@ public class CalendarService implements ICalendarService {
             IDentistHolidayService dentistHolidayService,
             IDentistService dentistService,
             IDentistAvailabilityService dentistAvailabilityService,
-            IAppointmentService appointmentService,
+            AppointmentQueryService appointmentQueryService,
             IDentistCalendarLockService dentistCalendarLockService
     ) {
         this.holidayService = holidayService;
         this.dentistHolidayService = dentistHolidayService;
         this.dentistService = dentistService;
         this.dentistAvailabilityService = dentistAvailabilityService;
-        this.appointmentService = appointmentService;
+        this.appointmentQueryService = appointmentQueryService;
         this.dentistCalendarLockService = dentistCalendarLockService;
     }
 
@@ -171,7 +171,7 @@ public class CalendarService implements ICalendarService {
         Optional<Holiday> holidayOptional = holidayService.getByDate(day);
 
         //Buscar turnos del día
-        List<Appointment> appointments = appointmentService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
+        List<Appointment> appointments = appointmentQueryService.getAppointmentByDentistAndDate(idDentist, day, AppointmentStatus.RESERVED);
 
         //Se llama a construir día y se retorna respuesta.
         return new Response<>(true, null, buildDay(idDentist,day, dentistAvailability,dentistCalendarLocks,holidayOptional, appointments));
@@ -342,7 +342,7 @@ public class CalendarService implements ICalendarService {
 
 
         //Obtener turnos para el mes
-        Map<LocalDate, List<Appointment>> appointmentsByDate = appointmentService.getByDateRange(idDentist,start.atStartOfDay(),end.atTime(LocalTime.MAX),AppointmentStatus.RESERVED);
+        Map<LocalDate, List<Appointment>> appointmentsByDate = appointmentQueryService.getByDateRange(idDentist,start.atStartOfDay(),end.atTime(LocalTime.MAX),AppointmentStatus.RESERVED);
 
 
         List<CalendarDayResponseDTO> days = new ArrayList<>();

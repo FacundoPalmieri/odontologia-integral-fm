@@ -1,7 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.core.consultation.service;
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
