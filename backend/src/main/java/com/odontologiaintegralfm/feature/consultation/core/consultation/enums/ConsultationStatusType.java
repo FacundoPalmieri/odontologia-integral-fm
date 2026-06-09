@@ -24,7 +24,7 @@ public enum ConsultationStatusType {
     IN_CONSULTATION("En Atención"){
         @Override
         public ConsultationStatusType next() {
-            return ConsultationStatusType.PENDING_PAYMENT;
+            return ConsultationStatusType.FINISHED;
         }
 
         @Override
@@ -38,26 +38,6 @@ public enum ConsultationStatusType {
             return WebSocketEventType.ATTENTION_STARTED;
         }
     },
-
-
-    PENDING_PAYMENT("Pendiente de Pago"){
-        @Override
-        public ConsultationStatusType next() {
-            return ConsultationStatusType.FINISHED;
-        }
-
-        @Override
-        public ConsultationStatusType previous() {
-            return ConsultationStatusType.IN_CONSULTATION;
-        }
-
-
-        @Override
-        public WebSocketEventType webSocketEvent() {
-            return WebSocketEventType.PAYMENT_REGISTERED;
-        }
-    },
-
 
     FINISHED("Finalizada"){
         @Override

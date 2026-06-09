@@ -262,7 +262,7 @@ public class CreateConsultationInstanceUseCase {
 
 
         //Actualiza la consulta + crea historial + envía webSocket.
-        ConsultationResponseDTO consultationResponseDTO = changeConsultationStatusUseCase.execute(consultation, ConsultationStatusType.PENDING_PAYMENT);
+        ConsultationResponseDTO consultationResponseDTO = changeConsultationStatusUseCase.execute(consultation, ConsultationStatusType.FINISHED);
 
 
         return new Response<>(

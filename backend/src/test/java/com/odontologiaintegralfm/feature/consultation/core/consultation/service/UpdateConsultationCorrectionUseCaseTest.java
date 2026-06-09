@@ -83,22 +83,6 @@ class UpdateConsultationCorrectionUseCaseTest {
     }
 
     @Test
-    void execute_whenStatusIsPendingPayment_revertsToPreviousStatus() {
-        Consultation consultation = mock(Consultation.class);
-        when(consultation.getStatus()).thenReturn(ConsultationStatusType.PENDING_PAYMENT);
-        when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
-
-        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, "Paciente", "Dentista", "En Atención");
-        when(changeConsultationStatusUseCase.execute(consultation, ConsultationStatusType.IN_CONSULTATION)).thenReturn(dto);
-        when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
-
-        Response<ConsultationResponseDTO> result = useCase.execute(1L, correction);
-
-        verify(changeConsultationStatusUseCase).execute(consultation, ConsultationStatusType.IN_CONSULTATION);
-        assertThat(result.success()).isTrue();
-    }
-
-    @Test
     void execute_onSuccess_createsConsultationCorrectedEvent() {
         Consultation consultation = mock(Consultation.class);
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
