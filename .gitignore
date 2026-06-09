@@ -42,4 +42,7 @@ build/
 ### VS Code ###
 .vscode/
 
+### Claude Code ###
+backend/.claude/settings.json
+
 springsecurityJWT/

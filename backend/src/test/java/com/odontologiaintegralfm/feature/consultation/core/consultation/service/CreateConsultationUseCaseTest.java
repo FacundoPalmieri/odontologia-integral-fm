@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.core.consultation.service;
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.AppointmentQueryService;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CreateConsultationUseCaseTest {
 
-    @Mock private IAppointmentService appointmentService;
+    @Mock private AppointmentQueryService appointmentService;
     @Mock private ChangeConsultationStatusUseCase changeStatusUseCase;
     @Mock private MessageSource messageSource;
     @Mock private IConsultationRepository consultationRepository;
@@ -67,7 +68,7 @@ class CreateConsultationUseCaseTest {
         when(appointmentService.getById(1L)).thenReturn(appointment);
         when(consultationRepository.existsByAppointmentId(anyLong())).thenReturn(false);
 
-        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, "Paciente", "Dentista", "Sala de Espera");
+        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null);
         when(changeStatusUseCase.execute(any(), eq(ConsultationStatusType.WAITING_ROOM))).thenReturn(dto);
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("Consulta creada");
 

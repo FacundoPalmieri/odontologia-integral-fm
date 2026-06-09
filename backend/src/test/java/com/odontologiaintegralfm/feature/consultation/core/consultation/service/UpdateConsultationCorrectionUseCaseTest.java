@@ -72,7 +72,7 @@ class UpdateConsultationCorrectionUseCaseTest {
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
 
-        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, "Paciente", "Dentista", "Sala de Espera");
+        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null);
         when(changeConsultationStatusUseCase.execute(consultation, ConsultationStatusType.WAITING_ROOM)).thenReturn(dto);
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
 
@@ -88,7 +88,7 @@ class UpdateConsultationCorrectionUseCaseTest {
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
 
-        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, "Paciente", "Dentista", "Sala de Espera");
+        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null);
         when(changeConsultationStatusUseCase.execute(any(), any())).thenReturn(dto);
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
 
