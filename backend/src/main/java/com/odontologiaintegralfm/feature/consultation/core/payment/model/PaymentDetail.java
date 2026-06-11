@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.core.model;
+package com.odontologiaintegralfm.feature.consultation.core.payment.model;
 
 import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
