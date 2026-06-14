@@ -31,7 +31,7 @@ export class AppointmentActionsMenuComponent {
     this.consultationService.createAppointment(this.appointment().id).subscribe({
       next: () => {
         this.snackbarService.openSnackbar(
-          "Consulta iniciada correctamente",
+          "Paciente pasado a sala de espera.",
           4000,
           "center",
           "top",
@@ -41,7 +41,7 @@ export class AppointmentActionsMenuComponent {
       },
       error: () => {
         this.snackbarService.openSnackbar(
-          "Error al iniciar la consulta",
+          "Error al pasar el paciente a sala de espera",
           4000,
           "center",
           "top",

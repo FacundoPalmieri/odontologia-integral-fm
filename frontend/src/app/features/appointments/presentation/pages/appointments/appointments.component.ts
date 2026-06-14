@@ -32,6 +32,7 @@ import { AppointmentsTableComponent } from "../../components/appointments-table/
 import { AppointmentsCardsComponent } from "../../components/appointments-cards/appointments-cards.component";
 import { CalendarService } from "../../../../calendar/services/calendar.service";
 import { ConsultationService } from "../../../services/consultation.service";
+import { forkJoin, Observable } from "rxjs";
 
 @Component({
   selector: "app-appointments",
@@ -64,8 +65,7 @@ export class AppointmentsComponent {
   private readonly dentistService = inject(DentistService);
   private readonly websocketService = inject(WebsocketService);
   private readonly consultationService = inject(ConsultationService);
-
-  private readonly _appointmentStatuses = new Map<number, string>();
+  private readonly calendarService = inject(CalendarService);
 
   appointments = signal<any[]>([]);
   allTodayAppointments = signal<any[]>([]);
@@ -119,15 +119,34 @@ export class AppointmentsComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((payload) => {
         console.log("[AppointmentsComponent] Consultation update received:", payload);
-        const consultation = payload?.data;
         const type = payload?.type;
-        if (consultation && consultation.id) {
-          const statusVal = type || consultation.consultationStatus;
-          const localStatus = this.mapSocketStatusToLocalStatus(statusVal);
-          this._appointmentStatuses.set(consultation.id, localStatus);
-          this._loadData(localStatus);
+        const consultations = payload?.data;
+
+        // If the socket payload contains the full array of active consultations
+        if (Array.isArray(consultations)) {
+          const consultationsMapped = consultations.map((c: any) => {
+            return {
+              id: c.id,
+              firstName: c.patientName,
+              lastName: "",
+              appointmentDateTime: null,
+              duration: null,
+              professional: c.dentistName,
+              status: this.mapSocketStatusToLocalStatus(c.consultationStatus),
+            };
+          });
+
+          // Filter out the old consultations from allTodayAppointments, keeping only the calendar appointments
+          const calendarAppointments = this.allTodayAppointments().filter(a => a.status === 'Agendado');
+
+          // Combine calendar appointments with new consultations
+          const combined = [...calendarAppointments, ...consultationsMapped];
+          const localStatus = type ? this.mapSocketStatusToLocalStatus(type) : null;
+          this.applyConsultationsData(combined, localStatus);
         } else {
-          this._loadData();
+          // Fallback if data is not an array (fetch via HTTP)
+          const localStatus = type ? this.mapSocketStatusToLocalStatus(type) : undefined;
+          this._loadData(localStatus);
         }
       });
   }
@@ -184,28 +203,70 @@ export class AppointmentsComponent {
     this.toggleFilter("Cancelada");
   }
 
-  protected _loadData(targetFilter?: string | null) {
-    const applyFilter = (mapped: any[]) => {
-      this.allTodayAppointments.set(mapped);
-      
-      const filter = targetFilter !== undefined ? targetFilter : this.activeFilter();
-      this.activeFilter.set(filter);
-      
-      if (filter) {
-        this.appointments.set(mapped.filter((a) => a.status === filter));
-      } else {
-        this.appointments.set(mapped);
-      }
-    };
+  private applyConsultationsData(mapped: any[], targetFilter?: string | null) {
+    this.allTodayAppointments.set(mapped);
+    
+    const filter = targetFilter !== undefined ? targetFilter : this.activeFilter();
+    this.activeFilter.set(filter);
+    
+    if (filter) {
+      this.appointments.set(mapped.filter((a) => a.status === filter));
+    } else {
+      this.appointments.set(mapped);
+    }
+  }
 
-    this.consultationService.getConsultations().subscribe({
-      next: (response) => {
-        console.log("[AppointmentsComponent] Active consultations fetched:", response);
-        const consultations = response.data || [];
-        const mapped = consultations.map((c: any) => {
-          const socketStatusOverride = this._appointmentStatuses.get(c.id);
-          const status = socketStatusOverride || this.mapSocketStatusToLocalStatus(c.consultationStatus);
-          
+  protected _loadData(targetFilter?: string | null) {
+    const userRole = this.localStorageService.getUserRole();
+    const personId = this.localStorageService.getUserData()?.person?.id || 0;
+    const today = new Date();
+
+    // 1. Prepare calendar request observable
+    let calendarObs$;
+    if (userRole === RoleEnum.DENTIST) {
+      calendarObs$ = this.calendarService.getDay(personId, today);
+    } else {
+      calendarObs$ = new Observable<any>((subscriber) => {
+        this.dentistService.getAll().subscribe({
+          next: (response) => {
+            const dentists = response.data || [];
+            if (dentists.length === 0) {
+              subscriber.next({ data: { slots: [] } });
+              subscriber.complete();
+              return;
+            }
+            const requests = dentists.map((d) =>
+              this.calendarService.getDay(d.person.id, today)
+            );
+            forkJoin(requests).subscribe({
+              next: (responses) => {
+                const allSlots = responses.flatMap((res) => res.data?.slots || []);
+                subscriber.next({ data: { slots: allSlots } });
+                subscriber.complete();
+              },
+              error: (err) => subscriber.error(err)
+            });
+          },
+          error: (err) => subscriber.error(err)
+        });
+      });
+    }
+
+    // 2. Fetch both consultations and calendar slots
+    forkJoin({
+      consultations: this.consultationService.getConsultations(),
+      calendar: calendarObs$
+    }).subscribe({
+      next: (result) => {
+        console.log("[AppointmentsComponent] Data fetched successfully:", result);
+        
+        // Map calendar slots
+        const slots = result.calendar?.data?.slots || [];
+        const calendarMapped = this._mapSlotsToAppointments(slots);
+
+        // Map active consultations
+        const consultations = result.consultations?.data || [];
+        const consultationsMapped = consultations.map((c: any) => {
           return {
             id: c.id,
             firstName: c.patientName,
@@ -213,13 +274,16 @@ export class AppointmentsComponent {
             appointmentDateTime: null,
             duration: null,
             professional: c.dentistName,
-            status: status,
+            status: this.mapSocketStatusToLocalStatus(c.consultationStatus),
           };
         });
-        applyFilter(mapped);
+
+        // Combine both lists (union)
+        const combined = [...calendarMapped, ...consultationsMapped];
+        this.applyConsultationsData(combined, targetFilter);
       },
       error: (err) => {
-        console.error("[AppointmentsComponent] Error loading consultations:", err);
+        console.error("[AppointmentsComponent] Error loading today's data:", err);
         this.allTodayAppointments.set([]);
         this.appointments.set([]);
       }
@@ -241,8 +305,6 @@ export class AppointmentsComponent {
         const lastName = nameParts[0] || appointment.patientName || "N/A";
         const firstName = nameParts[1] || "";
 
-        const localStatus = this._appointmentStatuses.get(appointment.id) || "Agendado";
-
         return {
           id: appointment.id,
           firstName,
@@ -250,7 +312,7 @@ export class AppointmentsComponent {
           appointmentDateTime: appointment.appointmentDateTime,
           duration,
           professional: appointment.dentistName,
-          status: localStatus,
+          status: "Agendado",
         };
       })
       .sort((a, b) => {
@@ -260,6 +322,8 @@ export class AppointmentsComponent {
         );
       });
   }
+
+
 
   private _loadDentists() {
     this.dentistService.getAll().subscribe((response) => {
