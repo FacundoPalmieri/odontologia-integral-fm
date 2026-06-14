@@ -126,17 +126,22 @@ export class AppointmentsComponent {
           const consultationsMapped = consultations.map((c: any) => {
             return {
               id: c.id,
+              patientId: c.patientId,
               firstName: c.patientName,
               lastName: "",
-              appointmentDateTime: null,
+              appointmentDateTime: c.dateTime,
               duration: null,
               professional: c.dentistName,
               status: this.mapSocketStatusToLocalStatus(c.consultationStatus),
+              appointmentId: c.appointmentId || c.appappointmentId
             };
           });
 
-          // Filter out the old consultations from allTodayAppointments, keeping only the calendar appointments
-          const calendarAppointments = this.allTodayAppointments().filter(a => a.status === 'Agendado');
+          // Filter out the old consultations, keeping only calendar appointments that don't have active consultations
+          const activeAppointmentIds = new Set(consultations.map((c: any) => c.appointmentId || c.appappointmentId));
+          const calendarAppointments = this.allTodayAppointments().filter(
+            a => a.status === 'Agendado' && !activeAppointmentIds.has(a.id)
+          );
 
           // Combine calendar appointments with new consultations
           const combined = [...calendarAppointments, ...consultationsMapped];
@@ -275,17 +280,23 @@ export class AppointmentsComponent {
             const consultationsMapped = consultations.map((c: any) => {
               return {
                 id: c.id,
+                patientId: c.patientId,
                 firstName: c.patientName,
                 lastName: "",
-                appointmentDateTime: null,
+                appointmentDateTime: c.dateTime,
                 duration: null,
                 professional: c.dentistName,
                 status: this.mapSocketStatusToLocalStatus(c.consultationStatus),
+                appointmentId: c.appointmentId || c.appappointmentId
               };
             });
 
+            // Filter out calendar appointments that already have an active consultation
+            const activeAppointmentIds = new Set(consultations.map((c: any) => c.appointmentId || c.appappointmentId));
+            const filteredCalendar = calendarMapped.filter(a => !activeAppointmentIds.has(a.id));
+
             // Combine both lists (union)
-            const combined = [...calendarMapped, ...consultationsMapped];
+            const combined = [...filteredCalendar, ...consultationsMapped];
             this.applyConsultationsData(combined, targetFilter);
           },
           error: (err) => {
@@ -320,6 +331,7 @@ export class AppointmentsComponent {
 
         return {
           id: appointment.id,
+          patientId: appointment.idPatient,
           firstName,
           lastName,
           appointmentDateTime: appointment.appointmentDateTime,

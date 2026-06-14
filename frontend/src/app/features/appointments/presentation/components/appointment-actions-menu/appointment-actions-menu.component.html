@@ -1,13 +1,24 @@
 @if (appointment().status === 'Agendado') {
-  <button
-    matIconButton
-    class="text-[var(--mat-sys-primary)]"
-    matTooltip="Pasar a espera"
-    matTooltipPosition="left"
-    (click)="startConsultation()"
-  >
-    <i-tabler name="circle-caret-right"></i-tabler>
-  </button>
+  <div class="flex items-center gap-1">
+    <button
+      matIconButton
+      color="primary"
+      matTooltip="Pasar a espera"
+      matTooltipPosition="above"
+      (click)="startConsultation()"
+    >
+      <i-tabler name="circle-caret-right" class="text-[var(--mat-sys-primary)]"></i-tabler>
+    </button>
+    <button
+      matIconButton
+      class="text-[var(--mat-sys-on-surface-variant-muted)]"
+      matTooltip="Reprogramar"
+      matTooltipPosition="above"
+      (click)="rescheduleAppointment()"
+    >
+      <i-tabler name="calendar-time"></i-tabler>
+    </button>
+  </div>
 } @else {
   <button
     matIconButton
@@ -31,7 +42,7 @@
       <span>Iniciar consulta</span>
     </div>
   </button>
-  <button mat-menu-item>
+  <button mat-menu-item (click)="viewMedicalHistory()">
     <div
       class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
     >
@@ -39,14 +50,16 @@
       <span>Ver ficha médica</span>
     </div>
   </button>
-  <button mat-menu-item>
-    <div
-      class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
-    >
-      <i-tabler name="calendar-time"></i-tabler>
-      <span>Reprogramar</span>
-    </div>
-  </button>
+  @if (appointment().status === 'Agendado' || appointment().status === 'Cancelada') {
+    <button mat-menu-item (click)="rescheduleAppointment()">
+      <div
+        class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
+      >
+        <i-tabler name="calendar-time"></i-tabler>
+        <span>Reprogramar</span>
+      </div>
+    </button>
+  }
   <button mat-menu-item>
     <div
       class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
