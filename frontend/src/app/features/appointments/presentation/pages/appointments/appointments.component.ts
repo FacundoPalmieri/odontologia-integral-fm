@@ -109,7 +109,6 @@ export class AppointmentsComponent {
 
   constructor() {
     this._loadData();
-    this._loadDentists();
 
     effect(() => {
       localStorage.setItem("appointmentsViewMode", this.viewMode());
@@ -221,71 +220,83 @@ export class AppointmentsComponent {
     const personId = this.localStorageService.getUserData()?.person?.id || 0;
     const today = new Date();
 
-    // 1. Prepare calendar request observable
-    let calendarObs$;
-    if (userRole === RoleEnum.DENTIST) {
-      calendarObs$ = this.calendarService.getDay(personId, today);
-    } else {
-      calendarObs$ = new Observable<any>((subscriber) => {
-        this.dentistService.getAll().subscribe({
-          next: (response) => {
-            const dentists = response.data || [];
-            if (dentists.length === 0) {
-              subscriber.next({ data: { slots: [] } });
-              subscriber.complete();
-              return;
-            }
-            const requests = dentists.map((d) =>
+    const dentists$: Observable<DentistDto[]> = this.dentists().length > 0
+      ? new Observable<DentistDto[]>(sub => { sub.next(this.dentists()); sub.complete(); })
+      : new Observable<DentistDto[]>(sub => {
+          this.dentistService.getAll().subscribe({
+            next: (response) => {
+              const list = response.data || [];
+              this.dentists.set(list);
+              sub.next(list);
+              sub.complete();
+            },
+            error: (err) => sub.error(err)
+          });
+        });
+
+    dentists$.subscribe({
+      next: (dentistsList) => {
+        let calendarObs$: Observable<any>;
+        if (userRole === RoleEnum.DENTIST) {
+          calendarObs$ = this.calendarService.getDay(personId, today);
+        } else {
+          if (dentistsList.length === 0) {
+            calendarObs$ = new Observable<any>(sub => { sub.next({ data: { slots: [] } }); sub.complete(); });
+          } else {
+            const requests = dentistsList.map((d) =>
               this.calendarService.getDay(d.person.id, today)
             );
-            forkJoin(requests).subscribe({
-              next: (responses) => {
-                const allSlots = responses.flatMap((res) => res.data?.slots || []);
-                subscriber.next({ data: { slots: allSlots } });
-                subscriber.complete();
-              },
-              error: (err) => subscriber.error(err)
+            calendarObs$ = new Observable<any>(sub => {
+              forkJoin(requests).subscribe({
+                next: (responses) => {
+                  const allSlots = responses.flatMap((res) => res.data?.slots || []);
+                  sub.next({ data: { slots: allSlots } });
+                  sub.complete();
+                },
+                error: (err) => sub.error(err)
+              });
             });
+          }
+        }
+
+        forkJoin({
+          consultations: this.consultationService.getConsultations(),
+          calendar: calendarObs$
+        }).subscribe({
+          next: (result) => {
+            console.log("[AppointmentsComponent] Data fetched successfully:", result);
+            
+            // Map calendar slots
+            const slots = result.calendar?.data?.slots || [];
+            const calendarMapped = this._mapSlotsToAppointments(slots);
+
+            // Map active consultations
+            const consultations = result.consultations?.data || [];
+            const consultationsMapped = consultations.map((c: any) => {
+              return {
+                id: c.id,
+                firstName: c.patientName,
+                lastName: "",
+                appointmentDateTime: null,
+                duration: null,
+                professional: c.dentistName,
+                status: this.mapSocketStatusToLocalStatus(c.consultationStatus),
+              };
+            });
+
+            // Combine both lists (union)
+            const combined = [...calendarMapped, ...consultationsMapped];
+            this.applyConsultationsData(combined, targetFilter);
           },
-          error: (err) => subscriber.error(err)
+          error: (err) => {
+            console.error("[AppointmentsComponent] Error loading today's data:", err);
+            this.allTodayAppointments.set([]);
+            this.appointments.set([]);
+          }
         });
-      });
-    }
-
-    // 2. Fetch both consultations and calendar slots
-    forkJoin({
-      consultations: this.consultationService.getConsultations(),
-      calendar: calendarObs$
-    }).subscribe({
-      next: (result) => {
-        console.log("[AppointmentsComponent] Data fetched successfully:", result);
-        
-        // Map calendar slots
-        const slots = result.calendar?.data?.slots || [];
-        const calendarMapped = this._mapSlotsToAppointments(slots);
-
-        // Map active consultations
-        const consultations = result.consultations?.data || [];
-        const consultationsMapped = consultations.map((c: any) => {
-          return {
-            id: c.id,
-            firstName: c.patientName,
-            lastName: "",
-            appointmentDateTime: null,
-            duration: null,
-            professional: c.dentistName,
-            status: this.mapSocketStatusToLocalStatus(c.consultationStatus),
-          };
-        });
-
-        // Combine both lists (union)
-        const combined = [...calendarMapped, ...consultationsMapped];
-        this.applyConsultationsData(combined, targetFilter);
       },
       error: (err) => {
-        console.error("[AppointmentsComponent] Error loading today's data:", err);
-        this.allTodayAppointments.set([]);
-        this.appointments.set([]);
+        console.error("[AppointmentsComponent] Error fetching dentists:", err);
       }
     });
   }
@@ -305,11 +316,14 @@ export class AppointmentsComponent {
         const lastName = nameParts[0] || appointment.patientName || "N/A";
         const firstName = nameParts[1] || "";
 
+        const startTime = slot.startTime.split(":").slice(0, 2).join(":");
+
         return {
           id: appointment.id,
           firstName,
           lastName,
           appointmentDateTime: appointment.appointmentDateTime,
+          startTime,
           duration,
           professional: appointment.dentistName,
           status: "Agendado",
@@ -321,14 +335,6 @@ export class AppointmentsComponent {
           new Date(b.appointmentDateTime).getTime()
         );
       });
-  }
-
-
-
-  private _loadDentists() {
-    this.dentistService.getAll().subscribe((response) => {
-      this.dentists.set(response.data ?? []);
-    });
   }
 
   createAppointment() {

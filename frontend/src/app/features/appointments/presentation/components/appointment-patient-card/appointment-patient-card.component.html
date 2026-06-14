@@ -44,45 +44,46 @@
 
     <mat-divider class="!my-4 opacity-40"></mat-divider>
 
-    <!-- Schedule + duration side by side
-    <div class="flex gap-6">
-      <div class="flex flex-col gap-0.5">
-        <span
-          class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
-        >
-          Horario
-        </span>
-        <div class="flex items-center gap-1.5">
-          <i-tabler
-            name="clock"
-            class="text-[var(--mat-sys-on-surface-variant)] scale-90"
-          ></i-tabler>
-          <span class="text-lg font-bold leading-tight">
-            {{ appointment().appointmentDateTime | date: "HH:mm" }}
-          </span>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-0.5">
-        <span
-          class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
-        >
-          Duración
-        </span>
-        <div class="flex items-center gap-1.5">
-          <i-tabler
-            name="hourglass"
-            class="text-[var(--mat-sys-on-surface-variant)] scale-90"
-          ></i-tabler>
+    <!-- Schedule + duration side by side -->
+    @if (appointment().status === 'Agendado') {
+      <div class="flex gap-6">
+        <div class="flex flex-col gap-0.5">
           <span
-            class="text-base leading-tight text-[var(--mat-sys-on-surface-variant)]"
+            class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
           >
-            {{ appointment().duration }} min
+            Horario
           </span>
+          <div class="flex items-center gap-1.5">
+            <i-tabler
+              name="clock"
+              class="text-[var(--mat-sys-on-surface-variant)] scale-90"
+            ></i-tabler>
+            <span class="text-lg font-bold leading-tight">
+              {{ appointment().startTime || (appointment().appointmentDateTime | date: "HH:mm") }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-0.5">
+          <span
+            class="text-[10px] font-semibold tracking-widest text-[var(--mat-sys-on-surface-variant)] uppercase"
+          >
+            Duración
+          </span>
+          <div class="flex items-center gap-1.5">
+            <i-tabler
+              name="hourglass"
+              class="text-[var(--mat-sys-on-surface-variant)] scale-90"
+            ></i-tabler>
+            <span
+              class="text-base leading-tight text-[var(--mat-sys-on-surface-variant)]"
+            >
+              {{ appointment().duration }} min
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-    -->
+    }
 
     <!-- Professional -->
     <div class="flex flex-col gap-1 mt-4">
