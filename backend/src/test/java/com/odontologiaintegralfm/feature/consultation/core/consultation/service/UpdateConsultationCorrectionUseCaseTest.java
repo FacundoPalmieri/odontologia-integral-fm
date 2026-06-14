@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.core.consultation.service
 
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationCorrectionRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationEventType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationEvent;
@@ -11,6 +12,7 @@ import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -83,7 +85,7 @@ class UpdateConsultationCorrectionUseCaseTest {
     }
 
     @Test
-    void execute_onSuccess_createsConsultationCorrectedEvent() {
+    void execute_onSuccess_createsConsultationCorrectedEventWithObservation() {
         Consultation consultation = mock(Consultation.class);
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
@@ -94,6 +96,11 @@ class UpdateConsultationCorrectionUseCaseTest {
 
         useCase.execute(1L, correction);
 
-        verify(consultationEventService).create(any(ConsultationEvent.class));
+        ArgumentCaptor<ConsultationEvent> captor = ArgumentCaptor.forClass(ConsultationEvent.class);
+        verify(consultationEventService).create(captor.capture());
+        ConsultationEvent published = captor.getValue();
+        assertThat(published.getEventType()).isEqualTo(ConsultationEventType.CONSULTATION_CORRECTED);
+        assertThat(published.getObservation()).isEqualTo(correction.observationCorrection());
+        assertThat(published.getConsultation()).isSameAs(consultation);
     }
 }
