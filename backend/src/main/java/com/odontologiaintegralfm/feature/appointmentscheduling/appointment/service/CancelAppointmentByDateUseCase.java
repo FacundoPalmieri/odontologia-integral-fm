@@ -17,6 +17,7 @@ import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class CancelAppointmentByDateUseCase {
 
 
@@ -59,7 +61,7 @@ public class CancelAppointmentByDateUseCase {
      * completo y es necesario cancelar todos sus turnos.
      * </p>
      * <ul>
-     *     <li>Valida que la fecha ingresada sea posterior a la fecha actual. No permite cancelar turnos del mismo día.</li>
+     *     <li>Valída que la fecha ingresada sea posterior a la fecha actual. No permite cancelar turnos del mismo día.</li>
      *     <li>Obtiene todos los turnos RESERVED futuros correspondientes al dentista.</li>
      *     <li>Actualiza el estado de cada turno a {@link AppointmentStatus#CANCELED}.</li>
      *     <li>Registra cada cambio en el historial de estados.</li>
@@ -77,7 +79,7 @@ public class CancelAppointmentByDateUseCase {
      * @return Response<Integer> número total de turnos cancelados
      *
      * @throws BadRequestException si la fecha no es posterior a la fecha actual
-     * @throws DataBaseException si ocurre un error al persistir los cambios
+     * @throws DataBaseException sí ocurre un error al persistir los cambios
      */
 
     @LogAction(
