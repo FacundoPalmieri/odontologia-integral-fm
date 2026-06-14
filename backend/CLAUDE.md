@@ -78,6 +78,10 @@ Three-level RBAC: **Role → Permission → Action**. Method-level authorization
 
 Use the domain exceptions in `shared/exception/`: `NotFoundException`, `BadRequestException`, `ConflictException`, `ForbiddenException`, `UnauthorizedException`, `DataBaseException`. The global handler in `infrastructure/exception/` translates these to HTTP responses with user-friendly Spanish messages from `messages.properties`.
 
+### QueryService vs direct repository access
+
+When fetching an entity by ID: if absence is a valid result, call the repository directly. If absence is a business error that must throw, delegate to the domain's `EntityQueryService` — it encapsulates the `NotFoundException`. Do not call the repository directly from a use case when absence should throw.
+
 ## Key domain concepts
 
 - **Odontogram**: tooth-level diagram attached to a consultation, tracking treatment state per tooth/face.
@@ -94,3 +98,20 @@ Database schema is auto-managed by `hibernate.ddl-auto=update`. Timezone is `Ame
 ## Tests
 
 Tests are in `src/test/.../feature/consultation/` and use **JUnit 5 + Mockito**. Focus is on use case business rules (date validation, duplicate checks, status transitions). Follow the same use case test pattern when adding new tests.
+
+### Out of scope by definition
+
+The following are **never tested** in this project — do not propose tests for them and exclude them from any coverage audit:
+
+- **Query services** (`*QueryService`): pure reads, no domain rules.
+- **Catalogs** (`feature/*/catalogs/**`): static lookup data and CRUD without business logic.
+- **JPA entities / models** (`*/model/*.java`): data classes with annotations — no behavior to validate.
+- **Mappers** (MapStruct `@Mapper`): generated code.
+- **DTOs**: records / data carriers.
+- **Repositories** (`I*Repository`): Spring Data interfaces.
+
+Tests target **use cases** (`*UseCase`) and **domain services** (`*DomainService`) where the business rules live. When auditing test coverage for a feature, declare the items above as "out of scope by definition" rather than gaps.
+
+### Test naming convention
+
+`methodName_condition_expectedResult` (camelCase). No `should`, no `_test` suffix. Each test has a Javadoc with `CASO:`, `Regla:` (when applicable) and `Validación:`.
