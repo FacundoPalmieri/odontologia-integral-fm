@@ -23,7 +23,7 @@ target/
 *.log.*
 *.env
 backend/logs/
-
+backend/docs/desarrollos/
 
 ### Node.js/Angular
 node_modules/
@@ -41,5 +41,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Claude Code ###
+backend/.claude/settings.json
 
 springsecurityJWT/

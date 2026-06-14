@@ -1,15 +1,13 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.appointment.controller;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.*;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.*;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentConflictService;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.*;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
@@ -23,11 +21,23 @@ import java.util.List;
 @RequestMapping("/api/appointment")
 public class AppointmentController {
 
-    @Autowired
-    private IAppointmentService appointmentService;
+    private final CreateAppointmentUseCase createAppointmentUseCase;
+    private final RescheduleAppointmentUseCase rescheduleAppointmentUseCase;
+    private final CancelAppointmentUseCase cancelAppointmentUseCase;
+    private final CancelAppointmentByDateUseCase cancelAppointmentByDateUseCase;
+    private final AppointmentConflictService appointmentConflictService;
 
-    @Autowired
-    private IAppointmentConflictService appointmentConflictService;
+    public AppointmentController(CreateAppointmentUseCase createAppointmentUseCase,
+                                 RescheduleAppointmentUseCase rescheduleAppointmentUseCase,
+                                 CancelAppointmentUseCase cancelAppointmentUseCase,
+                                 CancelAppointmentByDateUseCase cancelAppointmentByDateUseCase,
+                                 AppointmentConflictService appointmentConflictService) {
+        this.createAppointmentUseCase = createAppointmentUseCase;
+        this.rescheduleAppointmentUseCase = rescheduleAppointmentUseCase;
+        this.cancelAppointmentUseCase = cancelAppointmentUseCase;
+        this.cancelAppointmentByDateUseCase =  cancelAppointmentByDateUseCase;
+        this.appointmentConflictService  = appointmentConflictService;
+    }
 
     @Operation(summary = "Listar turnos en conflicto por dentista", description = "Lista los turnos en conflictos por Id de dentista")
     @ApiResponses(value = {
@@ -52,7 +62,7 @@ public class AppointmentController {
     @PostMapping()
     @OnlyAccessAppointmentsManagementCreate
     public ResponseEntity<Response<AppointmentResponseDTO>> create(@RequestBody @Valid AppointmentCreateRequestDTO appointmentCreateRequestDTO){
-        Response<AppointmentResponseDTO> response = appointmentService.create(appointmentCreateRequestDTO);
+        Response<AppointmentResponseDTO> response = createAppointmentUseCase.execute(appointmentCreateRequestDTO);
         return ResponseEntity.ok(response);
     }
 
@@ -69,7 +79,7 @@ public class AppointmentController {
     public ResponseEntity<Response<AppointmentResponseDTO>> reschedule(@PathVariable @NotNull Long idAppointment,
                                                                        @RequestBody @Valid AppointmentRescheduleRequestDTO appointmentRescheduleRequestDTO){
 
-        Response<AppointmentResponseDTO> response = appointmentService.reschedule(idAppointment, appointmentRescheduleRequestDTO);
+        Response<AppointmentResponseDTO> response = rescheduleAppointmentUseCase.execute(idAppointment, appointmentRescheduleRequestDTO);
         return ResponseEntity.ok(response);
     }
 
@@ -86,7 +96,7 @@ public class AppointmentController {
     public ResponseEntity<Response<AppointmentResponseDTO>> cancel(@PathVariable @NotNull Long idAppointment,
                                                                    @RequestBody @Valid AppointmentCancelRequestDTO appointmentCancelRequestDTO) {
 
-        Response<AppointmentResponseDTO> response = appointmentService.cancel(idAppointment, appointmentCancelRequestDTO);
+        Response<AppointmentResponseDTO> response = cancelAppointmentUseCase.execute(idAppointment, appointmentCancelRequestDTO);
         return ResponseEntity.ok(response);
 
     }
@@ -105,7 +115,7 @@ public class AppointmentController {
                                                              @RequestParam @NotNull LocalDate date,
                                                              @RequestBody @Valid AppointmentCancelAllRequestDTO appointmentCancelRequestDTO) {
 
-        Response<Integer> response = appointmentService.cancelAllByDate(idDentist, date, appointmentCancelRequestDTO);
+        Response<Integer> response = cancelAppointmentByDateUseCase.execute(idDentist, date, appointmentCancelRequestDTO);
         return ResponseEntity.ok(response);
 
     }

@@ -15,6 +15,7 @@ public class PromotionService {
     }
 
     public Promotion findById(Long id) {
+        if (id == null) return null;
         return promotionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("exception.promotionNotFound.user", null,"exception.promotionNotFound.log", new Object[]{id,"PromotionService","findById"}, LogLevel.ERROR));
     }

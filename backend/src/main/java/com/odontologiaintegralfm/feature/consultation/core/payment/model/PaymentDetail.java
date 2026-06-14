@@ -1,9 +1,9 @@
-package com.odontologiaintegralfm.feature.consultation.core.model;
+package com.odontologiaintegralfm.feature.consultation.core.payment.model;
 
 import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +19,7 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "payments_details")
 @Where(clause = "enabled = true")

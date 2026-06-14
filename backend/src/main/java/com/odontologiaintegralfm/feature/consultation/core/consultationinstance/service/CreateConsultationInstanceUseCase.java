@@ -262,7 +262,7 @@ public class CreateConsultationInstanceUseCase {
 
 
         //Actualiza la consulta + crea historial + envía webSocket.
-        ConsultationResponseDTO consultationResponseDTO = changeConsultationStatusUseCase.execute(consultation, ConsultationStatusType.PENDING_PAYMENT);
+        ConsultationResponseDTO consultationResponseDTO = changeConsultationStatusUseCase.execute(consultation, ConsultationStatusType.FINISHED);
 
 
         return new Response<>(
@@ -273,7 +273,8 @@ public class CreateConsultationInstanceUseCase {
                         consultationResponseDTO,
                         odontogramsSaved.stream().map(odontogramMapper::toDTO).toList(),
                         prestationInstanceList.stream().map(prestationInstanceMapper::toDTO).toList(),
-                        consultationInstance.getObservation()
+                        consultationInstance.getObservation(),
+                        null
                 )
         );
     }

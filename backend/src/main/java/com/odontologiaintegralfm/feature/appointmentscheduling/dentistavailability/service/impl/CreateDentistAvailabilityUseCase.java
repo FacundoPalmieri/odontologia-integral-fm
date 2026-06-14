@@ -4,8 +4,8 @@ import com.odontologiaintegralfm.configuration.securityconfig.core.Authenticated
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentConflictService;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.AppointmentConflictService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.AppointmentQueryService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.ICreateDentistAvailabilityUseCase;
 import com.odontologiaintegralfm.feature.appointmentscheduling.shared.ConflictManagerContextInternalDTO;
@@ -38,8 +38,8 @@ import java.util.List;
 @Service
 public class CreateDentistAvailabilityUseCase implements ICreateDentistAvailabilityUseCase {
 
-    private final IAppointmentConflictService appointmentConflictService;
-    private final IAppointmentService appointmentService;
+    private final AppointmentConflictService appointmentConflictService;
+    private final AppointmentQueryService appointmentQueryService;
     private final IUserService userService;
     private final MessageSource messageSource;
     private final IEmailService emailService;
@@ -49,8 +49,8 @@ public class CreateDentistAvailabilityUseCase implements ICreateDentistAvailabil
 
 
     public CreateDentistAvailabilityUseCase(
-            IAppointmentConflictService appointmentConflictService,
-            IAppointmentService appointmentService,
+            AppointmentConflictService appointmentConflictService,
+            AppointmentQueryService appointmentQueryService,
             IUserService userService,
             MessageSource messageSource,
             IEmailService emailService,
@@ -58,7 +58,7 @@ public class CreateDentistAvailabilityUseCase implements ICreateDentistAvailabil
             DentistAvailabilityService dentistAvailabilityService,
             IDentistService dentistService){
         this.appointmentConflictService = appointmentConflictService;
-        this.appointmentService = appointmentService;
+        this.appointmentQueryService = appointmentQueryService;
         this.userService = userService;
         this.messageSource = messageSource;
         this.emailService = emailService;
@@ -352,7 +352,7 @@ public class CreateDentistAvailabilityUseCase implements ICreateDentistAvailabil
     private ConflictManagerContextInternalDTO prepareContextByAvailability(Long idDentist){
 
         //Se obtienen los turnos futuros para el dentista.
-        List<Appointment> appointments = appointmentService.getFutureAppointmentsReservedByDentist(idDentist);
+        List<Appointment> appointments = appointmentQueryService.getFutureAppointmentsReservedByDentist(idDentist);
 
         // Se obtiene los turnos conflictivos previos al cambio, y que el origen del conflicto fue la jornada laboral del dentista.
         List<AppointmentConflict> appointmentConflictsExisting = appointmentConflictService.getAllByDentistIdAndAvailabilityConflict(idDentist, OriginConflict.DENTIST_AVAILABILITIES);

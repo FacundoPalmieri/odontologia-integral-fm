@@ -14,6 +14,7 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ChangeConsultationStatusUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationQueryService;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
@@ -58,6 +59,7 @@ import static org.mockito.Mockito.when;
 class CreateConsultationInstanceUseCaseTest {
 
     @Mock private ConsultationQueryService consultationQueryService;
+    @Mock private ChangeConsultationStatusUseCase changeConsultationStatusUseCase;
     @Mock private IConsultationInstanceRepository consultationInstanceRepository;
     @Mock private IOdontogramRepository odontogramRepository;
     @Mock private IPrestationInstanceRepository prestationInstanceRepository;

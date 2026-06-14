@@ -4,6 +4,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.Cons
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationInstanceResponseDTO;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record ConsultationInstanceResponseDTO(
@@ -12,5 +13,7 @@ public record ConsultationInstanceResponseDTO(
         ConsultationResponseDTO consultationResponseDTO,
         List<OdontogramResponseDTO> odontogram,
         List<PrestationInstanceResponseDTO> prestationInstance,
-        String observation
+        String observation,
+
+        BigDecimal totalFinalAmount
 ) {}

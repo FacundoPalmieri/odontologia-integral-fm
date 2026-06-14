@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.core.consultation.service;
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.AppointmentQueryService;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationStatusHistory;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
@@ -20,17 +20,17 @@ import java.time.LocalDate;
 @Service
 public class CreateConsultationUseCase {
 
-    private final IAppointmentService appointmentService;
+    private final AppointmentQueryService appointmentQueryService;
     private final ChangeConsultationStatusUseCase changeStatusUseCase;
     private final MessageSource messageSource;
     private final IConsultationRepository consultationRepository;
 
 
-    public CreateConsultationUseCase(IAppointmentService appointmentService,
+    public CreateConsultationUseCase(AppointmentQueryService appointmentQueryService,
                                ChangeConsultationStatusUseCase changeConsultationStatusUseCase,
                                @Qualifier("messageSource") MessageSource messageSource,
                                      IConsultationRepository consultationRepository) {
-        this.appointmentService = appointmentService;
+        this.appointmentQueryService = appointmentQueryService;
         this.changeStatusUseCase = changeConsultationStatusUseCase;
         this.messageSource = messageSource;
         this.consultationRepository = consultationRepository;
@@ -70,7 +70,7 @@ public class CreateConsultationUseCase {
     public Response<ConsultationResponseDTO> execute(Long idAppointment) {
 
         //Buscamos y validamos la existencia del turno.
-        Appointment appointment = appointmentService.getById(idAppointment);
+        Appointment appointment = appointmentQueryService.getById(idAppointment);
 
         //Validamos que el turno corresponde al día de la fecha.
         if (!appointment.getDate().toLocalDate().equals(LocalDate.now())) {

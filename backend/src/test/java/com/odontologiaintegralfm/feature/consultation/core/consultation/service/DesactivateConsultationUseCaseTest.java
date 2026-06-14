@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.core.consultation.service
 
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationEventType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.mapper.ConsultationMapper;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
@@ -14,6 +15,7 @@ import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +23,7 @@ import org.springframework.context.MessageSource;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -68,7 +71,7 @@ class DesactivateConsultationUseCaseTest {
         UserSec user = mock(UserSec.class);
         when(authenticatedUserService.getAuthenticatedUser()).thenReturn(user);
         when(consultationMapper.toDTO(consultation)).thenReturn(
-                new ConsultationResponseDTO(1L, "Paciente", "Dentista", "Sala de Espera"));
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null));
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
 
         useCase.execute(1L, "observacion");
@@ -78,19 +81,24 @@ class DesactivateConsultationUseCaseTest {
     }
 
     @Test
-    void execute_whenStatusIsWaitingRoom_createsConsultationCanceledEvent() {
+    void execute_whenStatusIsWaitingRoom_createsConsultationCanceledEventWithObservation() {
         Consultation consultation = mock(Consultation.class);
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.WAITING_ROOM);
         when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
 
         when(authenticatedUserService.getAuthenticatedUser()).thenReturn(mock(UserSec.class));
         when(consultationMapper.toDTO(consultation)).thenReturn(
-                new ConsultationResponseDTO(1L, "Paciente", "Dentista", "Sala de Espera"));
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null));
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
 
-        useCase.execute(1L, "observacion");
+        useCase.execute(1L, "Paciente no se presentó");
 
-        verify(consultationEventService).create(any(ConsultationEvent.class));
+        ArgumentCaptor<ConsultationEvent> captor = ArgumentCaptor.forClass(ConsultationEvent.class);
+        verify(consultationEventService).create(captor.capture());
+        ConsultationEvent published = captor.getValue();
+        assertThat(published.getEventType()).isEqualTo(ConsultationEventType.CONSULTATION_CANCELED);
+        assertThat(published.getObservation()).isEqualTo("Paciente no se presentó");
+        assertThat(published.getConsultation()).isSameAs(consultation);
     }
 
     @Test
@@ -100,7 +108,7 @@ class DesactivateConsultationUseCaseTest {
         when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
 
         when(authenticatedUserService.getAuthenticatedUser()).thenReturn(mock(UserSec.class));
-        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, "Paciente", "Dentista", "Sala de Espera");
+        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null);
         when(consultationMapper.toDTO(consultation)).thenReturn(dto);
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
 

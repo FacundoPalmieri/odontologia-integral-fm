@@ -5,8 +5,8 @@ import com.odontologiaintegralfm.configuration.securityconfig.core.Authenticated
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.dto.AppointmentConflictResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentConflict;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentConflictService;
-import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.IAppointmentService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.AppointmentConflictService;
+import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service.AppointmentQueryService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.OriginConflict;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.util.CalendarUtils;
@@ -60,10 +60,10 @@ public class CreateDentistCalendarLockUseCase implements ICreateDentistCalendarL
     private final IDentistAvailabilityService dentistAvailabilityService;
     private final AuthenticatedUserService authenticatedUserService;
     private final MessageSource messageSource;
-    private final IAppointmentConflictService appointmentConflictService;
+    private final AppointmentConflictService appointmentConflictService;
     private final IEmailService emailService;
     private final IUserService userService;
-    private final IAppointmentService appointmentService;
+    private final AppointmentQueryService appointmentQueryService;
 
     public CreateDentistCalendarLockUseCase(
             IDentistCalendarLockService dentistCalendarLockService,
@@ -74,10 +74,10 @@ public class CreateDentistCalendarLockUseCase implements ICreateDentistCalendarL
             IDentistAvailabilityService dentistAvailabilityService,
             AuthenticatedUserService authenticatedUserService,
             MessageSource messageSource,
-            IAppointmentConflictService appointmentConflictService,
+            AppointmentConflictService appointmentConflictService,
             IEmailService emailService,
             IUserService userService,
-            IAppointmentService appointmentService
+            AppointmentQueryService appointmentQueryService
 
     ){
         this.dentistCalendarLockService = dentistCalendarLockService;
@@ -91,7 +91,7 @@ public class CreateDentistCalendarLockUseCase implements ICreateDentistCalendarL
         this.appointmentConflictService = appointmentConflictService;
         this.emailService = emailService;
         this.userService = userService;
-        this.appointmentService = appointmentService;
+        this.appointmentQueryService = appointmentQueryService;
     }
 
 
@@ -500,7 +500,7 @@ public class CreateDentistCalendarLockUseCase implements ICreateDentistCalendarL
     private ConflictManagerContextInternalDTO prepareContextByCalendarLock(DentistCalendarLockRequestCreateDTO dentistCalendarLockRequestCreateDTO, Dentist dentist){
 
         //Obtiene turno por dentista.
-        List<Appointment> appointments = appointmentService.getFutureAppointmentsReservedByDentist(dentist.getId());
+        List<Appointment> appointments = appointmentQueryService.getFutureAppointmentsReservedByDentist(dentist.getId());
 
         // Identificar si hay turnos en conflictos.
         List<AppointmentConflict> appointmentConflicts = evaluateAppointmentDentistCalendarLock(appointments, dentistCalendarLockRequestCreateDTO,dentistCalendarLockRequestCreateDTO.getRecurrence());

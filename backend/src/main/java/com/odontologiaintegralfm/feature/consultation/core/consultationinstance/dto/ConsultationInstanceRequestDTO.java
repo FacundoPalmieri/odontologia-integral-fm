@@ -4,6 +4,7 @@ package com.odontologiaintegralfm.feature.consultation.core.consultationinstance
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationInstanceRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationStepAdvancementRequestDTO;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public record ConsultationInstanceRequestDTO(
         List<OdontogramRequestDTO> odontogram,
 
         // prestaciones nuevas
-        @NotNull(message = "consultationInstanceRequestDTO.prestationNew.empty")
+        @NotEmpty(message = "consultationInstanceRequestDTO.prestationNew.empty")
         List<PrestationInstanceRequestDTO> prestationNew,
 
         // avances de prestaciones existentes
