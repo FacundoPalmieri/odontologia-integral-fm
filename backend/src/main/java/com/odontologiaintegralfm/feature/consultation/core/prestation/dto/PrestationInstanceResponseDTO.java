@@ -26,6 +26,8 @@ public record PrestationInstanceResponseDTO(
         BigDecimal discountValue,
         BigDecimal discountAmount,
 
-        BigDecimal finalAmount
+        BigDecimal finalAmount,
+
+        BigDecimal pendingAmount
 ) {
 }

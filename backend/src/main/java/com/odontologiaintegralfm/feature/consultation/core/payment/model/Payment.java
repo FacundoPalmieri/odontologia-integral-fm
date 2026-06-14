@@ -5,7 +5,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Co
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +19,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "payments")
 @Where(clause = "enabled = true")
@@ -47,6 +46,7 @@ public class Payment extends AuditableJPA {
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "method",nullable = false)
     private PaymentMethods method;
 
     private Payment(Patient patient, LocalDate date, Consultation consultation, BigDecimal totalAmount, PaymentMethods method) {

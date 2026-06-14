@@ -21,4 +21,6 @@ public interface IPrestationInstanceRepository extends JpaRepository<PrestationI
     List<PrestationInstance> findPrestationInstanceByPatientAndStatus(@Param("patientId")Long patientId,
                                                                       @Param("status") PrestationInstanceStatus status
     );
+
+    List<PrestationInstance> findByConsultationInstanceId(Long consultationInstanceId);
 }

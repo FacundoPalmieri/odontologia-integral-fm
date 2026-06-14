@@ -13,6 +13,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
+import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -46,7 +47,7 @@ import java.math.RoundingMode;
 })
 @Where(clause = "enabled = true")
 @Audited
-public class PrestationInstance {
+public class PrestationInstance extends AuditableJPA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

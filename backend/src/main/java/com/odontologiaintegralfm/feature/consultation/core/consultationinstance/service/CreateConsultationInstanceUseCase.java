@@ -273,7 +273,8 @@ public class CreateConsultationInstanceUseCase {
                         consultationResponseDTO,
                         odontogramsSaved.stream().map(odontogramMapper::toDTO).toList(),
                         prestationInstanceList.stream().map(prestationInstanceMapper::toDTO).toList(),
-                        consultationInstance.getObservation()
+                        consultationInstance.getObservation(),
+                        null
                 )
         );
     }
