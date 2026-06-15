@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
 import { ConsultationResponse } from "../data/interfaces/consultation.interface";
+import { Observable } from "rxjs";
 
 /**
  * Service for managing consultations.
@@ -44,9 +45,24 @@ export class ConsultationService {
     );
   }
 
-  getConsultations() {
+  getConsultations(): Observable<ApiResponseInterface<ConsultationResponse[]>> {
     return this.http.get<ApiResponseInterface<ConsultationResponse[]>>(
       `${this.apiUrl}/consultation`
+    );
+  }
+
+  updateConsultationStatus(id: number, status: string): Observable<ApiResponseInterface<ConsultationResponse>> {
+    return this.http.patch<ApiResponseInterface<ConsultationResponse>>(
+      `${this.apiUrl}/consultation/${id}/correction`,
+      {
+        observationCorrection: status
+      },
+    );
+  }
+
+  disableConsultation(idConsultation: number): Observable<ApiResponseInterface<any>> {
+    return this.http.delete<ApiResponseInterface<any>>(
+      `${this.apiUrl}/consultation/${idConsultation}/disabled`
     );
   }
 }

@@ -1,47 +1,34 @@
-@if (appointment().status === 'Agendado') {
-  <div class="flex items-center gap-1">
-    <button
-      matIconButton
-      color="primary"
-      matTooltip="Pasar a espera"
-      matTooltipPosition="above"
-      (click)="startConsultation()"
-    >
-      <i-tabler name="circle-caret-right" class="text-[var(--mat-sys-primary)]"></i-tabler>
-    </button>
-    <button
-      matIconButton
-      class="text-[var(--mat-sys-on-surface-variant-muted)]"
-      matTooltip="Reprogramar"
-      matTooltipPosition="above"
-      (click)="rescheduleAppointment()"
-    >
-      <i-tabler name="calendar-time"></i-tabler>
-    </button>
-  </div>
-} @else {
-  <button
-    matIconButton
-    [matMenuTriggerFor]="menu"
-    matTooltip="Acciones"
-    matTooltipPosition="left"
-    aria-label="Abrir menú de acciones"
-  >
-    <i-tabler name="dots-vertical"></i-tabler>
-  </button>
-}
+<button
+  matIconButton
+  [matMenuTriggerFor]="menu"
+  matTooltip="Acciones"
+  matTooltipPosition="left"
+  aria-label="Abrir menú de acciones"
+>
+  <i-tabler name="dots-vertical"></i-tabler>
+</button>
 
 <mat-menu #menu="matMenu" xPosition="before">
-  <button
-    mat-menu-item
-    (click)="callPatient()"
-    [disabled]="appointment().status !== 'En espera'"
-  >
-    <div class="flex items-center gap-2 text-[var(--mat-sys-primary)]">
-      <i-tabler name="circle-caret-right"></i-tabler>
-      <span>Iniciar consulta</span>
-    </div>
-  </button>
+  @if (appointment().status === 'Agendado') {
+    <button mat-menu-item (click)="startConsultation()">
+      <div class="flex items-center gap-2 text-[var(--mat-sys-primary)]">
+        <i-tabler name="circle-caret-right"></i-tabler>
+        <span>Pasar a espera</span>
+      </div>
+    </button>
+  }
+  @if (appointment().status !== 'Agendado') {
+    <button
+      mat-menu-item
+      (click)="callPatient()"
+      [disabled]="appointment().status !== 'En espera'"
+    >
+      <div class="flex items-center gap-2 text-[var(--mat-sys-primary)]">
+        <i-tabler name="circle-caret-right"></i-tabler>
+        <span>Iniciar consulta</span>
+      </div>
+    </button>
+  }
   <button mat-menu-item (click)="viewMedicalHistory()">
     <div
       class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
@@ -60,27 +47,52 @@
       </div>
     </button>
   }
-  <button mat-menu-item>
-    <div
-      class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
-    >
-      <i-tabler name="refresh"></i-tabler>
-      <span>Cambiar de estado</span>
-    </div>
-  </button>
-  <button mat-menu-item>
-    <div
-      class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
-    >
-      <i-tabler name="credit-card-pay"></i-tabler>
-      <span>Registrar pago</span>
-    </div>
-  </button>
-  <mat-divider></mat-divider>
-  <button mat-menu-item>
-    <div class="flex items-center gap-2 text-red-500">
-      <i-tabler name="calendar-cancel"></i-tabler>
-      <span>Cancelar turno</span>
-    </div>
-  </button>
+  @if (appointment().status === 'En consulta') {
+    <button mat-menu-item (click)="rollbackStatus('WAITING_ROOM')">
+      <div
+        class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
+      >
+        <i-tabler name="refresh"></i-tabler>
+        <span>Volver a En espera</span>
+      </div>
+    </button>
+  }
+  @if (appointment().status === 'Pendiente de pago') {
+    <button mat-menu-item (click)="rollbackStatus('IN_CONSULTATION')">
+      <div
+        class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
+      >
+        <i-tabler name="refresh"></i-tabler>
+        <span>Volver a En consulta</span>
+      </div>
+    </button>
+  }
+  @if (appointment().status !== 'Agendado') {
+    <button mat-menu-item>
+      <div
+        class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"
+      >
+        <i-tabler name="credit-card-pay"></i-tabler>
+        <span>Registrar pago</span>
+      </div>
+    </button>
+  }
+  @if (appointment().status === 'En espera' || appointment().status === 'En consulta') {
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="cancelConsultation()">
+      <div class="flex items-center gap-2 text-red-500">
+        <i-tabler name="calendar-cancel"></i-tabler>
+        <span>Cancelar consulta</span>
+      </div>
+    </button>
+  }
+  @if (appointment().status === 'Agendado') {
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="cancelAppointment()">
+      <div class="flex items-center gap-2 text-red-500">
+        <i-tabler name="calendar-cancel"></i-tabler>
+        <span>Cancelar turno</span>
+      </div>
+    </button>
+  }
 </mat-menu>
