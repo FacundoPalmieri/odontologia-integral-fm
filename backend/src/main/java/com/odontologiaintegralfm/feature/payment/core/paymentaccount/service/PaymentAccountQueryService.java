@@ -69,7 +69,9 @@ public class PaymentAccountQueryService  {
 
     //------------------ Métodos internos-------------------------------//
 
-
-
+    public PaymentAccount findById(Long id) {
+        return paymentAccountRepository.findByIdAndEnabledTrue(id)
+                .orElseThrow(() -> new NotFoundException("exception.paymentAccount.notfound.user", null, "exception.paymentAccount.notfound.log", new Object[]{id, "PaymentAccountQueryService", "findById"}, LogLevel.ERROR));
+    }
 
 }

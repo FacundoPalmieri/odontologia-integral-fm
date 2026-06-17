@@ -16,6 +16,8 @@ public record PaymentRequestDTO(
         BigDecimal amount,
 
         @NotNull(message = "paymentRequestDTO.method.empty")
-        PaymentMethods method
+        PaymentMethods method,
+
+        Long account
 ) {
 }
