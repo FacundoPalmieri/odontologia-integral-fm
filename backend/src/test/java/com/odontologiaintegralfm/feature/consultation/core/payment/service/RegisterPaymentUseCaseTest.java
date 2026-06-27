@@ -8,8 +8,8 @@ import com.odontologiaintegralfm.feature.consultation.core.payment.model.Payment
 import com.odontologiaintegralfm.feature.consultation.core.payment.model.PaymentDetail;
 import com.odontologiaintegralfm.feature.consultation.core.payment.repository.IPaymentDetailRepository;
 import com.odontologiaintegralfm.feature.consultation.core.payment.repository.IPaymentRepository;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.service.PrestationInstanceQueryService;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.service.PrestationInstanceQueryService;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.feature.payment.catalogs.paymentprovider.enums.PaymentMethods;
 import com.odontologiaintegralfm.feature.payment.core.paymentaccount.model.PaymentAccount;

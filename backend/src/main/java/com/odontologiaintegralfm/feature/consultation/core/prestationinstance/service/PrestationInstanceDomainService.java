@@ -1,22 +1,21 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.service;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.service;
 
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationStep;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationInstanceRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationStepAdvancementRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationInstanceStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationStepInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.repository.IPrestationInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepAdvancementRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationInstanceStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;

@@ -1,10 +1,10 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.service;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.service;
 
 
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationStepInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.repository.IPrestationStepInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationStepInstanceRepository;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.springframework.stereotype.Service;

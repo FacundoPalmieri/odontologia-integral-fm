@@ -1,6 +1,6 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.dto;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto;
 
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationStepStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
 
 public record PrestationStepAdvancementRequestDTO(
         // La prestación existente que se avanza

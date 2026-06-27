@@ -1,7 +1,7 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.dto;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.*;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationStepStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramRequestDTO;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

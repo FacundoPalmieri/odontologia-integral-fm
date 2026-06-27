@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.dto;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto;
 
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramResponseDTO;
 

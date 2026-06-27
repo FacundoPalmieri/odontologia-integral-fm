@@ -1,8 +1,8 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.mapper;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper;
 
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationInstanceResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.enums;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums;
 
 /**
  * Enum que representa el estado de una prestación (Agrupador de pasos)

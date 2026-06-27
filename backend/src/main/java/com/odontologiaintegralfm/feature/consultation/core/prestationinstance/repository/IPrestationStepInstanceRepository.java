@@ -1,7 +1,7 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.repository;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationStepInstance;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

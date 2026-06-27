@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.service;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.service;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.DiscountType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Maxillary;
@@ -11,13 +11,13 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.servic
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationInstanceRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationStepAdvancementRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationInstanceStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationStepInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.repository.IPrestationInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepAdvancementRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationInstanceStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import org.junit.jupiter.api.Test;

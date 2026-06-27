@@ -99,6 +99,9 @@ Database schema is auto-managed by `hibernate.ddl-auto=update`. Timezone is `Ame
 
 Tests are in `src/test/.../feature/consultation/` and use **JUnit 5 + Mockito**. Focus is on use case business rules (date validation, duplicate checks, status transitions). Follow the same use case test pattern when adding new tests.
 
+### Test naming convention
+`methodName_condition_expectedResult` (camelCase). No `should`, no `_test` suffix. Each test has a Javadoc with `CASO:`, `Regla:` (when applicable) and `Validación:`.
+
 ### Out of scope by definition
 
 The following are **never tested** in this project — do not propose tests for them and exclude them from any coverage audit:
@@ -112,6 +115,5 @@ The following are **never tested** in this project — do not propose tests for 
 
 Tests target **use cases** (`*UseCase`) and **domain services** (`*DomainService`) where the business rules live. When auditing test coverage for a feature, declare the items above as "out of scope by definition" rather than gaps.
 
-### Test naming convention
 
-`methodName_condition_expectedResult` (camelCase). No `should`, no `_test` suffix. Each test has a Javadoc with `CASO:`, `Regla:` (when applicable) and `Validación:`.
+

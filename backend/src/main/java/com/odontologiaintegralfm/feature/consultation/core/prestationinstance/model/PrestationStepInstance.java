@@ -1,7 +1,7 @@
-package com.odontologiaintegralfm.feature.consultation.core.prestation.model;
+package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model;
 
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationStepStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationStep;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
