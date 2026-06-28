@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.catalogs.enums;
+package com.odontologiaintegralfm.feature.consultation.catalogs.prestation.enums;
 
 /**
  * Enum que representa el alcance de una prestación sin ubicación específica.

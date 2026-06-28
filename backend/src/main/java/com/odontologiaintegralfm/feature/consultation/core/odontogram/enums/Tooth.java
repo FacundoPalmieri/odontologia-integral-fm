@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.catalogs.enums;
+package com.odontologiaintegralfm.feature.consultation.core.odontogram.enums;
 
 /**
  * Enum que representa los dientes según nomenclatura FDI.

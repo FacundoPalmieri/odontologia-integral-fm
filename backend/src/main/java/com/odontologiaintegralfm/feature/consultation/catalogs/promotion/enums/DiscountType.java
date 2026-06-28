@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.catalogs.enums;
+package com.odontologiaintegralfm.feature.consultation.catalogs.promotion.enums;
 
 /**
  * Enum que representa el tipo de descuento a aplicar.
