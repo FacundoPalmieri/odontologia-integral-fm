@@ -1,11 +1,11 @@
 package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.service;
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.DiscountType;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Maxillary;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.PrestationScopeType;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Quadrant;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.enums.DiscountType;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Maxillary;
+import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.enums.PrestationScopeType;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Quadrant;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Tooth;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationStep;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;

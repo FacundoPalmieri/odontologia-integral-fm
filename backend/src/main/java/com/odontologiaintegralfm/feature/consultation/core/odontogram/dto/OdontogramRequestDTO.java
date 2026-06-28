@@ -1,8 +1,8 @@
 package com.odontologiaintegralfm.feature.consultation.core.odontogram.dto;
 
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Tooth;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.ToothFace;
 import jakarta.validation.constraints.NotNull;
 
 public record OdontogramRequestDTO(

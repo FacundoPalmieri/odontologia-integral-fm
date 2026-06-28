@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.core.consultationinstance.service;
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Tooth;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationTypePriceService;
