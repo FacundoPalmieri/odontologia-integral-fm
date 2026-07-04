@@ -6,6 +6,7 @@ import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.re
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PrestationInstanceQueryService {
@@ -16,6 +17,7 @@ public class PrestationInstanceQueryService {
         this.prestationInstanceRepository = prestationInstanceRepository;
     }
 
+    @Transactional(readOnly = true)
     public PrestationInstance findById(Long id) {
         return prestationInstanceRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("exception.prestationInstanceQueryService.notFound.user", null, "exception.prestationInstanceQueryService.notFound.log", new Object[]{id, "PrestationInstanceQueryService", "findById"}, LogLevel.ERROR));
