@@ -10,6 +10,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultation.reposito
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class UpdateConsultationCorrectionUseCaseTest {
 

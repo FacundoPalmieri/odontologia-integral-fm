@@ -20,6 +20,7 @@ import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mo
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class PrestationInstanceDomainServiceTest {
 
