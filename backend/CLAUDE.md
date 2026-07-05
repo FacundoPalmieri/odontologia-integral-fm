@@ -42,7 +42,10 @@ Cada módulo sigue: `controller → service → repository → model`, más una 
 
 Cuando el módulo crece, sus sub-dominios se agrupan bajo `catalogs/` (datos de selectores y lookup, sin lógica de negocio) y `core/` (lógica de negocio).
 
-Los servicios que encapsulan lógica de negocio compleja se dividen en **Use Cases**: `VerbNounUseCase` (ej: `CreateConsultationUseCase`, `CallPatientUseCase`). Es el patrón preferido para cualquier cosa no trivial — crear una clase de use case dedicada en lugar de engordar el servicio.
+La lógica de negocio no trivial se divide en dos patrones:
+
+- **UseCase** (`VerbNounUseCase`, ej: `CreateConsultationUseCase`) — orquesta: coordina múltiples pasos, llama repos, valida reglas de negocio, tiene un único propósito de entrada (`execute()`). Un CU del req → un UseCase.
+- **DomainService** — razona sobre el dominio: lógica que no pertenece a una entidad pero tampoco es orquestación (ej: calcular disponibilidad, validar solapamientos). Lo llaman los UseCases, no el controller.
 
 ### Wrapper de respuesta
 

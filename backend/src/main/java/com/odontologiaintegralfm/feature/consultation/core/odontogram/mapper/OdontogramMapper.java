@@ -8,7 +8,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface OdontogramMapper {
 
-    @Mapping(target = "treatment", source = "treatment.name")
+    @Mapping(target = "treatmentName", source = "treatment.name")
+    @Mapping(target = "treatmentLabel", source = "treatment.label")
     @Mapping(target = "treatmentCondition", source = "treatmentCondition.name")
     OdontogramResponseDTO toDTO(Odontogram odontogram);
 }

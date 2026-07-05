@@ -7,6 +7,7 @@ public record OdontogramResponseDTO(
         Long id,
         Tooth tooth,
         ToothFace toothFace,
-        String treatment,
+        String treatmentName,
+        String treatmentLabel,
         String treatmentCondition
 ) {}

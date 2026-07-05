@@ -40,7 +40,7 @@ public class Odontogram extends AuditableJPA {
     private ToothFace toothFace;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "treatment_id")
+    @JoinColumn(name = "treatment_id", nullable = false)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Treatment treatment;
 

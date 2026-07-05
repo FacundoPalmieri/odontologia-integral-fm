@@ -28,6 +28,9 @@ public class Treatment extends AuditableJPA {
     private Long id;
 
     @Column(length = 50, nullable = false, unique = true)
+    private String label;
+
+    @Column(length = 50, nullable = false, unique = true)
     private String name;
 
 
