@@ -17,7 +17,6 @@ export interface TreatmentInterfaceOld {
 export interface ShowTreatmentInterface {
   name: TreatmentEnum;
   label: string;
-  availableTypes: TreatmentConditionEnum[];
   faces?: string[];
   icons?: string[];
 }

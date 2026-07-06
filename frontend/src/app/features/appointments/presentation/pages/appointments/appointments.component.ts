@@ -117,7 +117,6 @@ export class AppointmentsComponent {
     this.websocketService.consultationUpdates$
       .pipe(takeUntilDestroyed())
       .subscribe((payload) => {
-        console.log("[AppointmentsComponent] Consultation update received:", payload);
         const type = payload?.type;
         const consultations = payload?.data;
 
@@ -268,9 +267,7 @@ export class AppointmentsComponent {
           consultations: this.consultationService.getConsultations(),
           calendar: calendarObs$
         }).subscribe({
-          next: (result) => {
-            console.log("[AppointmentsComponent] Data fetched successfully:", result);
-            
+          next: (result) => {            
             // Map calendar slots
             const slots = result.calendar?.data?.slots || [];
             const calendarMapped = this._mapSlotsToAppointments(slots);

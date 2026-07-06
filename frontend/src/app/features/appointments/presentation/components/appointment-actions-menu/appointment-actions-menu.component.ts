@@ -38,7 +38,6 @@ export class AppointmentActionsMenuComponent {
   actionPerformed = output<void>();
 
   viewMedicalHistory() {
-    console.log(this.appointment())
     const patientId = this.appointment().patientId;
     if (patientId) {
       this.router.navigate(["/patients/edit", patientId]);
