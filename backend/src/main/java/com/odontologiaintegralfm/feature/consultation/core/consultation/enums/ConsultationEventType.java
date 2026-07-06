@@ -13,5 +13,5 @@ public enum ConsultationEventType {
     CONSULTATION_CANCELED,
 
     /**Indica que se realizó una corrección del odontograma.*/
-    ODONTOGRAM_CORRECTED
+    CONSULTATION_INSTANCE_CORRECTED
 }

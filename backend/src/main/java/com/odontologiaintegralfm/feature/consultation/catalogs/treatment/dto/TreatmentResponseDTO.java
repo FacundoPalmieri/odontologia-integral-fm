@@ -9,6 +9,7 @@ import java.util.Set;
  */
 public record TreatmentResponseDTO(
         Long id,
+        String label,
         String name,
         Set<TreatmentCondition> conditions
 

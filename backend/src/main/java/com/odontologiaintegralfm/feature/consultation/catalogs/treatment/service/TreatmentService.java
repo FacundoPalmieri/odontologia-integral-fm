@@ -49,8 +49,7 @@ public class TreatmentService  {
 
            Page<Treatment> treatments = treatmentRepository.findAllByEnabledTrue(pageable);
            Page<TreatmentResponseDTO> treatmentResponseDTO = treatments.map(treatment -> {
-               System.out.println("Treatment ID: " + treatment.getId() + " - Conditions size: " + treatment.getCondition().size());
-               return new TreatmentResponseDTO(treatment.getId(), treatment.getName(), treatment.getCondition());
+               return new TreatmentResponseDTO(treatment.getId(), treatment.getLabel(), treatment.getName(), treatment.getCondition());
            });
 
 

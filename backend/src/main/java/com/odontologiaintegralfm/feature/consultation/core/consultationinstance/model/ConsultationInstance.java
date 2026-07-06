@@ -30,8 +30,8 @@ public class ConsultationInstance extends AuditableJPA {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consultation_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "consultation_id", nullable = false, unique = true)
     private Consultation consultation;
 
     @Lob

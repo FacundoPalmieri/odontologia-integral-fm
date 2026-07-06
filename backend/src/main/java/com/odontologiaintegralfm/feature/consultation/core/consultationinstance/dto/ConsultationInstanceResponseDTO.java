@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.core.consultationinstance
 
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationInstanceResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
 
 import java.math.BigDecimal;
 import java.util.List;

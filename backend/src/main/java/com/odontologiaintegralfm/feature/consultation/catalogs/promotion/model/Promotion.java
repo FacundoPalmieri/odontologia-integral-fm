@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.promotion.model;
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.DiscountType;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.enums.DiscountType;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

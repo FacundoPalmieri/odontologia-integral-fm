@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model;
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.PrestationScopeType;
+import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.enums.PrestationScopeType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.Treatment;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;

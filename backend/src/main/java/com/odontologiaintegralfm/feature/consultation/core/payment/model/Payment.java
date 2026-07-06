@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.core.payment.model;
 
 import com.odontologiaintegralfm.feature.payment.catalogs.paymentprovider.enums.PaymentMethods;
-import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
+import com.odontologiaintegralfm.feature.payment.core.paymentaccount.model.PaymentAccount;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
@@ -14,7 +14,7 @@ import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -36,11 +36,7 @@ public class Payment extends AuditableJPA {
     private Patient patient;
 
     @Column(name = "date", nullable = false)
-    private LocalDate date;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consultation_id")
-    private Consultation consultation;
+    private LocalDateTime date;
 
     @Column(nullable = false)
     private BigDecimal totalAmount;
@@ -49,16 +45,20 @@ public class Payment extends AuditableJPA {
     @Column(name = "method",nullable = false)
     private PaymentMethods method;
 
-    private Payment(Patient patient, LocalDate date, Consultation consultation, BigDecimal totalAmount, PaymentMethods method) {
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "account_id")
+    private PaymentAccount account;
+
+    private Payment(Patient patient, LocalDateTime date, BigDecimal totalAmount, PaymentMethods method, PaymentAccount account) {
         this.patient = patient;
         this.date = date;
-        this.consultation = consultation;
         this.totalAmount = totalAmount;
         this.method = method;
+        this.account = account;
     }
 
-    public static Payment build(Patient patient, LocalDate date, Consultation consultation, BigDecimal totalAmount, PaymentMethods method) {
-        return new Payment(patient, date, consultation, totalAmount, method);
+    public static Payment build(Patient patient, LocalDateTime date, BigDecimal totalAmount, PaymentMethods method, PaymentAccount account) {
+        return new Payment(patient, date, totalAmount, method, account);
     }
 }
 

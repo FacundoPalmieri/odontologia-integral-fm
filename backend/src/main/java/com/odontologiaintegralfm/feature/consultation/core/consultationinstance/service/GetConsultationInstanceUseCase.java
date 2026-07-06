@@ -8,10 +8,10 @@ import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.repository.IOdontogramRepository;
 import com.odontologiaintegralfm.feature.consultation.core.payment.repository.IPaymentDetailRepository;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationInstanceResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.mapper.PrestationInstanceMapper;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.repository.IPrestationInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;

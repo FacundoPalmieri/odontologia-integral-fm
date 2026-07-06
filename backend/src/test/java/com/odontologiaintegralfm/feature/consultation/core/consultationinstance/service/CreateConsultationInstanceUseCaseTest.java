@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.core.consultationinstance.service;
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Tooth;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationTypePriceService;
@@ -13,7 +13,6 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service.TreatmentService;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
-import com.odontologiaintegralfm.feature.consultation.core.consultation.repository.IConsultationRepository;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ChangeConsultationStatusUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationQueryService;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceRequestDTO;
@@ -24,19 +23,20 @@ import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.Odonto
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.repository.IOdontogramRepository;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationInstanceRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.dto.PrestationStepAdvancementRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.mapper.PrestationInstanceMapper;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.repository.IPrestationInstanceRepository;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.repository.IPrestationStepInstanceRepository;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.service.PrestationInstanceDomainService;
-import com.odontologiaintegralfm.feature.consultation.core.prestation.service.PrestationInstanceQueryService;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepAdvancementRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationStepInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.service.PrestationInstanceDomainService;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.service.PrestationInstanceQueryService;
 import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -55,6 +55,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class CreateConsultationInstanceUseCaseTest {
 

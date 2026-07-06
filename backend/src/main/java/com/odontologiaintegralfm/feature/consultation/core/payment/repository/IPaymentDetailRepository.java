@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Repository
 public interface IPaymentDetailRepository extends JpaRepository<PaymentDetail, Long> {
@@ -17,4 +18,6 @@ public interface IPaymentDetailRepository extends JpaRepository<PaymentDetail, L
             WHERE pd.prestationInstance.id = :prestationInstanceId
     """)
     BigDecimal sumAmountByPrestationInstanceId(@Param("prestationInstanceId") Long prestationInstanceId);
+
+    boolean existsByPrestationInstanceIdAndAmountAndCreatedAtAfter(Long prestationInstanceId, BigDecimal amount, LocalDateTime threshold);
 }

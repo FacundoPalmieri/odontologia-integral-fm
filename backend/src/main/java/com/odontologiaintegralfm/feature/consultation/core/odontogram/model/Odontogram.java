@@ -2,8 +2,8 @@ package com.odontologiaintegralfm.feature.consultation.core.odontogram.model;
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.TreatmentCondition;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.catalogs.enums.ToothFace;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Tooth;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
@@ -40,7 +40,7 @@ public class Odontogram extends AuditableJPA {
     private ToothFace toothFace;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "treatment_id")
+    @JoinColumn(name = "treatment_id", nullable = false)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Treatment treatment;
 

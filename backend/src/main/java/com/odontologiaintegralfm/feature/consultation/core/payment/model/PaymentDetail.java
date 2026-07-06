@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.core.payment.model;
 
-import com.odontologiaintegralfm.feature.consultation.core.prestation.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

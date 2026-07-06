@@ -1,117 +1,145 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Este archivo le da contexto a Claude Code (claude.ai/code) sobre este repositorio.
 
-## Project
+## Proyecto
 
-REST API backend for a dental clinic management system (Odontología Integral FM). Built with **Spring Boot 3.2.5**, **Java 17**, **Maven**, **MySQL 8**, and **Hibernate/JPA** with **Envers** for auditing.
+API REST backend para un sistema de gestión de clínica odontológica (Odontología Integral FM). Construido con **Spring Boot 3.2.5**, **Java 17**, **Maven**, **MySQL 8** e **Hibernate/JPA** con **Envers** para auditoría.
 
-## Commands
+## Comandos
 
 ```bash
-mvn spring-boot:run          # Start dev server (localhost:8080)
-mvn test                     # Run all tests
-mvn test -Dtest=ClassName    # Run a single test class
-mvn clean install            # Full build
-mvn clean install -DskipTests # Build without tests
+mvn spring-boot:run          # Levantar servidor de desarrollo (localhost:8080)
+mvn test                     # Correr todos los tests
+mvn test -Dtest=ClassName    # Correr una clase de test específica
+mvn clean install            # Build completo
+mvn clean install -DskipTests # Build sin tests
 ```
 
-Swagger UI available at `http://localhost:8080/swagger-ui.html` when running.
+Swagger UI disponible en `http://localhost:8080/swagger-ui.html` con el servidor corriendo.
 
-## Architecture
+## Arquitectura
 
-### Feature-driven layered structure
+### Estructura por features
 
-All domain code lives under `src/main/java/.../feature/` organized by domain module:
+Todo el código de dominio vive en `src/main/java/.../feature/` organizado por módulo:
 
 ```
 feature/
-├── authentication/     # JWT login, refresh tokens, password reset, OAuth2
-├── user/               # User accounts (UserSec entity)
-├── person/             # Shared person entity + catalogs (gender, nationality, DNI, locality)
-├── patient/            # Patient profiles + catalogs (health plans, medical risks)
-├── dentist/            # Dentist profiles + catalogs (specialties)
-├── appointmentscheduling/  # Appointments, calendar, dentist availability, holidays
-├── consultation/       # Consultation lifecycle, odontogram, treatments (prestations)
-├── payment/            # Payment accounts, transactions + catalogs
-└── developer/          # Admin-only endpoints for system config
+├── <modulo>/
+│   ├── catalogs/   # Datos de selectores y lookup sin lógica de negocio
+│   └── core/       # Lógica de negocio del módulo
+└── ...
 ```
 
-Cross-cutting concerns live in `infrastructure/` (auditing, email, exceptions, logging, scheduler, WebSocket, system parameters) and `shared/` (base DTOs, base entities, custom exceptions, enums).
+Ejemplos de módulos: `authentication`, `user`, `person`, `patient`, `dentist`, `appointmentscheduling`, `consultation`, `payment`, `developer`.
 
-### Layers within each feature
+Las preocupaciones transversales viven en `infrastructure/` (auditoría, email, excepciones, logging, scheduler, WebSocket, parámetros del sistema) y `shared/` (DTOs base, entidades base, excepciones personalizadas, enums).
 
-Each module follows: `controller → service → repository → model`, plus a `dto/` folder.
+### Capas dentro de cada feature
 
-Services that encapsulate complex business logic are split into **Use Cases**: `VerbNounUseCase` (e.g., `CreateConsultationUseCase`, `CallPatientUseCase`). This is the preferred pattern for anything non-trivial — create a dedicated use case class rather than bloating the service.
+Cada módulo sigue: `controller → service → repository → model`, más una carpeta `dto/`.
 
-### Response wrapper
+Cuando el módulo crece, sus sub-dominios se agrupan bajo `catalogs/` (datos de selectores y lookup, sin lógica de negocio) y `core/` (lógica de negocio).
 
-All API responses use `Response<T>` (a record in `shared/dto/`). Use it consistently.
+La lógica de negocio no trivial se divide en dos patrones:
 
-### Auditing
+- **UseCase** (`VerbNounUseCase`, ej: `CreateConsultationUseCase`) — orquesta: coordina múltiples pasos, llama repos, valida reglas de negocio, tiene un único propósito de entrada (`execute()`). Un CU del req → un UseCase.
+- **DomainService** — razona sobre el dominio: lógica que no pertenece a una entidad pero tampoco es orquestación (ej: calcular disponibilidad, validar solapamientos). Lo llaman los UseCases, no el controller.
 
-- All significant entities extend `Auditable` and are annotated with `@Audited` (Hibernate Envers). This auto-generates `*_AUD` tables tracking INSERT/UPDATE/DELETE with revision numbers.
-- `created_by` / `updated_by` / `disabled_by` are populated automatically via `JpaConfig`.
-- The `@LogAction` AOP annotation writes structured logs to the database. Use it on service methods for key actions.
+### Wrapper de respuesta
+
+Todas las respuestas de la API usan `Response<T>` (un record en `shared/dto/`). Usarlo de forma consistente.
+
+### Auditoría
+
+- Todas las entidades significativas extienden `Auditable` y están anotadas con `@Audited` (Hibernate Envers). Esto genera automáticamente tablas `*_AUD` que registran INSERT/UPDATE/DELETE con números de revisión.
+- `created_by` / `updated_by` / `disabled_by` se poblan automáticamente mediante `JpaConfig`.
+- La anotación AOP `@LogAction` escribe logs estructurados en la base de datos. Usarla en métodos de servicio para acciones clave.
 
 ### Soft deletes
 
-Entities are never hard-deleted. They have an `enabled` flag + `disabled_at` timestamp. Queries must filter by `enabled = true` unless explicitly fetching disabled records.
+Las entidades nunca se eliminan físicamente. Tienen un flag `enabled` + timestamp `disabled_at`. Las queries deben filtrar por `enabled = true` salvo que se estén buscando registros deshabilitados explícitamente.
 
-### Security
+### Seguridad
 
-Three-level RBAC: **Role → Permission → Action**. Method-level authorization uses custom annotations in `securityconfig/annotations/`. JWT is stateless with a separate refresh token flow. BCrypt for passwords.
+RBAC de tres niveles: **Rol → Permiso → Acción**. La autorización a nivel de método usa anotaciones personalizadas en `securityconfig/annotations/`. JWT sin estado con flujo separado de refresh token. BCrypt para contraseñas.
 
-### Naming conventions
+### Convenciones de nomenclatura
 
-| Thing | Pattern |
+| Elemento | Patrón |
 |---|---|
-| Service interface | `IEntityService` |
-| Service impl | `EntityService` |
-| Repository | `IEntityRepository extends JpaRepository` |
+| Interfaz de servicio | `IEntityService` |
+| Implementación de servicio | `EntityService` |
+| Repositorio | `IEntityRepository extends JpaRepository` |
 | DTOs | `EntityCreateDTO`, `EntityUpdateDTO`, `EntityResponseDTO` |
 | Use cases | `VerbNounUseCase` |
 | Mappers | MapStruct `@Mapper` |
 
-### Custom exceptions
+### Excepciones personalizadas
 
-Use the domain exceptions in `shared/exception/`: `NotFoundException`, `BadRequestException`, `ConflictException`, `ForbiddenException`, `UnauthorizedException`, `DataBaseException`. The global handler in `infrastructure/exception/` translates these to HTTP responses with user-friendly Spanish messages from `messages.properties`.
+Usar las excepciones de dominio en `shared/exception/`: `NotFoundException`, `BadRequestException`, `ConflictException`, `ForbiddenException`, `UnauthorizedException`, `DataBaseException`. El handler global en `infrastructure/exception/` las traduce a respuestas HTTP con mensajes en español desde `messages.properties`.
 
-### QueryService vs direct repository access
+### QueryService vs acceso directo al repositorio
 
-When fetching an entity by ID: if absence is a valid result, call the repository directly. If absence is a business error that must throw, delegate to the domain's `EntityQueryService` — it encapsulates the `NotFoundException`. Do not call the repository directly from a use case when absence should throw.
+Al buscar una entidad por ID: si la ausencia es un resultado válido, llamar al repositorio directamente. Si la ausencia es un error de negocio que debe lanzar excepción, delegar al `EntityQueryService` del dominio — encapsula el `NotFoundException`. No llamar al repositorio directamente desde un use case cuando la ausencia debería lanzar excepción.
 
-## Key domain concepts
+## Conceptos clave del dominio
 
-- **Odontogram**: tooth-level diagram attached to a consultation, tracking treatment state per tooth/face.
-- **Prestation**: a treatment procedure, potentially multi-step with prerequisites.
-- **Consultation lifecycle**: state machine — draft → pending → in-progress → finished. Transitions are validated in use cases.
-- **Dentist availability**: working hours per weekday with breaks. Calendar locks (punctual/daily/recurring) block slots. Dentist holidays can override defaults.
+- **Odontograma**: diagrama a nivel de pieza dental adjunto a una consulta, que registra el estado del tratamiento por diente/cara.
+- **Prestación**: un procedimiento de tratamiento, potencialmente de múltiples pasos con prerequisitos.
+- **Ciclo de vida de la consulta**: máquina de estados — borrador → pendiente → en curso → finalizada. Las transiciones se validan en use cases.
+- **Disponibilidad del odontólogo**: horarios de trabajo por día de la semana con descansos. Los bloqueos del calendario (puntuales/diarios/recurrentes) bloquean slots. Los feriados del odontólogo pueden sobreescribir los valores por defecto.
 
-## Environment
+## Entorno
 
-Requires a `.env` file (not committed) with: `BD_URL`, `BD_USER`, `BD_PASSWORD`, `PRIVATE_KEY`, `USER_GENERATOR`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `EMAIL_USERNAME`, `EMAIL_PASSWORD`, `ALLOWED_ORIGINS`.
+Requiere un archivo `.env` (no committeado) con: `BD_URL`, `BD_USER`, `BD_PASSWORD`, `PRIVATE_KEY`, `USER_GENERATOR`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `EMAIL_USERNAME`, `EMAIL_PASSWORD`, `ALLOWED_ORIGINS`.
 
-Database schema is auto-managed by `hibernate.ddl-auto=update`. Timezone is `America/Argentina/Buenos_Aires`.
+El esquema de la base de datos es gestionado automáticamente por `hibernate.ddl-auto=update`. Zona horaria: `America/Argentina/Buenos_Aires`.
 
 ## Tests
 
-Tests are in `src/test/.../feature/consultation/` and use **JUnit 5 + Mockito**. Focus is on use case business rules (date validation, duplicate checks, status transitions). Follow the same use case test pattern when adding new tests.
+Los tests están en `src/test/.../feature/` y usan **JUnit 5 + Mockito**. El foco está en las reglas de negocio de los use cases (validación de fechas, chequeos de duplicados, transiciones de estado).
 
-### Out of scope by definition
+### Estrategia de tipos de test: @Tag + Surefire
 
-The following are **never tested** in this project — do not propose tests for them and exclude them from any coverage audit:
+Este proyecto usa `@Tag` de JUnit 5 para diferenciar tipos de test dentro de un único módulo Maven. El árbol de tests refleja `src/main/`, organizado por dominio — no por tipo de test.
 
-- **Query services** (`*QueryService`): pure reads, no domain rules.
-- **Catalogs** (`feature/*/catalogs/**`): static lookup data and CRUD without business logic.
-- **JPA entities / models** (`*/model/*.java`): data classes with annotations — no behavior to validate.
-- **Mappers** (MapStruct `@Mapper`): generated code.
-- **DTOs**: records / data carriers.
-- **Repositories** (`I*Repository`): Spring Data interfaces.
+- `@Tag("unit")` — Tests de UseCase y DomainService. Mockito puro, sin contexto Spring. Rápidos.
+- `@Tag("integration")` — Tests de repositorio (`@DataJpaTest`) y smoke tests de contexto (`@SpringBootTest`). Requieren DB.
 
-Tests target **use cases** (`*UseCase`) and **domain services** (`*DomainService`) where the business rules live. When auditing test coverage for a feature, declare the items above as "out of scope by definition" rather than gaps.
+Ejecución selectiva:
+- `mvn test -Dgroups=unit` — solo tests unitarios
+- `mvn test -Dgroups=integration` — solo tests de integración
+- `mvn test` — todos los tests
 
-### Test naming convention
+Si los tests de integración empiezan a tardar minutos (DB real, servicios externos), migrar al plugin Failsafe + naming `*IT.java` — es un rename mecánico, sin cambios estructurales.
 
-`methodName_condition_expectedResult` (camelCase). No `should`, no `_test` suffix. Each test has a Javadoc with `CASO:`, `Regla:` (when applicable) and `Validación:`.
+### Estructura de tests
+
+```
+src/test/java/.../feature/
+└── <modulo>/
+    ├── catalogs/
+    │   └── <subdominio>/
+    │       └── repository/     # @integration
+    └── core/
+        └── <subdominio>/
+            └── service/        # @unit (UseCases y DomainServices)
+```
+
+### Convención de nombres de tests
+`methodName_condition_expectedResult` (camelCase). Sin `should`, sin sufijo `_test`. Cada test tiene Javadoc con `CASO:`, `Regla:` (cuando aplica) y `Validación:`.
+
+### Fuera de scope por definición
+
+Los siguientes **nunca se testean** en este proyecto — no proponer tests para ellos ni incluirlos en auditorías de cobertura:
+
+- **Query services** (`*QueryService`): lecturas puras, sin reglas de dominio.
+- **Catálogos** (`feature/*/catalogs/**`): datos de lookup estáticos y CRUD sin lógica de negocio.
+- **Entidades/modelos JPA** (`*/model/*.java`): clases de datos con anotaciones — sin comportamiento a validar.
+- **Mappers** (MapStruct `@Mapper`): código generado.
+- **DTOs**: records / portadores de datos.
+- **Repositorios** (`I*Repository`): solo métodos derivados de Spring Data — sin comportamiento a validar. Los métodos `@Query` personalizados con lógica de filtrado no trivial son candidatos a tests de integración.
+
+Los tests apuntan a **use cases** (`*UseCase`) y **domain services** (`*DomainService`) donde viven las reglas de negocio. Al auditar cobertura de una feature, declarar los ítems anteriores como "fuera de scope por definición" en lugar de gaps.
