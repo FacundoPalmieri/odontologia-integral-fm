@@ -69,7 +69,6 @@ const MOCK_TREATMENTS: TreatmentRow[] = [
     OdontogramComponent,
     ConsultationPatientHeaderComponent,
     PrestationTableComponent,
-    AddPrestationDialogComponent,
     ConsultationSummaryPanelComponent,
     IconsModule,
     CardIconTitleComponent,

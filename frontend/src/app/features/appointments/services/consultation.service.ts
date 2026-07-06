@@ -60,8 +60,8 @@ export class ConsultationService {
     );
   }
 
-  disableConsultation(idConsultation: number): Observable<ApiResponseInterface<any>> {
-    return this.http.delete<ApiResponseInterface<any>>(
+  disableConsultation(idConsultation: number): Observable<ApiResponseInterface<void>> {
+    return this.http.delete<ApiResponseInterface<void>>(
       `${this.apiUrl}/consultation/${idConsultation}/disabled`
     );
   }
