@@ -7,6 +7,7 @@ export interface ConsultationInstanceRequest {
     prestationNew: PrestationRequest[];
     stepAdvancements: StepAdvancementsRequest[];
 }
+
 export interface OdontogramRequest {
     tooth: ToothEnum;
     toothFace: ToothFaceEnum;
