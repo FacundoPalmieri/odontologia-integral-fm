@@ -1,4 +1,4 @@
-@if (treatment?.name === "DUAL_TREATMENT") {
+@if (treatment?.name === TreatmentEnum.DUAL_TREATMENT) {
   <div class="relative flex items-center justify-center">
     <i-tabler name="circle-filled" class="text-blue-500 scale-100"></i-tabler>
     <i-tabler
@@ -7,7 +7,7 @@
     ></i-tabler>
   </div>
 } @else if (
-  treatment?.name === "CARIES" || treatment?.name === "OBT_COMPOSITE"
+  treatment?.name === TreatmentEnum.CARIES || treatment?.name === TreatmentEnum.OBTURACION_COMPOSITE
 ) {
   @for (icon of getTreatmentIcons(treatment!); track $index) {
     <i-tabler

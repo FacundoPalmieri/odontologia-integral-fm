@@ -6,6 +6,7 @@ import { ApiResponseInterface } from "../../../shared/interfaces/api-response.in
 import {
   TreatmentConditionDto,
   TreatmentDto,
+  TreatmentsResponse,
 } from "../data/dtos/treatment.dto";
 
 /**
@@ -36,8 +37,8 @@ export class TreatmentService {
    *
    * @returns Observable with array of treatment data
    */
-  getAll(): Observable<ApiResponseInterface<TreatmentDto[]>> {
-    return this.http.get<ApiResponseInterface<TreatmentDto[]>>(
+  getAll(): Observable<ApiResponseInterface<TreatmentsResponse>> {
+    return this.http.get<ApiResponseInterface<TreatmentsResponse>>(
       `${this.apiUrl}/treatment/all`,
     );
   }

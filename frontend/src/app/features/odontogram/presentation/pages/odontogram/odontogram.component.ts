@@ -28,7 +28,7 @@ import {
 } from "../../../../../shared/utils/mocks/odontogram.mock";
 import {
   TreatmentEnum,
-  TreatmentTypeEnum,
+  TreatmentConditionEnum,
 } from "../../../utils/enums/treatment.enum";
 import { TreatmentService } from "../../../services/treatment.service";
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
@@ -129,7 +129,7 @@ export class OdontogramComponent implements OnChanges {
   @Input() showTemporaries?: boolean = false;
   @Input() showToolbox: boolean = false;
   @Input() showDateSelector: boolean = false;
-  treatmentTypeEnum = TreatmentTypeEnum;
+  treatmentTypeEnum = TreatmentConditionEnum;
   treatmentEnum = TreatmentEnum;
 
   treatmentReferencesSidenavService = inject(TreatmentService);

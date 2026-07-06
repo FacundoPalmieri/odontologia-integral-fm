@@ -4,7 +4,7 @@ import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { ToothFaceLocationEnum } from "../../../utils/enums/tooth-face.enum";
 import { TreatmentInterfaceOld } from "../../../data/interfaces/treatment.interface";
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
-import { TreatmentTypeEnum } from "../../../utils/enums/treatment.enum";
+import { TreatmentConditionEnum, TreatmentEnum } from "../../../utils/enums/treatment.enum";
 
 @Component({
   selector: "app-tooth-face",
@@ -15,6 +15,7 @@ import { TreatmentTypeEnum } from "../../../utils/enums/treatment.enum";
 export class ToothFaceComponent {
   @Input() faceType?: ToothFaceLocationEnum;
   @Input() treatment?: TreatmentInterfaceOld;
+  TreatmentEnum = TreatmentEnum;
   private treatmentsList = TreatmentFactory.createTreatments();
 
   righties = [ToothFaceLocationEnum.RIGHT, ToothFaceLocationEnum.TOP];
@@ -36,8 +37,8 @@ export class ToothFaceComponent {
     return "";
   }
 
-  getColor(treatmentType: TreatmentTypeEnum): string {
-    return treatmentType === TreatmentTypeEnum.REQUIRED
+  getColor(treatmentType: TreatmentConditionEnum): string {
+    return treatmentType === TreatmentConditionEnum.REQUIRED
       ? "text-blue-500"
       : "text-red-500";
   }

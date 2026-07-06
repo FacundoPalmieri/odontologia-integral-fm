@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
@@ -22,11 +22,13 @@ import {
 import { ToothFaceFactory } from "../../../utils/factories/tooth-face.factory";
 import {
   TreatmentEnum,
-  TreatmentTypeEnum,
+  TreatmentConditionEnum,
 } from "../../../utils/enums/treatment.enum";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { ToothFaceInterface } from "../../../data/interfaces/tooth.interface";
+import { TreatmentService } from "../../../services/treatment.service";
+import { TreatmentConditionDto, TreatmentDto } from "../../../data/dtos/treatment.dto";
 
 interface AddTreatmentDialogData {
   toothNumber: number;
@@ -37,6 +39,7 @@ interface AddTreatmentDialogData {
   selector: "app-add-treatment-dialog",
   templateUrl: "./add-treatment-dialog.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
     MatButtonModule,
@@ -54,15 +57,24 @@ interface AddTreatmentDialogData {
 export class AddTreatmentDialogComponent implements OnInit {
   dialogRef = inject(MatDialogRef<AddTreatmentDialogComponent>);
   snackbarService = inject(SnackbarService);
+  treatmentService = inject(TreatmentService);
   treatmentForm: FormGroup = new FormGroup({});
   data: AddTreatmentDialogData = inject(MAT_DIALOG_DATA);
 
-  treatments: ShowTreatmentInterface[] = TreatmentFactory.createTreatments();
-  selectedTreatment = this.treatments[0];
-  TreatmentEnum = TreatmentEnum;
-  TreatmentTypeEnum = TreatmentTypeEnum;
+  treatmentsCatalog = signal<TreatmentDto[]>([]);
+  selectedTreatment = signal<TreatmentDto | null>(null);
+  availableConditions = signal<TreatmentConditionDto[]>([]);
+  selectedConditionId = signal<number | null>(null);
+  selectedCondition = computed(() => {
+    const id = this.selectedConditionId();
+    if (!id) return null;
+    return this.availableConditions().find((c) => c.id === id) ?? null;
+  });
 
-  treatmentsList: TreatmentInterfaceOld[] = [];
+  TreatmentEnum = TreatmentEnum;
+  TreatmentTypeEnum = TreatmentConditionEnum;
+
+  treatmentsList = signal<TreatmentInterfaceOld[]>([]);
   displayedColumns: string[] = [
     "treatment",
     "observations",
@@ -71,52 +83,84 @@ export class AddTreatmentDialogComponent implements OnInit {
   ];
 
   toothFaces: ToothFaceInterface[] = [];
+  treatmentConditions = signal<TreatmentConditionDto[]>([]);
 
   constructor() {
     this.toothFaces = ToothFaceFactory.createToothFaces(this.data.toothNumber);
     this._loadForm();
     if (this.data.treatments?.length > 0) {
-      this.treatmentsList = [...this.data.treatments];
+      this.treatmentsList.set([...this.data.treatments]);
     }
   }
 
   ngOnInit() {
+    this.treatmentService.getAll().subscribe({
+      next: (response) => {
+        console.log("Treatments list:", response);
+        if (response.data) {
+          this.treatmentsCatalog.set(response.data.content);
+        }
+      },
+      error: (err) => {
+        console.error("Error loading treatments:", err);
+      },
+    });
+
+    this.treatmentService.getAllConditions().subscribe({
+      next: (response) => {
+        console.log("Treatment conditions list:", response);
+        if (response.data) {
+          const list = Array.isArray(response.data)
+            ? response.data
+            : (response.data as any).content || [];
+          this.treatmentConditions.set(list);
+        }
+      },
+      error: (err) => {
+        console.error("Error loading treatment conditions:", err);
+      },
+    });
+
     this.treatmentForm
       .get("treatment")
       ?.valueChanges.subscribe((treatmentName) => {
-        const treatment = this.treatments.find((t) => t.name === treatmentName);
-        if (treatment) {
-          this.selectedTreatment = treatment;
+        const found = this.treatmentsCatalog().find((t) => t.name === treatmentName) ?? null;
+        this.selectedTreatment.set(found);
+        this.availableConditions.set(found?.conditions ?? []);
 
-          const currentType = this.treatmentForm.get("treatmentType")?.value;
-          if (!treatment.availableTypes.includes(currentType)) {
-            this.treatmentForm
-              .get("treatmentType")
-              ?.setValue(treatment.availableTypes[0]);
-          }
+        const typeCtrl = this.treatmentForm.get("treatmentType");
+        typeCtrl?.setValue(null);
+        if (found && this.availableConditions().length > 0) {
+          typeCtrl?.enable();
+        } else {
+          typeCtrl?.disable();
+        }
 
-          this._cleanupCariesControls();
-          this.treatmentForm.removeControl("bridgeStart");
-          this.treatmentForm.removeControl("bridgeEnd");
+        this._cleanupCariesControls();
+        this.treatmentForm.removeControl("bridgeStart");
+        this.treatmentForm.removeControl("bridgeEnd");
 
-          if (treatment.name === TreatmentEnum.PUENTE) {
+        if (found) {
+          if (found.name === TreatmentEnum.PUENTE) {
             this.treatmentForm.addControl(
               "bridgeStart",
               new FormControl(this.data.toothNumber),
             );
             this.treatmentForm.addControl("bridgeEnd", new FormControl(""));
           } else if (
-            treatment.name === TreatmentEnum.CARIES ||
-            treatment.name === TreatmentEnum.OBT_COMPOSITE
+            found.name === TreatmentEnum.CARIES ||
+            found.name === TreatmentEnum.OBTURACION_COMPOSITE
           ) {
             this._initializeCariesControls();
           }
         }
       });
-  }
 
-  isTypeAvailable(type: TreatmentTypeEnum): boolean {
-    return this.selectedTreatment.availableTypes.includes(type);
+    this.treatmentForm
+      .get("treatmentType")
+      ?.valueChanges.subscribe((typeValue) => {
+        this.selectedConditionId.set(typeValue);
+      });
   }
 
   onFaceChange(faceId: string, checked: boolean) {
@@ -204,10 +248,23 @@ export class AddTreatmentDialogComponent implements OnInit {
 
   addTreatment() {
     const formValue = this.treatmentForm.value;
+    if (!formValue.treatment || !formValue.treatmentType) {
+      this.snackbarService.openSnackbar(
+        "Seleccioná un tratamiento y una condición del catálogo.",
+        4000,
+        "center",
+        "top",
+        SnackbarTypeEnum.Info,
+      );
+      return;
+    }
+
+    const condition = this.availableConditions().find((c) => c.id === formValue.treatmentType);
     const treatment: TreatmentInterfaceOld = {
       name: formValue.treatment,
-      label: this.selectedTreatment.label,
+      label: this.selectedTreatment()?.label ?? "Tratamiento",
       treatmentType: formValue.treatmentType,
+      treatmentConditionName: condition?.name,
     };
 
     if (formValue.treatment === TreatmentEnum.PUENTE) {
@@ -220,40 +277,65 @@ export class AddTreatmentDialogComponent implements OnInit {
       treatment.bridgeEnd = formValue.bridgeEnd;
     } else if (
       formValue.treatment === TreatmentEnum.CARIES ||
-      formValue.treatment === TreatmentEnum.OBT_COMPOSITE
+      formValue.treatment === TreatmentEnum.OBTURACION_COMPOSITE
     ) {
       const selectedFaces = this.toothFaces
         .filter((face) => formValue[`face_${face.face}`])
         .map((face) => face.face);
 
-      treatment.faces = selectedFaces.length > 0 ? selectedFaces : undefined;
+      if (selectedFaces.length === 0) {
+        this.snackbarService.openSnackbar(
+          "Seleccioná al menos una cara para este tratamiento.",
+          4000,
+          "center",
+          "top",
+          SnackbarTypeEnum.Info,
+        );
+        return;
+      }
+      treatment.faces = selectedFaces;
     }
 
-    this.treatmentsList.push(treatment);
-    this.treatmentsList = [...this.treatmentsList];
+    this.treatmentsList.update((list) => [...list, treatment]);
+
+    this._cleanupCariesControls();
     this.treatmentForm.reset({
-      treatment: this.treatments[0].name,
-      treatmentType: this.treatments[0].availableTypes[0],
+      treatment: null,
+      treatmentType: null,
     });
+    this.selectedTreatment.set(null);
+    this.availableConditions.set([]);
   }
 
   removeTreatment(index: number) {
-    this.treatmentsList.splice(index, 1);
-    this.treatmentsList = [...this.treatmentsList];
+    this.treatmentsList.update((list) => {
+      const newList = [...list];
+      newList.splice(index, 1);
+      return newList;
+    });
+  }
+
+  getConditionColor(typeId: number): string {
+    const conditions = this.treatmentConditions();
+    const list = Array.isArray(conditions) ? conditions : [];
+    const cond = list.find((c) => c.id === typeId);
+    return cond?.color ?? "#cccccc";
+  }
+
+  getConditionName(element: TreatmentInterfaceOld): string {
+    if (element.treatmentConditionName) return element.treatmentConditionName;
+    const conditions = this.treatmentConditions();
+    const list = Array.isArray(conditions) ? conditions : [];
+    const cond = list.find((c) => c.id === element.treatmentType);
+    if (cond) return cond.name;
+    return element.treatmentType === TreatmentConditionEnum.EXISTING ? "Existente" : "Requerida";
   }
 
   private _loadForm() {
     this.treatmentForm = new FormGroup({
-      treatment: new FormControl(this.treatments[0].name),
-      treatmentType: new FormControl(this.treatments[0].availableTypes[0]),
+      treatment: new FormControl<string | null>(null),
+      treatmentType: new FormControl<number | null>({ value: null, disabled: true }),
     });
-
-    if (
-      this.treatments[0].name === TreatmentEnum.CARIES ||
-      this.treatments[0].name === TreatmentEnum.OBT_COMPOSITE
-    ) {
-      this._initializeCariesControls();
-    }
   }
 
   private _initializeCariesControls() {

@@ -1,12 +1,13 @@
 import {
   TreatmentEnum,
-  TreatmentTypeEnum,
+  TreatmentConditionEnum,
 } from "../../utils/enums/treatment.enum";
 
 export interface TreatmentInterfaceOld {
   name: TreatmentEnum;
   label: string;
-  treatmentType: TreatmentTypeEnum;
+  treatmentType: TreatmentConditionEnum;
+  treatmentConditionName?: string;
   bridgeStart?: number;
   bridgeEnd?: number;
   faces?: string[];
@@ -15,7 +16,7 @@ export interface TreatmentInterfaceOld {
 export interface ShowTreatmentInterface {
   name: TreatmentEnum;
   label: string;
-  availableTypes: TreatmentTypeEnum[];
+  availableTypes: TreatmentConditionEnum[];
   faces?: string[];
   icons?: string[];
 }

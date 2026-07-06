@@ -2,7 +2,7 @@ import { OdontogramInterface } from "../../../features/odontogram/data/interface
 import { ToothFaceEnum } from "../../../features/odontogram/utils/enums/tooth-face.enum";
 import {
   TreatmentEnum,
-  TreatmentTypeEnum,
+  TreatmentConditionEnum,
 } from "../../../features/odontogram/utils/enums/treatment.enum";
 
 export const mockOdontogram1: OdontogramInterface = {
@@ -13,13 +13,13 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.OCLUSAL, ToothFaceEnum.DISTAL],
         },
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.LINGUAL],
         },
       ],
@@ -28,14 +28,14 @@ export const mockOdontogram1: OdontogramInterface = {
       number: 17,
       treatments: [
         {
-          name: TreatmentEnum.TRAT_DE_CONDUCTO,
+          name: TreatmentEnum.TRATAMIENTO_CONDUCTO,
           label: "Tratamiento de Conducto",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
         },
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.LINGUAL],
         },
       ],
@@ -46,12 +46,12 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.CORONA,
           label: "Corona",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
         },
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.LINGUAL],
         },
       ],
@@ -74,7 +74,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.PUENTE,
           label: "Puente",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
           bridgeStart: 11,
           bridgeEnd: 21,
         },
@@ -86,9 +86,9 @@ export const mockOdontogram1: OdontogramInterface = {
       number: 21,
       treatments: [
         {
-          name: TreatmentEnum.IMPLANTES,
+          name: TreatmentEnum.IMPLANTE,
           label: "Implante",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
         },
       ],
     },
@@ -96,9 +96,9 @@ export const mockOdontogram1: OdontogramInterface = {
       number: 22,
       treatments: [
         {
-          name: TreatmentEnum.OBT_COMPOSITE,
+          name: TreatmentEnum.OBTURACION_COMPOSITE,
           label: "Diente Ausente",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
           faces: [ToothFaceEnum.LINGUAL],
         },
       ],
@@ -109,7 +109,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.DIENTE_AUSENTE,
           label: "Diente Ausente",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
         },
       ],
     },
@@ -163,7 +163,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.PUENTE,
           label: "Puente",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
           bridgeStart: 36,
           bridgeEnd: 33,
         },
@@ -214,7 +214,7 @@ export const mockOdontogram2: OdontogramInterface = {
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.OCLUSAL, ToothFaceEnum.DISTAL],
         },
       ],
@@ -223,14 +223,14 @@ export const mockOdontogram2: OdontogramInterface = {
       number: 17,
       treatments: [
         {
-          name: TreatmentEnum.TRAT_DE_CONDUCTO,
+          name: TreatmentEnum.TRATAMIENTO_CONDUCTO,
           label: "Tratamiento de Conducto",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
         },
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.LINGUAL],
         },
       ],
@@ -241,7 +241,7 @@ export const mockOdontogram2: OdontogramInterface = {
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.LINGUAL],
         },
       ],
@@ -267,9 +267,9 @@ export const mockOdontogram2: OdontogramInterface = {
       number: 21,
       treatments: [
         {
-          name: TreatmentEnum.IMPLANTES,
+          name: TreatmentEnum.IMPLANTE,
           label: "Implante",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
         },
       ],
     },
@@ -282,7 +282,7 @@ export const mockOdontogram2: OdontogramInterface = {
         {
           name: TreatmentEnum.DIENTE_AUSENTE,
           label: "Diente Ausente",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
         },
       ],
     },
@@ -336,7 +336,7 @@ export const mockOdontogram2: OdontogramInterface = {
         {
           name: TreatmentEnum.PUENTE,
           label: "Puente",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
           bridgeStart: 36,
           bridgeEnd: 33,
         },
@@ -387,7 +387,7 @@ export const mockOdontogram3: OdontogramInterface = {
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.OCLUSAL, ToothFaceEnum.DISTAL],
         },
       ],
@@ -398,7 +398,7 @@ export const mockOdontogram3: OdontogramInterface = {
         {
           name: TreatmentEnum.CARIES,
           label: "Caries",
-          treatmentType: TreatmentTypeEnum.REQUIRED,
+          treatmentType: TreatmentConditionEnum.REQUIRED,
           faces: [ToothFaceEnum.LINGUAL],
         },
       ],
@@ -435,7 +435,7 @@ export const mockOdontogram3: OdontogramInterface = {
         {
           name: TreatmentEnum.DIENTE_AUSENTE,
           label: "Diente Ausente",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
         },
       ],
     },
@@ -489,7 +489,7 @@ export const mockOdontogram3: OdontogramInterface = {
         {
           name: TreatmentEnum.PUENTE,
           label: "Puente",
-          treatmentType: TreatmentTypeEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.EXISTING,
           bridgeStart: 36,
           bridgeEnd: 33,
         },
