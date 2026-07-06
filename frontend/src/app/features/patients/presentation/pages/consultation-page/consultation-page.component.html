@@ -38,19 +38,19 @@
     </div>
   </mat-expansion-panel>
 
-  <!-- 2-column grid: treatments + summary -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Left: treatments table -->
-    <div class="lg:col-span-2">
-      <app-prestation-table
-        [treatments]="treatments()"
-        (addTreatment)="openAddPrestationDialog()"
-      />
-    </div>
+  <!-- Treatments Table -->
+  <app-prestation-table
+    [treatments]="treatments()"
+    (addTreatment)="openAddPrestationDialog()"
+  />
 
-    <!-- Right: cost summary + observations -->
-    <div class="flex flex-col gap-4">
-      <app-consultation-summary-panel [treatments]="treatments()" />
-    </div>
-  </div>
+  <!-- Observations -->
+  <app-consultation-observations-panel
+    [control]="observationsControl"
+  />
+
+  <!-- Cost Summary -->
+  <app-consultation-summary-panel
+    [treatments]="treatments()"
+  />
 </div>

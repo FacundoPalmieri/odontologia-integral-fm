@@ -27,6 +27,8 @@ import { PatientService } from "../../../services/patient.service";
 import { PersonDataService } from "../../../../../shared/services/person-data.service";
 import { PatientInterface } from "../../../data/interfaces/patient.interface";
 import { OdontogramInterface } from "../../../../odontogram/data/interfaces/odontogram.interface";
+import { FormControl } from "@angular/forms";
+import { ConsultationObservationsPanelComponent } from "../../components/consultation-observations-panel/consultation-observations-panel.component";
 
 @Component({
   selector: "app-consultation-page",
@@ -40,11 +42,13 @@ import { OdontogramInterface } from "../../../../odontogram/data/interfaces/odon
     ConsultationPatientHeaderComponent,
     PrestationTableComponent,
     ConsultationSummaryPanelComponent,
+    ConsultationObservationsPanelComponent,
     IconsModule,
     CardIconTitleComponent,
   ],
 })
 export class ConsultationPageComponent implements OnInit {
+  readonly observationsControl = new FormControl("");
   private readonly route = inject(ActivatedRoute);
   private readonly patientService = inject(PatientService);
   private readonly personDataService = inject(PersonDataService);
