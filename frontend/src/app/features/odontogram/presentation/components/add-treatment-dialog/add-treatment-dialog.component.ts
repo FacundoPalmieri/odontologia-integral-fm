@@ -83,7 +83,6 @@ export class AddTreatmentDialogComponent implements OnInit {
   ];
 
   toothFaces: ToothFaceInterface[] = [];
-  treatmentConditions = signal<TreatmentConditionDto[]>([]);
 
   constructor() {
     this.toothFaces = ToothFaceFactory.createToothFaces(this.data.toothNumber);
@@ -96,28 +95,12 @@ export class AddTreatmentDialogComponent implements OnInit {
   ngOnInit() {
     this.treatmentService.getAll().subscribe({
       next: (response) => {
-        console.log("Treatments list:", response);
         if (response.data) {
           this.treatmentsCatalog.set(response.data.content);
         }
       },
       error: (err) => {
         console.error("Error loading treatments:", err);
-      },
-    });
-
-    this.treatmentService.getAllConditions().subscribe({
-      next: (response) => {
-        console.log("Treatment conditions list:", response);
-        if (response.data) {
-          const list = Array.isArray(response.data)
-            ? response.data
-            : (response.data as any).content || [];
-          this.treatmentConditions.set(list);
-        }
-      },
-      error: (err) => {
-        console.error("Error loading treatment conditions:", err);
       },
     });
 
@@ -265,6 +248,7 @@ export class AddTreatmentDialogComponent implements OnInit {
       label: this.selectedTreatment()?.label ?? "Tratamiento",
       treatmentType: formValue.treatmentType,
       treatmentConditionName: condition?.name,
+      treatmentConditionColor: condition?.color,
     };
 
     if (formValue.treatment === TreatmentEnum.PUENTE) {
@@ -315,20 +299,14 @@ export class AddTreatmentDialogComponent implements OnInit {
     });
   }
 
-  getConditionColor(typeId: number): string {
-    const conditions = this.treatmentConditions();
-    const list = Array.isArray(conditions) ? conditions : [];
-    const cond = list.find((c) => c.id === typeId);
-    return cond?.color ?? "#cccccc";
+  getConditionColor(element: TreatmentInterfaceOld): string {
+    if (element.treatmentConditionColor) return element.treatmentConditionColor;
+    return element.treatmentType === TreatmentConditionEnum.REQUIRED ? "#3b82f6" : "#ef4444";
   }
 
   getConditionName(element: TreatmentInterfaceOld): string {
     if (element.treatmentConditionName) return element.treatmentConditionName;
-    const conditions = this.treatmentConditions();
-    const list = Array.isArray(conditions) ? conditions : [];
-    const cond = list.find((c) => c.id === element.treatmentType);
-    if (cond) return cond.name;
-    return element.treatmentType === TreatmentConditionEnum.EXISTING ? "Existente" : "Requerida";
+    return element.treatmentType === TreatmentConditionEnum.REQUIRED ? "Requerida" : "Existente";
   }
 
   private _loadForm() {

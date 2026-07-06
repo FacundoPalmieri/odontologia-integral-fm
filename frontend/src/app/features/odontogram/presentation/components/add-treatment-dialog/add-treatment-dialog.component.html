@@ -13,9 +13,7 @@
       <div class="flex flex-row gap-4 w-full">
         <div class="flex flex-col gap-2 w-full">
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label class="items-center flex gap-1">
-              <span>Tratamiento</span>
-            </mat-label>
+            <mat-label>Tratamiento</mat-label>
             <mat-select formControlName="treatment">
               @for (treatment of treatmentsCatalog(); track treatment.id) {
                 <mat-option [value]="treatment.name">{{
@@ -27,9 +25,7 @@
         </div>
         <div class="flex flex-col gap-2 w-full">
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label class="items-center flex gap-1">
-              <span>Condición</span>
-            </mat-label>
+            <mat-label>Condición</mat-label>
             <mat-select formControlName="treatmentType">
               @if (selectedCondition()) {
                 <mat-select-trigger>
@@ -163,7 +159,7 @@
             <div class="flex items-center gap-2">
               <span
                 class="inline-block w-3.5 h-3.5 rounded-full border border-gray-300"
-                [style.background-color]="getConditionColor(element.treatmentType)"
+                [style.background-color]="getConditionColor(element)"
               ></span>
               <span>{{ getConditionName(element) }}</span>
             </div>

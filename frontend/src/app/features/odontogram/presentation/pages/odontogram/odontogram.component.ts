@@ -3,6 +3,8 @@ import {
   inject,
   Input,
   OnChanges,
+  OnInit,
+  signal,
   SimpleChanges,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
@@ -18,6 +20,7 @@ import {
   ShowTreatmentInterface,
   TreatmentInterfaceOld,
 } from "../../../data/interfaces/treatment.interface";
+import { TreatmentConditionDto } from "../../../data/dtos/treatment.dto";
 import { OdontogramInterface } from "../../../data/interfaces/odontogram.interface";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { ToothComponent } from "../../components/tooth/tooth.component";
@@ -63,7 +66,7 @@ interface OdontogramDateInterface {
     MatInputModule,
   ],
 })
-export class OdontogramComponent implements OnChanges {
+export class OdontogramComponent implements OnChanges, OnInit {
   mockOdontogram1 = mockOdontogram1;
   mockOdontogram2 = mockOdontogram2;
   mockOdontogram3 = mockOdontogram3;
@@ -139,8 +142,25 @@ export class OdontogramComponent implements OnChanges {
   selectedOdontogram: OdontogramInterface = this.selectedDate.odontogram;
   referencesOpen: boolean = false;
   treatments: ShowTreatmentInterface[] = TreatmentFactory.createTreatments();
+  treatmentConditions = signal<TreatmentConditionDto[]>([]);
 
   constructor() {}
+
+  ngOnInit() {
+    this.treatmentReferencesSidenavService.getAllConditions().subscribe({
+      next: (response) => {
+        if (response.data) {
+          const list = Array.isArray(response.data)
+            ? response.data
+            : (response.data as any).content || [];
+          this.treatmentConditions.set(list);
+        }
+      },
+      error: (err) => {
+        console.error("Error loading treatment conditions:", err);
+      },
+    });
+  }
 
   toggleReferences() {
     this.referencesOpen = !this.referencesOpen;

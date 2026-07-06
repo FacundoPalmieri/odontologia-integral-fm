@@ -8,6 +8,7 @@ export interface TreatmentInterfaceOld {
   label: string;
   treatmentType: TreatmentConditionEnum;
   treatmentConditionName?: string;
+  treatmentConditionColor?: string;
   bridgeStart?: number;
   bridgeEnd?: number;
   faces?: string[];
