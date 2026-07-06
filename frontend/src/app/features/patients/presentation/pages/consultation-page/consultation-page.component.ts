@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute } from "@angular/router";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatCardModule } from "@angular/material/card";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { OdontogramComponent } from "../../../../odontogram/presentation/pages/odontogram/odontogram.component";
 import { mockOdontogram1 } from "../../../../../shared/utils/mocks/odontogram.mock";
 import {
@@ -16,9 +17,10 @@ import {
   MockConsultation,
 } from "../../components/consultation-patient-header/consultation-patient-header.component";
 import {
-  ConsultationTreatmentsTableComponent,
+  PrestationTableComponent,
   TreatmentRow,
-} from "../../components/consultation-treatments-table/consultation-treatments-table.component";
+} from "../../components/prestation-table/prestation-table.component";
+import { AddPrestationDialogComponent } from "../../components/add-prestation-dialog/add-prestation-dialog.component";
 import { ConsultationSummaryPanelComponent } from "../../components/consultation-summary-panel/consultation-summary-panel.component";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
@@ -63,9 +65,11 @@ const MOCK_TREATMENTS: TreatmentRow[] = [
   imports: [
     MatExpansionModule,
     MatCardModule,
+    MatDialogModule,
     OdontogramComponent,
     ConsultationPatientHeaderComponent,
-    ConsultationTreatmentsTableComponent,
+    PrestationTableComponent,
+    AddPrestationDialogComponent,
     ConsultationSummaryPanelComponent,
     IconsModule,
     CardIconTitleComponent,
@@ -75,6 +79,7 @@ export class ConsultationPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly patientService = inject(PatientService);
   private readonly personDataService = inject(PersonDataService);
+  private readonly dialog = inject(MatDialog);
 
   // Patient data (populated from API)
   readonly patient = signal<PatientInterface | null>(null);
@@ -145,5 +150,17 @@ export class ConsultationPageComponent implements OnInit {
 
   onConsultationChange(consultation: MockConsultation): void {
     this.selectedConsultation.set(consultation);
+  }
+
+  openAddPrestationDialog() {
+    this.dialog
+      .open(AddPrestationDialogComponent, {
+        width: "600px",
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+        }
+      });
   }
 }

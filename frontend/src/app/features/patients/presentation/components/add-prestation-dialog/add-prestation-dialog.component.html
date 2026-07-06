@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>
+  Añadir Prestación
+</h2>
+<mat-dialog-content class="w-full">
+  <div
+    class="w-full p-4"
+    style="
+      background: var(--mat-sys-content-toolbar-container-color);
+      border-radius: var(--mat-sys-corner-large);
+    "
+  >
+    <form [formGroup]="prestationForm" class="flex flex-col gap-4 w-full">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Prestación</mat-label>
+        <mat-select formControlName="prestation">
+          @for (p of prestations(); track p.id) {
+            <mat-option [value]="p.id">{{ p.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>Cancelar</button>
+  <button
+    matButton="filled"
+    [disabled]="prestationForm.invalid"
+    (click)="confirm()"
+  >
+    Confirmar
+  </button>
+</mat-dialog-actions>

@@ -18,9 +18,10 @@ export interface TreatmentRow {
 }
 
 @Component({
-  selector: "app-consultation-treatments-table",
-  templateUrl: "./consultation-treatments-table.component.html",
+  selector: "app-prestation-table",
+  templateUrl: "./prestation-table.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     MatTableModule,
     MatButtonModule,
@@ -29,7 +30,7 @@ export interface TreatmentRow {
     CardIconTitleComponent,
   ],
 })
-export class ConsultationTreatmentsTableComponent {
+export class PrestationTableComponent {
   treatments = input<TreatmentRow[]>([]);
   addTreatment = output<void>();
 

@@ -8,10 +8,10 @@ import { ReactiveFormsModule, FormControl } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
-import { TreatmentRow } from "../consultation-treatments-table/consultation-treatments-table.component";
 import { MatCardModule } from "@angular/material/card";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
+import { TreatmentRow } from "../prestation-table/prestation-table.component";
 
 const IVA_RATE = 0.15;
 
