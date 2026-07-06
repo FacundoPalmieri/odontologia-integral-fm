@@ -11,7 +11,6 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { OdontogramComponent } from "../../../../odontogram/presentation/pages/odontogram/odontogram.component";
-import { mockOdontogram1 } from "../../../../../shared/utils/mocks/odontogram.mock";
 import {
   ConsultationPatientHeaderComponent,
   MockConsultation,
@@ -27,36 +26,7 @@ import { CardIconTitleComponent } from "../../../../../shared/components/card-ic
 import { PatientService } from "../../../services/patient.service";
 import { PersonDataService } from "../../../../../shared/services/person-data.service";
 import { PatientInterface } from "../../../data/interfaces/patient.interface";
-
-/** Mock consultations — replace with real API when available */
-const MOCK_CONSULTATIONS: MockConsultation[] = [
-  { id: 1, date: new Date(2026, 2, 15), label: "15 de Marzo, 2026 (Actual)" },
-  { id: 2, date: new Date(2026, 1, 10), label: "10 de Febrero, 2026" },
-  { id: 3, date: new Date(2025, 11, 5), label: "05 de Diciembre, 2025" },
-  { id: 4, date: new Date(2025, 9, 20), label: "20 de Octubre, 2025" },
-];
-
-/** Mock treatments — replace with real API when available */
-const MOCK_TREATMENTS: TreatmentRow[] = [
-  {
-    tooth: "44",
-    procedure: "Limpieza Profunda (Profilaxis)",
-    status: "completed",
-    cost: 45,
-  },
-  {
-    tooth: "62",
-    procedure: "Restauración con Resina Compuesta",
-    status: "completed",
-    cost: 85,
-  },
-  {
-    tooth: "14",
-    procedure: "Aplicación de Sellante",
-    status: "in-progress",
-    cost: 30,
-  },
-];
+import { OdontogramInterface } from "../../../../odontogram/data/interfaces/odontogram.interface";
 
 @Component({
   selector: "app-consultation-page",
@@ -90,7 +60,7 @@ export class ConsultationPageComponent implements OnInit {
     if (!p) return "Cargando...";
     return `${p.person.firstName} ${p.person.lastName}`;
   });
-  readonly lastVisit = signal("10 de Febrero, 2026");
+  readonly lastVisit = signal("");
   readonly patientDni = computed(() => {
     const p = this.patient();
     if (!p) return "—";
@@ -108,17 +78,32 @@ export class ConsultationPageComponent implements OnInit {
     return age;
   });
 
-  // Consultations — mock until backend supports it
-  readonly consultations = signal<MockConsultation[]>(MOCK_CONSULTATIONS);
-  readonly selectedConsultation = signal<MockConsultation>(
-    MOCK_CONSULTATIONS[0],
-  );
+  // Consultations
+  readonly consultations = signal<MockConsultation[]>([]);
+  readonly selectedConsultation = signal<MockConsultation | null>(null);
 
   // Odontogram
-  readonly odontogram = mockOdontogram1;
+  readonly odontogram: OdontogramInterface = {
+    upperTeethLeft: [
+      { number: 18 }, { number: 17 }, { number: 16 }, { number: 15 },
+      { number: 14 }, { number: 13 }, { number: 12 }, { number: 11 },
+    ],
+    upperTeethRight: [
+      { number: 21 }, { number: 22 }, { number: 23 }, { number: 24 },
+      { number: 25 }, { number: 26 }, { number: 27 }, { number: 28 },
+    ],
+    lowerTeethLeft: [
+      { number: 48 }, { number: 47 }, { number: 46 }, { number: 45 },
+      { number: 44 }, { number: 43 }, { number: 42 }, { number: 41 },
+    ],
+    lowerTeethRight: [
+      { number: 31 }, { number: 32 }, { number: 33 }, { number: 34 },
+      { number: 35 }, { number: 36 }, { number: 37 }, { number: 38 },
+    ],
+  };
 
-  // Treatments — mock until backend supports it
-  readonly treatments = signal<TreatmentRow[]>(MOCK_TREATMENTS);
+  // Treatments
+  readonly treatments = signal<TreatmentRow[]>([]);
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.params["id"]);
