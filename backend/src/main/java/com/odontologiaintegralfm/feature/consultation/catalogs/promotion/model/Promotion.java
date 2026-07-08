@@ -32,6 +32,9 @@ public class Promotion extends AuditableJPA {
     private Long id;
 
     @Column(nullable = false, length = 50)
+    private String label;
+
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
 
     /** Tipo de descuento: Porcentaje o valor fijo */

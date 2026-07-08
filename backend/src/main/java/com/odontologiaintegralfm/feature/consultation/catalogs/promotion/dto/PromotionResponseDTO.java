@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public record PromotionResponseDTO(
         Long id,
-        String name,
+        String label,
         DiscountType discountType,
         BigDecimal value,
         LocalDate startDate,

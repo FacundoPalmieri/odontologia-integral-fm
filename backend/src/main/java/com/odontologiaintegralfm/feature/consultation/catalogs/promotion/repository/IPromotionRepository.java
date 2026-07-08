@@ -13,4 +13,6 @@ public interface IPromotionRepository extends JpaRepository<Promotion, Long> {
 
     @Query("SELECT p FROM Promotion p WHERE p.startDate <= :today AND p.endDate >= :today")
     List<Promotion> findAllActive(@Param("today") LocalDate today);
+
+    boolean existsByName(String name);
 }
