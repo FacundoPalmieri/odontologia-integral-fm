@@ -25,7 +25,7 @@ export class ConsultationSummaryPanelComponent {
   treatments = input<TreatmentRow[]>([]);
 
   subtotal = computed(() =>
-    this.treatments().reduce((acc, t) => acc + t.cost, 0),
+    this.treatments().reduce((acc, t) => acc + t.currentPrice, 0),
   );
 
   iva = computed(() => this.subtotal() * IVA_RATE);

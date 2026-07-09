@@ -7,45 +7,56 @@ import {
 import { MatTableModule } from "@angular/material/table";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatSelectModule } from "@angular/material/select";
+import { MatFormFieldModule } from "@angular/material/form-field";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
+import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
+import { PrestationScopeEnum } from "../../../utils/enums/consultation-instance.enum";
+import { PrestationDto } from "../../../data/interfaces/prestation.interface";
 
-export interface TreatmentRow {
-  tooth: string;
-  procedure: string;
-  status: "completed" | "in-progress" | "pending";
-  cost: number;
+export interface TreatmentRow extends PrestationDto {
+  selectedScope?: PrestationScopeEnum;
 }
 
 @Component({
   selector: "app-prestation-table",
   templateUrl: "./prestation-table.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [
     MatTableModule,
     MatButtonModule,
     MatCardModule,
+    MatSelectModule,
+    MatFormFieldModule,
     IconsModule,
     CardIconTitleComponent,
+    EmptyStateComponent,
   ],
 })
 export class PrestationTableComponent {
   treatments = input<TreatmentRow[]>([]);
   addTreatment = output<void>();
+  scopeChange = output<{ index: number; scope: PrestationScopeEnum }>();
 
-  displayedColumns = ["tooth", "procedure", "status", "cost"];
+  displayedColumns = [
+    "name",
+    "allowedScope",
+    "hasSteps",
+    "requiresLocation",
+    "isUnique",
+    "currentPrice",
+  ];
 
-  getStatusLabel(status: TreatmentRow["status"]): string {
-    const labels: Record<TreatmentRow["status"], string> = {
-      completed: "Completado",
-      "in-progress": "En Curso",
-      pending: "Pendiente",
-    };
-    return labels[status];
-  }
+  readonly scopeLabels: Record<PrestationScopeEnum, string> = {
+    [PrestationScopeEnum.TOOTH]: "Diente",
+    [PrestationScopeEnum.TOOTH_FACE]: "Cara Dental",
+    [PrestationScopeEnum.QUADRANT]: "Cuadrante",
+    [PrestationScopeEnum.MAXILLARY]: "Maxilar",
+    [PrestationScopeEnum.FULL_MOUTH]: "Boca Completa",
+  };
 
-  getStatusClass(status: TreatmentRow["status"]): string {
-    return `status-badge status-${status}`;
+  getScopeLabel(scope: PrestationScopeEnum | string): string {
+    return this.scopeLabels[scope as PrestationScopeEnum] ?? scope;
   }
 }

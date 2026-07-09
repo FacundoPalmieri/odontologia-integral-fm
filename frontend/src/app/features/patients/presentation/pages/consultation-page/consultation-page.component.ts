@@ -29,6 +29,8 @@ import { PatientInterface } from "../../../data/interfaces/patient.interface";
 import { OdontogramInterface } from "../../../../odontogram/data/interfaces/odontogram.interface";
 import { FormControl } from "@angular/forms";
 import { ConsultationObservationsPanelComponent } from "../../components/consultation-observations-panel/consultation-observations-panel.component";
+import { PrestationDto } from "../../../data/interfaces/prestation.interface";
+import { PrestationScopeEnum } from "../../../utils/enums/consultation-instance.enum";
 
 @Component({
   selector: "app-consultation-page",
@@ -140,14 +142,30 @@ export class ConsultationPageComponent implements OnInit {
     this.selectedConsultation.set(consultation);
   }
 
+  onScopeChange(event: { index: number; scope: PrestationScopeEnum }) {
+    this.treatments.update((prev) => {
+      const updated = [...prev];
+      updated[event.index] = {
+        ...updated[event.index],
+        selectedScope: event.scope,
+      };
+      return updated;
+    });
+  }
+
   openAddPrestationDialog() {
     this.dialog
       .open(AddPrestationDialogComponent, {
         width: "600px",
       })
       .afterClosed()
-      .subscribe((result) => {
+      .subscribe((result: PrestationDto | undefined) => {
         if (result) {
+          const newTreatment: TreatmentRow = {
+            ...result,
+            selectedScope: result.allowedScopes && result.allowedScopes.length > 0 ? result.allowedScopes[0] : undefined,
+          };
+          this.treatments.update((prev) => [...prev, newTreatment]);
         }
       });
   }

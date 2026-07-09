@@ -1,10 +1,12 @@
+import { PrestationScopeEnum } from "../../utils/enums/consultation-instance.enum";
+
 export interface PrestationDto {
   id: number;
   name: string;
   isUnique: boolean;
   hasSteps: boolean;
   requiresLocation: boolean;
-  allowedScopes: string[];
+  allowedScopes: PrestationScopeEnum[];
   currentPrice: number;
 }
 

@@ -42,6 +42,7 @@
   <app-prestation-table
     [treatments]="treatments()"
     (addTreatment)="openAddPrestationDialog()"
+    (scopeChange)="onScopeChange($event)"
   />
 
   <!-- Observations -->
