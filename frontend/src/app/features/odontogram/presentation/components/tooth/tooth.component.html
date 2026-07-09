@@ -16,10 +16,11 @@
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
       [name]="icon"
+      [style.color]="treatment.treatmentConditionColor"
       [ngClass]="
         calculateMargin($index, getTreatmentIcons(treatment).length) +
         ' ' +
-        getColor(treatment!.treatmentType) +
+        (treatment.treatmentConditionColor ? '' : getColor(treatment.treatmentType)) +
         ' ' +
         'z-30'
       "
@@ -33,10 +34,11 @@
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
       [name]="icon"
+      [style.color]="treatment.treatmentConditionColor"
       [ngClass]="
         calculateMargin($index, getTreatmentIcons(treatment).length) +
         ' ' +
-        getColor(treatment!.treatmentType)
+        (treatment.treatmentConditionColor ? '' : getColor(treatment.treatmentType))
       "
     ></i-tabler>
     }
@@ -48,10 +50,11 @@
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
       [name]="icon"
+      [style.color]="treatment.treatmentConditionColor"
       [ngClass]="
         calculateMargin($index, getTreatmentIcons(treatment).length) +
         ' ' +
-        getColor(treatment!.treatmentType)
+        (treatment.treatmentConditionColor ? '' : getColor(treatment.treatmentType))
       "
     ></i-tabler>
     }
@@ -64,10 +67,11 @@
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
       [name]="icon"
+      [style.color]="treatment.treatmentConditionColor"
       [ngClass]="
         calculateMargin($index, getTreatmentIcons(treatment).length) +
         ' ' +
-        getColor(treatment!.treatmentType)
+        (treatment.treatmentConditionColor ? '' : getColor(treatment.treatmentType))
       "
     ></i-tabler>
     }

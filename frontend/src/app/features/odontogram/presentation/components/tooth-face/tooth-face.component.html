@@ -12,8 +12,8 @@
   @for (icon of getTreatmentIcons(treatment!); track $index) {
     <i-tabler
       [name]="icon"
-      [ngClass]="getColor(treatment?.treatmentType!)"
-      class="scale-90"
+      [style.color]="treatment?.treatmentConditionColor"
+      [ngClass]="treatment?.treatmentConditionColor ? 'scale-90' : (getColor(treatment?.treatmentType!) + ' scale-90')"
     ></i-tabler>
   }
 } @else if (righties.includes(faceType!)) {
