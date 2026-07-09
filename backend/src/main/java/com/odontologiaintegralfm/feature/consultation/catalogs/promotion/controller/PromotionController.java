@@ -1,19 +1,24 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.promotion.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationCreate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationUpdate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.CreatePromotionUseCase;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.EnablePromotionUseCase;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.PromotionService;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,10 +32,12 @@ public class PromotionController {
 
     private final PromotionService promotionService;
     private final CreatePromotionUseCase createPromotionUseCase;
+    private final EnablePromotionUseCase enablePromotionUseCase;
 
-    PromotionController(PromotionService promotionService, CreatePromotionUseCase createPromotionUseCase) {
+    PromotionController(PromotionService promotionService, CreatePromotionUseCase createPromotionUseCase, EnablePromotionUseCase enablePromotionUseCase) {
         this.promotionService = promotionService;
         this.createPromotionUseCase = createPromotionUseCase;
+        this.enablePromotionUseCase = enablePromotionUseCase;
     }
 
     @Operation(summary = "Obtener catálogo de promociones vigentes", description = "Lista todas las promociones habilitadas y vigentes a la fecha actual.")
@@ -57,5 +64,19 @@ public class PromotionController {
     @OnlyAccessConfigurationCreate
     public ResponseEntity<Response<PromotionResponseDTO>> create(@Valid @RequestBody PromotionCreateRequestDTO dto) {
         return new ResponseEntity<>(createPromotionUseCase.execute(dto), HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Habilitar una promoción", description = "Habilita una promoción previamente deshabilitada.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promoción habilitada."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "No se encontró la promoción."),
+            @ApiResponse(responseCode = "409", description = "La promoción ya se encuentra habilitada."),
+    })
+    @PatchMapping("/enabled/{id}")
+    @OnlyAccessConfigurationUpdate
+    public ResponseEntity<Response<PromotionResponseDTO>> enable(@PathVariable @Valid @NotNull Long id) {
+        return ResponseEntity.ok(enablePromotionUseCase.execute(id));
     }
 }
