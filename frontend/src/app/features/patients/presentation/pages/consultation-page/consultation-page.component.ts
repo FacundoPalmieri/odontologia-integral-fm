@@ -10,6 +10,8 @@ import { ActivatedRoute } from "@angular/router";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { MatButtonModule } from "@angular/material/button";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { OdontogramComponent } from "../../../../odontogram/presentation/pages/odontogram/odontogram.component";
 import {
   ConsultationPatientHeaderComponent,
@@ -31,6 +33,7 @@ import { FormControl } from "@angular/forms";
 import { ConsultationObservationsPanelComponent } from "../../components/consultation-observations-panel/consultation-observations-panel.component";
 import { PrestationDto } from "../../../data/interfaces/prestation.interface";
 import { PrestationScopeEnum } from "../../../utils/enums/consultation-instance.enum";
+import { OdontogramDialogComponent } from "../../components/odontogram-dialog/odontogram-dialog.component";
 
 @Component({
   selector: "app-consultation-page",
@@ -40,6 +43,8 @@ import { PrestationScopeEnum } from "../../../utils/enums/consultation-instance.
     MatExpansionModule,
     MatCardModule,
     MatDialogModule,
+    MatButtonModule,
+    MatTooltipModule,
     OdontogramComponent,
     ConsultationPatientHeaderComponent,
     PrestationTableComponent,
@@ -47,6 +52,7 @@ import { PrestationScopeEnum } from "../../../utils/enums/consultation-instance.
     ConsultationObservationsPanelComponent,
     IconsModule,
     CardIconTitleComponent,
+    OdontogramDialogComponent,
   ],
 })
 export class ConsultationPageComponent implements OnInit {
@@ -168,5 +174,15 @@ export class ConsultationPageComponent implements OnInit {
           this.treatments.update((prev) => [...prev, newTreatment]);
         }
       });
+  }
+
+  openOdontogramDialog() {
+    this.dialog.open(OdontogramDialogComponent, {
+      width: "95vw",
+      maxWidth: "1400px",
+      data: {
+        odontogram: this.odontogram,
+      },
+    });
   }
 }

@@ -18,13 +18,22 @@
       expandedHeight="80px"
       class="!p-4"
     >
-      <mat-panel-title class="[&_.card-header]:!mb-0">
+      <mat-panel-title class="[&_.card-header]:!mb-0 !flex !flex-row !justify-between !items-center !w-full">
         <app-card-icon-title
           [title]="'Odontograma Interactivo'"
           [subtitle]="'Revisá el estado dental del paciente'"
           [icon]="'dental'"
           [backgroundColor]="'green'"
         />
+        <button
+          mat-icon-button
+          (click)="$event.stopPropagation(); openOdontogramDialog()"
+          matTooltip="Ver odontograma ampliado"
+          class="mr-2"
+          aria-label="Ver odontograma ampliado"
+        >
+          <i-tabler name="maximize"></i-tabler>
+        </button>
       </mat-panel-title>
     </mat-expansion-panel-header>
 
