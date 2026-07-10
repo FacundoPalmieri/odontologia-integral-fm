@@ -57,6 +57,7 @@ import { PatientService } from "../../../services/patient.service";
 import { PatientInterface } from "../../../data/interfaces/patient.interface";
 import { MedicalHistoryRiskInterface } from "../../../data/interfaces/medical-history.interface";
 import { PatientDto } from "../../../data/dtos/patient.dto";
+import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 
 //QUITAR
 interface ConsultationInterface {
@@ -69,7 +70,6 @@ interface ConsultationInterface {
 @Component({
   selector: "app-patient-edit-page",
   templateUrl: "./patient-edit-page.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     PageToolbarComponent,
@@ -86,6 +86,7 @@ interface ConsultationInterface {
     MatTooltipModule,
     AttachedFileComponent,
     CardIconTitleComponent,
+    EmptyStateComponent,
   ],
 })
 export class PatientEditPageComponent implements OnInit, OnDestroy {
@@ -106,14 +107,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   maxDate = new Date();
   patientId: number | null = null;
   displayedColumns: string[] = ["creationDate", "lastModified", "actions"];
-  consultationsData: ConsultationInterface[] = [
-    {
-      id: 1,
-      creationDate: new Date("2024-03-12 14:46:00"),
-      lastModified: new Date("2025-03-20 18:33:00"),
-      odontogram: mockOdontogram1,
-    },
-  ];
+  consultationsData: ConsultationInterface[] = [];
   entityTypeEnum = EntityTypeEnum;
 
   avatarUrl = signal<string | null>(null);
