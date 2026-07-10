@@ -8,6 +8,7 @@ import { MatCardModule } from "@angular/material/card";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { CardIconTitleComponent } from "../../../../../shared/components/card-icon-title/card-icon-title.component";
 import { TreatmentRow } from "../prestation-table/prestation-table.component";
+import { CurrencyFormatDirective } from "../../../../../shared/directives/currency-format/currency-format.directive";
 
 const IVA_RATE = 0.15;
 
@@ -19,6 +20,7 @@ const IVA_RATE = 0.15;
     MatCardModule,
     IconsModule,
     CardIconTitleComponent,
+    CurrencyFormatDirective,
   ],
 })
 export class ConsultationSummaryPanelComponent {

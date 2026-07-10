@@ -12,16 +12,16 @@
     <div class="flex flex-col gap-2">
       <div class="flex justify-between text-sm">
         <span>Subtotal Prestaciones</span>
-        <span>${{ subtotal().toFixed(2) }}</span>
+        <span>$<span [appCurrencyFormat]="subtotal()"></span></span>
       </div>
       <div class="flex justify-between text-sm">
         <span>IVA (15%)</span>
-        <span>${{ iva().toFixed(2) }}</span>
+        <span>$<span [appCurrencyFormat]="iva()"></span></span>
       </div>
       <hr class="border-white/20 my-1" />
       <div class="flex justify-between font-bold text-lg">
         <span>Total a Pagar</span>
-        <span>${{ total().toFixed(2) }}</span>
+        <span>$<span [appCurrencyFormat]="total()"></span></span>
       </div>
     </div>
   </mat-card-content>

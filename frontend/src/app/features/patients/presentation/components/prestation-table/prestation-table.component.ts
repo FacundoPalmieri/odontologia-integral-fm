@@ -14,6 +14,7 @@ import { CardIconTitleComponent } from "../../../../../shared/components/card-ic
 import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 import { PrestationScopeEnum } from "../../../utils/enums/consultation-instance.enum";
 import { PrestationDto } from "../../../data/interfaces/prestation.interface";
+import { CurrencyFormatDirective } from "../../../../../shared/directives/currency-format/currency-format.directive";
 
 export interface TreatmentRow extends PrestationDto {
   selectedScope?: PrestationScopeEnum;
@@ -32,6 +33,7 @@ export interface TreatmentRow extends PrestationDto {
     IconsModule,
     CardIconTitleComponent,
     EmptyStateComponent,
+    CurrencyFormatDirective,
   ],
 })
 export class PrestationTableComponent {
