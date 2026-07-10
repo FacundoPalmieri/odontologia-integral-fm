@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -337,6 +338,43 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
+
+    /**
+     * Maneja las excepciones de tipo {@link DataIntegrityViolationException}, que se lanzan cuando una operación de
+     * persistencia viola una restricción de integridad de la base de datos (por ejemplo, un {@code unique} constraint).
+     * <p>
+     * Es la última línea de defensa contra colisiones concurrentes: si dos altas simultáneas superan la validación
+     * previa en el use case (ej. chequeo de duplicados) antes de que cualquiera de las dos persista, la segunda
+     * en llegar a la base de datos es rechazada por el constraint y capturada acá. Handler transversal a nivel
+     * infraestructura, no conoce el dominio que lo disparó — el mensaje al usuario es genérico.
+     * </p>
+     *
+     * @param ex La excepción {@link DataIntegrityViolationException} capturada.
+     * @return Una respuesta con un mensaje genérico para el usuario y un código de estado HTTP {@code 409 Conflict}.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Response<Void>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+
+        String userMessage = messageSource.getMessage("exception.dataIntegrityViolation.user", null, LocaleContextHolder.getLocale());
+        String logMessage = messageSource.getMessage("exception.dataIntegrityViolation.log", new Object[]{ex.getMessage()}, LocaleContextHolder.getLocale());
+
+        log.error(logMessage, ex);
+
+        systemLogService.save(new SystemLogResponseDTO(
+                LogLevel.ERROR,
+                LogType.EXCEPTION,
+                userMessage,
+                logMessage,
+                ex.getClass().getSimpleName(),
+                authenticatedUserService.getAuthenticatedUser().getUsername(),
+                null,
+                systemLogService.getStackTraceAsString(ex)
+        ));
+
+        Response<Void> response = new Response<>(false, userMessage, null);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
 
 
     /**

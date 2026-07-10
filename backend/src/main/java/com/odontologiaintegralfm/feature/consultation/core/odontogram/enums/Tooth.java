@@ -43,7 +43,43 @@ public enum Tooth {
     T45(45, "Segundo premolar inferior derecho"),
     T46(46, "Primer molar inferior derecho"),
     T47(47, "Segundo molar inferior derecho"),
-    T48(48, "Tercer molar inferior derecho");
+    T48(48, "Tercer molar inferior derecho"),
+
+    /**
+     * Cuadrante 5 – Superior derecho (temporal)
+     */
+    T51(51, "Incisivo central temporal superior derecho"),
+    T52(52, "Incisivo lateral temporal superior derecho"),
+    T53(53, "Canino temporal superior derecho"),
+    T54(54, "Primer molar temporal superior derecho"),
+    T55(55, "Segundo molar temporal superior derecho"),
+
+    /**
+     * Cuadrante 6 – Superior izquierdo (temporal)
+     */
+    T61(61, "Incisivo central temporal superior izquierdo"),
+    T62(62, "Incisivo lateral temporal superior izquierdo"),
+    T63(63, "Canino temporal superior izquierdo"),
+    T64(64, "Primer molar temporal superior izquierdo"),
+    T65(65, "Segundo molar temporal superior izquierdo"),
+
+    /**
+     * Cuadrante 7 – Inferior izquierdo (temporal)
+     */
+    T71(71, "Incisivo central temporal inferior izquierdo"),
+    T72(72, "Incisivo lateral temporal inferior izquierdo"),
+    T73(73, "Canino temporal inferior izquierdo"),
+    T74(74, "Primer molar temporal inferior izquierdo"),
+    T75(75, "Segundo molar temporal inferior izquierdo"),
+
+    /**
+     * Cuadrante 8 – Inferior derecho (temporal)
+     */
+    T81(81, "Incisivo central temporal inferior derecho"),
+    T82(82, "Incisivo lateral temporal inferior derecho"),
+    T83(83, "Canino temporal inferior derecho"),
+    T84(84, "Primer molar temporal inferior derecho"),
+    T85(85, "Segundo molar temporal inferior derecho");
 
     private final int code;
     private final String description;
