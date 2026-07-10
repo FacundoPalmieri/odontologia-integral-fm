@@ -75,3 +75,8 @@ export enum DiscountTypeEnum {
     PERCENTAGE = 'PERCENTAGE',
     FIXED = 'FIXED'
 }
+
+export enum MaxillaryZoneEnum {
+    UPPER = 'UPPER',
+    LOWER = 'LOWER',
+}

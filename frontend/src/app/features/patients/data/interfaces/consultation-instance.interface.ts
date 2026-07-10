@@ -1,4 +1,4 @@
-import { DiscountTypeEnum, PrestationInstanceStatusEnum, PrestationScopeEnum, QuadrantEnum, ToothEnum, ToothFaceEnum } from "../../utils/enums/consultation-instance.enum";
+import { DiscountTypeEnum, MaxillaryZoneEnum, PrestationInstanceStatusEnum, PrestationScopeEnum, QuadrantEnum, ToothEnum, ToothFaceEnum } from "../../utils/enums/consultation-instance.enum";
 
 export interface ConsultationInstanceRequest {
     consultationId: number;
@@ -23,8 +23,8 @@ export interface PrestationRequest {
     scope: PrestationScopeEnum;
     tooth: ToothEnum;
     quadrant: QuadrantEnum;
-    maxillary: string; //????
-    promtionId: number;
+    maxillary: MaxillaryZoneEnum;
+    promotionId: number;
     discountType: DiscountTypeEnum;
     discountValue: number;
 }
@@ -34,7 +34,6 @@ export interface StepAdvancementsRequest {
     prestationStepId: number;
     status: PrestationInstanceStatusEnum;
 }
-
 
 export interface ConsultationInstanceResponse {
     id: number;

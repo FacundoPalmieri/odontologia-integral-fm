@@ -152,6 +152,10 @@ export class AppointmentActionsMenuComponent {
           SnackbarTypeEnum.Success
         );
         this.actionPerformed.emit();
+        const patientId = this.appointment().patientId;
+        if (patientId) {
+          this.router.navigate([`/patients/${patientId}/consultation`]);
+        }
       },
       error: () => {
         this.snackbarService.openSnackbar(
