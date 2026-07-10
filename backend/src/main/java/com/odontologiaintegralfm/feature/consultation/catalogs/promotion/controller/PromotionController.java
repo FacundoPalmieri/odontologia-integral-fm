@@ -6,6 +6,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.CreatePromotionUseCase;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.DisablePromotionUseCase;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.EnablePromotionUseCase;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.PromotionService;
 import com.odontologiaintegralfm.shared.dto.Response;
@@ -33,11 +34,13 @@ public class PromotionController {
     private final PromotionService promotionService;
     private final CreatePromotionUseCase createPromotionUseCase;
     private final EnablePromotionUseCase enablePromotionUseCase;
+    private final DisablePromotionUseCase disablePromotionUseCase;
 
-    PromotionController(PromotionService promotionService, CreatePromotionUseCase createPromotionUseCase, EnablePromotionUseCase enablePromotionUseCase) {
+    PromotionController(PromotionService promotionService, CreatePromotionUseCase createPromotionUseCase, EnablePromotionUseCase enablePromotionUseCase, DisablePromotionUseCase disablePromotionUseCase) {
         this.promotionService = promotionService;
         this.createPromotionUseCase = createPromotionUseCase;
         this.enablePromotionUseCase = enablePromotionUseCase;
+        this.disablePromotionUseCase = disablePromotionUseCase;
     }
 
     @Operation(summary = "Obtener catálogo de promociones vigentes", description = "Lista todas las promociones habilitadas y vigentes a la fecha actual.")
@@ -78,5 +81,19 @@ public class PromotionController {
     @OnlyAccessConfigurationUpdate
     public ResponseEntity<Response<PromotionResponseDTO>> enable(@PathVariable @Valid @NotNull Long id) {
         return ResponseEntity.ok(enablePromotionUseCase.execute(id));
+    }
+
+    @Operation(summary = "Deshabilitar una promoción", description = "Deshabilita una promoción previamente habilitada.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promoción deshabilitada."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "No se encontró la promoción."),
+            @ApiResponse(responseCode = "409", description = "La promoción ya se encuentra deshabilitada."),
+    })
+    @PatchMapping("/disabled/{id}")
+    @OnlyAccessConfigurationUpdate
+    public ResponseEntity<Response<PromotionResponseDTO>> disable(@PathVariable @Valid @NotNull Long id) {
+        return ResponseEntity.ok(disablePromotionUseCase.execute(id));
     }
 }
