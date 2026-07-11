@@ -39,6 +39,34 @@ export enum ToothEnum {
   T46 = "T46",
   T47 = "T47",
   T48 = "T48",
+
+  /* Cuadrante 5 – Superior derecho (temporal) */
+  T51 = "T51",
+  T52 = "T52",
+  T53 = "T53",
+  T54 = "T54",
+  T55 = "T55",
+
+  /* Cuadrante 6 – Superior izquierdo (temporal) */
+  T61 = "T61",
+  T62 = "T62",
+  T63 = "T63",
+  T64 = "T64",
+  T65 = "T65",
+
+  /* Cuadrante 7 – Inferior izquierdo (temporal) */
+  T71 = "T71",
+  T72 = "T72",
+  T73 = "T73",
+  T74 = "T74",
+  T75 = "T75",
+
+  /* Cuadrante 8 – Inferior derecho (temporal) */
+  T81 = "T81",
+  T82 = "T82",
+  T83 = "T83",
+  T84 = "T84",
+  T85 = "T85",
 }
 
 export enum ToothFaceEnum {

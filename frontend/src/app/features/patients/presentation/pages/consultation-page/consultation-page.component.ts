@@ -128,6 +128,18 @@ export class ConsultationPageComponent implements OnInit {
       { number: 31 }, { number: 32 }, { number: 33 }, { number: 34 },
       { number: 35 }, { number: 36 }, { number: 37 }, { number: 38 },
     ],
+    temporaryUpperLeft: [
+      { number: 55 }, { number: 54 }, { number: 53 }, { number: 52 }, { number: 51 },
+    ],
+    temporaryUpperRight: [
+      { number: 61 }, { number: 62 }, { number: 63 }, { number: 64 }, { number: 65 },
+    ],
+    temporaryLowerLeft: [
+      { number: 85 }, { number: 84 }, { number: 83 }, { number: 82 }, { number: 81 },
+    ],
+    temporaryLowerRight: [
+      { number: 71 }, { number: 72 }, { number: 73 }, { number: 74 }, { number: 75 },
+    ],
   };
 
   // Treatments
