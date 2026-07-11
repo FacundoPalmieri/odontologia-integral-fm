@@ -1,0 +1,7 @@
+<mat-dialog-content>
+  <p class="text-base my-4 text-center font-medium">{{ message }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="center" class="gap-2 pb-2">
+  <button mat-button mat-dialog-close class="rounded-lg">{{ cancelText }}</button>
+  <button mat-flat-button [mat-dialog-close]="true" color="primary" class="rounded-lg">{{ confirmText }}</button>
+</mat-dialog-actions>

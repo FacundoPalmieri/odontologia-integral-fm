@@ -14,6 +14,7 @@ import { CreateAppointmentDialogComponent } from "../../../../calendar/presentat
 import { CancelAppointmentDialog } from "../../../../calendar/presentation/components/cancel-appointment-dialog/cancel-appointment-dialog.component";
 import { AppointmentCancelDto } from "../../../data/dtos/appointment.dto";
 import { RequestSourceEnum } from "../../../../../shared/utils/enums/request-source.enum";
+import { ConfirmDialogComponent } from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: "app-appointment-actions-menu",
@@ -46,7 +47,7 @@ export class AppointmentActionsMenuComponent {
         "No se encontró el ID del paciente.",
         4000,
         "center",
-        "top",
+        "bottom",
         SnackbarTypeEnum.Error
       );
     }
@@ -61,7 +62,7 @@ export class AppointmentActionsMenuComponent {
         "Faltan datos para reprogramar el turno.",
         4000,
         "center",
-        "top",
+        "bottom",
         SnackbarTypeEnum.Error
       );
       return;
@@ -82,7 +83,7 @@ export class AppointmentActionsMenuComponent {
           "Turno reprogramado exitosamente",
           6000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Success
         );
         this.actionPerformed.emit();
@@ -94,13 +95,34 @@ export class AppointmentActionsMenuComponent {
     const consultationId = this.appointment().id;
     if (!consultationId) return;
 
+    if (targetStatus === 'WAITING_ROOM') {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: "400px",
+        data: {
+          message: "¿Estás seguro de que deseas volver al estado En espera?",
+          confirmText: "Confirmar",
+          cancelText: "Cancelar",
+        },
+      });
+
+      dialogRef.afterClosed().subscribe((confirmed) => {
+        if (confirmed) {
+          this.executeRollbackStatus(consultationId, targetStatus);
+        }
+      });
+    } else {
+      this.executeRollbackStatus(consultationId, targetStatus);
+    }
+  }
+
+  private executeRollbackStatus(consultationId: number, targetStatus: string) {
     this.consultationService.updateConsultationStatus(consultationId, targetStatus).subscribe({
       next: () => {
         this.snackbarService.openSnackbar(
           "Estado de la consulta actualizado.",
           4000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Success
         );
         this.actionPerformed.emit();
@@ -110,7 +132,7 @@ export class AppointmentActionsMenuComponent {
           "Error al cambiar el estado de la consulta.",
           4000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Error
         );
       }
@@ -124,7 +146,7 @@ export class AppointmentActionsMenuComponent {
           "Paciente pasado a sala de espera.",
           4000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Success
         );
         this.actionPerformed.emit();
@@ -134,7 +156,7 @@ export class AppointmentActionsMenuComponent {
           "Error al pasar el paciente a sala de espera",
           4000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Error
         );
       }
@@ -148,7 +170,7 @@ export class AppointmentActionsMenuComponent {
           "Paciente llamado a consulta.",
           4000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Success
         );
         this.actionPerformed.emit();
@@ -162,7 +184,7 @@ export class AppointmentActionsMenuComponent {
           "Error al llamar al paciente a consulta",
           4000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Error
         );
       }
@@ -179,7 +201,7 @@ export class AppointmentActionsMenuComponent {
           "Consulta cancelada exitosamente.",
           4000,
           "center",
-          "top",
+          "bottom",
           SnackbarTypeEnum.Success
         );
         this.actionPerformed.emit();
@@ -213,7 +235,7 @@ export class AppointmentActionsMenuComponent {
               response.message || "Turno cancelado exitosamente.",
               6000,
               "center",
-              "top",
+              "bottom",
               SnackbarTypeEnum.Success
             );
             this.actionPerformed.emit();
@@ -223,12 +245,27 @@ export class AppointmentActionsMenuComponent {
               "Error al cancelar el turno.",
               6000,
               "center",
-              "top",
+              "bottom",
               SnackbarTypeEnum.Error
             );
           }
         });
       }
     });
+  }
+
+  goToConsultation() {
+    const patientId = this.appointment().patientId;
+    if (patientId) {
+      this.router.navigate([`/patients/${patientId}/consultation`]);
+    } else {
+      this.snackbarService.openSnackbar(
+        "No se encontró el ID del paciente.",
+        4000,
+        "center",
+        "bottom",
+        SnackbarTypeEnum.Error
+      );
+    }
   }
 }

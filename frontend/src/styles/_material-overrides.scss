@@ -302,4 +302,8 @@ body {
   .mat-mdc-autocomplete-panel {
     border-radius: var(--mat-sys-corner-medium) !important;
   }
+
+  .mat-pseudo-checkbox {
+    border-radius: 5px !important;
+  }
 }

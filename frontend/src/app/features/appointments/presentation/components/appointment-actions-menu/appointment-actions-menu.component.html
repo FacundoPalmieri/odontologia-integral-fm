@@ -17,15 +17,22 @@
       </div>
     </button>
   }
-  @if (appointment().status !== 'Agendado') {
+  @if (appointment().status === 'En espera') {
     <button
       mat-menu-item
       (click)="callPatient()"
-      [disabled]="appointment().status !== 'En espera'"
     >
       <div class="flex items-center gap-2 text-[var(--mat-sys-primary)]">
         <i-tabler name="circle-caret-right"></i-tabler>
         <span>Iniciar consulta</span>
+      </div>
+    </button>
+  }
+  @if (appointment().status === 'En consulta') {
+    <button mat-menu-item (click)="goToConsultation()">
+      <div class="flex items-center gap-2 text-[var(--mat-sys-primary)]">
+        <i-tabler name="stethoscope"></i-tabler>
+        <span>Ir a consulta</span>
       </div>
     </button>
   }
@@ -67,7 +74,7 @@
       </div>
     </button>
   }
-  @if (appointment().status !== 'Agendado') {
+  @if (appointment().status !== 'Agendado' && appointment().status !== 'En consulta') {
     <button mat-menu-item>
       <div
         class="flex items-center gap-2 text-[var(--mat-sys-on-surface-variant-muted)]"

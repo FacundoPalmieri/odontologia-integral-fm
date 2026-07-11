@@ -86,7 +86,6 @@ interface ConsultationInterface {
     MatTooltipModule,
     AttachedFileComponent,
     CardIconTitleComponent,
-    EmptyStateComponent,
   ],
 })
 export class PatientEditPageComponent implements OnInit, OnDestroy {

@@ -6,7 +6,7 @@ import {
   computed,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { WebsocketService } from "../../../../../core/services/websocket.service";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormControl } from "@angular/forms";
@@ -67,14 +67,50 @@ export class AppointmentsComponent {
   private readonly consultationService = inject(ConsultationService);
   private readonly calendarService = inject(CalendarService);
 
-  appointments = signal<any[]>([]);
+  // Filter card
+  patientSearchControl = new FormControl<string>("", { nonNullable: true });
+  professionalsControl = new FormControl<number[]>([], { nonNullable: true });
+
+  readonly patientSearch = toSignal(
+    this.patientSearchControl.valueChanges,
+    { initialValue: "" }
+  );
+  readonly selectedProfessionals = toSignal(
+    this.professionalsControl.valueChanges,
+    { initialValue: [] as number[] }
+  );
+
   allTodayAppointments = signal<any[]>([]);
   canCreate = true;
   activeFilter = signal<string | null>(null);
 
-  // Filter card
-  patientSearchControl = new FormControl<string>("", { nonNullable: true });
-  professionalsControl = new FormControl<number[]>([], { nonNullable: true });
+  readonly appointments = computed(() => {
+    let list = this.allTodayAppointments();
+
+    // 1. Filter by status (activeFilter)
+    const filter = this.activeFilter();
+    if (filter) {
+      list = list.filter((a) => a.status === filter);
+    }
+
+    // 2. Filter by patient search text (first name / last name)
+    const search = this.patientSearch().toLowerCase().trim();
+    if (search) {
+      list = list.filter((a) => {
+        const fullName = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+        return fullName.includes(search);
+      });
+    }
+
+    // 3. Filter by professional (dentist person ID)
+    const selectedDentists = this.selectedProfessionals();
+    if (selectedDentists && selectedDentists.length > 0) {
+      list = list.filter((a) => a.dentistId && selectedDentists.includes(a.dentistId));
+    }
+
+    return list;
+  });
+
   viewMode = signal<"table" | "cards">(
     (localStorage.getItem("appointmentsViewMode") as "table" | "cards") ||
       "table",
@@ -123,6 +159,10 @@ export class AppointmentsComponent {
         // If the socket payload contains the full array of active consultations
         if (Array.isArray(consultations)) {
           const consultationsMapped = consultations.map((c: any) => {
+            const dentistName = c.dentistName || "";
+            const match = this.dentists().find((d) => 
+              `${d.person.firstName} ${d.person.lastName}`.toLowerCase().trim() === dentistName.toLowerCase().trim()
+            );
             return {
               id: c.id,
               patientId: c.patientId,
@@ -131,6 +171,7 @@ export class AppointmentsComponent {
               appointmentDateTime: c.dateTime,
               duration: null,
               professional: c.dentistName,
+              dentistId: match ? match.person.id : null,
               status: this.mapSocketStatusToLocalStatus(c.consultationStatus),
               appointmentId: c.appointmentId || c.appappointmentId
             };
@@ -173,12 +214,8 @@ export class AppointmentsComponent {
   toggleFilter(status: string) {
     if (this.activeFilter() === status) {
       this.activeFilter.set(null);
-      this.appointments.set(this.allTodayAppointments());
     } else {
       this.activeFilter.set(status);
-      this.appointments.set(
-        this.allTodayAppointments().filter((a) => a.status === status)
-      );
     }
   }
 
@@ -211,12 +248,6 @@ export class AppointmentsComponent {
     
     const filter = targetFilter !== undefined ? targetFilter : this.activeFilter();
     this.activeFilter.set(filter);
-    
-    if (filter) {
-      this.appointments.set(mapped.filter((a) => a.status === filter));
-    } else {
-      this.appointments.set(mapped);
-    }
   }
 
   protected _loadData(targetFilter?: string | null) {
@@ -242,7 +273,19 @@ export class AppointmentsComponent {
       next: (dentistsList) => {
         let calendarObs$: Observable<any>;
         if (userRole === RoleEnum.DENTIST) {
-          calendarObs$ = this.calendarService.getDay(personId, today);
+          calendarObs$ = new Observable<any>(sub => {
+            this.calendarService.getDay(personId, today).subscribe({
+              next: (response) => {
+                const slots = response.data?.slots || [];
+                slots.forEach((s: any) => {
+                  s.dentistId = personId;
+                });
+                sub.next({ data: { slots } });
+                sub.complete();
+              },
+              error: (err) => sub.error(err)
+            });
+          });
         } else {
           if (dentistsList.length === 0) {
             calendarObs$ = new Observable<any>(sub => { sub.next({ data: { slots: [] } }); sub.complete(); });
@@ -253,7 +296,14 @@ export class AppointmentsComponent {
             calendarObs$ = new Observable<any>(sub => {
               forkJoin(requests).subscribe({
                 next: (responses) => {
-                  const allSlots = responses.flatMap((res) => res.data?.slots || []);
+                  const allSlots = responses.flatMap((res, index) => {
+                    const dentistId = dentistsList[index].person.id;
+                    const slots = res.data?.slots || [];
+                    slots.forEach((s: any) => {
+                      s.dentistId = dentistId;
+                    });
+                    return slots;
+                  });
                   sub.next({ data: { slots: allSlots } });
                   sub.complete();
                 },
@@ -275,6 +325,10 @@ export class AppointmentsComponent {
             // Map active consultations
             const consultations = result.consultations?.data || [];
             const consultationsMapped = consultations.map((c: any) => {
+              const dentistName = c.dentistName || "";
+              const match = dentistsList.find((d) => 
+                `${d.person.firstName} ${d.person.lastName}`.toLowerCase().trim() === dentistName.toLowerCase().trim()
+              );
               return {
                 id: c.id,
                 patientId: c.patientId,
@@ -283,6 +337,7 @@ export class AppointmentsComponent {
                 appointmentDateTime: c.dateTime,
                 duration: null,
                 professional: c.dentistName,
+                dentistId: match ? match.person.id : null,
                 status: this.mapSocketStatusToLocalStatus(c.consultationStatus),
                 appointmentId: c.appointmentId || c.appappointmentId
               };
@@ -299,7 +354,6 @@ export class AppointmentsComponent {
           error: (err) => {
             console.error("[AppointmentsComponent] Error loading today's data:", err);
             this.allTodayAppointments.set([]);
-            this.appointments.set([]);
           }
         });
       },
@@ -335,6 +389,7 @@ export class AppointmentsComponent {
           startTime,
           duration,
           professional: appointment.dentistName,
+          dentistId: slot.dentistId,
           status: "Agendado",
         };
       })
