@@ -11,7 +11,6 @@ public record PromotionResponseDTO(
         DiscountType discountType,
         BigDecimal value,
         LocalDate startDate,
-        LocalDate endDate,
-        boolean enabled
+        LocalDate endDate
 ) {
 }

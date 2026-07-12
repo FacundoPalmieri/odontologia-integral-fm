@@ -57,13 +57,13 @@ public class CreatePromotionUseCase {
     }
 
     /**
-     * Valida coherencia de fechas: startDate < endDate, y ninguna de las dos en el pasado.
+     * Valida coherencia de fechas: startDate <= endDate, y ninguna de las dos en el pasado.
      * Regla: req § 6 + decisión de diseño #2 (no se permite alta retroactiva).
      */
     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
         LocalDate today = LocalDate.now();
 
-        if (!startDate.isBefore(endDate)) {
+        if (startDate.isAfter(endDate)) {
             throw new BadRequestException(
                     "exception.createPromotionUseCase.invalidDateRange.user", null,
                     "exception.createPromotionUseCase.invalidDateRange.log", new Object[]{startDate, endDate, "CreatePromotionUseCase", "execute"},
