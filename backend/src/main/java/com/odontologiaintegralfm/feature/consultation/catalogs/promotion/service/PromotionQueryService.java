@@ -41,4 +41,14 @@ public class PromotionQueryService {
             throw new DataBaseException(e, "PromotionQueryService", null, null, "getCurrent");
         }
     }
+
+    @Transactional(readOnly = true)
+    public Response<List<PromotionResponseDTO>> getAll() {
+        try {
+            List<PromotionResponseDTO> promotions = promotionMapper.toDTO(promotionRepository.findAll());
+            return new Response<>(true, null, promotions);
+        } catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "PromotionQueryService", null, null, "getAll");
+        }
+    }
 }

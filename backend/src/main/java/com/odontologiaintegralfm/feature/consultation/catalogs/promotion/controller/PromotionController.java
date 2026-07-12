@@ -1,6 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.promotion.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationCreate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationRead;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationUpdate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionCreateRequestDTO;
@@ -50,6 +51,18 @@ public class PromotionController {
     @OnlyAccessConsultationRead
     public ResponseEntity<Response<List<PromotionResponseDTO>>> getCurrent() {
         return new ResponseEntity<>(promotionQueryService.getCurrent(), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Obtener catálogo administrativo de promociones", description = "Lista todas las promociones habilitadas, sin filtro de vigencia por fecha (vencidas, futuras y vigentes).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promociones encontradas."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @GetMapping("/all")
+    @OnlyAccessConfigurationRead
+    public ResponseEntity<Response<List<PromotionResponseDTO>>> getAll() {
+        return new ResponseEntity<>(promotionQueryService.getAll(), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear una promoción", description = "Da de alta una nueva promoción de configuración del consultorio.")
