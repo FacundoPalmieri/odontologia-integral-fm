@@ -6,7 +6,7 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationTypePriceService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationTypeService;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.PromotionService;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.PromotionQueryService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.TreatmentCondition;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service.TreatmentConditionService;
@@ -72,7 +72,7 @@ class CreateConsultationInstanceUseCaseTest {
     @Mock private IPrestationStepInstanceRepository prestationStepInstanceRepository;
     @Mock private TreatmentService treatmentService;
     @Mock private TreatmentConditionService treatmentConditionService;
-    @Mock private PromotionService promotionService;
+    @Mock private PromotionQueryService promotionQueryService;
     @Mock private OdontogramMapper odontogramMapper;
     @Mock private PrestationInstanceMapper prestationInstanceMapper;
     @Mock private MessageSource messageSource;

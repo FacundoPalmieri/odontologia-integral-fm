@@ -5,10 +5,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.CreatePromotionUseCase;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.DisablePromotionUseCase;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.EnablePromotionUseCase;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.PromotionService;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.*;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,13 +28,13 @@ import java.util.List;
 @RequestMapping("/api/promotion")
 public class PromotionController {
 
-    private final PromotionService promotionService;
+    private final PromotionQueryService promotionQueryService;
     private final CreatePromotionUseCase createPromotionUseCase;
     private final EnablePromotionUseCase enablePromotionUseCase;
     private final DisablePromotionUseCase disablePromotionUseCase;
 
-    PromotionController(PromotionService promotionService, CreatePromotionUseCase createPromotionUseCase, EnablePromotionUseCase enablePromotionUseCase, DisablePromotionUseCase disablePromotionUseCase) {
-        this.promotionService = promotionService;
+    PromotionController(PromotionQueryService promotionQueryService, CreatePromotionUseCase createPromotionUseCase, EnablePromotionUseCase enablePromotionUseCase, DisablePromotionUseCase disablePromotionUseCase) {
+        this.promotionQueryService = promotionQueryService;
         this.createPromotionUseCase = createPromotionUseCase;
         this.enablePromotionUseCase = enablePromotionUseCase;
         this.disablePromotionUseCase = disablePromotionUseCase;
@@ -49,10 +46,10 @@ public class PromotionController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("/all")
+    @GetMapping("/current")
     @OnlyAccessConsultationRead
-    public ResponseEntity<Response<List<PromotionResponseDTO>>> getAll() {
-        return new ResponseEntity<>(promotionService.getAll(), HttpStatus.OK);
+    public ResponseEntity<Response<List<PromotionResponseDTO>>> getCurrent() {
+        return new ResponseEntity<>(promotionQueryService.getCurrent(), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear una promoción", description = "Da de alta una nueva promoción de configuración del consultorio.")

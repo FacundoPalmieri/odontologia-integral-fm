@@ -33,7 +33,7 @@ public class PromotionService {
     }
 
     @Transactional(readOnly = true)
-    public Response<List<PromotionResponseDTO>> getAll() {
+    public Response<List<PromotionResponseDTO>> getCurrent() {
         try {
             List<PromotionResponseDTO> promotions = promotionMapper.toDTO(promotionRepository.findAllActive(LocalDate.now()));
             return new Response<>(true, null, promotions);
