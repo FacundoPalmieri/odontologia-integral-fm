@@ -137,7 +137,7 @@ class CallPatientUseCaseTest {
 
         // DTO esperado luego del cambio de estado
         ConsultationResponseDTO dto =
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "En Atención", null);
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "En Atención", null);
 
         // Simulación del cambio de estado
         when(changeConsultationStatusUseCase.execute(

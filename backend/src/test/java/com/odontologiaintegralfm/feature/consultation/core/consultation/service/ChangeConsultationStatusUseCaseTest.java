@@ -47,7 +47,7 @@ class ChangeConsultationStatusUseCaseTest {
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         when(consultationRepository.save(consultation)).thenReturn(consultation);
         when(consultationMapper.toDTO(consultation)).thenReturn(
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "En Atención", null));
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "En Atención", null));
 
         useCase.execute(consultation, ConsultationStatusType.IN_CONSULTATION);
 
@@ -65,7 +65,7 @@ class ChangeConsultationStatusUseCaseTest {
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         when(consultationRepository.save(consultation)).thenReturn(consultation);
         when(consultationMapper.toDTO(consultation)).thenReturn(
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "En Atención", null));
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "En Atención", null));
 
         useCase.execute(consultation, ConsultationStatusType.IN_CONSULTATION);
 
@@ -83,7 +83,7 @@ class ChangeConsultationStatusUseCaseTest {
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         when(consultationRepository.save(consultation)).thenReturn(consultation);
         ConsultationResponseDTO dto =
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "En Atención", null);
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "En Atención", null);
         when(consultationMapper.toDTO(consultation)).thenReturn(dto);
 
         useCase.execute(consultation, ConsultationStatusType.IN_CONSULTATION);
@@ -101,7 +101,7 @@ class ChangeConsultationStatusUseCaseTest {
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.WAITING_ROOM);
         when(consultationRepository.save(consultation)).thenReturn(consultation);
         ConsultationResponseDTO dto =
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null);
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "Sala de Espera", null);
         when(consultationMapper.toDTO(consultation)).thenReturn(dto);
 
         useCase.execute(consultation, ConsultationStatusType.WAITING_ROOM);
@@ -119,7 +119,7 @@ class ChangeConsultationStatusUseCaseTest {
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.FINISHED);
         when(consultationRepository.save(consultation)).thenReturn(consultation);
         ConsultationResponseDTO dto =
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Finalizada", null);
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "Finalizada", null);
         when(consultationMapper.toDTO(consultation)).thenReturn(dto);
 
         useCase.execute(consultation, ConsultationStatusType.FINISHED);
@@ -151,7 +151,7 @@ class ChangeConsultationStatusUseCaseTest {
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         when(consultationRepository.save(consultation)).thenReturn(consultation);
         ConsultationResponseDTO dto =
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "En Atención", null);
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "En Atención", null);
         when(consultationMapper.toDTO(consultation)).thenReturn(dto);
 
         ConsultationResponseDTO result = useCase.execute(consultation, ConsultationStatusType.IN_CONSULTATION);
@@ -170,7 +170,7 @@ class ChangeConsultationStatusUseCaseTest {
         when(saved.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         when(consultationRepository.save(consultation)).thenReturn(saved);
         when(consultationMapper.toDTO(saved)).thenReturn(
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "En Atención", null));
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "En Atención", null));
 
         useCase.execute(consultation, ConsultationStatusType.IN_CONSULTATION);
 

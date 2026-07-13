@@ -70,7 +70,7 @@ class CreateConsultationUseCaseTest {
         when(appointmentService.getById(1L)).thenReturn(appointment);
         when(consultationRepository.existsByAppointmentId(anyLong())).thenReturn(false);
 
-        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null);
+        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "Sala de Espera", null);
         when(changeStatusUseCase.execute(any(), eq(ConsultationStatusType.WAITING_ROOM))).thenReturn(dto);
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("Consulta creada");
 

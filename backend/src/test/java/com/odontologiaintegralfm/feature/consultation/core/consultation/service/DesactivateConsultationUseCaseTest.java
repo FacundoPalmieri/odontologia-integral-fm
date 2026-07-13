@@ -73,7 +73,7 @@ class DesactivateConsultationUseCaseTest {
         UserSec user = mock(UserSec.class);
         when(authenticatedUserService.getAuthenticatedUser()).thenReturn(user);
         when(consultationMapper.toDTO(consultation)).thenReturn(
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null));
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "Sala de Espera", null));
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
 
         useCase.execute(1L, "observacion");
@@ -90,7 +90,7 @@ class DesactivateConsultationUseCaseTest {
 
         when(authenticatedUserService.getAuthenticatedUser()).thenReturn(mock(UserSec.class));
         when(consultationMapper.toDTO(consultation)).thenReturn(
-                new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null));
+                new ConsultationResponseDTO(1L, null, null, null, "Paciente",  null,"Dentista", "Sala de Espera", null));
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
 
         useCase.execute(1L, "Paciente no se presentó");
@@ -110,7 +110,7 @@ class DesactivateConsultationUseCaseTest {
         when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
 
         when(authenticatedUserService.getAuthenticatedUser()).thenReturn(mock(UserSec.class));
-        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", "Dentista", "Sala de Espera", null);
+        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", null,"Dentista", "Sala de Espera", null);
         when(consultationMapper.toDTO(consultation)).thenReturn(dto);
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
 

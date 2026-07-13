@@ -16,6 +16,7 @@ public interface ConsultationMapper {
     @Mapping(target = "dateTime", expression = "java(consultation.getAppointment().getDate())")
     @Mapping(target = "patientId", expression = "java(consultation.getPatient().getId())")
     @Mapping(target = "patientName", expression = "java(consultation.getPatient().getPerson().getFullName())")
+    @Mapping(target = "dentistId", expression = "java(consultation.getDentist().getId())")
     @Mapping(target = "dentistName", expression = "java(consultation.getDentist().getPerson().getFullName())")
     @Mapping(target = "consultationStatus", expression = "java(consultation.getStatus().getLabel())")
     @Mapping(target = "webSocketStatus", expression = "java(consultation.getStatus().webSocketEvent().toString())")
