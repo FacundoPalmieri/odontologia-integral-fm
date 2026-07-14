@@ -47,6 +47,10 @@ La lógica de negocio no trivial se divide en dos patrones:
 - **UseCase** (`VerbNounUseCase`, ej: `CreateConsultationUseCase`) — orquesta: coordina múltiples pasos, llama repos, valida reglas de negocio, tiene un único propósito de entrada (`execute()`). Un CU del req → un UseCase.
 - **DomainService** — razona sobre el dominio: lógica que no pertenece a una entidad pero tampoco es orquestación (ej: calcular disponibilidad, validar solapamientos). Lo llaman los UseCases, no el controller.
 
+### Dónde vive un cálculo o regla de negocio
+
+IMPORTANTE: Ver **ADR-0023** (`docs/architecture/adr/_cross-cutting/0023-donde-vive-un-calculo-de-negocio.md`) para el detalle y ejemplos. 
+
 ### Wrapper de respuesta
 
 Todas las respuestas de la API usan `Response<T>` (un record en `shared/dto/`). Usarlo de forma consistente.

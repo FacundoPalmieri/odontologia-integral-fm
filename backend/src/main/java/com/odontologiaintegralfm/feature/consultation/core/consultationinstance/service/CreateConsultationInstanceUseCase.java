@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationTypePriceService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationTypeService;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.model.Promotion;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.PromotionQueryService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service.TreatmentConditionService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service.TreatmentService;
@@ -42,6 +43,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -192,6 +194,10 @@ public class CreateConsultationInstanceUseCase {
 
 
             //Se construye PrestationInstance
+            BigDecimal price = prestationTypePriceService.currentPrice(prestationInstanceRequestDTO.prestationTypeId()).getPrice();
+            Promotion promotion = promotionQueryService.findById(prestationInstanceRequestDTO.promotionId());
+            BigDecimal promotionAmount = promotion != null ? promotion.calculateAmount(price) : null;
+
             PrestationInstance prestationInstance = PrestationInstance.build(
                     consultationInstance,
                     prestationType,
@@ -202,8 +208,9 @@ public class CreateConsultationInstanceUseCase {
                     prestationInstanceRequestDTO.toothFace(),
                     prestationInstanceRequestDTO.quadrant(),
                     prestationInstanceRequestDTO.maxillary(),
-                    prestationTypePriceService.currentPrice(prestationInstanceRequestDTO.prestationTypeId()).getPrice(),
-                    promotionQueryService.findById(prestationInstanceRequestDTO.promotionId()),
+                    price,
+                    promotion,
+                    promotionAmount,
                     prestationInstanceRequestDTO.discountType(),
                     prestationInstanceRequestDTO.discountValue()
            );
