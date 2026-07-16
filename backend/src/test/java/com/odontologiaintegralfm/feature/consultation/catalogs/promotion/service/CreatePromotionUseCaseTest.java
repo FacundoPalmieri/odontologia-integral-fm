@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,7 @@ class CreatePromotionUseCaseTest {
 
     @Mock private IPromotionRepository promotionRepository;
     @Mock private PromotionMapper promotionMapper;
+    @Mock private PromotionDomainService promotionDomainService;
 
     @InjectMocks private CreatePromotionUseCase useCase;
 
@@ -78,6 +80,12 @@ class CreatePromotionUseCaseTest {
                 LocalDate.now().plusDays(10)
         );
 
+        doThrow(new BadRequestException(
+                "exception.promotionDomainService.percentageOutOfRange.user", null,
+                "exception.promotionDomainService.percentageOutOfRange.log", new Object[]{},
+                com.odontologiaintegralfm.shared.enums.LogLevel.ERROR))
+                .when(promotionDomainService).validateValueRange(DiscountType.PERCENTAGE, BigDecimal.ZERO);
+
         assertThatThrownBy(() -> useCase.execute(dto))
                 .isInstanceOf(BadRequestException.class);
 
@@ -99,6 +107,12 @@ class CreatePromotionUseCaseTest {
                 LocalDate.now().plusDays(10)
         );
 
+        doThrow(new BadRequestException(
+                "exception.promotionDomainService.percentageOutOfRange.user", null,
+                "exception.promotionDomainService.percentageOutOfRange.log", new Object[]{},
+                com.odontologiaintegralfm.shared.enums.LogLevel.ERROR))
+                .when(promotionDomainService).validateValueRange(DiscountType.PERCENTAGE, BigDecimal.valueOf(101));
+
         assertThatThrownBy(() -> useCase.execute(dto))
                 .isInstanceOf(BadRequestException.class);
 
@@ -119,6 +133,12 @@ class CreatePromotionUseCaseTest {
                 LocalDate.now(),
                 LocalDate.now().plusDays(10)
         );
+
+        doThrow(new BadRequestException(
+                "exception.promotionDomainService.fixedBelowMinimum.user", null,
+                "exception.promotionDomainService.fixedBelowMinimum.log", new Object[]{},
+                com.odontologiaintegralfm.shared.enums.LogLevel.ERROR))
+                .when(promotionDomainService).validateValueRange(DiscountType.FIXED, BigDecimal.ZERO);
 
         assertThatThrownBy(() -> useCase.execute(dto))
                 .isInstanceOf(BadRequestException.class);

@@ -6,6 +6,7 @@ import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAc
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.*;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,12 +33,14 @@ public class PromotionController {
 
     private final PromotionQueryService promotionQueryService;
     private final CreatePromotionUseCase createPromotionUseCase;
+    private final UpdatePromotionUseCase updatePromotionUseCase;
     private final EnablePromotionUseCase enablePromotionUseCase;
     private final DisablePromotionUseCase disablePromotionUseCase;
 
-    PromotionController(PromotionQueryService promotionQueryService, CreatePromotionUseCase createPromotionUseCase, EnablePromotionUseCase enablePromotionUseCase, DisablePromotionUseCase disablePromotionUseCase) {
+    PromotionController(PromotionQueryService promotionQueryService, CreatePromotionUseCase createPromotionUseCase, UpdatePromotionUseCase updatePromotionUseCase, EnablePromotionUseCase enablePromotionUseCase, DisablePromotionUseCase disablePromotionUseCase) {
         this.promotionQueryService = promotionQueryService;
         this.createPromotionUseCase = createPromotionUseCase;
+        this.updatePromotionUseCase = updatePromotionUseCase;
         this.enablePromotionUseCase = enablePromotionUseCase;
         this.disablePromotionUseCase = disablePromotionUseCase;
     }
@@ -77,6 +81,21 @@ public class PromotionController {
     @OnlyAccessConfigurationCreate
     public ResponseEntity<Response<PromotionResponseDTO>> create(@Valid @RequestBody PromotionCreateRequestDTO dto) {
         return new ResponseEntity<>(createPromotionUseCase.execute(dto), HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Editar una promoción", description = "Actualiza una promoción existente. El front envía el objeto completo; la API ignora los campos iguales al persistido y valida/rechaza los distintos según el estado actual de la promoción (No iniciada/Vigente/Finalizada).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promoción actualizada (o sin cambios, si el objeto enviado es idéntico al persistido)."),
+            @ApiResponse(responseCode = "400", description = "Fecha anterior a hoy o value/discountType fuera de rango."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "No se encontró la promoción."),
+            @ApiResponse(responseCode = "409", description = "Campo no permitido según el estado actual de la promoción, o label duplicado."),
+    })
+    @PutMapping("/{id}")
+    @OnlyAccessConfigurationUpdate
+    public ResponseEntity<Response<PromotionResponseDTO>> update(@PathVariable @Valid @NotNull Long id, @Valid @RequestBody PromotionUpdateRequestDTO dto) {
+        return ResponseEntity.ok(updatePromotionUseCase.execute(id, dto));
     }
 
     @Operation(summary = "Habilitar una promoción", description = "Habilita una promoción previamente deshabilitada.")

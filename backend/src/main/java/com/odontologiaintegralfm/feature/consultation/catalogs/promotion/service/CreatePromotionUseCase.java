@@ -2,7 +2,6 @@ package com.odontologiaintegralfm.feature.consultation.catalogs.promotion.servic
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.enums.DiscountType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.mapper.PromotionMapper;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.model.Promotion;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.repository.IPromotionRepository;
@@ -22,10 +21,12 @@ public class CreatePromotionUseCase {
 
     private final IPromotionRepository promotionRepository;
     private final PromotionMapper promotionMapper;
+    private final PromotionDomainService promotionDomainService;
 
-    public CreatePromotionUseCase(IPromotionRepository promotionRepository, PromotionMapper promotionMapper) {
+    public CreatePromotionUseCase(IPromotionRepository promotionRepository, PromotionMapper promotionMapper, PromotionDomainService promotionDomainService) {
         this.promotionRepository = promotionRepository;
         this.promotionMapper = promotionMapper;
+        this.promotionDomainService = promotionDomainService;
     }
 
     /**
@@ -44,7 +45,7 @@ public class CreatePromotionUseCase {
     public Response<PromotionResponseDTO> execute(PromotionCreateRequestDTO dto) {
 
         validateDateRange(dto.startDate(), dto.endDate());
-        validateValueRange(dto.discountType(), dto.value());
+        promotionDomainService.validateValueRange(dto.discountType(), dto.value());
 
         String candidateName = normalizeAndCheckDuplicate(dto.label());
 
@@ -82,28 +83,6 @@ public class CreatePromotionUseCase {
                     "exception.createPromotionUseCase.endDateInPast.user", null,
                     "exception.createPromotionUseCase.endDateInPast.log", new Object[]{endDate, "CreatePromotionUseCase", "execute"},
                     LogLevel.ERROR);
-        }
-    }
-
-    /**
-     * Valida el rango de value según discountType: PERCENTAGE en [1,100], FIXED >= 1.
-     * Regla: req § 6.
-     */
-    private void validateValueRange(DiscountType discountType, BigDecimal value) {
-        if (discountType == DiscountType.PERCENTAGE) {
-            if (value.compareTo(BigDecimal.ONE) < 0 || value.compareTo(BigDecimal.valueOf(100)) > 0) {
-                throw new BadRequestException(
-                        "exception.createPromotionUseCase.percentageOutOfRange.user", null,
-                        "exception.createPromotionUseCase.percentageOutOfRange.log", new Object[]{value, "CreatePromotionUseCase", "execute"},
-                        LogLevel.ERROR);
-            }
-        } else {
-            if (value.compareTo(BigDecimal.ONE) < 0) {
-                throw new BadRequestException(
-                        "exception.createPromotionUseCase.fixedBelowMinimum.user", null,
-                        "exception.createPromotionUseCase.fixedBelowMinimum.log", new Object[]{value, "CreatePromotionUseCase", "execute"},
-                        LogLevel.ERROR);
-            }
         }
     }
 

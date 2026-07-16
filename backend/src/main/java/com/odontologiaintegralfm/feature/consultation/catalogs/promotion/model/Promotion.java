@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
+import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
  * Entidad que representa una promoción aplicable a prestaciones.
  */
 @Entity
+@Audited
 @Getter
 @Setter
 @NoArgsConstructor

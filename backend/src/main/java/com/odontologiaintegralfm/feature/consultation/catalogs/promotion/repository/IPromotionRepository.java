@@ -17,6 +17,8 @@ public interface IPromotionRepository extends JpaRepository<Promotion, Long> {
 
     boolean existsByName(String name);
 
+    boolean existsByNameAndIdNot(String name, Long id);
+
     /**
      * Busca una promoción por id sin aplicar el filtro {@code @Where(enabled = true)} de la entidad.
      * Necesario para poder encontrar promociones deshabilitadas y reactivarlas (ver ADR-0020).
