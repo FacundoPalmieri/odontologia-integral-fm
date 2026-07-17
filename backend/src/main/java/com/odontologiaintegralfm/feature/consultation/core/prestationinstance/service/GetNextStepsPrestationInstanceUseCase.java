@@ -11,6 +11,7 @@ import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mo
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationStepInstanceRepository;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
+import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +56,7 @@ public class GetNextStepsPrestationInstanceUseCase {
 
     private void validateStatus(PrestationInstance prestationInstance) {
         if (prestationInstance.getStatus() != PrestationInstanceStatus.IN_PROGRESS) {
-            throw new BadRequestException(
+            throw new ConflictException(
                     "exception.getNextStepsPrestationInstanceUseCase.invalidStatus.user", null,
                     "exception.getNextStepsPrestationInstanceUseCase.invalidStatus.log",
                     new Object[]{prestationInstance.getStatus().getLabel(), "GetNextStepsPrestationInstanceUseCase", "execute"},
