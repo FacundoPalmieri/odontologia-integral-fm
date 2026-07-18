@@ -102,7 +102,7 @@ class UpdatePromotionUseCaseTest {
                 LocalDate.now().minusDays(1), persistedEndDate);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate))
+        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate, null))
                 .thenReturn(PromotionStatus.NOT_STARTED);
 
         assertThatThrownBy(() -> useCase.execute(PROMOTION_ID, dto))
@@ -127,7 +127,7 @@ class UpdatePromotionUseCaseTest {
                 persistedStartDate, LocalDate.now().minusDays(1));
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate))
+        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate, null))
                 .thenReturn(PromotionStatus.NOT_STARTED);
 
         assertThatThrownBy(() -> useCase.execute(PROMOTION_ID, dto))
@@ -153,7 +153,7 @@ class UpdatePromotionUseCaseTest {
                 persistedStartDate, persistedEndDate);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate))
+        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate, null))
                 .thenReturn(PromotionStatus.NOT_STARTED);
         doThrow(new BadRequestException(
                 "exception.promotionDomainService.percentageOutOfRange.user", null,
@@ -183,7 +183,7 @@ class UpdatePromotionUseCaseTest {
                 persistedStartDate, persistedEndDate);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate))
+        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate, null))
                 .thenReturn(PromotionStatus.NOT_STARTED);
         doThrow(new BadRequestException(
                 "exception.promotionDomainService.fixedBelowMinimum.user", null,
@@ -215,10 +215,10 @@ class UpdatePromotionUseCaseTest {
 
         PromotionResponseDTO responseDTO = new PromotionResponseDTO(
                 PROMOTION_ID, "Descuento Verano", DiscountType.PERCENTAGE, BigDecimal.valueOf(10),
-                persistedStartDate, persistedEndDate);
+                persistedStartDate, persistedEndDate, null);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate))
+        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate, null))
                 .thenReturn(PromotionStatus.NOT_STARTED);
         when(promotionMapper.toDTO(promotion)).thenReturn(responseDTO);
 
@@ -247,10 +247,10 @@ class UpdatePromotionUseCaseTest {
 
         PromotionResponseDTO responseDTO = new PromotionResponseDTO(
                 PROMOTION_ID, " Descuento Invierno ", DiscountType.PERCENTAGE, BigDecimal.valueOf(10),
-                persistedStartDate, persistedEndDate);
+                persistedStartDate, persistedEndDate, null);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate))
+        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate, null))
                 .thenReturn(PromotionStatus.NOT_STARTED);
         when(promotionRepository.existsByNameAndIdNot("descuento invierno", PROMOTION_ID)).thenReturn(false);
         when(promotionRepository.save(promotion)).thenReturn(promotion);
@@ -280,7 +280,7 @@ class UpdatePromotionUseCaseTest {
                 persistedStartDate, persistedEndDate);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate))
+        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate, null))
                 .thenReturn(PromotionStatus.NOT_STARTED);
         when(promotionRepository.existsByNameAndIdNot("descuento invierno", PROMOTION_ID)).thenReturn(true);
 
@@ -327,7 +327,7 @@ class UpdatePromotionUseCaseTest {
                 DiscountType.PERCENTAGE, BigDecimal.valueOf(10), ACTIVE_START_DATE, ACTIVE_END_DATE);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(ACTIVE_START_DATE, ACTIVE_END_DATE))
+        when(promotionDomainService.resolveStatus(ACTIVE_START_DATE, ACTIVE_END_DATE, null))
                 .thenReturn(PromotionStatus.ACTIVE);
 
         assertThatThrownBy(() -> useCase.execute(PROMOTION_ID, dto))
@@ -350,7 +350,7 @@ class UpdatePromotionUseCaseTest {
                 DiscountType.PERCENTAGE, BigDecimal.valueOf(10), ACTIVE_START_DATE, ACTIVE_END_DATE);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(ACTIVE_START_DATE, ACTIVE_END_DATE))
+        when(promotionDomainService.resolveStatus(ACTIVE_START_DATE, ACTIVE_END_DATE, null))
                 .thenReturn(PromotionStatus.ACTIVE);
 
         assertThatThrownBy(() -> useCase.execute(PROMOTION_ID, dto))
@@ -377,10 +377,10 @@ class UpdatePromotionUseCaseTest {
 
         PromotionResponseDTO responseDTO = new PromotionResponseDTO(
                 PROMOTION_ID, "Descuento Verano", DiscountType.PERCENTAGE, BigDecimal.valueOf(10),
-                ACTIVE_START_DATE, newEndDate);
+                ACTIVE_START_DATE, newEndDate, null);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(ACTIVE_START_DATE, ACTIVE_END_DATE))
+        when(promotionDomainService.resolveStatus(ACTIVE_START_DATE, ACTIVE_END_DATE, null))
                 .thenReturn(PromotionStatus.ACTIVE);
         when(promotionRepository.save(promotion)).thenReturn(promotion);
         when(promotionMapper.toDTO(promotion)).thenReturn(responseDTO);
@@ -407,10 +407,10 @@ class UpdatePromotionUseCaseTest {
 
         PromotionResponseDTO responseDTO = new PromotionResponseDTO(
                 PROMOTION_ID, "Descuento Verano", DiscountType.PERCENTAGE, BigDecimal.valueOf(10),
-                ACTIVE_START_DATE, newEndDate);
+                ACTIVE_START_DATE, newEndDate, null);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(ACTIVE_START_DATE, ACTIVE_END_DATE))
+        when(promotionDomainService.resolveStatus(ACTIVE_START_DATE, ACTIVE_END_DATE, null))
                 .thenReturn(PromotionStatus.ACTIVE);
         when(promotionRepository.save(promotion)).thenReturn(promotion);
         when(promotionMapper.toDTO(promotion)).thenReturn(responseDTO);
@@ -459,7 +459,7 @@ class UpdatePromotionUseCaseTest {
                 DiscountType.PERCENTAGE, BigDecimal.valueOf(10), FINISHED_START_DATE, FINISHED_END_DATE);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(FINISHED_START_DATE, FINISHED_END_DATE))
+        when(promotionDomainService.resolveStatus(FINISHED_START_DATE, FINISHED_END_DATE, null))
                 .thenReturn(PromotionStatus.FINISHED);
 
         assertThatThrownBy(() -> useCase.execute(PROMOTION_ID, dto))
@@ -486,7 +486,7 @@ class UpdatePromotionUseCaseTest {
                 LocalDate.now().plusDays(30), persistedEndDate);
 
         when(promotionQueryService.findById(PROMOTION_ID)).thenReturn(promotion);
-        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate))
+        when(promotionDomainService.resolveStatus(persistedStartDate, persistedEndDate, null))
                 .thenReturn(PromotionStatus.NOT_STARTED);
 
         assertThatThrownBy(() -> useCase.execute(PROMOTION_ID, dto))

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Reglas de dominio de Promotion compartidas por Create y Update (ADR-0023):
@@ -17,10 +18,15 @@ import java.time.LocalDate;
 public class PromotionDomainService {
 
     /**
-     * Deriva el estado de una promoción a partir de sus fechas persistidas.
-     * Regla: startDate <= hoy <= endDate → ACTIVE (boundaries inclusive, ADR-0025).
+     * Deriva el estado de una promoción a partir de finishedAt (corte manual, prioridad absoluta,
+     * ADR-0022) o, si es null, de sus fechas persistidas (ADR-0025).
+     * Regla: startDate <= hoy <= endDate → ACTIVE (boundaries inclusive).
      */
-    public PromotionStatus resolveStatus(LocalDate startDate, LocalDate endDate) {
+    public PromotionStatus resolveStatus(LocalDate startDate, LocalDate endDate, LocalDateTime finishedAt) {
+        if (finishedAt != null) {
+            return PromotionStatus.FINISHED;
+        }
+
         LocalDate today = LocalDate.now();
 
         if (today.isBefore(startDate)) {

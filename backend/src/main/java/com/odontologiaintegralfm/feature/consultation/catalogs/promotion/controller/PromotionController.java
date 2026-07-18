@@ -36,13 +36,15 @@ public class PromotionController {
     private final UpdatePromotionUseCase updatePromotionUseCase;
     private final EnablePromotionUseCase enablePromotionUseCase;
     private final DisablePromotionUseCase disablePromotionUseCase;
+    private final FinishPromotionUseCase finishPromotionUseCase;
 
-    PromotionController(PromotionQueryService promotionQueryService, CreatePromotionUseCase createPromotionUseCase, UpdatePromotionUseCase updatePromotionUseCase, EnablePromotionUseCase enablePromotionUseCase, DisablePromotionUseCase disablePromotionUseCase) {
+    PromotionController(PromotionQueryService promotionQueryService, CreatePromotionUseCase createPromotionUseCase, UpdatePromotionUseCase updatePromotionUseCase, EnablePromotionUseCase enablePromotionUseCase, DisablePromotionUseCase disablePromotionUseCase, FinishPromotionUseCase finishPromotionUseCase) {
         this.promotionQueryService = promotionQueryService;
         this.createPromotionUseCase = createPromotionUseCase;
         this.updatePromotionUseCase = updatePromotionUseCase;
         this.enablePromotionUseCase = enablePromotionUseCase;
         this.disablePromotionUseCase = disablePromotionUseCase;
+        this.finishPromotionUseCase = finishPromotionUseCase;
     }
 
     @Operation(summary = "Obtener catálogo de promociones vigentes", description = "Lista todas las promociones habilitadas y vigentes a la fecha actual.")
@@ -124,5 +126,19 @@ public class PromotionController {
     @OnlyAccessConfigurationUpdate
     public ResponseEntity<Response<PromotionResponseDTO>> disable(@PathVariable @Valid @NotNull Long id) {
         return ResponseEntity.ok(disablePromotionUseCase.execute(id));
+    }
+
+    @Operation(summary = "Finalizar una promoción", description = "Trunca la vigencia de la promoción al momento actual del servidor, sin modificar startDate/endDate. Operación terminal: no admite reactivación.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promoción finalizada."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "No se encontró la promoción."),
+            @ApiResponse(responseCode = "409", description = "La promoción ya se encuentra finalizada."),
+    })
+    @PatchMapping("/finish/{id}")
+    @OnlyAccessConfigurationUpdate
+    public ResponseEntity<Response<PromotionResponseDTO>> finish(@PathVariable @Valid @NotNull Long id) {
+        return ResponseEntity.ok(finishPromotionUseCase.execute(id));
     }
 }

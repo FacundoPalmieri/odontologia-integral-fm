@@ -13,6 +13,7 @@ import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Entidad que representa una promoción aplicable a prestaciones.
@@ -51,6 +52,8 @@ public class Promotion extends AuditableJPA {
 
     @Column(nullable = false)
     private LocalDate endDate;
+
+    private LocalDateTime finishedAt;
 
     private Promotion(String name, DiscountType discountType, BigDecimal value, LocalDate startDate, LocalDate endDate) {
         this.name = name;

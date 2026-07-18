@@ -169,7 +169,7 @@ class CreatePromotionUseCaseTest {
         savedEntity.setId(1L);
 
         PromotionResponseDTO responseDTO = new PromotionResponseDTO(
-                1L, dto.label(), dto.discountType(), dto.value(), dto.startDate(), dto.endDate());
+                1L, dto.label(), dto.discountType(), dto.value(), dto.startDate(), dto.endDate(), null);
 
         when(promotionRepository.existsByName("descuento verano")).thenReturn(false);
         when(promotionMapper.toEntity(dto)).thenReturn(mappedEntity);

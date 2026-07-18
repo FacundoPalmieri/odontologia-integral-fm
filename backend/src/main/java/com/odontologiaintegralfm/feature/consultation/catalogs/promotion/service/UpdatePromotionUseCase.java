@@ -49,7 +49,7 @@ public class UpdatePromotionUseCase {
     public Response<PromotionResponseDTO> execute(Long id, PromotionUpdateRequestDTO dto) {
 
         Promotion promotion = promotionQueryService.findById(id);
-        PromotionStatus status = promotionDomainService.resolveStatus(promotion.getStartDate(), promotion.getEndDate());
+        PromotionStatus status = promotionDomainService.resolveStatus(promotion.getStartDate(), promotion.getEndDate(), promotion.getFinishedAt());
 
         boolean changed = applyLabel(promotion, dto, status)
                 | applyStartDate(promotion, dto, status)

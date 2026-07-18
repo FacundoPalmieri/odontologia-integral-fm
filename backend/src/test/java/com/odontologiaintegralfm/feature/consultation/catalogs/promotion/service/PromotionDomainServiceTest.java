@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -19,7 +20,54 @@ class PromotionDomainServiceTest {
     private final PromotionDomainService domainService = new PromotionDomainService();
 
     /**
-     * CASO: startDate posterior a hoy.
+     * CASO: finishedAt seteado con startDate/endDate que darían ACTIVE si se ignorara finishedAt.
+     * Regla: finishedAt tiene prioridad absoluta sobre el cálculo por fechas (ADR-0025).
+     * Validación: resolveStatus devuelve FINISHED.
+     */
+    @Test
+    void resolveStatus_whenFinishedAtSet_takesPriorityOverActiveDates() {
+        LocalDate startDate = LocalDate.now().minusDays(5);
+        LocalDate endDate = LocalDate.now().plusDays(5);
+        LocalDateTime finishedAt = LocalDateTime.now().minusHours(1);
+
+        PromotionStatus status = domainService.resolveStatus(startDate, endDate, finishedAt);
+
+        assertThat(status).isEqualTo(PromotionStatus.FINISHED);
+    }
+
+    /**
+     * CASO: finishedAt seteado con startDate posterior a hoy (daría NOT_STARTED si se ignorara finishedAt).
+     * Regla: cubre el corte manual de una promoción finalizada antes de arrancar.
+     * Validación: resolveStatus devuelve FINISHED.
+     */
+    @Test
+    void resolveStatus_whenFinishedAtSet_takesPriorityOverNotStartedDates() {
+        LocalDate startDate = LocalDate.now().plusDays(5);
+        LocalDate endDate = LocalDate.now().plusDays(10);
+        LocalDateTime finishedAt = LocalDateTime.now().minusHours(1);
+
+        PromotionStatus status = domainService.resolveStatus(startDate, endDate, finishedAt);
+
+        assertThat(status).isEqualTo(PromotionStatus.FINISHED);
+    }
+
+    /**
+     * CASO: finishedAt = null, endDate anterior a hoy (vencimiento natural).
+     * Adaptación de resolveStatus_whenEndDateBeforeToday_returnsFinished con el nuevo parámetro.
+     * Validación: resolveStatus devuelve FINISHED.
+     */
+    @Test
+    void resolveStatus_whenFinishedAtNullAndEndDateBeforeToday_returnsFinished() {
+        LocalDate startDate = LocalDate.now().minusDays(10);
+        LocalDate endDate = LocalDate.now().minusDays(1);
+
+        PromotionStatus status = domainService.resolveStatus(startDate, endDate, null);
+
+        assertThat(status).isEqualTo(PromotionStatus.FINISHED);
+    }
+
+    /**
+     * CASO: finishedAt = null, startDate posterior a hoy.
      * Validación: resolveStatus devuelve NOT_STARTED.
      */
     @Test
@@ -27,13 +75,13 @@ class PromotionDomainServiceTest {
         LocalDate startDate = LocalDate.now().plusDays(1);
         LocalDate endDate = LocalDate.now().plusDays(10);
 
-        PromotionStatus status = domainService.resolveStatus(startDate, endDate);
+        PromotionStatus status = domainService.resolveStatus(startDate, endDate, null);
 
         assertThat(status).isEqualTo(PromotionStatus.NOT_STARTED);
     }
 
     /**
-     * CASO: startDate == hoy (boundary).
+     * CASO: finishedAt = null, startDate == hoy (boundary).
      * Regla: startDate <= hoy, no <.
      * Validación: resolveStatus devuelve ACTIVE.
      */
@@ -42,13 +90,13 @@ class PromotionDomainServiceTest {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = LocalDate.now().plusDays(10);
 
-        PromotionStatus status = domainService.resolveStatus(startDate, endDate);
+        PromotionStatus status = domainService.resolveStatus(startDate, endDate, null);
 
         assertThat(status).isEqualTo(PromotionStatus.ACTIVE);
     }
 
     /**
-     * CASO: hoy está estrictamente entre startDate y endDate.
+     * CASO: finishedAt = null, hoy está estrictamente entre startDate y endDate.
      * Validación: resolveStatus devuelve ACTIVE.
      */
     @Test
@@ -56,13 +104,13 @@ class PromotionDomainServiceTest {
         LocalDate startDate = LocalDate.now().minusDays(5);
         LocalDate endDate = LocalDate.now().plusDays(5);
 
-        PromotionStatus status = domainService.resolveStatus(startDate, endDate);
+        PromotionStatus status = domainService.resolveStatus(startDate, endDate, null);
 
         assertThat(status).isEqualTo(PromotionStatus.ACTIVE);
     }
 
     /**
-     * CASO: endDate == hoy (boundary).
+     * CASO: finishedAt = null, endDate == hoy (boundary).
      * Regla: endDate >= hoy, no > — confirmado con el dev como bug más probable en producción.
      * Validación: resolveStatus devuelve ACTIVE.
      */
@@ -71,23 +119,9 @@ class PromotionDomainServiceTest {
         LocalDate startDate = LocalDate.now().minusDays(5);
         LocalDate endDate = LocalDate.now();
 
-        PromotionStatus status = domainService.resolveStatus(startDate, endDate);
+        PromotionStatus status = domainService.resolveStatus(startDate, endDate, null);
 
         assertThat(status).isEqualTo(PromotionStatus.ACTIVE);
-    }
-
-    /**
-     * CASO: endDate anterior a hoy.
-     * Validación: resolveStatus devuelve FINISHED.
-     */
-    @Test
-    void resolveStatus_whenEndDateBeforeToday_returnsFinished() {
-        LocalDate startDate = LocalDate.now().minusDays(10);
-        LocalDate endDate = LocalDate.now().minusDays(1);
-
-        PromotionStatus status = domainService.resolveStatus(startDate, endDate);
-
-        assertThat(status).isEqualTo(PromotionStatus.FINISHED);
     }
 
     /**
