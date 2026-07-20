@@ -22,4 +22,10 @@ public interface IConsultationRepository extends JpaRepository<Consultation, Lon
             "WHERE c.appointment.date >= :startOfDay AND c.appointment.date < :endOfDay")
     List<Consultation> findAllByDate(@Param("startOfDay") LocalDateTime startOfDay,
                                      @Param("endOfDay") LocalDateTime endOfDay);
+
+    @Query("SELECT c FROM Consultation c " +
+            "JOIN FETCH c.appointment " +
+            "JOIN FETCH c.dentist den JOIN FETCH den.person " +
+            "WHERE c.patient.id = :idPatient ORDER BY c.id DESC")
+    List<Consultation> findByPatientIdOrderByIdDesc(@Param("idPatient") Long idPatient);
 }
