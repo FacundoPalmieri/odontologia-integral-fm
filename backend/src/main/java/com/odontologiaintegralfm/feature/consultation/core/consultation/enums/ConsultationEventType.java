@@ -12,6 +12,7 @@ public enum ConsultationEventType {
     /**Se utiliza cuando la consulta queda anulada definitivamente (Ej. Se inicio una consulta de un paciente que no se presentó).*/
     CONSULTATION_CANCELED,
 
-    /**Indica que se realizó una corrección del odontograma.*/
+    /**Se utiliza cuando se corrige el contenido de una ConsultationInstance dentro de la ventana de tiempo permitida
+     * (odontograma, prestaciones y/o avances de steps) — ver UpdateConsultationInstanceUseCase.*/
     CONSULTATION_INSTANCE_CORRECTED
 }

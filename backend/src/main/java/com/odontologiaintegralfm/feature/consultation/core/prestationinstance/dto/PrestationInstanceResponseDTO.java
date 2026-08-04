@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.d
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramResponseDTO;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record PrestationInstanceResponseDTO(
         Long id,
@@ -28,6 +29,9 @@ public record PrestationInstanceResponseDTO(
 
         BigDecimal finalAmount,
 
-        BigDecimal pendingAmount
+        BigDecimal pendingAmount,
+
+        // steps vigentes (enabled=true) de esta prestación — para que el front arme stepAdvancements en la próxima corrección
+        List<PrestationStepInstanceResponseDTO> steps
 ) {
 }

@@ -15,7 +15,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.Co
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ChangeConsultationStatusUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationQueryService;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.repository.IConsultationInstanceRepository;
@@ -87,7 +87,7 @@ class CreateConsultationInstanceUseCaseTest {
      */
     @Test
     void execute_whenConsultationStatusIsNotInConsultation_throwsConflictException() {
-        ConsultationInstanceRequestDTO dto = new ConsultationInstanceRequestDTO(
+        ConsultationInstanceCreateRequestDTO dto = new ConsultationInstanceCreateRequestDTO(
                 1L, null, List.of(), List.of(), List.of());
 
         Consultation consultation = mock(Consultation.class);
@@ -107,7 +107,7 @@ class CreateConsultationInstanceUseCaseTest {
      */
     @Test
     void execute_whenExistingConsultationInstance_throwsConflictException() {
-        ConsultationInstanceRequestDTO dto = new ConsultationInstanceRequestDTO(
+        ConsultationInstanceCreateRequestDTO dto = new ConsultationInstanceCreateRequestDTO(
                 1L, null, List.of(), List.of(), List.of());
 
         Consultation consultation = mock(Consultation.class);
@@ -137,7 +137,7 @@ class CreateConsultationInstanceUseCaseTest {
                 10L, null, null, null, null, null, null, null, null, null, null, null);
         PrestationInstanceRequestDTO p2 = new PrestationInstanceRequestDTO(
                 10L, null, null, null, null, null, null, null, null, null, null, null);
-        ConsultationInstanceRequestDTO dto = new ConsultationInstanceRequestDTO(
+        ConsultationInstanceCreateRequestDTO dto = new ConsultationInstanceCreateRequestDTO(
                 1L, null, List.of(), List.of(p1, p2), List.of());
 
         Consultation consultation = mock(Consultation.class);
@@ -149,14 +149,16 @@ class CreateConsultationInstanceUseCaseTest {
 
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         PrestationType prestationType = mock(PrestationType.class);
-        when(prestationType.isUnique()).thenReturn(true);
-        when(prestationType.getName()).thenReturn("Radiografía");
 
         when(consultationQueryService.findById(1L)).thenReturn(consultation);
         when(consultationInstanceRepository.findByConsultationId(1L)).thenReturn(null);
         when(consultationInstanceRepository.save(any())).thenReturn(mock(ConsultationInstance.class));
         when(odontogramRepository.saveAll(any())).thenReturn(List.of());
         when(prestationTypeService.findById(10L)).thenReturn(prestationType);
+
+        org.mockito.Mockito.doThrow(new ConflictException("exception.createConsultationInstanceUseCase.prestationUnique.user", new Object[]{"Radiografía"},
+                        "exception.createConsultationInstanceUseCase.prestationUnique.log", new Object[]{10L}, null))
+                .when(prestationInstanceDomainService).validatePrestationUnique(prestationType, 2, true);
 
         assertThatThrownBy(() -> useCase.execute(dto))
                 .isInstanceOf(ConflictException.class);
@@ -176,22 +178,17 @@ class CreateConsultationInstanceUseCaseTest {
 
         PrestationInstanceRequestDTO prestacionDTO = new PrestationInstanceRequestDTO(
                 10L, null, null, differentTooth, null, null, null, null, null, null, null, null);
-        ConsultationInstanceRequestDTO dto = new ConsultationInstanceRequestDTO(
+        ConsultationInstanceCreateRequestDTO dto = new ConsultationInstanceCreateRequestDTO(
                 1L, null, List.of(toothRegistered), List.of(prestacionDTO), List.of());
 
         Consultation consultation = mock(Consultation.class);
         Patient patient = mock(Patient.class);
-
-        when(patient.getId()).thenReturn(1L);
-
         when(consultation.getPatient()).thenReturn(patient);
 
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         PrestationType prestationType = mock(PrestationType.class);
-        when(prestationType.isUnique()).thenReturn(false);
 
         Odontogram savedOdontogram = mock(Odontogram.class);
-        when(savedOdontogram.getTooth()).thenReturn(Tooth.T11);
 
         when(consultationQueryService.findById(1L)).thenReturn(consultation);
         when(consultationInstanceRepository.findByConsultationId(1L)).thenReturn(null);
@@ -208,32 +205,6 @@ class CreateConsultationInstanceUseCaseTest {
     // ─── Step advancements ────────────────────────────────────────────────────
 
     /**
-     * CASO: Se incluye un step con estado CANCELLED en stepAdvancements[].
-     * Regla: CANCELLED no es un estado válido en el flujo de creación de instancia.
-     * Validación: Lanza ConflictException y no persiste ningún step.
-     */
-    @Test
-    void execute_whenStepAdvancementStatusIsCancelled_throwsConflictException() {
-        PrestationStepAdvancementRequestDTO cancelledStep = new PrestationStepAdvancementRequestDTO(
-                100L, 200L, PrestationStepStatus.CANCELLED);
-        ConsultationInstanceRequestDTO dto = new ConsultationInstanceRequestDTO(
-                1L, null, List.of(), List.of(), List.of(cancelledStep));
-
-        Consultation consultation = mock(Consultation.class);
-        when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
-        when(consultationQueryService.findById(1L)).thenReturn(consultation);
-        when(consultationInstanceRepository.findByConsultationId(1L)).thenReturn(null);
-        when(consultationInstanceRepository.save(any())).thenReturn(mock(ConsultationInstance.class));
-        when(odontogramRepository.saveAll(any())).thenReturn(List.of());
-        when(prestationInstanceRepository.saveAll(any())).thenReturn(List.of());
-
-        assertThatThrownBy(() -> useCase.execute(dto))
-                .isInstanceOf(ConflictException.class);
-
-        verify(prestationStepInstanceRepository, never()).saveAll(any());
-    }
-
-    /**
      * CASO: Los steps del catálogo quedan todos completados/omitidos tras el avance.
      * Escenario: shouldComplete retorna true para la prestación instanciada.
      * Validación: La prestación transiciona a COMPLETED y se persiste en base.
@@ -242,7 +213,7 @@ class CreateConsultationInstanceUseCaseTest {
     void execute_whenShouldComplete_completesAndSavesPrestationInstance() {
         PrestationStepAdvancementRequestDTO advancement = new PrestationStepAdvancementRequestDTO(
                 100L, 200L, PrestationStepStatus.COMPLETED);
-        ConsultationInstanceRequestDTO dto = new ConsultationInstanceRequestDTO(
+        ConsultationInstanceCreateRequestDTO dto = new ConsultationInstanceCreateRequestDTO(
                 1L, null, List.of(), List.of(), List.of(advancement));
 
         Consultation consultation = mock(Consultation.class);
@@ -266,7 +237,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(prestationInstanceQueryService.findById(100L)).thenReturn(prestationInstance);
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of());
         when(prestationStepInstanceRepository.findByPrestationInstance(prestationInstance)).thenReturn(List.of());
-        when(prestationInstanceDomainService.validateAndBuildStepAdvancements(any(), any(), any(), any(), any()))
+        when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any()))
                 .thenReturn(List.of());
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(true);
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
@@ -286,7 +257,7 @@ class CreateConsultationInstanceUseCaseTest {
     void execute_whenShouldNotComplete_savesStepsWithoutCompletingPrestation() {
         PrestationStepAdvancementRequestDTO advancement = new PrestationStepAdvancementRequestDTO(
                 100L, 200L, PrestationStepStatus.IN_PROGRESS);
-        ConsultationInstanceRequestDTO dto = new ConsultationInstanceRequestDTO(
+        ConsultationInstanceCreateRequestDTO dto = new ConsultationInstanceCreateRequestDTO(
                 1L, null, List.of(), List.of(), List.of(advancement));
 
         Consultation consultation = mock(Consultation.class);
@@ -310,7 +281,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(prestationInstanceQueryService.findById(100L)).thenReturn(prestationInstance);
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of());
         when(prestationStepInstanceRepository.findByPrestationInstance(prestationInstance)).thenReturn(List.of());
-        when(prestationInstanceDomainService.validateAndBuildStepAdvancements(any(), any(), any(), any(), any()))
+        when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any()))
                 .thenReturn(List.of());
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
@@ -331,7 +302,7 @@ class CreateConsultationInstanceUseCaseTest {
      */
     @Test
     void execute_whenValidMinimalRequest_returnsSuccessResponse() {
-        ConsultationInstanceRequestDTO dto = new ConsultationInstanceRequestDTO(
+        ConsultationInstanceCreateRequestDTO dto = new ConsultationInstanceCreateRequestDTO(
                 1L, "Sin observaciones", List.of(), List.of(), List.of());
 
         Consultation consultation = mock(Consultation.class);

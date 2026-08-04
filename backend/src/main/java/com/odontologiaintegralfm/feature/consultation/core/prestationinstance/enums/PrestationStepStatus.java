@@ -6,7 +6,6 @@ package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.e
 public enum PrestationStepStatus {
     IN_PROGRESS("En progreso"),
     COMPLETED ("Finalizada"),
-    CANCELLED("Cancelada"),
     OMITTED("Omitido");
 
     private String label;

@@ -56,5 +56,10 @@ public class TreatmentConditionService {
                 .orElseThrow(()-> new NotFoundException("exceptionTreatmentConditionService.notFound.user",null,"exceptionTreatmentConditionService.notFound.log",new Object[]{id,"TreatmentConditionService", "findById"}, LogLevel.ERROR));
     }
 
+    public TreatmentCondition findByName(String name) {
+        return treatmentConditionRepository.findByNameIgnoreCase(name)
+                .orElseThrow(()-> new NotFoundException("exceptionTreatmentConditionService.notFoundByName.user",null,"exceptionTreatmentConditionService.notFoundByName.log",new Object[]{name,"TreatmentConditionService", "findByName"}, LogLevel.ERROR));
+    }
+
 
 }

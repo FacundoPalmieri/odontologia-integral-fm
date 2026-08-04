@@ -25,4 +25,6 @@ public interface IPrestationStepInstanceRepository extends JpaRepository<Prestat
     );
 
     List<PrestationStepInstance> findByPrestationInstance(PrestationInstance prestationInstance);
+
+    List<PrestationStepInstance> findByPrestationInstanceIn(List<PrestationInstance> prestationInstances);
 }

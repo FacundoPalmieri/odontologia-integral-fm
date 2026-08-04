@@ -7,9 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public interface ITreatmentConditionRepository extends JpaRepository<TreatmentCondition, Long> {
 
     Page<TreatmentCondition> findAll( Pageable pageable);
+
+    Optional<TreatmentCondition> findByNameIgnoreCase(String name);
 }

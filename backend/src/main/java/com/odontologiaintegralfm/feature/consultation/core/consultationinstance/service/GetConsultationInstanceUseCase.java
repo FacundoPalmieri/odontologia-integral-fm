@@ -11,7 +11,9 @@ import com.odontologiaintegralfm.feature.consultation.core.payment.repository.IP
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationStepInstanceRepository;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -21,12 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class GetConsultationInstanceUseCase {
 
     private final ConsultationInstanceQueryService consultationInstanceQueryService;
     private final IPrestationInstanceRepository prestationInstanceRepository;
+    private final IPrestationStepInstanceRepository prestationStepInstanceRepository;
     private final IPaymentDetailRepository paymentDetailRepository;
     private final IOdontogramRepository odontogramRepository;
     private final PrestationInstanceMapper prestationInstanceMapper;
@@ -36,6 +41,7 @@ public class GetConsultationInstanceUseCase {
 
     public GetConsultationInstanceUseCase(ConsultationInstanceQueryService consultationInstanceQueryService,
                                           IPrestationInstanceRepository prestationInstanceRepository,
+                                          IPrestationStepInstanceRepository prestationStepInstanceRepository,
                                           IPaymentDetailRepository paymentDetailRepository,
                                           IOdontogramRepository odontogramRepository,
                                           PrestationInstanceMapper prestationInstanceMapper,
@@ -44,6 +50,7 @@ public class GetConsultationInstanceUseCase {
                                           AuthenticatedUserService authenticatedUserService) {
         this.consultationInstanceQueryService = consultationInstanceQueryService;
         this.prestationInstanceRepository = prestationInstanceRepository;
+        this.prestationStepInstanceRepository = prestationStepInstanceRepository;
         this.paymentDetailRepository = paymentDetailRepository;
         this.odontogramRepository = odontogramRepository;
         this.prestationInstanceMapper = prestationInstanceMapper;
@@ -75,16 +82,21 @@ public class GetConsultationInstanceUseCase {
 
         List<PrestationInstance> prestations = prestationInstanceRepository.findByConsultationInstanceId(instance.getId());
 
+        Map<Long, List<PrestationStepInstance>> stepsByPrestationId = prestationStepInstanceRepository.findByPrestationInstanceIn(prestations)
+                .stream()
+                .collect(Collectors.groupingBy(step -> step.getPrestationInstance().getId()));
+
         List<PrestationInstanceResponseDTO> prestationDTOs = prestations.stream()
                 .map(p -> {
                     BigDecimal paid = paymentDetailRepository.sumAmountByPrestationInstanceId(p.getId());
                     BigDecimal pending = p.getFinalAmount().subtract(paid);
                     PrestationInstanceResponseDTO base = prestationInstanceMapper.toDTO(p);
+                    List<PrestationStepInstance> steps = stepsByPrestationId.getOrDefault(p.getId(), List.of());
                     return new PrestationInstanceResponseDTO(
                             base.id(), base.name(), base.odontogram(), base.scope(), base.scopeDetail(),
                             base.status(), base.price(), base.promotion(), base.promotionAmount(),
                             base.discountType(), base.discountValue(), base.discountAmount(),
-                            base.finalAmount(), pending
+                            base.finalAmount(), pending, prestationInstanceMapper.toStepDTOs(steps)
                     );
                 })
                 .toList();

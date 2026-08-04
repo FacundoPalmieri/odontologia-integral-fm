@@ -13,7 +13,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.Cons
 import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.ConsultationStatusType;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ChangeConsultationStatusUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationQueryService;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
@@ -112,7 +112,7 @@ public class CreateConsultationInstanceUseCase {
             level = LogLevel.INFO
     )
     @Transactional
-    public Response<ConsultationInstanceResponseDTO> execute(ConsultationInstanceRequestDTO consultationInstanceRequestDTO) {
+    public Response<ConsultationInstanceResponseDTO> execute(ConsultationInstanceCreateRequestDTO consultationInstanceRequestDTO) {
 
         //Validamos que exista la consulta.
         Consultation consultation = consultationQueryService.findById(consultationInstanceRequestDTO.consultationId());
@@ -167,11 +167,7 @@ public class CreateConsultationInstanceUseCase {
 
             //Validamos si la prestación es "unique" debe ser unica en la lista.
             PrestationType prestationType = prestationTypeService.findById(prestationInstanceRequestDTO.prestationTypeId());
-            if(prestationType.isUnique() &&
-                    (consultationInstanceRequestDTO.prestationNew().size()>1 ||
-                    !consultationInstanceRequestDTO.stepAdvancements().isEmpty())){
-                throw new ConflictException("exception.createConsultationInstanceUseCase.prestationUnique.user", new Object[]{prestationType.getName()}, "exception.createConsultationInstanceUseCase.prestationUnique.log", new Object[]{prestationType.getId(),prestationType.getName(),"createConsultationInstanceUseCase", "execute"}, LogLevel.ERROR);
-            }
+            prestationInstanceDomainService.validatePrestationUnique(prestationType, consultationInstanceRequestDTO.prestationNew().size(), consultationInstanceRequestDTO.stepAdvancements().isEmpty());
             if(prestationType.isRequiresLocation()){
                 prestationInstanceDomainService.validateLocation(prestationInstanceRequestDTO);
             }
@@ -183,12 +179,10 @@ public class CreateConsultationInstanceUseCase {
              */
             Odontogram odontogram = null;
             if(prestationInstanceRequestDTO.odontogram()!=null){
-                 odontogram = odontogramsSaved.stream()
-                        .filter(o ->
-                                o.getTooth() == prestationInstanceRequestDTO.odontogram().tooth() &&
-                                o.getToothFace() == prestationInstanceRequestDTO.odontogram().toothFace())
-                        .findFirst()
-                        .orElseThrow(() -> new BadRequestException("exception.createConsultationInstanceUseCase.odontogramNotFound.user", null, "exception.createConsultationInstanceUseCase.odontogramNotFound.log", new Object[]{prestationInstanceRequestDTO.odontogram().tooth(), prestationInstanceRequestDTO.odontogram().toothFace(), "createConsultationInstanceUseCase", "execute"}, LogLevel.ERROR));
+                odontogram = prestationInstanceDomainService.matchOdontogram(odontogramsSaved, prestationInstanceRequestDTO.odontogram());
+                if(odontogram == null){
+                    throw new BadRequestException("exception.createConsultationInstanceUseCase.odontogramNotFound.user", null, "exception.createConsultationInstanceUseCase.odontogramNotFound.log", new Object[]{prestationInstanceRequestDTO.odontogram().tooth(), prestationInstanceRequestDTO.odontogram().toothFace(), "createConsultationInstanceUseCase", "execute"}, LogLevel.ERROR);
+                }
             }
 
 
@@ -222,13 +216,6 @@ public class CreateConsultationInstanceUseCase {
 
         // -- Avance de steps sobre Prestaciones Existentes ---
 
-        //Validamos que solo existan steps con estados IN_PROGRESS, COMPLETED y OMITTED
-        for(PrestationStepAdvancementRequestDTO prestationStepAdvancementRequestDTO : consultationInstanceRequestDTO.stepAdvancements()){
-            if(prestationStepAdvancementRequestDTO.status().equals(PrestationStepStatus.CANCELLED)){
-                throw new ConflictException("exception.createConsultationInstanceUseCase.stepsStatus.user",new Object[]{prestationStepAdvancementRequestDTO.status()},"exception.createConsultationInstanceUseCase.stepsStatus.log", new Object[]{prestationStepAdvancementRequestDTO.status(),prestationStepAdvancementRequestDTO.prestationStepId(),prestationStepAdvancementRequestDTO.prestationInstanceId() ,"createConsultationInstanceUseCase","execute"}, LogLevel.ERROR);
-            }
-        }
-
         //Agrupamos `stepAdvancements` por `prestationInstanceId`
         Map<Long, List<PrestationStepAdvancementRequestDTO>> prestationInstanceGroup = consultationInstanceRequestDTO.stepAdvancements()
                 .stream()
@@ -251,7 +238,7 @@ public class CreateConsultationInstanceUseCase {
             List<PrestationStepInstance> existingStepInstances = prestationStepInstanceRepository.findByPrestationInstance(prestationInstance);
 
             // 4. Validar orden y construir los nuevos steps
-            List<PrestationStepInstance> newStepInstances = prestationInstanceDomainService.validateAndBuildStepAdvancements(catalogSteps, existingStepInstances, entry.getValue(), consultationInstance, prestationInstance);
+            List<PrestationStepInstance> newStepInstances = prestationInstanceDomainService.buildStepAdvancements(catalogSteps, existingStepInstances, entry.getValue(), consultationInstance, prestationInstance);
 
             // 5. Evaluar si la prestación queda completada con los steps nuevos + los que ya estaban en base
             List<PrestationStepInstance> allStepInstances = new ArrayList<>(existingStepInstances);

@@ -8,6 +8,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -22,6 +23,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "odontogram")
 @Audited
+@Where(clause = "enabled = true")
 public class Odontogram extends AuditableJPA {
 
     @Id

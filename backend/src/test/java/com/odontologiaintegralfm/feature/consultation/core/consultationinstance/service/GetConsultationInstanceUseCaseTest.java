@@ -14,6 +14,7 @@ import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dt
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationStepInstanceRepository;
 import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
 import com.odontologiaintegralfm.feature.person.core.model.Person;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
@@ -45,6 +46,7 @@ class GetConsultationInstanceUseCaseTest {
 
     @Mock private ConsultationInstanceQueryService consultationInstanceQueryService;
     @Mock private IPrestationInstanceRepository prestationInstanceRepository;
+    @Mock private IPrestationStepInstanceRepository prestationStepInstanceRepository;
     @Mock private IPaymentDetailRepository paymentDetailRepository;
     @Mock private IOdontogramRepository odontogramRepository;
     @Mock private PrestationInstanceMapper prestationInstanceMapper;
@@ -74,13 +76,14 @@ class GetConsultationInstanceUseCaseTest {
         when(authenticatedUserService.getAuthenticatedUser()).thenReturn(user);
         when(user.getRolesList()).thenReturn(Set.of());
         when(prestationInstanceRepository.findByConsultationInstanceId(1L)).thenReturn(List.of(prestation));
+        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(prestation))).thenReturn(List.of());
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(50L)).thenReturn(new BigDecimal("300.00"));
         when(odontogramRepository.findByConsultationInstanceId(1L)).thenReturn(List.of());
         when(instance.getConsultation()).thenReturn(mock(Consultation.class));
         when(consultationMapper.toDTO(any(Consultation.class))).thenReturn(mock(ConsultationResponseDTO.class));
         PrestationInstanceResponseDTO baseDTO = new PrestationInstanceResponseDTO(
                 50L, null, null, null, null, null, null, null, null, null, null, null,
-                new BigDecimal("1000.00"), null);
+                new BigDecimal("1000.00"), null, null);
         when(prestationInstanceMapper.toDTO(prestation)).thenReturn(baseDTO);
 
         Response<ConsultationInstanceResponseDTO> result = useCase.execute(1L);
@@ -181,7 +184,8 @@ class GetConsultationInstanceUseCaseTest {
         when(consultationInstanceQueryService.findById(1L)).thenReturn(instance);
         when(authenticatedUserService.getAuthenticatedUser()).thenReturn(user);
         when(user.getRolesList()).thenReturn(Set.of());
-        when(prestationInstanceRepository.findByConsultationInstanceId(1L)).thenReturn(List.of(p1, p2));
+         when(prestationInstanceRepository.findByConsultationInstanceId(1L)).thenReturn(List.of(p1, p2));
+        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(p1, p2))).thenReturn(List.of());
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(1L)).thenReturn(BigDecimal.ZERO);
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(2L)).thenReturn(BigDecimal.ZERO);
         when(odontogramRepository.findByConsultationInstanceId(1L)).thenReturn(List.of());
@@ -189,10 +193,10 @@ class GetConsultationInstanceUseCaseTest {
         when(consultationMapper.toDTO(any(Consultation.class))).thenReturn(mock(ConsultationResponseDTO.class));
         PrestationInstanceResponseDTO dto1 = new PrestationInstanceResponseDTO(
                 1L, null, null, null, null, null, null, null, null, null, null, null,
-                new BigDecimal("1000.00"), null);
+                new BigDecimal("1000.00"), null, null);
         PrestationInstanceResponseDTO dto2 = new PrestationInstanceResponseDTO(
                 2L, null, null, null, null, null, null, null, null, null, null, null,
-                new BigDecimal("500.00"), null);
+                new BigDecimal("500.00"), null, null);
         when(prestationInstanceMapper.toDTO(p1)).thenReturn(dto1);
         when(prestationInstanceMapper.toDTO(p2)).thenReturn(dto2);
 

@@ -7,11 +7,13 @@ import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Quad
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationStep;
+import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepAdvancementRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
@@ -29,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -444,10 +447,11 @@ class PrestationInstanceDomainServiceTest {
 
     /**
      * CASO: La prestación pertenece a un paciente distinto al que viene en la request.
-     * Validación: Lanza BadRequestException por no ser dueño de la prestación.
+     * Validación: Lanza ConflictException (409 — ADR-0026: depende de mirar el estado persistido
+     * de la prestación, el mismo input sería válido con otro paciente dueño).
      */
     @Test
-    void validateStepAdvancement_whenPatientNotOwner_throwsBadRequestException() {
+    void validateStepAdvancement_whenPatientNotOwner_throwsConflictException() {
         PrestationInstance prestation = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
         when(prestation.getConsultationInstance().getConsultation().getPatient().getId()).thenReturn(999L);
         when(prestation.getId()).thenReturn(100L);
@@ -456,12 +460,12 @@ class PrestationInstanceDomainServiceTest {
                 100L, 200L, PrestationStepStatus.COMPLETED);
 
         assertThatThrownBy(() -> service.validateStepAdvancement(5L, prestation, dto))
-                .isInstanceOf(BadRequestException.class);
+                .isInstanceOf(ConflictException.class);
     }
 
     /**
      * CASO: Se intenta avanzar un step en una prestación que NO está IN_PROGRESS (ej: COMPLETED).
-     * Validación: Lanza ConflictException porque no se puede operar sobre una prestación finalizada.
+     * Validación: Lanza ConflictException (409 — ADR-0026: depende de mirar el estado persistido).
      */
     @Test
     void validateStepAdvancement_whenPrestationNotInProgress_throwsConflictException() {
@@ -477,7 +481,7 @@ class PrestationInstanceDomainServiceTest {
                 .isInstanceOf(ConflictException.class);
     }
 
-    // ─── validateAndBuildStepAdvancements ────────────────────────────────────
+    // ─── buildStepAdvancements ────────────────────────────────────
 
     /**
      * CASO: El step ya existe con estado IN_PROGRESS y se intenta registrar nuevamente como IN_PROGRESS.
@@ -485,7 +489,7 @@ class PrestationInstanceDomainServiceTest {
      * Validación: Lanza ConflictException por transición de estado inválida.
      */
     @Test
-    void validateAndBuildStepAdvancements_whenInProgressStepNotAdvancedToCompleted_throwsConflictException() {
+    void buildStepAdvancements_whenInProgressStepNotAdvancedToCompleted_throwsConflictException() {
         PrestationStep step1 = mock(PrestationStep.class);
         when(step1.getId()).thenReturn(1L);
 
@@ -497,7 +501,7 @@ class PrestationInstanceDomainServiceTest {
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
                 100L, 1L, PrestationStepStatus.IN_PROGRESS);
 
-        assertThatThrownBy(() -> service.validateAndBuildStepAdvancements(
+        assertThatThrownBy(() -> service.buildStepAdvancements(
                 List.of(step1),
                 List.of(existingInstance),
                 List.of(dto),
@@ -512,7 +516,7 @@ class PrestationInstanceDomainServiceTest {
      * Validación: Lanza BadRequestException por step previo no resuelto.
      */
     @Test
-    void validateAndBuildStepAdvancements_whenPreviousStepNotResolved_throwsBadRequestException() {
+    void buildStepAdvancements_whenPreviousStepNotResolved_throwsBadRequestException() {
         PrestationStep step1 = mock(PrestationStep.class);
         when(step1.getId()).thenReturn(1L);
         when(step1.getPosition()).thenReturn(1);
@@ -525,30 +529,8 @@ class PrestationInstanceDomainServiceTest {
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
                 100L, 2L, PrestationStepStatus.COMPLETED);
 
-        assertThatThrownBy(() -> service.validateAndBuildStepAdvancements(
+        assertThatThrownBy(() -> service.buildStepAdvancements(
                 List.of(step1, step2),
-                List.of(),
-                List.of(dto),
-                mock(ConsultationInstance.class),
-                mock(PrestationInstance.class)))
-                .isInstanceOf(BadRequestException.class);
-    }
-
-    /**
-     * CASO: Se envía un step con status CANCELLED.
-     * Regla: CANCELLED no es un estado válido en el flujo de avance de steps.
-     * Validación: Lanza BadRequestException.
-     */
-    @Test
-    void validateAndBuildStepAdvancements_whenStatusIsCancelled_throwsBadRequestException() {
-        PrestationStep step1 = mock(PrestationStep.class);
-        when(step1.getId()).thenReturn(1L);
-
-        PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
-                100L, 1L, PrestationStepStatus.CANCELLED);
-
-        assertThatThrownBy(() -> service.validateAndBuildStepAdvancements(
-                List.of(step1),
                 List.of(),
                 List.of(dto),
                 mock(ConsultationInstance.class),
@@ -562,7 +544,7 @@ class PrestationInstanceDomainServiceTest {
      * Validación: Lanza BadRequestException por intento de omitir un step requerido.
      */
     @Test
-    void validateAndBuildStepAdvancements_whenRequiredStepMarkedAsOmitted_throwsBadRequestException() {
+    void buildStepAdvancements_whenRequiredStepMarkedAsOmitted_throwsBadRequestException() {
         PrestationStep step1 = mock(PrestationStep.class);
         when(step1.getId()).thenReturn(1L);
         when(step1.isRequired()).thenReturn(true);
@@ -570,7 +552,7 @@ class PrestationInstanceDomainServiceTest {
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
                 100L, 1L, PrestationStepStatus.OMITTED);
 
-        assertThatThrownBy(() -> service.validateAndBuildStepAdvancements(
+        assertThatThrownBy(() -> service.buildStepAdvancements(
                 List.of(step1),
                 List.of(),
                 List.of(dto),
@@ -585,7 +567,7 @@ class PrestationInstanceDomainServiceTest {
      * Validación: Lanza ConflictException por re-registro de step final.
      */
     @Test
-    void validateAndBuildStepAdvancements_whenStepAlreadyCompleted_throwsConflictException() {
+    void buildStepAdvancements_whenStepAlreadyCompleted_throwsConflictException() {
         PrestationStep step1 = mock(PrestationStep.class);
         when(step1.getId()).thenReturn(1L);
 
@@ -596,7 +578,7 @@ class PrestationInstanceDomainServiceTest {
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
                 100L, 1L, PrestationStepStatus.COMPLETED);
 
-        assertThatThrownBy(() -> service.validateAndBuildStepAdvancements(
+        assertThatThrownBy(() -> service.buildStepAdvancements(
                 List.of(step1),
                 List.of(existingInstance),
                 List.of(dto),
@@ -611,7 +593,7 @@ class PrestationInstanceDomainServiceTest {
      * Validación: Lanza ConflictException por re-registro de step final.
      */
     @Test
-    void validateAndBuildStepAdvancements_whenStepAlreadyOmitted_throwsConflictException() {
+    void buildStepAdvancements_whenStepAlreadyOmitted_throwsConflictException() {
         PrestationStep step1 = mock(PrestationStep.class);
         when(step1.getId()).thenReturn(1L);
 
@@ -622,7 +604,7 @@ class PrestationInstanceDomainServiceTest {
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
                 100L, 1L, PrestationStepStatus.COMPLETED);
 
-        assertThatThrownBy(() -> service.validateAndBuildStepAdvancements(
+        assertThatThrownBy(() -> service.buildStepAdvancements(
                 List.of(step1),
                 List.of(existingInstance),
                 List.of(dto),
@@ -636,7 +618,7 @@ class PrestationInstanceDomainServiceTest {
      * Validación: No lanza excepción y construye una instancia por cada step recibido.
      */
     @Test
-    void validateAndBuildStepAdvancements_whenStepsValidAndOrdered_buildsInstancesForEach() {
+    void buildStepAdvancements_whenStepsValidAndOrdered_buildsInstancesForEach() {
         PrestationStep step1 = mock(PrestationStep.class);
         when(step1.getId()).thenReturn(1L);
         when(step1.getPosition()).thenReturn(1);
@@ -650,7 +632,7 @@ class PrestationInstanceDomainServiceTest {
         PrestationStepAdvancementRequestDTO dtoStep2 = new PrestationStepAdvancementRequestDTO(
                 100L, 2L, PrestationStepStatus.COMPLETED);
 
-        List<PrestationStepInstance> result = service.validateAndBuildStepAdvancements(
+        List<PrestationStepInstance> result = service.buildStepAdvancements(
                 List.of(step1, step2),
                 List.of(),
                 List.of(dtoStep1, dtoStep2),
@@ -722,5 +704,262 @@ class PrestationInstanceDomainServiceTest {
         boolean result = service.shouldComplete(List.of(step1), List.of(inst1));
 
         assertThat(result).isFalse();
+    }
+
+    // ─── validatePrestationUnique ────────────────────────────────────────────
+
+    /**
+     * CASO: PrestationType.isUnique() == true, newCount > 1.
+     * Validación: Lanza ConflictException.
+     */
+    @Test
+    void validatePrestationUnique_whenUniqueWithMultipleNew_throwsConflictException() {
+        PrestationType prestationType = mock(PrestationType.class);
+        when(prestationType.isUnique()).thenReturn(true);
+        when(prestationType.getName()).thenReturn("Radiografía");
+
+        assertThatThrownBy(() -> service.validatePrestationUnique(prestationType, 2, true))
+                .isInstanceOf(ConflictException.class);
+    }
+
+    /**
+     * CASO: PrestationType.isUnique() == true, newCount == 1, stepAdvancementsEmpty == true.
+     * Validación: No lanza excepción.
+     */
+    @Test
+    void validatePrestationUnique_whenUniqueAlone_doesNotThrow() {
+        PrestationType prestationType = mock(PrestationType.class);
+        when(prestationType.isUnique()).thenReturn(true);
+
+        assertThatCode(() -> service.validatePrestationUnique(prestationType, 1, true))
+                .doesNotThrowAnyException();
+    }
+
+    // ─── matchOdontogram ──────────────────────────────────────────────────────
+
+    /**
+     * CASO: Lista de Odontogram guardados con uno cuyo tooth+toothFace coincide con el DTO.
+     * Validación: Retorna el Odontogram correspondiente, sin lanzar ninguna excepción (el método ya no lanza, solo matchea).
+     */
+    @Test
+    void matchOdontogram_whenMatchExists_returnsOdontogram() {
+        Odontogram matching = mock(Odontogram.class);
+        when(matching.getTooth()).thenReturn(Tooth.T11);
+        when(matching.getToothFace()).thenReturn(ToothFace.TOP);
+
+        Odontogram other = mock(Odontogram.class);
+        when(other.getTooth()).thenReturn(Tooth.T21);
+
+        OdontogramRequestDTO dto = new OdontogramRequestDTO(Tooth.T11, ToothFace.TOP, 1L, 1L);
+
+        Odontogram result = service.matchOdontogram(List.of(other, matching), dto);
+
+        assertThat(result).isEqualTo(matching);
+    }
+
+    /**
+     * CASO: Ninguno de los Odontogram guardados coincide.
+     * Validación: Retorna null — la decisión de qué excepción lanzar queda en el caller.
+     */
+    @Test
+    void matchOdontogram_whenNoMatch_returnsNull() {
+        Odontogram other = mock(Odontogram.class);
+        when(other.getTooth()).thenReturn(Tooth.T21);
+
+        OdontogramRequestDTO dto = new OdontogramRequestDTO(Tooth.T11, ToothFace.TOP, 1L, 1L);
+
+        Odontogram result = service.matchOdontogram(List.of(other), dto);
+
+        assertThat(result).isNull();
+    }
+
+    // ─── isStepEditable (ADR-0029) ────────────────────────────────────────────
+
+    /**
+     * CASO: step.getConsultationInstance().getCreatedAt() + correctionHours es posterior a now().
+     * Validación: Retorna true.
+     */
+    @Test
+    void isStepEditable_whenWithinWindow_returnsTrue() {
+        ConsultationInstance originConsultationInstance = mock(ConsultationInstance.class);
+        when(originConsultationInstance.getCreatedAt()).thenReturn(java.time.LocalDateTime.now().minusHours(1));
+
+        PrestationStepInstance step = mock(PrestationStepInstance.class);
+        when(step.getConsultationInstance()).thenReturn(originConsultationInstance);
+
+        boolean result = service.isStepEditable(step, 24L);
+
+        assertThat(result).isTrue();
+    }
+
+    /**
+     * CASO: step.getConsultationInstance().getCreatedAt() + correctionHours es anterior a now().
+     * Validación: Retorna false — el caller decide si eso implica 409 según haya cambio o no.
+     */
+    @Test
+    void isStepEditable_whenOutsideWindow_returnsFalse() {
+        ConsultationInstance originConsultationInstance = mock(ConsultationInstance.class);
+        when(originConsultationInstance.getCreatedAt()).thenReturn(java.time.LocalDateTime.now().minusHours(48));
+
+        PrestationStepInstance step = mock(PrestationStepInstance.class);
+        when(step.getConsultationInstance()).thenReturn(originConsultationInstance);
+
+        boolean result = service.isStepEditable(step, 24L);
+
+        assertThat(result).isFalse();
+    }
+
+    // ─── isPrestationInstanceEditable (regla #13, hueco post-diseño) ──────────
+
+    /**
+     * CASO: prestationInstance.getCreatedAt() + correctionHours es posterior a now().
+     * Validación: Retorna true.
+     */
+    @Test
+    void isPrestationInstanceEditable_whenWithinWindow_returnsTrue() {
+        PrestationInstance prestationInstance = mock(PrestationInstance.class);
+        when(prestationInstance.getCreatedAt()).thenReturn(java.time.LocalDateTime.now().minusHours(1));
+
+        boolean result = service.isPrestationInstanceEditable(prestationInstance, 24L);
+
+        assertThat(result).isTrue();
+    }
+
+    /**
+     * CASO: prestationInstance.getCreatedAt() + correctionHours es anterior a now().
+     * Validación: Retorna false.
+     */
+    @Test
+    void isPrestationInstanceEditable_whenOutsideWindow_returnsFalse() {
+        PrestationInstance prestationInstance = mock(PrestationInstance.class);
+        when(prestationInstance.getCreatedAt()).thenReturn(java.time.LocalDateTime.now().minusHours(48));
+
+        boolean result = service.isPrestationInstanceEditable(prestationInstance, 24L);
+
+        assertThat(result).isFalse();
+    }
+
+    // ─── validateLocationNotOverridable (regla #17/#27) ──────────────────────
+
+    /**
+     * CASO: persisted.getOdontogram() != null y el DTO trae scope/tooth con valor.
+     * Regla: Una PrestationInstance con Odontogram asociado no puede recibir campos de ubicación propios
+     * — la ubicación se corrige editando el Odontogram, no estos campos.
+     * Validación: Lanza ConflictException, 409.
+     */
+    @Test
+    void validateLocationNotOverridable_whenHasOdontogramAndLocationFieldPresent_throwsConflictException() {
+        Odontogram linkedOdontogram = mock(Odontogram.class);
+        PrestationInstance persisted = mock(PrestationInstance.class);
+        when(persisted.getId()).thenReturn(200L);
+        when(persisted.getOdontogram()).thenReturn(linkedOdontogram);
+
+        PrestationInstanceUpdateRequestDTO dto = new PrestationInstanceUpdateRequestDTO(
+                200L, PrestationScopeType.TOOTH, Tooth.T11, null, null, null, true);
+
+        assertThatThrownBy(() -> service.validateLocationNotOverridable(persisted, dto))
+                .isInstanceOf(ConflictException.class);
+    }
+
+    /**
+     * CASO: persisted.getOdontogram() == null, type.isRequiresLocation() == true, y los 5 campos de
+     * ubicación del DTO llegan todos null.
+     * Regla: Por ADR-0024 el front manda el objeto completo — todo-null es la ubicación real declarada,
+     * no ausencia de intención; si la prestación requiere ubicación y no tiene Odontogram, es un estado
+     * inválido.
+     * Validación: Lanza ConflictException, 409.
+     */
+    @Test
+    void validateLocationNotOverridable_whenNoOdontogramAndRequiresLocationAndAllFieldsNull_throwsConflictException() {
+        PrestationType type = mock(PrestationType.class);
+        when(type.isRequiresLocation()).thenReturn(true);
+
+        PrestationInstance persisted = mock(PrestationInstance.class);
+        when(persisted.getId()).thenReturn(200L);
+        when(persisted.getOdontogram()).thenReturn(null);
+        when(persisted.getType()).thenReturn(type);
+
+        PrestationInstanceUpdateRequestDTO dto = new PrestationInstanceUpdateRequestDTO(
+                200L, null, null, null, null, null, true);
+
+        assertThatThrownBy(() -> service.validateLocationNotOverridable(persisted, dto))
+                .isInstanceOf(ConflictException.class);
+    }
+
+    /**
+     * CASO: persisted.getOdontogram() == null, type.isRequiresLocation() == false, y los 5 campos de
+     * ubicación del DTO llegan todos null.
+     * Validación: No lanza excepción — sin Odontogram y sin requerimiento de ubicación, todo-null es
+     * comportamiento normal.
+     */
+    @Test
+    void validateLocationNotOverridable_whenNoOdontogramAndDoesNotRequireLocation_noException() {
+        PrestationType type = mock(PrestationType.class);
+        when(type.isRequiresLocation()).thenReturn(false);
+
+        PrestationInstance persisted = mock(PrestationInstance.class);
+        when(persisted.getOdontogram()).thenReturn(null);
+        when(persisted.getType()).thenReturn(type);
+
+        PrestationInstanceUpdateRequestDTO dto = new PrestationInstanceUpdateRequestDTO(
+                200L, null, null, null, null, null, true);
+
+        assertThatCode(() -> service.validateLocationNotOverridable(persisted, dto))
+                .doesNotThrowAnyException();
+    }
+
+    // ─── validateScopeAllowedForType (regla #29) ──────────────────────────────
+
+    /**
+     * CASO: El scope recibido está incluido en type.getAllowedScopes().
+     * Validación: No lanza excepción.
+     */
+    @Test
+    void validateScopeAllowedForType_whenScopeInAllowedScopes_noException() {
+        PrestationType type = mock(PrestationType.class);
+        when(type.getAllowedScopes()).thenReturn(Set.of(PrestationScopeType.TOOTH, PrestationScopeType.TOOTH_FACE));
+
+        assertThatCode(() -> service.validateScopeAllowedForType(type, PrestationScopeType.TOOTH))
+                .doesNotThrowAnyException();
+    }
+
+    /**
+     * CASO: El scope recibido NO está incluido en type.getAllowedScopes().
+     * Validación: Lanza ConflictException, 409.
+     */
+    @Test
+    void validateScopeAllowedForType_whenScopeNotInAllowedScopes_throwsConflictException() {
+        PrestationType type = mock(PrestationType.class);
+        when(type.getId()).thenReturn(10L);
+        when(type.getAllowedScopes()).thenReturn(Set.of(PrestationScopeType.TOOTH));
+
+        assertThatThrownBy(() -> service.validateScopeAllowedForType(type, PrestationScopeType.QUADRANT))
+                .isInstanceOf(ConflictException.class);
+    }
+
+    // ─── applyStepAdvancement (edición in-place) ───────────
+
+    /**
+     * CASO: existingStep real (no mock opaco) con status=IN_PROGRESS, id=300; dto con status=COMPLETED
+     * para el mismo prestationStepId.
+     * Regla: el avance de un step ya existente debe editar el registro persistido in-place (ADR-0008),
+     * nunca construir uno nuevo — ese camino (PrestationStepInstance.build) es exclusivo de altas.
+     * Validación: El mismo objeto existingStep queda con getStatus() == COMPLETED; el método no retorna
+     * ni construye ningún PrestationStepInstance nuevo — existingStep.getId() no cambia.
+     */
+    @Test
+    void applyStepAdvancement_whenInProgressAdvancesToCompleted_updatesSameInstanceInPlace() {
+        PrestationStep catalogStep = mock(PrestationStep.class);
+
+        PrestationStepInstance existingStep = PrestationStepInstance.build(
+                mock(PrestationInstance.class), mock(ConsultationInstance.class), catalogStep, PrestationStepStatus.IN_PROGRESS);
+        existingStep.setId(300L);
+
+        PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(100L, 1L, PrestationStepStatus.COMPLETED);
+
+        service.applyStepAdvancement(existingStep, dto);
+
+        assertThat(existingStep.getId()).isEqualTo(300L);
+        assertThat(existingStep.getStatus()).isEqualTo(PrestationStepStatus.COMPLETED);
     }
 }

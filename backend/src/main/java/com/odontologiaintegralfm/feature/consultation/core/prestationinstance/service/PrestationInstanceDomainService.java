@@ -1,10 +1,15 @@
 package com.odontologiaintegralfm.feature.consultation.core.prestationinstance.service;
 
 
+import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.enums.PrestationScopeType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationStep;
+import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepAdvancementRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
@@ -16,6 +21,7 @@ import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -139,6 +145,31 @@ public class PrestationInstanceDomainService {
 
 
     /**
+     * Valída que una prestación marcada como "unique" (isUnique) sea la única de su tipo en el request.
+     * Se rechaza si hay más de una prestación nueva del mismo tipo, o si además del alta hay avances
+     * de steps sobre prestaciones existentes en el mismo request.
+     */
+    public void validatePrestationUnique(PrestationType prestationType, int newCount, boolean stepAdvancementsEmpty) {
+        if(prestationType.isUnique() && (newCount > 1 || !stepAdvancementsEmpty)){
+            throw new ConflictException("exception.createConsultationInstanceUseCase.prestationUnique.user", new Object[]{prestationType.getName()}, "exception.createConsultationInstanceUseCase.prestationUnique.log", new Object[]{prestationType.getId(), prestationType.getName(), "PrestationInstanceDomainService", "validatePrestationUnique"}, LogLevel.ERROR);
+        }
+    }
+
+    /**
+     * Matchea la ubicación de una prestación (odontograma) contra la lista de Odontogram guardados en el mismo request.
+     * Retorna el Odontogram correspondiente, o null si no hay match — la decisión de qué excepción lanzar
+     * (400 en create, 409 en corrección) queda en cada UseCase caller.
+     */
+    public Odontogram matchOdontogram(List<Odontogram> odontogramsSaved, OdontogramRequestDTO odontogramRequestDTO) {
+        return odontogramsSaved.stream()
+                .filter(o ->
+                        o.getTooth() == odontogramRequestDTO.tooth() &&
+                        o.getToothFace() == odontogramRequestDTO.toothFace())
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
      * Valída que no exista una PrestationInstance IN_PROGRESS para el mismo paciente, tipo y ubicación (odontograma o scope).
      * Si existe y es el mismo step, se acepta únicamente si el nuevo estado es COMPLETED
      * (avance de step válido). Caso contrario lanza ConflictException.
@@ -193,7 +224,33 @@ public class PrestationInstanceDomainService {
 
 
     /**
-     * Valida y construye los registros de avance de steps para una prestación existente.
+     * Valida la transición de estado de un step (required/omitted, estado final, IN_PROGRESS→COMPLETED)
+     * sin construir ni persistir nada. Comparte esta validación de negocio {@link #buildStepAdvancements}
+     * (altas) y {@link #applyStepAdvancement} (edición in-place de un step existente que avanza) — decisión
+     * #14 § 2 del design: ambos métodos difieren solo en qué hacen con el resultado, no en la regla.
+     */
+    private void validateStepTransition(PrestationStep catalogStep, PrestationStepStatus existingStatus, PrestationStepStatus newStatus, Long prestationInstanceId) {
+        // Un step obligatorio no puede omitirse
+        if (newStatus == PrestationStepStatus.OMITTED && catalogStep.isRequired()) {
+            throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.omittedRequired.user", null, "exception.prestationInstanceDomainService.validateAndBuild.omittedRequired.log", new Object[]{catalogStep.getId(), prestationInstanceId, "PrestationInstanceDomainService", "validateStepTransition"}, LogLevel.ERROR);
+        }
+
+        if (existingStatus != null) {
+            // Si el step ya tiene un estado final, no se puede volver a registrar
+            if (existingStatus == PrestationStepStatus.COMPLETED || existingStatus == PrestationStepStatus.OMITTED) {
+                throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.user", null, "exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.log", new Object[]{catalogStep.getId(), existingStatus, prestationInstanceId, "PrestationInstanceDomainService", "validateStepTransition"}, LogLevel.ERROR);
+            }
+            // Si el step está en progreso, solo se acepta completarlo
+            if (existingStatus == PrestationStepStatus.IN_PROGRESS && newStatus != PrestationStepStatus.COMPLETED) {
+                throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.user", null, "exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.log", new Object[]{catalogStep.getId(), newStatus, prestationInstanceId, "PrestationInstanceDomainService", "validateStepTransition"}, LogLevel.ERROR);
+            }
+        }
+    }
+
+    /**
+     * Valida y construye los registros de avance de steps para una prestación existente — exclusivo de
+     * altas (Create y steps id==null sobre prestación existente en Update, decisión #14 § 2). Nunca edita
+     * un registro persistido: para eso está {@link #applyStepAdvancement}.
      *
      * Recibe:
      * - Los steps del catálogo (qué steps existen y en qué orden)
@@ -206,15 +263,12 @@ public class PrestationInstanceDomainService {
      * 2. Ordena los steps del request según la posición del catálogo (no el orden de llegada).
      * 3. Carga en un mapa los estados ya guardados en base, para saber qué está resuelto.
      * 4. Por cada step del request, en orden de posición:
-     *    - Rechaza si el estado es CANCELLED (no válido en este flujo).
-     *    - Rechaza si el step es obligatorio y se envía como OMITTED.
-     *    - Rechaza si el step ya tiene un estado final en base (no se puede registrar dos veces).
-     *    - Si el step está en progreso en base, exige que el nuevo estado sea COMPLETED.
+     *    - Valida la transición de estado (validateStepTransition).
      *    - Verifica que todos los steps anteriores ya estén resueltos (base o mismo request).
      *    - Construye el registro y lo marca como resuelto para que los siguientes lo vean.
      * 5. Devuelve la lista de registros lista para guardar en base.
      */
-    public List<PrestationStepInstance> validateAndBuildStepAdvancements(
+    public List<PrestationStepInstance> buildStepAdvancements(
             List<PrestationStep> catalogSteps,
             List<PrestationStepInstance> existingInstances,
             List<PrestationStepAdvancementRequestDTO> dtos,
@@ -241,27 +295,7 @@ public class PrestationInstanceDomainService {
         for (PrestationStepAdvancementRequestDTO dto : sortedDtos) {
             PrestationStep catalogStep = catalogMap.get(dto.prestationStepId());
 
-            // CANCELLED no es un estado válido en el flujo de avance de steps
-            if (dto.status() == PrestationStepStatus.CANCELLED) {
-                throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.cancelled.user", null, "exception.prestationInstanceDomainService.validateAndBuild.cancelled.log", new Object[]{dto.prestationStepId(), prestationInstance.getId(), "PrestationInstanceDomainService", "validateAndBuildStepAdvancements"}, LogLevel.ERROR);
-            }
-
-            // Un step obligatorio no puede omitirse
-            if (dto.status() == PrestationStepStatus.OMITTED && catalogStep.isRequired()) {
-                throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.omittedRequired.user", null, "exception.prestationInstanceDomainService.validateAndBuild.omittedRequired.log", new Object[]{dto.prestationStepId(), prestationInstance.getId(), "PrestationInstanceDomainService", "validateAndBuildStepAdvancements"}, LogLevel.ERROR);
-            }
-
-            PrestationStepStatus existingStatus = resolvedSteps.get(dto.prestationStepId());
-            if (existingStatus != null) {
-                // Si el step ya tiene un estado final, no se puede volver a registrar
-                if (existingStatus == PrestationStepStatus.COMPLETED || existingStatus == PrestationStepStatus.OMITTED) {
-                    throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.user", null, "exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.log", new Object[]{dto.prestationStepId(), existingStatus, prestationInstance.getId(), "PrestationInstanceDomainService", "validateAndBuildStepAdvancements"}, LogLevel.ERROR);
-                }
-                // Si el step está en progreso, solo se acepta completarlo
-                if (existingStatus == PrestationStepStatus.IN_PROGRESS && dto.status() != PrestationStepStatus.COMPLETED) {
-                    throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.user", null, "exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.log", new Object[]{dto.prestationStepId(), dto.status(), prestationInstance.getId(), "PrestationInstanceDomainService", "validateAndBuildStepAdvancements"}, LogLevel.ERROR);
-                }
-            }
+            validateStepTransition(catalogStep, resolvedSteps.get(dto.prestationStepId()), dto.status(), prestationInstance.getId());
 
             // Verifica que todos los steps anteriores (por posición) ya estén resueltos,
             // ya sea en base o registrados en este mismo request
@@ -270,7 +304,7 @@ public class PrestationInstanceDomainService {
                     PrestationStepStatus previousStatus = resolvedSteps.get(previousStep.getId());
                     boolean isResolved = previousStatus == PrestationStepStatus.COMPLETED || previousStatus == PrestationStepStatus.OMITTED;
                     if (!isResolved) {
-                        throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.user", null, "exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.log", new Object[]{previousStep.getId(), catalogStep.getId(), prestationInstance.getId(), "PrestationInstanceDomainService", "validateAndBuildStepAdvancements"}, LogLevel.ERROR);
+                        throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.user", null, "exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.log", new Object[]{previousStep.getId(), catalogStep.getId(), prestationInstance.getId(), "PrestationInstanceDomainService", "buildStepAdvancements"}, LogLevel.ERROR);
                     }
                 }
             }
@@ -283,6 +317,16 @@ public class PrestationInstanceDomainService {
         }
 
         return result;
+    }
+
+    /**
+     * Avanza de estado un {@link PrestationStepInstance} YA PERSISTIDO, editándolo in-place
+     * (mismo id, ADR-0008) — nunca construye un registro nuevo. Ese camino ({@link #buildStepAdvancements})
+     * es exclusivo de altas.
+     */
+    public void applyStepAdvancement(PrestationStepInstance existingStep, PrestationStepAdvancementRequestDTO dto) {
+        validateStepTransition(existingStep.getStep(), existingStep.getStatus(), dto.status(), dto.prestationInstanceId());
+        existingStep.setStatus(dto.status());
     }
 
 
@@ -313,8 +357,9 @@ public class PrestationInstanceDomainService {
 
     /**
      * Valída un avance de step sobre una prestación existente. Verifica:
-     * 1. Que la prestación pertenezca al mismo paciente.
-     * 2. Que la prestación esté IN_PROGRESS.
+     * 1. Que la prestación pertenezca al mismo paciente — 409 (ADR-0026: depende de mirar el
+     *    estado persistido de la prestación, el mismo input sería válido con otro paciente dueño).
+     * 2. Que la prestación esté IN_PROGRESS — 409 (mismo criterio, ADR-0026).
      * 3. Que el step pertenezca al tipo de esa prestación.
      * 4. Que no exista un step duplicado en estado inválido.
      */
@@ -322,7 +367,7 @@ public class PrestationInstanceDomainService {
 
         Long prestationPatientId = existingPrestation.getConsultationInstance().getConsultation().getPatient().getId();
         if (!prestationPatientId.equals(patientId)) {
-            throw new BadRequestException("exception.prestationInstanceDomainService.validateStepAdvancement.notOwner.user", null, "exception.prestationInstanceDomainService.validateStepAdvancement.notOwner.log", new Object[]{existingPrestation.getId(), patientId, "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+            throw new ConflictException("exception.prestationInstanceDomainService.validateStepAdvancement.notOwner.user", null, "exception.prestationInstanceDomainService.validateStepAdvancement.notOwner.log", new Object[]{existingPrestation.getId(), patientId, "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
         }
 
         if (existingPrestation.getStatus() != PrestationInstanceStatus.IN_PROGRESS) {
@@ -337,9 +382,64 @@ public class PrestationInstanceDomainService {
         }
     }
 
+    /**
+     * Valída si un PrestationStepInstance sigue dentro de su propia ventana de corrección,
+     * medida desde el createdAt de la ConsultationInstance de origen del step (no de la
+     * ConsultationInstance que se está corrigiendo) — ADR-0029: inmutabilidad por registro.
+     */
+    public boolean isStepEditable(PrestationStepInstance step, long correctionHours) {
+        LocalDateTime deadline = step.getConsultationInstance().getCreatedAt().plusHours(correctionHours);
+        return !LocalDateTime.now().isAfter(deadline);
+    }
 
+    /**
+     * Valída si una PrestationInstance sigue dentro de su propia ventana de corrección, medida
+     * desde su propio createdAt — mismo criterio que isStepEditable pero a nivel del contenedor
+     * (regla #13, ADR-0029: sin esta guarda sería posible editar una prestación nacida en una
+     * consulta vieja simplemente corrigiendo una consulta posterior).
+     */
+    public boolean isPrestationInstanceEditable(PrestationInstance prestationInstance, long correctionHours) {
+        LocalDateTime deadline = prestationInstance.getCreatedAt().plusHours(correctionHours);
+        return !LocalDateTime.now().isAfter(deadline);
+    }
 
+    /**
+     * Valída que una PrestationInstance existente no reciba una edición de ubicación inválida
+     * (regla #17/#27, ADR-0026 — depende de mirar el estado persistido, nunca 400):
+     * - Si tiene Odontogram asociado y el request trae algún campo de ubicación con valor → 409
+     *   (la ubicación se corrige editando el Odontogram, no estos campos).
+     * - Si NO tiene Odontogram asociado, su tipo requiere ubicación, y los 5 campos llegan todos
+     *   null → 409 (por ADR-0024 el front manda el objeto completo; todo-null es la ubicación real
+     *   declarada, no ausencia de intención).
+     */
+    public void validateLocationNotOverridable(PrestationInstance persisted, PrestationInstanceUpdateRequestDTO dto) {
+        boolean anyLocationFieldPresent = dto.scope() != null || dto.tooth() != null || dto.toothFace() != null
+                || dto.quadrant() != null || dto.maxillary() != null;
 
+        if (persisted.getOdontogram() != null) {
+            if (anyLocationFieldPresent) {
+                throw new ConflictException("exception.prestationInstanceDomainService.validateLocationNotOverridable.hasOdontogram.user", null, "exception.prestationInstanceDomainService.validateLocationNotOverridable.hasOdontogram.log", new Object[]{persisted.getId(), "PrestationInstanceDomainService", "validateLocationNotOverridable"}, LogLevel.ERROR);
+            }
+            return;
+        }
+
+        if (persisted.getType().isRequiresLocation() && !anyLocationFieldPresent) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateLocationNotOverridable.locationRequired.user", null, "exception.prestationInstanceDomainService.validateLocationNotOverridable.locationRequired.log", new Object[]{persisted.getId(), "PrestationInstanceDomainService", "validateLocationNotOverridable"}, LogLevel.ERROR);
+        }
+    }
+
+    /**
+     * Valída que un scope de ubicación sea uno de los permitidos para el PrestationType dado
+     * (regla #29, ADR-0026 — depende de mirar el catálogo persistido de la prestación). Se invoca
+     * en dos direcciones de edición: al editar el scope directo de una PrestationInstance sin
+     * Odontogram, y al editar un Odontogram con PrestationInstance viva vinculada (la ubicación
+     * nueva del Odontogram debe ser compatible con el PrestationType de esa prestación).
+     */
+    public void validateScopeAllowedForType(PrestationType type, PrestationScopeType scope) {
+        if (scope != null && !type.getAllowedScopes().contains(scope)) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateScopeAllowedForType.user", null, "exception.prestationInstanceDomainService.validateScopeAllowedForType.log", new Object[]{scope, type.getId(), "PrestationInstanceDomainService", "validateScopeAllowedForType"}, LogLevel.ERROR);
+        }
+    }
 
 }
 
