@@ -24,6 +24,9 @@ public class TreatmentCondition {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
+    @Column(nullable = false, unique = true, length = 50)
+    private String label;
+
     @Column(length = 50, nullable = false)
     private String color;
 }
