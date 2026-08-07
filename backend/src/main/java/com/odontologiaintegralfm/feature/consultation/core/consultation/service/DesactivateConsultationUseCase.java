@@ -101,7 +101,7 @@ public class DesactivateConsultationUseCase {
         //Evento WebSocket
         webSocketEventPublisher.publish(
                 WebSocketEventType.CONSULTATION_REMOVED,
-                consultationMapper.toDTO(consultation)
+                consultationMapper.toDTOWithoutPublish(consultation)
         );
 
 

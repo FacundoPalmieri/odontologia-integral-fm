@@ -19,7 +19,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultation.mapper.C
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationEvent;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationEventService;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceBasicResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.repository.IConsultationInstanceRepository;
@@ -27,18 +27,13 @@ import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.Odonto
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.ToothFace;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.repository.IOdontogramRepository;
-import com.odontologiaintegralfm.feature.consultation.core.payment.repository.IPaymentDetailRepository;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceUpdateRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
@@ -107,12 +102,9 @@ class UpdateConsultationInstanceUseCaseTest {
     @Mock private TreatmentService treatmentService;
     @Mock private TreatmentConditionService treatmentConditionService;
     @Mock private PromotionQueryService promotionQueryService;
-    @Mock private OdontogramMapper odontogramMapper;
-    @Mock private PrestationInstanceMapper prestationInstanceMapper;
     @Mock private MessageSource messageSource;
     @Mock private ConsultationEventService consultationEventService;
     @Mock private ConsultationMapper consultationMapper;
-    @Mock private IPaymentDetailRepository paymentDetailRepository;
 
     @InjectMocks private UpdateConsultationInstanceUseCase useCase;
 
@@ -173,7 +165,7 @@ class UpdateConsultationInstanceUseCaseTest {
 
     /** Stubs neutros para que buildResponse() no explote una vez que execute() llega al final feliz. */
     private void arrangeHappyResponseStubs(Consultation consultation) {
-        when(consultationMapper.toDTO(consultation)).thenReturn(mock(com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO.class));
+        when(consultationMapper.toDTOWithoutPublish(consultation)).thenReturn(mock(com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO.class));
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
     }
 
@@ -255,7 +247,7 @@ class UpdateConsultationInstanceUseCaseTest {
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
-        Response<ConsultationInstanceResponseDTO> result = useCase.execute(INSTANCE_ID, emptyDto());
+        Response<ConsultationInstanceBasicResponseDTO> result = useCase.execute(INSTANCE_ID, emptyDto());
 
         assertThat(result).isNotNull();
         verify(consultationInstanceQueryService).findById(INSTANCE_ID);
@@ -379,7 +371,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstance linkedPrestation = mock(PrestationInstance.class);
         when(linkedPrestation.getId()).thenReturn(200L);
         when(linkedPrestation.getOdontogram()).thenReturn(existingOdontogram);
-        when(linkedPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
         PrestationType linkedPrestationType = mock(PrestationType.class);
         when(linkedPrestationType.getId()).thenReturn(10L);
         when(linkedPrestation.getType()).thenReturn(linkedPrestationType);
@@ -394,13 +385,10 @@ class UpdateConsultationInstanceUseCaseTest {
         when(treatmentConditionService.findById(1L)).thenReturn(mock(TreatmentCondition.class));
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(linkedPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(linkedPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(linkedPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(linkedPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of());
         when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any())).thenReturn(List.of());
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(linkedPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -556,12 +544,9 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstance linkedPrestation = mock(PrestationInstance.class);
         when(linkedPrestation.getId()).thenReturn(200L);
         when(linkedPrestation.getOdontogram()).thenReturn(existingOdontogram);
-        when(linkedPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         PrestationStepInstance completedStep = mock(PrestationStepInstance.class);
-        when(completedStep.getPrestationInstance()).thenReturn(linkedPrestation);
         PrestationStepInstance inProgressStep = mock(PrestationStepInstance.class);
-        when(inProgressStep.getPrestationInstance()).thenReturn(linkedPrestation);
 
         PrestationInstanceUpdateRequestDTO declaredDisabled =
                 new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, false);
@@ -570,12 +555,8 @@ class UpdateConsultationInstanceUseCaseTest {
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(linkedPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(linkedPrestation))
                 .thenReturn(List.of(completedStep, inProgressStep));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(linkedPrestation)))
-                .thenReturn(List.of(completedStep, inProgressStep));
         when(prestationInstanceDomainService.isStepEditable(completedStep, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(inProgressStep, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(linkedPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -661,10 +642,8 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstance linkedPrestation = mock(PrestationInstance.class);
         when(linkedPrestation.getId()).thenReturn(200L);
         when(linkedPrestation.getOdontogram()).thenReturn(existingOdontogram);
-        when(linkedPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         PrestationStepInstance completedStep = mock(PrestationStepInstance.class);
-        when(completedStep.getPrestationInstance()).thenReturn(linkedPrestation);
 
         PrestationInstanceUpdateRequestDTO declaredDisabled =
                 new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, false);
@@ -672,10 +651,7 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingOdontogram));
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(linkedPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(linkedPrestation)).thenReturn(List.of(completedStep));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(linkedPrestation))).thenReturn(List.of(completedStep));
         when(prestationInstanceDomainService.isStepEditable(completedStep, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(linkedPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -736,7 +712,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstance existingPrestation = mock(PrestationInstance.class);
         when(existingPrestation.getId()).thenReturn(200L);
         when(existingPrestation.getOdontogram()).thenReturn(linkedOdontogram);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         OdontogramUpdateRequestDTO keepOdontogram = new OdontogramUpdateRequestDTO(50L, Tooth.T11, ToothFace.TOP, 1L, 1L, true);
         PrestationInstanceUpdateRequestDTO disablePrestation =
@@ -747,12 +722,9 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(linkedOdontogram));
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         TreatmentCondition requiredCondition = mock(TreatmentCondition.class);
         when(treatmentConditionService.findByName(TreatmentConditionType.REQUIRED.name())).thenReturn(requiredCondition);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -773,7 +745,6 @@ class UpdateConsultationInstanceUseCaseTest {
     void execute_prestationInstanceDisabledExplicit_disablesWithSteps() {
         PrestationInstance existingPrestation = mock(PrestationInstance.class);
         when(existingPrestation.getId()).thenReturn(200L);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         PrestationStepInstance stepInProgress = mock(PrestationStepInstance.class);
         when(stepInProgress.getId()).thenReturn(300L);
@@ -791,13 +762,9 @@ class UpdateConsultationInstanceUseCaseTest {
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation))
                 .thenReturn(List.of(stepInProgress, stepOmitted));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation)))
-                .thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(stepInProgress, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(stepOmitted, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -817,7 +784,6 @@ class UpdateConsultationInstanceUseCaseTest {
     void execute_prestationInstanceDisabledExplicitWithCompletedStepWithinWindow_disableSuccess() {
         PrestationInstance existingPrestation = mock(PrestationInstance.class);
         when(existingPrestation.getId()).thenReturn(200L);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         PrestationStepInstance completedStep = mock(PrestationStepInstance.class);
         when(completedStep.getId()).thenReturn(300L);
@@ -831,11 +797,8 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of());
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of(completedStep));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(completedStep, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -926,7 +889,6 @@ class UpdateConsultationInstanceUseCaseTest {
     void execute_stepIndividualDisabledExplicit_disablesOnlyThatStep() {
         PrestationInstance livePrestation = mock(PrestationInstance.class);
         when(livePrestation.getId()).thenReturn(200L);
-        when(livePrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
         PrestationType livePrestationType = mock(PrestationType.class);
         when(livePrestationType.getId()).thenReturn(10L);
         when(livePrestation.getType()).thenReturn(livePrestationType);
@@ -940,7 +902,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationStepInstance stepStillLive = mock(PrestationStepInstance.class);
         when(stepStillLive.getId()).thenReturn(301L);
         when(stepStillLive.getStep()).thenReturn(catalogStep2);
-        when(stepStillLive.getPrestationInstance()).thenReturn(livePrestation);
 
         PrestationStepUpdateRequestDTO disableStepDto = new PrestationStepUpdateRequestDTO(200L, 300L, null, null, false);
         PrestationStepUpdateRequestDTO keepStepDto = new PrestationStepUpdateRequestDTO(200L, 301L, null, PrestationStepStatus.IN_PROGRESS, true);
@@ -954,13 +915,9 @@ class UpdateConsultationInstanceUseCaseTest {
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of(catalogStep1, catalogStep2));
         when(prestationStepInstanceRepository.findByPrestationInstance(livePrestation))
                 .thenReturn(List.of(stepToDisable, stepStillLive));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(livePrestation)))
-                .thenReturn(List.of(stepStillLive));
         when(prestationInstanceDomainService.isPrestationInstanceEditable(livePrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(stepToDisable, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(stepStillLive, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(livePrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -980,7 +937,6 @@ class UpdateConsultationInstanceUseCaseTest {
     void execute_stepIndividualCompletedWithinWindowDisable_success() {
         PrestationInstance livePrestation = mock(PrestationInstance.class);
         when(livePrestation.getId()).thenReturn(200L);
-        when(livePrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
         PrestationType livePrestationType = mock(PrestationType.class);
         when(livePrestationType.getId()).thenReturn(10L);
         when(livePrestation.getType()).thenReturn(livePrestationType);
@@ -999,11 +955,8 @@ class UpdateConsultationInstanceUseCaseTest {
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(livePrestation));
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of(catalogStep));
         when(prestationStepInstanceRepository.findByPrestationInstance(livePrestation)).thenReturn(List.of(completedStep));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(livePrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(livePrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(completedStep, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(livePrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -1053,7 +1006,6 @@ class UpdateConsultationInstanceUseCaseTest {
     void execute_stepOutOfWindowWithSameValue_ignoredWithoutError() {
         PrestationInstance livePrestation = mock(PrestationInstance.class);
         when(livePrestation.getId()).thenReturn(200L);
-        when(livePrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
         PrestationType livePrestationType = mock(PrestationType.class);
         when(livePrestationType.getId()).thenReturn(10L);
         when(livePrestation.getType()).thenReturn(livePrestationType);
@@ -1062,7 +1014,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationStepInstance stepOutOfWindow = mock(PrestationStepInstance.class);
         when(stepOutOfWindow.getId()).thenReturn(300L);
         when(stepOutOfWindow.getStatus()).thenReturn(PrestationStepStatus.COMPLETED);
-        when(stepOutOfWindow.getPrestationInstance()).thenReturn(livePrestation);
 
         PrestationStepUpdateRequestDTO sameValueDto = new PrestationStepUpdateRequestDTO(200L, 300L, null, PrestationStepStatus.COMPLETED, true);
         PrestationInstanceUpdateRequestDTO keepPrestation =
@@ -1074,13 +1025,10 @@ class UpdateConsultationInstanceUseCaseTest {
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(livePrestation));
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of(catalogStep));
         when(prestationStepInstanceRepository.findByPrestationInstance(livePrestation)).thenReturn(List.of(stepOutOfWindow));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(livePrestation))).thenReturn(List.of(stepOutOfWindow));
         when(prestationInstanceDomainService.isPrestationInstanceEditable(livePrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(stepOutOfWindow, CORRECTIONS_HOURS_LONG)).thenReturn(false);
         when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any())).thenReturn(List.of());
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(livePrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -1101,7 +1049,6 @@ class UpdateConsultationInstanceUseCaseTest {
     void execute_stepAlreadyDisabledOutOfWindow_noErrorOnPrestationDisable() {
         PrestationInstance existingPrestation = mock(PrestationInstance.class);
         when(existingPrestation.getId()).thenReturn(200L);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         PrestationStepInstance stepStillLive = mock(PrestationStepInstance.class);
         when(stepStillLive.getId()).thenReturn(300L);
@@ -1117,11 +1064,8 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of());
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of(stepStillLive));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.isStepEditable(stepStillLive, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -1441,7 +1385,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstance disabledPrestation = mock(PrestationInstance.class);
         when(disabledPrestation.getId()).thenReturn(200L);
         when(disabledPrestation.getOdontogram()).thenReturn(sharedOdontogram);
-        when(disabledPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         OdontogramUpdateRequestDTO keepOdontogram = new OdontogramUpdateRequestDTO(50L, Tooth.T11, ToothFace.TOP, 1L, 1L, true);
         PrestationInstanceUpdateRequestDTO disablePrestation =
@@ -1456,7 +1399,6 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(sharedOdontogram));
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(disabledPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(disabledPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(disabledPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(disabledPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
 
         PrestationType newPrestationType = mock(PrestationType.class);
@@ -1467,8 +1409,6 @@ class UpdateConsultationInstanceUseCaseTest {
         when(price.getPrice()).thenReturn(BigDecimal.TEN);
         when(prestationTypePriceService.currentPrice(10L)).thenReturn(price);
         when(prestationInstanceRepository.saveAll(any())).thenReturn(List.of(mock(PrestationInstance.class)));
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(disabledPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -1498,19 +1438,16 @@ class UpdateConsultationInstanceUseCaseTest {
     }
 
     /**
-     * CASO: Corrección válida con alta + edición + baja combinadas.
-     * Validación: Response.success = true; el ConsultationInstanceResponseDTO resultante incluye
-     * PrestationInstanceResponseDTO.steps (List<PrestationStepInstanceResponseDTO>) con id+prestationStepId+status
-     * de los steps vigentes.
+     * CASO: Corrección válida que mantiene una PrestationInstance existente vigente (enabled:true, sin cambios).
+     * Validación: Response.success = true con el id de la ConsultationInstance corregida; la prestación
+     * persistida no se deshabilita.
      */
     @Test
     void execute_updateConsultaInstance_return200() {
         ConsultationInstance instance = arrangeBaseWithinWindow(1L);
-        when(instance.getObservation()).thenReturn("Corrección completa");
 
         PrestationInstance persistedPrestation = mock(PrestationInstance.class);
         when(persistedPrestation.getId()).thenReturn(200L);
-        when(persistedPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
         when(persistedPrestation.getOdontogram()).thenReturn(null);
         PrestationType persistedPrestationType = mock(PrestationType.class);
         when(persistedPrestationType.getId()).thenReturn(10L);
@@ -1524,99 +1461,18 @@ class UpdateConsultationInstanceUseCaseTest {
                 .thenReturn(List.of(persistedPrestation));
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of());
         when(prestationStepInstanceRepository.findByPrestationInstance(persistedPrestation)).thenReturn(List.of());
-
-        PrestationStepInstance liveStep = mock(PrestationStepInstance.class);
-        when(liveStep.getPrestationInstance()).thenReturn(persistedPrestation);
-
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(persistedPrestation)))
-                .thenReturn(List.of(liveStep));
         when(prestationInstanceDomainService.isPrestationInstanceEditable(persistedPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any())).thenReturn(List.of());
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
-
-        PrestationInstanceResponseDTO baseResponse = new PrestationInstanceResponseDTO(
-                200L, "Endodoncia", null, null, null, "PENDING",
-                BigDecimal.TEN, null, null, null, null, null,
-                BigDecimal.TEN, null, null);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(persistedPrestation)).thenReturn(baseResponse);
-        when(prestationInstanceMapper.toStepDTOs(List.of(liveStep)))
-                .thenReturn(List.of(new PrestationStepInstanceResponseDTO(400L, 300L, "Endodoncia - sesión 1", 1, true, "IN_PROGRESS")));
-
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
-        Response<ConsultationInstanceResponseDTO> result = useCase.execute(INSTANCE_ID,
+        Response<ConsultationInstanceBasicResponseDTO> result = useCase.execute(INSTANCE_ID,
                 dto("Corrección completa", List.of(), List.of(keepPrestation), List.of(), List.of()));
 
         assertThat(result.success()).isTrue();
         assertThat(result.data().id()).isEqualTo(INSTANCE_ID);
-        assertThat(result.data().prestationInstance()).hasSize(1);
-        List<PrestationStepInstanceResponseDTO> steps = result.data().prestationInstance().get(0).steps();
-        assertThat(steps).hasSize(1);
-        assertThat(steps.get(0).id()).isEqualTo(400L);
-        assertThat(steps.get(0).prestationStepId()).isEqualTo(300L);
-        assertThat(steps.get(0).status()).isEqualTo("IN_PROGRESS");
-    }
-
-    /**
-     * CASO: Varias PrestationInstance persistidas de la misma ConsultationInstance, corrección exitosa
-     * que llega a buildResponse.
-     * Validación: prestationStepInstanceRepository.findByPrestationInstanceIn(...) invocado UNA sola vez
-     * con la lista completa de prestaciones; findByPrestationInstance individual NUNCA invocado desde
-     * buildResponse.
-     */
-    @Test
-    void buildResponse_batchFetchesStepsAcrossPrestations() {
-        ConsultationInstance instance = arrangeBaseWithinWindow(1L);
-
-        PrestationInstance prestationOne = mock(PrestationInstance.class);
-        when(prestationOne.getId()).thenReturn(200L);
-        when(prestationOne.getFinalAmount()).thenReturn(BigDecimal.TEN);
-        when(prestationOne.getOdontogram()).thenReturn(null);
-        PrestationType prestationOneType = mock(PrestationType.class);
-        when(prestationOneType.getId()).thenReturn(10L);
-        when(prestationOne.getType()).thenReturn(prestationOneType);
-
-        PrestationInstance prestationTwo = mock(PrestationInstance.class);
-        when(prestationTwo.getId()).thenReturn(201L);
-        when(prestationTwo.getFinalAmount()).thenReturn(BigDecimal.TEN);
-        when(prestationTwo.getOdontogram()).thenReturn(null);
-        PrestationType prestationTwoType = mock(PrestationType.class);
-        when(prestationTwoType.getId()).thenReturn(11L);
-        when(prestationTwo.getType()).thenReturn(prestationTwoType);
-
-        List<PrestationInstance> persistedPrestations = List.of(prestationOne, prestationTwo);
-
-        PrestationInstanceUpdateRequestDTO keepOne =
-                new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, true);
-        PrestationInstanceUpdateRequestDTO keepTwo =
-                new PrestationInstanceUpdateRequestDTO(201L, null, null, null, null, null, true);
-
-        when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of());
-        when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(persistedPrestations);
-        when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of());
-        when(prestationStepService.findAllPrestationStepsByPrestation(11L)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstance(prestationOne)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstance(prestationTwo)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(persistedPrestations)).thenReturn(List.of());
-        when(prestationInstanceDomainService.isPrestationInstanceEditable(prestationOne, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(prestationInstanceDomainService.isPrestationInstanceEditable(prestationTwo, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any())).thenReturn(List.of());
-        when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
-
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(201L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(prestationOne)).thenReturn(mock(PrestationInstanceResponseDTO.class));
-        when(prestationInstanceMapper.toDTO(prestationTwo)).thenReturn(mock(PrestationInstanceResponseDTO.class));
-        when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
-        arrangeHappyResponseStubs(instance.getConsultation());
-
-        Response<ConsultationInstanceResponseDTO> result = useCase.execute(INSTANCE_ID,
-                dto(null, List.of(), List.of(keepOne, keepTwo), List.of(), List.of()));
-
-        assertThat(result.data().prestationInstance()).hasSize(2);
-        verify(prestationStepInstanceRepository, times(1)).findByPrestationInstanceIn(persistedPrestations);
+        verify(persistedPrestation, never()).disable(any());
     }
 
     /**
@@ -1685,7 +1541,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstance existingPrestation = mock(PrestationInstance.class);
         when(existingPrestation.getId()).thenReturn(200L);
         when(existingPrestation.getOdontogram()).thenReturn(linkedOdontogram);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         OdontogramUpdateRequestDTO keepOdontogram = new OdontogramUpdateRequestDTO(50L, Tooth.T11, ToothFace.TOP, 1L, 1L, true);
         PrestationInstanceUpdateRequestDTO disablePrestation =
@@ -1696,13 +1551,10 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(linkedOdontogram));
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
 
         TreatmentCondition requiredCondition = mock(TreatmentCondition.class);
         when(treatmentConditionService.findByName(TreatmentConditionType.REQUIRED.name())).thenReturn(requiredCondition);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -1729,7 +1581,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstance linkedPrestation = mock(PrestationInstance.class);
         when(linkedPrestation.getId()).thenReturn(200L);
         when(linkedPrestation.getOdontogram()).thenReturn(existingOdontogram);
-        when(linkedPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         PrestationInstanceUpdateRequestDTO declaredDisabled =
                 new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, false);
@@ -1737,9 +1588,6 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingOdontogram));
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(linkedPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(linkedPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(linkedPrestation))).thenReturn(List.of());
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(linkedPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -1760,7 +1608,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstance existingPrestation = mock(PrestationInstance.class);
         when(existingPrestation.getId()).thenReturn(200L);
         when(existingPrestation.getOdontogram()).thenReturn(null);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         PrestationInstanceUpdateRequestDTO disablePrestation =
                 new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, false);
@@ -1770,10 +1617,7 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of());
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -1867,14 +1711,9 @@ class UpdateConsultationInstanceUseCaseTest {
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of(catalogStep));
 
         PrestationStepInstance builtStep = mock(PrestationStepInstance.class);
-        when(builtStep.getPrestationInstance()).thenReturn(existingPrestation);
         when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any()))
                 .thenReturn(List.of(builtStep));
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of(builtStep));
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -1914,8 +1753,7 @@ class UpdateConsultationInstanceUseCaseTest {
                 consultationInstanceRepository, odontogramRepository, prestationInstanceRepository,
                 realDomainService, prestationTypeService, prestationTypePriceService, prestationStepService,
                 prestationStepInstanceRepository, treatmentService, treatmentConditionService, promotionQueryService,
-                odontogramMapper, prestationInstanceMapper, messageSource, consultationEventService,
-                consultationMapper, paymentDetailRepository);
+                messageSource, consultationEventService, consultationMapper);
 
         PrestationType prestationType = mock(PrestationType.class);
         when(prestationType.getId()).thenReturn(10L);
@@ -1936,7 +1774,6 @@ class UpdateConsultationInstanceUseCaseTest {
         when(existingPrestation.getType()).thenReturn(prestationType);
         when(existingPrestation.getStatus()).thenReturn(PrestationInstanceStatus.IN_PROGRESS);
         when(existingPrestation.getConsultationInstance()).thenReturn(existingPrestationConsultationInstance);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
         when(existingPrestation.getCreatedAt()).thenReturn(LocalDateTime.now().minusMinutes(1));
 
         PrestationStep catalogStep = mock(PrestationStep.class);
@@ -1957,9 +1794,6 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of());
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of(existingStepInstance));
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of(existingStepInstance));
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -2062,7 +1896,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationType prestationType = mock(PrestationType.class);
         when(prestationType.getId()).thenReturn(10L);
         when(existingPrestation.getType()).thenReturn(prestationType);
-        when(existingPrestation.getFinalAmount()).thenReturn(BigDecimal.TEN);
 
         PrestationInstanceUpdateRequestDTO editLocation =
                 new PrestationInstanceUpdateRequestDTO(200L, PrestationScopeType.TOOTH, Tooth.T21, null, null, null, true);
@@ -2072,13 +1905,10 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of());
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of());
         when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any())).thenReturn(List.of());
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
@@ -2091,13 +1921,13 @@ class UpdateConsultationInstanceUseCaseTest {
     }
 
     /**
-     * CASO: PrestationInstance sin Odontogram con un PaymentDetail (pago parcial) ya registrado contra su id,
-     * editada por ubicación en el mismo request.
-     * Validación: El registro se actualiza in-place, mismo id; en el response, pendingAmount de esa prestación
-     * sigue calculado como finalAmount - sumAmountByPrestationInstanceId(MISMO id).
+     * CASO: PrestationInstance sin Odontogram con un pago parcial ya registrado, editada por ubicación en
+     * el mismo request.
+     * Validación: El registro se actualiza in-place, mismo id; el pago parcial no bloquea la edición de
+     * ubicación ni dispara disable().
      */
     @Test
-    void execute_prestationInstanceLocationEditedWithPartialPayment_pendingAmountUnaffected() {
+    void execute_prestationInstanceLocationEditedWithPartialPayment_updatesInPlaceWithoutDisabling() {
         PrestationInstance existingPrestation = mock(PrestationInstance.class);
         when(existingPrestation.getId()).thenReturn(200L);
         when(existingPrestation.getOdontogram()).thenReturn(null);
@@ -2106,8 +1936,6 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationType prestationType = mock(PrestationType.class);
         when(prestationType.getId()).thenReturn(10L);
         when(existingPrestation.getType()).thenReturn(prestationType);
-        BigDecimal finalAmount = new BigDecimal("1000");
-        when(existingPrestation.getFinalAmount()).thenReturn(finalAmount);
 
         PrestationInstanceUpdateRequestDTO editLocation =
                 new PrestationInstanceUpdateRequestDTO(200L, PrestationScopeType.TOOTH, Tooth.T21, null, null, null, true);
@@ -2117,29 +1945,17 @@ class UpdateConsultationInstanceUseCaseTest {
         when(odontogramRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of());
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of());
         when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any())).thenReturn(List.of());
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
-
-        BigDecimal alreadyPaid = new BigDecimal("300");
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(alreadyPaid);
-        PrestationInstanceResponseDTO baseResponse = new PrestationInstanceResponseDTO(
-                200L, "Endodoncia", null, "TOOTH", "T21", "PENDING",
-                BigDecimal.TEN, null, null, null, null, null,
-                finalAmount, null, null);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(baseResponse);
-        when(prestationInstanceMapper.toStepDTOs(List.of())).thenReturn(List.of());
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 
-        Response<ConsultationInstanceResponseDTO> result = useCase.execute(INSTANCE_ID,
-                dto(null, List.of(), List.of(editLocation), List.of(), List.of()));
+        useCase.execute(INSTANCE_ID, dto(null, List.of(), List.of(editLocation), List.of(), List.of()));
 
         verify(existingPrestation, never()).disable(any());
-        verify(paymentDetailRepository).sumAmountByPrestationInstanceId(200L);
-        assertThat(result.data().prestationInstance().get(0).pendingAmount()).isEqualByComparingTo("700");
+        verify(existingPrestation).setTooth(Tooth.T21);
     }
 
     /**
@@ -2231,7 +2047,6 @@ class UpdateConsultationInstanceUseCaseTest {
         when(existingPrestation.getOdontogram()).thenReturn(null);
         BigDecimal originalPrice = new BigDecimal("500");
         when(existingPrestation.getPrice()).thenReturn(originalPrice);
-        when(existingPrestation.getFinalAmount()).thenReturn(originalPrice);
         PrestationType existingPrestationType = mock(PrestationType.class);
         when(existingPrestationType.getId()).thenReturn(10L);
         when(existingPrestation.getType()).thenReturn(existingPrestationType);
@@ -2245,12 +2060,9 @@ class UpdateConsultationInstanceUseCaseTest {
         when(prestationInstanceRepository.findByConsultationInstanceId(INSTANCE_ID)).thenReturn(List.of(existingPrestation));
         when(prestationStepService.findAllPrestationStepsByPrestation(10L)).thenReturn(List.of());
         when(prestationStepInstanceRepository.findByPrestationInstance(existingPrestation)).thenReturn(List.of());
-        when(prestationStepInstanceRepository.findByPrestationInstanceIn(List.of(existingPrestation))).thenReturn(List.of());
         when(prestationInstanceDomainService.isPrestationInstanceEditable(existingPrestation, CORRECTIONS_HOURS_LONG)).thenReturn(true);
         when(prestationInstanceDomainService.buildStepAdvancements(any(), any(), any(), any(), any())).thenReturn(List.of());
         when(prestationInstanceDomainService.shouldComplete(any(), any())).thenReturn(false);
-        when(paymentDetailRepository.sumAmountByPrestationInstanceId(200L)).thenReturn(BigDecimal.ZERO);
-        when(prestationInstanceMapper.toDTO(existingPrestation)).thenReturn(mock(PrestationInstanceResponseDTO.class));
         when(consultationEventService.create(any())).thenReturn(mock(ConsultationEvent.class));
         arrangeHappyResponseStubs(instance.getConsultation());
 

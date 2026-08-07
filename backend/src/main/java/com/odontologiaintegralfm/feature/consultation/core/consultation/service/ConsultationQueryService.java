@@ -47,7 +47,7 @@ public class ConsultationQueryService {
         return new Response<>(
                 true,
                 null,
-                consultationMapper.toDTO(consultation)
+                consultationMapper.toDTOWithoutPublish(consultation)
         );
     }
 
@@ -60,7 +60,7 @@ public class ConsultationQueryService {
         return new Response<>(
                 true,
                 null,
-                consultationMapper.toDTO(consultations)
+                consultations.stream().map(consultationMapper::toDTOWithoutPublish).toList()
         );
     }
 

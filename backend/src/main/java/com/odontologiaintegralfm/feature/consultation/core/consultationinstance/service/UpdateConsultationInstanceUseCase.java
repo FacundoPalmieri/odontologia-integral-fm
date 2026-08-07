@@ -6,7 +6,7 @@ import com.odontologiaintegralfm.feature.consultation.core.consultation.mapper.C
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.ConsultationEvent;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationEventService;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceBasicResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.repository.IConsultationInstanceRepository;
@@ -23,18 +23,14 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.T
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service.TreatmentConditionService;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.service.TreatmentService;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramUpdateRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.repository.IOdontogramRepository;
-import com.odontologiaintegralfm.feature.consultation.core.payment.repository.IPaymentDetailRepository;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepAdvancementRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepUpdateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
@@ -77,12 +73,9 @@ public class UpdateConsultationInstanceUseCase {
     private final TreatmentService treatmentService;
     private final TreatmentConditionService treatmentConditionService;
     private final PromotionQueryService promotionQueryService;
-    private final OdontogramMapper odontogramMapper;
-    private final PrestationInstanceMapper prestationInstanceMapper;
     private final MessageSource messageSource;
     private final ConsultationEventService consultationEventService;
     private final ConsultationMapper consultationMapper;
-    private final IPaymentDetailRepository paymentDetailRepository;
 
     public UpdateConsultationInstanceUseCase(ConsultationInstanceQueryService consultationInstanceQueryService,
                                              AuthenticatedUserService authenticatedUserService,
@@ -98,12 +91,9 @@ public class UpdateConsultationInstanceUseCase {
                                              TreatmentService treatmentService,
                                              TreatmentConditionService treatmentConditionService,
                                              PromotionQueryService promotionQueryService,
-                                             OdontogramMapper odontogramMapper,
-                                             PrestationInstanceMapper prestationInstanceMapper,
                                              MessageSource messageSource,
                                              ConsultationEventService consultationEventService,
-                                             ConsultationMapper consultationMapper,
-                                             IPaymentDetailRepository paymentDetailRepository) {
+                                             ConsultationMapper consultationMapper) {
         this.consultationInstanceQueryService = consultationInstanceQueryService;
         this.authenticatedUserService = authenticatedUserService;
         this.systemParameterService = systemParameterService;
@@ -118,12 +108,9 @@ public class UpdateConsultationInstanceUseCase {
         this.treatmentService = treatmentService;
         this.treatmentConditionService = treatmentConditionService;
         this.promotionQueryService = promotionQueryService;
-        this.odontogramMapper = odontogramMapper;
-        this.prestationInstanceMapper = prestationInstanceMapper;
         this.messageSource = messageSource;
         this.consultationEventService = consultationEventService;
         this.consultationMapper = consultationMapper;
-        this.paymentDetailRepository = paymentDetailRepository;
     }
 
     @LogAction(
@@ -133,7 +120,7 @@ public class UpdateConsultationInstanceUseCase {
             level = LogLevel.INFO
     )
     @Transactional
-    public Response<ConsultationInstanceResponseDTO> execute(Long idConsultationInstance, ConsultationInstanceUpdateRequestDTO dto) {
+    public Response<ConsultationInstanceBasicResponseDTO> execute(Long idConsultationInstance, ConsultationInstanceUpdateRequestDTO dto) {
 
         ConsultationInstance consultationInstance = consultationInstanceQueryService.findById(idConsultationInstance);
         Consultation consultation = consultationInstance.getConsultation();
@@ -158,48 +145,10 @@ public class UpdateConsultationInstanceUseCase {
         return new Response<>(
                 true,
                 messageSource.getMessage("updateConsultationInstanceUseCase.update.ok", null, LocaleContextHolder.getLocale()),
-                buildResponse(consultationInstance)
-        );
-    }
-
-    /**
-     * Arma el response con el estado completo persistido tras la corrección (mismo patrón que
-     * GetConsultationInstanceUseCase) — no solo el delta aplicado en este PUT.
-     */
-    private ConsultationInstanceResponseDTO buildResponse(ConsultationInstance consultationInstance) {
-        List<PrestationInstance> prestations = prestationInstanceRepository.findByConsultationInstanceId(consultationInstance.getId());
-
-        Map<Long, List<PrestationStepInstance>> stepsByPrestationId = prestationStepInstanceRepository.findByPrestationInstanceIn(prestations)
-                .stream()
-                .collect(Collectors.groupingBy(step -> step.getPrestationInstance().getId()));
-
-        List<PrestationInstanceResponseDTO> prestationDTOs = prestations.stream()
-                .map(p -> {
-                    BigDecimal paid = paymentDetailRepository.sumAmountByPrestationInstanceId(p.getId());
-                    BigDecimal pending = p.getFinalAmount().subtract(paid);
-                    PrestationInstanceResponseDTO base = prestationInstanceMapper.toDTO(p);
-                    List<PrestationStepInstance> steps = stepsByPrestationId.getOrDefault(p.getId(), List.of());
-                    return new PrestationInstanceResponseDTO(
-                            base.id(), base.name(), base.odontogram(), base.scope(), base.scopeDetail(),
-                            base.status(), base.price(), base.promotion(), base.promotionAmount(),
-                            base.discountType(), base.discountValue(), base.discountAmount(),
-                            base.finalAmount(), pending, prestationInstanceMapper.toStepDTOs(steps)
-                    );
-                })
-                .toList();
-
-        BigDecimal totalFinalAmount = prestations.stream()
-                .map(PrestationInstance::getFinalAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return new ConsultationInstanceResponseDTO(
-                consultationInstance.getId(),
-                consultationMapper.toDTO(consultationInstance.getConsultation()),
-                odontogramRepository.findByConsultationInstanceId(consultationInstance.getId()).stream()
-                        .map(odontogramMapper::toDTO).toList(),
-                prestationDTOs,
-                consultationInstance.getObservation(),
-                totalFinalAmount
+                new ConsultationInstanceBasicResponseDTO(
+                        consultationInstance.getId(),
+                        consultationMapper.toDTOWithoutPublish(consultationInstance.getConsultation())
+                )
         );
     }
 

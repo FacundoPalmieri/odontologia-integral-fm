@@ -15,18 +15,16 @@ import com.odontologiaintegralfm.feature.consultation.core.consultation.enums.Co
 import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ChangeConsultationStatusUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationQueryService;
+import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceBasicResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.repository.IConsultationInstanceRepository;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
 import com.odontologiaintegralfm.feature.consultation.core.odontogram.repository.IOdontogramRepository;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepAdvancementRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationStepInstanceRepository;
@@ -73,8 +71,6 @@ class CreateConsultationInstanceUseCaseTest {
     @Mock private TreatmentService treatmentService;
     @Mock private TreatmentConditionService treatmentConditionService;
     @Mock private PromotionQueryService promotionQueryService;
-    @Mock private OdontogramMapper odontogramMapper;
-    @Mock private PrestationInstanceMapper prestationInstanceMapper;
     @Mock private MessageSource messageSource;
 
     @InjectMocks private CreateConsultationInstanceUseCase useCase;
@@ -308,18 +304,20 @@ class CreateConsultationInstanceUseCaseTest {
         Consultation consultation = mock(Consultation.class);
         when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
 
+        ConsultationInstance savedConsultationInstance = mock(ConsultationInstance.class);
+        when(savedConsultationInstance.getId()).thenReturn(1L);
+
         when(consultationQueryService.findById(1L)).thenReturn(consultation);
         when(consultationInstanceRepository.findByConsultationId(1L)).thenReturn(null);
-        when(consultationInstanceRepository.save(any())).thenReturn(mock(ConsultationInstance.class));
+        when(consultationInstanceRepository.save(any())).thenReturn(savedConsultationInstance);
         when(odontogramRepository.saveAll(any())).thenReturn(List.of());
         when(prestationInstanceRepository.saveAll(any())).thenReturn(List.of());
         when(messageSource.getMessage(anyString(), any(), any())).thenReturn("Consulta registrada");
 
-        Response<ConsultationInstanceResponseDTO> result = useCase.execute(dto);
+        Response<ConsultationInstanceBasicResponseDTO> result = useCase.execute(dto);
 
         assertThat(result.success()).isTrue();
-        assertThat(result.data().odontogram()).isEmpty();
-        assertThat(result.data().prestationInstance()).isEmpty();
+        assertThat(result.data().id()).isEqualTo(1L);
         verify(consultationInstanceRepository).save(any());
         verify(odontogramRepository).saveAll(any());
     }

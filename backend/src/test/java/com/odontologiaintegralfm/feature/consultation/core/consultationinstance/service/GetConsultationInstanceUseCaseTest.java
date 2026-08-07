@@ -80,7 +80,7 @@ class GetConsultationInstanceUseCaseTest {
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(50L)).thenReturn(new BigDecimal("300.00"));
         when(odontogramRepository.findByConsultationInstanceId(1L)).thenReturn(List.of());
         when(instance.getConsultation()).thenReturn(mock(Consultation.class));
-        when(consultationMapper.toDTO(any(Consultation.class))).thenReturn(mock(ConsultationResponseDTO.class));
+        when(consultationMapper.toDTOWithoutPublish(any(Consultation.class))).thenReturn(mock(ConsultationResponseDTO.class));
         PrestationInstanceResponseDTO baseDTO = new PrestationInstanceResponseDTO(
                 50L, null, null, null, null, null, null, null, null, null, null, null,
                 new BigDecimal("1000.00"), null, null);
@@ -111,7 +111,7 @@ class GetConsultationInstanceUseCaseTest {
         when(prestationInstanceRepository.findByConsultationInstanceId(1L)).thenReturn(List.of());
         when(odontogramRepository.findByConsultationInstanceId(1L)).thenReturn(List.of());
         when(instance.getConsultation()).thenReturn(mock(Consultation.class));
-        when(consultationMapper.toDTO(any(Consultation.class))).thenReturn(mock(ConsultationResponseDTO.class));
+        when(consultationMapper.toDTOWithoutPublish(any(Consultation.class))).thenReturn(mock(ConsultationResponseDTO.class));
 
         Response<ConsultationInstanceResponseDTO> result = useCase.execute(1L);
 
@@ -190,7 +190,7 @@ class GetConsultationInstanceUseCaseTest {
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(2L)).thenReturn(BigDecimal.ZERO);
         when(odontogramRepository.findByConsultationInstanceId(1L)).thenReturn(List.of());
         when(instance.getConsultation()).thenReturn(mock(Consultation.class));
-        when(consultationMapper.toDTO(any(Consultation.class))).thenReturn(mock(ConsultationResponseDTO.class));
+        when(consultationMapper.toDTOWithoutPublish(any(Consultation.class))).thenReturn(mock(ConsultationResponseDTO.class));
         PrestationInstanceResponseDTO dto1 = new PrestationInstanceResponseDTO(
                 1L, null, null, null, null, null, null, null, null, null, null, null,
                 new BigDecimal("1000.00"), null, null);

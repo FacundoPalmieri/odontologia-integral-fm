@@ -110,7 +110,7 @@ public class GetConsultationInstanceUseCase {
                 null,
                 new ConsultationInstanceResponseDTO(
                         instance.getId(),
-                        consultationMapper.toDTO(instance.getConsultation()),
+                        consultationMapper.toDTOWithoutPublish(instance.getConsultation()),
                         odontogramRepository.findByConsultationInstanceId(instance.getId()).stream()
                                 .map(odontogramMapper::toDTO).toList(),
                         prestationDTOs,

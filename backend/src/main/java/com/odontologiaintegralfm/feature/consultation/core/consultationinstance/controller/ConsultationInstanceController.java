@@ -3,6 +3,7 @@ package com.odontologiaintegralfm.feature.consultation.core.consultationinstance
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationCreate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationUpdate;
+import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceBasicResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceUpdateRequestDTO;
@@ -51,8 +52,8 @@ public class ConsultationInstanceController {
     })
     @PostMapping
     @OnlyAccessConsultationCreate
-    public ResponseEntity<Response<ConsultationInstanceResponseDTO>> create(@Valid @RequestBody ConsultationInstanceCreateRequestDTO consultationInstanceRequestDTO) {
-        Response<ConsultationInstanceResponseDTO> response = createConsultationInstanceUseCase.execute(consultationInstanceRequestDTO);
+    public ResponseEntity<Response<ConsultationInstanceBasicResponseDTO>> create(@Valid @RequestBody ConsultationInstanceCreateRequestDTO consultationInstanceRequestDTO) {
+        Response<ConsultationInstanceBasicResponseDTO> response = createConsultationInstanceUseCase.execute(consultationInstanceRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -80,9 +81,9 @@ public class ConsultationInstanceController {
     })
     @PutMapping("/{idConsultationInstance}")
     @OnlyAccessConsultationUpdate
-    public ResponseEntity<Response<ConsultationInstanceResponseDTO>> update(@PathVariable Long idConsultationInstance,
+    public ResponseEntity<Response<ConsultationInstanceBasicResponseDTO>> update(@PathVariable Long idConsultationInstance,
                                                                              @Valid @RequestBody ConsultationInstanceUpdateRequestDTO consultationInstanceUpdateRequestDTO) {
-        Response<ConsultationInstanceResponseDTO> response = updateConsultationInstanceUseCase.execute(idConsultationInstance, consultationInstanceUpdateRequestDTO);
+        Response<ConsultationInstanceBasicResponseDTO> response = updateConsultationInstanceUseCase.execute(idConsultationInstance, consultationInstanceUpdateRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
