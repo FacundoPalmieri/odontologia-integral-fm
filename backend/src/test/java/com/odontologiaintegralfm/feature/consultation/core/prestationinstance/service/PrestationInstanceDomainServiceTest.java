@@ -457,7 +457,7 @@ class PrestationInstanceDomainServiceTest {
         when(prestation.getId()).thenReturn(100L);
 
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
-                100L, 200L, PrestationStepStatus.COMPLETED);
+                100L, 200L, PrestationStepStatus.FINISHED);
 
         assertThatThrownBy(() -> service.validateStepAdvancement(5L, prestation, dto))
                 .isInstanceOf(ConflictException.class);
@@ -471,11 +471,11 @@ class PrestationInstanceDomainServiceTest {
     void validateStepAdvancement_whenPrestationNotInProgress_throwsConflictException() {
         PrestationInstance prestation = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
         when(prestation.getConsultationInstance().getConsultation().getPatient().getId()).thenReturn(5L);
-        when(prestation.getStatus()).thenReturn(PrestationInstanceStatus.COMPLETED);
+        when(prestation.getStatus()).thenReturn(PrestationInstanceStatus.FINISHED);
         when(prestation.getId()).thenReturn(100L);
 
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
-                100L, 200L, PrestationStepStatus.COMPLETED);
+                100L, 200L, PrestationStepStatus.FINISHED);
 
         assertThatThrownBy(() -> service.validateStepAdvancement(5L, prestation, dto))
                 .isInstanceOf(ConflictException.class);
@@ -527,7 +527,7 @@ class PrestationInstanceDomainServiceTest {
 
         // Se envía directamente el step 2 sin que step 1 esté resuelto
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
-                100L, 2L, PrestationStepStatus.COMPLETED);
+                100L, 2L, PrestationStepStatus.FINISHED);
 
         assertThatThrownBy(() -> service.buildStepAdvancements(
                 List.of(step1, step2),
@@ -573,10 +573,10 @@ class PrestationInstanceDomainServiceTest {
 
         PrestationStepInstance existingInstance = mock(PrestationStepInstance.class);
         when(existingInstance.getStep()).thenReturn(step1);
-        when(existingInstance.getStatus()).thenReturn(PrestationStepStatus.COMPLETED);
+        when(existingInstance.getStatus()).thenReturn(PrestationStepStatus.FINISHED);
 
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
-                100L, 1L, PrestationStepStatus.COMPLETED);
+                100L, 1L, PrestationStepStatus.FINISHED);
 
         assertThatThrownBy(() -> service.buildStepAdvancements(
                 List.of(step1),
@@ -602,7 +602,7 @@ class PrestationInstanceDomainServiceTest {
         when(existingInstance.getStatus()).thenReturn(PrestationStepStatus.OMITTED);
 
         PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(
-                100L, 1L, PrestationStepStatus.COMPLETED);
+                100L, 1L, PrestationStepStatus.FINISHED);
 
         assertThatThrownBy(() -> service.buildStepAdvancements(
                 List.of(step1),
@@ -628,9 +628,9 @@ class PrestationInstanceDomainServiceTest {
         when(step2.getPosition()).thenReturn(2);
 
         PrestationStepAdvancementRequestDTO dtoStep1 = new PrestationStepAdvancementRequestDTO(
-                100L, 1L, PrestationStepStatus.COMPLETED);
+                100L, 1L, PrestationStepStatus.FINISHED);
         PrestationStepAdvancementRequestDTO dtoStep2 = new PrestationStepAdvancementRequestDTO(
-                100L, 2L, PrestationStepStatus.COMPLETED);
+                100L, 2L, PrestationStepStatus.FINISHED);
 
         List<PrestationStepInstance> result = service.buildStepAdvancements(
                 List.of(step1, step2),
@@ -657,7 +657,7 @@ class PrestationInstanceDomainServiceTest {
 
         PrestationStepInstance inst1 = mock(PrestationStepInstance.class);
         when(inst1.getStep()).thenReturn(step1);
-        when(inst1.getStatus()).thenReturn(PrestationStepStatus.COMPLETED);
+        when(inst1.getStatus()).thenReturn(PrestationStepStatus.FINISHED);
 
         PrestationStepInstance inst2 = mock(PrestationStepInstance.class);
         when(inst2.getStep()).thenReturn(step2);
@@ -681,7 +681,7 @@ class PrestationInstanceDomainServiceTest {
 
         PrestationStepInstance inst1 = mock(PrestationStepInstance.class);
         when(inst1.getStep()).thenReturn(step1);
-        when(inst1.getStatus()).thenReturn(PrestationStepStatus.COMPLETED);
+        when(inst1.getStatus()).thenReturn(PrestationStepStatus.FINISHED);
 
         boolean result = service.shouldComplete(List.of(step1, step2), List.of(inst1));
 
@@ -955,11 +955,11 @@ class PrestationInstanceDomainServiceTest {
                 mock(PrestationInstance.class), mock(ConsultationInstance.class), catalogStep, PrestationStepStatus.IN_PROGRESS);
         existingStep.setId(300L);
 
-        PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(100L, 1L, PrestationStepStatus.COMPLETED);
+        PrestationStepAdvancementRequestDTO dto = new PrestationStepAdvancementRequestDTO(100L, 1L, PrestationStepStatus.FINISHED);
 
         service.applyStepAdvancement(existingStep, dto);
 
         assertThat(existingStep.getId()).isEqualTo(300L);
-        assertThat(existingStep.getStatus()).isEqualTo(PrestationStepStatus.COMPLETED);
+        assertThat(existingStep.getStatus()).isEqualTo(PrestationStepStatus.FINISHED);
     }
 }

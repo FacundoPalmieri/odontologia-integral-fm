@@ -180,7 +180,7 @@ public class PrestationInstance extends AuditableJPA {
     }
 
     public void complete() {
-        this.status = PrestationInstanceStatus.COMPLETED;
+        this.status = PrestationInstanceStatus.FINISHED;
     }
 
     public String getScopeDetail() {

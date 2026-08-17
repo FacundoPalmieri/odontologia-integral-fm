@@ -16,7 +16,6 @@ import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -91,7 +90,7 @@ public class GetNextStepsPrestationInstanceUseCase {
 
     private int resolveStartPosition(List<PrestationStepInstance> stepInstances) {
         return stepInstances.stream()
-                .filter(si -> si.getStatus() == PrestationStepStatus.COMPLETED
+                .filter(si -> si.getStatus() == PrestationStepStatus.FINISHED
                            || si.getStatus() == PrestationStepStatus.OMITTED)
                 .mapToInt(si -> si.getStep().getPosition())
                 .max()
@@ -99,18 +98,9 @@ public class GetNextStepsPrestationInstanceUseCase {
     }
 
     private List<PrestationStep> selectNextSteps(List<PrestationStep> catalogSteps, int startPosition) {
-        List<PrestationStep> nextSteps = new ArrayList<>();
-
-        List<PrestationStep> sortedSteps = catalogSteps.stream()
+        return catalogSteps.stream()
+                .filter(step -> step.getPosition() > startPosition)
                 .sorted(Comparator.comparingInt(PrestationStep::getPosition))
                 .toList();
-
-        for (PrestationStep step : sortedSteps) {
-            if (step.getPosition() <= startPosition) continue;
-            nextSteps.add(step);
-            if (step.isRequired()) break;
-        }
-
-        return nextSteps;
     }
 }

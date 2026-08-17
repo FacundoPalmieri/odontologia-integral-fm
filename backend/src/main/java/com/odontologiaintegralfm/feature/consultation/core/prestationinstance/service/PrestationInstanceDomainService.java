@@ -217,7 +217,7 @@ public class PrestationInstanceDomainService {
         List<PrestationStepInstance> prestationStepsInstance = prestationStepInstanceQueryService.findByPrestationAndStepIdAndStatus(prestationInstance, prestationStepId, prestationStepStatus);
         if (!prestationStepsInstance.isEmpty()) {
             // Si es mismo step solo debería recibir estado completado.
-            return !statusDTO.equals(PrestationStepStatus.COMPLETED);
+            return !statusDTO.equals(PrestationStepStatus.FINISHED);
         }
         return false;
     }
@@ -237,11 +237,11 @@ public class PrestationInstanceDomainService {
 
         if (existingStatus != null) {
             // Si el step ya tiene un estado final, no se puede volver a registrar
-            if (existingStatus == PrestationStepStatus.COMPLETED || existingStatus == PrestationStepStatus.OMITTED) {
+            if (existingStatus == PrestationStepStatus.FINISHED || existingStatus == PrestationStepStatus.OMITTED) {
                 throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.user", null, "exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.log", new Object[]{catalogStep.getId(), existingStatus, prestationInstanceId, "PrestationInstanceDomainService", "validateStepTransition"}, LogLevel.ERROR);
             }
             // Si el step está en progreso, solo se acepta completarlo
-            if (existingStatus == PrestationStepStatus.IN_PROGRESS && newStatus != PrestationStepStatus.COMPLETED) {
+            if (existingStatus == PrestationStepStatus.IN_PROGRESS && newStatus != PrestationStepStatus.FINISHED) {
                 throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.user", null, "exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.log", new Object[]{catalogStep.getId(), newStatus, prestationInstanceId, "PrestationInstanceDomainService", "validateStepTransition"}, LogLevel.ERROR);
             }
         }
@@ -302,7 +302,7 @@ public class PrestationInstanceDomainService {
             for (PrestationStep previousStep : catalogSteps) {
                 if (previousStep.getPosition() < catalogStep.getPosition()) {
                     PrestationStepStatus previousStatus = resolvedSteps.get(previousStep.getId());
-                    boolean isResolved = previousStatus == PrestationStepStatus.COMPLETED || previousStatus == PrestationStepStatus.OMITTED;
+                    boolean isResolved = previousStatus == PrestationStepStatus.FINISHED || previousStatus == PrestationStepStatus.OMITTED;
                     if (!isResolved) {
                         throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.user", null, "exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.log", new Object[]{previousStep.getId(), catalogStep.getId(), prestationInstance.getId(), "PrestationInstanceDomainService", "buildStepAdvancements"}, LogLevel.ERROR);
                     }
@@ -346,7 +346,7 @@ public class PrestationInstanceDomainService {
         // La prestación está completa si todos los steps del catálogo tienen estado final
         for (PrestationStep catalogStep : catalogSteps) {
             PrestationStepStatus status = resolvedSteps.get(catalogStep.getId());
-            if (status != PrestationStepStatus.COMPLETED && status != PrestationStepStatus.OMITTED) {
+            if (status != PrestationStepStatus.FINISHED && status != PrestationStepStatus.OMITTED) {
                 return false;
             }
         }

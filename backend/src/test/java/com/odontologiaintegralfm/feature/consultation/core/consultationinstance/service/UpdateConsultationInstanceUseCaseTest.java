@@ -1013,9 +1013,9 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationStep catalogStep = mock(PrestationStep.class);
         PrestationStepInstance stepOutOfWindow = mock(PrestationStepInstance.class);
         when(stepOutOfWindow.getId()).thenReturn(300L);
-        when(stepOutOfWindow.getStatus()).thenReturn(PrestationStepStatus.COMPLETED);
+        when(stepOutOfWindow.getStatus()).thenReturn(PrestationStepStatus.FINISHED);
 
-        PrestationStepUpdateRequestDTO sameValueDto = new PrestationStepUpdateRequestDTO(200L, 300L, null, PrestationStepStatus.COMPLETED, true);
+        PrestationStepUpdateRequestDTO sameValueDto = new PrestationStepUpdateRequestDTO(200L, 300L, null, PrestationStepStatus.FINISHED, true);
         PrestationInstanceUpdateRequestDTO keepPrestation =
                 new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, true);
 
@@ -1156,7 +1156,7 @@ class UpdateConsultationInstanceUseCaseTest {
         PrestationInstanceUpdateRequestDTO keepPrestation =
                 new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, true);
         PrestationStepUpdateRequestDTO declaredStep =
-                new PrestationStepUpdateRequestDTO(200L, 300L, null, PrestationStepStatus.COMPLETED, true);
+                new PrestationStepUpdateRequestDTO(200L, 300L, null, PrestationStepStatus.FINISHED, true);
 
         arrangeBaseWithinWindow(1L);
 
@@ -1324,7 +1324,7 @@ class UpdateConsultationInstanceUseCaseTest {
         when(existingPrestation.getId()).thenReturn(200L);
         when(existingPrestation.getOdontogram()).thenReturn(null);
 
-        PrestationStepUpdateRequestDTO advancement = new PrestationStepUpdateRequestDTO(200L, null, 1L, PrestationStepStatus.COMPLETED, true);
+        PrestationStepUpdateRequestDTO advancement = new PrestationStepUpdateRequestDTO(200L, null, 1L, PrestationStepStatus.FINISHED, true);
         PrestationInstanceUpdateRequestDTO keepPrestation =
                 new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, true);
 
@@ -1785,7 +1785,7 @@ class UpdateConsultationInstanceUseCaseTest {
         existingStepInstance.setId(300L);
 
         PrestationStepUpdateRequestDTO advanceExistingStep =
-                new PrestationStepUpdateRequestDTO(200L, 300L, null, PrestationStepStatus.COMPLETED, true);
+                new PrestationStepUpdateRequestDTO(200L, 300L, null, PrestationStepStatus.FINISHED, true);
         PrestationInstanceUpdateRequestDTO keepPrestation =
                 new PrestationInstanceUpdateRequestDTO(200L, null, null, null, null, null, true);
 
@@ -1801,7 +1801,7 @@ class UpdateConsultationInstanceUseCaseTest {
                 dto(null, List.of(), List.of(keepPrestation), List.of(advanceExistingStep), List.of()));
 
         assertThat(existingStepInstance.getId()).isEqualTo(300L);
-        assertThat(existingStepInstance.getStatus()).isEqualTo(PrestationStepStatus.COMPLETED);
+        assertThat(existingStepInstance.getStatus()).isEqualTo(PrestationStepStatus.FINISHED);
 
         ArgumentCaptor<List<PrestationStepInstance>> savedCaptor = ArgumentCaptor.forClass(List.class);
         verify(prestationStepInstanceRepository).saveAll(savedCaptor.capture());

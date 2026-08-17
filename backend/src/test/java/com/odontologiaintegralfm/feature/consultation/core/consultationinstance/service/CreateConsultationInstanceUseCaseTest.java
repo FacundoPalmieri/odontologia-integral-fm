@@ -208,7 +208,7 @@ class CreateConsultationInstanceUseCaseTest {
     @Test
     void execute_whenShouldComplete_completesAndSavesPrestationInstance() {
         PrestationStepAdvancementRequestDTO advancement = new PrestationStepAdvancementRequestDTO(
-                100L, 200L, PrestationStepStatus.COMPLETED);
+                100L, 200L, PrestationStepStatus.FINISHED);
         ConsultationInstanceCreateRequestDTO dto = new ConsultationInstanceCreateRequestDTO(
                 1L, null, List.of(), List.of(), List.of(advancement));
 

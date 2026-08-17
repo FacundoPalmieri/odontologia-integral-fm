@@ -9,6 +9,7 @@ import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.ma
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationStepInstanceRepository;
+import com.odontologiaintegralfm.shared.exception.AppException;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
@@ -60,11 +61,13 @@ class GetNextStepsPrestationInstanceUseCaseTest {
     @Test
     void getNextSteps_prestationInstanceNoInProgress_retorna409() {
         PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
-        when(instance.getStatus()).thenReturn(PrestationInstanceStatus.COMPLETED);
+        when(instance.getStatus()).thenReturn(PrestationInstanceStatus.FINISHED);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(instance);
 
         assertThatThrownBy(() -> useCase.execute(1L))
-                .isInstanceOf(ConflictException.class);
+                .isInstanceOf(ConflictException.class)
+                .extracting(ex -> ((AppException) ex).getLogArgs()[0])
+                .isEqualTo(PrestationInstanceStatus.FINISHED.getLabel());
     }
 
     /**
@@ -103,12 +106,13 @@ class GetNextStepsPrestationInstanceUseCaseTest {
     }
 
     /**
-     * CASO: Catálogo con 1 step (required=true, position=1). Sin PrestationStepInstance registrados.
-     * Regla: Sin avance previo, el punto de partida es antes del primero.
-     * Validación: Resultado contiene exactamente ese step; tamaño de lista = 1.
+     * CASO: Catálogo con 3 steps: step1 (required=false, pos=1), step2 (required=true, pos=2),
+     *       step3 (required=true, pos=3). Sin PrestationStepInstance registrados.
+     * Regla: Sin avance previo, el punto de partida es 0 — todo el catálogo es "próximo".
+     * Validación: Resultado = [step1, step2, step3] en ese orden; tamaño de lista = 3.
      */
     @Test
-    void getNextSteps_prestationInstanceStepsSinStep_retornaListPrimerStep200() {
+    void getNextSteps_sinAvancePrevio_retornaTodosLosStepsDelCatalogo200() {
         PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
         when(instance.getStatus()).thenReturn(PrestationInstanceStatus.IN_PROGRESS);
         when(instance.getType().isHasSteps()).thenReturn(true);
@@ -117,63 +121,38 @@ class GetNextStepsPrestationInstanceUseCaseTest {
 
         PrestationStep step1 = mock(PrestationStep.class);
         when(step1.getPosition()).thenReturn(1);
-        when(step1.isRequired()).thenReturn(true);
-        when(prestationStepRepository.findByPrestationId(10L)).thenReturn(List.of(step1));
-        when(prestationStepInstanceRepository.findByPrestationInstance(instance)).thenReturn(List.of());
-
-        PrestationStepResponseDTO dto1 = new PrestationStepResponseDTO(1L, "Paso 1", 1, true);
-        when(prestationStepMapper.toDTO(List.of(step1))).thenReturn(List.of(dto1));
-
-        List<PrestationStepResponseDTO> result = useCase.execute(1L);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).isSameAs(dto1);
-    }
-
-    /**
-     * CASO: Catálogo con 2 steps: step1 (required=false, pos=1), step2 (required=true, pos=2).
-     *       Sin PrestationStepInstance registrados.
-     * Regla: Si el primer step no es required, acumular hasta encontrar uno required.
-     * Validación: Resultado contiene los 2 steps en orden; tamaño = 2.
-     */
-    @Test
-    void getNextSteps_prestationInstanceStepsSinStep_retornaList200() {
-        PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
-        when(instance.getStatus()).thenReturn(PrestationInstanceStatus.IN_PROGRESS);
-        when(instance.getType().isHasSteps()).thenReturn(true);
-        when(instance.getType().getId()).thenReturn(10L);
-        when(prestationInstanceQueryService.findById(1L)).thenReturn(instance);
-
-        PrestationStep step1 = mock(PrestationStep.class);
-        when(step1.getPosition()).thenReturn(1);
-        when(step1.isRequired()).thenReturn(false);
 
         PrestationStep step2 = mock(PrestationStep.class);
         when(step2.getPosition()).thenReturn(2);
-        when(step2.isRequired()).thenReturn(true);
 
-        when(prestationStepRepository.findByPrestationId(10L)).thenReturn(List.of(step1, step2));
+        PrestationStep step3 = mock(PrestationStep.class);
+        when(step3.getPosition()).thenReturn(3);
+
+        when(prestationStepRepository.findByPrestationId(10L)).thenReturn(List.of(step1, step2, step3));
         when(prestationStepInstanceRepository.findByPrestationInstance(instance)).thenReturn(List.of());
 
         PrestationStepResponseDTO dto1 = new PrestationStepResponseDTO(1L, "Paso 1", 1, false);
         PrestationStepResponseDTO dto2 = new PrestationStepResponseDTO(2L, "Paso 2", 2, true);
-        when(prestationStepMapper.toDTO(List.of(step1, step2))).thenReturn(List.of(dto1, dto2));
+        PrestationStepResponseDTO dto3 = new PrestationStepResponseDTO(3L, "Paso 3", 3, true);
+        when(prestationStepMapper.toDTO(List.of(step1, step2, step3))).thenReturn(List.of(dto1, dto2, dto3));
 
         List<PrestationStepResponseDTO> result = useCase.execute(1L);
 
-        assertThat(result).hasSize(2);
+        assertThat(result).hasSize(3);
         assertThat(result.get(0)).isSameAs(dto1);
         assertThat(result.get(1)).isSameAs(dto2);
+        assertThat(result.get(2)).isSameAs(dto3);
     }
 
     /**
-     * CASO: Catálogo con 2 steps: step1 (required=true, pos=1), step2 (required=true, pos=2).
+     * CASO: Catálogo con 3 steps, todos required=true (pos1, pos2, pos3).
      *       Una PrestationStepInstance con step1 en COMPLETED.
-     * Regla: El punto de partida es la posición máxima COMPLETED/OMITTED; step1 ya procesado.
-     * Validación: Resultado contiene solo step2; step1 no aparece.
+     * Regla: El resultado incluye TODOS los steps posteriores al punto de partida, sin cortar
+     *        en el primer required — cubre varios steps requeridos consecutivos disponibles.
+     * Validación: Resultado = [step2, step3]; tamaño de lista = 2.
      */
     @Test
-    void getNextSteps_prestationInstanceStepsConRegistrosAsociados_retornaSiguienteStep200() {
+    void getNextSteps_conStepsRequiredConsecutivos_retornaTodosSinCortar200() {
         PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
         when(instance.getStatus()).thenReturn(PrestationInstanceStatus.IN_PROGRESS);
         when(instance.getType().isHasSteps()).thenReturn(true);
@@ -185,57 +164,18 @@ class GetNextStepsPrestationInstanceUseCaseTest {
 
         PrestationStep step2 = mock(PrestationStep.class);
         when(step2.getPosition()).thenReturn(2);
-        when(step2.isRequired()).thenReturn(true);
-
-        when(prestationStepRepository.findByPrestationId(10L)).thenReturn(List.of(step1, step2));
-
-        PrestationStepInstance stepInstance1 = mock(PrestationStepInstance.class);
-        when(stepInstance1.getStep()).thenReturn(step1);
-        when(stepInstance1.getStatus()).thenReturn(PrestationStepStatus.COMPLETED);
-        when(prestationStepInstanceRepository.findByPrestationInstance(instance)).thenReturn(List.of(stepInstance1));
-
-        PrestationStepResponseDTO dto2 = new PrestationStepResponseDTO(2L, "Paso 2", 2, true);
-        when(prestationStepMapper.toDTO(List.of(step2))).thenReturn(List.of(dto2));
-
-        List<PrestationStepResponseDTO> result = useCase.execute(1L);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).isSameAs(dto2);
-    }
-
-    /**
-     * CASO: Catálogo con 3 steps: step1 (required=true, pos=1), step2 (required=false, pos=2),
-     *       step3 (required=true, pos=3). Una PrestationStepInstance con step1 en COMPLETED.
-     * Regla: Desde el punto de partida, acumular opcionales hasta llegar al siguiente required.
-     * Validación: Resultado contiene step2 y step3; tamaño = 2.
-     */
-    @Test
-    void getNextSteps_prestationInstanceStepsConStepNoRequerido_retornaListSiguientesStep200() {
-        PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
-        when(instance.getStatus()).thenReturn(PrestationInstanceStatus.IN_PROGRESS);
-        when(instance.getType().isHasSteps()).thenReturn(true);
-        when(instance.getType().getId()).thenReturn(10L);
-        when(prestationInstanceQueryService.findById(1L)).thenReturn(instance);
-
-        PrestationStep step1 = mock(PrestationStep.class);
-        when(step1.getPosition()).thenReturn(1);
-
-        PrestationStep step2 = mock(PrestationStep.class);
-        when(step2.getPosition()).thenReturn(2);
-        when(step2.isRequired()).thenReturn(false);
 
         PrestationStep step3 = mock(PrestationStep.class);
         when(step3.getPosition()).thenReturn(3);
-        when(step3.isRequired()).thenReturn(true);
 
         when(prestationStepRepository.findByPrestationId(10L)).thenReturn(List.of(step1, step2, step3));
 
         PrestationStepInstance stepInstance1 = mock(PrestationStepInstance.class);
         when(stepInstance1.getStep()).thenReturn(step1);
-        when(stepInstance1.getStatus()).thenReturn(PrestationStepStatus.COMPLETED);
+        when(stepInstance1.getStatus()).thenReturn(PrestationStepStatus.FINISHED);
         when(prestationStepInstanceRepository.findByPrestationInstance(instance)).thenReturn(List.of(stepInstance1));
 
-        PrestationStepResponseDTO dto2 = new PrestationStepResponseDTO(2L, "Paso 2", 2, false);
+        PrestationStepResponseDTO dto2 = new PrestationStepResponseDTO(2L, "Paso 2", 2, true);
         PrestationStepResponseDTO dto3 = new PrestationStepResponseDTO(3L, "Paso 3", 3, true);
         when(prestationStepMapper.toDTO(List.of(step2, step3))).thenReturn(List.of(dto2, dto3));
 
@@ -247,13 +187,14 @@ class GetNextStepsPrestationInstanceUseCaseTest {
     }
 
     /**
-     * CASO: Catálogo con 2 steps: step1 (required=true, pos=1), step2 (required=true, pos=2).
-     *       Una PrestationStepInstance con step1 en OMITTED.
-     * Regla: OMITTED equivale a COMPLETED para determinar el punto de partida.
-     * Validación: Resultado contiene solo step2 — OMITTED cuenta como procesado.
+     * CASO: Catálogo con 3 steps: step1 (required=true, pos=1) COMPLETED, step2 (required=false, pos=2),
+     *       step3 (required=true, pos=3).
+     * Regla: El resultado incluye todos los steps posteriores al punto de partida, mezclando
+     *        required y opcional, cada uno con su valor de required correcto.
+     * Validación: Resultado = [step2, step3]; tamaño de lista = 2.
      */
     @Test
-    void getNextSteps_prestationInstanceStepsOMITTED_retornaListSiguientesStep200() {
+    void getNextSteps_conStepsRequiredYOpcionalesMezclados_retornaTodosSinCortar200() {
         PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
         when(instance.getStatus()).thenReturn(PrestationInstanceStatus.IN_PROGRESS);
         when(instance.getType().isHasSteps()).thenReturn(true);
@@ -265,9 +206,54 @@ class GetNextStepsPrestationInstanceUseCaseTest {
 
         PrestationStep step2 = mock(PrestationStep.class);
         when(step2.getPosition()).thenReturn(2);
-        when(step2.isRequired()).thenReturn(true);
 
-        when(prestationStepRepository.findByPrestationId(10L)).thenReturn(List.of(step1, step2));
+        PrestationStep step3 = mock(PrestationStep.class);
+        when(step3.getPosition()).thenReturn(3);
+
+        when(prestationStepRepository.findByPrestationId(10L)).thenReturn(List.of(step1, step2, step3));
+
+        PrestationStepInstance stepInstance1 = mock(PrestationStepInstance.class);
+        when(stepInstance1.getStep()).thenReturn(step1);
+        when(stepInstance1.getStatus()).thenReturn(PrestationStepStatus.FINISHED);
+        when(prestationStepInstanceRepository.findByPrestationInstance(instance)).thenReturn(List.of(stepInstance1));
+
+        PrestationStepResponseDTO dto2 = new PrestationStepResponseDTO(2L, "Paso 2", 2, false);
+        PrestationStepResponseDTO dto3 = new PrestationStepResponseDTO(3L, "Paso 3", 3, true);
+        when(prestationStepMapper.toDTO(List.of(step2, step3))).thenReturn(List.of(dto2, dto3));
+
+        List<PrestationStepResponseDTO> result = useCase.execute(1L);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0)).isSameAs(dto2);
+        assertThat(result.get(0).required()).isFalse();
+        assertThat(result.get(1)).isSameAs(dto3);
+        assertThat(result.get(1).required()).isTrue();
+    }
+
+    /**
+     * CASO: Catálogo con 3 steps, todos required=true (pos1, pos2, pos3).
+     *       Una PrestationStepInstance con step1 en OMITTED.
+     * Regla: OMITTED cuenta igual que COMPLETED para determinar el punto de partida.
+     * Validación: Resultado = [step2, step3]; tamaño de lista = 2.
+     */
+    @Test
+    void getNextSteps_conUltimoStepOMITTED_cuentaComoProcesadoParaElPuntoDePartida200() {
+        PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
+        when(instance.getStatus()).thenReturn(PrestationInstanceStatus.IN_PROGRESS);
+        when(instance.getType().isHasSteps()).thenReturn(true);
+        when(instance.getType().getId()).thenReturn(10L);
+        when(prestationInstanceQueryService.findById(1L)).thenReturn(instance);
+
+        PrestationStep step1 = mock(PrestationStep.class);
+        when(step1.getPosition()).thenReturn(1);
+
+        PrestationStep step2 = mock(PrestationStep.class);
+        when(step2.getPosition()).thenReturn(2);
+
+        PrestationStep step3 = mock(PrestationStep.class);
+        when(step3.getPosition()).thenReturn(3);
+
+        when(prestationStepRepository.findByPrestationId(10L)).thenReturn(List.of(step1, step2, step3));
 
         PrestationStepInstance stepInstance1 = mock(PrestationStepInstance.class);
         when(stepInstance1.getStep()).thenReturn(step1);
@@ -275,11 +261,13 @@ class GetNextStepsPrestationInstanceUseCaseTest {
         when(prestationStepInstanceRepository.findByPrestationInstance(instance)).thenReturn(List.of(stepInstance1));
 
         PrestationStepResponseDTO dto2 = new PrestationStepResponseDTO(2L, "Paso 2", 2, true);
-        when(prestationStepMapper.toDTO(List.of(step2))).thenReturn(List.of(dto2));
+        PrestationStepResponseDTO dto3 = new PrestationStepResponseDTO(3L, "Paso 3", 3, true);
+        when(prestationStepMapper.toDTO(List.of(step2, step3))).thenReturn(List.of(dto2, dto3));
 
         List<PrestationStepResponseDTO> result = useCase.execute(1L);
 
-        assertThat(result).hasSize(1);
+        assertThat(result).hasSize(2);
         assertThat(result.get(0)).isSameAs(dto2);
+        assertThat(result.get(1)).isSameAs(dto3);
     }
 }

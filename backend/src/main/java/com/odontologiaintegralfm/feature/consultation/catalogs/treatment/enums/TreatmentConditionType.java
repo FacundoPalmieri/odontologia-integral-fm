@@ -7,5 +7,5 @@ public enum TreatmentConditionType {
     PREEXISTING,
     REQUIRED,
     IN_PROGRESS,
-    COMPLETED
+    FINISHED
 }
