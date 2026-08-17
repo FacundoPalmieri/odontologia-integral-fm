@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model;
 
+import com.odontologiaintegralfm.feature.dentist.catalogs.model.DentistSpecialty;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -20,6 +21,7 @@ import java.util.Set;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "treatment")
 @Where(clause = "enabled = true")
+@Audited
 public class Treatment extends AuditableJPA {
 
     @Id
@@ -44,4 +46,14 @@ public class Treatment extends AuditableJPA {
             uniqueConstraints = @UniqueConstraint(columnNames = {"treatment_id","condition_id"})
     )
     private Set<TreatmentCondition> condition;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @JoinTable(
+            name = "treatments_dentist_specialties",
+            joinColumns = @JoinColumn(name = "treatment_id"),
+            inverseJoinColumns = @JoinColumn(name = "dentist_specialty_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"treatment_id","dentist_specialty_id"})
+    )
+    private Set<DentistSpecialty> dentistSpecialties;
 }

@@ -2,6 +2,7 @@ package com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model
 
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.enums.PrestationScopeType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.Treatment;
+import com.odontologiaintegralfm.feature.dentist.catalogs.model.DentistSpecialty;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -46,6 +47,16 @@ public class PrestationType extends AuditableJPA {
     )
     private Set<Treatment> treatments;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @JoinTable(
+            name = "prestation_types_dentist_specialties",
+            joinColumns = @JoinColumn(name = "prestacion_id"),
+            inverseJoinColumns = @JoinColumn(name = "dentist_specialty_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"prestacion_id","dentist_specialty_id"})
+    )
+    private Set<DentistSpecialty> dentistSpecialties;
+
 
     // Si es true, no puede haber otra prestación en el odontogramaDetail.
     @Column(nullable = false)
@@ -65,16 +76,4 @@ public class PrestationType extends AuditableJPA {
     )
     @Column(name = "scope_type")
     private Set<PrestationScopeType> allowedScopes;
-
-    private PrestationType(String name, Set<Treatment> treatments, boolean isUnique, boolean hasSteps, boolean requiresLocation) {
-        this.name = name;
-        this.treatments = treatments;
-        this.isUnique = isUnique;
-        this.hasSteps = hasSteps;
-        this.requiresLocation = requiresLocation;
-    }
-
-    public static PrestationType build(String name, Set<Treatment> treatments, boolean isUnique, boolean hasSteps, boolean requiresLocation) {
-        return new PrestationType(name, treatments, isUnique, hasSteps, requiresLocation);
-    }
 }
