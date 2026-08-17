@@ -18,8 +18,6 @@ public interface PrestationInstanceMapper {
     @Mapping(target = "steps", ignore = true)
     PrestationInstanceResponseDTO toDTO(PrestationInstance prestationInstance);
 
-    // Construcción directa desde la entidad — NO reusa PrestationStepMapper.toDTO(PrestationStep), que mapea
-    // desde el catálogo sin conocer el estado de la instancia (id propio, status).
     default PrestationStepInstanceResponseDTO toStepDTO(PrestationStepInstance instance) {
         return new PrestationStepInstanceResponseDTO(
                 instance.getId(),
