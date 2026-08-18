@@ -63,9 +63,6 @@ public class PrestationType extends AuditableJPA {
     private boolean isUnique;
 
     @Column(nullable = false)
-    private boolean hasSteps;
-
-    @Column(nullable = false)
     private boolean requiresLocation;
 
     @ElementCollection(targetClass = PrestationScopeType.class)

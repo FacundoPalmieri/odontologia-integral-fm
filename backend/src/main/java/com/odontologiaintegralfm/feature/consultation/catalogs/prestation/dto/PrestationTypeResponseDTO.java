@@ -9,7 +9,6 @@ public record PrestationTypeResponseDTO(
         Long id,
         String name,
         boolean isUnique,
-        boolean hasSteps,
         boolean requiresLocation,
         Set<PrestationScopeType> allowedScopes,
         BigDecimal currentPrice
