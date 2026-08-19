@@ -17,11 +17,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-public class PromotionService {
+public class PromotionQueryService {
     private final IPromotionRepository promotionRepository;
     private final PromotionMapper promotionMapper;
 
-    PromotionService(IPromotionRepository promotionRepository, PromotionMapper promotionMapper) {
+    PromotionQueryService(IPromotionRepository promotionRepository, PromotionMapper promotionMapper) {
         this.promotionRepository = promotionRepository;
         this.promotionMapper = promotionMapper;
     }
@@ -29,16 +29,26 @@ public class PromotionService {
     public Promotion findById(Long id) {
         if (id == null) return null;
         return promotionRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("exception.promotionNotFound.user", null,"exception.promotionNotFound.log", new Object[]{id,"PromotionService","findById"}, LogLevel.ERROR));
+                .orElseThrow(() -> new NotFoundException("exception.promotionNotFound.user", null,"exception.promotionNotFound.log", new Object[]{id,"PromotionQueryService","findById"}, LogLevel.ERROR));
+    }
+
+    @Transactional(readOnly = true)
+    public Response<List<PromotionResponseDTO>> getCurrent() {
+        try {
+            List<PromotionResponseDTO> promotions = promotionMapper.toDTO(promotionRepository.findAllActive(LocalDate.now()));
+            return new Response<>(true, null, promotions);
+        } catch (DataAccessException | CannotCreateTransactionException e) {
+            throw new DataBaseException(e, "PromotionQueryService", null, null, "getCurrent");
+        }
     }
 
     @Transactional(readOnly = true)
     public Response<List<PromotionResponseDTO>> getAll() {
         try {
-            List<PromotionResponseDTO> promotions = promotionMapper.toDTO(promotionRepository.findAllActive(LocalDate.now()));
+            List<PromotionResponseDTO> promotions = promotionMapper.toDTO(promotionRepository.findAll());
             return new Response<>(true, null, promotions);
         } catch (DataAccessException | CannotCreateTransactionException e) {
-            throw new DataBaseException(e, "PromotionService", null, null, "getAll");
+            throw new DataBaseException(e, "PromotionQueryService", null, null, "getAll");
         }
     }
 }

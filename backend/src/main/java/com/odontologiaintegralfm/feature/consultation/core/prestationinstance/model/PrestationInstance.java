@@ -152,8 +152,7 @@ public class PrestationInstance extends AuditableJPA {
     public static PrestationInstance build(ConsultationInstance consultationInstance, PrestationType type, Odontogram odontogram,
                                            PrestationInstanceStatus status, PrestationScopeType scope, Tooth tooth, ToothFace toothFace,
                                            Quadrant quadrant, Maxillary maxillary, BigDecimal price, Promotion promotion,
-                                           DiscountType discountType, BigDecimal discountValue) {
-        BigDecimal promotionAmount = promotion != null ? promotion.calculateAmount(price) : null;
+                                           BigDecimal promotionAmount, DiscountType discountType, BigDecimal discountValue) {
         BigDecimal discountAmount  = discountType != null ? calculateDiscountAmount(price, discountType, discountValue) : null;
         BigDecimal finalAmount     = calculateFinalAmount(price, promotionAmount, discountAmount);
         return new PrestationInstance(consultationInstance, type, odontogram, status, scope, tooth, toothFace,

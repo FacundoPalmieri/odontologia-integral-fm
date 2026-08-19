@@ -10,6 +10,7 @@ import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mo
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationStepInstanceRepository;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
+import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -54,16 +55,16 @@ class GetNextStepsPrestationInstanceUseCaseTest {
     /**
      * CASO: La PrestationInstance existe pero su estado no es IN_PROGRESS (ej: COMPLETED).
      * Regla: Solo se pueden consultar los próximos steps de una prestación en progreso.
-     * Validación: BadRequestException con el label del estado actual en el mensaje.
+     * Validación: ConflictException con el label del estado actual en el mensaje.
      */
     @Test
-    void getNextSteps_prestationInstanceNoInProgress_retorna422() {
+    void getNextSteps_prestationInstanceNoInProgress_retorna409() {
         PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
         when(instance.getStatus()).thenReturn(PrestationInstanceStatus.COMPLETED);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(instance);
 
         assertThatThrownBy(() -> useCase.execute(1L))
-                .isInstanceOf(BadRequestException.class);
+                .isInstanceOf(ConflictException.class);
     }
 
     /**
@@ -72,7 +73,7 @@ class GetNextStepsPrestationInstanceUseCaseTest {
      * Validación: BadRequestException lanzada antes de cualquier llamada al repositorio de steps.
      */
     @Test
-    void getNextSteps_prestationInstanceSinWorkflowDeSteps_retorna422() {
+    void getNextSteps_prestationInstanceSinWorkflowDeSteps_retorna400() {
         PrestationInstance instance = mock(PrestationInstance.class, RETURNS_DEEP_STUBS);
         when(instance.getStatus()).thenReturn(PrestationInstanceStatus.IN_PROGRESS);
         when(instance.getType().isHasSteps()).thenReturn(false);

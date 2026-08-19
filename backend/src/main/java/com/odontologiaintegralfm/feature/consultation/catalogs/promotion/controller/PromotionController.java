@@ -1,14 +1,13 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.promotion.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationCreate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationRead;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConfigurationUpdate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationRead;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.CreatePromotionUseCase;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.DisablePromotionUseCase;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.EnablePromotionUseCase;
-import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.PromotionService;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.dto.PromotionUpdateRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.service.*;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,16 +31,16 @@ import java.util.List;
 @RequestMapping("/api/promotion")
 public class PromotionController {
 
-    private final PromotionService promotionService;
+    private final PromotionQueryService promotionQueryService;
     private final CreatePromotionUseCase createPromotionUseCase;
-    private final EnablePromotionUseCase enablePromotionUseCase;
-    private final DisablePromotionUseCase disablePromotionUseCase;
+    private final UpdatePromotionUseCase updatePromotionUseCase;
+    private final FinishPromotionUseCase finishPromotionUseCase;
 
-    PromotionController(PromotionService promotionService, CreatePromotionUseCase createPromotionUseCase, EnablePromotionUseCase enablePromotionUseCase, DisablePromotionUseCase disablePromotionUseCase) {
-        this.promotionService = promotionService;
+    PromotionController(PromotionQueryService promotionQueryService, CreatePromotionUseCase createPromotionUseCase, UpdatePromotionUseCase updatePromotionUseCase, FinishPromotionUseCase finishPromotionUseCase) {
+        this.promotionQueryService = promotionQueryService;
         this.createPromotionUseCase = createPromotionUseCase;
-        this.enablePromotionUseCase = enablePromotionUseCase;
-        this.disablePromotionUseCase = disablePromotionUseCase;
+        this.updatePromotionUseCase = updatePromotionUseCase;
+        this.finishPromotionUseCase = finishPromotionUseCase;
     }
 
     @Operation(summary = "Obtener catálogo de promociones vigentes", description = "Lista todas las promociones habilitadas y vigentes a la fecha actual.")
@@ -49,10 +49,22 @@ public class PromotionController {
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
     })
-    @GetMapping("/all")
+    @GetMapping("/current")
     @OnlyAccessConsultationRead
+    public ResponseEntity<Response<List<PromotionResponseDTO>>> getCurrent() {
+        return new ResponseEntity<>(promotionQueryService.getCurrent(), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Obtener catálogo administrativo de promociones", description = "Lista todas las promociones habilitadas, sin filtro de vigencia por fecha (vencidas, futuras y vigentes).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promociones encontradas."),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+    })
+    @GetMapping("/all")
+    @OnlyAccessConfigurationRead
     public ResponseEntity<Response<List<PromotionResponseDTO>>> getAll() {
-        return new ResponseEntity<>(promotionService.getAll(), HttpStatus.OK);
+        return new ResponseEntity<>(promotionQueryService.getAll(), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear una promoción", description = "Da de alta una nueva promoción de configuración del consultorio.")
@@ -69,31 +81,32 @@ public class PromotionController {
         return new ResponseEntity<>(createPromotionUseCase.execute(dto), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Habilitar una promoción", description = "Habilita una promoción previamente deshabilitada.")
+    @Operation(summary = "Editar una promoción", description = "Actualiza una promoción existente. El front envía el objeto completo; la API ignora los campos iguales al persistido y valida/rechaza los distintos según el estado actual de la promoción (No iniciada/Vigente/Finalizada).")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Promoción habilitada."),
+            @ApiResponse(responseCode = "200", description = "Promoción actualizada (o sin cambios, si el objeto enviado es idéntico al persistido)."),
+            @ApiResponse(responseCode = "400", description = "Fecha anterior a hoy o value/discountType fuera de rango."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "No se encontró la promoción."),
-            @ApiResponse(responseCode = "409", description = "La promoción ya se encuentra habilitada."),
+            @ApiResponse(responseCode = "409", description = "Campo no permitido según el estado actual de la promoción, o label duplicado."),
     })
-    @PatchMapping("/enabled/{id}")
+    @PutMapping("/{id}")
     @OnlyAccessConfigurationUpdate
-    public ResponseEntity<Response<PromotionResponseDTO>> enable(@PathVariable @Valid @NotNull Long id) {
-        return ResponseEntity.ok(enablePromotionUseCase.execute(id));
+    public ResponseEntity<Response<PromotionResponseDTO>> update(@PathVariable @Valid @NotNull Long id, @Valid @RequestBody PromotionUpdateRequestDTO dto) {
+        return ResponseEntity.ok(updatePromotionUseCase.execute(id, dto));
     }
 
-    @Operation(summary = "Deshabilitar una promoción", description = "Deshabilita una promoción previamente habilitada.")
+    @Operation(summary = "Finalizar una promoción", description = "Trunca la vigencia de la promoción al momento actual del servidor, sin modificar startDate/endDate. Operación terminal: no admite reactivación.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Promoción deshabilitada."),
+            @ApiResponse(responseCode = "200", description = "Promoción finalizada."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "No se encontró la promoción."),
-            @ApiResponse(responseCode = "409", description = "La promoción ya se encuentra deshabilitada."),
+            @ApiResponse(responseCode = "409", description = "La promoción ya se encuentra finalizada."),
     })
-    @PatchMapping("/disabled/{id}")
+    @PatchMapping("/finish/{id}")
     @OnlyAccessConfigurationUpdate
-    public ResponseEntity<Response<PromotionResponseDTO>> disable(@PathVariable @Valid @NotNull Long id) {
-        return ResponseEntity.ok(disablePromotionUseCase.execute(id));
+    public ResponseEntity<Response<PromotionResponseDTO>> finish(@PathVariable @Valid @NotNull Long id) {
+        return ResponseEntity.ok(finishPromotionUseCase.execute(id));
     }
 }

@@ -9,14 +9,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
+import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Entidad que representa una promoción aplicable a prestaciones.
  */
 @Entity
+@Audited
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,6 +52,8 @@ public class Promotion extends AuditableJPA {
 
     @Column(nullable = false)
     private LocalDate endDate;
+
+    private LocalDateTime finishedAt;
 
     private Promotion(String name, DiscountType discountType, BigDecimal value, LocalDate startDate, LocalDate endDate) {
         this.name = name;

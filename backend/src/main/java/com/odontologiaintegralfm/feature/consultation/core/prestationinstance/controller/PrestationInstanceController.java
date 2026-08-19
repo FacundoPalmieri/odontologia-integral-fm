@@ -31,10 +31,11 @@ public class PrestationInstanceController {
     @Operation(summary = "Obtener próximos steps de una prestación", description = "Devuelve los próximos steps habilitados para una instancia de prestación en progreso.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Steps obtenidos correctamente"),
+            @ApiResponse(responseCode = "400", description = "La prestación no tiene workflow de steps definido."),
             @ApiResponse(responseCode = "401", description = "No autenticado."),
             @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
             @ApiResponse(responseCode = "404", description = "Instancia de prestación no encontrada o sin steps configurados."),
-            @ApiResponse(responseCode = "422", description = "La prestación no está en estado IN_PROGRESS o no tiene workflow de steps."),
+            @ApiResponse(responseCode = "409", description = "La prestación no está en estado IN_PROGRESS."),
     })
     @GetMapping("/{id}/next-steps")
     @OnlyAccessConsultationCreate

@@ -9,6 +9,7 @@ public record ConsultationResponseDTO(
         LocalDateTime dateTime,
         Long patientId,
         String patientName,
+        Long dentistId,
         String dentistName,
         String consultationStatus,
         String webSocketStatus

@@ -2,11 +2,13 @@ package com.odontologiaintegralfm.feature.consultation.core.consultation.control
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.*;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationCorrectionRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationHistoryResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.dto.ConsultationResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.CallPatientUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.ConsultationQueryService;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.CreateConsultationUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.DesactivateConsultationUseCase;
+import com.odontologiaintegralfm.feature.consultation.core.consultation.service.GetConsultationHistoryUseCase;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.service.UpdateConsultationCorrectionUseCase;
 import com.odontologiaintegralfm.shared.dto.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,17 +36,20 @@ public class ConsultationController {
     private final CallPatientUseCase callPatientUseCase;
     private final ConsultationQueryService consultationQueryService;
     private final DesactivateConsultationUseCase desactivateConsultationUseCase;
+    private final GetConsultationHistoryUseCase getConsultationHistoryUseCase;
 
     public ConsultationController(UpdateConsultationCorrectionUseCase updateConsultationCorrectionUseCase,
                                   CreateConsultationUseCase createConsultationUseCase,
                                   CallPatientUseCase callPatientUseCase,
                                   ConsultationQueryService consultationQueryService,
-                                  DesactivateConsultationUseCase desactivateConsultationUseCase) {
+                                  DesactivateConsultationUseCase desactivateConsultationUseCase,
+                                  GetConsultationHistoryUseCase getConsultationHistoryUseCase) {
         this.updateConsultationCorrectionUseCase = updateConsultationCorrectionUseCase;
         this.createConsultationUseCase = createConsultationUseCase;
         this.callPatientUseCase  = callPatientUseCase;
         this.consultationQueryService = consultationQueryService;
         this.desactivateConsultationUseCase = desactivateConsultationUseCase;
+        this.getConsultationHistoryUseCase = getConsultationHistoryUseCase;
     }
 
 
@@ -147,6 +152,21 @@ public class ConsultationController {
         Response<Void> response = desactivateConsultationUseCase.execute(idConsultation, observation);
         return ResponseEntity.ok(response);
 
+    }
+
+
+    @Operation(summary = "Historial de consultas del paciente", description = "Obtiene el historial de consultas habilitadas de un paciente, ordenadas desc por id.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Historial recuperado"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Paciente no encontrado."),
+    })
+    @GetMapping("/patient/{idPatient}")
+    @OnlyAccessConsultationRead
+    public ResponseEntity<Response<List<ConsultationHistoryResponseDTO>>> getHistoryByPatient(@PathVariable @NotNull Long idPatient) {
+        Response<List<ConsultationHistoryResponseDTO>> response = getConsultationHistoryUseCase.execute(idPatient);
+        return ResponseEntity.ok(response);
     }
 
 

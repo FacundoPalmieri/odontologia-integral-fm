@@ -4,6 +4,7 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.enums.D
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record PromotionResponseDTO(
         Long id,
@@ -12,6 +13,6 @@ public record PromotionResponseDTO(
         BigDecimal value,
         LocalDate startDate,
         LocalDate endDate,
-        boolean enabled
+        LocalDateTime finishedAt
 ) {
 }
