@@ -1,5 +1,5 @@
 import { Component, inject, Inject } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -19,12 +19,11 @@ import { UnlockCalendarDialog } from "../unlock-calendar-dialog/unlock-calendar-
   selector: "app-calendar-lock-detail-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatDividerModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./calendar-lock-detail-dialog.component.html",
 })
 export class CalendarLockDetailDialogComponent {

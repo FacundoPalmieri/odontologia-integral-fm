@@ -8,7 +8,7 @@ import {
   Output,
   EventEmitter,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { IconsModule } from "../../../core/modules/tabler-icons.module";
 import {
   FormControl,
@@ -39,14 +39,13 @@ import { ApiResponseInterface } from "../../interfaces/api-response.interface";
   templateUrl: "./person-form.component.html",
   standalone: true,
   imports: [
-    CommonModule,
     IconsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    MatDatepickerModule,
-  ],
+    MatDatepickerModule
+],
 })
 export class PersonFormComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();

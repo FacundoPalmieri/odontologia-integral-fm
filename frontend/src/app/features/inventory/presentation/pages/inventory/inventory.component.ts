@@ -8,7 +8,7 @@ import {
   ViewChild,
   OnInit,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatCardModule } from "@angular/material/card";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
@@ -44,7 +44,6 @@ import { InventoryDto } from "../../../data/dtos/inventory.dto";
   templateUrl: "./inventory.component.html",
   standalone: true,
   imports: [
-    CommonModule,
     IconsModule,
     MatToolbarModule,
     PageToolbarComponent,
@@ -57,8 +56,8 @@ import { InventoryDto } from "../../../data/dtos/inventory.dto";
     MatSortModule,
     MatFormFieldModule,
     ReactiveFormsModule,
-    MatInputModule,
-  ],
+    MatInputModule
+],
 })
 export class InventoryComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly _destroy$ = new Subject<void>();

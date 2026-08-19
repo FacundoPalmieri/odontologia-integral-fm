@@ -7,7 +7,7 @@ import {
   OnInit,
   signal,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
@@ -33,7 +33,6 @@ import {
   templateUrl: "./home.component.html",
   standalone: true,
   imports: [
-    CommonModule,
     IconsModule,
     MatToolbarModule,
     MatCardModule,
@@ -41,8 +40,8 @@ import {
     MatChipsModule,
     MatProgressSpinnerModule,
     CardIconTitleComponent,
-    NoWorkScheduleComponent,
-  ],
+    NoWorkScheduleComponent
+],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();

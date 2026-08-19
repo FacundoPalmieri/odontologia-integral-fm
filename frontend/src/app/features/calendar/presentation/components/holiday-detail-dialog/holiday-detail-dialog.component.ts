@@ -7,7 +7,7 @@ import {
 } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
-import { CommonModule } from "@angular/common";
+
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { HolidayInterface } from "../../../../holidays/data/interfaces/holiday.interface";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
@@ -22,12 +22,11 @@ import { LocalStorageService } from "../../../../../shared/services/local-storag
   selector: "app-holiday-detail-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatDividerModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./holiday-detail-dialog.component.html",
 })
 export class HolidayDetailDialogComponent {

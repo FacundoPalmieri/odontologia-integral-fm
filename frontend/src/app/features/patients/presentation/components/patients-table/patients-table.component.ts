@@ -7,7 +7,7 @@ import {
   ChangeDetectionStrategy,
   effect,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatTableModule, MatTableDataSource } from "@angular/material/table";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
@@ -23,7 +23,6 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
   templateUrl: "./patients-table.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -31,8 +30,8 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
     MatButtonModule,
     MatTooltipModule,
     IconsModule,
-    EmptyStateComponent,
-  ],
+    EmptyStateComponent
+],
 })
 export class PatientsTableComponent implements AfterViewInit {
   readonly patients = input.required<PatientDto[]>();

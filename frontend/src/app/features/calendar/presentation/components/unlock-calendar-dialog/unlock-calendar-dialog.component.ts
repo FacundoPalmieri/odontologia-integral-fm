@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatDialogModule, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -12,14 +12,13 @@ import { CalendarLockDayInterface } from "../../../data/interfaces/calendar-lock
   selector: "app-unlock-calendar-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./unlock-calendar-dialog.component.html",
 })
 export class UnlockCalendarDialog {

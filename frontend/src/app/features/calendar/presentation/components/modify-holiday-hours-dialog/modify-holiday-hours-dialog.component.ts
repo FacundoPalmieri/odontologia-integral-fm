@@ -5,7 +5,7 @@ import {
   MatDialogRef,
 } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
-import { CommonModule } from "@angular/common";
+
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import {
@@ -27,15 +27,14 @@ import { LocalStorageService } from "../../../../../shared/services/local-storag
   selector: "app-modify-holiday-hours-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
     MatSelectModule,
     ReactiveFormsModule,
     MatProgressSpinnerModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./modify-holiday-hours-dialog.component.html",
 })
 export class ModifyHolidayHoursDialogComponent implements OnInit {

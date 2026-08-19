@@ -35,7 +35,7 @@ import lottie, { AnimationItem } from "lottie-web";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { AuthService } from "../../../services/auth.service";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
-import { CommonModule } from "@angular/common";
+
 
 @Component({
   selector: "app-login",
@@ -49,9 +49,8 @@ import { CommonModule } from "@angular/common";
     MatInputModule,
     MatCheckboxModule,
     MatIconModule,
-    IconsModule,
-    CommonModule,
-  ],
+    IconsModule
+],
 })
 export class LoginComponent implements AfterViewInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();

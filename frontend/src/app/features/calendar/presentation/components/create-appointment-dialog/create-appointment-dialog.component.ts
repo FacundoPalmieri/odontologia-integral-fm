@@ -11,7 +11,7 @@ import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { CommonModule } from "@angular/common";
+
 import {
   debounceTime,
   distinctUntilChanged,
@@ -70,7 +70,6 @@ export interface CreateAppointmentDialogData {
   styleUrls: ["./create-appointment-dialog.component.scss"],
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -80,8 +79,8 @@ export interface CreateAppointmentDialogData {
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
-    IconsModule,
-  ],
+    IconsModule
+],
 })
 export class CreateAppointmentDialogComponent implements OnInit {
   private readonly dialogRef = inject(

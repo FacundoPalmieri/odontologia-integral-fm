@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatDialogModule, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -16,14 +16,13 @@ export interface CancelAllAppointmentsDialogData {
   selector: "app-cancel-all-appointments-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./cancel-all-appointments-dialog.component.html",
 })
 export class CancelAllAppointmentsDialog {

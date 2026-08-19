@@ -4,7 +4,7 @@ import {
   input,
   output,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { FormsModule } from "@angular/forms";
 import { IconsModule } from "../../../core/modules/tabler-icons.module";
 import { MatCardModule } from "@angular/material/card";
@@ -28,7 +28,6 @@ export interface ToolbarSelectOption {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     FormsModule,
     IconsModule,
     MatCardModule,
@@ -39,8 +38,8 @@ export interface ToolbarSelectOption {
     MatFormFieldModule,
     MatInputModule,
     MatButtonToggleModule,
-    MatSelectModule,
-  ],
+    MatSelectModule
+],
 })
 export class PageToolbarComponent {
   readonly title = input<string>("");

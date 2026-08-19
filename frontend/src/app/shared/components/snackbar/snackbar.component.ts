@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+
 import { Component, Inject } from "@angular/core";
 import { MAT_SNACK_BAR_DATA } from "@angular/material/snack-bar";
 import { SnackbarTypeEnum } from "../../utils/enums/snackbar-type.enum";
@@ -9,7 +9,7 @@ import { IconsModule } from "../../../core/modules/tabler-icons.module";
   selector: "app-snackbar",
   templateUrl: "./snackbar.component.html",
   standalone: true,
-  imports: [CommonModule, IconsModule],
+  imports: [IconsModule],
 })
 export class SnackbarComponent {
   SnackbarType = SnackbarTypeEnum;

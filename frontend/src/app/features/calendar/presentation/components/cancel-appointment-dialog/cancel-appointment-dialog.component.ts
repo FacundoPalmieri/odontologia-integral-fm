@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatDialogModule, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -12,14 +12,13 @@ import { AppointmentConflictInterface } from "../../../../appointments/data/inte
   selector: "app-cancel-appointment-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./cancel-appointment-dialog.component.html",
 })
 export class CancelAppointmentDialog {

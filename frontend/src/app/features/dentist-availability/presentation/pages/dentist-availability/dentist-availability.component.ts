@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject, signal } from "@angular/core";
-import { CommonModule, Location } from "@angular/common";
+import { Location } from "@angular/common";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import {
   FormArray,
@@ -42,7 +42,6 @@ import { AppointmentConflictInterface } from "../../../../appointments/data/inte
   templateUrl: "./dentist-availability.component.html",
   standalone: true,
   imports: [
-    CommonModule,
     IconsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -55,8 +54,8 @@ import { AppointmentConflictInterface } from "../../../../appointments/data/inte
     PageToolbarComponent,
     MatCardModule,
     MatTooltipModule,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
 })
 export class DentistAvailabilityComponent implements OnDestroy, OnInit {
   private readonly route = inject(ActivatedRoute);

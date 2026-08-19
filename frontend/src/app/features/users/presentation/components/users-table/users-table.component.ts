@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, output, ViewChild, AfterViewInit, effect } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatCardModule } from "@angular/material/card";
 import { MatTableModule, MatTableDataSource } from "@angular/material/table";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
@@ -17,7 +17,6 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -26,8 +25,8 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
     MatButtonModule,
     MatChipsModule,
     IconsModule,
-    EmptyStateComponent,
-  ],
+    EmptyStateComponent
+],
 })
 export class UsersTableComponent implements AfterViewInit {
   readonly users = input.required<UserDto[]>();

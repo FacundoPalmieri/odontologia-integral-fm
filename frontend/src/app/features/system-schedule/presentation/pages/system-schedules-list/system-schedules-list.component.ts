@@ -7,7 +7,7 @@ import {
   computed,
   ViewChild,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -36,7 +36,6 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
   templateUrl: "./system-schedules-list.component.html",
   standalone: true,
   imports: [
-    CommonModule,
     IconsModule,
     MatToolbarModule,
     MatFormFieldModule,
@@ -50,8 +49,8 @@ import { EmptyStateComponent } from "../../../../../shared/components/empty-stat
     MatTooltipModule,
     MatDialogModule,
     PageToolbarComponent,
-    EmptyStateComponent,
-  ],
+    EmptyStateComponent
+],
 })
 export class SystemSchedulesListComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();

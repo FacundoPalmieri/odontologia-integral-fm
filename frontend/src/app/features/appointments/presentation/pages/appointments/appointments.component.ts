@@ -8,7 +8,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { WebsocketService } from "../../../../../core/services/websocket.service";
-import { CommonModule } from "@angular/common";
+
 import { ReactiveFormsModule, FormControl } from "@angular/forms";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -41,7 +41,6 @@ import { forkJoin, Observable } from "rxjs";
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     IconsModule,
     MatToolbarModule,
@@ -55,8 +54,8 @@ import { forkJoin, Observable } from "rxjs";
     MatSelectModule,
     MatDialogModule,
     AppointmentsTableComponent,
-    AppointmentsCardsComponent,
-  ],
+    AppointmentsCardsComponent
+],
 })
 export class AppointmentsComponent {
   private readonly dialog = inject(MatDialog);

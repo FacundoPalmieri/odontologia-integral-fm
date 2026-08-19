@@ -1,5 +1,5 @@
 import { Component, inject, Inject } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -23,12 +23,11 @@ import { CancelAppointmentDialog } from "../cancel-appointment-dialog/cancel-app
   selector: "app-appointment-detail-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatDividerModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./appointment-detail-dialog.component.html",
 })
 export class AppointmentDetailDialogComponent {

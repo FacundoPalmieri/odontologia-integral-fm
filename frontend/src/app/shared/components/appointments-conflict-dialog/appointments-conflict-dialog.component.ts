@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import {
   MatDialogModule,
   MAT_DIALOG_DATA,
@@ -25,15 +25,14 @@ import { AppointmentCancelDto } from "../../../features/appointments/data/dtos/a
   selector: "app-appointments-conflict-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatCardModule,
     MatTableModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./appointments-conflict-dialog.component.html",
 })
 export class AppointmentsConflictDialogComponent implements OnInit {

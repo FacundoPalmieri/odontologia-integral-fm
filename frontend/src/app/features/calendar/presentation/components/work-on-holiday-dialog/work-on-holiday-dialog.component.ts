@@ -5,7 +5,7 @@ import {
   MatDialogRef,
 } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
-import { CommonModule } from "@angular/common";
+
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -28,7 +28,6 @@ import { LocalStorageService } from "../../../../../shared/services/local-storag
   selector: "app-work-on-holiday-dialog",
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -36,8 +35,8 @@ import { LocalStorageService } from "../../../../../shared/services/local-storag
     MatCheckboxModule,
     ReactiveFormsModule,
     MatProgressSpinnerModule,
-    IconsModule,
-  ],
+    IconsModule
+],
   templateUrl: "./work-on-holiday-dialog.component.html",
 })
 export class WorkOnHolidayDialogComponent implements OnInit {

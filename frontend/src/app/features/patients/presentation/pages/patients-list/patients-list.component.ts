@@ -9,7 +9,7 @@ import {
   signal,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatCardModule } from "@angular/material/card";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -40,7 +40,6 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     IconsModule,
     MatToolbarModule,
     PageToolbarComponent,
@@ -53,8 +52,8 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
     MatTooltipModule,
     MatSortModule,
     PatientsTableComponent,
-    PatientsCardsComponent,
-  ],
+    PatientsCardsComponent
+],
 })
 export class PatientsListComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);

@@ -8,7 +8,7 @@ import {
   signal,
   computed,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatCardModule } from "@angular/material/card";
 import { MatChipsModule } from "@angular/material/chips";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -35,7 +35,6 @@ import { UsersCardsComponent } from "../../components/users-cards/users-cards.co
   templateUrl: "./users-list.component.html",
   standalone: true,
   imports: [
-    CommonModule,
     IconsModule,
     MatToolbarModule,
     PageToolbarComponent,
@@ -46,8 +45,8 @@ import { UsersCardsComponent } from "../../components/users-cards/users-cards.co
     MatInputModule,
     MatButtonToggleModule,
     UsersTableComponent,
-    UsersCardsComponent,
-  ],
+    UsersCardsComponent
+],
 })
 export class UsersListComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);

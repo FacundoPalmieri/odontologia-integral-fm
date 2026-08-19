@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+
 import {
   Component,
   ElementRef,
@@ -30,12 +30,11 @@ export interface AttachedFileEntityInterface {
   templateUrl: "./attached-file.component.html",
   standalone: true,
   imports: [
-    CommonModule,
     IconsModule,
     MatButtonModule,
     MatTableModule,
-    MatTooltipModule,
-  ],
+    MatTooltipModule
+],
 })
 export class AttachedFileComponent implements OnDestroy {
   private readonly fileService = inject(FileService);

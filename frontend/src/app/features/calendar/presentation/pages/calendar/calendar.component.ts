@@ -7,7 +7,7 @@ import {
   ViewChild,
   signal,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -77,7 +77,6 @@ export interface SpecialtyGroup {
   styleUrls: ["./calendar.component.scss"],
   standalone: true,
   imports: [
-    CommonModule,
     IconsModule,
     MatProgressBarModule,
     MatButtonModule,
@@ -97,8 +96,8 @@ export interface SpecialtyGroup {
     MatNativeDateModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
-    NoWorkScheduleComponent,
-  ],
+    NoWorkScheduleComponent
+],
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
   private readonly loaderService = inject(LoaderService);
