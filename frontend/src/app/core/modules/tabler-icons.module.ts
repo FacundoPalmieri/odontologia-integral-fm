@@ -148,6 +148,7 @@ import {
   IconLetterSSmall,
   IconLetterPSmall,
   IconLetterRSmall,
+  IconRosetteDiscount,
 } from "angular-tabler-icons/icons";
 
 const ICONS = {
@@ -296,7 +297,8 @@ const ICONS = {
   IconShieldHeart,
   IconLetterSSmall,
   IconLetterPSmall,
-  IconLetterRSmall
+  IconLetterRSmall,
+  IconRosetteDiscount
 } as const;
 
 @NgModule({

@@ -78,6 +78,12 @@ export class PermissionFactory {
           },
           {
             permissionEnum: PermissionsEnum.CONFIGURATION,
+            route: "/configuration/promotions",
+            icon: "rosette-discount",
+            label: "Promociones",
+          },
+          {
+            permissionEnum: PermissionsEnum.CONFIGURATION,
             route: "/configuration/holidays",
             icon: "calendar-cancel",
             label: "Feriados",

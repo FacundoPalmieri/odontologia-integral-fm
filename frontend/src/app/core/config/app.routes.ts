@@ -78,6 +78,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: "configuration/promotions",
+        loadComponent: () =>
+          import("../../features/promotions/presentation/pages/promotions-list/promotions-list.component").then(
+            (m) => m.PromotionsListComponent,
+          ),
+      },
+      {
         path: "configuration/holidays",
         loadComponent: () =>
           import("../../features/holidays/presentation/pages/holidays/holidays.component").then(

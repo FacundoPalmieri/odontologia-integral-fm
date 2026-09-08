@@ -1,0 +1,111 @@
+<div class="flex flex-col h-full">
+  <app-page-toolbar
+    [title]="'Promociones'"
+    [showActionButton]="canCreate()"
+    [actionButtonIcon]="'rosette-discount'"
+    [actionButtonText]="'Nueva promoción'"
+    (action)="createPromotion()"
+  ></app-page-toolbar>
+
+  <div class="overflow-y-auto mt-4 rounded-[var(--mat-sys-corner-medium)]">
+    @if (canRead()) {
+      @if (promotions().length > 0) {
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <div class="overflow-x-auto">
+              <table mat-table [dataSource]="promotions()" class="w-full">
+              <!-- Label Column -->
+              <ng-container matColumnDef="label">
+                <th mat-header-cell *matHeaderCellDef> Título </th>
+                <td mat-cell *matCellDef="let element"> {{element.label}} </td>
+              </ng-container>
+
+              <!-- DiscountType Column -->
+              <ng-container matColumnDef="discountType">
+                <th mat-header-cell *matHeaderCellDef> Tipo de Descuento </th>
+                <td mat-cell *matCellDef="let element">
+                  <span [class]="getDiscountTypeClass(element.discountType)">
+                    {{ getDiscountTypeLabel(element.discountType) }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Value Column -->
+              <ng-container matColumnDef="value">
+                <th mat-header-cell *matHeaderCellDef> Valor </th>
+                <td mat-cell *matCellDef="let element">
+                  @if (element.discountType === 'PERCENTAGE') {
+                    {{element.value}}%
+                  } @else {
+                    ${{element.value}}
+                  }
+                </td>
+              </ng-container>
+
+              <!-- StartDate Column -->
+              <ng-container matColumnDef="startDate">
+                <th mat-header-cell *matHeaderCellDef> Fecha Inicio </th>
+                <td mat-cell *matCellDef="let element"> {{element.startDate | date:'dd/MM/yyyy'}} </td>
+              </ng-container>
+
+              <!-- EndDate Column -->
+              <ng-container matColumnDef="endDate">
+                <th mat-header-cell *matHeaderCellDef> Fecha Fin </th>
+                <td mat-cell *matCellDef="let element"> {{element.endDate | date:'dd/MM/yyyy'}} </td>
+              </ng-container>
+
+              <!-- FinishedAt Column -->
+              <ng-container matColumnDef="finishedAt">
+                <th mat-header-cell *matHeaderCellDef> Finalizado el </th>
+                <td mat-cell *matCellDef="let element" class="relative"> 
+                  @if (element.finishedAt) {
+                    {{element.finishedAt | date:'dd/MM/yyyy'}} 
+                  } @else {
+                    -
+                  }
+
+                  @if (canUpdate() && !element.finishedAt) {
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pl-12 gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-gradient-to-l from-[var(--mat-sys-surface-container)] from-70% to-transparent">
+                      <button
+                        matIconButton
+                        matTooltip="Editar"
+                        matTooltipPosition="left"
+                        (click)="editPromotion(element)"
+                      >
+                        <i-tabler name="edit"></i-tabler>
+                      </button>
+                      <button
+                        matIconButton
+                        matTooltip="Finalizar"
+                        matTooltipPosition="left"
+                        (click)="finishPromotion(element)"
+                      >
+                        <i-tabler name="circle-x"></i-tabler>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="group transition-colors hover:![background:var(--mat-sys-surface-container)]"></tr>
+            </table>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <app-empty-state
+          message="Aún no se ha creado ninguna promoción."
+        />
+      }
+    } @else {
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <div class="flex items-center justify-center py-8">
+            <mat-chip>No tienes permisos para acceder a este recurso.</mat-chip>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+</div>
