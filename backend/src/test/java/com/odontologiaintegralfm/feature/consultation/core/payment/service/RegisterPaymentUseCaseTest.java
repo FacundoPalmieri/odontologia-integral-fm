@@ -1,7 +1,5 @@
 package com.odontologiaintegralfm.feature.consultation.core.payment.service;
 
-import com.odontologiaintegralfm.feature.consultation.core.consultation.model.Consultation;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.payment.dto.PaymentRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.core.payment.dto.PaymentResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.payment.model.Payment;
@@ -60,14 +58,10 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_validPayment_persistsPaymentAndDetail() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
         when(pi.getId()).thenReturn(1L);
         when(pi.getFinalAmount()).thenReturn(new BigDecimal("1000"));
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(1L)).thenReturn(new BigDecimal("400"));
 
@@ -104,14 +98,10 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_validPayment_returnsCorrectRemainingDebt() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
         when(pi.getId()).thenReturn(1L);
         when(pi.getFinalAmount()).thenReturn(new BigDecimal("1000"));
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(1L)).thenReturn(new BigDecimal("400"));
 
@@ -139,12 +129,8 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_zeroAmount_throwsBadRequest() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
 
         doThrow(BadRequestException.class)
@@ -167,12 +153,8 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_negativeAmount_throwsBadRequest() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
 
         doThrow(BadRequestException.class)
@@ -197,14 +179,10 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_amountExceedsRemainingDebt_throwsConflict() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
         when(pi.getId()).thenReturn(1L);
         when(pi.getFinalAmount()).thenReturn(new BigDecimal("500"));
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(1L)).thenReturn(new BigDecimal("300"));
 
@@ -229,14 +207,10 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_fullyPaidPrestation_throwsConflict() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
         when(pi.getId()).thenReturn(1L);
         when(pi.getFinalAmount()).thenReturn(new BigDecimal("500"));
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(1L)).thenReturn(new BigDecimal("500"));
 
@@ -261,14 +235,10 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_duplicatePaymentWithinFiveMinutes_throwsConflict() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
         when(pi.getId()).thenReturn(1L);
         when(pi.getFinalAmount()).thenReturn(new BigDecimal("1000"));
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
         when(paymentDetailRepository.sumAmountByPrestationInstanceId(1L)).thenReturn(new BigDecimal("200"));
 
@@ -309,14 +279,10 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_transferPayment_persistsPaymentWithAccount() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
         when(pi.getId()).thenReturn(1L);
         when(pi.getFinalAmount()).thenReturn(new BigDecimal("1000"));
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
 
         PaymentAccount account = mock(PaymentAccount.class);
@@ -350,12 +316,8 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_cashWithAccount_throwsBadRequest() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
 
         PaymentRequestDTO dto = new PaymentRequestDTO(1L, new BigDecimal("200"), PaymentMethods.CASH, 10L);
@@ -376,12 +338,8 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_transferWithoutAccount_throwsBadRequest() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
 
         PaymentRequestDTO dto = new PaymentRequestDTO(1L, new BigDecimal("200"), PaymentMethods.TRANSFER, null);
@@ -402,12 +360,8 @@ class RegisterPaymentUseCaseTest {
     @Test
     void execute_accountDisabled_throwsNotFoundException() {
         Patient patient = mock(Patient.class);
-        Consultation consultation = mock(Consultation.class);
-        ConsultationInstance ci = mock(ConsultationInstance.class);
         PrestationInstance pi = mock(PrestationInstance.class);
-        when(pi.getConsultationInstance()).thenReturn(ci);
-        when(ci.getConsultation()).thenReturn(consultation);
-        when(consultation.getPatient()).thenReturn(patient);
+        when(pi.getPatient()).thenReturn(patient);
         when(prestationInstanceQueryService.findById(1L)).thenReturn(pi);
         when(paymentAccountQueryService.findById(99L)).thenThrow(NotFoundException.class);
 
