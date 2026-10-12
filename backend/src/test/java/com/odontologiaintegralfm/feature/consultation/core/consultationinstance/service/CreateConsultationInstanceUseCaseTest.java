@@ -408,9 +408,10 @@ class CreateConsultationInstanceUseCaseTest {
                 Set.of(mock(com.odontologiaintegralfm.feature.dentist.catalogs.model.DentistSpecialty.class));
         when(treatment.getDentistSpecialties()).thenReturn(treatmentSpecialties);
         when(treatment.getLabel()).thenReturn("Caries");
+        Dentist dentist = consultation.getDentist();
         ForbiddenException forbidden = forbidden();
         doThrow(forbidden).when(dentistSpecialtyDomainService)
-                .validateAllowed(consultation.getDentist(), treatmentSpecialties, "Caries");
+                .validateAllowed(dentist, treatmentSpecialties, "Caries");
         ConsultationInstanceCreateRequestDTO dto = request(List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)), List.of());
 
         assertThatThrownBy(() -> useCase.execute(dto)).isSameAs(forbidden);
@@ -432,9 +433,10 @@ class CreateConsultationInstanceUseCaseTest {
                 Set.of(mock(com.odontologiaintegralfm.feature.dentist.catalogs.model.DentistSpecialty.class));
         when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
         when(type.getLabel()).thenReturn("Ortodoncia");
+        Dentist dentist = consultation.getDentist();
         ForbiddenException forbidden = forbidden();
         doThrow(forbidden).when(dentistSpecialtyDomainService)
-                .validateAllowed(consultation.getDentist(), typeSpecialties, "Ortodoncia");
+                .validateAllowed(dentist, typeSpecialties, "Ortodoncia");
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
                 newPrestation(TYPE_ID, null, scope(Tooth.T16), null, null, new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
@@ -1674,7 +1676,8 @@ class CreateConsultationInstanceUseCaseTest {
         PrestationInstance prestation = existingPrestationMock(812L, PrestationInstanceStatus.IN_PROGRESS, null);
         lenient().when(prestation.getType()).thenReturn(existingType);
         when(prestationInstanceQueryService.findByIdAndPatientId(812L, PATIENT_ID)).thenReturn(prestation);
-        when(prestationStepService.findById(5L)).thenReturn(catalogStep(5L, 3));
+        PrestationStep catalogStep = catalogStep(5L, 3);
+        when(prestationStepService.findById(5L)).thenReturn(catalogStep);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
                 List.of(existingPrestation(812L, new StepItemDTO(null, 5L, PrestationStepStatus.IN_PROGRESS))));
 
