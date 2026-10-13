@@ -6,7 +6,7 @@ import com.odontologiaintegralfm.feature.consultation.core.scope.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.core.scope.enums.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.core.scope.model.Scope;
 import com.odontologiaintegralfm.shared.exception.AppException;
-import com.odontologiaintegralfm.shared.exception.ConflictException;
+import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,15 +65,15 @@ class ScopeDomainServiceTest {
     /**
      * CASO: La lista de dientes es exactamente los dientes de un cuadrante (los 4 permanentes de 8 y los 4 temporales de 5).
      * Regla: D-08 — el front debe declarar el nivel explícito, no la lista disfrazada.
-     * Validación: ConflictException (409) en los 8 cuadrantes, con la clave de "compone un nivel superior".
+     * Validación: BadRequestException (400) en los 8 cuadrantes, con la clave de "compone un nivel superior".
      */
     @ParameterizedTest
     @EnumSource(Quadrant.class)
-    void validateToothListDoesNotCompleteLevel_toothListCompletesQuadrant_throwsConflictException(Quadrant quadrant) {
+    void validateToothListDoesNotCompleteLevel_toothListCompletesQuadrant_throwsBadRequestException(Quadrant quadrant) {
         Scope scope = teeth(new ArrayList<>(quadrant.getTeeth()));
 
         assertThatThrownBy(() -> service.validateToothListDoesNotCompleteLevel(scope))
-                .isInstanceOf(ConflictException.class)
+                .isInstanceOf(BadRequestException.class)
                 .satisfies(e -> assertThat(((AppException) e).getUserMessageKey())
                         .contains("validateToothListDoesNotCompleteLevel"));
     }
@@ -82,21 +82,21 @@ class ScopeDomainServiceTest {
      * CASO: Los dientes de un cuadrante (los 8 cuadrantes) en orden inverso, y los 16 dientes permanentes superiores
      * mezclados (el front manda los dientes en el orden en que el odontólogo los tocó).
      * Regla: D-08 — la comparación es por conjunto, no por lista ordenada.
-     * Validación: ConflictException (409) en todos. Si la implementación comparara con List.equals, el orden distinto
+     * Validación: BadRequestException (400) en todos. Si la implementación comparara con List.equals, el orden distinto
      * dejaría pasar la lista disfrazada.
      */
     @ParameterizedTest
     @EnumSource(Quadrant.class)
-    void validateToothListDoesNotCompleteLevel_completeLevelInAnyOrder_throwsConflictException(Quadrant quadrant) {
+    void validateToothListDoesNotCompleteLevel_completeLevelInAnyOrder_throwsBadRequestException(Quadrant quadrant) {
         List<Tooth> reversed = new ArrayList<>(quadrant.getTeeth());
         java.util.Collections.reverse(reversed);
         List<Tooth> maxillaryShuffled = union(Quadrant.UPPER_RIGHT, Quadrant.UPPER_LEFT);
         java.util.Collections.shuffle(maxillaryShuffled, new java.util.Random(7));
 
         assertThatThrownBy(() -> service.validateToothListDoesNotCompleteLevel(teeth(reversed)))
-                .isInstanceOf(ConflictException.class);
+                .isInstanceOf(BadRequestException.class);
         assertThatThrownBy(() -> service.validateToothListDoesNotCompleteLevel(teeth(maxillaryShuffled)))
-                .isInstanceOf(ConflictException.class);
+                .isInstanceOf(BadRequestException.class);
     }
 
     /**
@@ -118,29 +118,29 @@ class ScopeDomainServiceTest {
     /**
      * CASO: Los 16 dientes permanentes superiores (unión de UPPER_RIGHT y UPPER_LEFT).
      * Regla: D-08 / decisión 7 — un maxilar completo en dentición permanente también es un nivel.
-     * Validación: ConflictException (409).
+     * Validación: BadRequestException (400).
      */
     @Test
-    void validateToothListDoesNotCompleteLevel_toothListCompletesMaxillaryPermanent_throwsConflictException() {
+    void validateToothListDoesNotCompleteLevel_toothListCompletesMaxillaryPermanent_throwsBadRequestException() {
         Scope scope = teeth(union(Quadrant.UPPER_RIGHT, Quadrant.UPPER_LEFT));
 
         assertThat(scope.getTooth()).hasSize(16);
         assertThatThrownBy(() -> service.validateToothListDoesNotCompleteLevel(scope))
-                .isInstanceOf(ConflictException.class);
+                .isInstanceOf(BadRequestException.class);
     }
 
     /**
      * CASO: Los 10 dientes temporales inferiores (unión de LOWER_LEFT_TEMPORARY y LOWER_RIGHT_TEMPORARY).
      * Regla: D-08 / decisión 7 — un maxilar completo en dentición temporal también es un nivel.
-     * Validación: ConflictException (409).
+     * Validación: BadRequestException (400).
      */
     @Test
-    void validateToothListDoesNotCompleteLevel_toothListCompletesMaxillaryTemporary_throwsConflictException() {
+    void validateToothListDoesNotCompleteLevel_toothListCompletesMaxillaryTemporary_throwsBadRequestException() {
         Scope scope = teeth(union(Quadrant.LOWER_LEFT_TEMPORARY, Quadrant.LOWER_RIGHT_TEMPORARY));
 
         assertThat(scope.getTooth()).hasSize(10);
         assertThatThrownBy(() -> service.validateToothListDoesNotCompleteLevel(scope))
-                .isInstanceOf(ConflictException.class);
+                .isInstanceOf(BadRequestException.class);
     }
 
     /**
