@@ -5,124 +5,44 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.enums.
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationStep;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.PrestationType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.service.PrestationStepService;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.dto.OdontogramRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceUpdateRequestDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationStepAdvancementRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.StepItemDTO;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationStepStatus;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
+import com.odontologiaintegralfm.feature.consultation.core.scope.enums.Maxillary;
+import com.odontologiaintegralfm.feature.consultation.core.scope.model.Scope;
+import com.odontologiaintegralfm.feature.consultation.core.scope.service.ScopeDomainService;
+import com.odontologiaintegralfm.feature.consultation.core.treatmentinstance.dto.TreatmentInstanceRefDTO;
+import com.odontologiaintegralfm.feature.consultation.core.treatmentinstance.model.TreatmentInstance;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
 @Service
 public class PrestationInstanceDomainService {
 
+    /** Valor del catálogo (name, no label) de Ferulización, que exige dientes contiguos (D-59). */
+    private static final String SPLINTING = "SPLINTING";
+
     private final PrestationStepService prestationStepService;
-    private final IPrestationInstanceRepository prestationInstanceRepository;
-    private final PrestationStepInstanceQueryService prestationStepInstanceQueryService;
+    private final ScopeDomainService scopeDomainService;
 
-
-    PrestationInstanceDomainService(PrestationStepService prestationStepService, IPrestationInstanceRepository prestationInstanceRepository, PrestationStepInstanceQueryService prestationStepInstanceQueryService) {
+    public PrestationInstanceDomainService(PrestationStepService prestationStepService, ScopeDomainService scopeDomainService) {
         this.prestationStepService = prestationStepService;
-        this.prestationInstanceRepository = prestationInstanceRepository;
-        this.prestationStepInstanceQueryService = prestationStepInstanceQueryService;
+        this.scopeDomainService = scopeDomainService;
     }
-
-
-
-    /**
-     * Valída que la prestación tenga una ubicación válida y consistente.
-     * Reglas:
-     * - Debe tener odontograma O scope, nunca ambos ni ninguno.
-     * - Si tiene scope, valída que el campo de ubicación correspondiente esté presente
-     *   (ej: scope TOOTH requiere tooth, scope QUADRANT requiere quadrant).
-     * - Si tiene odontograma, no se valida scope (retorna directo).
-     */
-    public void validateLocation(PrestationInstanceRequestDTO prestationInstanceRequestDTO) {
-
-        if((prestationInstanceRequestDTO.odontogram() != null) && (prestationInstanceRequestDTO.scope() == null)){
-            return;
-        }
-
-
-        if((prestationInstanceRequestDTO.odontogram() == null) && (prestationInstanceRequestDTO.scope() == null)){
-            throw new BadRequestException("exception.prestationInstanceDomainService.validateLocation.odontogramAndScopeNull.user",null,"exception.prestationInstanceDomainService.validateLocation.odontogramAndScopeNull.log", new Object[]{"PrestationInstanceDomainService","validateLocation"}, LogLevel.ERROR);
-        }
-
-        if((prestationInstanceRequestDTO.odontogram() != null)&& (prestationInstanceRequestDTO.scope() != null)){
-            throw new BadRequestException("exception.prestationInstanceDomainService.validateLocation.odontogramAndScopeData.user",null,"exception.prestationInstanceDomainService.validateLocation.odontogramAndScopeData.log", new Object[]{"PrestationInstanceDomainService","validateLocation"}, LogLevel.ERROR);
-
-        }
-
-        switch (prestationInstanceRequestDTO.scope()) {
-            case TOOTH:
-                if(prestationInstanceRequestDTO.tooth() == null){
-                    throw new BadRequestException("exception.prestationInstanceDomainService.validateLocation.scopeTooth.user", null,"exception.prestationInstanceDomainService.validateLocation.scopeTooth.log", new Object[]{"PrestationInstanceDomainService","validateLocation"}, LogLevel.ERROR);
-                }
-                break;
-            case TOOTH_FACE:
-                if((prestationInstanceRequestDTO.toothFace() == null) || (prestationInstanceRequestDTO.tooth() == null)){
-                    throw new BadRequestException("exception.prestationInstanceDomainService.validateLocation.scopeToothFace.user", null,"exception.prestationInstanceDomainService.validateLocation.scopeToothFace.log", new Object[]{prestationInstanceRequestDTO.tooth(),prestationInstanceRequestDTO.toothFace(),"PrestationInstanceDomainService","validateLocation"}, LogLevel.ERROR);
-                }
-                break;
-            case QUADRANT:
-                if(prestationInstanceRequestDTO.quadrant() == null){
-                    throw new BadRequestException("exception.prestationInstanceDomainService.validateLocation.quadrant.user", null,"exception.prestationInstanceDomainService.validateLocation.quadrant.log", new Object[]{"PrestationInstanceDomainService","validateLocation"}, LogLevel.ERROR);
-                }
-                break;
-
-            case MAXILLARY:
-                if(prestationInstanceRequestDTO.maxillary() == null){
-                    throw new BadRequestException("exception.prestationInstanceDomainService.validateLocation.maxillary.user", null,"exception.prestationInstanceDomainService.validateLocation.maxillary.log", new Object[]{"PrestationInstanceDomainService","validateLocation"}, LogLevel.ERROR);
-                }
-                break;
-
-
-            default:
-                if (
-                        (prestationInstanceRequestDTO.tooth() != null)     ||
-                        (prestationInstanceRequestDTO.toothFace() != null) ||
-                        (prestationInstanceRequestDTO.quadrant() != null)  ||
-                        (prestationInstanceRequestDTO.maxillary() != null)) {
-
-                    throw new BadRequestException("exception.prestationInstanceDomainService.validateLocation.fullMouth.user", null,"exception.prestationInstanceDomainService.validateLocation.fullMouth.log", new Object[]{prestationInstanceRequestDTO.tooth(),prestationInstanceRequestDTO.toothFace(),prestationInstanceRequestDTO.quadrant(),prestationInstanceRequestDTO.maxillary(),"PrestationInstanceDomainService","validateLocation"}, LogLevel.ERROR);
-                }
-        }
-    }
-
-    /**
-     * Valída que no se apliquen simultáneamente una promoción y un descuento manual.
-     * Solo puede existir uno de los dos en una misma prestación.
-     */
-
-    public void validateDiscount(PrestationInstanceRequestDTO prestationInstanceRequestDTO) {
-        if(prestationInstanceRequestDTO.promotionId() != null && prestationInstanceRequestDTO.discountValue() != null){
-            throw new BadRequestException("exception.prestationInstanceDomainService.validateDiscount.user", null,"exception.prestationInstanceDomainService.validateDiscount.log", new Object[]{prestationInstanceRequestDTO.promotionId(),prestationInstanceRequestDTO.discountValue(),"PrestationInstanceDomainService","validateDiscount"}, LogLevel.ERROR);
-        }
-
-        boolean hasType  = prestationInstanceRequestDTO.discountType()  != null;
-        boolean hasValue = prestationInstanceRequestDTO.discountValue() != null;
-        if(hasType != hasValue){
-            throw new BadRequestException("exception.prestationInstanceDomainService.validateDiscount.incomplete.user", null,"exception.prestationInstanceDomainService.validateDiscount.incomplete.log", new Object[]{prestationInstanceRequestDTO.discountType(),prestationInstanceRequestDTO.discountValue(),"PrestationInstanceDomainService","validateDiscount"}, LogLevel.ERROR);
-        }
-    }
-
 
 
     /**
@@ -145,302 +65,317 @@ public class PrestationInstanceDomainService {
 
 
     /**
-     * Valída que una prestación marcada como "unique" (isUnique) sea la única de su tipo en el request.
-     * Se rechaza si hay más de una prestación nueva del mismo tipo, o si además del alta hay avances
-     * de steps sobre prestaciones existentes en el mismo request.
+     * Una prestación única (isUnique) no puede venir con ninguna otra en el mismo request, ni nueva ni con avance
+     * de steps sobre una existente (D-36). Recibe el tipo de cada ítem de {@code prestation[]}.
      */
-    public void validatePrestationUnique(PrestationType prestationType, int newCount, boolean stepAdvancementsEmpty) {
-        if(prestationType.isUnique() && (newCount > 1 || !stepAdvancementsEmpty)){
-            throw new ConflictException("exception.createConsultationInstanceUseCase.prestationUnique.user", new Object[]{prestationType.getName()}, "exception.createConsultationInstanceUseCase.prestationUnique.log", new Object[]{prestationType.getId(), prestationType.getName(), "PrestationInstanceDomainService", "validatePrestationUnique"}, LogLevel.ERROR);
-        }
-    }
-
-    /**
-     * Matchea la ubicación de una prestación (odontograma) contra la lista de Odontogram guardados en el mismo request.
-     * Retorna el Odontogram correspondiente, o null si no hay match — la decisión de qué excepción lanzar
-     * (400 en create, 409 en corrección) queda en cada UseCase caller.
-     */
-    public Odontogram matchOdontogram(List<Odontogram> odontogramsSaved, OdontogramRequestDTO odontogramRequestDTO) {
-        return odontogramsSaved.stream()
-                .filter(o ->
-                        o.getTooth() == odontogramRequestDTO.tooth() &&
-                        o.getToothFace() == odontogramRequestDTO.toothFace())
-                .findFirst()
-                .orElse(null);
-    }
-
-    /**
-     * Valída que no exista una PrestationInstance IN_PROGRESS para el mismo paciente, tipo y ubicación (odontograma o scope).
-     * Si existe y es el mismo step, se acepta únicamente si el nuevo estado es COMPLETED
-     * (avance de step válido). Caso contrario lanza ConflictException.
-     */
-
-    public void validatePrestationInstancePending(Long patientId, PrestationInstanceRequestDTO prestationInstanceRequestDTO) {
-        List<PrestationInstance> prestationInstances = prestationInstanceRepository.findPrestationInstanceByPatientAndStatus(patientId, PrestationInstanceStatus.IN_PROGRESS);
-        if(prestationInstances.isEmpty()) return;
-
-        for(PrestationInstance prestationInstance : prestationInstances){
-            //Validamos que sea el mismo tipo de prestación.
-            if(prestationInstance.getType().getId().equals(prestationInstanceRequestDTO.prestationTypeId())){
-                //Validamos si es misma ubicación.
-                //1. Odontograma
-                if(prestationInstance.getOdontogram() != null && prestationInstanceRequestDTO.odontogram() != null){
-                    if (prestationInstance.getOdontogram().getTooth()     == prestationInstanceRequestDTO.odontogram().tooth() &&
-                        prestationInstance.getOdontogram().getToothFace() == prestationInstanceRequestDTO.odontogram().toothFace()
-                    ) {
-                        // Exception siempre que haya una PrestationInstance IN_PROGRESS en la misma ubicación para el mismo tipo
-                        throw new ConflictException("exception.validatePrestationInstancePending.odontogram.user", null, "exception.validatePrestationInstancePending.odontogram.log", new Object[]{prestationInstance.getId(), prestationInstance.getOdontogram().getTooth(), prestationInstance.getOdontogram().getToothFace(), prestationInstanceRequestDTO.prestationStepId(), prestationInstanceRequestDTO.prestationStepStatus(), "PrestationInstanceDomainService", "validatePrestationInstancePending"}, LogLevel.ERROR);
-                    }
-                }
-                //2. Scope
-                if (prestationInstance.getScope() != null && prestationInstanceRequestDTO.scope() != null) {
-                    if (prestationInstance.getScope() == prestationInstanceRequestDTO.scope()) {
-                        if ((prestationInstance.getTooth() == prestationInstanceRequestDTO.tooth() && prestationInstance.getToothFace() == prestationInstanceRequestDTO.toothFace()) &&
-                                prestationInstance.getQuadrant() == prestationInstanceRequestDTO.quadrant() &&
-                                prestationInstance.getMaxillary() == prestationInstanceRequestDTO.maxillary()
-                        ) {
-                            // Exception siempre que haya una PrestationInstance IN_PROGRESS en la misma ubicación para el mismo tipo
-                            throw new ConflictException("exception.validatePrestationInstancePending.scope.user", null, "exception.validatePrestationInstancePending.scope.log", new Object[]{prestationInstance.getId(), prestationInstance.getScope(), prestationInstance.getTooth(), prestationInstance.getToothFace(), prestationInstance.getQuadrant(), prestationInstance.getMaxillary(), "PrestationInstanceDomainService", "validatePrestationInstancePending"}, LogLevel.ERROR);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Evalúa si el step recibido ya existe como IN_PROGRESS en la prestación dada.
-     * Retorna true si el step está IN_PROGRESS y el estado nuevo NO es COMPLETED
-     * (lo que representaría un conflicto o duplicado inválido).
-     */
-    private boolean sameState(PrestationInstance prestationInstance, Long prestationStepId, PrestationStepStatus statusDTO , PrestationStepStatus prestationStepStatus){
-        List<PrestationStepInstance> prestationStepsInstance = prestationStepInstanceQueryService.findByPrestationAndStepIdAndStatus(prestationInstance, prestationStepId, prestationStepStatus);
-        if (!prestationStepsInstance.isEmpty()) {
-            // Si es mismo step solo debería recibir estado completado.
-            return !statusDTO.equals(PrestationStepStatus.FINISHED);
-        }
-        return false;
-    }
-
-
-    /**
-     * Valida la transición de estado de un step (required/omitted, estado final, IN_PROGRESS→COMPLETED)
-     * sin construir ni persistir nada. Comparte esta validación de negocio {@link #buildStepAdvancements}
-     * (altas) y {@link #applyStepAdvancement} (edición in-place de un step existente que avanza) — decisión
-     * #14 § 2 del design: ambos métodos difieren solo en qué hacen con el resultado, no en la regla.
-     */
-    private void validateStepTransition(PrestationStep catalogStep, PrestationStepStatus existingStatus, PrestationStepStatus newStatus, Long prestationInstanceId) {
-        // Un step obligatorio no puede omitirse
-        if (newStatus == PrestationStepStatus.OMITTED && catalogStep.isRequired()) {
-            throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.omittedRequired.user", null, "exception.prestationInstanceDomainService.validateAndBuild.omittedRequired.log", new Object[]{catalogStep.getId(), prestationInstanceId, "PrestationInstanceDomainService", "validateStepTransition"}, LogLevel.ERROR);
-        }
-
-        if (existingStatus != null) {
-            // Si el step ya tiene un estado final, no se puede volver a registrar
-            if (existingStatus == PrestationStepStatus.FINISHED || existingStatus == PrestationStepStatus.OMITTED) {
-                throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.user", null, "exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.log", new Object[]{catalogStep.getId(), existingStatus, prestationInstanceId, "PrestationInstanceDomainService", "validateStepTransition"}, LogLevel.ERROR);
-            }
-            // Si el step está en progreso, solo se acepta completarlo
-            if (existingStatus == PrestationStepStatus.IN_PROGRESS && newStatus != PrestationStepStatus.FINISHED) {
-                throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.user", null, "exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.log", new Object[]{catalogStep.getId(), newStatus, prestationInstanceId, "PrestationInstanceDomainService", "validateStepTransition"}, LogLevel.ERROR);
-            }
-        }
-    }
-
-    /**
-     * Valida y construye los registros de avance de steps para una prestación existente — exclusivo de
-     * altas (Create y steps id==null sobre prestación existente en Update, decisión #14 § 2). Nunca edita
-     * un registro persistido: para eso está {@link #applyStepAdvancement}.
-     *
-     * Recibe:
-     * - Los steps del catálogo (qué steps existen y en qué orden)
-     * - Los steps ya guardados en base para esa prestación (qué ya ocurrió antes)
-     * - Los steps que llegan en el request (qué quiere registrar el odontólogo ahora)
-     * - La consulta y la prestación a las que pertenecen
-     *
-     * Lo que hace, paso a paso:
-     * 1. Arma un mapa del catálogo para buscar cada step rápido por su ID.
-     * 2. Ordena los steps del request según la posición del catálogo (no el orden de llegada).
-     * 3. Carga en un mapa los estados ya guardados en base, para saber qué está resuelto.
-     * 4. Por cada step del request, en orden de posición:
-     *    - Valida la transición de estado (validateStepTransition).
-     *    - Verifica que todos los steps anteriores ya estén resueltos (base o mismo request).
-     *    - Construye el registro y lo marca como resuelto para que los siguientes lo vean.
-     * 5. Devuelve la lista de registros lista para guardar en base.
-     */
-    public List<PrestationStepInstance> buildStepAdvancements(
-            List<PrestationStep> catalogSteps,
-            List<PrestationStepInstance> existingInstances,
-            List<PrestationStepAdvancementRequestDTO> dtos,
-            ConsultationInstance consultationInstance,
-            PrestationInstance prestationInstance) {
-
-        // Mapa del catálogo: stepId → PrestationStep, para buscar rápido sin iterar
-        Map<Long, PrestationStep> catalogMap = catalogSteps.stream()
-                .collect(Collectors.toMap(PrestationStep::getId, s -> s));
-
-        // Ordena los steps del request por posición del catálogo (fuente de verdad del orden)
-        List<PrestationStepAdvancementRequestDTO> sortedDtos = dtos.stream()
-                .sorted(Comparator.comparingInt(dto -> catalogMap.get(dto.prestationStepId()).getPosition()))
-                .collect(Collectors.toList());
-
-        // Carga los estados ya guardados en base como punto de partida de lo resuelto
-        Map<Long, PrestationStepStatus> resolvedSteps = new HashMap<>();
-        for (PrestationStepInstance existing : existingInstances) {
-            resolvedSteps.put(existing.getStep().getId(), existing.getStatus());
-        }
-
-        List<PrestationStepInstance> result = new ArrayList<>();
-
-        for (PrestationStepAdvancementRequestDTO dto : sortedDtos) {
-            PrestationStep catalogStep = catalogMap.get(dto.prestationStepId());
-
-            validateStepTransition(catalogStep, resolvedSteps.get(dto.prestationStepId()), dto.status(), prestationInstance.getId());
-
-            // Verifica que todos los steps anteriores (por posición) ya estén resueltos,
-            // ya sea en base o registrados en este mismo request
-            for (PrestationStep previousStep : catalogSteps) {
-                if (previousStep.getPosition() < catalogStep.getPosition()) {
-                    PrestationStepStatus previousStatus = resolvedSteps.get(previousStep.getId());
-                    boolean isResolved = previousStatus == PrestationStepStatus.FINISHED || previousStatus == PrestationStepStatus.OMITTED;
-                    if (!isResolved) {
-                        throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.user", null, "exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.log", new Object[]{previousStep.getId(), catalogStep.getId(), prestationInstance.getId(), "PrestationInstanceDomainService", "buildStepAdvancements"}, LogLevel.ERROR);
-                    }
-                }
-            }
-
-            // Construye el registro listo para persistir
-            result.add(PrestationStepInstance.build(prestationInstance, consultationInstance, catalogStep, dto.status()));
-
-            // Marca el step como resuelto para que los siguientes del mismo request lo vean
-            resolvedSteps.put(dto.prestationStepId(), dto.status());
-        }
-
-        return result;
-    }
-
-    /**
-     * Avanza de estado un {@link PrestationStepInstance} YA PERSISTIDO, editándolo in-place
-     * (mismo id, ADR-0008) — nunca construye un registro nuevo. Ese camino ({@link #buildStepAdvancements})
-     * es exclusivo de altas.
-     */
-    public void applyStepAdvancement(PrestationStepInstance existingStep, PrestationStepAdvancementRequestDTO dto) {
-        validateStepTransition(existingStep.getStep(), existingStep.getStatus(), dto.status(), dto.prestationInstanceId());
-        existingStep.setStatus(dto.status());
-    }
-
-
-    /**
-     * Evalúa si la prestación puede darse por completada.
-     * Retorna true cuando todos los steps del catálogo tienen un registro con estado COMPLETED u OMITTED.
-     * Recibe los steps del catálogo y todos los registros existentes (base + los recién construidos del request).
-     */
-    public boolean shouldComplete(List<PrestationStep> catalogSteps, List<PrestationStepInstance> allInstances) {
-
-        // Arma un mapa de los estados actuales: stepId → estado
-        Map<Long, PrestationStepStatus> resolvedSteps = new HashMap<>();
-        for (PrestationStepInstance instance : allInstances) {
-            resolvedSteps.put(instance.getStep().getId(), instance.getStatus());
-        }
-
-        // La prestación está completa si todos los steps del catálogo tienen estado final
-        for (PrestationStep catalogStep : catalogSteps) {
-            PrestationStepStatus status = resolvedSteps.get(catalogStep.getId());
-            if (status != PrestationStepStatus.FINISHED && status != PrestationStepStatus.OMITTED) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Valída un avance de step sobre una prestación existente. Verifica:
-     * 1. Que la prestación pertenezca al mismo paciente — 409 (ADR-0026: depende de mirar el
-     *    estado persistido de la prestación, el mismo input sería válido con otro paciente dueño).
-     * 2. Que la prestación esté IN_PROGRESS — 409 (mismo criterio, ADR-0026).
-     * 3. Que el step pertenezca al tipo de esa prestación.
-     * 4. Que no exista un step duplicado en estado inválido.
-     */
-    public void validateStepAdvancement(Long patientId, PrestationInstance existingPrestation, PrestationStepAdvancementRequestDTO dto) {
-
-        Long prestationPatientId = existingPrestation.getConsultationInstance().getConsultation().getPatient().getId();
-        if (!prestationPatientId.equals(patientId)) {
-            throw new ConflictException("exception.prestationInstanceDomainService.validateStepAdvancement.notOwner.user", null, "exception.prestationInstanceDomainService.validateStepAdvancement.notOwner.log", new Object[]{existingPrestation.getId(), patientId, "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
-        }
-
-        if (existingPrestation.getStatus() != PrestationInstanceStatus.IN_PROGRESS) {
-            throw new ConflictException("exception.prestationInstanceDomainService.validateStepAdvancement.notInProgress.user", new Object[]{existingPrestation.getId()}, "exception.prestationInstanceDomainService.validateStepAdvancement.notInProgress.log", new Object[]{existingPrestation.getId(), existingPrestation.getStatus(), "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
-        }
-
-        validatePrestationStep(existingPrestation.getType().getId(), dto.prestationStepId());
-
-        boolean conflict = sameState(existingPrestation, dto.prestationStepId(), dto.status(), PrestationStepStatus.IN_PROGRESS);
-        if (conflict) {
-            throw new ConflictException("exception.prestationInstanceDomainService.validateStepAdvancement.duplicateStep.user", null, "exception.prestationInstanceDomainService.validateStepAdvancement.duplicateStep.log", new Object[]{existingPrestation.getId(), dto.prestationStepId(), "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
-        }
-    }
-
-    /**
-     * Valída si un PrestationStepInstance sigue dentro de su propia ventana de corrección,
-     * medida desde el createdAt de la ConsultationInstance de origen del step (no de la
-     * ConsultationInstance que se está corrigiendo) — ADR-0029: inmutabilidad por registro.
-     */
-    public boolean isStepEditable(PrestationStepInstance step, long correctionHours) {
-        LocalDateTime deadline = step.getConsultationInstance().getCreatedAt().plusHours(correctionHours);
-        return !LocalDateTime.now().isAfter(deadline);
-    }
-
-    /**
-     * Valída si una PrestationInstance sigue dentro de su propia ventana de corrección, medida
-     * desde su propio createdAt — mismo criterio que isStepEditable pero a nivel del contenedor
-     * (regla #13, ADR-0029: sin esta guarda sería posible editar una prestación nacida en una
-     * consulta vieja simplemente corrigiendo una consulta posterior).
-     */
-    public boolean isPrestationInstanceEditable(PrestationInstance prestationInstance, long correctionHours) {
-        LocalDateTime deadline = prestationInstance.getCreatedAt().plusHours(correctionHours);
-        return !LocalDateTime.now().isAfter(deadline);
-    }
-
-    /**
-     * Valída que una PrestationInstance existente no reciba una edición de ubicación inválida
-     * (regla #17/#27, ADR-0026 — depende de mirar el estado persistido, nunca 400):
-     * - Si tiene Odontogram asociado y el request trae algún campo de ubicación con valor → 409
-     *   (la ubicación se corrige editando el Odontogram, no estos campos).
-     * - Si NO tiene Odontogram asociado, su tipo requiere ubicación, y los 5 campos llegan todos
-     *   null → 409 (por ADR-0024 el front manda el objeto completo; todo-null es la ubicación real
-     *   declarada, no ausencia de intención).
-     */
-    public void validateLocationNotOverridable(PrestationInstance persisted, PrestationInstanceUpdateRequestDTO dto) {
-        boolean anyLocationFieldPresent = dto.scope() != null || dto.tooth() != null || dto.toothFace() != null
-                || dto.quadrant() != null || dto.maxillary() != null;
-
-        if (persisted.getOdontogram() != null) {
-            if (anyLocationFieldPresent) {
-                throw new ConflictException("exception.prestationInstanceDomainService.validateLocationNotOverridable.hasOdontogram.user", null, "exception.prestationInstanceDomainService.validateLocationNotOverridable.hasOdontogram.log", new Object[]{persisted.getId(), "PrestationInstanceDomainService", "validateLocationNotOverridable"}, LogLevel.ERROR);
-            }
+    public void validatePrestationUnique(List<PrestationType> prestationTypesDelRequest) {
+        if (prestationTypesDelRequest.size() <= 1) {
             return;
         }
+        for (PrestationType type : prestationTypesDelRequest) {
+            if (type.isUnique()) {
+                throw new ConflictException("exception.createConsultationInstanceUseCase.prestationUnique.user", new Object[]{type.getLabel()}, "exception.createConsultationInstanceUseCase.prestationUnique.log", new Object[]{type.getId(), type.getLabel(), "PrestationInstanceDomainService", "validatePrestationUnique"}, LogLevel.ERROR);
+            }
+        }
+    }
 
-        if (persisted.getType().isRequiresLocation() && !anyLocationFieldPresent) {
-            throw new ConflictException("exception.prestationInstanceDomainService.validateLocationNotOverridable.locationRequired.user", null, "exception.prestationInstanceDomainService.validateLocationNotOverridable.locationRequired.log", new Object[]{persisted.getId(), "PrestationInstanceDomainService", "validateLocationNotOverridable"}, LogLevel.ERROR);
+
+    /**
+     * Deriva el estado de la prestación desde sus steps (D-27), con 4 salidas: IN_PROGRESS, FINISHED, REPLACED o CANCELED.
+     * Una cadena REPLACED/CANCELED tiene que ser inmediata al último FINISHED/OMITTED y cubrir todos los steps
+     * posteriores del catálogo con el mismo valor; si no, 409.
+     */
+    public PrestationInstanceStatus calculatePrestationInstanceStatus(List<PrestationStep> catalogSteps, List<PrestationStepInstance> stepInstances) {
+        List<PrestationStep> ordered = catalogSteps.stream()
+                .sorted(Comparator.comparingInt(PrestationStep::getPosition))
+                .toList();
+        Map<Long, PrestationStepStatus> statusByStep = new HashMap<>();
+        for (PrestationStepInstance instance : stepInstances) {
+            statusByStep.put(instance.getStep().getId(), instance.getStatus());
+        }
+
+        int chainStart = -1;
+        for (int i = 0; i < ordered.size(); i++) {
+            if (isChainStatus(statusByStep.get(ordered.get(i).getId()))) {
+                chainStart = i;
+                break;
+            }
+        }
+
+        if (chainStart < 0) {
+            boolean allResolved = ordered.stream().allMatch(step -> isResolved(statusByStep.get(step.getId())));
+            return allResolved ? PrestationInstanceStatus.FINISHED : PrestationInstanceStatus.IN_PROGRESS;
+        }
+
+        for (int i = 0; i < chainStart; i++) {
+            if (!isResolved(statusByStep.get(ordered.get(i).getId()))) {
+                throw new ConflictException("exception.prestationInstanceDomainService.calculatePrestationInstanceStatus.replacedNotImmediate.user", null, "exception.prestationInstanceDomainService.calculatePrestationInstanceStatus.replacedNotImmediate.log", new Object[]{ordered.get(chainStart).getId(), "PrestationInstanceDomainService", "calculatePrestationInstanceStatus"}, LogLevel.ERROR);
+            }
+        }
+        PrestationStepStatus chainStatus = statusByStep.get(ordered.get(chainStart).getId());
+        for (int i = chainStart; i < ordered.size(); i++) {
+            if (statusByStep.get(ordered.get(i).getId()) != chainStatus) {
+                throw new ConflictException("exception.prestationInstanceDomainService.calculatePrestationInstanceStatus.replacedGap.user", null, "exception.prestationInstanceDomainService.calculatePrestationInstanceStatus.replacedGap.log", new Object[]{ordered.get(i).getId(), "PrestationInstanceDomainService", "calculatePrestationInstanceStatus"}, LogLevel.ERROR);
+            }
+        }
+        return chainStatus == PrestationStepStatus.REPLACED ? PrestationInstanceStatus.REPLACED : PrestationInstanceStatus.CANCELED;
+    }
+
+
+    /**
+     * Valída el avance de steps pedido sobre una prestación (D-27), antes de aplicar nada. Para una prestación que
+     * nace, {@code prestationInstance} es null y no hay steps persistidos.
+     * 409: prestación terminal, step existente terminal, step IN_PROGRESS que no pasa a FINISHED/REPLACED/CANCELED,
+     * step nuevo ya persistido, o steps anteriores sin resolver. 400: omitir un step requerido, o nacer REPLACED/CANCELED
+     * el primer step del catálogo. Dentro de una cadena REPLACED/CANCELED del mismo request, el step anterior de la
+     * cadena cuenta como antecedente válido.
+     */
+    public void validateStepAdvancement(PrestationInstance prestationInstance, List<PrestationStep> catalogSteps,
+                                        List<PrestationStepInstance> stepInstancesPersistidos, List<StepItemDTO> stepItems) {
+        Long prestationId = prestationInstance != null ? prestationInstance.getId() : null;
+        if (prestationInstance != null && prestationInstance.getStatus() != PrestationInstanceStatus.IN_PROGRESS) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateStepAdvancement.notInProgress.user", new Object[]{prestationId}, "exception.prestationInstanceDomainService.validateStepAdvancement.notInProgress.log", new Object[]{prestationId, prestationInstance.getStatus(), "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+        }
+
+        Map<Long, PrestationStep> catalogById = catalogSteps.stream().collect(Collectors.toMap(PrestationStep::getId, step -> step));
+        Map<Long, PrestationStepInstance> persistedByInstanceId = new HashMap<>();
+        Map<Long, PrestationStepStatus> resolved = new HashMap<>();
+        for (PrestationStepInstance persisted : stepInstancesPersistidos) {
+            persistedByInstanceId.put(persisted.getId(), persisted);
+            resolved.put(persisted.getStep().getId(), persisted.getStatus());
+        }
+
+        List<ItemWithStep> items = new ArrayList<>();
+        for (StepItemDTO item : stepItems) {
+            if (item.id() != null) {
+                PrestationStepInstance persisted = persistedByInstanceId.get(item.id());
+                if (persisted == null) {
+                    throw new IllegalStateException("El step " + item.id() + " no está entre los steps persistidos de la prestación " + prestationId);
+                }
+                items.add(new ItemWithStep(item, persisted.getStep(), persisted));
+            } else {
+                PrestationStep catalogStep = catalogById.get(item.stepId());
+                if (catalogStep == null) {
+                    throw new BadRequestException("exception.validatePrestationStep.user", null, "exception.validatePrestationStep.log", new Object[]{item.stepId(), prestationId, "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+                }
+                items.add(new ItemWithStep(item, catalogStep, null));
+            }
+        }
+        items.sort(Comparator.comparingInt(entry -> entry.catalogStep().getPosition()));
+
+        for (ItemWithStep entry : items) {
+            PrestationStepStatus requested = entry.item().status();
+            PrestationStep catalogStep = entry.catalogStep();
+
+            if (entry.persisted() != null) {
+                validateExistingStepTransition(entry.persisted(), requested, prestationId);
+            } else {
+                validateNewStep(catalogStep, requested, catalogSteps, resolved, prestationId);
+            }
+
+            for (PrestationStep previous : catalogSteps) {
+                if (previous.getPosition() < catalogStep.getPosition()) {
+                    PrestationStepStatus previousStatus = resolved.get(previous.getId());
+                    boolean previousOk = isResolved(previousStatus) || (isChainStatus(requested) && isChainStatus(previousStatus));
+                    if (!previousOk) {
+                        throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.user", null, "exception.prestationInstanceDomainService.validateAndBuild.previousNotResolved.log", new Object[]{previous.getId(), catalogStep.getId(), prestationId, "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+                    }
+                }
+            }
+            resolved.put(catalogStep.getId(), requested);
+        }
+    }
+
+    /** Un step existente terminal no admite estado nuevo; uno IN_PROGRESS solo pasa a FINISHED, REPLACED o CANCELED. */
+    private void validateExistingStepTransition(PrestationStepInstance persisted, PrestationStepStatus requested, Long prestationId) {
+        PrestationStepStatus current = persisted.getStatus();
+        Long catalogStepId = persisted.getStep().getId();
+        if (current != PrestationStepStatus.IN_PROGRESS) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.user", null, "exception.prestationInstanceDomainService.validateAndBuild.alreadyFinal.log", new Object[]{catalogStepId, current, prestationId, "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+        }
+        if (requested != PrestationStepStatus.FINISHED && !isChainStatus(requested)) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.user", null, "exception.prestationInstanceDomainService.validateAndBuild.inProgressNotCompleted.log", new Object[]{catalogStepId, requested, prestationId, "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+        }
+    }
+
+    /** Un step nuevo no puede estar ya persistido (409), omitirse si es requerido (400) ni nacer REPLACED/CANCELED en el primer lugar (400). */
+    private void validateNewStep(PrestationStep catalogStep, PrestationStepStatus requested, List<PrestationStep> catalogSteps,
+                                 Map<Long, PrestationStepStatus> resolved, Long prestationId) {
+        if (resolved.containsKey(catalogStep.getId())) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateStepAdvancement.duplicateStep.user", null, "exception.prestationInstanceDomainService.validateStepAdvancement.duplicateStep.log", new Object[]{catalogStep.getId(), "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+        }
+        if (requested == PrestationStepStatus.OMITTED && catalogStep.isRequired()) {
+            throw new BadRequestException("exception.prestationInstanceDomainService.validateAndBuild.omittedRequired.user", null, "exception.prestationInstanceDomainService.validateAndBuild.omittedRequired.log", new Object[]{catalogStep.getId(), prestationId, "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+        }
+        boolean isFirst = catalogSteps.stream().noneMatch(step -> step.getPosition() < catalogStep.getPosition());
+        if (isFirst && isChainStatus(requested)) {
+            throw new BadRequestException("exception.prestationInstanceDomainService.calculatePrestationInstanceStatus.firstStepChainTerminal.user", null, "exception.prestationInstanceDomainService.calculatePrestationInstanceStatus.firstStepChainTerminal.log", new Object[]{catalogStep.getId(), "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
+        }
+    }
+
+
+    /**
+     * El nivel de la ubicación efectiva tiene que ser uno de los que admite el tipo (D-07). Una prestación con
+     * {@code allowedScopes} no vacío no puede quedar sin ubicación efectiva (null o vacía). Un tipo con
+     * {@code allowedScopes} vacío (sin ubicación propia) no se evalúa acá.
+     */
+    public void validateScopeAllowedForType(PrestationType type, Scope effectiveScope) {
+        Set<PrestationScopeType> allowed = type.getAllowedScopes();
+        if (allowed == null || allowed.isEmpty()) {
+            return;
+        }
+        if (effectiveScope == null || effectiveScope.isEmpty() || !allowed.contains(effectiveScope.level())) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateScopeAllowedForType.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validateScopeAllowedForType.log", new Object[]{effectiveScope == null ? null : effectiveScope.level(), type.getId(), "PrestationInstanceDomainService", "validateScopeAllowedForType"}, LogLevel.ERROR);
+        }
+    }
+
+    /** Techo de dientes por prestación; solo aplica cuando la ubicación es por diente (TOOTH/TOOTH_FACE) (D-29). */
+    public void validateMaxTooth(PrestationType type, Scope effectiveScope) {
+        if (effectiveScope == null || type.getMaxTooth() == null) {
+            return;
+        }
+        PrestationScopeType level = effectiveScope.level();
+        boolean byTooth = level == PrestationScopeType.TOOTH || level == PrestationScopeType.TOOTH_FACE;
+        if (byTooth && effectiveScope.getTooth().size() > type.getMaxTooth()) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateMaxTooth.user", new Object[]{type.getLabel(), type.getMaxTooth()}, "exception.prestationInstanceDomainService.validateMaxTooth.log", new Object[]{type.getId(), effectiveScope.getTooth().size(), type.getMaxTooth(), "PrestationInstanceDomainService", "validateMaxTooth"}, LogLevel.ERROR);
+        }
+    }
+
+    /** Con {@code maxTooth > 1}, todos los dientes tienen que ser del mismo maxilar; no se exige contigüidad (D-11). */
+    public void validateSameMaxillary(PrestationType type, Scope effectiveScope) {
+        if (effectiveScope == null || type.getMaxTooth() == null || type.getMaxTooth() <= 1) {
+            return;
+        }
+        Set<Maxillary> maxillaries = effectiveScope.getTooth().stream().map(Maxillary::fromTooth).collect(Collectors.toSet());
+        if (maxillaries.size() > 1) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateSameMaxillary.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validateSameMaxillary.log", new Object[]{type.getId(), effectiveScope.getTooth(), "PrestationInstanceDomainService", "validateSameMaxillary"}, LogLevel.ERROR);
+        }
+    }
+
+    /** Ferulización (name SPLINTING) exige dientes contiguos, además del mismo maxilar (D-59). */
+    public void validateSplintingContiguity(PrestationType type, Scope effectiveScope) {
+        if (effectiveScope == null || !SPLINTING.equals(type.getName())) {
+            return;
+        }
+        if (!scopeDomainService.areContiguous(new ArrayList<>(effectiveScope.getTooth()))) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateSplintingContiguity.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validateSplintingContiguity.log", new Object[]{type.getId(), effectiveScope.getTooth(), "PrestationInstanceDomainService", "validateSplintingContiguity"}, LogLevel.ERROR);
         }
     }
 
     /**
-     * Valída que un scope de ubicación sea uno de los permitidos para el PrestationType dado
-     * (regla #29, ADR-0026 — depende de mirar el catálogo persistido de la prestación). Se invoca
-     * en dos direcciones de edición: al editar el scope directo de una PrestationInstance sin
-     * Odontogram, y al editar un Odontogram con PrestationInstance viva vinculada (la ubicación
-     * nueva del Odontogram debe ser compatible con el PrestationType de esa prestación).
+     * Un tipo sin ubicación propia ({@code allowedScopes} vacío: Rebasado, Refuerzo metálico) exige
+     * {@code originTreatmentInstanceRef} y rechaza scope propio y {@code treatmentInstanceRef} (D-45, D-50).
+     * La regla decide adentro por el tipo: con ubicación no hace nada.
      */
-    public void validateScopeAllowedForType(PrestationType type, PrestationScopeType scope) {
-        if (scope != null && !type.getAllowedScopes().contains(scope)) {
-            throw new ConflictException("exception.prestationInstanceDomainService.validateScopeAllowedForType.user", null, "exception.prestationInstanceDomainService.validateScopeAllowedForType.log", new Object[]{scope, type.getId(), "PrestationInstanceDomainService", "validateScopeAllowedForType"}, LogLevel.ERROR);
+    public void validatePrestationWithoutOwnLocation(PrestationType type, Scope ownScope,
+                                                     TreatmentInstanceRefDTO treatmentInstanceRef,
+                                                     TreatmentInstanceRefDTO originTreatmentInstanceRef) {
+        Set<PrestationScopeType> allowed = type.getAllowedScopes();
+        if (allowed != null && !allowed.isEmpty()) {
+            return;
         }
+        if (originTreatmentInstanceRef == null) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validatePrestationWithoutOwnLocation.originMissing.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validatePrestationWithoutOwnLocation.originMissing.log", new Object[]{type.getId(), "PrestationInstanceDomainService", "validatePrestationWithoutOwnLocation"}, LogLevel.ERROR);
+        }
+        if (ownScope != null && !ownScope.isEmpty()) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validatePrestationWithoutOwnLocation.scopePopulated.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validatePrestationWithoutOwnLocation.scopePopulated.log", new Object[]{type.getId(), "PrestationInstanceDomainService", "validatePrestationWithoutOwnLocation"}, LogLevel.ERROR);
+        }
+        if (treatmentInstanceRef != null) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validatePrestationWithoutOwnLocation.treatmentRefPopulated.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validatePrestationWithoutOwnLocation.treatmentRefPopulated.log", new Object[]{type.getId(), "PrestationInstanceDomainService", "validatePrestationWithoutOwnLocation"}, LogLevel.ERROR);
+        }
+    }
+
+    /**
+     * Una prestación de reparación de prótesis exige origen: {@code allowedScopes} vacío (D-50) o
+     * {@code requiresOriginTreatment} (D-41). La regla decide adentro por el tipo.
+     */
+    public void validateOriginRequired(PrestationType type, TreatmentInstance originTreatmentInstance) {
+        if (originTreatmentInstance != null) {
+            return;
+        }
+        Set<PrestationScopeType> allowed = type.getAllowedScopes();
+        if (allowed == null || allowed.isEmpty()) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validatePrestationWithoutOwnLocation.originMissing.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validatePrestationWithoutOwnLocation.originMissing.log", new Object[]{type.getId(), "PrestationInstanceDomainService", "validateOriginRequired"}, LogLevel.ERROR);
+        }
+        if (type.isRequiresOriginTreatment()) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateOriginRequired.requiresOrigin.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validateOriginRequired.requiresOrigin.log", new Object[]{type.getId(), "PrestationInstanceDomainService", "validateOriginRequired"}, LogLevel.ERROR);
+        }
+    }
+
+    /**
+     * No puede haber dos prestaciones IN_PROGRESS del mismo paciente, del mismo tipo y con ubicación solapada (D-37).
+     * Se evalúa sobre el estado ya derivado: cada prestación nueva que terminó IN_PROGRESS contra las IN_PROGRESS del
+     * paciente, excluyéndose a sí misma. Una prestación sin ubicación no participa.
+     */
+    public void validatePrestationInstancePending(List<PrestationInstance> prestationInstancesNuevas,
+                                                  List<PrestationInstance> prestationInstancesInProgress) {
+        for (PrestationInstance nueva : prestationInstancesNuevas) {
+            if (nueva.getStatus() != PrestationInstanceStatus.IN_PROGRESS) {
+                continue;
+            }
+            Scope location = resolveLocation(nueva.getScope(), nueva.getTreatmentInstance());
+            if (location == null || location.isEmpty()) {
+                continue;
+            }
+            for (PrestationInstance enCurso : prestationInstancesInProgress) {
+                if (enCurso == nueva || !sameType(nueva.getType(), enCurso.getType())) {
+                    continue;
+                }
+                Scope otherLocation = resolveLocation(enCurso.getScope(), enCurso.getTreatmentInstance());
+                if (otherLocation != null && !otherLocation.isEmpty() && scopeDomainService.overlaps(location, otherLocation)) {
+                    throw new ConflictException("exception.prestationInstanceDomainService.validatePrestationInstancePending.user", new Object[]{nueva.getType().getLabel()}, "exception.prestationInstanceDomainService.validatePrestationInstancePending.log", new Object[]{nueva.getId(), enCurso.getId(), nueva.getType().getId(), "PrestationInstanceDomainService", "validatePrestationInstancePending"}, LogLevel.ERROR);
+                }
+            }
+        }
+    }
+
+    /**
+     * Trazabilidad del reemplazo de una prestación sin tratamiento (D-40, Caso D): algún tratamiento o prestación
+     * nuevos del request tiene que cubrir su ubicación. Las prestaciones sin ubicación efectiva se saltean.
+     */
+    public void validatePrestationInstanceReplacementTraceability(List<PrestationInstance> prestationInstancesReplacedWithoutTreatment,
+                                                                  List<TreatmentInstance> treatmentInstancesNuevos,
+                                                                  List<PrestationInstance> prestationInstancesNuevas) {
+        for (PrestationInstance replaced : prestationInstancesReplacedWithoutTreatment) {
+            Scope location = resolveLocation(replaced.getScope(), replaced.getTreatmentInstance());
+            if (location == null || location.isEmpty()) {
+                continue;
+            }
+            boolean coveredByTreatment = treatmentInstancesNuevos.stream()
+                    .anyMatch(nuevo -> scopeDomainService.covers(nuevo.getScope(), location));
+            boolean coveredByPrestation = prestationInstancesNuevas.stream()
+                    .map(nueva -> resolveLocation(nueva.getScope(), nueva.getTreatmentInstance()))
+                    .anyMatch(effective -> effective != null && !effective.isEmpty() && scopeDomainService.covers(effective, location));
+            if (!coveredByTreatment && !coveredByPrestation) {
+                throw new ConflictException("exception.prestationInstanceDomainService.validatePrestationInstanceReplacementTraceability.user", new Object[]{replaced.getType().getLabel()}, "exception.prestationInstanceDomainService.validatePrestationInstanceReplacementTraceability.log", new Object[]{replaced.getId(), replaced.getType().getId(), "PrestationInstanceDomainService", "validatePrestationInstanceReplacementTraceability"}, LogLevel.ERROR);
+            }
+        }
+    }
+
+    /**
+     * Ubicación efectiva de una prestación: el scope propio si no está vacío; si no, el del tratamiento que
+     * referencia; null si no tiene ninguno (rama solo-origen) (D-07).
+     */
+    public Scope resolveLocation(Scope ownScope, TreatmentInstance treatmentInstance) {
+        if (ownScope != null && !ownScope.isEmpty()) {
+            return ownScope;
+        }
+        return treatmentInstance != null ? treatmentInstance.getScope() : null;
+    }
+
+    private boolean sameType(PrestationType a, PrestationType b) {
+        return a != null && b != null && Objects.equals(a.getId(), b.getId());
+    }
+
+    private boolean isResolved(PrestationStepStatus status) {
+        return status == PrestationStepStatus.FINISHED || status == PrestationStepStatus.OMITTED;
+    }
+
+    private boolean isChainStatus(PrestationStepStatus status) {
+        return status == PrestationStepStatus.REPLACED || status == PrestationStepStatus.CANCELED;
+    }
+
+    private record ItemWithStep(StepItemDTO item, PrestationStep catalogStep, PrestationStepInstance persisted) {
     }
 
 }
-
-

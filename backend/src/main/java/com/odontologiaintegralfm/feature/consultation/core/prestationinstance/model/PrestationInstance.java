@@ -4,22 +4,16 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.model.
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.enums.DiscountType;
 import com.odontologiaintegralfm.feature.consultation.catalogs.promotion.model.Promotion;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.enums.PrestationInstanceStatus;
-import com.odontologiaintegralfm.feature.consultation.catalogs.prestation.enums.PrestationScopeType;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.ToothFace;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Quadrant;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.enums.Maxillary;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.model.Odontogram;
+import com.odontologiaintegralfm.feature.consultation.core.scope.model.Scope;
+import com.odontologiaintegralfm.feature.consultation.core.treatmentinstance.model.TreatmentInstance;
+import com.odontologiaintegralfm.feature.patient.core.model.Patient;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Checks;
 import org.hibernate.annotations.Where;
@@ -29,15 +23,18 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Entidad que representa una instancia real de una prestación en una consulta.
+ * Entidad que representa una instancia real de una prestación sobre un paciente.
+ * La consulta donde avanzó cada step vive en {@link PrestationStepInstanceHistory} (D-14).
  */
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
-@Table(name = "prestations_instances")
+@Table(name = "prestations_instances", indexes = {
+        @Index(name = "idx_prestation_instance_patient_id", columnList = "patient_id"),
+        @Index(name = "idx_prestation_instance_treatment_instance_id", columnList = "treatment_instance_id"),
+        @Index(name = "idx_prestation_instance_origin_treatment_instance_id", columnList = "origin_treatment_instance_id")
+})
 @Checks({
         @Check(constraints = "price > 0"),
         @Check(constraints = "promotion_amount IS NULL OR promotion_amount > 0"),
@@ -55,36 +52,32 @@ public class PrestationInstance extends AuditableJPA {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "consultation_instance_id", nullable = false)
-    private ConsultationInstance consultationInstance;
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "prestation_type_id", nullable = false)
     private PrestationType type;
 
+    /** Tratamiento sobre el que se aplica; excluyente con {@link #scope} propio (D-24, D-25). */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "odontogram_detail_id")
-    private Odontogram odontogram;
+    @JoinColumn(name = "treatment_instance_id")
+    private TreatmentInstance treatmentInstance;
+
+    /** FK de pertenencia "en estrella" a la prótesis de origen; convive con treatmentInstance (D-43). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "origin_treatment_instance_id")
+    private TreatmentInstance originTreatmentInstance;
+
+    /** Ubicación propia; nunca null (vacía cuando la ubicación viene del tratamiento o del origen). */
+    @Embedded
+    @AssociationOverride(name = "tooth", joinTable = @JoinTable(name = "prestations_instances_tooth",
+            joinColumns = @JoinColumn(name = "prestation_instance_id")))
+    private Scope scope;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PrestationInstanceStatus status;
-
-    /** Solo si Odontogram es null (prestación sin ubicación específica) */
-    @Enumerated(EnumType.STRING)
-    private PrestationScopeType scope;
-
-    @Enumerated(EnumType.STRING)
-    private Tooth tooth;
-
-    @Enumerated(EnumType.STRING)
-    private ToothFace toothFace;
-
-    @Enumerated(EnumType.STRING)
-    private Quadrant quadrant;
-
-    @Enumerated(EnumType.STRING)
-    private Maxillary maxillary;
 
     @Column(nullable = false, updatable = false)
     private BigDecimal price;
@@ -126,20 +119,18 @@ public class PrestationInstance extends AuditableJPA {
     @Column(name = "final_amount",nullable = false)
     private BigDecimal finalAmount;
 
-    private PrestationInstance(ConsultationInstance consultationInstance, PrestationType type, Odontogram odontogram,
-                               PrestationInstanceStatus status, PrestationScopeType scope, Tooth tooth, ToothFace toothFace,
-                               Quadrant quadrant, Maxillary maxillary, BigDecimal price, Promotion promotion,
-                               BigDecimal promotionAmount, DiscountType discountType, BigDecimal discountValue,
-                               BigDecimal discountAmount, BigDecimal finalAmount) {
-        this.consultationInstance = consultationInstance;
+
+
+    private PrestationInstance(Patient patient, PrestationType type, TreatmentInstance treatmentInstance,
+                               TreatmentInstance originTreatmentInstance, Scope scope, PrestationInstanceStatus status,
+                               BigDecimal price, Promotion promotion, BigDecimal promotionAmount, DiscountType discountType,
+                               BigDecimal discountValue, BigDecimal discountAmount, BigDecimal finalAmount) {
+        this.patient = patient;
         this.type = type;
-        this.odontogram = odontogram;
-        this.status = status;
+        this.treatmentInstance = treatmentInstance;
+        this.originTreatmentInstance = originTreatmentInstance;
         this.scope = scope;
-        this.tooth = tooth;
-        this.toothFace = toothFace;
-        this.quadrant = quadrant;
-        this.maxillary = maxillary;
+        this.status = status;
         this.price = price;
         this.promotion = promotion;
         this.promotionAmount = promotionAmount;
@@ -149,15 +140,19 @@ public class PrestationInstance extends AuditableJPA {
         this.finalAmount = finalAmount;
     }
 
-    public static PrestationInstance build(ConsultationInstance consultationInstance, PrestationType type, Odontogram odontogram,
-                                           PrestationInstanceStatus status, PrestationScopeType scope, Tooth tooth, ToothFace toothFace,
-                                           Quadrant quadrant, Maxillary maxillary, BigDecimal price, Promotion promotion,
-                                           BigDecimal promotionAmount, DiscountType discountType, BigDecimal discountValue) {
+    /**
+     * Única vía para fijar la ubicación y las FKs de pertenencia (D-55). El monto de la promoción llega
+     * ya calculado por el use case (ADR-0023). Un {@code scope} null se guarda como {@link Scope#empty()}.
+     */
+    public static PrestationInstance build(Patient patient, PrestationType type, TreatmentInstance treatmentInstance,
+                                           TreatmentInstance originTreatmentInstance, Scope scope, PrestationInstanceStatus status,
+                                           BigDecimal price, Promotion promotion, BigDecimal promotionAmount,
+                                           DiscountType discountType, BigDecimal discountValue) {
         BigDecimal discountAmount  = discountType != null ? calculateDiscountAmount(price, discountType, discountValue) : null;
         BigDecimal finalAmount     = calculateFinalAmount(price, promotionAmount, discountAmount);
-        return new PrestationInstance(consultationInstance, type, odontogram, status, scope, tooth, toothFace,
-                                     quadrant, maxillary, price, promotion, promotionAmount, discountType, discountValue,
-                                     discountAmount, finalAmount);
+        return new PrestationInstance(patient, type, treatmentInstance, originTreatmentInstance,
+                scope != null ? scope : Scope.empty(), status, price, promotion, promotionAmount,
+                discountType, discountValue, discountAmount, finalAmount);
     }
 
     private static BigDecimal calculateDiscountAmount(BigDecimal price, DiscountType discountType, BigDecimal discountValue) {
@@ -179,20 +174,8 @@ public class PrestationInstance extends AuditableJPA {
         return total;
     }
 
-    public void complete() {
-        this.status = PrestationInstanceStatus.FINISHED;
+    /** Único setter: el estado se deriva de los steps, nunca lo manda el front (D-27, D-55). */
+    public void applyStatus(PrestationInstanceStatus status) {
+        this.status = status;
     }
-
-    public String getScopeDetail() {
-        if (scope == null) return null;
-        return switch (scope) {
-            case TOOTH      -> tooth != null ? tooth.name() : null;
-            case TOOTH_FACE -> tooth + " - " + toothFace;
-            case QUADRANT   -> quadrant != null ? quadrant.name() : null;
-            case MAXILLARY  -> maxillary != null ? maxillary.name() : null;
-            default         -> null;
-        };
-    }
-
 }
-

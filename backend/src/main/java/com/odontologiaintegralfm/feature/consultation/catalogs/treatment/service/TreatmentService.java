@@ -3,8 +3,8 @@ package com.odontologiaintegralfm.feature.consultation.catalogs.treatment.servic
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.dto.TreatmentResponseDTO;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
-import com.odontologiaintegralfm.shared.exception.ConflictException;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
+import com.odontologiaintegralfm.shared.exception.NotFoundException;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.repository.ITreatmentRepository;
 import org.springframework.dao.DataAccessException;
@@ -78,7 +78,7 @@ public class TreatmentService  {
     public Treatment findById(Long id) {
         try{
             return treatmentRepository.findById(id)
-                    .orElseThrow(() -> new ConflictException("exception.treatment.notFound.user",null,"exception.treatment.notFound.log",new Object[]{id,"TreatmentService","getById" }, LogLevel.ERROR));
+                    .orElseThrow(() -> new NotFoundException("exception.treatment.notFound.user",null,"exception.treatment.notFound.log",new Object[]{id,"TreatmentService","getById" }, LogLevel.ERROR));
         }catch(DataAccessException | CannotCreateTransactionException e){
             throw new DataBaseException(e, "TreatmentService", id, null, "getById");
         }

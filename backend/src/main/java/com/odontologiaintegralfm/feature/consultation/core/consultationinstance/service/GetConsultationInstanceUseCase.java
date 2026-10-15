@@ -3,13 +3,13 @@ package com.odontologiaintegralfm.feature.consultation.core.consultationinstance
 import com.odontologiaintegralfm.configuration.securityconfig.core.AuthenticatedUserService;
 import com.odontologiaintegralfm.feature.authentication.enums.Role;
 import com.odontologiaintegralfm.feature.consultation.core.consultation.mapper.ConsultationMapper;
-import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
+//import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.model.ConsultationInstance;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
-import com.odontologiaintegralfm.feature.consultation.core.odontogram.repository.IOdontogramRepository;
+//import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
+//import com.odontologiaintegralfm.feature.consultation.core.odontogram.repository.IOdontogramRepository;
 import com.odontologiaintegralfm.feature.consultation.core.payment.repository.IPaymentDetailRepository;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
+//import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
+//import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.model.PrestationStepInstance;
 import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.repository.IPrestationInstanceRepository;
@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+/*
 @Service
 public class GetConsultationInstanceUseCase {
 
@@ -120,3 +120,6 @@ public class GetConsultationInstanceUseCase {
         );
     }
 }
+
+
+ */

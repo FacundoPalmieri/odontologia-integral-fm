@@ -8,8 +8,10 @@ import java.util.Set;
 public record PrestationTypeResponseDTO(
         Long id,
         String name,
+        String label,
         boolean isUnique,
-        boolean requiresLocation,
+        Integer maxTooth,
+        boolean requiresOriginTreatment,
         Set<PrestationScopeType> allowedScopes,
         BigDecimal currentPrice
 ) {

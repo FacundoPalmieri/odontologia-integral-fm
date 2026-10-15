@@ -31,4 +31,13 @@ public class PrestationStepInstanceQueryService {
     }
 
 
+    /**
+     * Devuelve el step de esa prestación o 404. El mensaje es el mismo si el step no existe o si pertenece a otra
+     * prestación, aunque sea del mismo paciente (D-60, ADR-0027).
+     */
+    public PrestationStepInstance findByIdAndPrestationInstanceId(Long id, Long prestationInstanceId) {
+        return prestationStepInstanceRepository.findByIdAndPrestationInstanceId(id, prestationInstanceId)
+                .orElseThrow(() -> new NotFoundException("exception.prestationStepInstanceQueryService.notFoundForPrestation.user", null, "exception.prestationStepInstanceQueryService.notFoundForPrestation.log", new Object[]{id, prestationInstanceId, "PrestationStepInstanceQueryService", "findByIdAndPrestationInstanceId"}, LogLevel.WARN));
+    }
+
 }

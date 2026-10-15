@@ -53,7 +53,7 @@ public class RegisterPaymentUseCase {
     @Transactional
     public Response<PaymentResponseDTO> execute(PaymentRequestDTO dto) {
         PrestationInstance pi = prestationInstanceQueryService.findById(dto.prestationInstanceId());
-        Patient patient = pi.getConsultationInstance().getConsultation().getPatient();
+        Patient patient = pi.getPatient();
 
         if (dto.method() == PaymentMethods.CASH && dto.account() != null) {
             throw new BadRequestException("exception.registerPaymentUseCase.cashWithAccount.user", null, "exception.registerPaymentUseCase.cashWithAccount.log", new Object[]{dto.account(), "RegisterPaymentUseCase", "execute"}, LogLevel.WARN);

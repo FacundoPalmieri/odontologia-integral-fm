@@ -38,6 +38,10 @@ public class PrestationType extends AuditableJPA {
     @Column(unique = true, nullable = false, length = 50)
     private String name;
 
+    /** Texto visible y editable; `name` queda como key estable (D-49). */
+    @Column(nullable = false)
+    private String label;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @JoinTable(
@@ -62,8 +66,11 @@ public class PrestationType extends AuditableJPA {
     @Column(nullable = false)
     private boolean isUnique;
 
-    @Column(nullable = false)
-    private boolean requiresLocation;
+    @Column(name = "requires_origin_treatment", nullable = false)
+    private boolean requiresOriginTreatment;
+
+    @Column(name = "max_tooth")
+    private Integer maxTooth;
 
     @ElementCollection(targetClass = PrestationScopeType.class)
     @Enumerated(EnumType.STRING)
@@ -71,6 +78,6 @@ public class PrestationType extends AuditableJPA {
             name = "prestation_type_scopes",
             joinColumns = @JoinColumn(name = "prestation_type_id")
     )
-    @Column(name = "scope_type")
+    @Column(name = "scope_type", nullable = false)
     private Set<PrestationScopeType> allowedScopes;
 }

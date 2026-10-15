@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IPrestationStepInstanceRepository extends JpaRepository<PrestationStepInstance, Long> {
@@ -27,4 +28,7 @@ public interface IPrestationStepInstanceRepository extends JpaRepository<Prestat
     List<PrestationStepInstance> findByPrestationInstance(PrestationInstance prestationInstance);
 
     List<PrestationStepInstance> findByPrestationInstanceIn(List<PrestationInstance> prestationInstances);
+
+    /** Devuelve vacío si el step no existe o es de otra prestación (D-60, ADR-0027). */
+    Optional<PrestationStepInstance> findByIdAndPrestationInstanceId(Long id, Long prestationInstanceId);
 }
