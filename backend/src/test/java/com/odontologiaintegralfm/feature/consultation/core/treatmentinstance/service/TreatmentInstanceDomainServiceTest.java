@@ -77,6 +77,12 @@ class TreatmentInstanceDomainServiceTest {
         return treatmentInstance(scope, condition, treatment(1L));
     }
 
+    private static TreatmentInstance treatmentInstance(Long id, Scope scope, TreatmentConditionType condition) {
+        TreatmentInstance ti = treatmentInstance(scope, condition);
+        org.mockito.Mockito.lenient().when(ti.getId()).thenReturn(id);
+        return ti;
+    }
+
     private static PrestationInstance prestation(PrestationInstanceStatus status) {
         PrestationInstance pi = mock(PrestationInstance.class, withSettings().lenient());
         org.mockito.Mockito.lenient().when(pi.getStatus()).thenReturn(status);
@@ -345,14 +351,17 @@ class TreatmentInstanceDomainServiceTest {
     }
 
     /**
-     * CASO: Tratamiento nuevo PREEXISTING sobre el 13 y un activo IN_PROGRESS real sobre el 13.
-     * Regla: D-51 — algo activo bloquea que nazca un PREEXISTING sobre esa ubicación.
-     * Validación: ConflictException (409).
+     * CASO: Tratamiento nuevo PREEXISTING sobre el 13 (id 1, solo en los nuevos) y un activo IN_PROGRESS real sobre el 13
+     * (id 2, solo en la lista de activos).
+     * Regla: D-51 — algo activo bloquea que nazca un PREEXISTING sobre esa ubicación; el activo no está en los
+     * tratamientos nuevos, así que no se saltea.
+     * Validación: ConflictException (409). Los ids son explícitos y distintos: sin id, Mockito devuelve 0L y el activo
+     * pasaría por "coincidente por id" con la propia prótesis.
      */
     @Test
     void validateLocationCollision_newPreexistingOverActive_throwsConflictException() {
-        TreatmentInstance nuevo = treatmentInstance(teeth(Tooth.T13), TreatmentConditionType.PREEXISTING);
-        TreatmentInstance activo = treatmentInstance(teeth(Tooth.T13), TreatmentConditionType.IN_PROGRESS);
+        TreatmentInstance nuevo = treatmentInstance(1L, teeth(Tooth.T13), TreatmentConditionType.PREEXISTING);
+        TreatmentInstance activo = treatmentInstance(2L, teeth(Tooth.T13), TreatmentConditionType.IN_PROGRESS);
 
         assertThatThrownBy(() -> service.validateLocationCollision(List.of(nuevo), List.of(activo)))
                 .isInstanceOf(ConflictException.class);
@@ -438,6 +447,41 @@ class TreatmentInstanceDomainServiceTest {
         TreatmentInstance activo = treatmentInstance(teeth(Tooth.T26), TreatmentConditionType.IN_PROGRESS);
 
         assertThatCode(() -> service.validateLocationCollision(List.of(nuevo), List.of(activo))).doesNotThrowAnyException();
+    }
+
+    /**
+     * CASO: Prótesis nueva PREEXISTING de Alan sobre el 12/13/14 y una compostura nueva sobre el 13 (REQUIRED o
+     * IN_PROGRESS), las dos con id distinto y no nulo, las dos en los tratamientos nuevos y la compostura también en la
+     * lista de activos.
+     * Regla: D-51 — el PREEXISTING no se compara contra un activo que nació en el mismo request.
+     * Validación: no lanza en ninguno de los dos casos. Si el PREEXISTING se comparara contra todos los activos, la
+     * compostura nacida en el mismo request daría 409.
+     */
+    @ParameterizedTest
+    @EnumSource(value = TreatmentConditionType.class, names = {"REQUIRED", "IN_PROGRESS"})
+    void validateLocationCollision_newPreexistingOverActiveInSameRequest_isAccepted(TreatmentConditionType condition) {
+        TreatmentInstance protesis = treatmentInstance(1L, teeth(Tooth.T12, Tooth.T13, Tooth.T14), TreatmentConditionType.PREEXISTING);
+        TreatmentInstance compostura = treatmentInstance(2L, teeth(Tooth.T13), condition);
+
+        assertThatCode(() -> service.validateLocationCollision(List.of(protesis, compostura), List.of(compostura)))
+                .doesNotThrowAnyException();
+    }
+
+    /**
+     * CASO: Prótesis nueva PREEXISTING sobre el 13 y otro tratamiento nuevo REQUIRED sobre el 26, los dos en los
+     * tratamientos nuevos; un activo IN_PROGRESS ya guardado sobre el 13 (id distinto), solo en la lista de activos.
+     * Regla: D-51 — la excepción solo saltea los activos que están en los tratamientos nuevos del request.
+     * Validación: ConflictException (409). Si se salteara todo cruce del PREEXISTING apenas hay nuevos en el request, o
+     * se salteara un activo de otro id, el activo guardado dejaría pasar la colisión.
+     */
+    @Test
+    void validateLocationCollision_newPreexistingOverPersistedActiveWithOtherNewInRequest_throwsConflictException() {
+        TreatmentInstance protesis = treatmentInstance(1L, teeth(Tooth.T13), TreatmentConditionType.PREEXISTING);
+        TreatmentInstance otroNuevo = treatmentInstance(2L, teeth(Tooth.T26), TreatmentConditionType.REQUIRED);
+        TreatmentInstance activoGuardado = treatmentInstance(3L, teeth(Tooth.T13), TreatmentConditionType.IN_PROGRESS);
+
+        assertThatThrownBy(() -> service.validateLocationCollision(List.of(protesis, otroNuevo), List.of(activoGuardado)))
+                .isInstanceOf(ConflictException.class);
     }
 
     // ─── validateReplacementTraceability ──────────────────────────────────────
