@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.treatment.enums;
 
 /**
- * Representa el código de cada fila real de la tabla treatment_condition.
+ * Condiciones que admite un tratamiento. Cada clave es una condición posible de {@code Treatment.conditions}.
  */
 public enum TreatmentConditionType {
     PREEXISTING,

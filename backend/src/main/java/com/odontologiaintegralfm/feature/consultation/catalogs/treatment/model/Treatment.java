@@ -1,5 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model;
 
+import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.enums.TreatmentConditionType;
 import com.odontologiaintegralfm.feature.dentist.catalogs.model.DentistSpecialty;
 import com.odontologiaintegralfm.shared.model.AuditableJPA;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import java.util.Set;
 
@@ -37,15 +39,13 @@ public class Treatment extends AuditableJPA {
 
 
     /** No todos los tratamientos son requeridos o preexistentes. */
-    @ManyToMany(fetch = FetchType.LAZY)
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    @JoinTable(
-            name = "treatments_conditions",
-            joinColumns = @JoinColumn(name = "treatment_id"),
-            inverseJoinColumns = @JoinColumn(name = "condition_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"treatment_id","condition_id"})
-    )
-    private Set<TreatmentCondition> condition;
+    @NotAudited
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "treatment_conditions",
+            joinColumns = @JoinColumn(name = "treatment_id"))
+    @Column(name = "condition_type", nullable = false)
+    private Set<TreatmentConditionType> conditions;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)

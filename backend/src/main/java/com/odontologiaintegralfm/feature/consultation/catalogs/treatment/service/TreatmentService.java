@@ -5,6 +5,7 @@ import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.dto.Tre
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.DataBaseException;
 import com.odontologiaintegralfm.shared.exception.NotFoundException;
+import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.mapper.TreatmentMapper;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.repository.ITreatmentRepository;
 import org.springframework.dao.DataAccessException;
@@ -25,8 +26,11 @@ public class TreatmentService  {
 
     private final  ITreatmentRepository treatmentRepository;
 
-    public TreatmentService(ITreatmentRepository treatmentRepository) {
+    private final TreatmentMapper treatmentMapper;
+
+    public TreatmentService(ITreatmentRepository treatmentRepository, TreatmentMapper treatmentMapper) {
         this.treatmentRepository = treatmentRepository;
+        this.treatmentMapper = treatmentMapper;
     }
 
 
@@ -48,9 +52,7 @@ public class TreatmentService  {
 
 
            Page<Treatment> treatments = treatmentRepository.findAllByEnabledTrue(pageable);
-           Page<TreatmentResponseDTO> treatmentResponseDTO = treatments.map(treatment -> {
-               return new TreatmentResponseDTO(treatment.getId(), treatment.getLabel(), treatment.getName(), treatment.getCondition());
-           });
+           Page<TreatmentResponseDTO> treatmentResponseDTO = treatments.map(treatmentMapper::toDTO);
 
 
            return new Response<>(true,null, treatmentResponseDTO);

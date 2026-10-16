@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.catalogs.treatment.dto;
 
-import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.model.TreatmentCondition;
+import com.odontologiaintegralfm.feature.consultation.catalogs.treatment.enums.TreatmentConditionType;
 
 import java.util.Set;
 
@@ -11,7 +11,7 @@ public record TreatmentResponseDTO(
         Long id,
         String label,
         String name,
-        Set<TreatmentCondition> conditions
+        Set<TreatmentConditionType> conditions
 
 ) {
 }

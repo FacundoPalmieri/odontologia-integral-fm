@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface ITreatmentRepository extends JpaRepository<Treatment, Long> {
 
-    @EntityGraph(attributePaths = "condition")
+    @EntityGraph(attributePaths = "conditions")
     Page<Treatment> findAllByEnabledTrue(Pageable pageable);
 
     List<Treatment> findAll();
