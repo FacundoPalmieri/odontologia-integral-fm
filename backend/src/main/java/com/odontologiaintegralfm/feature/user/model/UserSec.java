@@ -1,13 +1,12 @@
 package com.odontologiaintegralfm.feature.user.model;
 
-import com.odontologiaintegralfm.feature.person.core.model.Person;
+import com.odontologiaintegralfm.feature.person.person.model.Person;
 import com.odontologiaintegralfm.feature.authentication.model.Role;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;

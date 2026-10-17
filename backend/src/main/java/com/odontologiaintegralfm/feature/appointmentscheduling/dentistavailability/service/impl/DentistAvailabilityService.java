@@ -11,8 +11,8 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailabili
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.repository.IDentistAvailabilityRepository;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.util.CalendarUtils;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.IDentistAvailabilityService;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
-import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.service.IDentistService;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;

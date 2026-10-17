@@ -5,7 +5,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.dt
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.dto.DentistHolidayRequestUpdateDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.dto.DentistHolidayResponseDTO;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.model.DentistHoliday;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
 import com.odontologiaintegralfm.shared.dto.Response;
 
 import java.time.LocalDate;

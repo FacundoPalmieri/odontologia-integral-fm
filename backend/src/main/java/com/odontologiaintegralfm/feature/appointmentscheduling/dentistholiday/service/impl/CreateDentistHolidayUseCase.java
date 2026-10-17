@@ -8,8 +8,8 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.model
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IDentistCalendarLockService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.holiday.model.Holiday;
 import com.odontologiaintegralfm.feature.appointmentscheduling.holiday.service.IHolidayService;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
-import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.service.IDentistService;
 import com.odontologiaintegralfm.feature.user.model.UserSec;
 import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;

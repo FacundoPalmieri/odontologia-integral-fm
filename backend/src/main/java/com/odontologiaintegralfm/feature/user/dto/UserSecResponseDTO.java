@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.user.dto;
 
-import com.odontologiaintegralfm.feature.dentist.core.dto.DentistResponseDTO;
-import com.odontologiaintegralfm.feature.person.core.dto.PersonResponseDTO;
+import com.odontologiaintegralfm.feature.dentist.dto.DentistResponseDTO;
+import com.odontologiaintegralfm.feature.person.person.dto.PersonResponseDTO;
 import com.odontologiaintegralfm.feature.authentication.model.Role;
 import lombok.*;
 import java.util.Set;

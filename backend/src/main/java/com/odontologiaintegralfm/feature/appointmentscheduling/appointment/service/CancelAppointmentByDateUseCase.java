@@ -7,7 +7,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.enums
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.AppointmentStatusHistory;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.repository.IAppointmentRepository;
-import com.odontologiaintegralfm.feature.patient.core.model.Patient;
+import com.odontologiaintegralfm.feature.patient.model.Patient;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.shared.dto.Response;
 import com.odontologiaintegralfm.shared.enums.LogLevel;

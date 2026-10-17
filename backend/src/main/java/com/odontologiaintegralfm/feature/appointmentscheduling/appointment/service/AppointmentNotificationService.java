@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.appointment.service;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.enums.TemplateEmail;
 import com.odontologiaintegralfm.feature.appointmentscheduling.appointment.model.Appointment;
-import com.odontologiaintegralfm.feature.person.core.model.ContactEmail;
+import com.odontologiaintegralfm.feature.person.person.model.ContactEmail;
 import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

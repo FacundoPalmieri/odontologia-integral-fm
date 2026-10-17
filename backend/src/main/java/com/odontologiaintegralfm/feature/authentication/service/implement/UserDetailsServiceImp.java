@@ -1,13 +1,13 @@
 package com.odontologiaintegralfm.feature.authentication.service.implement;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
-import com.odontologiaintegralfm.feature.dentist.core.service.implement.DentistService;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.service.DentistService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;
 import com.odontologiaintegralfm.shared.enums.LogType;
 import com.odontologiaintegralfm.shared.exception.ForbiddenException;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.UnauthorizedException;
-import com.odontologiaintegralfm.feature.person.core.dto.PersonResponseDTO;
-import com.odontologiaintegralfm.feature.person.core.service.implement.PersonService;
+import com.odontologiaintegralfm.feature.person.person.dto.PersonResponseDTO;
+import com.odontologiaintegralfm.feature.person.person.service.PersonService;
 import com.odontologiaintegralfm.feature.authentication.dto.*;
 import com.odontologiaintegralfm.feature.authentication.model.RefreshToken;
 import com.odontologiaintegralfm.feature.authentication.model.Role;

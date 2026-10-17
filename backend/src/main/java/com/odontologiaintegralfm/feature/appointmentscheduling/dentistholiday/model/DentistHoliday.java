@@ -2,7 +2,7 @@ package com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.m
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.holiday.model.Holiday;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.dto.DentistHolidayRequestCreateDTO;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

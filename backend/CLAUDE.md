@@ -22,15 +22,20 @@ Swagger UI disponible en `http://localhost:8080/swagger-ui.html` con el servidor
 
 ### Estructura por features
 
-Todo el código de dominio vive en `src/main/java/.../feature/` organizado por módulo:
+Todo el código de dominio vive en `src/main/java/.../feature/` organizado por módulo. Hay dos formas, según cuántos subdominios tenga el módulo:
 
 ```
 feature/
-├── <modulo>/
-│   ├── catalogs/   # Datos de selectores y lookup sin lógica de negocio
-│   └── core/       # Lógica de negocio del módulo
-└── ...
+├── <modulo-de-un-solo-dominio>/       # ej: dentist, patient, user
+│   └── controller/ dto/ model/ repository/ service/
+│
+└── <modulo-con-subdominios>/          # ej: consultation, appointmentscheduling, person
+    ├── <subdominio>/
+    │   └── controller/ dto/ model/ repository/ service/
+    └── <subdominio>/
 ```
+
+Un módulo se divide en subdominios cuando agrupa conceptos con ciclo de vida propio. Ejemplo: `person` tiene `person`, `geo` (país, provincia, localidad) y `attachedfile` (archivos adjuntos); `consultation` tiene `prestation`, `treatment`, `consultationinstance`, etc.
 
 Ejemplos de módulos: `authentication`, `user`, `person`, `patient`, `dentist`, `appointmentscheduling`, `consultation`, `payment`, `developer`.
 
@@ -40,7 +45,7 @@ Las preocupaciones transversales viven en `infrastructure/` (auditoría, email, 
 
 Cada módulo sigue: `controller → service → repository → model`, más una carpeta `dto/`.
 
-Cuando el módulo crece, sus sub-dominios se agrupan bajo `catalogs/` (datos de selectores y lookup, sin lógica de negocio) y `core/` (lógica de negocio).
+Esas capas viven en el módulo (si es de un solo dominio) o dentro de cada subdominio (si el módulo los tiene).
 
 La lógica de negocio no trivial se divide en dos patrones:
 
@@ -124,26 +129,40 @@ Si los tests de integración empiezan a tardar minutos (DB real, servicios exter
 ```
 src/test/java/.../feature/
 └── <modulo>/
-    ├── catalogs/
-    │   └── <subdominio>/
-    │       └── repository/     # @integration
-    └── core/
-        └── <subdominio>/
-            └── service/        # @unit (UseCases y DomainServices)
+    └── <subdominio>/             # igual que en main (sin este nivel si el módulo es de un solo dominio)
+        ├── repository/           # @integration
+        └── service/              # @unit (UseCases y DomainServices)
 ```
 
 ### Convención de nombres de tests
 `methodName_condition_expectedResult` (camelCase). Sin `should`, sin sufijo `_test`. Cada test tiene Javadoc con `CASO:`, `Regla:` (cuando aplica) y `Validación:`.
+
+### Mocks vs. entidades reales (`build()`) en tests de UseCase/DomainService
+
+Regla para decidir si una entidad colaboradora se mockea o se construye real vía su `build()` (ADR-0031):
+
+- **Si la entidad es un dato de entrada** que el método bajo test consume o interpreta (lee getters para decidir una rama, comparar estados, clasificar) → **mock**. Aísla el test de la lógica de construcción de esa entidad, que no es lo que se está probando. Ejemplo: `PrestationInstanceDomainService` razona sobre `Odontogram`/`PrestationInstance` que otro ya construyó y persistió — no es su responsabilidad validar que `build()` arme bien la entidad (esa invariante la garantiza el propio constructor privado, y si hiciera falta, un test de la entidad misma — fuera de scope en este proyecto). Mockear también evita que un cambio de firma en `build()` rompa tests que no dependen de esa lógica.
+- **Si la entidad es un dato de salida** que el método bajo test construye (llama a `Entity.build(...)` y la pasa a `repository.save(...)`) → **construila real y capturala con `ArgumentCaptor`** para verificar su estado (`getId()`, relaciones). Un mock no tiene comportamiento real que conectar — mockear el resultado del propio método que se está probando lo vuelve tautológico. Ejemplo: `CreateConsultationInstanceUseCase` resuelve un `tempId` y arma una `PrestationInstance` que referencia el `Odontogram` recién persistido — verificar eso exige leer el estado real del objeto construido, no un stub.
+
+### Tests de forma de DTOs (`@AssertTrue`, `@NotNull`, `@NotEmpty`, `@Valid`)
+
+Todo test de un DTO pasa por un `Validator` real (`Validation.buildDefaultValidatorFactory().getValidator()`), sin Spring ni Mockito. Nunca se llama `isX()` directo: eso prueba que el método devuelve `false`, pero no que la anotación exista. Si el dev se olvida el `@AssertTrue`, el método sigue devolviendo `false` en el test y el endpoint acepta el payload inválido en producción.
+
+- **Casos que esperan rechazo:** se arma un ítem base válido en todo lo demás y se rompe solo la regla bajo test. Se afirma con `containsExactly` sobre el `propertyPath` de las violaciones (el nombre del método sin `is` y con minúscula inicial: `isLocationConsistent()` → `locationConsistent`; para `@NotEmpty`/`@NotNull`, el nombre del campo). No alcanza con contar violaciones: otra regla del mismo DTO podría ser la que falla. No se afirma el texto ni la clave del mensaje: es una decisión de producción.
+- **Un campo que rompe dos reglas a la vez** (por ejemplo, `discountType` sin `discountValue` rompe también `isDiscountConsistent`): se afirman las dos violaciones con `containsExactlyInAnyOrder` y el Javadoc explica por qué. No se reemplaza el input por uno que evite la segunda violación: se pierde cobertura de ese campo por separado.
+- **Casos que esperan aceptación:** se afirma que ninguna violación tiene el `propertyPath` de esa regla. No detectan una anotación olvidada; esa protección la dan los casos de rechazo.
+- **Cascade (`@Valid`):** el DTO raíz con listas anidadas lleva un caso con un ítem anidado inválido, que afirma el `propertyPath` completo (por ejemplo `prestation[0].steps`).
+- **Límite:** esto no prueba que el controller responda 400. Eso depende del `@Valid` en el parámetro del controller y solo lo cubre un `@WebMvcTest`.
 
 ### Fuera de scope por definición
 
 Los siguientes **nunca se testean** en este proyecto — no proponer tests para ellos ni incluirlos en auditorías de cobertura:
 
 - **Query services** (`*QueryService`): lecturas puras, sin reglas de dominio.
-- **Catálogos** (`feature/*/catalogs/**`): datos de lookup estáticos y CRUD sin lógica de negocio.
+- **Servicios CRUD de lookup** (por ejemplo `GenderService`, `CountryService`, `DentistSpecialtyService`): lecturas o altas simples de datos de selectores, sin reglas de dominio. Lo que decide si algo se testea es el tipo de clase: todo `*UseCase` y `*DomainService` se testea, aunque trate sobre datos de selectores (por ejemplo `CreatePromotionUseCase`).
 - **Entidades/modelos JPA** (`*/model/*.java`): clases de datos con anotaciones — sin comportamiento a validar.
 - **Mappers** (MapStruct `@Mapper`): código generado.
-- **DTOs**: records / portadores de datos.
+- **DTOs**: records / portadores de datos. Excepción: los DTOs con `@AssertTrue` de forma (ADR-0030) llevan lógica de validación y sí se testean, con la regla de la sección "Tests de forma de DTOs".
 - **Repositorios** (`I*Repository`): solo métodos derivados de Spring Data — sin comportamiento a validar. Los métodos `@Query` personalizados con lógica de filtrado no trivial son candidatos a tests de integración.
 
 Los tests apuntan a **use cases** (`*UseCase`) y **domain services** (`*DomainService`) donde viven las reglas de negocio. Al auditar cobertura de una feature, declarar los ítems anteriores como "fuera de scope por definición" en lugar de gaps.

@@ -10,7 +10,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.dt
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.model.DentistHoliday;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.repository.IDentistHolidayRepository;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.util.CalendarUtils;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
 import org.springframework.context.MessageSource;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
 import com.odontologiaintegralfm.shared.exception.BadRequestException;

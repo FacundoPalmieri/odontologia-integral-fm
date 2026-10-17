@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.dto;
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.model.DentistAvailability;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
 import java.util.List;
 
 /**

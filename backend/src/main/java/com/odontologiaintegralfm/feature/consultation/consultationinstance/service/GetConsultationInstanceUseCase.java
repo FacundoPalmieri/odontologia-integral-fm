@@ -1,0 +1,106 @@
+package com.odontologiaintegralfm.feature.consultation.consultationinstance.service;
+
+//import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.dto.ConsultationInstanceResponseDTO;
+//import com.odontologiaintegralfm.feature.consultation.core.odontogram.mapper.OdontogramMapper;
+//import com.odontologiaintegralfm.feature.consultation.core.odontogram.repository.IOdontogramRepository;
+//import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.dto.PrestationInstanceResponseDTO;
+//import com.odontologiaintegralfm.feature.consultation.core.prestationinstance.mapper.PrestationInstanceMapper;
+
+/*
+@Service
+public class GetConsultationInstanceUseCase {
+
+    private final ConsultationInstanceQueryService consultationInstanceQueryService;
+    private final IPrestationInstanceRepository prestationInstanceRepository;
+    private final IPrestationStepInstanceRepository prestationStepInstanceRepository;
+    private final IPaymentDetailRepository paymentDetailRepository;
+    private final IOdontogramRepository odontogramRepository;
+    private final PrestationInstanceMapper prestationInstanceMapper;
+    private final OdontogramMapper odontogramMapper;
+    private final ConsultationMapper consultationMapper;
+    private final AuthenticatedUserService authenticatedUserService;
+
+    public GetConsultationInstanceUseCase(ConsultationInstanceQueryService consultationInstanceQueryService,
+                                          IPrestationInstanceRepository prestationInstanceRepository,
+                                          IPrestationStepInstanceRepository prestationStepInstanceRepository,
+                                          IPaymentDetailRepository paymentDetailRepository,
+                                          IOdontogramRepository odontogramRepository,
+                                          PrestationInstanceMapper prestationInstanceMapper,
+                                          OdontogramMapper odontogramMapper,
+                                          ConsultationMapper consultationMapper,
+                                          AuthenticatedUserService authenticatedUserService) {
+        this.consultationInstanceQueryService = consultationInstanceQueryService;
+        this.prestationInstanceRepository = prestationInstanceRepository;
+        this.prestationStepInstanceRepository = prestationStepInstanceRepository;
+        this.paymentDetailRepository = paymentDetailRepository;
+        this.odontogramRepository = odontogramRepository;
+        this.prestationInstanceMapper = prestationInstanceMapper;
+        this.odontogramMapper = odontogramMapper;
+        this.consultationMapper = consultationMapper;
+        this.authenticatedUserService = authenticatedUserService;
+    }
+
+    @Transactional(readOnly = true)
+    public Response<ConsultationInstanceResponseDTO> execute(Long id) {
+
+        ConsultationInstance instance = consultationInstanceQueryService.findById(id);
+
+        UserSec user = authenticatedUserService.getAuthenticatedUser();
+        boolean isDentist = user.getRolesList().stream()
+                .anyMatch(r -> r.getName().equals(Role.DENTIST.name()));
+
+        if (isDentist) {
+            Long dentistPersonId = instance.getConsultation().getDentist().getPerson().getId();
+            Long userPersonId = user.getPerson().getId();
+            if (!dentistPersonId.equals(userPersonId)) {
+                throw new ForbiddenException(
+                        "exception.getConsultationInstanceUseCase.forbidden.user", null,
+                        "exception.getConsultationInstanceUseCase.forbidden.log", new Object[]{id, userPersonId, "GetConsultationInstanceUseCase", "execute"},
+                        LogLevel.WARN
+                );
+            }
+        }
+
+        List<PrestationInstance> prestations = prestationInstanceRepository.findByConsultationInstanceId(instance.getId());
+
+        Map<Long, List<PrestationStepInstance>> stepsByPrestationId = prestationStepInstanceRepository.findByPrestationInstanceIn(prestations)
+                .stream()
+                .collect(Collectors.groupingBy(step -> step.getPrestationInstance().getId()));
+
+        List<PrestationInstanceResponseDTO> prestationDTOs = prestations.stream()
+                .map(p -> {
+                    BigDecimal paid = paymentDetailRepository.sumAmountByPrestationInstanceId(p.getId());
+                    BigDecimal pending = p.getFinalAmount().subtract(paid);
+                    PrestationInstanceResponseDTO base = prestationInstanceMapper.toDTO(p);
+                    List<PrestationStepInstance> steps = stepsByPrestationId.getOrDefault(p.getId(), List.of());
+                    return new PrestationInstanceResponseDTO(
+                            base.id(), base.name(), base.odontogram(), base.scope(), base.scopeDetail(),
+                            base.status(), base.price(), base.promotion(), base.promotionAmount(),
+                            base.discountType(), base.discountValue(), base.discountAmount(),
+                            base.finalAmount(), pending, prestationInstanceMapper.toStepDTOs(steps)
+                    );
+                })
+                .toList();
+
+        BigDecimal totalFinalAmount = prestations.stream()
+                .map(PrestationInstance::getFinalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new Response<>(
+                true,
+                null,
+                new ConsultationInstanceResponseDTO(
+                        instance.getId(),
+                        consultationMapper.toDTOWithoutPublish(instance.getConsultation()),
+                        odontogramRepository.findByConsultationInstanceId(instance.getId()).stream()
+                                .map(odontogramMapper::toDTO).toList(),
+                        prestationDTOs,
+                        instance.getObservation(),
+                        totalFinalAmount
+                )
+        );
+    }
+}
+
+
+ */

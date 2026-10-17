@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.user.dto;
 
-import com.odontologiaintegralfm.feature.dentist.core.dto.DentistCreateRequestDTO;
-import com.odontologiaintegralfm.feature.person.core.dto.PersonCreateRequestDTO;
+import com.odontologiaintegralfm.feature.dentist.dto.DentistCreateRequestDTO;
+import com.odontologiaintegralfm.feature.person.person.dto.PersonCreateRequestDTO;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
