@@ -63,6 +63,13 @@ public interface IPatientService {
      */
     Patient findById(Long id);
 
+    /**
+     * Método para obtener un paciente habilitado por ID. Si no existe o está dado de baja, lanza {@link com.odontologiaintegralfm.shared.exception.NotFoundException}.
+     * @param id del paciente
+     * @return La entidad recuperada
+     */
+    Patient findByIdAndEnabledTrue(Long id);
+
 
 
 }

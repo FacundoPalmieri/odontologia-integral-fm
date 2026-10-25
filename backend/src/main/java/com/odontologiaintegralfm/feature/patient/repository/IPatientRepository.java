@@ -19,4 +19,6 @@ public interface IPatientRepository extends JpaRepository<Patient, Long> {
 
     Optional<Patient> findById(Long id);
 
+    Optional<Patient> findByIdAndEnabledTrue(Long id);
+
 }

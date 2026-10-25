@@ -26,4 +26,7 @@ public interface IPrestationInstanceRepository extends JpaRepository<PrestationI
 
     /** Devuelve vacío tanto si el id no existe como si es de otro paciente (D-60, ADR-0027). */
     Optional<PrestationInstance> findByIdAndPatientId(Long id, Long patientId);
+
+    /** Prestaciones habilitadas del paciente, de cualquier estado (D-04, D-07). */
+    List<PrestationInstance> findByPatientIdAndEnabledTrue(Long patientId);
 }

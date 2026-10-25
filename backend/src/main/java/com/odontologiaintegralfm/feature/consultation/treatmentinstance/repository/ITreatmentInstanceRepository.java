@@ -25,4 +25,7 @@ public interface ITreatmentInstanceRepository extends JpaRepository<TreatmentIns
          com.odontologiaintegralfm.feature.consultation.treatment.enums.TreatmentConditionType.IN_PROGRESS)
      """)
     List<TreatmentInstance> findActiveByPatientId(@Param("patientId") Long patientId);
+
+    /** Tratamientos habilitados del paciente, de cualquier condición (D-07). */
+    List<TreatmentInstance> findByPatientIdAndEnabledTrue(Long patientId);
 }

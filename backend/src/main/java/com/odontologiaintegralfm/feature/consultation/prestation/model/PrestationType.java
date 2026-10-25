@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -27,6 +28,7 @@ import java.util.Set;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Table(name = "prestations_types")
 @Where(clause = "enabled = true")
+@Check(constraints = "NOT (can_be_origin AND requires_origin_treatment)")
 @Audited
 public class PrestationType extends AuditableJPA {
 
@@ -68,6 +70,10 @@ public class PrestationType extends AuditableJPA {
 
     @Column(name = "requires_origin_treatment", nullable = false)
     private boolean requiresOriginTreatment;
+
+    /** Marca las prestaciones que crean el origen de una prótesis (Colocaciones); pareja de requiresOriginTreatment (D-03). */
+    @Column(name = "can_be_origin", nullable = false)
+    private boolean canBeOrigin;
 
     @Column(name = "max_tooth")
     private Integer maxTooth;
