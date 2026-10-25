@@ -56,6 +56,15 @@ La lógica de negocio no trivial se divide en dos patrones:
 
 IMPORTANTE: Ver **ADR-0023** (`docs/architecture/adr/_cross-cutting/0023-donde-vive-un-calculo-de-negocio.md`) para el detalle y ejemplos. 
 
+### Construcción de entidades
+
+Aplica solo a entidades nuevas (las existentes no se migran). Detalle y motivos: **ADR-0031** (`docs/architecture/adr/_cross-cutting/0031-construccion-entidades-constructor-vs-build.md`).
+
+- **Forma base de toda entidad JPA:** `@Getter` de clase, sin `@Setter` ni `@AllArgsConstructor`, `@NoArgsConstructor(access = PROTECTED)` solo para Hibernate, y un constructor público escrito a mano que pida únicamente los datos que decide quien crea la entidad (sin `id` ni auditoría). Los cálculos cortos (ej: normalizar un nombre) van dentro del constructor.
+- **Editar después de crear:** por defecto sin setters. Si una edición lo necesita, se mira qué campos permite modificar: solo algunos → `@Setter` por campo o un método `update(...)`/método de negocio; cualquiera sin restricción → se evalúa `@Setter` de clase (solo si no hay reglas entre los campos ni campos `updatable = false`).
+- **`build()` (constructor privado) solo si HOY aplica alguna:** (1) varias formas de crear con sentido distinto (ej: `Scope.build` y `Scope.empty`), o (2) un bloque de lógica con varios pasos antes de armar la entidad (ej: `PrestationInstance`). El origen de los datos no decide.
+- **MapStruct para crear entidades:** solo si todos los parámetros del constructor público salen 1:1 del DTO. Si algún valor no sale del DTO, el use case crea con `new` o `Entidad.build(...)`. Nunca un mapper que cree la entidad vacía y la llene con setters.
+
 ### Wrapper de respuesta
 
 Todas las respuestas de la API usan `Response<T>` (un record en `shared/dto/`). Usarlo de forma consistente.
