@@ -47,8 +47,8 @@ class IPrestationTypePriceRepositoryTest {
     @Test
     void findAllActive_disabledPrestationType_notReturned() {
         jdbcTemplate.update("""
-                INSERT INTO prestations_types (name, label, is_unique, requires_origin_treatment, enabled, created_at, created_by_id)
-                VALUES (?, ?, false, false, false, NOW(), ?)
+                INSERT INTO prestations_types (name, label, is_unique, requires_origin_treatment, can_be_origin, enabled, created_at, created_by_id)
+                VALUES (?, ?, false, false, false, false, NOW(), ?)
                 """, "Prestacion-Deshabilitada-Test", "Prestacion Deshabilitada Test", AUDIT_USER_ID);
 
         Long prestationTypeId = jdbcTemplate.queryForObject(
@@ -73,8 +73,8 @@ class IPrestationTypePriceRepositoryTest {
     @Test
     void findAllActive_noActivePrice_notReturned() {
         jdbcTemplate.update("""
-                INSERT INTO prestations_types (name, label, is_unique, requires_origin_treatment, enabled, created_at, created_by_id)
-                VALUES (?, ?, false, false, true, NOW(), ?)
+                INSERT INTO prestations_types (name, label, is_unique, requires_origin_treatment, can_be_origin, enabled, created_at, created_by_id)
+                VALUES (?, ?, false, false, false, true, NOW(), ?)
                 """, "Prestacion-SinPrecioVigente-Test", "Prestacion Sin Precio Vigente Test", AUDIT_USER_ID);
 
         Long prestationTypeId = jdbcTemplate.queryForObject(

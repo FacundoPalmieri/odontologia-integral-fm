@@ -96,8 +96,8 @@ class TreatmentInstanceScopePersistenceTest {
                 VALUES (?, ?, true, NOW(), ?)
                 """, TREATMENT_NAME, TREATMENT_NAME, AUDIT_USER_ID);
         jdbcTemplate.update("""
-                INSERT INTO prestations_types (name, label, is_unique, requires_origin_treatment, enabled, created_at, created_by_id)
-                VALUES (?, ?, false, false, true, NOW(), ?)
+                INSERT INTO prestations_types (name, label, is_unique, requires_origin_treatment, can_be_origin, enabled, created_at, created_by_id)
+                VALUES (?, ?, false, false, false, true, NOW(), ?)
                 """, TYPE_NAME, TYPE_NAME, AUDIT_USER_ID);
 
         Long treatmentId = jdbcTemplate.queryForObject("SELECT id FROM treatment WHERE name = ?", Long.class, TREATMENT_NAME);
