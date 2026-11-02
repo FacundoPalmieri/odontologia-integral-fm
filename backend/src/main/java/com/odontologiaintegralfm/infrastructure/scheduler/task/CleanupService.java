@@ -1,10 +1,10 @@
 package com.odontologiaintegralfm.infrastructure.scheduler.task;
 
 import com.odontologiaintegralfm.feature.appointmentscheduling.holiday.service.IHolidayService;
-import com.odontologiaintegralfm.feature.person.core.service.interfaces.IAddressService;
-import com.odontologiaintegralfm.feature.person.core.service.interfaces.IContactEmailService;
-import com.odontologiaintegralfm.feature.person.core.service.interfaces.IContactPhoneService;
-import com.odontologiaintegralfm.feature.person.core.service.interfaces.IAttachedFilesService;
+import com.odontologiaintegralfm.feature.person.person.service.IAddressService;
+import com.odontologiaintegralfm.feature.person.person.service.IContactEmailService;
+import com.odontologiaintegralfm.feature.person.person.service.IContactPhoneService;
+import com.odontologiaintegralfm.feature.person.attachedfile.service.IAttachedFilesService;
 import com.odontologiaintegralfm.infrastructure.logging.service.ISystemLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

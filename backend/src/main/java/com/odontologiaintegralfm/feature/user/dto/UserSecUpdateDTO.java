@@ -1,8 +1,7 @@
 package com.odontologiaintegralfm.feature.user.dto;
 
-import com.odontologiaintegralfm.feature.dentist.core.dto.DentistUpdateRequestDTO;
-import com.odontologiaintegralfm.feature.person.core.dto.PersonUpdateRequestDTO;
-import jakarta.validation.constraints.NotEmpty;
+import com.odontologiaintegralfm.feature.dentist.dto.DentistUpdateRequestDTO;
+import com.odontologiaintegralfm.feature.person.person.dto.PersonUpdateRequestDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

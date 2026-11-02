@@ -10,10 +10,10 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailabili
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailability.service.IDentistAvailabilityService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistholiday.service.IDentistHolidayService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.service.IDentistCalendarLockService;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
-import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
-import com.odontologiaintegralfm.feature.patient.core.model.Patient;
-import com.odontologiaintegralfm.feature.patient.core.service.interfaces.IPatientService;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.service.IDentistService;
+import com.odontologiaintegralfm.feature.patient.model.Patient;
+import com.odontologiaintegralfm.feature.patient.service.IPatientService;
 import com.odontologiaintegralfm.infrastructure.systemparameter.enums.SystemParameterKey;
 import com.odontologiaintegralfm.infrastructure.systemparameter.service.implement.SystemParameterService;
 import com.odontologiaintegralfm.shared.enums.LogLevel;

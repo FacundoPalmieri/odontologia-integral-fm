@@ -3,7 +3,7 @@ package com.odontologiaintegralfm.feature.appointmentscheduling.dentistlock.mode
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.enums.CalendarLockMode;
 import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.model.CalendarLockType;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

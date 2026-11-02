@@ -1,5 +1,5 @@
 package com.odontologiaintegralfm.feature.authentication.dto;
-import com.odontologiaintegralfm.feature.person.core.dto.PersonResponseDTO;
+import com.odontologiaintegralfm.feature.person.person.dto.PersonResponseDTO;
 import lombok.Builder;
 import lombok.Data;
 import java.util.Set;

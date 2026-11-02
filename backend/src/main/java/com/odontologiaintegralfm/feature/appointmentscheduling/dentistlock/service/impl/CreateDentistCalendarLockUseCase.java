@@ -26,8 +26,8 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.model.Ca
 import com.odontologiaintegralfm.feature.appointmentscheduling.locktype.service.ICalendarLockTypeService;
 import com.odontologiaintegralfm.feature.appointmentscheduling.shared.DayName;
 import com.odontologiaintegralfm.feature.authentication.enums.Role;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
-import com.odontologiaintegralfm.feature.dentist.core.service.interfaces.IDentistService;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.service.IDentistService;
 import com.odontologiaintegralfm.feature.user.service.IUserService;
 import com.odontologiaintegralfm.infrastructure.email.service.IEmailService;
 import com.odontologiaintegralfm.infrastructure.logging.annotations.LogAction;

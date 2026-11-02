@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.feature.appointmentscheduling.dentistavailabili
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.enums.CalendarLockRecurrenceName;
 import com.odontologiaintegralfm.feature.appointmentscheduling.shared.DayName;
 import com.odontologiaintegralfm.feature.appointmentscheduling.calendar.util.CalendarUtils;
-import com.odontologiaintegralfm.feature.dentist.core.model.Dentist;
+import com.odontologiaintegralfm.feature.dentist.model.Dentist;
 import com.odontologiaintegralfm.shared.model.Auditable;
 import jakarta.persistence.*;
 import lombok.Getter;

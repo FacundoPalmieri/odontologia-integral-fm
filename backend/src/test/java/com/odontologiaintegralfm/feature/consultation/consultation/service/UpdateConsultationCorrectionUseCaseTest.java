@@ -1,0 +1,111 @@
+package com.odontologiaintegralfm.feature.consultation.consultation.service;
+
+import com.odontologiaintegralfm.feature.consultation.consultation.dto.ConsultationCorrectionRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.consultation.dto.ConsultationResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.consultation.enums.ConsultationEventType;
+import com.odontologiaintegralfm.feature.consultation.consultation.enums.ConsultationStatusType;
+import com.odontologiaintegralfm.feature.consultation.consultation.model.Consultation;
+import com.odontologiaintegralfm.feature.consultation.consultation.model.ConsultationEvent;
+import com.odontologiaintegralfm.feature.consultation.consultation.repository.IConsultationRepository;
+import com.odontologiaintegralfm.feature.consultation.consultation.service.ChangeConsultationStatusUseCase;
+import com.odontologiaintegralfm.feature.consultation.consultation.service.ConsultationEventService;
+import com.odontologiaintegralfm.feature.consultation.consultation.service.UpdateConsultationCorrectionUseCase;
+import com.odontologiaintegralfm.shared.dto.Response;
+import com.odontologiaintegralfm.shared.exception.ConflictException;
+import com.odontologiaintegralfm.shared.exception.NotFoundException;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@Tag("unit")
+@ExtendWith(MockitoExtension.class)
+class UpdateConsultationCorrectionUseCaseTest {
+
+    @Mock private IConsultationRepository consultationRepository;
+    @Mock private MessageSource messageSource;
+    @Mock private ConsultationEventService consultationEventService;
+    @Mock private ChangeConsultationStatusUseCase changeConsultationStatusUseCase;
+
+    @InjectMocks private UpdateConsultationCorrectionUseCase useCase;
+
+    private final ConsultationCorrectionRequestDTO correction = new ConsultationCorrectionRequestDTO("Se inició por error");
+
+    @Test
+    void execute_whenConsultationNotFound_throwsNotFoundException() {
+        when(consultationRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> useCase.execute(1L, correction))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void execute_whenStatusIsFinished_throwsConflictException() {
+        Consultation consultation = mock(Consultation.class);
+        when(consultation.getStatus()).thenReturn(ConsultationStatusType.FINISHED);
+        when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
+
+        assertThatThrownBy(() -> useCase.execute(1L, correction))
+                .isInstanceOf(ConflictException.class);
+    }
+
+    @Test
+    void execute_whenStatusIsWaitingRoom_throwsConflictException() {
+        Consultation consultation = mock(Consultation.class);
+        when(consultation.getStatus()).thenReturn(ConsultationStatusType.WAITING_ROOM);
+        when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
+
+        assertThatThrownBy(() -> useCase.execute(1L, correction))
+                .isInstanceOf(ConflictException.class);
+    }
+
+    @Test
+    void execute_whenStatusIsInConsultation_revertsToPreviousStatus() {
+        Consultation consultation = mock(Consultation.class);
+        when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
+        when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
+
+        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "Sala de Espera", null);
+        when(changeConsultationStatusUseCase.execute(consultation, ConsultationStatusType.WAITING_ROOM)).thenReturn(dto);
+        when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
+
+        Response<ConsultationResponseDTO> result = useCase.execute(1L, correction);
+
+        verify(changeConsultationStatusUseCase).execute(consultation, ConsultationStatusType.WAITING_ROOM);
+        assertThat(result.success()).isTrue();
+    }
+
+    @Test
+    void execute_onSuccess_createsConsultationCorrectedEventWithObservation() {
+        Consultation consultation = mock(Consultation.class);
+        when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
+        when(consultationRepository.findById(1L)).thenReturn(Optional.of(consultation));
+
+        ConsultationResponseDTO dto = new ConsultationResponseDTO(1L, null, null, null, "Paciente", null, "Dentista", "Sala de Espera", null);
+        when(changeConsultationStatusUseCase.execute(any(), any())).thenReturn(dto);
+        when(messageSource.getMessage(anyString(), any(), any())).thenReturn("ok");
+
+        useCase.execute(1L, correction);
+
+        ArgumentCaptor<ConsultationEvent> captor = ArgumentCaptor.forClass(ConsultationEvent.class);
+        verify(consultationEventService).create(captor.capture());
+        ConsultationEvent published = captor.getValue();
+        assertThat(published.getEventType()).isEqualTo(ConsultationEventType.CONSULTATION_CORRECTED);
+        assertThat(published.getObservation()).isEqualTo(correction.observationCorrection());
+        assertThat(published.getConsultation()).isSameAs(consultation);
+    }
+}
