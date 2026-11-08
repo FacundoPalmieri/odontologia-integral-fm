@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  *
  * Decisiones de armado (ADR-0031):
  * - Patient, TreatmentInstance, PrestationInstance y los colaboradores se mockean: son datos de entrada o capas inferiores.
- * - ScopeMapper es un @Spy real (ScopeMapperImpl): el mapeo de Scope a ScopeDTO se ejercita de verdad.
+ * - ScopeMapper es un @Spy real (ScopeMapperImpl): el mapeo de Scope a ScopeResponseDTO se ejercita de verdad.
  * - ProsthesisDomainService está mockeado: sus reglas se prueban en ProsthesisDomainServiceTest.
  */
 @Tag("unit")
@@ -158,8 +158,8 @@ class GetProsthesesByPatientUseCaseTest {
             assertThat(scope.toothFace()).isNull();
             assertThat(scope.fullMouth()).isNull();
         });
-        verify(scopeMapper).toScopeDTO(same(originScope));
-        verify(scopeMapper).toScopeDTO(same(additionScope));
+        verify(scopeMapper).toScopeResponseDTO(same(originScope));
+        verify(scopeMapper).toScopeResponseDTO(same(additionScope));
     }
 
     /**

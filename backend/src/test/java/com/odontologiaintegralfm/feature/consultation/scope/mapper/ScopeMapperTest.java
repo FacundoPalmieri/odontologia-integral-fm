@@ -1,7 +1,7 @@
 
 package com.odontologiaintegralfm.feature.consultation.scope.mapper;
 
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Maxillary;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Quadrant;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Tooth;
@@ -16,7 +16,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests de ScopeMapper.toScopeDTO (REQ-038): método default con lógica propia (null en los grupos vacíos).
+ * Tests de ScopeMapper.toScopeResponseDTO (REQ-038): método default con lógica propia (null en los grupos vacíos).
  * Cada test arma el Scope real con Scope.build y un solo grupo poblado.
  */
 @Tag("unit")
@@ -34,8 +34,8 @@ class ScopeMapperTest {
      * Validación: tooth [14, 16, 17]; toothFace, quadrant, maxillary y fullMouth son null.
      */
     @Test
-    void toScopeDTO_toothList_toothFilledOthersNull() {
-        ScopeDTO dto = mapper.toScopeDTO(Scope.build(teeth(14, 16, 17), null, null, null, false));
+    void toScopeResponseDTO_toothList_toothFilledOthersNull() {
+        ScopeResponseDTO dto = mapper.toScopeResponseDTO(Scope.build(teeth(14, 16, 17), null, null, null, false));
 
         assertThat(dto.tooth()).containsExactly(Tooth.fromCode(14), Tooth.fromCode(16), Tooth.fromCode(17));
         assertThat(dto.toothFace()).isNull();
@@ -50,8 +50,8 @@ class ScopeMapperTest {
      * Validación: tooth [14] y toothFace igual a la cara; quadrant, maxillary y fullMouth son null.
      */
     @Test
-    void toScopeDTO_toothWithFace_keepsFace() {
-        ScopeDTO dto = mapper.toScopeDTO(Scope.build(teeth(14), ToothFace.CENTER, null, null, false));
+    void toScopeResponseDTO_toothWithFace_keepsFace() {
+        ScopeResponseDTO dto = mapper.toScopeResponseDTO(Scope.build(teeth(14), ToothFace.CENTER, null, null, false));
 
         assertThat(dto.tooth()).containsExactly(Tooth.fromCode(14));
         assertThat(dto.toothFace()).isEqualTo(ToothFace.CENTER);
@@ -66,8 +66,8 @@ class ScopeMapperTest {
      * Validación: quadrant es el cuadrante; tooth es null; toothFace, maxillary y fullMouth son null.
      */
     @Test
-    void toScopeDTO_quadrant_toothNullAndFullMouthNull() {
-        ScopeDTO dto = mapper.toScopeDTO(Scope.build(null, null, Quadrant.UPPER_RIGHT, null, false));
+    void toScopeResponseDTO_quadrant_toothNullAndFullMouthNull() {
+        ScopeResponseDTO dto = mapper.toScopeResponseDTO(Scope.build(null, null, Quadrant.UPPER_RIGHT, null, false));
 
         assertThat(dto.quadrant()).isEqualTo(Quadrant.UPPER_RIGHT);
         assertThat(dto.tooth()).isNull();
@@ -82,8 +82,8 @@ class ScopeMapperTest {
      * Validación: maxillary es el maxilar; tooth, quadrant, toothFace y fullMouth son null.
      */
     @Test
-    void toScopeDTO_maxillary_maxillaryFilled() {
-        ScopeDTO dto = mapper.toScopeDTO(Scope.build(null, null, null, Maxillary.UPPER, false));
+    void toScopeResponseDTO_maxillary_maxillaryFilled() {
+        ScopeResponseDTO dto = mapper.toScopeResponseDTO(Scope.build(null, null, null, Maxillary.UPPER, false));
 
         assertThat(dto.maxillary()).isEqualTo(Maxillary.UPPER);
         assertThat(dto.tooth()).isNull();
@@ -98,8 +98,8 @@ class ScopeMapperTest {
      * Validación: fullMouth es true; tooth, quadrant, maxillary y toothFace son null.
      */
     @Test
-    void toScopeDTO_fullMouth_fullMouthTrue() {
-        ScopeDTO dto = mapper.toScopeDTO(Scope.build(null, null, null, null, true));
+    void toScopeResponseDTO_fullMouth_fullMouthTrue() {
+        ScopeResponseDTO dto = mapper.toScopeResponseDTO(Scope.build(null, null, null, null, true));
 
         assertThat(dto.fullMouth()).isTrue();
         assertThat(dto.tooth()).isNull();

@@ -1,10 +1,9 @@
 package com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto;
 
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.treatment.enums.TreatmentConditionType;
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Quadrant;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemDTO;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -27,9 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Se afirma el propertyPath de la regla, nunca el mensaje.
  */
 @Tag("unit")
-class TreatmentInstanceItemDTOTest {
+class TreatmentInstanceItemRequestDTOTest {
 
-    private static final ScopeDTO TOOTH_16 = new ScopeDTO(List.of(Tooth.T16), null, null, null, null);
+    private static final ScopeRequestDTO TOOTH_16 = new ScopeRequestDTO(List.of(Tooth.T16), null, null, null, null);
 
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
@@ -45,7 +44,7 @@ class TreatmentInstanceItemDTOTest {
         validatorFactory.close();
     }
 
-    private static List<String> paths(TreatmentInstanceItemDTO dto) {
+    private static List<String> paths(TreatmentInstanceItemRequestDTO dto) {
         return validator.validate(dto).stream()
                 .map(ConstraintViolation::getPropertyPath)
                 .map(Object::toString)
@@ -59,11 +58,11 @@ class TreatmentInstanceItemDTOTest {
      */
     @Test
     void isExistingOnlyCondition_idWithScopeOrTreatmentId_returnsFalse() {
-        assertThat(paths(new TreatmentInstanceItemDTO(145L, null, TOOTH_16, null, TreatmentConditionType.REPLACED)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(145L, null, TOOTH_16, null, TreatmentConditionType.REPLACED)))
                 .containsExactly("existingOnlyCondition");
-        assertThat(paths(new TreatmentInstanceItemDTO(145L, null, null, 5L, TreatmentConditionType.REPLACED)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(145L, null, null, 5L, TreatmentConditionType.REPLACED)))
                 .containsExactly("existingOnlyCondition");
-        assertThat(paths(new TreatmentInstanceItemDTO(145L, "tmp-1", null, null, TreatmentConditionType.REPLACED)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(145L, "tmp-1", null, null, TreatmentConditionType.REPLACED)))
                 .containsExactly("existingOnlyCondition");
     }
 
@@ -74,7 +73,7 @@ class TreatmentInstanceItemDTOTest {
      */
     @Test
     void isExistingOnlyCondition_idWithOnlyCondition_returnsTrue() {
-        assertThat(paths(new TreatmentInstanceItemDTO(145L, null, null, null, TreatmentConditionType.REPLACED)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(145L, null, null, null, TreatmentConditionType.REPLACED)))
                 .doesNotContain("existingOnlyCondition");
     }
 
@@ -85,9 +84,9 @@ class TreatmentInstanceItemDTOTest {
      */
     @Test
     void isExistingConditionReplacedOrCanceled_validValues_returnsTrue() {
-        assertThat(paths(new TreatmentInstanceItemDTO(145L, null, null, null, TreatmentConditionType.REPLACED)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(145L, null, null, null, TreatmentConditionType.REPLACED)))
                 .doesNotContain("existingConditionReplacedOrCanceled");
-        assertThat(paths(new TreatmentInstanceItemDTO(145L, null, null, null, TreatmentConditionType.CANCELED)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(145L, null, null, null, TreatmentConditionType.CANCELED)))
                 .doesNotContain("existingConditionReplacedOrCanceled");
     }
 
@@ -100,7 +99,7 @@ class TreatmentInstanceItemDTOTest {
     @NullSource
     @EnumSource(value = TreatmentConditionType.class, names = {"REQUIRED", "IN_PROGRESS", "FINISHED", "PREEXISTING"})
     void isExistingConditionReplacedOrCanceled_missingOrOtherValue_returnsFalse(TreatmentConditionType condition) {
-        assertThat(paths(new TreatmentInstanceItemDTO(145L, null, null, null, condition)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(145L, null, null, null, condition)))
                 .containsExactly("existingConditionReplacedOrCanceled");
     }
 
@@ -111,8 +110,8 @@ class TreatmentInstanceItemDTOTest {
      */
     @Test
     void isNewHasScope_emptyScopeOrNull_returnsFalse() {
-        assertThat(paths(new TreatmentInstanceItemDTO(null, null, null, 5L, null))).containsExactly("newHasScope");
-        assertThat(paths(new TreatmentInstanceItemDTO(null, null, new ScopeDTO(null, null, null, null, null), 5L, null)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(null, null, null, 5L, null))).containsExactly("newHasScope");
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(null, null, new ScopeRequestDTO(null, null, null, null, null), 5L, null)))
                 .containsExactly("newHasScope");
     }
 
@@ -123,9 +122,9 @@ class TreatmentInstanceItemDTOTest {
      */
     @Test
     void isNewHasScope_oneGroupPopulated_returnsTrue() {
-        ScopeDTO quadrantOnly = new ScopeDTO(null, null, Quadrant.UPPER_RIGHT, null, null);
+        ScopeRequestDTO quadrantOnly = new ScopeRequestDTO(null, null, Quadrant.UPPER_RIGHT, null, null);
 
-        assertThat(paths(new TreatmentInstanceItemDTO(null, null, quadrantOnly, 5L, null))).doesNotContain("newHasScope");
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(null, null, quadrantOnly, 5L, null))).doesNotContain("newHasScope");
     }
 
     /**
@@ -135,7 +134,7 @@ class TreatmentInstanceItemDTOTest {
      */
     @Test
     void isNewHasScope_emptyToothListOnly_returnsFalse() {
-        assertThat(paths(new TreatmentInstanceItemDTO(null, null, new ScopeDTO(List.of(), null, null, null, null), 5L, null)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(null, null, new ScopeRequestDTO(List.of(), null, null, null, null), 5L, null)))
                 .containsExactly("newHasScope");
     }
 
@@ -146,7 +145,7 @@ class TreatmentInstanceItemDTOTest {
      */
     @Test
     void baseItem_valid_hasNoViolations() {
-        assertThat(paths(new TreatmentInstanceItemDTO(null, null, TOOTH_16, 5L, null))).isEmpty();
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(null, null, TOOTH_16, 5L, null))).isEmpty();
     }
 
     /**
@@ -156,7 +155,7 @@ class TreatmentInstanceItemDTOTest {
      */
     @Test
     void isNewHasTreatment_missingTreatmentId_returnsFalse() {
-        assertThat(paths(new TreatmentInstanceItemDTO(null, null, TOOTH_16, null, null))).containsExactly("newHasTreatment");
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(null, null, TOOTH_16, null, null))).containsExactly("newHasTreatment");
     }
 
     /**
@@ -168,7 +167,7 @@ class TreatmentInstanceItemDTOTest {
     @NullSource
     @EnumSource(value = TreatmentConditionType.class, names = {"REQUIRED", "PREEXISTING"})
     void isNewConditionAllowed_nullRequiredOrPreexisting_returnsTrue(TreatmentConditionType condition) {
-        assertThat(paths(new TreatmentInstanceItemDTO(null, null, TOOTH_16, 5L, condition)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(null, null, TOOTH_16, 5L, condition)))
                 .doesNotContain("newConditionAllowed");
     }
 
@@ -180,7 +179,7 @@ class TreatmentInstanceItemDTOTest {
     @ParameterizedTest
     @EnumSource(value = TreatmentConditionType.class, names = {"IN_PROGRESS", "FINISHED", "REPLACED", "CANCELED"})
     void isNewConditionAllowed_inProgressFinishedReplacedCanceled_returnsFalse(TreatmentConditionType condition) {
-        assertThat(paths(new TreatmentInstanceItemDTO(null, null, TOOTH_16, 5L, condition)))
+        assertThat(paths(new TreatmentInstanceItemRequestDTO(null, null, TOOTH_16, 5L, condition)))
                 .containsExactly("newConditionAllowed");
     }
 }

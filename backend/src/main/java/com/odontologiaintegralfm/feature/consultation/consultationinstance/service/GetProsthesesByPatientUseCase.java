@@ -4,7 +4,7 @@ import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.P
 import com.odontologiaintegralfm.feature.consultation.prestation.repository.IPrestationTypeRepository;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.repository.IPrestationInstanceRepository;
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.scope.mapper.ScopeMapper;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.TreatmentInstance;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.repository.ITreatmentInstanceRepository;
@@ -66,7 +66,7 @@ public class GetProsthesesByPatientUseCase {
         // 4. Armar la respuesta (D-06)
         List<ProsthesisResponseDTO> prostheses = currentProstheses.stream()
                 .map(prosthesis -> {
-                    List<ScopeDTO> scopes = prosthesis.scopes().stream().map(scopeMapper::toScopeDTO).toList();
+                    List<ScopeResponseDTO> scopes = prosthesis.scopes().stream().map(scopeMapper::toScopeResponseDTO).toList();
                     return new ProsthesisResponseDTO(prosthesis.origin().getId(), scopes);
                 })
                 .toList();

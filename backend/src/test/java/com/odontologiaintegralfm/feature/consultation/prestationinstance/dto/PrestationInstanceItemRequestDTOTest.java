@@ -1,10 +1,8 @@
 package com.odontologiaintegralfm.feature.consultation.prestationinstance.dto;
 
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemDTO;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemDTO;
 import com.odontologiaintegralfm.feature.consultation.promotion.enums.DiscountType;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceRefDTO;
 import jakarta.validation.ConstraintViolation;
@@ -33,13 +31,13 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * (o el @NotEmpty / @Positive) en el DTO. Se afirma el propertyPath de la regla, nunca el mensaje.
  */
 @Tag("unit")
-class PrestationInstanceItemDTOTest {
+class PrestationInstanceItemRequestDTOTest {
 
     private static final TreatmentInstanceRefDTO REF = new TreatmentInstanceRefDTO(null, "tmp-1");
     private static final TreatmentInstanceRefDTO ORIGIN = new TreatmentInstanceRefDTO(145L, null);
-    private static final ScopeDTO SCOPE = new ScopeDTO(List.of(Tooth.T24), null, null, null, null);
-    private static final List<StepItemDTO> EXISTING_STEPS = List.of(new StepItemDTO(9L, null, PrestationStepStatus.FINISHED));
-    private static final List<StepItemDTO> NEW_STEPS = List.of(new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS));
+    private static final ScopeRequestDTO SCOPE = new ScopeRequestDTO(List.of(Tooth.T24), null, null, null, null);
+    private static final List<StepItemRequestDTO> EXISTING_STEPS = List.of(new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED));
+    private static final List<StepItemRequestDTO> NEW_STEPS = List.of(new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS));
 
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
@@ -55,7 +53,7 @@ class PrestationInstanceItemDTOTest {
         validatorFactory.close();
     }
 
-    private static List<String> paths(PrestationInstanceItemDTO dto) {
+    private static List<String> paths(PrestationInstanceItemRequestDTO dto) {
         return validator.validate(dto).stream()
                 .map(ConstraintViolation::getPropertyPath)
                 .map(Object::toString)
@@ -63,19 +61,19 @@ class PrestationInstanceItemDTOTest {
     }
 
     /** Prestación que nace con una ubicación válida (REF) para que la regla de ubicación no dispare ruido. */
-    private static PrestationInstanceItemDTO newItem(TreatmentInstanceRefDTO ref, ScopeDTO scope, TreatmentInstanceRefDTO origin) {
-        return new PrestationInstanceItemDTO(null, 3L, ref, scope, origin, null, null, null, NEW_STEPS);
+    private static PrestationInstanceItemRequestDTO newItem(TreatmentInstanceRefDTO ref, ScopeRequestDTO scope, TreatmentInstanceRefDTO origin) {
+        return new PrestationInstanceItemRequestDTO(null, 3L, ref, scope, origin, null, null, null, NEW_STEPS);
     }
 
-    private static PrestationInstanceItemDTO discountItem(Long promotionId, DiscountType type, BigDecimal value) {
-        return new PrestationInstanceItemDTO(null, 3L, REF, null, null, promotionId, type, value, NEW_STEPS);
+    private static PrestationInstanceItemRequestDTO discountItem(Long promotionId, DiscountType type, BigDecimal value) {
+        return new PrestationInstanceItemRequestDTO(null, 3L, REF, null, null, promotionId, type, value, NEW_STEPS);
     }
 
     /** Con id: prestación existente (solo id + steps). Sin id: prestación nueva con ubicación válida (REF). */
-    private static PrestationInstanceItemDTO stepsItem(Long id, List<StepItemDTO> steps) {
+    private static PrestationInstanceItemRequestDTO stepsItem(Long id, List<StepItemRequestDTO> steps) {
         return id == null
-                ? new PrestationInstanceItemDTO(null, 3L, REF, null, null, null, null, null, steps)
-                : new PrestationInstanceItemDTO(id, null, null, null, null, null, null, null, steps);
+                ? new PrestationInstanceItemRequestDTO(null, 3L, REF, null, null, null, null, null, steps)
+                : new PrestationInstanceItemRequestDTO(id, null, null, null, null, null, null, null, steps);
     }
 
     // ─── Forma de existente / nueva ───────────────────────────────────────────
@@ -85,13 +83,13 @@ class PrestationInstanceItemDTOTest {
         // discountType solo y discountValue solo rompen además isDiscountConsistent (tipo sin valor / valor sin tipo): dos violaciones legítimas
         List<String> withDiscount = List.of("existingOnlyIdAndSteps", "discountConsistent");
         return Stream.of(
-                Arguments.of("prestationTypeId", new PrestationInstanceItemDTO(812L, 3L, null, null, null, null, null, null, EXISTING_STEPS), only),
-                Arguments.of("treatmentInstanceRef", new PrestationInstanceItemDTO(812L, null, REF, null, null, null, null, null, EXISTING_STEPS), only),
-                Arguments.of("scope", new PrestationInstanceItemDTO(812L, null, null, SCOPE, null, null, null, null, EXISTING_STEPS), only),
-                Arguments.of("originTreatmentInstanceRef", new PrestationInstanceItemDTO(812L, null, null, null, ORIGIN, null, null, null, EXISTING_STEPS), only),
-                Arguments.of("promotionId", new PrestationInstanceItemDTO(812L, null, null, null, null, 7L, null, null, EXISTING_STEPS), only),
-                Arguments.of("discountType", new PrestationInstanceItemDTO(812L, null, null, null, null, null, DiscountType.FIXED, null, EXISTING_STEPS), withDiscount),
-                Arguments.of("discountValue", new PrestationInstanceItemDTO(812L, null, null, null, null, null, null, BigDecimal.TEN, EXISTING_STEPS), withDiscount));
+                Arguments.of("prestationTypeId", new PrestationInstanceItemRequestDTO(812L, 3L, null, null, null, null, null, null, EXISTING_STEPS), only),
+                Arguments.of("treatmentInstanceRef", new PrestationInstanceItemRequestDTO(812L, null, REF, null, null, null, null, null, EXISTING_STEPS), only),
+                Arguments.of("scope", new PrestationInstanceItemRequestDTO(812L, null, null, SCOPE, null, null, null, null, EXISTING_STEPS), only),
+                Arguments.of("originTreatmentInstanceRef", new PrestationInstanceItemRequestDTO(812L, null, null, null, ORIGIN, null, null, null, EXISTING_STEPS), only),
+                Arguments.of("promotionId", new PrestationInstanceItemRequestDTO(812L, null, null, null, null, 7L, null, null, EXISTING_STEPS), only),
+                Arguments.of("discountType", new PrestationInstanceItemRequestDTO(812L, null, null, null, null, null, DiscountType.FIXED, null, EXISTING_STEPS), withDiscount),
+                Arguments.of("discountValue", new PrestationInstanceItemRequestDTO(812L, null, null, null, null, null, null, BigDecimal.TEN, EXISTING_STEPS), withDiscount));
     }
 
     /**
@@ -104,7 +102,7 @@ class PrestationInstanceItemDTOTest {
      */
     @ParameterizedTest(name = "id + {0}")
     @MethodSource("existingWithExtraField")
-    void isExistingOnlyIdAndSteps_idWithAnyOtherField_returnsFalse(String field, PrestationInstanceItemDTO dto, List<String> expectedPaths) {
+    void isExistingOnlyIdAndSteps_idWithAnyOtherField_returnsFalse(String field, PrestationInstanceItemRequestDTO dto, List<String> expectedPaths) {
         assertThat(paths(dto)).containsExactlyInAnyOrderElementsOf(expectedPaths);
     }
 
@@ -125,7 +123,7 @@ class PrestationInstanceItemDTOTest {
      */
     @Test
     void isNewHasPrestationType_missingPrestationTypeId_returnsFalse() {
-        PrestationInstanceItemDTO dto = new PrestationInstanceItemDTO(null, null, REF, null, null, null, null, null, NEW_STEPS);
+        PrestationInstanceItemRequestDTO dto = new PrestationInstanceItemRequestDTO(null, null, REF, null, null, null, null, null, NEW_STEPS);
 
         assertThat(paths(dto)).containsExactly("newHasPrestationType");
     }
@@ -155,7 +153,7 @@ class PrestationInstanceItemDTOTest {
      */
     @ParameterizedTest(name = "{0}")
     @MethodSource("validLocations")
-    void isLocationConsistent_validCombinations_returnsTrue(String label, PrestationInstanceItemDTO dto) {
+    void isLocationConsistent_validCombinations_returnsTrue(String label, PrestationInstanceItemRequestDTO dto) {
         assertThat(paths(dto)).doesNotContain("locationConsistent");
     }
 
@@ -166,7 +164,7 @@ class PrestationInstanceItemDTOTest {
      */
     @ParameterizedTest(name = "{0}")
     @MethodSource("invalidLocations")
-    void isLocationConsistent_invalidCombinations_returnsFalse(String label, PrestationInstanceItemDTO dto) {
+    void isLocationConsistent_invalidCombinations_returnsFalse(String label, PrestationInstanceItemRequestDTO dto) {
         assertThat(paths(dto)).containsExactly("locationConsistent");
     }
 
@@ -212,7 +210,7 @@ class PrestationInstanceItemDTOTest {
      */
     @Test
     void steps_emptyList_violatesNotEmpty() {
-        PrestationInstanceItemDTO dto = new PrestationInstanceItemDTO(null, 3L, REF, null, null, null, null, null, List.of());
+        PrestationInstanceItemRequestDTO dto = new PrestationInstanceItemRequestDTO(null, 3L, REF, null, null, null, null, null, List.of());
 
         assertThat(paths(dto)).containsExactly("steps");
     }
@@ -238,9 +236,9 @@ class PrestationInstanceItemDTOTest {
      */
     @Test
     void isNewStepsDeclareCatalogStep_newPrestationWithStepIdOnly_returnsTrue() {
-        List<StepItemDTO> twoCatalogSteps = List.of(
-                new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS),
-                new StepItemDTO(null, 4L, PrestationStepStatus.IN_PROGRESS));
+        List<StepItemRequestDTO> twoCatalogSteps = List.of(
+                new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS),
+                new StepItemRequestDTO(null, 4L, PrestationStepStatus.IN_PROGRESS));
 
         assertThat(paths(stepsItem(null, twoCatalogSteps))).doesNotContain("newStepsDeclareCatalogStep");
         assertThat(paths(stepsItem(812L, EXISTING_STEPS))).doesNotContain("newStepsDeclareCatalogStep");
@@ -250,12 +248,12 @@ class PrestationInstanceItemDTOTest {
      * CASO: Prestación sin id con un step {id: 9}, y con un step sin id ni stepId.
      * Regla: D-22 — una prestación que nace no puede tener steps existentes ni steps sin identificar.
      * Validación: newStepsDeclareCatalogStep es la única violación con el step {id: 9}. Con el step sin id ni stepId
-     * aparece además la del propio StepItemDTO anidado (steps[0].idXorStepId), que es la regla de D-33 y no ruido.
+     * aparece además la del propio StepItemRequestDTO anidado (steps[0].idXorStepId), que es la regla de D-33 y no ruido.
      */
     @Test
     void isNewStepsDeclareCatalogStep_newPrestationStepWithIdOrWithoutStepId_returnsFalse() {
-        List<StepItemDTO> existingStep = List.of(new StepItemDTO(9L, null, PrestationStepStatus.FINISHED));
-        List<StepItemDTO> stepWithoutIdentifier = List.of(new StepItemDTO(null, null, PrestationStepStatus.FINISHED));
+        List<StepItemRequestDTO> existingStep = List.of(new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED));
+        List<StepItemRequestDTO> stepWithoutIdentifier = List.of(new StepItemRequestDTO(null, null, PrestationStepStatus.FINISHED));
 
         assertThat(paths(stepsItem(null, existingStep))).containsExactly("newStepsDeclareCatalogStep");
         assertThat(paths(stepsItem(null, stepWithoutIdentifier)))
@@ -269,12 +267,12 @@ class PrestationInstanceItemDTOTest {
      */
     @Test
     void isStepsUnique_duplicatedStepIdOrId_returnsFalse() {
-        List<StepItemDTO> duplicatedStepId = List.of(
-                new StepItemDTO(null, 3L, PrestationStepStatus.FINISHED),
-                new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS));
-        List<StepItemDTO> duplicatedId = List.of(
-                new StepItemDTO(9L, null, PrestationStepStatus.FINISHED),
-                new StepItemDTO(9L, null, PrestationStepStatus.CANCELED));
+        List<StepItemRequestDTO> duplicatedStepId = List.of(
+                new StepItemRequestDTO(null, 3L, PrestationStepStatus.FINISHED),
+                new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS));
+        List<StepItemRequestDTO> duplicatedId = List.of(
+                new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED),
+                new StepItemRequestDTO(9L, null, PrestationStepStatus.CANCELED));
 
         assertThat(paths(stepsItem(null, duplicatedStepId))).containsExactly("stepsUnique");
         assertThat(paths(stepsItem(812L, duplicatedId))).containsExactly("stepsUnique");
@@ -287,12 +285,12 @@ class PrestationInstanceItemDTOTest {
      */
     @Test
     void isStepsUnique_distinctSteps_returnsTrue() {
-        List<StepItemDTO> distinctStepIds = List.of(
-                new StepItemDTO(null, 3L, PrestationStepStatus.FINISHED),
-                new StepItemDTO(null, 4L, PrestationStepStatus.IN_PROGRESS));
-        List<StepItemDTO> distinctIds = List.of(
-                new StepItemDTO(9L, null, PrestationStepStatus.FINISHED),
-                new StepItemDTO(10L, null, PrestationStepStatus.FINISHED));
+        List<StepItemRequestDTO> distinctStepIds = List.of(
+                new StepItemRequestDTO(null, 3L, PrestationStepStatus.FINISHED),
+                new StepItemRequestDTO(null, 4L, PrestationStepStatus.IN_PROGRESS));
+        List<StepItemRequestDTO> distinctIds = List.of(
+                new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED),
+                new StepItemRequestDTO(10L, null, PrestationStepStatus.FINISHED));
 
         assertThat(paths(stepsItem(null, distinctStepIds))).doesNotContain("stepsUnique");
         assertThat(paths(stepsItem(812L, distinctIds))).doesNotContain("stepsUnique");
@@ -305,9 +303,9 @@ class PrestationInstanceItemDTOTest {
      */
     @Test
     void isStepsUnique_sameIdAndStepIdInSamePrestation_returnsTrue() {
-        List<StepItemDTO> sameNumberDifferentTables = List.of(
-                new StepItemDTO(3L, null, PrestationStepStatus.FINISHED),
-                new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS));
+        List<StepItemRequestDTO> sameNumberDifferentTables = List.of(
+                new StepItemRequestDTO(3L, null, PrestationStepStatus.FINISHED),
+                new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS));
 
         assertThat(paths(stepsItem(812L, sameNumberDifferentTables))).doesNotContain("stepsUnique");
     }
@@ -319,7 +317,7 @@ class PrestationInstanceItemDTOTest {
      */
     @Test
     void steps_null_doesNotThrowAndSkipsAssertTrueRules() {
-        PrestationInstanceItemDTO dto = stepsItem(null, null);
+        PrestationInstanceItemRequestDTO dto = stepsItem(null, null);
 
         assertThatCode(() -> paths(dto)).doesNotThrowAnyException();
         assertThat(paths(dto)).doesNotContain("stepsUnique", "newStepsDeclareCatalogStep");

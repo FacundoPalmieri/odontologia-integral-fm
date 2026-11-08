@@ -7,14 +7,14 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Step de una prestación: con id avanza un step existente; con stepId nace uno nuevo del catálogo (D-22, D-33).
  */
-public record StepItemDTO(
+public record StepItemRequestDTO(
         Long id,
         Long stepId,
-        @NotNull(message = "stepItemDTO.status.empty")
+        @NotNull(message = "stepItemRequestDTO.status.empty")
         PrestationStepStatus status
 ) {
 
-    @AssertTrue(message = "stepItemDTO.idXorStepId")
+    @AssertTrue(message = "stepItemRequestDTO.idXorStepId")
     public boolean isIdXorStepId() {
         return (id != null) != (stepId != null);
     }

@@ -10,7 +10,7 @@ import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.P
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.PrestationStepInstance;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.repository.IPrestationInstanceRepository;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.repository.IPrestationStepInstanceRepository;
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.scope.mapper.ScopeMapper;
 import com.odontologiaintegralfm.feature.consultation.scope.model.Scope;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.TreatmentInstance;
@@ -160,7 +160,7 @@ public class GetClinicalContextByPatientUseCase {
                 treatmentInstance.getId(),
                 treatmentInstance.getTreatment().getLabel(),
                 treatmentInstance.getTreatmentCondition(),
-                scopeMapper.toScopeDTO(treatmentInstance.getScope()),
+                scopeMapper.toScopeResponseDTO(treatmentInstance.getScope()),
                 specialties);
     }
 
@@ -171,9 +171,9 @@ public class GetClinicalContextByPatientUseCase {
                                                                  Map<Long, List<DentistSpecialtyResponseDTO>> specialtiesByType) {
         TreatmentInstance treatmentInstance = prestationInstance.getTreatmentInstance();
         TreatmentInstance origin = prestationInstance.getOriginTreatmentInstance();
-        List<ScopeDTO> originScopes = origin == null
+        List<ScopeResponseDTO> originScopes = origin == null
                 ? List.of()
-                : scopesByOrigin.getOrDefault(origin, List.of()).stream().map(scopeMapper::toScopeDTO).toList();
+                : scopesByOrigin.getOrDefault(origin, List.of()).stream().map(scopeMapper::toScopeResponseDTO).toList();
         Long typeId = prestationInstance.getType().getId();
         List<DentistSpecialtyResponseDTO> specialties = specialtiesByType.computeIfAbsent(typeId,
                 id -> toSpecialtyDTOs(prestationInstance.getType().getDentistSpecialties()));
@@ -181,7 +181,7 @@ public class GetClinicalContextByPatientUseCase {
                 prestationInstance.getId(),
                 prestationInstance.getType().getLabel(),
                 prestationInstance.getStatus(),
-                scopeMapper.toScopeDTO(prestationInstance.getScope()),
+                scopeMapper.toScopeResponseDTO(prestationInstance.getScope()),
                 treatmentInstance == null ? null : treatmentInstance.getId(),
                 origin == null ? null : origin.getId(),
                 originScopes,

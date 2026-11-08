@@ -8,9 +8,11 @@ import com.odontologiaintegralfm.feature.consultation.prestation.model.Prestatio
 import com.odontologiaintegralfm.feature.consultation.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.prestation.service.PrestationTypePriceService;
 import com.odontologiaintegralfm.feature.consultation.prestation.service.PrestationTypeService;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.promotion.model.Promotion;
 import com.odontologiaintegralfm.feature.consultation.promotion.enums.DiscountType;
 import com.odontologiaintegralfm.feature.consultation.promotion.service.PromotionQueryService;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.treatment.enums.TreatmentConditionType;
 import com.odontologiaintegralfm.feature.consultation.treatment.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.treatment.service.TreatmentService;
@@ -21,8 +23,7 @@ import com.odontologiaintegralfm.feature.consultation.consultation.service.Consu
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.repository.IConsultationInstanceRepository;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemDTO;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationStepStatus;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.PrestationInstance;
@@ -34,13 +35,12 @@ import com.odontologiaintegralfm.feature.consultation.prestationinstance.reposit
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.service.PrestationInstanceDomainService;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.service.PrestationInstanceQueryService;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.service.PrestationStepInstanceQueryService;
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.scope.mapper.ScopeMapper;
 import com.odontologiaintegralfm.feature.consultation.scope.mapper.ScopeMapperImpl;
 import com.odontologiaintegralfm.feature.consultation.scope.model.Scope;
 import com.odontologiaintegralfm.feature.consultation.scope.service.ScopeDomainService;
-import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemDTO;
+import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceRefDTO;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.TreatmentInstance;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.TreatmentInstanceHistory;
@@ -346,7 +346,7 @@ class CreateConsultationInstanceUseCaseTest {
     void execute_prestationIdBelongsToOtherPatient_throwsNotFoundException() {
         when(prestationInstanceQueryService.findByIdAndPatientId(812L, PATIENT_ID)).thenThrow(notFound());
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.FINISHED))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isInstanceOf(NotFoundException.class);
 
@@ -356,7 +356,7 @@ class CreateConsultationInstanceUseCaseTest {
 
     /**
      * CASO: El step 9 existe y es del mismo paciente, pero pertenece a otra prestación que la 812.
-     * Regla: D-60 — un StepItemDTO.id tiene que pertenecer a la PrestationInstance de su mismo ítem.
+     * Regla: D-60 — un StepItemRequestDTO.id tiene que pertenecer a la PrestationInstance de su mismo ítem.
      * Validación: NotFoundException; applyStatus nunca se llama y no se escribe historial de step.
      */
     @Test
@@ -365,7 +365,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(prestationInstanceQueryService.findByIdAndPatientId(812L, PATIENT_ID)).thenReturn(prestation812);
         when(prestationStepInstanceQueryService.findByIdAndPrestationInstanceId(9L, 812L)).thenThrow(notFound());
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.FINISHED))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isInstanceOf(NotFoundException.class);
 
@@ -386,8 +386,8 @@ class CreateConsultationInstanceUseCaseTest {
         ConflictException conflict = conflict("exception.prestationInstanceDomainService.validatePrestationUnique.user");
         doThrow(conflict).when(prestationInstanceDomainService).validatePrestationUnique(anyList());
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
-                newPrestation(TYPE_ID, null, scope(Tooth.T24), null, null, new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
-                newPrestation(4L, null, scope(Tooth.T24), null, null, new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                newPrestation(TYPE_ID, null, scope(Tooth.T24), null, null, new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
+                newPrestation(4L, null, scope(Tooth.T24), null, null, new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isSameAs(conflict);
 
@@ -441,7 +441,7 @@ class CreateConsultationInstanceUseCaseTest {
         doThrow(forbidden).when(dentistSpecialtyDomainService)
                 .validateAllowed(dentist, typeSpecialties, "Ortodoncia");
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
-                newPrestation(TYPE_ID, null, scope(Tooth.T16), null, null, new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                newPrestation(TYPE_ID, null, scope(Tooth.T16), null, null, new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isSameAs(forbidden);
 
@@ -523,8 +523,8 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.FINISHED),
-                        new StepItemDTO(null, STEP_2, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.FINISHED),
+                        new StepItemRequestDTO(null, STEP_2, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -596,7 +596,7 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, TreatmentConditionType.REQUIRED)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -623,7 +623,7 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -646,7 +646,7 @@ class CreateConsultationInstanceUseCaseTest {
     void execute_tempIdWithoutMatch_throwsBadRequestException() {
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
                 newPrestation(TYPE_ID, ref("tmp-9"), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isInstanceOf(BadRequestException.class);
 
@@ -666,7 +666,7 @@ class CreateConsultationInstanceUseCaseTest {
         doThrow(conflict).when(treatmentInstanceDomainService).validateReferenceNotTerminal(finished);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
                 newPrestation(TYPE_ID, refId(145L), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isSameAs(conflict);
 
@@ -688,7 +688,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(prestationInstanceQueryService.findByIdAndPatientId(812L, PATIENT_ID)).thenReturn(prestation);
         when(prestationStepInstanceQueryService.findByIdAndPrestationInstanceId(9L, 812L)).thenReturn(step);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.FINISHED))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
 
         useCase.execute(dto);
 
@@ -716,7 +716,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(prestationInstanceRepository.findByTreatmentInstanceId(100L)).thenReturn(List.of(prestation));
         when(treatmentInstanceDomainService.calculateTreatmentCondition(anyList())).thenReturn(TreatmentConditionType.FINISHED);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.FINISHED))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
 
         useCase.execute(dto);
 
@@ -738,7 +738,7 @@ class CreateConsultationInstanceUseCaseTest {
         stubExistingStepAdvance(prestation, 9L, PrestationStepStatus.IN_PROGRESS);
         when(prestationInstanceRepository.findByTreatmentInstanceId(100L)).thenReturn(List.of(prestation));
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.FINISHED))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
 
         useCase.execute(dto);
 
@@ -772,7 +772,7 @@ class CreateConsultationInstanceUseCaseTest {
                     : TreatmentConditionType.REPLACED;
         });
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.REPLACED))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.REPLACED))));
 
         useCase.execute(dto);
 
@@ -821,9 +821,9 @@ class CreateConsultationInstanceUseCaseTest {
         when(treatmentInstanceDomainService.calculateTreatmentCondition(anyList())).thenAnswer(inv ->
                 containsNewPrestation(inv.getArgument(0)) ? TreatmentConditionType.IN_PROGRESS : TreatmentConditionType.REPLACED);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
-                existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.REPLACED)),
+                existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.REPLACED)),
                 newPrestation(4L, refId(100L), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -895,10 +895,10 @@ class CreateConsultationInstanceUseCaseTest {
                         newTreatment("tmp-2", scope(Tooth.T11), 5L, null),
                         newTreatment("tmp-3", scope(Tooth.T11), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-2"), null, null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.FINISHED),
-                                new StepItemDTO(null, STEP_2, PrestationStepStatus.FINISHED)),
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.FINISHED),
+                                new StepItemRequestDTO(null, STEP_2, PrestationStepStatus.FINISHED)),
                         newPrestation(4L, ref("tmp-3"), null, ref("tmp-1"), null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -952,7 +952,7 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -985,12 +985,12 @@ class CreateConsultationInstanceUseCaseTest {
                         newTreatment("tmp-2", scope(Tooth.T17), 5L, null),
                         newTreatment("tmp-3", scope(Tooth.T18), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.FINISHED),
-                                new StepItemDTO(null, STEP_2, PrestationStepStatus.FINISHED)),
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.FINISHED),
+                                new StepItemRequestDTO(null, STEP_2, PrestationStepStatus.FINISHED)),
                         newPrestation(4L, ref("tmp-2"), null, ref("tmp-1"), null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
                         newPrestation(4L, ref("tmp-3"), null, ref("tmp-1"), null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1070,7 +1070,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(promotionQueryService.findById(9L)).thenReturn(promotion);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
                 newPrestation(TYPE_ID, null, scope(Tooth.T16), null, 9L,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1106,7 +1106,7 @@ class CreateConsultationInstanceUseCaseTest {
             return received.contains(prestationB) ? TreatmentConditionType.IN_PROGRESS : TreatmentConditionType.REPLACED;
         });
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.REPLACED))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.REPLACED))));
 
         useCase.execute(dto);
 
@@ -1132,7 +1132,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenThrow(notFound());
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
                 newPrestation(TYPE_ID, refId(145L), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isInstanceOf(NotFoundException.class);
 
@@ -1149,7 +1149,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenThrow(notFound());
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
                 newPrestation(TYPE_ID, null, null, refId(145L), null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isInstanceOf(NotFoundException.class);
 
@@ -1165,7 +1165,7 @@ class CreateConsultationInstanceUseCaseTest {
     void execute_originTempIdWithoutMatch_throwsBadRequestException() {
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
                 newPrestation(TYPE_ID, null, null, ref("tmp-9"), null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isInstanceOf(BadRequestException.class);
 
@@ -1186,7 +1186,7 @@ class CreateConsultationInstanceUseCaseTest {
         stubExistingStepAdvance(prestation, 9L, PrestationStepStatus.IN_PROGRESS);
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(closeTreatment(145L, TreatmentConditionType.CANCELED)),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.FINISHED))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
 
         useCase.execute(dto);
 
@@ -1215,9 +1215,9 @@ class CreateConsultationInstanceUseCaseTest {
         });
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
-                List.of(existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.REPLACED)),
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.REPLACED)),
                         newPrestation(TYPE_ID, null, scope(Tooth.T24), null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1245,9 +1245,9 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, null, scope(Tooth.T24), null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
                         newPrestation(4L, ref("tmp-1"), null, null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1273,7 +1273,7 @@ class CreateConsultationInstanceUseCaseTest {
                 List.of(newTreatment("tmp-1", scope(Tooth.T12, Tooth.T13, Tooth.T14), 5L, TreatmentConditionType.PREEXISTING),
                         newTreatment("tmp-2", scope(Tooth.T11), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-2"), null, ref("tmp-1"), null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1301,9 +1301,9 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
                         newPrestation(4L, ref("tmp-1"), null, null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatCode(() -> useCase.execute(dto)).doesNotThrowAnyException();
 
@@ -1326,7 +1326,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(prestationInstanceQueryService.findByIdAndPatientId(812L, PATIENT_ID)).thenReturn(prestation);
         when(prestationStepService.findById(999L)).thenThrow(notFound());
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(null, 999L, PrestationStepStatus.IN_PROGRESS))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(null, 999L, PrestationStepStatus.IN_PROGRESS))));
 
         assertThatThrownBy(() -> useCase.execute(dto)).isInstanceOf(NotFoundException.class);
 
@@ -1344,7 +1344,7 @@ class CreateConsultationInstanceUseCaseTest {
     void execute_nullTreatmentInstanceOrPrestationList_isTreatedAsEmpty() {
         ConsultationInstanceCreateRequestDTO withoutTreatments = request(null,
                 List.of(newPrestation(TYPE_ID, null, scope(Tooth.T24), null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
         assertThat(useCase.execute(withoutTreatments).data()).isEqualTo(CONSULTATION_INSTANCE_ID);
 
         ConsultationInstanceCreateRequestDTO withoutPrestations = request(
@@ -1371,7 +1371,7 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1400,7 +1400,7 @@ class CreateConsultationInstanceUseCaseTest {
         TreatmentInstanceRefDTO originRef = refId(145L);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
                 List.of(newPrestation(TYPE_ID, null, null, originRef, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1418,13 +1418,13 @@ class CreateConsultationInstanceUseCaseTest {
      * Regla: § 7 paso 7.6 — los steps se resuelven y se valida su avance antes de crear nada de la prestación.
      * Validación: validatePrestationStep(tipo, stepId) se invoca una vez por cada step; validateStepAdvancement con
      * prestationInstance null (no hay estado previo), el catálogo exacto que devuelve findAllPrestationStepsByPrestation,
-     * sin steps persistidos y con exactamente los dos StepItemDTO enviados, se invoca antes de cualquier save de la
+     * sin steps persistidos y con exactamente los dos StepItemRequestDTO enviados, se invoca antes de cualquier save de la
      * PrestationInstance (InOrder). Un use case que pase List.of() como catálogo o como steps del request falla.
      */
     @Test
     void execute_newPrestation_resolvesAndValidatesStepsBeforeCreatingAnything() {
-        StepItemDTO firstStep = new StepItemDTO(null, STEP_1, PrestationStepStatus.FINISHED);
-        StepItemDTO secondStep = new StepItemDTO(null, STEP_2, PrestationStepStatus.IN_PROGRESS);
+        StepItemRequestDTO firstStep = new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.FINISHED);
+        StepItemRequestDTO secondStep = new StepItemRequestDTO(null, STEP_2, PrestationStepStatus.IN_PROGRESS);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
                 List.of(newPrestation(TYPE_ID, null, scope(Tooth.T16), null, null, firstStep, secondStep)));
 
@@ -1455,7 +1455,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(prestationStepInstanceQueryService.findByIdAndPrestationInstanceId(9L, 812L)).thenReturn(step);
         // lenient: el design no fija cómo se leen los steps persistidos; el contenido lo ata el eq(List.of(step)) de abajo.
         lenient().when(prestationStepInstanceRepository.findByPrestationInstance(prestation)).thenReturn(List.of(step));
-        StepItemDTO advance = new StepItemDTO(9L, null, PrestationStepStatus.FINISHED);
+        StepItemRequestDTO advance = new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(existingPrestation(812L, advance)));
 
         useCase.execute(dto);
@@ -1484,9 +1484,9 @@ class CreateConsultationInstanceUseCaseTest {
      */
     @Test
     void execute_newPrestationWithManualDiscount_passesDiscountToBuild() {
-        PrestationInstanceItemDTO withDiscount = new PrestationInstanceItemDTO(null, TYPE_ID, null, scope(Tooth.T16), null,
+        PrestationInstanceItemRequestDTO withDiscount = new PrestationInstanceItemRequestDTO(null, TYPE_ID, null, scope(Tooth.T16), null,
                 null, DiscountType.PERCENTAGE,
-                BigDecimal.TEN, List.of(new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)));
+                BigDecimal.TEN, List.of(new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)));
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(withDiscount));
 
         useCase.execute(dto);
@@ -1521,7 +1521,7 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1551,9 +1551,9 @@ class CreateConsultationInstanceUseCaseTest {
         stubExistingStepAdvance(existing, 9L, PrestationStepStatus.IN_PROGRESS);
         when(prestationTypeService.findById(4L)).thenReturn(radiografia);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
-                existingPrestation(812L, new StepItemDTO(9L, null, PrestationStepStatus.FINISHED)),
+                existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED)),
                 newPrestation(4L, null, scope(Tooth.T24), null, null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1578,7 +1578,7 @@ class CreateConsultationInstanceUseCaseTest {
         when(prestationInstanceDomainService.resolveLocation(any(), isNull())).thenReturn(null);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
                 List.of(newPrestation(TYPE_ID, null, null, refId(145L), null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1611,11 +1611,11 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, null, scope(Tooth.T24), null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
                         newPrestation(TYPE_ID, treatmentRef, null, null, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
                         newPrestation(8L, null, null, originRef, null,
-                                new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                                new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1657,7 +1657,7 @@ class CreateConsultationInstanceUseCaseTest {
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T11), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, refId(145L), null,
-                        new StepItemDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1682,7 +1682,7 @@ class CreateConsultationInstanceUseCaseTest {
         PrestationStep catalogStep = catalogStep(5L, 3);
         when(prestationStepService.findById(5L)).thenReturn(catalogStep);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(),
-                List.of(existingPrestation(812L, new StepItemDTO(null, 5L, PrestationStepStatus.IN_PROGRESS))));
+                List.of(existingPrestation(812L, new StepItemRequestDTO(null, 5L, PrestationStepStatus.IN_PROGRESS))));
 
         useCase.execute(dto);
 
@@ -1691,29 +1691,29 @@ class CreateConsultationInstanceUseCaseTest {
 
     // ─── Helpers de request ───────────────────────────────────────────────────
 
-    private ConsultationInstanceCreateRequestDTO request(List<TreatmentInstanceItemDTO> treatments, List<PrestationInstanceItemDTO> prestations) {
+    private ConsultationInstanceCreateRequestDTO request(List<TreatmentInstanceItemRequestDTO> treatments, List<PrestationInstanceItemRequestDTO> prestations) {
         return new ConsultationInstanceCreateRequestDTO(CONSULTATION_ID, "observación", treatments, prestations);
     }
 
-    private ScopeDTO scope(Tooth... teeth) {
-        return new ScopeDTO(List.of(teeth), null, null, null, null);
+    private ScopeRequestDTO scope(Tooth... teeth) {
+        return new ScopeRequestDTO(List.of(teeth), null, null, null, null);
     }
 
-    private TreatmentInstanceItemDTO newTreatment(String tempId, ScopeDTO scope, Long treatmentId, TreatmentConditionType condition) {
-        return new TreatmentInstanceItemDTO(null, tempId, scope, treatmentId, condition);
+    private TreatmentInstanceItemRequestDTO newTreatment(String tempId, ScopeRequestDTO scope, Long treatmentId, TreatmentConditionType condition) {
+        return new TreatmentInstanceItemRequestDTO(null, tempId, scope, treatmentId, condition);
     }
 
-    private TreatmentInstanceItemDTO closeTreatment(Long id, TreatmentConditionType condition) {
-        return new TreatmentInstanceItemDTO(id, null, null, null, condition);
+    private TreatmentInstanceItemRequestDTO closeTreatment(Long id, TreatmentConditionType condition) {
+        return new TreatmentInstanceItemRequestDTO(id, null, null, null, condition);
     }
 
-    private PrestationInstanceItemDTO newPrestation(Long typeId, TreatmentInstanceRefDTO treatmentRef, ScopeDTO ownScope,
-                                                    TreatmentInstanceRefDTO originRef, Long promotionId, StepItemDTO... steps) {
-        return new PrestationInstanceItemDTO(null, typeId, treatmentRef, ownScope, originRef, promotionId, null, null, List.of(steps));
+    private PrestationInstanceItemRequestDTO newPrestation(Long typeId, TreatmentInstanceRefDTO treatmentRef, ScopeRequestDTO ownScope,
+                                                           TreatmentInstanceRefDTO originRef, Long promotionId, StepItemRequestDTO... steps) {
+        return new PrestationInstanceItemRequestDTO(null, typeId, treatmentRef, ownScope, originRef, promotionId, null, null, List.of(steps));
     }
 
-    private PrestationInstanceItemDTO existingPrestation(Long id, StepItemDTO... steps) {
-        return new PrestationInstanceItemDTO(id, null, null, null, null, null, null, null, List.of(steps));
+    private PrestationInstanceItemRequestDTO existingPrestation(Long id, StepItemRequestDTO... steps) {
+        return new PrestationInstanceItemRequestDTO(id, null, null, null, null, null, null, null, List.of(steps));
     }
 
     private TreatmentInstanceRefDTO ref(String tempId) {

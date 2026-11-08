@@ -13,20 +13,20 @@ import java.util.List;
  * Ubicación clínica del request: a lo sumo un grupo poblado entre dientes (con o sin cara),
  * cuadrante, maxilar o boca completa (D-05, D-09, D-10).
  */
-public record ScopeDTO(
-        List<@NotNull(message = "scopeDTO.tooth.nullItem") Tooth> tooth,
+public record ScopeRequestDTO(
+        List<@NotNull(message = "scopeRequestDTO.tooth.nullItem") Tooth> tooth,
         ToothFace toothFace,
         Quadrant quadrant,
         Maxillary maxillary,
         Boolean fullMouth
 ) {
 
-    @AssertTrue(message = "scopeDTO.toothFaceWithTooth")
+    @AssertTrue(message = "scopeRequestDTO.toothFaceWithTooth")
     public boolean isToothFaceWithTooth() {
         return toothFace == null || hasTooth();
     }
 
-    @AssertTrue(message = "scopeDTO.singleLocationGroup")
+    @AssertTrue(message = "scopeRequestDTO.singleLocationGroup")
     public boolean isSingleLocationGroup() {
         int groups = 0;
         if (hasTooth() || toothFace != null) groups++;

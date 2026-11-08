@@ -1,15 +1,14 @@
 package com.odontologiaintegralfm.feature.consultation.consultationinstance.dto;
 
-import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.treatment.enums.TreatmentConditionType;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemDTO;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationStepStatus;
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Maxillary;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Quadrant;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Tooth;
-import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemDTO;
+import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceRefDTO;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -55,31 +54,31 @@ class ConsultationInstanceCreateRequestDTOTest {
     }
 
     /** Tratamiento que nace: diente 16, treatmentId 5, condición ausente (REQUIRED por default). */
-    private static TreatmentInstanceItemDTO newTreatment(String tempId) {
-        return new TreatmentInstanceItemDTO(null, tempId,
-                new ScopeDTO(List.of(Tooth.T16), null, null, null, null), 5L, null);
+    private static TreatmentInstanceItemRequestDTO newTreatment(String tempId) {
+        return new TreatmentInstanceItemRequestDTO(null, tempId,
+                new ScopeRequestDTO(List.of(Tooth.T16), null, null, null, null), 5L, null);
     }
 
     /** Tratamiento existente en REQUIRED que se cierra por REPLACED. */
-    private static TreatmentInstanceItemDTO existingTreatment(Long id) {
-        return new TreatmentInstanceItemDTO(id, null, null, null, TreatmentConditionType.REPLACED);
+    private static TreatmentInstanceItemRequestDTO existingTreatment(Long id) {
+        return new TreatmentInstanceItemRequestDTO(id, null, null, null, TreatmentConditionType.REPLACED);
     }
 
     /** Prestación existente que avanza un step. */
-    private static PrestationInstanceItemDTO existingPrestation(Long id) {
-        return new PrestationInstanceItemDTO(id, null, null, null, null, null, null, null,
-                List.of(new StepItemDTO(9L, null, PrestationStepStatus.FINISHED)));
+    private static PrestationInstanceItemRequestDTO existingPrestation(Long id) {
+        return new PrestationInstanceItemRequestDTO(id, null, null, null, null, null, null, null,
+                List.of(new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED)));
     }
 
     /** Prestación que nace sobre el tratamiento naciente identificado por tempId. */
-    private static PrestationInstanceItemDTO newPrestationOnTemp(Long typeId, String tempId, Long stepId) {
-        return new PrestationInstanceItemDTO(null, typeId, new TreatmentInstanceRefDTO(null, tempId),
+    private static PrestationInstanceItemRequestDTO newPrestationOnTemp(Long typeId, String tempId, Long stepId) {
+        return new PrestationInstanceItemRequestDTO(null, typeId, new TreatmentInstanceRefDTO(null, tempId),
                 null, null, null, null, null,
-                List.of(new StepItemDTO(null, stepId, PrestationStepStatus.IN_PROGRESS)));
+                List.of(new StepItemRequestDTO(null, stepId, PrestationStepStatus.IN_PROGRESS)));
     }
 
-    private static ConsultationInstanceCreateRequestDTO request(List<TreatmentInstanceItemDTO> treatments,
-                                                                List<PrestationInstanceItemDTO> prestations) {
+    private static ConsultationInstanceCreateRequestDTO request(List<TreatmentInstanceItemRequestDTO> treatments,
+                                                                List<PrestationInstanceItemRequestDTO> prestations) {
         return new ConsultationInstanceCreateRequestDTO(1L, null, treatments, prestations);
     }
 
@@ -181,7 +180,7 @@ class ConsultationInstanceCreateRequestDTOTest {
      */
     @Test
     void prestation_nestedItemInvalid_violatesThroughCascade() {
-        PrestationInstanceItemDTO withoutSteps = new PrestationInstanceItemDTO(812L, null, null, null, null,
+        PrestationInstanceItemRequestDTO withoutSteps = new PrestationInstanceItemRequestDTO(812L, null, null, null, null,
                 null, null, null, List.of());
 
         assertThat(paths(request(List.of(), List.of(withoutSteps)))).containsExactly("prestation[0].steps");
@@ -210,8 +209,8 @@ class ConsultationInstanceCreateRequestDTOTest {
      */
     @Test
     void treatmentInstance_nestedScopeInvalid_violatesThroughCascade() {
-        TreatmentInstanceItemDTO twoGroups = new TreatmentInstanceItemDTO(null, "tmp-1",
-                new ScopeDTO(List.of(Tooth.T16), null, Quadrant.UPPER_RIGHT, null, null), 5L, null);
+        TreatmentInstanceItemRequestDTO twoGroups = new TreatmentInstanceItemRequestDTO(null, "tmp-1",
+                new ScopeRequestDTO(List.of(Tooth.T16), null, Quadrant.UPPER_RIGHT, null, null), 5L, null);
 
         assertThat(paths(request(List.of(twoGroups), List.of()))).containsExactly("treatmentInstance[0].scope.singleLocationGroup");
     }
@@ -226,9 +225,9 @@ class ConsultationInstanceCreateRequestDTOTest {
      */
     @Test
     void prestation_nestedScopeInvalid_violatesThroughCascade() {
-        PrestationInstanceItemDTO withTwoGroupScope = new PrestationInstanceItemDTO(null, 3L, null,
-                new ScopeDTO(null, null, Quadrant.UPPER_RIGHT, Maxillary.UPPER, null), null, null, null, null,
-                List.of(new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS)));
+        PrestationInstanceItemRequestDTO withTwoGroupScope = new PrestationInstanceItemRequestDTO(null, 3L, null,
+                new ScopeRequestDTO(null, null, Quadrant.UPPER_RIGHT, Maxillary.UPPER, null), null, null, null, null,
+                List.of(new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS)));
 
         assertThat(paths(request(List.of(), List.of(withTwoGroupScope)))).containsExactly("prestation[0].scope.singleLocationGroup");
     }
@@ -242,9 +241,9 @@ class ConsultationInstanceCreateRequestDTOTest {
      */
     @Test
     void prestation_nestedTreatmentRefInvalid_violatesThroughCascade() {
-        PrestationInstanceItemDTO withBadRef = new PrestationInstanceItemDTO(null, 3L,
+        PrestationInstanceItemRequestDTO withBadRef = new PrestationInstanceItemRequestDTO(null, 3L,
                 new TreatmentInstanceRefDTO(145L, "tmp-1"), null, null, null, null, null,
-                List.of(new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS)));
+                List.of(new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS)));
 
         assertThat(paths(request(List.of(), List.of(withBadRef))))
                 .containsExactly("prestation[0].treatmentInstanceRef.exactlyOneIdentifier");
@@ -259,9 +258,9 @@ class ConsultationInstanceCreateRequestDTOTest {
      */
     @Test
     void prestation_nestedOriginRefInvalid_violatesThroughCascade() {
-        PrestationInstanceItemDTO withBadOrigin = new PrestationInstanceItemDTO(null, 3L,
+        PrestationInstanceItemRequestDTO withBadOrigin = new PrestationInstanceItemRequestDTO(null, 3L,
                 new TreatmentInstanceRefDTO(null, "tmp-1"), null, new TreatmentInstanceRefDTO(145L, "tmp-2"),
-                null, null, null, List.of(new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS)));
+                null, null, null, List.of(new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS)));
 
         assertThat(paths(request(List.of(newTreatment("tmp-1")), List.of(withBadOrigin))))
                 .containsExactly("prestation[0].originTreatmentInstanceRef.exactlyOneIdentifier");

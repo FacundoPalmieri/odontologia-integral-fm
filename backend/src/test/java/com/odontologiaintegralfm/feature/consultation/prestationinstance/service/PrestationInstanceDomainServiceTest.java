@@ -4,12 +4,11 @@ import com.odontologiaintegralfm.feature.consultation.prestation.enums.Prestatio
 import com.odontologiaintegralfm.feature.consultation.prestation.model.PrestationStep;
 import com.odontologiaintegralfm.feature.consultation.prestation.model.PrestationType;
 import com.odontologiaintegralfm.feature.consultation.prestation.service.PrestationStepService;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationStepStatus;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.PrestationInstance;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.PrestationStepInstance;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.service.PrestationInstanceDomainService;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Maxillary;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Quadrant;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Tooth;
@@ -160,12 +159,12 @@ class PrestationInstanceDomainServiceTest {
         return prestation;
     }
 
-    private static StepItemDTO newStep(long stepId, PrestationStepStatus status) {
-        return new StepItemDTO(null, stepId, status);
+    private static StepItemRequestDTO newStep(long stepId, PrestationStepStatus status) {
+        return new StepItemRequestDTO(null, stepId, status);
     }
 
-    private static StepItemDTO existingStep(long instanceId, PrestationStepStatus status) {
-        return new StepItemDTO(instanceId, null, status);
+    private static StepItemRequestDTO existingStep(long instanceId, PrestationStepStatus status) {
+        return new StepItemRequestDTO(instanceId, null, status);
     }
 
     private static void assertKey(Throwable thrown, String keyFragment) {
@@ -387,7 +386,7 @@ class PrestationInstanceDomainServiceTest {
     void validateStepAdvancement_skipRequiredStepWithOmitted_throwsBadRequestException() {
         List<PrestationStep> requiredCatalog = List.of(step(101, 1, true));
         List<PrestationStep> optionalCatalog = List.of(step(101, 1, false));
-        List<StepItemDTO> items = List.of(newStep(101L, PrestationStepStatus.OMITTED));
+        List<StepItemRequestDTO> items = List.of(newStep(101L, PrestationStepStatus.OMITTED));
 
         assertThatThrownBy(() -> service.validateStepAdvancement(null, requiredCatalog, List.of(), items))
                 .isInstanceOf(BadRequestException.class);
@@ -416,7 +415,7 @@ class PrestationInstanceDomainServiceTest {
      */
     @Test
     void validateStepAdvancement_firstStepBornCanceled_throwsBadRequestException() {
-        List<StepItemDTO> items = List.of(newStep(101L, PrestationStepStatus.CANCELED));
+        List<StepItemRequestDTO> items = List.of(newStep(101L, PrestationStepStatus.CANCELED));
 
         assertThatThrownBy(() -> service.validateStepAdvancement(null, catalog(2), List.of(), items))
                 .isInstanceOf(BadRequestException.class);

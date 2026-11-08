@@ -5,7 +5,7 @@ import com.odontologiaintegralfm.feature.consultation.prestation.enums.Prestatio
 import com.odontologiaintegralfm.feature.consultation.prestation.model.PrestationStep;
 import com.odontologiaintegralfm.feature.consultation.prestation.model.PrestationType;
 import com.odontologiaintegralfm.feature.consultation.prestation.service.PrestationStepService;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationStepStatus;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.PrestationInstance;
@@ -131,7 +131,7 @@ public class PrestationInstanceDomainService {
      * cadena cuenta como antecedente válido.
      */
     public void validateStepAdvancement(PrestationInstance prestationInstance, List<PrestationStep> catalogSteps,
-                                        List<PrestationStepInstance> stepInstancesPersistidos, List<StepItemDTO> stepItems) {
+                                        List<PrestationStepInstance> stepInstancesPersistidos, List<StepItemRequestDTO> stepItems) {
         Long prestationId = prestationInstance != null ? prestationInstance.getId() : null;
         if (prestationInstance != null && prestationInstance.getStatus() != PrestationInstanceStatus.IN_PROGRESS) {
             throw new ConflictException("exception.prestationInstanceDomainService.validateStepAdvancement.notInProgress.user", new Object[]{prestationId}, "exception.prestationInstanceDomainService.validateStepAdvancement.notInProgress.log", new Object[]{prestationId, prestationInstance.getStatus(), "PrestationInstanceDomainService", "validateStepAdvancement"}, LogLevel.ERROR);
@@ -146,7 +146,7 @@ public class PrestationInstanceDomainService {
         }
 
         List<ItemWithStep> items = new ArrayList<>();
-        for (StepItemDTO item : stepItems) {
+        for (StepItemRequestDTO item : stepItems) {
             if (item.id() != null) {
                 PrestationStepInstance persisted = persistedByInstanceId.get(item.id());
                 if (persisted == null) {
@@ -375,7 +375,7 @@ public class PrestationInstanceDomainService {
         return status == PrestationStepStatus.REPLACED || status == PrestationStepStatus.CANCELED;
     }
 
-    private record ItemWithStep(StepItemDTO item, PrestationStep catalogStep, PrestationStepInstance persisted) {
+    private record ItemWithStep(StepItemRequestDTO item, PrestationStep catalogStep, PrestationStepInstance persisted) {
     }
 
 }

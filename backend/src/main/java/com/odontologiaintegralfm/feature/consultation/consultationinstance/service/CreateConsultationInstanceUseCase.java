@@ -7,6 +7,7 @@ import com.odontologiaintegralfm.feature.consultation.prestation.model.Prestatio
 import com.odontologiaintegralfm.feature.consultation.prestation.service.PrestationStepService;
 import com.odontologiaintegralfm.feature.consultation.prestation.service.PrestationTypePriceService;
 import com.odontologiaintegralfm.feature.consultation.prestation.service.PrestationTypeService;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.promotion.model.Promotion;
 import com.odontologiaintegralfm.feature.consultation.promotion.service.PromotionQueryService;
 import com.odontologiaintegralfm.feature.consultation.treatment.enums.TreatmentConditionType;
@@ -19,8 +20,7 @@ import com.odontologiaintegralfm.feature.consultation.consultation.service.Consu
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.model.ConsultationInstance;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.repository.IConsultationInstanceRepository;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemDTO;
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationInstanceStatus;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationStepStatus;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.PrestationInstance;
@@ -35,7 +35,7 @@ import com.odontologiaintegralfm.feature.consultation.prestationinstance.service
 import com.odontologiaintegralfm.feature.consultation.scope.mapper.ScopeMapper;
 import com.odontologiaintegralfm.feature.consultation.scope.model.Scope;
 import com.odontologiaintegralfm.feature.consultation.scope.service.ScopeDomainService;
-import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemDTO;
+import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceRefDTO;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.TreatmentInstance;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.TreatmentInstanceHistory;
@@ -173,12 +173,12 @@ public class CreateConsultationInstanceUseCase {
         Long patientId = patient.getId();
         Dentist dentist = consultation.getDentist();
 
-        List<TreatmentInstanceItemDTO> treatmentItems = dto.treatmentInstance() == null ? List.of() : dto.treatmentInstance();
-        List<PrestationInstanceItemDTO> prestationItems = dto.prestation() == null ? List.of() : dto.prestation();
+        List<TreatmentInstanceItemRequestDTO> treatmentItems = dto.treatmentInstance() == null ? List.of() : dto.treatmentInstance();
+        List<PrestationInstanceItemRequestDTO> prestationItems = dto.prestation() == null ? List.of() : dto.prestation();
 
         // --- 2. Buscar lo que el request referencia y validar unicidad ---
         List<TreatmentToClose> treatmentsToClose = new ArrayList<>();
-        for (TreatmentInstanceItemDTO item : treatmentItems) {
+        for (TreatmentInstanceItemRequestDTO item : treatmentItems) {
             if (item.id() != null) {
                 TreatmentInstance existing = treatmentInstanceQueryService.findByIdAndPatientId(item.id(), patientId);
                 treatmentInstanceDomainService.validateExplicitCloseAllowed(existing);
@@ -188,7 +188,7 @@ public class CreateConsultationInstanceUseCase {
         List<ExistingPrestation> existingPrestations = new ArrayList<>();
         List<NewPrestation> newPrestationItems = new ArrayList<>();
         List<PrestationType> prestationTypes = new ArrayList<>();
-        for (PrestationInstanceItemDTO item : prestationItems) {
+        for (PrestationInstanceItemRequestDTO item : prestationItems) {
             if (item.id() != null) {
                 PrestationInstance existing = prestationInstanceQueryService.findByIdAndPatientId(item.id(), patientId);
                 existingPrestations.add(new ExistingPrestation(item, existing));
@@ -218,7 +218,7 @@ public class CreateConsultationInstanceUseCase {
         // --- 5. Crear los TreatmentInstance nuevos ---
         List<TreatmentInstance> treatmentInstancesNuevos = new ArrayList<>();
         Map<String, TreatmentInstance> treatmentInstancesByTempId = new HashMap<>();
-        for (TreatmentInstanceItemDTO item : treatmentItems) {
+        for (TreatmentInstanceItemRequestDTO item : treatmentItems) {
             if (item.id() == null) {
                 TreatmentInstance created = createTreatmentInstance(item, patient, dentist, consultationInstance);
                 treatmentInstancesNuevos.add(created);
@@ -249,7 +249,7 @@ public class CreateConsultationInstanceUseCase {
         List<PrestationInstance> prestationInstancesNuevas = new ArrayList<>();
         Map<Long, TreatmentInstance> originTreatmentInstancesById = new LinkedHashMap<>();
         for (NewPrestation newPrestation : newPrestationItems) {
-            PrestationInstanceItemDTO item = newPrestation.item();
+            PrestationInstanceItemRequestDTO item = newPrestation.item();
             PrestationType type = newPrestation.type();
 
             dentistSpecialtyDomainService.validateAllowed(dentist, type.getDentistSpecialties(), type.getLabel());
@@ -340,7 +340,7 @@ public class CreateConsultationInstanceUseCase {
     }
 
     /** Paso 5: valida especialidad (D-61) y ubicación (D-08), crea el tratamiento con su alta en el historial (D-19, D-51). */
-    private TreatmentInstance createTreatmentInstance(TreatmentInstanceItemDTO item, Patient patient, Dentist dentist, ConsultationInstance consultationInstance) {
+    private TreatmentInstance createTreatmentInstance(TreatmentInstanceItemRequestDTO item, Patient patient, Dentist dentist, ConsultationInstance consultationInstance) {
         Treatment treatment = treatmentService.findById(item.treatmentId());
         dentistSpecialtyDomainService.validateAllowed(dentist, treatment.getDentistSpecialties(), treatment.getLabel());
 
@@ -356,7 +356,7 @@ public class CreateConsultationInstanceUseCase {
     /** Paso 6: valida el avance con lo persistido, lo aplica con una fila de historial por step (D-19) y deriva el estado (D-27). */
     private PrestationInstance advanceExistingPrestation(ExistingPrestation existing, ConsultationInstance consultationInstance) {
         PrestationInstance prestation = existing.prestation();
-        List<StepItemDTO> stepItems = existing.item().steps();
+        List<StepItemRequestDTO> stepItems = existing.item().steps();
         Long typeId = prestation.getType().getId();
 
         List<PrestationStep> catalog = prestationStepService.findAllPrestationStepsByPrestation(typeId);
@@ -364,7 +364,7 @@ public class CreateConsultationInstanceUseCase {
 
         // 6.1 Primero se resuelven todos los steps (404 / 400); recién después se valida el avance completo.
         List<ResolvedStep> resolvedSteps = new ArrayList<>();
-        for (StepItemDTO stepItem : stepItems) {
+        for (StepItemRequestDTO stepItem : stepItems) {
             if (stepItem.id() != null) {
                 resolvedSteps.add(new ResolvedStep(stepItem, null, prestationStepInstanceQueryService.findByIdAndPrestationInstanceId(stepItem.id(), prestation.getId())));
             } else {
@@ -399,13 +399,13 @@ public class CreateConsultationInstanceUseCase {
     }
 
     /** Paso 7.6 y 7.7: resuelve y valida los steps antes de crear nada, calcula precio y promoción, crea la prestación y sus steps. */
-    private PrestationInstance createPrestationInstance(PrestationInstanceItemDTO item, PrestationType type, TreatmentInstance treatmentInstance,
+    private PrestationInstance createPrestationInstance(PrestationInstanceItemRequestDTO item, PrestationType type, TreatmentInstance treatmentInstance,
                                                         TreatmentInstance origin, Scope ownScope, Patient patient, ConsultationInstance consultationInstance) {
         Long typeId = type.getId();
         List<PrestationStep> catalog = prestationStepService.findAllPrestationStepsByPrestation(typeId);
 
         List<PrestationStep> catalogSteps = new ArrayList<>();
-        for (StepItemDTO stepItem : item.steps()) {
+        for (StepItemRequestDTO stepItem : item.steps()) {
             catalogSteps.add(prestationStepService.findById(stepItem.stepId()));
             prestationInstanceDomainService.validatePrestationStep(typeId, stepItem.stepId());
         }
@@ -450,12 +450,12 @@ public class CreateConsultationInstanceUseCase {
     private record TreatmentToClose(TreatmentInstance treatmentInstance, TreatmentConditionType condition) {
     }
 
-    private record ExistingPrestation(PrestationInstanceItemDTO item, PrestationInstance prestation) {
+    private record ExistingPrestation(PrestationInstanceItemRequestDTO item, PrestationInstance prestation) {
     }
 
-    private record NewPrestation(PrestationInstanceItemDTO item, PrestationType type) {
+    private record NewPrestation(PrestationInstanceItemRequestDTO item, PrestationType type) {
     }
 
-    private record ResolvedStep(StepItemDTO item, PrestationStep catalogStep, PrestationStepInstance existingStep) {
+    private record ResolvedStep(StepItemRequestDTO item, PrestationStep catalogStep, PrestationStepInstance existingStep) {
     }
 }

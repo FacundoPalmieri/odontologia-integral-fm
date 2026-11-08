@@ -74,7 +74,7 @@ import static org.mockito.Mockito.when;
  * - Patient, TreatmentInstance, PrestationInstance, PrestationStepInstance, PrestationStep, Step, Treatment,
  *   PrestationType y DentistSpecialty se mockean: son datos de entrada que el use case solo lee.
  *   Un mock devuelve null por defecto, así que los helpers dejan stubbeados (lenient) id, createdAt, scope y label.
- * - ScopeMapper es un @Spy real (ScopeMapperImpl): la conversión de Scope a ScopeDTO se ejercita de verdad.
+ * - ScopeMapper es un @Spy real (ScopeMapperImpl): la conversión de Scope a ScopeResponseDTO se ejercita de verdad.
  * - ProsthesisDomainService está mockeado: sus reglas se prueban en ProsthesisDomainServiceTest.
  * - Lo que el use case no lee de forma distinta entre casos (instancias de step, prestaciones
  *   habilitadas, mapa de scopes por origen) queda en el valor por defecto del mock: lista o mapa vacío, nunca null.
@@ -427,7 +427,7 @@ class GetClinicalContextByPatientUseCaseTest {
      * CASO: Bety tiene una prótesis de origen en el 14, 16 y 17, con un arreglo terminado en el 18, y un "Rebasado" en
      * curso sobre ella.
      * Regla: D-02 — originScopes sale de buildScopesByOrigin, sin el descarte por solapamiento.
-     * Validación: la prestación 23 trae originTreatmentInstanceId 30 y originScopes con dos ScopeDTO: tooth [14, 16, 17]
+     * Validación: la prestación 23 trae originTreatmentInstanceId 30 y originScopes con dos ScopeResponseDTO: tooth [14, 16, 17]
      * y tooth [18], en ese orden; la 21 trae originTreatmentInstanceId null y originScopes vacía; buildScopesByOrigin se llamó con un conjunto de orígenes igual a {tratamiento 30} (no el
      * 10 del que cuelga la 21) y con la misma lista que devolvió findByPatientIdAndEnabledTrue(7L) (same);
      * buildCurrentProstheses nunca se llamó.

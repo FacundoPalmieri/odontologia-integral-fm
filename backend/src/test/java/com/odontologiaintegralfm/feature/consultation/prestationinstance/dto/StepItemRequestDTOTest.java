@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.feature.consultation.prestationinstance.dto;
 
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepItemDTO;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationStepStatus;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -20,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Todos los casos pasan por un Validator real: así se prueba también que la anotación existe.
  */
 @Tag("unit")
-class StepItemDTOTest {
+class StepItemRequestDTOTest {
 
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
@@ -36,7 +35,7 @@ class StepItemDTOTest {
         validatorFactory.close();
     }
 
-    private static List<String> paths(StepItemDTO dto) {
+    private static List<String> paths(StepItemRequestDTO dto) {
         return validator.validate(dto).stream()
                 .map(ConstraintViolation::getPropertyPath)
                 .map(Object::toString)
@@ -50,8 +49,8 @@ class StepItemDTOTest {
      */
     @Test
     void isIdXorStepId_bothOrNone_returnsFalse() {
-        assertThat(paths(new StepItemDTO(9L, 3L, PrestationStepStatus.FINISHED))).containsExactly("idXorStepId");
-        assertThat(paths(new StepItemDTO(null, null, PrestationStepStatus.FINISHED))).containsExactly("idXorStepId");
+        assertThat(paths(new StepItemRequestDTO(9L, 3L, PrestationStepStatus.FINISHED))).containsExactly("idXorStepId");
+        assertThat(paths(new StepItemRequestDTO(null, null, PrestationStepStatus.FINISHED))).containsExactly("idXorStepId");
     }
 
     /**
@@ -61,8 +60,8 @@ class StepItemDTOTest {
      */
     @Test
     void isIdXorStepId_onlyIdOrOnlyStepId_returnsTrue() {
-        assertThat(paths(new StepItemDTO(9L, null, PrestationStepStatus.FINISHED))).doesNotContain("idXorStepId");
-        assertThat(paths(new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS))).doesNotContain("idXorStepId");
+        assertThat(paths(new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))).doesNotContain("idXorStepId");
+        assertThat(paths(new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS))).doesNotContain("idXorStepId");
     }
 
     /**
@@ -72,7 +71,7 @@ class StepItemDTOTest {
      */
     @Test
     void baseItem_valid_hasNoViolations() {
-        assertThat(paths(new StepItemDTO(null, 3L, PrestationStepStatus.IN_PROGRESS))).isEmpty();
+        assertThat(paths(new StepItemRequestDTO(null, 3L, PrestationStepStatus.IN_PROGRESS))).isEmpty();
     }
 
     /**
@@ -82,6 +81,6 @@ class StepItemDTOTest {
      */
     @Test
     void status_null_violatesNotNull() {
-        assertThat(paths(new StepItemDTO(null, 3L, null))).containsExactly("status");
+        assertThat(paths(new StepItemRequestDTO(null, 3L, null))).containsExactly("status");
     }
 }

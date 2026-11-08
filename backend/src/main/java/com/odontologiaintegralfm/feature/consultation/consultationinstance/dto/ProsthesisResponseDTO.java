@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.consultationinstance.dto;
 
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeResponseDTO;
 
 import java.util.List;
 
@@ -10,6 +10,6 @@ import java.util.List;
  */
 public record ProsthesisResponseDTO(
         Long originTreatmentInstanceId,
-        List<ScopeDTO> scopes
+        List<ScopeResponseDTO> scopes
 ) {
 }

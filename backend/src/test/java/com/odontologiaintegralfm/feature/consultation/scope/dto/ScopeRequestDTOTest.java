@@ -1,6 +1,5 @@
 package com.odontologiaintegralfm.feature.consultation.scope.dto;
 
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Maxillary;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Quadrant;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Tooth;
@@ -27,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Los casos de validación pasan por un Validator real: así se prueba también que la anotación existe.
  */
 @Tag("unit")
-class ScopeDTOTest {
+class ScopeRequestDTOTest {
 
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
@@ -43,7 +42,7 @@ class ScopeDTOTest {
         validatorFactory.close();
     }
 
-    private static List<String> paths(ScopeDTO dto) {
+    private static List<String> paths(ScopeRequestDTO dto) {
         return validator.validate(dto).stream()
                 .map(ConstraintViolation::getPropertyPath)
                 .map(Object::toString)
@@ -57,8 +56,8 @@ class ScopeDTOTest {
      */
     @Test
     void isToothFaceWithTooth_faceWithoutTooth_returnsFalse() {
-        assertThat(paths(new ScopeDTO(null, ToothFace.TOP, null, null, null))).containsExactly("toothFaceWithTooth");
-        assertThat(paths(new ScopeDTO(List.of(), ToothFace.TOP, null, null, null))).containsExactly("toothFaceWithTooth");
+        assertThat(paths(new ScopeRequestDTO(null, ToothFace.TOP, null, null, null))).containsExactly("toothFaceWithTooth");
+        assertThat(paths(new ScopeRequestDTO(List.of(), ToothFace.TOP, null, null, null))).containsExactly("toothFaceWithTooth");
     }
 
     /**
@@ -68,15 +67,15 @@ class ScopeDTOTest {
      */
     @Test
     void isToothFaceWithTooth_faceWithToothOrToothWithoutFace_returnsTrue() {
-        assertThat(paths(new ScopeDTO(List.of(Tooth.T16), ToothFace.TOP, null, null, null))).doesNotContain("toothFaceWithTooth");
-        assertThat(paths(new ScopeDTO(List.of(Tooth.T16), null, null, null, null))).doesNotContain("toothFaceWithTooth");
+        assertThat(paths(new ScopeRequestDTO(List.of(Tooth.T16), ToothFace.TOP, null, null, null))).doesNotContain("toothFaceWithTooth");
+        assertThat(paths(new ScopeRequestDTO(List.of(Tooth.T16), null, null, null, null))).doesNotContain("toothFaceWithTooth");
     }
 
     static Stream<Arguments> twoGroups() {
         return Stream.of(
-                Arguments.of("tooth + quadrant", new ScopeDTO(List.of(Tooth.T16), null, Quadrant.UPPER_RIGHT, null, null)),
-                Arguments.of("quadrant + maxillary", new ScopeDTO(null, null, Quadrant.UPPER_RIGHT, Maxillary.UPPER, null)),
-                Arguments.of("maxillary + fullMouth", new ScopeDTO(null, null, null, Maxillary.UPPER, true)));
+                Arguments.of("tooth + quadrant", new ScopeRequestDTO(List.of(Tooth.T16), null, Quadrant.UPPER_RIGHT, null, null)),
+                Arguments.of("quadrant + maxillary", new ScopeRequestDTO(null, null, Quadrant.UPPER_RIGHT, Maxillary.UPPER, null)),
+                Arguments.of("maxillary + fullMouth", new ScopeRequestDTO(null, null, null, Maxillary.UPPER, true)));
     }
 
     /**
@@ -86,7 +85,7 @@ class ScopeDTOTest {
      */
     @ParameterizedTest(name = "{0}")
     @MethodSource("twoGroups")
-    void isSingleLocationGroup_twoGroupsPopulated_returnsFalse(String label, ScopeDTO scope) {
+    void isSingleLocationGroup_twoGroupsPopulated_returnsFalse(String label, ScopeRequestDTO scope) {
         assertThat(paths(scope)).containsExactly("singleLocationGroup");
     }
 
@@ -97,7 +96,7 @@ class ScopeDTOTest {
      */
     @Test
     void isSingleLocationGroup_emptyToothListWithOtherGroup_returnsTrue() {
-        assertThat(paths(new ScopeDTO(List.of(), null, Quadrant.UPPER_RIGHT, null, null))).doesNotContain("singleLocationGroup");
+        assertThat(paths(new ScopeRequestDTO(List.of(), null, Quadrant.UPPER_RIGHT, null, null))).doesNotContain("singleLocationGroup");
     }
 
     /**
@@ -107,7 +106,7 @@ class ScopeDTOTest {
      */
     @Test
     void isSingleLocationGroup_fullMouthFalseWithAnotherGroup_returnsTrue() {
-        assertThat(paths(new ScopeDTO(null, null, Quadrant.UPPER_RIGHT, null, false))).doesNotContain("singleLocationGroup");
+        assertThat(paths(new ScopeRequestDTO(null, null, Quadrant.UPPER_RIGHT, null, false))).doesNotContain("singleLocationGroup");
     }
 
     /**
@@ -117,11 +116,11 @@ class ScopeDTOTest {
      */
     @Test
     void isSingleLocationGroup_oneGroupOrNone_returnsTrue() {
-        assertThat(paths(new ScopeDTO(List.of(Tooth.T16), ToothFace.TOP, null, null, null))).doesNotContain("singleLocationGroup");
-        assertThat(paths(new ScopeDTO(null, null, Quadrant.UPPER_RIGHT, null, null))).doesNotContain("singleLocationGroup");
-        assertThat(paths(new ScopeDTO(null, null, null, Maxillary.UPPER, null))).doesNotContain("singleLocationGroup");
-        assertThat(paths(new ScopeDTO(null, null, null, null, true))).doesNotContain("singleLocationGroup");
-        assertThat(paths(new ScopeDTO(null, null, null, null, null))).doesNotContain("singleLocationGroup");
+        assertThat(paths(new ScopeRequestDTO(List.of(Tooth.T16), ToothFace.TOP, null, null, null))).doesNotContain("singleLocationGroup");
+        assertThat(paths(new ScopeRequestDTO(null, null, Quadrant.UPPER_RIGHT, null, null))).doesNotContain("singleLocationGroup");
+        assertThat(paths(new ScopeRequestDTO(null, null, null, Maxillary.UPPER, null))).doesNotContain("singleLocationGroup");
+        assertThat(paths(new ScopeRequestDTO(null, null, null, null, true))).doesNotContain("singleLocationGroup");
+        assertThat(paths(new ScopeRequestDTO(null, null, null, null, null))).doesNotContain("singleLocationGroup");
     }
 
     /**
@@ -132,8 +131,8 @@ class ScopeDTOTest {
      */
     @Test
     void hasAnyLocation_emptyAndPopulatedScope_returnsExpected() {
-        assertThat(new ScopeDTO(null, null, null, null, null).hasAnyLocation()).isFalse();
-        assertThat(new ScopeDTO(null, null, null, null, false).hasAnyLocation()).isFalse();
-        assertThat(new ScopeDTO(null, null, null, null, true).hasAnyLocation()).isTrue();
+        assertThat(new ScopeRequestDTO(null, null, null, null, null).hasAnyLocation()).isFalse();
+        assertThat(new ScopeRequestDTO(null, null, null, null, false).hasAnyLocation()).isFalse();
+        assertThat(new ScopeRequestDTO(null, null, null, null, true).hasAnyLocation()).isTrue();
     }
 }

@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.prestationinstance.dto;
 
 import com.odontologiaintegralfm.feature.consultation.promotion.enums.DiscountType;
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceRefDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
@@ -18,21 +18,21 @@ import java.util.Set;
  * Ítem de prestation[]: con id avanza los steps de una prestación existente (solo id + steps);
  * sin id nace una nueva (D-22, D-24, D-30, D-32, D-33).
  */
-public record PrestationInstanceItemDTO(
+public record PrestationInstanceItemRequestDTO(
         Long id,
         Long prestationTypeId,
         @Valid TreatmentInstanceRefDTO treatmentInstanceRef,
-        @Valid ScopeDTO scope,
+        @Valid ScopeRequestDTO scope,
         @Valid TreatmentInstanceRefDTO originTreatmentInstanceRef,
         Long promotionId,
         DiscountType discountType,
-        @Positive(message = "prestationInstanceItemDTO.discountValue.positive")
+        @Positive(message = "prestationInstanceItemRequestDTO.discountValue.positive")
         BigDecimal discountValue,
-        @NotEmpty(message = "prestationInstanceItemDTO.steps.empty")
-        List<@NotNull(message = "prestationInstanceItemDTO.steps.nullItem") @Valid StepItemDTO> steps
+        @NotEmpty(message = "prestationInstanceItemRequestDTO.steps.empty")
+        List<@NotNull(message = "prestationInstanceItemRequestDTO.steps.nullItem") @Valid StepItemRequestDTO> steps
 ) {
 
-    @AssertTrue(message = "prestationInstanceItemDTO.existingOnlyIdAndSteps")
+    @AssertTrue(message = "prestationInstanceItemRequestDTO.existingOnlyIdAndSteps")
     public boolean isExistingOnlyIdAndSteps() {
         return id == null
                 || (prestationTypeId == null && treatmentInstanceRef == null && !hasOwnScope()
@@ -40,23 +40,23 @@ public record PrestationInstanceItemDTO(
                 && discountType == null && discountValue == null);
     }
 
-    @AssertTrue(message = "prestationInstanceItemDTO.newHasPrestationType")
+    @AssertTrue(message = "prestationInstanceItemRequestDTO.newHasPrestationType")
     public boolean isNewHasPrestationType() {
         return id != null || prestationTypeId != null;
     }
 
-    @AssertTrue(message = "prestationInstanceItemDTO.newStepsDeclareCatalogStep")
+    @AssertTrue(message = "prestationInstanceItemRequestDTO.newStepsDeclareCatalogStep")
     public boolean isNewStepsDeclareCatalogStep() {
         if (id != null || steps == null) return true;
         return steps.stream().allMatch(step -> step != null && step.stepId() != null && step.id() == null);
     }
 
-    @AssertTrue(message = "prestationInstanceItemDTO.stepsUnique")
+    @AssertTrue(message = "prestationInstanceItemRequestDTO.stepsUnique")
     public boolean isStepsUnique() {
         if (steps == null) return true;
         Set<Long> stepIds = new HashSet<>();
         Set<Long> ids = new HashSet<>();
-        for (StepItemDTO step : steps) {
+        for (StepItemRequestDTO step : steps) {
             if (step == null) continue;
             if (step.stepId() != null && !stepIds.add(step.stepId())) return false;
             if (step.id() != null && !ids.add(step.id())) return false;
@@ -68,7 +68,7 @@ public record PrestationInstanceItemDTO(
      * Combinaciones válidas al nacer: referencia sola, scope solo, referencia + origen, origen solo.
      * El XOR de forma es entre referencia y scope; scope + origen y ninguna de las tres son inválidas (D-24).
      */
-    @AssertTrue(message = "prestationInstanceItemDTO.locationConsistent")
+    @AssertTrue(message = "prestationInstanceItemRequestDTO.locationConsistent")
     public boolean isLocationConsistent() {
         if (id != null) return true;
         boolean hasRef = treatmentInstanceRef != null;
@@ -79,7 +79,7 @@ public record PrestationInstanceItemDTO(
         return hasRef || hasScope || hasOrigin;
     }
 
-    @AssertTrue(message = "prestationInstanceItemDTO.discountConsistent")
+    @AssertTrue(message = "prestationInstanceItemRequestDTO.discountConsistent")
     public boolean isDiscountConsistent() {
         if (promotionId != null && discountValue != null) return false;
         return (discountType != null) == (discountValue != null);

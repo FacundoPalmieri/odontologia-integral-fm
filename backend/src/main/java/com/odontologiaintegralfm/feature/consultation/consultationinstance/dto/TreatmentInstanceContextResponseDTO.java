@@ -1,6 +1,6 @@
 package com.odontologiaintegralfm.feature.consultation.consultationinstance.dto;
 
-import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeDTO;
+import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.treatment.enums.TreatmentConditionType;
 import com.odontologiaintegralfm.feature.dentist.dto.DentistSpecialtyResponseDTO;
 
@@ -10,7 +10,7 @@ public record TreatmentInstanceContextResponseDTO(
         Long id,
         String label,
         TreatmentConditionType treatmentCondition,
-        ScopeDTO scope,
+        ScopeResponseDTO scope,
         List<DentistSpecialtyResponseDTO> specialties
 ) {
 }

@@ -1,7 +1,7 @@
 package com.odontologiaintegralfm.feature.consultation.consultationinstance.dto;
 
-import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemDTO;
-import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceItemRequestDTO;
+import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceItemRequestDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -22,9 +22,9 @@ public record ConsultationInstanceCreateRequestDTO(
 
         String observation,
 
-        List<@NotNull(message = "consultationInstanceCreateRequestDTO.treatmentInstance.nullItem") @Valid TreatmentInstanceItemDTO> treatmentInstance,
+        List<@NotNull(message = "consultationInstanceCreateRequestDTO.treatmentInstance.nullItem") @Valid TreatmentInstanceItemRequestDTO> treatmentInstance,
 
-        List<@NotNull(message = "consultationInstanceCreateRequestDTO.prestation.nullItem") @Valid PrestationInstanceItemDTO> prestation
+        List<@NotNull(message = "consultationInstanceCreateRequestDTO.prestation.nullItem") @Valid PrestationInstanceItemRequestDTO> prestation
 ) {
 
     @AssertTrue(message = "consultationInstanceCreateRequestDTO.atLeastOneClinicalData")
@@ -37,7 +37,7 @@ public record ConsultationInstanceCreateRequestDTO(
     public boolean isTempIdsUnique() {
         if (treatmentInstance == null) return true;
         Set<String> tempIds = new HashSet<>();
-        for (TreatmentInstanceItemDTO item : treatmentInstance) {
+        for (TreatmentInstanceItemRequestDTO item : treatmentInstance) {
             if (item != null && item.tempId() != null && !tempIds.add(item.tempId())) return false;
         }
         return true;
@@ -46,8 +46,8 @@ public record ConsultationInstanceCreateRequestDTO(
     /** Los id no nulos no se repiten dentro de cada lista (D-23). */
     @AssertTrue(message = "consultationInstanceCreateRequestDTO.itemIdsUnique")
     public boolean isItemIdsUnique() {
-        return noRepeatedIds(treatmentInstance == null ? List.of() : treatmentInstance.stream().filter(Objects::nonNull).map(TreatmentInstanceItemDTO::id).toList())
-                && noRepeatedIds(prestation == null ? List.of() : prestation.stream().filter(Objects::nonNull).map(PrestationInstanceItemDTO::id).toList());
+        return noRepeatedIds(treatmentInstance == null ? List.of() : treatmentInstance.stream().filter(Objects::nonNull).map(TreatmentInstanceItemRequestDTO::id).toList())
+                && noRepeatedIds(prestation == null ? List.of() : prestation.stream().filter(Objects::nonNull).map(PrestationInstanceItemRequestDTO::id).toList());
     }
 
     private static boolean isEmpty(List<?> list) {
