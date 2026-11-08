@@ -28,5 +28,7 @@ public class Step extends AuditableJPA {
     @EqualsAndHashCode.Include
     private String name;
 
+    @Column(nullable = false, length = 100)
+    private String label;
 
 }

@@ -10,6 +10,7 @@ import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.Tr
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -54,19 +55,32 @@ public class ProsthesisDomainService {
                                                           List<PrestationInstance> prestationInstances,
                                                           Set<Long> repairLinkedTreatmentIds) {
         Set<TreatmentInstance> treatmentsWithPlacement = findTreatmentsWithFinishedPlacement(prestationInstances);
+        List<TreatmentInstance> origins = treatmentInstances.stream()
+                .filter(treatmentInstance -> isProsthesisOrigin(treatmentInstance, repairLinkedTreatmentIds, treatmentsWithPlacement))
+                .toList();
+
+        List<CurrentProsthesis> candidates = buildScopesByOrigin(origins, prestationInstances).entrySet().stream()
+                .map(entry -> new CurrentProsthesis(entry.getKey(), entry.getValue()))
+                .toList();
+        return discardOverlappedByNewer(candidates);
+    }
+
+    /**
+     * Para cada origen, su ubicación seguida de la de cada arreglo {@code FINISHED} que lleva dientes y lo apunta
+     * (D-04, D-06). No descarta por solapamiento: el llamador decide qué orígenes pasa.
+     */
+    public Map<TreatmentInstance, List<Scope>> buildScopesByOrigin(Collection<TreatmentInstance> origins,
+                                                                   List<PrestationInstance> prestationInstances) {
         Map<TreatmentInstance, List<Scope>> repairScopesByOrigin = collectRepairScopes(prestationInstances);
 
-        List<CurrentProsthesis> candidates = new ArrayList<>();
-        for (TreatmentInstance treatmentInstance : treatmentInstances) {
-            if (!isProsthesisOrigin(treatmentInstance, repairLinkedTreatmentIds, treatmentsWithPlacement)) {
-                continue;
-            }
+        Map<TreatmentInstance, List<Scope>> scopesByOrigin = new LinkedHashMap<>();
+        for (TreatmentInstance origin : origins) {
             List<Scope> scopes = new ArrayList<>();
-            scopes.add(treatmentInstance.getScope());
-            scopes.addAll(repairScopesByOrigin.getOrDefault(treatmentInstance, List.of()));
-            candidates.add(new CurrentProsthesis(treatmentInstance, scopes));
+            scopes.add(origin.getScope());
+            scopes.addAll(repairScopesByOrigin.getOrDefault(origin, List.of()));
+            scopesByOrigin.put(origin, scopes);
         }
-        return discardOverlappedByNewer(candidates);
+        return scopesByOrigin;
     }
 
     /** Tratamientos que tienen una prestación {@code FINISHED} marcada "puede ser origen" (D-03). */

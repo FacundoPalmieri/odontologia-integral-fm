@@ -1,9 +1,12 @@
 package com.odontologiaintegralfm.feature.consultation.consultationinstance.controller;
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationInstanceCreate;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationInstanceRead;
+import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ClinicalContextResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ProsthesisResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.service.CreateConsultationInstanceUseCase;
+import com.odontologiaintegralfm.feature.consultation.consultationinstance.service.GetClinicalContextByPatientUseCase;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.service.GetProsthesesByPatientUseCase;
 //import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.service.GetConsultationInstanceUseCase;
 //import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.service.UpdateConsultationInstanceUseCase;
@@ -31,16 +34,19 @@ public class ConsultationInstanceController {
 
     private final CreateConsultationInstanceUseCase createConsultationInstanceUseCase;
     private final GetProsthesesByPatientUseCase getProsthesesByPatientUseCase;
+    private final GetClinicalContextByPatientUseCase getClinicalContextByPatientUseCase;
 //    private final GetConsultationInstanceUseCase getConsultationInstanceUseCase;
 //    private final UpdateConsultationInstanceUseCase updateConsultationInstanceUseCase;
 
     ConsultationInstanceController(CreateConsultationInstanceUseCase createConsultationInstanceUseCase,
-                                   GetProsthesesByPatientUseCase getProsthesesByPatientUseCase
+                                   GetProsthesesByPatientUseCase getProsthesesByPatientUseCase,
+                                   GetClinicalContextByPatientUseCase getClinicalContextByPatientUseCase
 //                                   , GetConsultationInstanceUseCase getConsultationInstanceUseCase,
 //                                   UpdateConsultationInstanceUseCase updateConsultationInstanceUseCase
     ) {
         this.createConsultationInstanceUseCase = createConsultationInstanceUseCase;
         this.getProsthesesByPatientUseCase = getProsthesesByPatientUseCase;
+        this.getClinicalContextByPatientUseCase = getClinicalContextByPatientUseCase;
 //        this.getConsultationInstanceUseCase = getConsultationInstanceUseCase;
 //        this.updateConsultationInstanceUseCase = updateConsultationInstanceUseCase;
     }
@@ -70,6 +76,20 @@ public class ConsultationInstanceController {
     @OnlyAccessConsultationInstanceCreate
     public ResponseEntity<Response<List<ProsthesisResponseDTO>>> getProsthesesByPatientId(@PathVariable Long patientId) {
         Response<List<ProsthesisResponseDTO>> response = getProsthesesByPatientUseCase.execute(patientId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Obtener el contexto clínico de un paciente", description = "Devuelve los tratamientos abiertos y las prestaciones en curso del paciente, con los steps de cada prestación y las especialidades de cada uno.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Contexto clínico del paciente (listas vacías si no tiene nada abierto)"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Paciente no encontrado o dado de baja."),
+    })
+    @GetMapping("/patient/{patientId}")
+    @OnlyAccessConsultationInstanceRead
+    public ResponseEntity<Response<ClinicalContextResponseDTO>> getClinicalContextByPatientId(@PathVariable Long patientId) {
+        Response<ClinicalContextResponseDTO> response = getClinicalContextByPatientUseCase.execute(patientId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
