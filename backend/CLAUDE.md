@@ -54,11 +54,11 @@ La lógica de negocio no trivial se divide en dos patrones:
 
 ### Dónde vive un cálculo o regla de negocio
 
-IMPORTANTE: Ver **ADR-0023** (`docs/architecture/adr/_cross-cutting/0023-donde-vive-un-calculo-de-negocio.md`) para el detalle y ejemplos. 
+IMPORTANTE: Ver **ADR-0023** (`.workspace/architecture/adr/_cross-cutting/0023-donde-vive-un-calculo-de-negocio.md`) para el detalle y ejemplos. 
 
 ### Construcción de entidades
 
-Aplica solo a entidades nuevas (las existentes no se migran). Detalle y motivos: **ADR-0031** (`docs/architecture/adr/_cross-cutting/0031-construccion-entidades-constructor-vs-build.md`).
+Aplica solo a entidades nuevas (las existentes no se migran). Detalle y motivos: **ADR-0031** (`.workspace/architecture/adr/_cross-cutting/0031-construccion-entidades-constructor-vs-build.md`).
 
 - **Forma base de toda entidad JPA:** `@Getter` de clase, sin `@Setter` ni `@AllArgsConstructor`, `@NoArgsConstructor(access = PROTECTED)` solo para Hibernate, y un constructor público escrito a mano que pida únicamente los datos que decide quien crea la entidad (sin `id` ni auditoría). Los cálculos cortos (ej: normalizar un nombre) van dentro del constructor.
 - **Editar después de crear:** por defecto sin setters. Si una edición lo necesita, se mira qué campos permite modificar: solo algunos → `@Setter` por campo o un método `update(...)`/método de negocio; cualquiera sin restricción → se evalúa `@Setter` de clase (solo si no hay reglas entre los campos ni campos `updatable = false`).
@@ -81,7 +81,7 @@ Las entidades nunca se eliminan físicamente. Tienen un flag `enabled` + timesta
 
 ### Seguridad
 
-RBAC de tres niveles: **Rol → Permiso → Acción**. La autorización a nivel de método usa anotaciones personalizadas en `securityconfig/annotations/`. JWT sin estado con flujo separado de refresh token. BCrypt para contraseñas.
+RBAC de tres niveles: **Rol → Permiso → Acción**. La autorización a nivel de método usa anotaciones personalizadas en `configuration/securityconfig/annotations/` (ver `OnlyAccessPatientsRead.java`). JWT sin estado con flujo separado de refresh token. BCrypt para contraseñas.
 
 ### Convenciones de nomenclatura
 
@@ -90,7 +90,7 @@ RBAC de tres niveles: **Rol → Permiso → Acción**. La autorización a nivel 
 | Interfaz de servicio | `IEntityService` |
 | Implementación de servicio | `EntityService` |
 | Repositorio | `IEntityRepository extends JpaRepository` |
-| DTOs | `EntityCreateDTO`, `EntityUpdateDTO`, `EntityResponseDTO` |
+| DTOs | `EntityCreateRequestDTO`, `EntityUpdateRequestDTO`, `EntityResponseDTO` |
 | Use cases | `VerbNounUseCase` |
 | Mappers | MapStruct `@Mapper` |
 
@@ -101,6 +101,47 @@ Usar las excepciones de dominio en `shared/exception/`: `NotFoundException`, `Ba
 ### QueryService vs acceso directo al repositorio
 
 Al buscar una entidad por ID: si la ausencia es un resultado válido, llamar al repositorio directamente. Si la ausencia es un error de negocio que debe lanzar excepción, delegar al `EntityQueryService` del dominio — encapsula el `NotFoundException`. No llamar al repositorio directamente desde un use case cuando la ausencia debería lanzar excepción.
+
+### DTOs
+
+- Los DTOs viven en `dto/` de cada módulo o subdominio. El final del nombre dice para qué se usa: `RequestDTO` si entra a la API, `ResponseDTO` si sale (ver `ConsultationInstanceCreateRequestDTO.java`, `PatientResponseDTO.java`).
+- Un DTO nunca se usa en los dos sentidos. Si un mismo objeto entra y sale, se crean dos. Ejemplo: `ScopeRequestDTO` lleva las validaciones `@AssertTrue` y `ScopeResponseDTO` es un record plano. Un DTO de respuesta no contiene uno de entrada, ni al revés.
+- Las claves de `messages.properties` de un DTO empiezan con el nombre de la clase en camelCase, sufijo incluido. Ejemplo: `scopeRequestDTO.singleLocationGroup`.
+- Un DTO nuevo es un `record`. Solo si hace falta un setter se usa una clase Lombok con `@Getter @Setter`. El código existente tiene las dos formas (76 `record`, 21 clases como `PatientResponseDTO.java`) y no se migra.
+- `shared/dto/` solo tiene `Response<T>`. No hay otros DTOs compartidos.
+
+### Validación
+
+- La forma del DTO se valida con Bean Validation (`jakarta.validation`): `@NotNull`, `@Valid` en el parámetro del controller y `@AssertTrue` para reglas entre campos del mismo DTO (ver `ConsultationInstanceCreateRequestDTO.java`).
+- Todo `message` es una clave de `messages.properties`, no texto literal. Ej: `consultationInstanceCreateRequestDTO.atLeastOneClinicalData`.
+- Las reglas de negocio (duplicados, estados, existencia) se validan en el use case o el domain service y lanzan una excepción de `shared/exception/`.
+- Una violación de Bean Validation termina en `GlobalExceptionHandler` como 400 (ver `GlobalExceptionHandler.java`).
+
+### Respuesta de la API
+
+- Todo endpoint devuelve `ResponseEntity<Response<T>>` (ver `PatientController.java`, `ConsultationInstanceController.java`).
+- Códigos que se usan: `201 CREATED` al crear, `200 OK` en lectura y edición. Los errores los arma `GlobalExceptionHandler`: 400 validación, 403 sin permiso, 404 no encontrado, 409 `DataIntegrityViolationException`, 500 error de base o inesperado.
+- Un error de validación viene como `success=false`, `message` con el primer error y `data` con un mapa `campo → mensaje`.
+- Paginación manual: el controller recibe `page`, `size`, `sortBy` y `direction` opcionales y completa los que faltan con valores de `application.properties` (`pagination.default-*`). Devuelve `Response<Page<T>>` (ver `PatientController.getAll`).
+
+### Persistencia
+
+- Acceso con Spring Data JPA (`IEntityRepository extends JpaRepository`). Los filtros de soft delete son métodos derivados, ej: `findAllByEnabledTrue` (ver `IPatientRepository.java`).
+- Las consultas propias son JPQL con `@Query` y bloques de texto, con `@Param` (ver `IAppointmentConflictRepository.java`). No se usa SQL nativo en los repositorios revisados.
+- `@Transactional` va en el método público del service o use case que escribe. Las lecturas llevan `@Transactional(readOnly = true)` (ver `GetProsthesesByPatientUseCase.java`, `CreateAppointmentUseCase.java`).
+- Las relaciones `@ManyToOne` se declaran `FetchType.LAZY` (ver `Appointment.java`).
+
+### Usuario actual
+
+- El usuario autenticado se obtiene con `AuthenticatedUserService.getAuthenticatedUser()`. Si no hay usuario (scheduler, proceso interno) devuelve el usuario `SYSTEM` (ver `AuthenticatedUserService.java`).
+- No se usa `@AuthenticationPrincipal` en controllers.
+
+### Configuración
+
+- Un solo `application.properties`, sin perfiles por ambiente. `app.env=dev` es solo informativo.
+- Las variables salen de `.env` vía `spring.config.import`.
+- Tests de integración: `src/test/resources/application-test.properties` con `@ActiveProfiles("test")`. Usa `ddl-auto=validate`, así que el esquema tiene que existir en la base de test.
+- Paginación y orden por defecto: `pagination.default-*` en `application.properties`.
 
 ## Conceptos clave del dominio
 

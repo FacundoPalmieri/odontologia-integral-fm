@@ -23,7 +23,7 @@ target/
 *.log.*
 *.env
 backend/logs/
-backend/docs/
+backend/.workspace/
 
 ### Node.js/Angular
 node_modules/
