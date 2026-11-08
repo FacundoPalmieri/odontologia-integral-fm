@@ -1,9 +1,9 @@
 package com.odontologiaintegralfm.feature.consultation.consultationinstance.service;
 
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ClinicalContextResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.PrestationInstanceContextResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.StepContextResponseDTO;
-import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.TreatmentInstanceContextResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceContextResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.StepContextResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceContextResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.prestation.model.PrestationStep;
 import com.odontologiaintegralfm.feature.consultation.prestation.repository.IPrestationStepRepository;
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.PrestationInstance;

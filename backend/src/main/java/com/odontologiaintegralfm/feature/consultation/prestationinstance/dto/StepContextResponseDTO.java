@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.consultationinstance.dto;
+package com.odontologiaintegralfm.feature.consultation.prestationinstance.dto;
 
 import com.odontologiaintegralfm.feature.consultation.prestationinstance.enums.PrestationStepStatus;
 

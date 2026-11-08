@@ -1,4 +1,4 @@
-package com.odontologiaintegralfm.feature.consultation.consultationinstance.dto;
+package com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto;
 
 import com.odontologiaintegralfm.feature.consultation.scope.dto.ScopeResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.treatment.enums.TreatmentConditionType;

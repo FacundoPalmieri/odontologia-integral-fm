@@ -1,5 +1,8 @@
 package com.odontologiaintegralfm.feature.consultation.consultationinstance.dto;
 
+import com.odontologiaintegralfm.feature.consultation.prestationinstance.dto.PrestationInstanceContextResponseDTO;
+import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceContextResponseDTO;
+
 import java.util.List;
 
 /**

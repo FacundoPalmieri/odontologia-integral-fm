@@ -105,6 +105,7 @@ Al buscar una entidad por ID: si la ausencia es un resultado válido, llamar al 
 ### DTOs
 
 - Los DTOs viven en `dto/` de cada módulo o subdominio. El final del nombre dice para qué se usa: `RequestDTO` si entra a la API, `ResponseDTO` si sale (ver `ConsultationInstanceCreateRequestDTO.java`, `PatientResponseDTO.java`).
+- El DTO que describe una entidad va en el `dto/` de esa entidad. El que arma varias en un endpoint va en el paquete del caso de uso. Ejemplo: `TreatmentInstanceContextResponseDTO` va en `treatmentinstance/dto/` y `ClinicalContextResponseDTO`, que junta tratamientos y prestaciones, va en `consultationinstance/dto/`.
 - Un DTO nunca se usa en los dos sentidos. Si un mismo objeto entra y sale, se crean dos. Ejemplo: `ScopeRequestDTO` lleva las validaciones `@AssertTrue` y `ScopeResponseDTO` es un record plano. Un DTO de respuesta no contiene uno de entrada, ni al revés.
 - Las claves de `messages.properties` de un DTO empiezan con el nombre de la clase en camelCase, sufijo incluido. Ejemplo: `scopeRequestDTO.singleLocationGroup`.
 - Un DTO nuevo es un `record`. Solo si hace falta un setter se usa una clase Lombok con `@Getter @Setter`. El código existente tiene las dos formas (76 `record`, 21 clases como `PatientResponseDTO.java`) y no se migra.
