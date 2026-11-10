@@ -89,3 +89,17 @@ Estilo para `mat-tab-group`: encabezado y contenido comparten un único contened
   <mat-tab label="Tab 1"><div class="pt-4"><mat-card>...</mat-card></div></mat-tab>
 </mat-tab-group>
 ```
+
+### `.mesh-gradient` y `.glass-surface` (en `_components.scss`)
+
+Fondo en malla estático hecho con tokens del tema (en light base malva con texto blanco; en dark base oscura, manchas más suaves y texto claro, resuelto con `light-dark()`) y superficie de vidrio para ubicar encima.
+
+```html
+<section class="mesh-gradient">
+  <div class="glass-surface rounded-3xl p-6">...</div>
+</section>
+```
+
+### `.soft-backdrop` (en `_components.scss`)
+
+Fondo suave teñido con tokens del tema. `.surface-card` es la tarjeta que se despega de él: clara en light, más clara que el fondo en dark, con sombra neutra (por ejemplo el formulario del login).

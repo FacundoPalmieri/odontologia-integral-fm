@@ -133,3 +133,40 @@
     box-shadow: none;
   }
 }
+
+// Static, colorful mesh gradient built from theme tokens. Light: mauve base with white text.
+// Dark: dark base with softer color blobs and light text (light-dark keeps the light look unchanged).
+.mesh-gradient {
+  color: light-dark(var(--mat-sys-on-primary), var(--mat-sys-on-surface));
+  background-color: light-dark(var(--mat-sys-primary), var(--mat-sys-surface-container));
+  background-image:
+    radial-gradient(60% 50% at 8% 8%, light-dark(var(--mat-sys-secondary), color-mix(in srgb, var(--mat-sys-secondary) 70%, transparent)) 0, transparent 100%),
+    radial-gradient(55% 45% at 96% 8%, light-dark(color-mix(in srgb, var(--mat-sys-tertiary) 85%, transparent), color-mix(in srgb, var(--mat-sys-tertiary) 22%, transparent)) 0, transparent 100%),
+    radial-gradient(60% 50% at 4% 96%, light-dark(color-mix(in srgb, var(--mat-sys-tertiary) 70%, transparent), color-mix(in srgb, var(--mat-sys-tertiary) 18%, transparent)) 0, transparent 100%),
+    radial-gradient(65% 55% at 96% 96%, light-dark(color-mix(in srgb, var(--mat-sys-secondary) 90%, transparent), color-mix(in srgb, var(--mat-sys-secondary) 65%, transparent)) 0, transparent 100%),
+    radial-gradient(45% 40% at 50% 55%, light-dark(color-mix(in srgb, var(--mat-sys-primary-container) 35%, transparent), color-mix(in srgb, var(--mat-sys-primary) 14%, transparent)) 0, transparent 100%);
+}
+
+// Frosted glass surface to place over .mesh-gradient.
+.glass-surface {
+  --glass-tint: light-dark(var(--mat-sys-on-primary), var(--mat-sys-on-surface));
+  background: color-mix(in srgb, var(--glass-tint) 14%, transparent);
+  backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--glass-tint) 28%, transparent);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 12%);
+}
+
+// Quiet tinted backdrop (token based) so cards stand out from it.
+.soft-backdrop {
+  background-color: var(--mat-sys-surface-container);
+  background-image:
+    radial-gradient(55% 45% at 0% 0%, light-dark(color-mix(in srgb, var(--mat-sys-secondary) 30%, transparent), color-mix(in srgb, var(--mat-sys-secondary) 18%, transparent)) 0, transparent 100%),
+    radial-gradient(50% 45% at 100% 100%, light-dark(color-mix(in srgb, var(--mat-sys-tertiary) 14%, transparent), color-mix(in srgb, var(--mat-sys-tertiary) 8%, transparent)) 0, transparent 100%);
+}
+
+// Card that stands out on .soft-backdrop: lighter than the backdrop in dark mode, neutral shadow.
+.surface-card {
+  background: light-dark(var(--mat-sys-surface-container-lowest), var(--mat-sys-surface-container-high));
+  border: 1px solid light-dark(transparent, color-mix(in srgb, var(--mat-sys-outline-variant) 60%, transparent));
+  box-shadow: 0 24px 48px -16px rgb(0 0 0 / 18%);
+}

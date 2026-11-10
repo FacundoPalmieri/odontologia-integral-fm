@@ -1,97 +1,51 @@
-<main class="flex h-full w-full h-screen">
-  <!-- BEGIN: LeftHeroPanel -->
+<main class="flex h-screen w-full">
+  <!-- Hero -->
   <section
-    class="hidden lg:flex w-1/2 flex-col items-center justify-center p-12 text-white relative transition-all duration-300 bg-[linear-gradient(135deg,var(--mat-sys-primary)_0%,var(--mat-sys-secondary)_100%)]"
+    class="hidden lg:flex w-1/2 flex-col items-center justify-center p-12 relative overflow-hidden mesh-gradient"
   >
-    <!-- Decorative background elements -->
-    <div
-      class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none"
+    <!-- Decorative glass shapes -->
+    <div class="glass-surface absolute -top-20 -right-16 w-80 h-80 rounded-full opacity-50"></div>
+    <div class="glass-surface absolute bottom-28 -left-24 w-64 h-64 rounded-[4rem] rotate-12 opacity-40"></div>
+    <div class="glass-surface absolute top-1/3 right-12 w-20 h-20 rounded-3xl -rotate-12 opacity-60"></div>
+
+    <div class="z-10 flex flex-col items-center text-center gap-6">
+      <div class="glass-surface w-28 h-28 rounded-[2rem] flex items-center justify-center">
+        <i-tabler name="dental" class="!w-14 !h-14"></i-tabler>
+      </div>
+      <h1 class="text-6xl font-extrabold tracking-tight">DentalWise</h1>
+      <p class="text-xl font-medium opacity-90">Gestión dental inteligente</p>
+      <p class="max-w-md text-lg opacity-75 leading-relaxed">
+        Turnos, pacientes y consultas de tu clínica en un solo lugar.
+      </p>
+    </div>
+
+    <a
+      href="https://astrowise.com.ar"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="absolute bottom-8 flex items-center gap-2 text-sm opacity-70 hover:opacity-100 transition-opacity"
     >
-      <svg
-        class="w-full h-full"
-        preserveAspectRatio="none"
-        viewBox="0 0 100 100"
-      >
-        <circle cx="10" cy="10" r="30" fill="white"></circle>
-        <circle cx="90" cy="80" r="40" fill="white"></circle>
-      </svg>
-    </div>
-
-    <div class="z-10 text-center space-y-8">
-      <!-- Main Logo Area -->
-      <div class="flex flex-col items-center">
-        <div
-          class="w-48 h-48 mb-6 flex items-center justify-center rounded-3xl shadow-2xl overflow-hidden relative transition-colors duration-300 bg-[var(--mat-sys-surface)]"
-          style="padding: 10px"
-        >
-          <div
-            class="w-full h-full flex items-center justify-center"
-            #lottieContainer
-          ></div>
-        </div>
-        <h1 class="text-6xl font-extrabold tracking-tight">DentalWise</h1>
-        <p class="mt-4 text-xl font-medium text-white/90">
-          Gestión dental inteligente
-        </p>
-      </div>
-
-      <!-- Tagline/Info -->
-      <div class="max-w-md mx-auto">
-        <p class="text-lg text-white/80 leading-relaxed">
-          Optimiza tu clínica, mejora la experiencia de tus pacientes y
-          centraliza toda tu información en un solo lugar.
-        </p>
-      </div>
-    </div>
-
-    <!-- Developer Credit -->
-    <div class="absolute bottom-12 flex flex-col items-center">
-      <span class="text-xs uppercase tracking-widest opacity-60 mb-3"
-        >Desarrollado por</span
-      >
-      <a
-        href="https://astrowise.com.ar"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="bg-white/20 backdrop-blur-md border border-white/30 px-6 py-2 rounded-full flex items-center space-x-2 hover:bg-white/30 transition-all cursor-pointer"
-      >
-        <img
-          src="img/logo_symbol_transparent.svg"
-          alt="Astrowise Logo"
-          class="w-6 h-6"
-        />
-        <span class="font-bold tracking-wide">Astrowise</span>
-      </a>
-    </div>
+      <span>Desarrollado por</span>
+      <img src="img/logo_symbol_transparent.svg" alt="Astrowise" class="w-5 h-5" />
+      <span class="font-semibold">Astrowise</span>
+    </a>
   </section>
-  <!-- END: LeftHeroPanel -->
 
-  <!-- BEGIN: RightLoginForm -->
+  <!-- Form -->
   <section
-    class="w-full lg:w-1/2 flex items-center justify-center p-6 relative overflow-y-auto w-screen lg:w-full h-screen transition-colors duration-300"
+    class="w-full lg:w-1/2 flex items-center justify-center p-6 overflow-y-auto soft-backdrop"
   >
-    <div class="max-w-md w-full my-auto py-8">
-      <!-- Mobile Logo -->
-      <div class="lg:hidden flex flex-col items-center mb-8">
+    <div
+      class="max-w-md w-full my-auto p-8 rounded-3xl surface-card"
+    >
+      <!-- Mobile brand -->
+      <div class="lg:hidden flex flex-col items-center gap-2 mb-8">
         <div
-          class="w-32 h-32 mb-4 flex items-center justify-center rounded-3xl shadow-lg border overflow-hidden relative transition-colors duration-300 bg-[var(--mat-sys-surface)]"
-          style="padding: 10px"
+          class="w-16 h-16 rounded-2xl flex items-center justify-center bg-[var(--mat-sys-primary-container)] text-[var(--mat-sys-on-primary-container)]"
         >
-          <!-- Fallback logo representation if Lottie only loads on desktop -->
-          <svg
-            class="w-20 h-20 text-brand-primary absolute opacity-10"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M12 2C7.03 2 3 6.03 3 11s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm1-11h-2v3H8v2h3v3h2v-3h3v-2h-3V7z"
-            ></path>
-          </svg>
+          <i-tabler name="dental" class="!w-8 !h-8"></i-tabler>
         </div>
-        <div class="text-brand-primary text-4xl font-bold mb-2">DentalWise</div>
-        <div class="text-sm font-medium transition-colors duration-300">
-          Gestión dental inteligente
-        </div>
+        <span class="text-2xl font-bold">DentalWise</span>
       </div>
 
       @if (!isForgotPassword()) {
@@ -99,8 +53,8 @@
         <header
           class="mb-10 text-center lg:text-left transition-colors duration-300"
         >
-          <h2 class="text-3xl font-bold mb-2">Bienvenido/a</h2>
-          <p>Ingresa tus credenciales para continuar al panel</p>
+          <h2 class="text-3xl font-bold mb-2">Iniciar sesión</h2>
+          <p class="text-[var(--mat-sys-on-surface-variant)]">Ingresá tus credenciales para continuar</p>
         </header>
 
         <!-- Login Form -->
@@ -120,7 +74,7 @@
               <i-tabler
                 matPrefix
                 name="mail"
-                class="text-slate-400 ml-2 mr-2 flex items-center justify-center w-6 h-6"
+                class="text-[var(--mat-sys-on-surface-variant)] ml-2 mr-2 flex items-center justify-center w-6 h-6"
               ></i-tabler>
               @if (
                 loginForm.get("username")?.hasError("email") &&
@@ -146,14 +100,14 @@
               <i-tabler
                 matPrefix
                 name="lock"
-                class="text-slate-400 ml-2 mr-2 flex items-center justify-center w-6 h-6"
+                class="text-[var(--mat-sys-on-surface-variant)] ml-2 mr-2 flex items-center justify-center w-6 h-6"
               ></i-tabler>
               <button
                 matIconButton
                 matSuffix
                 type="button"
                 (click)="clickEvent($event)"
-                class="text-slate-400 mr-1 flex items-center justify-center"
+                class="text-[var(--mat-sys-on-surface-variant)] mr-1 flex items-center justify-center"
                 title="Mostrar/ocultar contraseña"
               >
                 <i-tabler
@@ -167,7 +121,7 @@
               <a
                 href="#"
                 (click)="toggleForgotPassword(); $event.preventDefault()"
-                class="text-xs font-medium text-brand-primary hover:text-brand-dark transition-colors"
+                class="text-xs font-medium text-[var(--mat-sys-primary)] hover:underline underline-offset-4"
               >
                 ¿Olvidaste tu contraseña?
               </a>
@@ -179,19 +133,19 @@
             matButton="filled"
             type="submit"
             [disabled]="loginForm.invalid"
-            class="w-full !h-12 !rounded-xl !text-lg hover:opacity-90 !text-white font-bold shadow-lg shadow-brand-primary/20 transform active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+            class="w-full !h-12 !rounded-xl !text-base !font-semibold active:scale-[0.98] transition-transform mt-4"
           >
-            Iniciar Sesión
+            Iniciar sesión
           </button>
         </form>
 
         <!-- Footer -->
-        <footer class="mt-12 text-center transition-colors duration-300">
+        <footer class="mt-8 text-center text-[var(--mat-sys-on-surface-variant)]">
           <p class="text-sm">
             ¿No tienes una cuenta? <br class="lg:hidden" />
             <a
               href="mailto:admin@astrowise.com.ar"
-              class="text-brand-primary font-semibold hover:underline decoration-2 underline-offset-4"
+              class="text-[var(--mat-sys-primary)] font-semibold hover:underline decoration-2 underline-offset-4"
               >Contacta a un administrador</a
             >
           </p>
@@ -227,7 +181,7 @@
               <i-tabler
                 matPrefix
                 name="mail"
-                class="text-slate-400 ml-2 mr-2 flex items-center justify-center w-6 h-6"
+                class="text-[var(--mat-sys-on-surface-variant)] ml-2 mr-2 flex items-center justify-center w-6 h-6"
               ></i-tabler>
               @if (
                 forgotPasswordForm.get("email")?.hasError("email") &&
@@ -242,7 +196,7 @@
             matButton="filled"
             type="submit"
             [disabled]="forgotPasswordForm.invalid"
-            class="w-full !h-12 !rounded-xl !text-lg bg-[linear-gradient(90deg,#00C9FF_0%,#92FE9D_100%)] hover:opacity-90 !text-white font-bold shadow-lg shadow-brand-primary/20 transform active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+            class="w-full !h-12 !rounded-xl !text-base !font-semibold active:scale-[0.98] transition-transform mt-4"
           >
             Enviar enlace de recuperación
           </button>
@@ -252,7 +206,7 @@
           <a
             href="#"
             (click)="toggleForgotPassword(); $event.preventDefault()"
-            class="inline-flex items-center justify-center space-x-2 hover:text-brand-primary transition-colors text-sm font-medium"
+            class="inline-flex items-center justify-center space-x-2 hover:text-[var(--mat-sys-primary)] transition-colors text-sm font-medium"
           >
             <i-tabler name="arrow-left" class="w-4 h-4"></i-tabler>
             <span>Volver al inicio de sesión</span>
@@ -275,7 +229,7 @@
           <a
             href="#"
             (click)="toggleForgotPassword(); $event.preventDefault()"
-            class="inline-flex items-center justify-center space-x-2 hover:text-brand-primary transition-colors text-sm font-medium"
+            class="inline-flex items-center justify-center space-x-2 hover:text-[var(--mat-sys-primary)] transition-colors text-sm font-medium"
           >
             <i-tabler name="arrow-left" class="w-4 h-4"></i-tabler>
             <span>Volver al inicio de sesión</span>
@@ -284,5 +238,4 @@
       }
     </div>
   </section>
-  <!-- END: RightLoginForm -->
 </main>

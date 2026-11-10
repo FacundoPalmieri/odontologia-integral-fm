@@ -4,9 +4,6 @@ import {
   inject,
   OnDestroy,
   signal,
-  AfterViewInit,
-  ElementRef,
-  viewChild,
 } from "@angular/core";
 import {
   FormControl,
@@ -31,7 +28,6 @@ import { ApiResponseInterface } from "../../../../../shared/interfaces/api-respo
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { ThemeService } from "../../../../../core/services/theme.service";
-import lottie, { AnimationItem } from "lottie-web";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { AuthService } from "../../../services/auth.service";
 import { LocalStorageService } from "../../../../../shared/services/local-storage.service";
@@ -52,7 +48,7 @@ import { LocalStorageService } from "../../../../../shared/services/local-storag
     IconsModule
 ],
 })
-export class LoginComponent implements AfterViewInit, OnDestroy {
+export class LoginComponent implements OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly authService = inject(AuthService);
   private readonly localStorageService = inject(LocalStorageService);
@@ -109,26 +105,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  lottieContainer = viewChild<ElementRef>("lottieContainer");
-  private lottieAnimation: AnimationItem | null = null;
-
-  ngAfterViewInit(): void {
-    const container = this.lottieContainer()?.nativeElement;
-    if (container) {
-      this.lottieAnimation = lottie.loadAnimation({
-        container: container,
-        renderer: "svg",
-        loop: true,
-        autoplay: true,
-        path: "img/preventive-health-care.json",
-      });
-    }
-  }
-
   ngOnDestroy(): void {
-    if (this.lottieAnimation) {
-      this.lottieAnimation.destroy();
-    }
     this._destroy$.next();
     this._destroy$.complete();
   }
