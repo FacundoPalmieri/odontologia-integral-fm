@@ -3,7 +3,6 @@ import {
   inject,
   Input,
   OnChanges,
-  OnInit,
   signal,
   SimpleChanges,
 } from "@angular/core";
@@ -20,7 +19,7 @@ import {
   ShowTreatmentInterface,
   TreatmentInterfaceOld,
 } from "../../../data/interfaces/treatment.interface";
-import { TreatmentConditionDto } from "../../../data/dtos/treatment.dto";
+import { TREATMENT_CONDITIONS, conditionColor } from "../../../utils/treatment-condition";
 import { OdontogramInterface } from "../../../data/interfaces/odontogram.interface";
 import { IconsModule } from "../../../../../core/modules/tabler-icons.module";
 import { ToothComponent } from "../../components/tooth/tooth.component";
@@ -31,7 +30,6 @@ import {
 } from "../../../../../shared/utils/mocks/odontogram.mock";
 import {
   TreatmentEnum,
-  TreatmentConditionEnum,
 } from "../../../utils/enums/treatment.enum";
 import { TreatmentService } from "../../../services/treatment.service";
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
@@ -66,7 +64,7 @@ interface OdontogramDateInterface {
     MatInputModule,
   ],
 })
-export class OdontogramComponent implements OnChanges, OnInit {
+export class OdontogramComponent implements OnChanges {
   mockOdontogram1 = mockOdontogram1;
   mockOdontogram2 = mockOdontogram2;
   mockOdontogram3 = mockOdontogram3;
@@ -132,7 +130,6 @@ export class OdontogramComponent implements OnChanges, OnInit {
   @Input() showTemporaries?: boolean = false;
   @Input() showToolbox: boolean = false;
   @Input() showDateSelector: boolean = false;
-  treatmentTypeEnum = TreatmentConditionEnum;
   treatmentEnum = TreatmentEnum;
 
   treatmentReferencesSidenavService = inject(TreatmentService);
@@ -142,25 +139,10 @@ export class OdontogramComponent implements OnChanges, OnInit {
   selectedOdontogram: OdontogramInterface = this.selectedDate.odontogram;
   referencesOpen: boolean = false;
   treatments: ShowTreatmentInterface[] = TreatmentFactory.createTreatments();
-  treatmentConditions = signal<TreatmentConditionDto[]>([]);
+  conditions = Object.entries(TREATMENT_CONDITIONS).map(([key, v]) => ({ key, ...v }));
+  conditionColor = conditionColor;
 
   constructor() {}
-
-  ngOnInit() {
-    this.treatmentReferencesSidenavService.getAllConditions().subscribe({
-      next: (response) => {
-        if (response.data) {
-          const list = Array.isArray(response.data)
-            ? response.data
-            : (response.data as any).content || [];
-          this.treatmentConditions.set(list);
-        }
-      },
-      error: (err) => {
-        console.error("Error loading treatment conditions:", err);
-      },
-    });
-  }
 
   toggleReferences() {
     this.referencesOpen = !this.referencesOpen;

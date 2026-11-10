@@ -28,7 +28,8 @@ import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-typ
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { ToothFaceInterface } from "../../../data/interfaces/tooth.interface";
 import { TreatmentService } from "../../../services/treatment.service";
-import { TreatmentConditionDto, TreatmentDto } from "../../../data/dtos/treatment.dto";
+import { conditionColor, conditionLabel } from "../../../utils/treatment-condition";
+import { TreatmentDto } from "../../../data/dtos/treatment.dto";
 
 interface AddTreatmentDialogData {
   toothNumber: number;
@@ -63,16 +64,12 @@ export class AddTreatmentDialogComponent implements OnInit {
 
   treatmentsCatalog = signal<TreatmentDto[]>([]);
   selectedTreatment = signal<TreatmentDto | null>(null);
-  availableConditions = signal<TreatmentConditionDto[]>([]);
-  selectedConditionId = signal<number | null>(null);
-  selectedCondition = computed(() => {
-    const id = this.selectedConditionId();
-    if (!id) return null;
-    return this.availableConditions().find((c) => c.id === id) ?? null;
-  });
+  availableConditions = signal<TreatmentConditionEnum[]>([]);
+  selectedConditionId = signal<TreatmentConditionEnum | null>(null);
+  conditionLabel = conditionLabel;
+  conditionColor = conditionColor;
 
   TreatmentEnum = TreatmentEnum;
-  TreatmentTypeEnum = TreatmentConditionEnum;
 
   treatmentsList = signal<TreatmentInterfaceOld[]>([]);
   displayedColumns: string[] = [
@@ -109,6 +106,7 @@ export class AddTreatmentDialogComponent implements OnInit {
       ?.valueChanges.subscribe((treatmentName) => {
         const found = this.treatmentsCatalog().find((t) => t.name === treatmentName) ?? null;
         this.selectedTreatment.set(found);
+        // TODO(review): create only accepts REQUIRED/PREEXISTING; see PENDING.md
         this.availableConditions.set(found?.conditions ?? []);
 
         const typeCtrl = this.treatmentForm.get("treatmentType");
@@ -242,13 +240,10 @@ export class AddTreatmentDialogComponent implements OnInit {
       return;
     }
 
-    const condition = this.availableConditions().find((c) => c.id === formValue.treatmentType);
     const treatment: TreatmentInterfaceOld = {
       name: formValue.treatment,
       label: this.selectedTreatment()?.label ?? "Tratamiento",
       treatmentType: formValue.treatmentType,
-      treatmentConditionName: condition?.name,
-      treatmentConditionColor: condition?.color,
     };
 
     if (formValue.treatment === TreatmentEnum.PUENTE) {
@@ -299,20 +294,10 @@ export class AddTreatmentDialogComponent implements OnInit {
     });
   }
 
-  getConditionColor(element: TreatmentInterfaceOld): string {
-    if (element.treatmentConditionColor) return element.treatmentConditionColor;
-    return element.treatmentType === TreatmentConditionEnum.REQUIRED ? "#3b82f6" : "#ef4444";
-  }
-
-  getConditionName(element: TreatmentInterfaceOld): string {
-    if (element.treatmentConditionName) return element.treatmentConditionName;
-    return element.treatmentType === TreatmentConditionEnum.REQUIRED ? "Requerida" : "Existente";
-  }
-
   private _loadForm() {
     this.treatmentForm = new FormGroup({
       treatment: new FormControl<string | null>(null),
-      treatmentType: new FormControl<number | null>({ value: null, disabled: true }),
+      treatmentType: new FormControl<TreatmentConditionEnum | null>({ value: null, disabled: true }),
     });
   }
 

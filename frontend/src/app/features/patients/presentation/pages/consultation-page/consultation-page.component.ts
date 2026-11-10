@@ -7,6 +7,7 @@ import {
   OnInit,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { forkJoin } from "rxjs";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -34,14 +35,16 @@ import { ConsultationObservationsPanelComponent } from "../../components/consult
 import { PrestationDto } from "../../../data/interfaces/prestation.interface";
 import {
   PrestationScopeEnum,
-  ToothEnum,
-  ToothFaceEnum as ApiFace,
-  PrestationInstanceStatusEnum,
 } from "../../../utils/enums/consultation-instance.enum";
+import { odontogramToTreatmentInstances } from "../../../../odontogram/utils/odontogram-to-treatment-instances";
+import { ClinicalContextPanelComponent } from "../../components/clinical-context-panel/clinical-context-panel.component";
+import { ClinicalContextResponse } from "../../../data/interfaces/clinical-context.interface";
+import { applyTreatmentInstances } from "../../../../odontogram/utils/clinical-context-to-odontogram";
+import { TreatmentEnum } from "../../../../odontogram/utils/enums/treatment.enum";
+import { TreatmentsTableComponent } from "../../components/treatments-table/treatments-table.component";
 import { OdontogramDialogComponent } from "../../components/odontogram-dialog/odontogram-dialog.component";
-import { ToothFaceMapper } from "../../../../odontogram/utils/tooth-face.mapper";
 import { TreatmentService } from "../../../../odontogram/services/treatment.service";
-import { ConsultationInstanceRequest, OdontogramRequest } from "../../../data/interfaces/consultation-instance.interface";
+import { ConsultationInstanceRequest } from "../../../data/interfaces/consultation-instance.interface";
 import { ConsultationInstanceService } from "../../../services/consultation-instance.service";
 import { SnackbarService } from "../../../../../shared/services/snackbar.service";
 import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-type.enum";
@@ -61,6 +64,8 @@ import { SnackbarTypeEnum } from "../../../../../shared/utils/enums/snackbar-typ
     PrestationTableComponent,
     ConsultationSummaryPanelComponent,
     ConsultationObservationsPanelComponent,
+    ClinicalContextPanelComponent,
+    TreatmentsTableComponent,
     IconsModule,
     CardIconTitleComponent,
   ],
@@ -76,6 +81,7 @@ export class ConsultationPageComponent implements OnInit {
   private readonly consultationInstanceService = inject(ConsultationInstanceService);
   private readonly snackbarService = inject(SnackbarService);
 
+  readonly consultationId = Number(this.route.snapshot.params["consultationId"]);
   readonly treatmentNameToIdMap = new Map<string, number>();
 
   // Patient data (populated from API)
@@ -111,7 +117,7 @@ export class ConsultationPageComponent implements OnInit {
   readonly selectedConsultation = signal<MockConsultation | null>(null);
 
   // Odontogram
-  readonly odontogram: OdontogramInterface = {
+  readonly odontogram = signal<OdontogramInterface>({
     upperTeethLeft: [
       { number: 18 }, { number: 17 }, { number: 16 }, { number: 15 },
       { number: 14 }, { number: 13 }, { number: 12 }, { number: 11 },
@@ -140,7 +146,9 @@ export class ConsultationPageComponent implements OnInit {
     temporaryLowerRight: [
       { number: 71 }, { number: 72 }, { number: 73 }, { number: 74 }, { number: 75 },
     ],
-  };
+  });
+
+  readonly clinicalContext = signal<ClinicalContextResponse | null>(null);
 
   // Treatments
   readonly treatments = signal<TreatmentRow[]>([]);
@@ -149,21 +157,17 @@ export class ConsultationPageComponent implements OnInit {
     const id = Number(this.route.snapshot.params["id"]);
     if (!id) return;
 
-    this.treatmentService.getAll().subscribe({
-      next: (response) => {
-        if (response.data) {
-          const list = Array.isArray(response.data)
-            ? response.data
-            : (response.data as any).content || [];
-          list.forEach((t: any) => {
-            this.treatmentNameToIdMap.set(t.name, t.id);
-          });
+    forkJoin([this.treatmentService.getAll(), this.consultationInstanceService.getClinicalContext(id)]).subscribe(
+      ([catalog, context]) => {
+        const nameByLabel = new Map<string, TreatmentEnum>();
+        for (const t of catalog.data?.content ?? []) {
+          this.treatmentNameToIdMap.set(t.name, t.id);
+          nameByLabel.set(t.label, t.name as TreatmentEnum);
         }
+        this.clinicalContext.set(context.data);
+        this.odontogram.update((o) => applyTreatmentInstances(o, context.data.treatmentInstances, nameByLabel));
       },
-      error: (err) => {
-        console.error("Error loading treatments in ConsultationPage:", err);
-      },
-    });
+    );
 
     this.patientService.getById(id).subscribe((response) => {
       this.patient.set(response.data);
@@ -225,73 +229,17 @@ export class ConsultationPageComponent implements OnInit {
       width: "95vw",
       maxWidth: "1400px",
       data: {
-        odontogram: this.odontogram,
+        odontogram: this.odontogram(),
       },
     });
   }
 
   finishConsultation() {
-    const odontogramRequests: OdontogramRequest[] = [];
-    const allSections = [
-      this.odontogram.upperTeethLeft,
-      this.odontogram.upperTeethRight,
-      this.odontogram.lowerTeethLeft,
-      this.odontogram.lowerTeethRight,
-      this.odontogram.temporaryUpperLeft,
-      this.odontogram.temporaryUpperRight,
-      this.odontogram.temporaryLowerLeft,
-      this.odontogram.temporaryLowerRight,
-    ];
-
-    for (const section of allSections) {
-      if (!section) continue;
-      for (const tooth of section) {
-        if (tooth.treatments && tooth.treatments.length > 0) {
-          for (const tx of tooth.treatments) {
-            const treatmentId = this.treatmentNameToIdMap.get(tx.name) ?? 0;
-            const conditionId = Number(tx.treatmentType);
-
-            if (tx.faces && tx.faces.length > 0) {
-              for (const face of tx.faces) {
-                const apiFace = ToothFaceMapper.toApiFace(tooth.number, face as any);
-                odontogramRequests.push({
-                  tooth: `T${tooth.number}` as ToothEnum,
-                  toothFace: apiFace,
-                  treatmentId: treatmentId,
-                  treatmentConditionId: conditionId,
-                });
-              }
-            } else {
-              odontogramRequests.push({
-                tooth: `T${tooth.number}` as ToothEnum,
-                toothFace: ApiFace.CENTER,
-                treatmentId: treatmentId,
-                treatmentConditionId: conditionId,
-              });
-            }
-          }
-        }
-      }
-    }
-
     const payload: ConsultationInstanceRequest = {
-      consultationId: this.selectedConsultation()?.id ?? 0,
-      observation: this.observationsControl.value ?? "",
-      odontogram: odontogramRequests,
-      prestationNew: this.treatments().map((t) => ({
-        prestationTypeId: t.id,
-        prestationStepId: 0,
-        prestationStepStatus: PrestationInstanceStatusEnum.IN_PROGRESS,
-        odontogram: [],
-        scope: t.selectedScope ?? PrestationScopeEnum.FULL_MOUTH,
-        tooth: undefined as any,
-        quadrant: undefined as any,
-        maxillary: undefined as any,
-        promotionId: undefined as any,
-        discountType: undefined as any,
-        discountValue: 0,
-      })),
-      stepAdvancements: [],
+      consultationId: this.consultationId,
+      observation: this.observationsControl.value || undefined,
+      // TODO: add prestation[] once the prestation components exist.
+      treatmentInstance: odontogramToTreatmentInstances(this.odontogram(), this.treatmentNameToIdMap),
     };
 
     this.consultationInstanceService.createConsultationInstance(payload).subscribe({
@@ -309,16 +257,6 @@ export class ConsultationPageComponent implements OnInit {
         } else {
           this.router.navigate(["/patients"]);
         }
-      },
-      error: (err) => {
-        console.error("Error creating consultation instance:", err);
-        this.snackbarService.openSnackbar(
-          "Ocurrió un error al finalizar la consulta.",
-          5000,
-          "center",
-          "bottom",
-          SnackbarTypeEnum.Error
-        );
       },
     });
   }

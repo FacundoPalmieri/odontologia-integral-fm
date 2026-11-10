@@ -81,7 +81,11 @@ export enum QuadrantEnum {
     UPPER_RIGHT = 'UPPER_RIGHT',
     UPPER_LEFT = 'UPPER_LEFT',
     LOWER_LEFT = 'LOWER_LEFT',
-    LOWER_RIGHT = 'LOWER_RIGHT'
+    LOWER_RIGHT = 'LOWER_RIGHT',
+    UPPER_RIGHT_TEMPORARY = 'UPPER_RIGHT_TEMPORARY',
+    UPPER_LEFT_TEMPORARY = 'UPPER_LEFT_TEMPORARY',
+    LOWER_LEFT_TEMPORARY = 'LOWER_LEFT_TEMPORARY',
+    LOWER_RIGHT_TEMPORARY = 'LOWER_RIGHT_TEMPORARY'
 }
 
 
@@ -96,6 +100,15 @@ export enum PrestationScopeEnum {
 export enum PrestationInstanceStatusEnum {
     IN_PROGRESS = 'IN_PROGRESS',
     COMPLETED = 'COMPLETED',
+    CANCELED = 'CANCELED'
+}
+
+/** Status sent per step in the create request. */
+export enum StepStatusEnum {
+    IN_PROGRESS = 'IN_PROGRESS',
+    FINISHED = 'FINISHED',
+    OMITTED = 'OMITTED',
+    REPLACED = 'REPLACED',
     CANCELED = 'CANCELED'
 }
 

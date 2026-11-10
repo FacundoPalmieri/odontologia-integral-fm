@@ -97,3 +97,39 @@
     }
   }
 }
+
+// Integrated tabs: header and content share one outlined container,
+// and cards inside a tab lose their own chrome so they read as part of it.
+.integrated-tabs {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-medium);
+  background: var(--mat-sys-surface-container-lowest);
+  overflow: hidden;
+
+  --mat-tab-divider-height: 0;
+  --mat-tab-active-indicator-height: 3px;
+  --mat-tab-active-indicator-shape: 3px 3px 0 0;
+  --mat-tab-inactive-label-text-color: var(--mat-sys-on-surface-variant);
+  --mat-tab-active-label-text-color: var(--mat-sys-primary);
+  --mat-tab-active-focus-label-text-color: var(--mat-sys-primary);
+  --mat-tab-active-hover-label-text-color: var(--mat-sys-primary);
+  --mat-tab-label-text-weight: 600;
+  --mat-card-outlined-container-color: transparent;
+  --mat-card-outlined-outline-width: 0;
+
+  // The active tab body scrolls on its own; the header stays fixed.
+  .mat-mdc-tab-body-wrapper {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .mat-mdc-tab-header {
+    background: var(--mat-sys-surface-container);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    padding: 0 8px;
+  }
+
+  .mat-mdc-card {
+    box-shadow: none;
+  }
+}

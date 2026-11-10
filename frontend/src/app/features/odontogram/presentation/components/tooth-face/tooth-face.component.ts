@@ -5,6 +5,7 @@ import { ToothFaceLocationEnum } from "../../../utils/enums/tooth-face.enum";
 import { TreatmentInterfaceOld } from "../../../data/interfaces/treatment.interface";
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
 import { TreatmentConditionEnum, TreatmentEnum } from "../../../utils/enums/treatment.enum";
+import { conditionColor } from "../../../utils/treatment-condition";
 
 @Component({
   selector: "app-tooth-face",
@@ -16,6 +17,7 @@ export class ToothFaceComponent {
   @Input() faceType?: ToothFaceLocationEnum;
   @Input() treatment?: TreatmentInterfaceOld;
   TreatmentEnum = TreatmentEnum;
+  TreatmentConditionEnum = TreatmentConditionEnum;
   private treatmentsList = TreatmentFactory.createTreatments();
 
   righties = [ToothFaceLocationEnum.RIGHT, ToothFaceLocationEnum.TOP];
@@ -37,9 +39,5 @@ export class ToothFaceComponent {
     return "";
   }
 
-  getColor(treatmentType: TreatmentConditionEnum): string {
-    return treatmentType === TreatmentConditionEnum.REQUIRED
-      ? "text-blue-500"
-      : "text-red-500";
-  }
+  conditionColor = conditionColor;
 }

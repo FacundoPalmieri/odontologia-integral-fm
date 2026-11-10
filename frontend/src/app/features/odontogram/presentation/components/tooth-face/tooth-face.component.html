@@ -1,9 +1,10 @@
 @if (treatment?.name === TreatmentEnum.DUAL_TREATMENT) {
   <div class="relative flex items-center justify-center">
-    <i-tabler name="circle-filled" class="text-blue-500 scale-100"></i-tabler>
+    <i-tabler name="circle-filled" class="scale-100" [style.color]="conditionColor(TreatmentConditionEnum.REQUIRED)"></i-tabler>
     <i-tabler
       name="circle-filled"
-      class="text-red-500 scale-65 absolute"
+      class="scale-65 absolute"
+      [style.color]="conditionColor(TreatmentConditionEnum.FINISHED)"
     ></i-tabler>
   </div>
 } @else if (
@@ -12,8 +13,8 @@
   @for (icon of getTreatmentIcons(treatment!); track $index) {
     <i-tabler
       [name]="icon"
-      [style.color]="treatment?.treatmentConditionColor"
-      [ngClass]="treatment?.treatmentConditionColor ? 'scale-90' : (getColor(treatment?.treatmentType!) + ' scale-90')"
+      class="scale-90"
+      [style.color]="conditionColor(treatment!.treatmentType)"
     ></i-tabler>
   }
 } @else if (righties.includes(faceType!)) {

@@ -23,7 +23,7 @@ export const PATIENT_ROUTES: Routes = [
       ),
   },
   {
-    path: ":id/consultation",
+    path: ":id/consultation/:consultationId",
     loadComponent: () =>
       import("./presentation/pages/consultation-page/consultation-page.component").then(
         (m) => m.ConsultationPageComponent,

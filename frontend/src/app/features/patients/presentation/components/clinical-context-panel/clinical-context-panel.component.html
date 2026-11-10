@@ -1,0 +1,34 @@
+<mat-card appearance="outlined" class="w-full">
+  <mat-card-header>
+    <app-card-icon-title
+      [title]="'Prestaciones en curso'"
+      [subtitle]="'Prestaciones abiertas del paciente y sus steps'"
+      [icon]="'report-search'"
+      [backgroundColor]="'purple'"
+    />
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="flex flex-col gap-4 p-4">
+      @if (isEmpty()) {
+        <app-empty-state [message]="'El paciente no tiene prestaciones en curso.'" />
+      } @else {
+        @for (p of context()!.prestationInstances; track p.id) {
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-col">
+              <span class="font-medium">{{ p.label }}</span>
+              <span class="text-sm text-[var(--mat-sys-on-surface-variant)]">
+                {{ scopeLabel(p.scope) || (p.originScopes.length ? 'Sobre prótesis existente' : '') }}
+              </span>
+            </div>
+            <mat-chip-set>
+              @for (s of p.steps; track $index) {
+                <mat-chip>{{ s.label }} · {{ stepStatus(s.status) }}</mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+        }
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

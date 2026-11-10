@@ -12,9 +12,12 @@ export enum TreatmentEnum {
   SURCO_PROFUNDO = 'surco_profundo'
 }
 
+/** Condition keys returned by the backend in `Treatment.conditions`. */
 export enum TreatmentConditionEnum {
-  EXISTING = 1,
-  REQUIRED = 2,
-  IN_PROGRESS = 3,
-  DONE = 4,
+  PREEXISTING = "PREEXISTING",
+  REQUIRED = "REQUIRED",
+  IN_PROGRESS = "IN_PROGRESS",
+  FINISHED = "FINISHED",
+  REPLACED = "REPLACED",
+  CANCELED = "CANCELED",
 }

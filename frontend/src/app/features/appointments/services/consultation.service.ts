@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../environments/environment";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
 import { ConsultationResponse } from "../data/interfaces/consultation.interface";
+import { ConsultationHistoryItem } from "../../patients/data/interfaces/clinical-context.interface";
 import { Observable } from "rxjs";
 
 /**
@@ -48,6 +49,13 @@ export class ConsultationService {
   getConsultations(): Observable<ApiResponseInterface<ConsultationResponse[]>> {
     return this.http.get<ApiResponseInterface<ConsultationResponse[]>>(
       `${this.apiUrl}/consultation`
+    );
+  }
+
+  /** Consultation history of a patient, newest first. */
+  getHistoryByPatient(patientId: number | string): Observable<ApiResponseInterface<ConsultationHistoryItem[]>> {
+    return this.http.get<ApiResponseInterface<ConsultationHistoryItem[]>>(
+      `${this.apiUrl}/consultation/patient/${patientId}`
     );
   }
 

@@ -39,7 +39,6 @@ export class PatientsTableComponent implements AfterViewInit {
   readonly skeletonRows = input<PatientDto[]>(Array(5).fill({}) as PatientDto[]);
 
   readonly viewProfile = output<PatientDto>();
-  readonly openConsultation = output<PatientDto>();
 
   @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
     this.dataSource.paginator = paginator;

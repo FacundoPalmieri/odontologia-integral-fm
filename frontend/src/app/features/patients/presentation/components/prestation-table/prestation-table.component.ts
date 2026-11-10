@@ -44,8 +44,6 @@ export class PrestationTableComponent {
   displayedColumns = [
     "name",
     "allowedScope",
-    "hasSteps",
-    "requiresLocation",
     "isUnique",
     "currentPrice",
   ];

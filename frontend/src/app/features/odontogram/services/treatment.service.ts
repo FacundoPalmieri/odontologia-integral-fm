@@ -4,7 +4,6 @@ import { Observable } from "rxjs";
 import { environment } from "../../../environments/environment";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
 import {
-  TreatmentConditionDto,
   TreatmentDto,
   TreatmentsResponse,
 } from "../data/dtos/treatment.dto";
@@ -40,22 +39,6 @@ export class TreatmentService {
   getAll(): Observable<ApiResponseInterface<TreatmentsResponse>> {
     return this.http.get<ApiResponseInterface<TreatmentsResponse>>(
       `${this.apiUrl}/treatment/all`,
-    );
-  }
-
-  /**
-   * Retrieves all treatment conditions (tooth states).
-   *
-   * Treatment conditions represent the various states a tooth can be in
-   * (e.g., healthy, cavity, filled, extracted, etc.).
-   *
-   * @returns Observable with array of treatment condition data
-   */
-  getAllConditions(): Observable<
-    ApiResponseInterface<TreatmentConditionDto[]>
-  > {
-    return this.http.get<ApiResponseInterface<TreatmentConditionDto[]>>(
-      `${this.apiUrl}/treatment-condition/all`,
     );
   }
 

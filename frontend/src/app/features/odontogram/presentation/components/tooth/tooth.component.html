@@ -16,11 +16,9 @@
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
       [name]="icon"
-      [style.color]="treatment.treatmentConditionColor"
+      [style.color]="conditionColor(treatment.treatmentType)"
       [ngClass]="
         calculateMargin($index, getTreatmentIcons(treatment).length) +
-        ' ' +
-        (treatment.treatmentConditionColor ? '' : getColor(treatment.treatmentType)) +
         ' ' +
         'z-30'
       "
@@ -34,11 +32,9 @@
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
       [name]="icon"
-      [style.color]="treatment.treatmentConditionColor"
+      [style.color]="conditionColor(treatment.treatmentType)"
       [ngClass]="
-        calculateMargin($index, getTreatmentIcons(treatment).length) +
-        ' ' +
-        (treatment.treatmentConditionColor ? '' : getColor(treatment.treatmentType))
+        calculateMargin($index, getTreatmentIcons(treatment).length)
       "
     ></i-tabler>
     }
@@ -50,11 +46,9 @@
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
       [name]="icon"
-      [style.color]="treatment.treatmentConditionColor"
+      [style.color]="conditionColor(treatment.treatmentType)"
       [ngClass]="
-        calculateMargin($index, getTreatmentIcons(treatment).length) +
-        ' ' +
-        (treatment.treatmentConditionColor ? '' : getColor(treatment.treatmentType))
+        calculateMargin($index, getTreatmentIcons(treatment).length)
       "
     ></i-tabler>
     }
@@ -67,11 +61,9 @@
     @for(icon of getTreatmentIcons(treatment); track $index){
     <i-tabler
       [name]="icon"
-      [style.color]="treatment.treatmentConditionColor"
+      [style.color]="conditionColor(treatment.treatmentType)"
       [ngClass]="
-        calculateMargin($index, getTreatmentIcons(treatment).length) +
-        ' ' +
-        (treatment.treatmentConditionColor ? '' : getColor(treatment.treatmentType))
+        calculateMargin($index, getTreatmentIcons(treatment).length)
       "
     ></i-tabler>
     }

@@ -38,6 +38,7 @@ import {
   PhoneTypeInterface,
   ProvinceInterface,
 } from "../../../../../shared/interfaces/person-data.interface";
+import { MatTabsModule } from "@angular/material/tabs";
 import { MatTableModule } from "@angular/material/table";
 import { CommonModule } from "@angular/common";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -57,15 +58,15 @@ import { PatientService } from "../../../services/patient.service";
 import { PatientInterface } from "../../../data/interfaces/patient.interface";
 import { MedicalHistoryRiskInterface } from "../../../data/interfaces/medical-history.interface";
 import { PatientDto } from "../../../data/dtos/patient.dto";
+import { ConsultationService } from "../../../../appointments/services/consultation.service";
+import { ConsultationHistoryItem } from "../../../data/interfaces/clinical-context.interface";
 import { EmptyStateComponent } from "../../../../../shared/components/empty-state/empty-state.component";
 
-//QUITAR
-interface ConsultationInterface {
-  id: number;
-  creationDate: Date;
-  lastModified: Date;
-  odontogram: any;
-}
+const CONSULTATION_STATUS: Record<string, string> = {
+  WAITING_ROOM: "En espera",
+  IN_CONSULTATION: "En consulta",
+  FINISHED: "Finalizada",
+};
 
 @Component({
   selector: "app-patient-edit-page",
@@ -83,6 +84,7 @@ interface ConsultationInterface {
     MatDatepickerModule,
     MatIconModule,
     MatTableModule,
+    MatTabsModule,
     MatTooltipModule,
     AttachedFileComponent,
     CardIconTitleComponent,
@@ -95,6 +97,7 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
+  private readonly consultationService = inject(ConsultationService);
   private readonly accessControlService = inject(AccessControlService);
   personDataService = inject(PersonDataService);
 
@@ -105,8 +108,9 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
   patientForm: FormGroup = new FormGroup({});
   maxDate = new Date();
   patientId: number | null = null;
-  displayedColumns: string[] = ["creationDate", "lastModified", "actions"];
-  consultationsData: ConsultationInterface[] = [];
+  displayedColumns: string[] = ["dateTime", "dentistName", "consultationStatus"];
+  consultations = signal<ConsultationHistoryItem[]>([]);
+  readonly statusLabel = (s: string) => CONSULTATION_STATUS[s] ?? s;
   entityTypeEnum = EntityTypeEnum;
 
   avatarUrl = signal<string | null>(null);
@@ -281,11 +285,10 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  //QUITAR
-  viewConsultation() {
-    this.router.navigate([
-      `patients/${this.patient()!.person.id}/consultation/`,
-    ]);
+  /** The clinical context is per patient; the page is reached through the latest consultation. */
+  goToClinicalState() {
+    const last = this.consultations()[0];
+    if (last) this.router.navigate([`patients/${this.patientId}/consultation/${last.consultationId}`]);
   }
 
   save() {
@@ -437,8 +440,16 @@ export class PatientEditPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  private _loadConsultations() {
+    if (!this.accessControlService.can(PermissionsEnum.CONSULTATION, ActionsEnum.READ)) return;
+    this.consultationService
+      .getHistoryByPatient(this.patientId!)
+      .subscribe(({ data }) => this.consultations.set(data));
+  }
+
   private _loadPatientData() {
     if (!this.patientId) return;
+    this._loadConsultations();
 
     this.patientService
       .getById(this.patientId)

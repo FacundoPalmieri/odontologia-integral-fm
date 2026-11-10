@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../../../environments/environment";
 import { ApiResponseInterface } from "../../../shared/interfaces/api-response.interface";
+import { ClinicalContextResponse } from "../data/interfaces/clinical-context.interface";
 import { ConsultationInstanceRequest, ConsultationInstanceResponse } from "../data/interfaces/consultation-instance.interface";
 
 /**
@@ -20,12 +21,24 @@ export class ConsultationInstanceService {
    * Creates a new consultation instance.
    *
    * @param instance - The consultation instance data to create.
-   * @returns Observable with the created consultation instance response.
+   * @returns Observable with the id of the created consultation instance.
    */
-  createConsultationInstance(instance: ConsultationInstanceRequest): Observable<ApiResponseInterface<ConsultationInstanceResponse>> {
-    return this.http.post<ApiResponseInterface<ConsultationInstanceResponse>>(
+  createConsultationInstance(instance: ConsultationInstanceRequest): Observable<ApiResponseInterface<number>> {
+    return this.http.post<ApiResponseInterface<number>>(
       `${this.apiUrl}/consultation-instance`,
       instance
+    );
+  }
+
+  /**
+   * Retrieves what the patient has open (treatments and in-progress prestations with their steps).
+   *
+   * @param patientId - The ID of the patient.
+   * @returns Observable with the clinical context.
+   */
+  getClinicalContext(patientId: number): Observable<ApiResponseInterface<ClinicalContextResponse>> {
+    return this.http.get<ApiResponseInterface<ClinicalContextResponse>>(
+      `${this.apiUrl}/consultation-instance/patient/${patientId}`
     );
   }
 

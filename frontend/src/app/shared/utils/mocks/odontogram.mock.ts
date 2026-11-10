@@ -30,7 +30,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.TRATAMIENTO_CONDUCTO,
           label: "Tratamiento de Conducto",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
         },
         {
           name: TreatmentEnum.CARIES,
@@ -46,7 +46,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.CORONA,
           label: "Corona",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
         },
         {
           name: TreatmentEnum.CARIES,
@@ -74,7 +74,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.PUENTE,
           label: "Puente",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
           bridgeStart: 11,
           bridgeEnd: 21,
         },
@@ -88,7 +88,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.IMPLANTE,
           label: "Implante",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
         },
       ],
     },
@@ -98,7 +98,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.OBTURACION_COMPOSITE,
           label: "Diente Ausente",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
           faces: [ToothFaceEnum.LINGUAL],
         },
       ],
@@ -109,7 +109,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.DIENTE_AUSENTE,
           label: "Diente Ausente",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
         },
       ],
     },
@@ -163,7 +163,7 @@ export const mockOdontogram1: OdontogramInterface = {
         {
           name: TreatmentEnum.PUENTE,
           label: "Puente",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
           bridgeStart: 36,
           bridgeEnd: 33,
         },
@@ -225,7 +225,7 @@ export const mockOdontogram2: OdontogramInterface = {
         {
           name: TreatmentEnum.TRATAMIENTO_CONDUCTO,
           label: "Tratamiento de Conducto",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
         },
         {
           name: TreatmentEnum.CARIES,
@@ -269,7 +269,7 @@ export const mockOdontogram2: OdontogramInterface = {
         {
           name: TreatmentEnum.IMPLANTE,
           label: "Implante",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
         },
       ],
     },
@@ -282,7 +282,7 @@ export const mockOdontogram2: OdontogramInterface = {
         {
           name: TreatmentEnum.DIENTE_AUSENTE,
           label: "Diente Ausente",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
         },
       ],
     },
@@ -336,7 +336,7 @@ export const mockOdontogram2: OdontogramInterface = {
         {
           name: TreatmentEnum.PUENTE,
           label: "Puente",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
           bridgeStart: 36,
           bridgeEnd: 33,
         },
@@ -435,7 +435,7 @@ export const mockOdontogram3: OdontogramInterface = {
         {
           name: TreatmentEnum.DIENTE_AUSENTE,
           label: "Diente Ausente",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
         },
       ],
     },
@@ -489,7 +489,7 @@ export const mockOdontogram3: OdontogramInterface = {
         {
           name: TreatmentEnum.PUENTE,
           label: "Puente",
-          treatmentType: TreatmentConditionEnum.EXISTING,
+          treatmentType: TreatmentConditionEnum.PREEXISTING,
           bridgeStart: 36,
           bridgeEnd: 33,
         },

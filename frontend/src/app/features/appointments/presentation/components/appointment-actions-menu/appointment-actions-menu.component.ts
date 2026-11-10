@@ -174,10 +174,7 @@ export class AppointmentActionsMenuComponent {
           SnackbarTypeEnum.Success
         );
         this.actionPerformed.emit();
-        const patientId = this.appointment().patientId;
-        if (patientId) {
-          this.router.navigate([`/patients/${patientId}/consultation`]);
-        }
+        this.goToConsultation();
       },
       error: () => {
         this.snackbarService.openSnackbar(
@@ -255,9 +252,9 @@ export class AppointmentActionsMenuComponent {
   }
 
   goToConsultation() {
-    const patientId = this.appointment().patientId;
-    if (patientId) {
-      this.router.navigate([`/patients/${patientId}/consultation`]);
+    const { patientId, id: consultationId } = this.appointment();
+    if (patientId && consultationId) {
+      this.router.navigate([`/patients/${patientId}/consultation/${consultationId}`]);
     } else {
       this.snackbarService.openSnackbar(
         "No se encontró el ID del paciente.",

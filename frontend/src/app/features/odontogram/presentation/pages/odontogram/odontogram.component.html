@@ -51,13 +51,13 @@
           }
 
           <div class="flex items-center gap-2 ml-1 pl-2 border-l border-gray-300">
-            @for (cond of treatmentConditions(); track cond.id) {
+            @for (cond of conditions; track cond.key) {
               <div class="flex items-center gap-1">
                 <div
                   class="w-2.5 h-2.5 rounded-full border border-gray-300"
                   [style.background-color]="cond.color"
                 ></div>
-                <span class="text-[10px]">{{ cond.name }}</span>
+                <span class="text-[10px]">{{ cond.label }}</span>
               </div>
             }
           </div>
@@ -98,11 +98,7 @@
             [attr.y1]="getToothPosition(bridge.startTooth).y + 5"
             [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
             [attr.y2]="getToothPosition(bridge.endTooth).y + 5"
-            [attr.stroke]="
-              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-                ? '#2b7fff'
-                : '#fb2c36'
-            "
+            [style.stroke]="conditionColor(bridge.treatment.treatmentType)"
             stroke-width="4"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -114,11 +110,7 @@
             [attr.y1]="getToothPosition(bridge.startTooth).y + 5"
             [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
             [attr.y2]="getToothPosition(bridge.startTooth).y + 20"
-            [attr.stroke]="
-              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-                ? '#2b7fff'
-                : '#fb2c36'
-            "
+            [style.stroke]="conditionColor(bridge.treatment.treatmentType)"
             stroke-width="4"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -130,11 +122,7 @@
             [attr.y1]="getToothPosition(bridge.endTooth).y + 5"
             [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
             [attr.y2]="getToothPosition(bridge.endTooth).y + 20"
-            [attr.stroke]="
-              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-                ? '#2b7fff'
-                : '#fb2c36'
-            "
+            [style.stroke]="conditionColor(bridge.treatment.treatmentType)"
             stroke-width="4"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -154,11 +142,7 @@
             [attr.y1]="getToothPosition(bridge.startTooth).y + 56"
             [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
             [attr.y2]="getToothPosition(bridge.endTooth).y + 56"
-            [attr.stroke]="
-              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-                ? '#2b7fff'
-                : '#fb2c36'
-            "
+            [style.stroke]="conditionColor(bridge.treatment.treatmentType)"
             stroke-width="4"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -170,11 +154,7 @@
             [attr.y1]="getToothPosition(bridge.startTooth).y + 56"
             [attr.x2]="getToothPosition(bridge.startTooth).x + 3"
             [attr.y2]="getToothPosition(bridge.startTooth).y + 70"
-            [attr.stroke]="
-              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-                ? '#2b7fff'
-                : '#fb2c36'
-            "
+            [style.stroke]="conditionColor(bridge.treatment.treatmentType)"
             stroke-width="4"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -186,11 +166,7 @@
             [attr.y1]="getToothPosition(bridge.endTooth).y + 56"
             [attr.x2]="getToothPosition(bridge.endTooth).x + 3"
             [attr.y2]="getToothPosition(bridge.endTooth).y + 70"
-            [attr.stroke]="
-              bridge.treatment.treatmentType === treatmentTypeEnum.REQUIRED
-                ? '#2b7fff'
-                : '#fb2c36'
-            "
+            [style.stroke]="conditionColor(bridge.treatment.treatmentType)"
             stroke-width="4"
             stroke-linecap="round"
             stroke-linejoin="round"

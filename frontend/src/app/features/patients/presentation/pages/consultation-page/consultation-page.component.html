@@ -52,13 +52,19 @@
 
     <div class="overflow-x-auto">
       <app-odontogram
-        [odontogram]="odontogram"
+        [odontogram]="odontogram()"
         [showToolbox]="true"
         [showTemporaries]="true"
         [showDateSelector]="false"
       />
     </div>
   </mat-expansion-panel>
+
+  <!-- Treatments the patient has open -->
+  <app-treatments-table [treatments]="clinicalContext()?.treatmentInstances ?? []" />
+
+  <!-- Open prestations with their steps (temporary, until the prestations table is built) -->
+  <app-clinical-context-panel [context]="clinicalContext()" />
 
   <!-- Treatments Table -->
   <app-prestation-table

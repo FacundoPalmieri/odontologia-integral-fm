@@ -2,10 +2,15 @@ import { PrestationScopeEnum } from "../../utils/enums/consultation-instance.enu
 
 export interface PrestationDto {
   id: number;
+  /** Stable key, e.g. 'SPLINTING'. */
   name: string;
+  /** User-facing text. */
+  label: string;
   isUnique: boolean;
-  hasSteps: boolean;
-  requiresLocation: boolean;
+  /** Max teeth allowed; null = no limit. */
+  maxTooth: number | null;
+  requiresOriginTreatment: boolean;
+  /** Empty = the type has no own location (only origin treatment). */
   allowedScopes: PrestationScopeEnum[];
   currentPrice: number;
 }

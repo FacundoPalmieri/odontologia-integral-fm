@@ -79,3 +79,13 @@ Los estilos se importan automáticamente en `styles.scss`. No es necesario impor
 - Los archivos parciales comienzan con `_` para indicar que son módulos
 - El orden de importación en `styles.scss` es importante
 - Las animaciones se aplican automáticamente a `mat-card` y transiciones de ruta
+
+### `.integrated-tabs` (en `_components.scss`)
+
+Estilo para `mat-tab-group`: encabezado y contenido comparten un único contenedor con borde, y las `mat-card` dentro de una pestaña pierden su borde y fondo. Usar sin `dynamicHeight` y con `flex-1 min-h-0` dentro de un contenedor `flex flex-col h-full`: así el contenido de cada pestaña scrollea solo y el encabezado queda fijo.
+
+```html
+<mat-tab-group class="integrated-tabs flex-1 min-h-0" animationDuration="0ms">
+  <mat-tab label="Tab 1"><div class="pt-4"><mat-card>...</mat-card></div></mat-tab>
+</mat-tab-group>
+```

@@ -1,38 +1,56 @@
-import { DiscountTypeEnum, MaxillaryZoneEnum, PrestationInstanceStatusEnum, PrestationScopeEnum, QuadrantEnum, ToothEnum, ToothFaceEnum } from "../../utils/enums/consultation-instance.enum";
+import { DiscountTypeEnum, MaxillaryZoneEnum, PrestationInstanceStatusEnum, PrestationScopeEnum, QuadrantEnum, StepStatusEnum, ToothEnum, ToothFaceEnum } from "../../utils/enums/consultation-instance.enum";
+import { TreatmentConditionEnum } from "../../../odontogram/utils/enums/treatment.enum";
 
+/** Body of POST /api/consultation-instance. Response is ApiResponseInterface<number> (id of the created instance). */
 export interface ConsultationInstanceRequest {
     consultationId: number;
-    observation: string;
-    odontogram: OdontogramRequest[];
-    prestationNew: PrestationRequest[];
-    stepAdvancements: StepAdvancementsRequest[];
+    observation?: string;
+    treatmentInstance?: TreatmentInstanceItem[];
+    prestation?: PrestationInstanceItem[];
 }
 
-export interface OdontogramRequest {
-    tooth: ToothEnum;
-    toothFace: ToothFaceEnum;
-    treatmentId: number;
-    treatmentConditionId: number;
+/** Location. Exactly one group: tooth (+ optional toothFace), quadrant, maxillary or fullMouth. */
+export interface Scope {
+    tooth?: ToothEnum[];
+    toothFace?: ToothFaceEnum;
+    quadrant?: QuadrantEnum;
+    maxillary?: MaxillaryZoneEnum;
+    fullMouth?: boolean;
 }
 
-export interface PrestationRequest {
-    prestationTypeId: number;
-    prestationStepId: number;
-    prestationStepStatus: PrestationInstanceStatusEnum;
-    odontogram: OdontogramRequest[];
-    scope: PrestationScopeEnum;
-    tooth: ToothEnum;
-    quadrant: QuadrantEnum;
-    maxillary: MaxillaryZoneEnum;
-    promotionId: number;
-    discountType: DiscountTypeEnum;
-    discountValue: number;
+/** New treatment: scope + treatmentId (+ tempId/condition). Existing: only id + treatmentCondition (REPLACED/CANCELED). */
+export interface TreatmentInstanceItem {
+    id?: number;
+    tempId?: string;
+    scope?: Scope;
+    treatmentId?: number;
+    treatmentCondition?: TreatmentConditionEnum;
 }
 
-export interface StepAdvancementsRequest {
-    prestationInstanceId: number;
-    prestationStepId: number;
-    status: PrestationInstanceStatusEnum;
+/** Reference to a saved treatment (id) or to one created in the same request (tempId). Exactly one. */
+export interface TreatmentInstanceRef {
+    id?: number;
+    tempId?: string;
+}
+
+/** New prestation: prestationTypeId + location + steps. Existing: only id + steps. */
+export interface PrestationInstanceItem {
+    id?: number;
+    prestationTypeId?: number;
+    treatmentInstanceRef?: TreatmentInstanceRef;
+    scope?: Scope;
+    originTreatmentInstanceRef?: TreatmentInstanceRef;
+    promotionId?: number;
+    discountType?: DiscountTypeEnum;
+    discountValue?: number;
+    steps: StepItem[];
+}
+
+/** Existing step: id + status. New step: stepId (catalog) + status. Never both ids. */
+export interface StepItem {
+    id?: number;
+    stepId?: number;
+    status: StepStatusEnum;
 }
 
 export interface ConsultationInstanceResponse {

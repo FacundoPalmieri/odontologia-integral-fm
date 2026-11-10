@@ -27,25 +27,25 @@
           <mat-form-field appearance="outline" class="w-full">
             <mat-label>Condición</mat-label>
             <mat-select formControlName="treatmentType">
-              @if (selectedCondition()) {
+              @if (selectedConditionId(); as selected) {
                 <mat-select-trigger>
                   <div class="flex items-center gap-2">
                     <span
                       class="inline-block w-3.5 h-3.5 rounded-full border border-gray-300"
-                      [style.background-color]="selectedCondition()?.color"
+                      [style.background-color]="conditionColor(selected)"
                     ></span>
-                    <span>{{ selectedCondition()?.name }}</span>
+                    <span>{{ conditionLabel(selected) }}</span>
                   </div>
                 </mat-select-trigger>
               }
-              @for (c of availableConditions(); track c.id) {
-                <mat-option [value]="c.id">
+              @for (c of availableConditions(); track c) {
+                <mat-option [value]="c">
                   <div class="flex items-center gap-2">
                     <span
                       class="inline-block w-3.5 h-3.5 rounded-full border border-gray-300"
-                      [style.background-color]="c.color"
+                      [style.background-color]="conditionColor(c)"
                     ></span>
-                    <span>{{ c.name }}</span>
+                    <span>{{ conditionLabel(c) }}</span>
                   </div>
                 </mat-option>
               }
@@ -159,9 +159,9 @@
             <div class="flex items-center gap-2">
               <span
                 class="inline-block w-3.5 h-3.5 rounded-full border border-gray-300"
-                [style.background-color]="getConditionColor(element)"
+                [style.background-color]="conditionColor(element.treatmentType)"
               ></span>
-              <span>{{ getConditionName(element) }}</span>
+              <span>{{ conditionLabel(element.treatmentType) }}</span>
             </div>
           </td>
         </ng-container>
@@ -170,14 +170,16 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let element; let i = index">
-            <button
-              matIconButton
-              matTooltip="Eliminar"
-              matTooltipPosition="left"
-              (click)="removeTreatment(i)"
-            >
-              <i-tabler class="text-red-500" name="xbox-x"></i-tabler>
-            </button>
+            @if (!element.instanceId) {
+              <button
+                matIconButton
+                matTooltip="Eliminar"
+                matTooltipPosition="left"
+                (click)="removeTreatment(i)"
+              >
+                <i-tabler class="text-red-500" name="xbox-x"></i-tabler>
+              </button>
+            }
           </td>
         </ng-container>
 

@@ -20,6 +20,7 @@ import {
   TreatmentEnum,
   TreatmentConditionEnum,
 } from "../../../utils/enums/treatment.enum";
+import { conditionColor } from "../../../utils/treatment-condition";
 import { TreatmentFactory } from "../../../utils/factories/treatment.factory";
 import { ToothFaceComponent } from "../tooth-face/tooth-face.component";
 import {
@@ -150,7 +151,7 @@ export class ToothComponent implements OnChanges {
         if (hasCaries && hasObtComposite) {
           this.cariesFaces[position as ToothFaceLocationEnum] = {
             name: TreatmentEnum.DUAL_TREATMENT,
-            treatmentType: TreatmentConditionEnum.DONE,
+            treatmentType: TreatmentConditionEnum.FINISHED,
             label: "D",
             faces: [],
           };
@@ -175,11 +176,7 @@ export class ToothComponent implements OnChanges {
     return "";
   }
 
-  getColor(treatmentType: TreatmentConditionEnum): string {
-    return treatmentType === TreatmentConditionEnum.REQUIRED
-      ? "text-blue-500"
-      : "text-red-500";
-  }
+  conditionColor = conditionColor;
 
   openAddTreatmentDialog() {
     this.dialog

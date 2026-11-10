@@ -7,11 +7,11 @@ export interface TreatmentInterfaceOld {
   name: TreatmentEnum;
   label: string;
   treatmentType: TreatmentConditionEnum;
-  treatmentConditionName?: string;
-  treatmentConditionColor?: string;
   bridgeStart?: number;
   bridgeEnd?: number;
   faces?: string[];
+  /** Id of the saved treatment instance; absent for treatments added in this consultation. */
+  instanceId?: number;
 }
 
 export interface ShowTreatmentInterface {
@@ -19,16 +19,4 @@ export interface ShowTreatmentInterface {
   label: string;
   faces?: string[];
   icons?: string[];
-}
-
-export interface TreatmentInterface {
-  id: number;
-  name: string;
-  conditions: TreatmentConditionInterface[];
-}
-
-export interface TreatmentConditionInterface {
-  id: number;
-  name: string;
-  color: string;
 }

@@ -14,7 +14,7 @@
         <mat-label>Prestación</mat-label>
         <mat-select formControlName="prestation">
           @for (p of prestations(); track p.id) {
-            <mat-option [value]="p.id">{{ p.name }}</mat-option>
+            <mat-option [value]="p.id">{{ p.label }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
