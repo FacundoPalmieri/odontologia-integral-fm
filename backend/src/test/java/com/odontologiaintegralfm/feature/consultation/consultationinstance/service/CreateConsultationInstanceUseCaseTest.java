@@ -64,6 +64,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
@@ -88,6 +90,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -424,8 +427,9 @@ class CreateConsultationInstanceUseCaseTest {
     }
 
     /**
-     * CASO: Prestación nueva de Ortodoncia pedida por un odontólogo endodoncista (la validación mockeada lanza 403).
-     * Regla: D-61 — al nacer una PrestationInstance se valida contra las especialidades del PrestationType.
+     * CASO: Prestación nueva de Ortodoncia, sin treatmentInstanceRef (ubicación propia, sin tratamiento), pedida por un
+     * odontólogo endodoncista (la validación mockeada lanza 403).
+     * Regla: D-61 — una PrestationInstance que nace sin tratamiento se valida contra las especialidades del PrestationType.
      * Validación: ForbiddenException (403); la prestación nueva no se guarda. El stub solo lanza con el odontólogo de la
      * consulta, las especialidades del PrestationType y su label: si el use case pasa otros argumentos, el stub no
      * coincide y el test falla.
@@ -1173,27 +1177,6 @@ class CreateConsultationInstanceUseCaseTest {
     }
 
     /**
-     * CASO: Request solo con avance de steps de una prestación existente y un TreatmentInstance existente cerrado
-     * CANCELED.
-     * Regla: D-61 — la especialidad se valida solo al nacer, no al avanzar ni al cerrar lo existente.
-     * Validación: dentistSpecialtyDomainService.validateAllowed nunca se invoca.
-     */
-    @Test
-    void execute_advanceStepsAndCloseExistingTreatment_doesNotValidateSpecialty() {
-        TreatmentInstance toClose = existingTreatment(145L, TreatmentConditionType.REQUIRED);
-        when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenReturn(toClose);
-        PrestationInstance prestation = existingPrestationMock(812L, PrestationInstanceStatus.IN_PROGRESS, null);
-        stubExistingStepAdvance(prestation, 9L, PrestationStepStatus.IN_PROGRESS);
-        ConsultationInstanceCreateRequestDTO dto = request(
-                List.of(closeTreatment(145L, TreatmentConditionType.CANCELED)),
-                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
-
-        useCase.execute(dto);
-
-        verifyNoInteractions(dentistSpecialtyDomainService);
-    }
-
-    /**
      * CASO: Prestación existente de scope propio (sin tratamiento) cuyos steps se mandan REPLACED.
      * Regla: D-40 Caso D — el sujeto que deriva a REPLACED es la propia prestación.
      * Validación: validatePrestationInstanceReplacementTraceability recibe esa prestación en
@@ -1501,12 +1484,13 @@ class CreateConsultationInstanceUseCaseTest {
     }
 
     /**
-     * CASO: Un tratamiento nuevo (Treatment con especialidades {Ortodoncia}, label "Caries") y una prestación nueva
-     * (PrestationType con especialidades {Endodoncia}, label "Restauración") en el mismo request.
-     * Regla: D-61 — cada ítem que nace se valida contra su propio catálogo y con el odontólogo de la consulta.
-     * Validación: validateAllowed se invoca exactamente dos veces, una con (odontólogo, {Ortodoncia}, "Caries") y otra
-     * con (odontólogo, {Endodoncia}, "Restauración"). Un cruce de especialidades, de labels o de odontólogo hace fallar
-     * el verify; en un request con una sola de las dos cosas ese cruce no se podría observar.
+     * CASO: Un tratamiento nuevo tmp-1 (Treatment con especialidades {Ortodoncia}, label "Caries") y una prestación nueva
+     * que cuelga de él por treatmentInstanceRef (PrestationType con especialidades {Endodoncia}, label "Restauración").
+     * Regla: D-61 — una prestación con tratamiento se valida contra el catálogo del tratamiento, no el de su tipo.
+     * Validación: validateAllowed se invoca exactamente dos veces, las dos con (odontólogo de la consulta, {Ortodoncia},
+     * "Caries"): una por el tratamiento que nace y otra por la prestación que cuelga de él. Nunca con las
+     * especialidades ni el label del PrestationType. Los stubs del tipo son lenient porque el use case correcto no los
+     * lee: están para que el verify de never() detecte al que sí los usa.
      */
     @Test
     void execute_birthOfTreatmentAndPrestation_validatesSpecialtyWithEachCatalog() {
@@ -1516,8 +1500,8 @@ class CreateConsultationInstanceUseCaseTest {
                 Set.of(mock(DentistSpecialty.class));
         when(treatment.getDentistSpecialties()).thenReturn(treatmentSpecialties);
         when(treatment.getLabel()).thenReturn("Caries");
-        when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
-        when(type.getLabel()).thenReturn("Restauración");
+        lenient().when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
+        lenient().when(type.getLabel()).thenReturn("Restauración");
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)),
                 List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, null, null,
@@ -1525,8 +1509,9 @@ class CreateConsultationInstanceUseCaseTest {
 
         useCase.execute(dto);
 
-        verify(dentistSpecialtyDomainService, times(1)).validateAllowed(consultation.getDentist(), treatmentSpecialties, "Caries");
-        verify(dentistSpecialtyDomainService, times(1)).validateAllowed(consultation.getDentist(), typeSpecialties, "Restauración");
+        verify(dentistSpecialtyDomainService, times(2)).validateAllowed(consultation.getDentist(), treatmentSpecialties, "Caries");
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), eq(typeSpecialties), any());
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), any(), eq("Restauración"));
         verify(dentistSpecialtyDomainService, times(2)).validateAllowed(any(), any(), any());
     }
 
@@ -1649,10 +1634,25 @@ class CreateConsultationInstanceUseCaseTest {
      * Validación: validateOriginState se invoca una vez con ese tratamiento existente (resuelto con findByIdAndPatientId)
      * y validateReferenceNotTerminal nunca lo recibe (el chequeo de referencia no terminal es solo para
      * treatmentInstanceRef). Un use case que solo registra los orígenes por tempId no valida el origen por id.
+     * D-61: el Treatment de tmp-1 tiene {Ortodoncia} y label "Caries", el PrestationType {Endodoncia} y el Treatment del
+     * origen {Prótesis}. validateAllowed se invoca exactamente dos veces, las dos con (odontólogo, {Ortodoncia}, "Caries")
+     * (el tratamiento que nace y la prestación que cuelga de él), y nunca con las del tipo ni las del origen. Los stubs
+     * del tipo y del origen son lenient porque el use case correcto no los lee.
      */
     @Test
     void execute_originReferencedById_validatesOriginStateAndRegistersIt() {
+        Set<DentistSpecialty> treatmentSpecialties = Set.of(mock(DentistSpecialty.class));
+        Set<DentistSpecialty> typeSpecialties = Set.of(mock(DentistSpecialty.class));
+        Set<DentistSpecialty> originSpecialties = Set.of(mock(DentistSpecialty.class));
+        when(treatment.getDentistSpecialties()).thenReturn(treatmentSpecialties);
+        when(treatment.getLabel()).thenReturn("Caries");
+        lenient().when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
+        lenient().when(type.getLabel()).thenReturn("Agregado");
+        Treatment originCatalog = mock(Treatment.class);
+        lenient().when(originCatalog.getDentistSpecialties()).thenReturn(originSpecialties);
+        lenient().when(originCatalog.getLabel()).thenReturn("Prótesis");
         TreatmentInstance origin = existingTreatment(145L, TreatmentConditionType.FINISHED);
+        lenient().when(origin.getTreatment()).thenReturn(originCatalog);
         when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenReturn(origin);
         ConsultationInstanceCreateRequestDTO dto = request(
                 List.of(newTreatment("tmp-1", scope(Tooth.T11), 5L, null)),
@@ -1663,6 +1663,10 @@ class CreateConsultationInstanceUseCaseTest {
 
         verify(treatmentInstanceDomainService, times(1)).validateOriginState(origin);
         verify(treatmentInstanceDomainService, never()).validateReferenceNotTerminal(origin);
+        verify(dentistSpecialtyDomainService, times(2)).validateAllowed(consultation.getDentist(), treatmentSpecialties, "Caries");
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), eq(typeSpecialties), any());
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), eq(originSpecialties), any());
+        verify(dentistSpecialtyDomainService, times(2)).validateAllowed(any(), any(), any());
     }
 
     /**
@@ -1687,6 +1691,268 @@ class CreateConsultationInstanceUseCaseTest {
         useCase.execute(dto);
 
         verify(prestationInstanceDomainService, times(1)).validatePrestationStep(existingTypeId, 5L);
+    }
+
+    /**
+     * CASO: Avance de la prestación existente 812, sin tratamiento, cuyo PrestationType tiene especialidades
+     * {Ortodoncia}; el odontólogo no la tiene (la validación mockeada lanza 403).
+     * Regla: D-61 — al avanzar una prestación sin tratamiento se valida contra el catálogo del PrestationType, antes de
+     * aplicar nada.
+     * Validación: ForbiddenException (403); no se guarda ningún step, ni historial, ni la prestación, y el step no se
+     * modifica. El stub solo lanza con el odontólogo de la consulta, las especialidades del tipo y su label: si el use
+     * case pasa otros argumentos, el stub no coincide y el test falla.
+     */
+    @Test
+    void execute_existingPrestationWithoutTreatmentSpecialtyNotAllowed_throwsForbiddenException() {
+        Set<DentistSpecialty> typeSpecialties = Set.of(mock(DentistSpecialty.class));
+        when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
+        when(type.getLabel()).thenReturn("Consulta");
+        Dentist dentist = consultation.getDentist();
+        ForbiddenException forbidden = forbidden();
+        doThrow(forbidden).when(dentistSpecialtyDomainService).validateAllowed(dentist, typeSpecialties, "Consulta");
+        PrestationInstance prestation = existingPrestationMock(812L, PrestationInstanceStatus.IN_PROGRESS, null);
+        PrestationStepInstance step = existingStep(9L, PrestationStepStatus.IN_PROGRESS);
+        when(prestationInstanceQueryService.findByIdAndPatientId(812L, PATIENT_ID)).thenReturn(prestation);
+        // lenient: la especialidad se valida antes de resolver los steps (§ 7 paso 6.0), así que un use case correcto no lo lee.
+        lenient().when(prestationStepInstanceQueryService.findByIdAndPrestationInstanceId(9L, 812L)).thenReturn(step);
+        ConsultationInstanceCreateRequestDTO dto = request(List.of(),
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
+
+        assertThatThrownBy(() -> useCase.execute(dto)).isSameAs(forbidden);
+
+        verify(step, never()).applyStatus(any());
+        verify(prestationStepInstanceRepository, never()).save(any());
+        verify(prestationStepInstanceHistoryRepository, never()).save(any());
+        verify(prestationInstanceRepository, never()).save(any());
+    }
+
+    /**
+     * CASO: Avance de la prestación existente 812, que cuelga de un tratamiento existente ("Tratamiento de conducto",
+     * Treatment con especialidades {Ortodoncia}); el PrestationType tiene {Endodoncia} (la validación mockeada lanza 403).
+     * Regla: D-61 — una prestación con tratamiento se valida contra el catálogo del tratamiento, no el de su tipo.
+     * Validación: ForbiddenException (403) solo si validateAllowed recibe el odontólogo de la consulta, las
+     * especialidades del Treatment y su label; no se guarda ningún step, ni historial, ni la prestación. Si el use case
+     * usa las del tipo, el stub no coincide, no se lanza nada y el test falla. Además validateAllowed nunca recibe las
+     * especialidades del PrestationType ni su label ("Endodoncia"): un use case que valida primero contra el tipo y
+     * después contra el tratamiento también falla. Los stubs del tipo son lenient porque el use case correcto no los lee.
+     */
+    @Test
+    void execute_existingPrestationWithTreatmentSpecialtyNotAllowed_throwsForbiddenException() {
+        Set<DentistSpecialty> treatmentSpecialties = Set.of(mock(DentistSpecialty.class));
+        Set<DentistSpecialty> typeSpecialties = Set.of(mock(DentistSpecialty.class));
+        Treatment catalog = mock(Treatment.class);
+        when(catalog.getDentistSpecialties()).thenReturn(treatmentSpecialties);
+        when(catalog.getLabel()).thenReturn("Tratamiento de conducto");
+        lenient().when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
+        lenient().when(type.getLabel()).thenReturn("Endodoncia");
+        TreatmentInstance owner = existingTreatment(145L, TreatmentConditionType.IN_PROGRESS);
+        lenient().when(owner.getTreatment()).thenReturn(catalog);
+        Dentist dentist = consultation.getDentist();
+        ForbiddenException forbidden = forbidden();
+        doThrow(forbidden).when(dentistSpecialtyDomainService)
+                .validateAllowed(dentist, treatmentSpecialties, "Tratamiento de conducto");
+        PrestationInstance prestation = existingPrestationMock(812L, PrestationInstanceStatus.IN_PROGRESS, owner);
+        PrestationStepInstance step = existingStep(9L, PrestationStepStatus.IN_PROGRESS);
+        when(prestationInstanceQueryService.findByIdAndPatientId(812L, PATIENT_ID)).thenReturn(prestation);
+        lenient().when(prestationStepInstanceQueryService.findByIdAndPrestationInstanceId(9L, 812L)).thenReturn(step);
+        ConsultationInstanceCreateRequestDTO dto = request(List.of(),
+                List.of(existingPrestation(812L, new StepItemRequestDTO(9L, null, PrestationStepStatus.FINISHED))));
+
+        assertThatThrownBy(() -> useCase.execute(dto)).isSameAs(forbidden);
+
+        // Un use case que valida también contra el tipo (antes del tratamiento) no lanza en esa llamada, y el 403 del
+        // tratamiento taparía el error: por eso se afirma que el tipo nunca se consultó.
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), eq(typeSpecialties), any());
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), any(), eq("Endodoncia"));
+        verify(step, never()).applyStatus(any());
+        verify(prestationStepInstanceRepository, never()).save(any());
+        verify(prestationStepInstanceHistoryRepository, never()).save(any());
+        verify(prestationInstanceRepository, never()).save(any());
+    }
+
+    /**
+     * CASO: Prestación nueva con treatmentInstanceRef {id: 145} a un tratamiento existente del paciente; su Treatment
+     * tiene especialidades {Ortodoncia} y label "Caries", y el PrestationType tiene {Endodoncia} y "Restauración".
+     * Regla: D-61 — la especialidad se valida después de resolver el tratamiento referenciado, contra el catálogo del
+     * tratamiento.
+     * Validación: validateAllowed se invoca exactamente una vez, con (odontólogo de la consulta, {Ortodoncia}, "Caries"),
+     * y nunca con las especialidades ni el label del PrestationType. Los stubs del tipo son lenient porque el use case
+     * correcto no los lee.
+     */
+    @Test
+    void execute_newPrestationInsideExistingTreatment_validatesSpecialtyAgainstTreatmentNotType() {
+        Set<DentistSpecialty> treatmentSpecialties = Set.of(mock(DentistSpecialty.class));
+        Set<DentistSpecialty> typeSpecialties = Set.of(mock(DentistSpecialty.class));
+        Treatment catalog = mock(Treatment.class);
+        when(catalog.getDentistSpecialties()).thenReturn(treatmentSpecialties);
+        when(catalog.getLabel()).thenReturn("Caries");
+        lenient().when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
+        lenient().when(type.getLabel()).thenReturn("Restauración");
+        TreatmentInstance owner = existingTreatment(145L, TreatmentConditionType.IN_PROGRESS);
+        lenient().when(owner.getTreatment()).thenReturn(catalog);
+        when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenReturn(owner);
+        ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
+                newPrestation(TYPE_ID, refId(145L), null, null, null,
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+
+        useCase.execute(dto);
+
+        verify(dentistSpecialtyDomainService, times(1)).validateAllowed(consultation.getDentist(), treatmentSpecialties, "Caries");
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), eq(typeSpecialties), any());
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), any(), eq("Restauración"));
+        verify(dentistSpecialtyDomainService, times(1)).validateAllowed(any(), any(), any());
+    }
+
+    /**
+     * CASO: Un TreatmentInstance existente en REQUIRED al que el request le manda REPLACED o CANCELED (corrida con cada
+     * condición); su Treatment tiene especialidades {Ortodoncia} y label "Caries" (la validación mockeada lanza 403).
+     * Regla: D-61 — solo cierra un tratamiento el odontólogo con acceso a su especialidad, validado antes de aplicar la
+     * condición.
+     * Validación: ForbiddenException (403) en los dos casos, con el stub atado a (odontólogo de la consulta,
+     * especialidades del Treatment, "Caries"); no se crea la ConsultationInstance, no se aplica la condición, ni se guarda
+     * el tratamiento ni su historial.
+     */
+    @ParameterizedTest
+    @EnumSource(value = TreatmentConditionType.class, names = {"REPLACED", "CANCELED"})
+    void execute_closeExistingTreatmentSpecialtyNotAllowed_throwsForbiddenException(TreatmentConditionType requested) {
+        Set<DentistSpecialty> treatmentSpecialties = Set.of(mock(DentistSpecialty.class));
+        Treatment catalog = mock(Treatment.class);
+        when(catalog.getDentistSpecialties()).thenReturn(treatmentSpecialties);
+        when(catalog.getLabel()).thenReturn("Caries");
+        TreatmentInstance toClose = existingTreatment(145L, TreatmentConditionType.REQUIRED);
+        lenient().when(toClose.getTreatment()).thenReturn(catalog);
+        when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenReturn(toClose);
+        Dentist dentist = consultation.getDentist();
+        ForbiddenException forbidden = forbidden();
+        doThrow(forbidden).when(dentistSpecialtyDomainService).validateAllowed(dentist, treatmentSpecialties, "Caries");
+        ConsultationInstanceCreateRequestDTO dto = request(List.of(closeTreatment(145L, requested)), List.of());
+
+        assertThatThrownBy(() -> useCase.execute(dto)).isSameAs(forbidden);
+
+        verify(consultationInstanceRepository, never()).save(any());
+        verify(toClose, never()).applyCondition(any());
+        verify(treatmentInstanceRepository, never()).save(any());
+        verify(treatmentInstanceHistoryRepository, never()).save(any());
+    }
+
+    /**
+     * CASO: Rebasado nuevo (tipo con allowedScopes vacío, especialidades {Prótesis}, label "Rebasado") con solo
+     * originTreatmentInstanceRef {id: 145}; el Treatment del origen tiene {Ortodoncia} y label "Caries".
+     * Regla: D-61 — una prestación sin tratamiento propio se valida contra su PrestationType; el origen no es su
+     * tratamiento.
+     * Validación: validateAllowed se invoca exactamente una vez, con (odontólogo de la consulta, {Prótesis}, "Rebasado"),
+     * y nunca con las especialidades ni el label del Treatment del origen. Los stubs del origen son lenient porque el
+     * use case correcto no los lee.
+     */
+    @Test
+    void execute_newPrestationWithOnlyOrigin_validatesSpecialtyAgainstTypeNotAgainstOrigin() {
+        Set<DentistSpecialty> typeSpecialties = Set.of(mock(DentistSpecialty.class));
+        Set<DentistSpecialty> originSpecialties = Set.of(mock(DentistSpecialty.class));
+        when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
+        when(type.getLabel()).thenReturn("Rebasado");
+        when(type.getAllowedScopes()).thenReturn(Set.of());
+        Treatment originCatalog = mock(Treatment.class);
+        lenient().when(originCatalog.getDentistSpecialties()).thenReturn(originSpecialties);
+        lenient().when(originCatalog.getLabel()).thenReturn("Caries");
+        TreatmentInstance origin = existingTreatment(145L, TreatmentConditionType.FINISHED);
+        lenient().when(origin.getTreatment()).thenReturn(originCatalog);
+        when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenReturn(origin);
+        ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
+                newPrestation(TYPE_ID, null, null, refId(145L), null,
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+
+        useCase.execute(dto);
+
+        verify(dentistSpecialtyDomainService, times(1)).validateAllowed(consultation.getDentist(), typeSpecialties, "Rebasado");
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), eq(originSpecialties), any());
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), any(), eq("Caries"));
+        verify(dentistSpecialtyDomainService, times(1)).validateAllowed(any(), any(), any());
+    }
+
+    /**
+     * CASO: Prestación nueva (tipo "Restauración") con treatmentInstanceRef {id: 145} a un tratamiento existente del
+     * paciente (Treatment con {Ortodoncia} y label "Caries"), y una segunda prestación nueva (tipo "Radiografía", con
+     * especialidades propias) sin treatmentInstanceRef, con ubicación propia.
+     * Regla: D-63 — el use case valida que el tratamiento resuelto sea uno de los del catálogo del tipo, después de
+     * resolverlo y antes de validar la especialidad (D-61) y de guardar la prestación.
+     * Validación: validateTreatmentAllowedForType se invoca una vez por prestación nueva, con exactamente (tipo,
+     * tratamiento resuelto de 145) en la primera y (tipo, null) en la segunda; en cada una antes de su validateAllowed
+     * (InOrder) y antes del primer save de esa prestación (InOrder).
+     */
+    @Test
+    void execute_newPrestation_validatesTreatmentAllowedForTypeBeforeSpecialty() {
+        Set<DentistSpecialty> treatmentSpecialties = Set.of(mock(DentistSpecialty.class));
+        Set<DentistSpecialty> radiografiaSpecialties = Set.of(mock(DentistSpecialty.class));
+        Treatment catalog = mock(Treatment.class);
+        when(catalog.getDentistSpecialties()).thenReturn(treatmentSpecialties);
+        when(catalog.getLabel()).thenReturn("Caries");
+        TreatmentInstance owner = existingTreatment(145L, TreatmentConditionType.IN_PROGRESS);
+        lenient().when(owner.getTreatment()).thenReturn(catalog);
+        when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenReturn(owner);
+        PrestationType radiografia = mock(PrestationType.class);
+        lenient().when(radiografia.getId()).thenReturn(4L);
+        when(radiografia.getDentistSpecialties()).thenReturn(radiografiaSpecialties);
+        when(radiografia.getLabel()).thenReturn("Radiografía");
+        when(prestationTypeService.findById(4L)).thenReturn(radiografia);
+        ConsultationInstanceCreateRequestDTO dto = request(List.of(), List.of(
+                newPrestation(TYPE_ID, refId(145L), null, null, null,
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS)),
+                newPrestation(4L, null, scope(Tooth.T24), null, null,
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+
+        useCase.execute(dto);
+
+        Dentist dentist = consultation.getDentist();
+        verify(prestationInstanceDomainService, times(1)).validateTreatmentAllowedForType(type, owner);
+        verify(prestationInstanceDomainService, times(1)).validateTreatmentAllowedForType(radiografia, null);
+        verify(prestationInstanceDomainService, times(2)).validateTreatmentAllowedForType(any(), any());
+        InOrder withTreatment = inOrder(prestationInstanceDomainService, dentistSpecialtyDomainService, prestationInstanceRepository);
+        withTreatment.verify(prestationInstanceDomainService).validateTreatmentAllowedForType(type, owner);
+        withTreatment.verify(dentistSpecialtyDomainService).validateAllowed(dentist, treatmentSpecialties, "Caries");
+        withTreatment.verify(prestationInstanceRepository, atLeastOnceSave())
+                .save(argThat((PrestationInstance p) -> p.getType() == type));
+        InOrder withoutTreatment = inOrder(prestationInstanceDomainService, dentistSpecialtyDomainService, prestationInstanceRepository);
+        withoutTreatment.verify(prestationInstanceDomainService).validateTreatmentAllowedForType(radiografia, null);
+        withoutTreatment.verify(dentistSpecialtyDomainService).validateAllowed(dentist, radiografiaSpecialties, "Radiografía");
+        withoutTreatment.verify(prestationInstanceRepository, atLeastOnceSave())
+                .save(argThat((PrestationInstance p) -> p.getType() == radiografia));
+    }
+
+    /**
+     * CASO: Tratamiento nuevo tmp-1 (Treatment con {Ortodoncia} y label "Caries"); prestación nueva colgada de él
+     * (treatmentInstanceRef a tmp-1; PrestationType con {Endodoncia}) y con originTreatmentInstanceRef {id: 145} a un
+     * tratamiento existente cuyo Treatment tiene {Prótesis}.
+     * Regla: D-61 — con treatmentInstanceRef y origen a la vez, manda el tratamiento propio.
+     * Validación: validateAllowed se invoca exactamente dos veces, las dos con (odontólogo de la consulta, {Ortodoncia},
+     * "Caries") (el tratamiento que nace y la prestación que cuelga de él), y nunca con las especialidades del tipo ni
+     * las del origen. Los stubs del tipo y del origen son lenient porque el use case correcto no los lee.
+     */
+    @Test
+    void execute_newPrestationWithTreatmentAndOrigin_validatesSpecialtyAgainstTreatmentNotOrigin() {
+        Set<DentistSpecialty> treatmentSpecialties = Set.of(mock(DentistSpecialty.class));
+        Set<DentistSpecialty> typeSpecialties = Set.of(mock(DentistSpecialty.class));
+        Set<DentistSpecialty> originSpecialties = Set.of(mock(DentistSpecialty.class));
+        when(treatment.getDentistSpecialties()).thenReturn(treatmentSpecialties);
+        when(treatment.getLabel()).thenReturn("Caries");
+        lenient().when(type.getDentistSpecialties()).thenReturn(typeSpecialties);
+        lenient().when(type.getLabel()).thenReturn("Agregado");
+        Treatment originCatalog = mock(Treatment.class);
+        lenient().when(originCatalog.getDentistSpecialties()).thenReturn(originSpecialties);
+        lenient().when(originCatalog.getLabel()).thenReturn("Prótesis");
+        TreatmentInstance origin = existingTreatment(145L, TreatmentConditionType.FINISHED);
+        lenient().when(origin.getTreatment()).thenReturn(originCatalog);
+        when(treatmentInstanceQueryService.findByIdAndPatientId(145L, PATIENT_ID)).thenReturn(origin);
+        ConsultationInstanceCreateRequestDTO dto = request(
+                List.of(newTreatment("tmp-1", scope(Tooth.T11), 5L, null)),
+                List.of(newPrestation(TYPE_ID, ref("tmp-1"), null, refId(145L), null,
+                        new StepItemRequestDTO(null, STEP_1, PrestationStepStatus.IN_PROGRESS))));
+
+        useCase.execute(dto);
+
+        verify(dentistSpecialtyDomainService, times(2)).validateAllowed(consultation.getDentist(), treatmentSpecialties, "Caries");
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), eq(typeSpecialties), any());
+        verify(dentistSpecialtyDomainService, never()).validateAllowed(any(), eq(originSpecialties), any());
+        verify(dentistSpecialtyDomainService, times(2)).validateAllowed(any(), any(), any());
     }
 
     // ─── Helpers de request ───────────────────────────────────────────────────
@@ -1766,6 +2032,8 @@ class CreateConsultationInstanceUseCaseTest {
         AtomicReference<TreatmentConditionType> condition = new AtomicReference<>(initial);
         lenient().when(existing.getId()).thenReturn(id);
         lenient().when(existing.getPatient()).thenReturn(patient);
+        // Catálogo neutro (sin especialidades): D-61 lo lee al cerrar o al colgar una prestación de este tratamiento.
+        lenient().when(existing.getTreatment()).thenReturn(treatment);
         lenient().when(existing.getTreatmentCondition()).thenAnswer(inv -> condition.get());
         lenient().doAnswer(inv -> {
             condition.set(inv.getArgument(0));

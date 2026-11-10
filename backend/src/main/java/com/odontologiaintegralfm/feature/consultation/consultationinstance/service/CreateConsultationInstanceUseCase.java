@@ -182,6 +182,7 @@ public class CreateConsultationInstanceUseCase {
             if (item.id() != null) {
                 TreatmentInstance existing = treatmentInstanceQueryService.findByIdAndPatientId(item.id(), patientId);
                 treatmentInstanceDomainService.validateExplicitCloseAllowed(existing);
+                validateTreatmentSpecialty(dentist, existing.getTreatment());
                 treatmentsToClose.add(new TreatmentToClose(existing, item.treatmentCondition()));
             }
         }
@@ -235,7 +236,7 @@ public class CreateConsultationInstanceUseCase {
 
         // --- 6. Avanzar las PrestationInstance existentes ---
         for (ExistingPrestation existing : existingPrestations) {
-            PrestationInstance prestation = advanceExistingPrestation(existing, consultationInstance);
+            PrestationInstance prestation = advanceExistingPrestation(existing, consultationInstance, dentist);
             TreatmentInstance treatmentInstance = prestation.getTreatmentInstance();
             if (treatmentInstance != null) {
                 touchedTreatmentInstances.put(treatmentInstance.getId(), treatmentInstance);
@@ -252,11 +253,13 @@ public class CreateConsultationInstanceUseCase {
             PrestationInstanceItemRequestDTO item = newPrestation.item();
             PrestationType type = newPrestation.type();
 
-            dentistSpecialtyDomainService.validateAllowed(dentist, type.getDentistSpecialties(), type.getLabel());
-
             TreatmentInstance treatmentInstance = null;
             if (item.treatmentInstanceRef() != null) {
                 treatmentInstance = resolveTreatmentInstanceRef(item.treatmentInstanceRef(), treatmentInstancesByTempId, patientId);
+            }
+            prestationInstanceDomainService.validateTreatmentAllowedForType(type, treatmentInstance);
+            validatePrestationSpecialty(dentist, treatmentInstance, type);
+            if (treatmentInstance != null) {
                 treatmentInstanceDomainService.validateReferenceNotTerminal(treatmentInstance);
             }
             TreatmentInstance origin = null;
@@ -342,7 +345,7 @@ public class CreateConsultationInstanceUseCase {
     /** Paso 5: valida especialidad (D-61) y ubicación (D-08), crea el tratamiento con su alta en el historial (D-19, D-51). */
     private TreatmentInstance createTreatmentInstance(TreatmentInstanceItemRequestDTO item, Patient patient, Dentist dentist, ConsultationInstance consultationInstance) {
         Treatment treatment = treatmentService.findById(item.treatmentId());
-        dentistSpecialtyDomainService.validateAllowed(dentist, treatment.getDentistSpecialties(), treatment.getLabel());
+        validateTreatmentSpecialty(dentist, treatment);
 
         Scope scope = scopeMapper.toScope(item.scope());
         scopeDomainService.validateToothListDoesNotCompleteLevel(scope);
@@ -353,9 +356,27 @@ public class CreateConsultationInstanceUseCase {
         return created;
     }
 
-    /** Paso 6: valida el avance con lo persistido, lo aplica con una fila de historial por step (D-19) y deriva el estado (D-27). */
-    private PrestationInstance advanceExistingPrestation(ExistingPrestation existing, ConsultationInstance consultationInstance) {
+    /** D-61: el odontólogo tiene que estar entre las especialidades del catálogo del tratamiento que nace o se cierra. */
+    private void validateTreatmentSpecialty(Dentist dentist, Treatment treatment) {
+        dentistSpecialtyDomainService.validateAllowed(dentist, treatment.getDentistSpecialties(), treatment.getLabel());
+    }
+
+    /**
+     * D-61: una prestación con tratamiento se valida contra el catálogo del tratamiento, nunca contra el de su tipo;
+     * una sin tratamiento (ubicación propia o solo origen), contra el de su {@code PrestationType}.
+     */
+    private void validatePrestationSpecialty(Dentist dentist, TreatmentInstance treatmentInstance, PrestationType type) {
+        if (treatmentInstance != null) {
+            validateTreatmentSpecialty(dentist, treatmentInstance.getTreatment());
+        } else {
+            dentistSpecialtyDomainService.validateAllowed(dentist, type.getDentistSpecialties(), type.getLabel());
+        }
+    }
+
+    /** Paso 6: valida la especialidad (D-61) y el avance con lo persistido, lo aplica con una fila de historial por step (D-19) y deriva el estado (D-27). */
+    private PrestationInstance advanceExistingPrestation(ExistingPrestation existing, ConsultationInstance consultationInstance, Dentist dentist) {
         PrestationInstance prestation = existing.prestation();
+        validatePrestationSpecialty(dentist, prestation.getTreatmentInstance(), prestation.getType());
         List<StepItemRequestDTO> stepItems = existing.item().steps();
         Long typeId = prestation.getType().getId();
 

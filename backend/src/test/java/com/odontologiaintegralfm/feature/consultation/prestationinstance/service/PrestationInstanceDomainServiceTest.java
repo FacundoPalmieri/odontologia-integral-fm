@@ -15,6 +15,7 @@ import com.odontologiaintegralfm.feature.consultation.scope.enums.Tooth;
 import com.odontologiaintegralfm.feature.consultation.scope.enums.ToothFace;
 import com.odontologiaintegralfm.feature.consultation.scope.model.Scope;
 import com.odontologiaintegralfm.feature.consultation.scope.service.ScopeDomainService;
+import com.odontologiaintegralfm.feature.consultation.treatment.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceRefDTO;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.TreatmentInstance;
 import com.odontologiaintegralfm.shared.exception.AppException;
@@ -1320,5 +1321,96 @@ class PrestationInstanceDomainServiceTest {
         assertThatThrownBy(() -> service.validatePrestationInstancePending(
                 List.of(nuevaOn16, nuevaOn24), List.of(enBaseOn11, enBaseOn24)))
                 .isInstanceOf(ConflictException.class);
+    }
+
+    // ─── validateTreatmentAllowedForType (D-63) ───────────────────────────────
+
+    private static Treatment catalogTreatment(long id) {
+        Treatment treatment = mock(Treatment.class);
+        lenient().when(treatment.getId()).thenReturn(id);
+        return treatment;
+    }
+
+    private static TreatmentInstance instanceOf(Treatment treatment) {
+        TreatmentInstance instance = mock(TreatmentInstance.class);
+        lenient().when(instance.getTreatment()).thenReturn(treatment);
+        return instance;
+    }
+
+    private static PrestationType typeWithTreatments(String label, Set<Treatment> treatments) {
+        PrestationType type = simpleType("TYPE", label);
+        lenient().when(type.getTreatments()).thenReturn(treatments);
+        return type;
+    }
+
+    /**
+     * CASO: Radiografía (label "Radiografía") con tratamientos {1, 2} en el catálogo y una prestación sin tratamiento.
+     * Regla: D-63 — si el tipo tiene tratamientos en el catálogo, la prestación tiene que colgar de uno.
+     * Validación: ConflictException (409) con clave que contiene treatmentRequired y el label del tipo en getUserArgs().
+     * Bug que lo pone en rojo: no exigir tratamiento cuando el catálogo lo pide.
+     */
+    @Test
+    void validateTreatmentAllowedForType_typeWithTreatmentsAndNoTreatmentInstance_throwsConflictException() {
+        PrestationType radiografia = typeWithTreatments("Radiografía", Set.of(catalogTreatment(1L), catalogTreatment(2L)));
+
+        assertThatThrownBy(() -> service.validateTreatmentAllowedForType(radiografia, null))
+                .isInstanceOf(ConflictException.class)
+                .satisfies(e -> assertKey(e, "treatmentRequired"))
+                .satisfies(e -> assertThat(((AppException) e).getUserArgs()).contains("Radiografía"));
+    }
+
+    /**
+     * CASO: Tipo con tratamientos {1, 2} y un TreatmentInstance cuyo Treatment tiene id 3.
+     * Regla: D-63 — el Treatment del tratamiento tiene que ser uno de los del catálogo del tipo.
+     * Validación: ConflictException (409) con clave que contiene treatmentNotAllowed y el label del tipo en
+     * getUserArgs(). Bug que lo pone en rojo: aceptar cualquier tratamiento.
+     */
+    @Test
+    void validateTreatmentAllowedForType_typeWithTreatmentsAndTreatmentNotInCatalog_throwsConflictException() {
+        PrestationType tc = typeWithTreatments("TC unirradicular", Set.of(catalogTreatment(1L), catalogTreatment(2L)));
+        TreatmentInstance ortodoncia = instanceOf(catalogTreatment(3L));
+
+        assertThatThrownBy(() -> service.validateTreatmentAllowedForType(tc, ortodoncia))
+                .isInstanceOf(ConflictException.class)
+                .satisfies(e -> assertKey(e, "treatmentNotAllowed"))
+                .satisfies(e -> assertThat(((AppException) e).getUserArgs()).contains("TC unirradicular"));
+    }
+
+    /**
+     * CASO: Tipo con tratamientos {1, 2} y un TreatmentInstance cuyo Treatment es otra instancia con id 2.
+     * Regla: D-63 — la comparación es por id del Treatment, no por identidad de objeto.
+     * Validación: no lanza.
+     */
+    @Test
+    void validateTreatmentAllowedForType_typeWithTreatmentsAndTreatmentInCatalog_isAccepted() {
+        PrestationType tipo = typeWithTreatments("Radiografía", Set.of(catalogTreatment(1L), catalogTreatment(2L)));
+        TreatmentInstance sameIdOtherObject = instanceOf(catalogTreatment(2L));
+
+        assertThatCode(() -> service.validateTreatmentAllowedForType(tipo, sameIdOtherObject)).doesNotThrowAnyException();
+    }
+
+    /**
+     * CASO: Limpieza ultrasonido sin tratamientos en el catálogo (conjunto vacío) y sin TreatmentInstance.
+     * Regla: D-63 — sin tratamientos en el catálogo la regla no aplica.
+     * Validación: no lanza.
+     */
+    @Test
+    void validateTreatmentAllowedForType_typeWithoutTreatmentsAndNoTreatmentInstance_isAccepted() {
+        PrestationType limpieza = typeWithTreatments("Limpieza ultrasonido", Set.of());
+
+        assertThatCode(() -> service.validateTreatmentAllowedForType(limpieza, null)).doesNotThrowAnyException();
+    }
+
+    /**
+     * CASO: Tipo sin tratamientos en el catálogo y un TreatmentInstance de cualquier Treatment.
+     * Regla: D-63 — sin tratamientos en el catálogo la regla no aplica, cuelgue o no de un tratamiento.
+     * Validación: no lanza.
+     */
+    @Test
+    void validateTreatmentAllowedForType_typeWithoutTreatmentsAndTreatmentInstance_isAccepted() {
+        PrestationType limpieza = typeWithTreatments("Limpieza ultrasonido", Set.of());
+        TreatmentInstance cualquiera = instanceOf(catalogTreatment(9L));
+
+        assertThatCode(() -> service.validateTreatmentAllowedForType(limpieza, cualquiera)).doesNotThrowAnyException();
     }
 }

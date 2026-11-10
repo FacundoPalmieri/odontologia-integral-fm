@@ -13,6 +13,7 @@ import com.odontologiaintegralfm.feature.consultation.prestationinstance.model.P
 import com.odontologiaintegralfm.feature.consultation.scope.enums.Maxillary;
 import com.odontologiaintegralfm.feature.consultation.scope.model.Scope;
 import com.odontologiaintegralfm.feature.consultation.scope.service.ScopeDomainService;
+import com.odontologiaintegralfm.feature.consultation.treatment.model.Treatment;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.dto.TreatmentInstanceRefDTO;
 import com.odontologiaintegralfm.feature.consultation.treatmentinstance.model.TreatmentInstance;
 import com.odontologiaintegralfm.shared.enums.LogLevel;
@@ -213,6 +214,25 @@ public class PrestationInstanceDomainService {
         }
     }
 
+
+    /**
+     * Si el catálogo del tipo tiene tratamientos ({@code PrestationType.treatments} no vacío), la prestación que nace
+     * tiene que colgar de un tratamiento cuyo {@code Treatment} sea uno de ellos (D-63). Sin tratamientos en el catálogo
+     * la regla no aplica. El {@code Treatment} se compara por id.
+     */
+    public void validateTreatmentAllowedForType(PrestationType type, TreatmentInstance treatmentInstance) {
+        Set<Treatment> catalogTreatments = type.getTreatments();
+        if (catalogTreatments == null || catalogTreatments.isEmpty()) {
+            return;
+        }
+        if (treatmentInstance == null) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateTreatmentAllowedForType.treatmentRequired.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validateTreatmentAllowedForType.treatmentRequired.log", new Object[]{type.getId(), "PrestationInstanceDomainService", "validateTreatmentAllowedForType"}, LogLevel.ERROR);
+        }
+        Long treatmentId = treatmentInstance.getTreatment().getId();
+        if (catalogTreatments.stream().noneMatch(catalog -> Objects.equals(catalog.getId(), treatmentId))) {
+            throw new ConflictException("exception.prestationInstanceDomainService.validateTreatmentAllowedForType.treatmentNotAllowed.user", new Object[]{type.getLabel()}, "exception.prestationInstanceDomainService.validateTreatmentAllowedForType.treatmentNotAllowed.log", new Object[]{type.getId(), treatmentId, "PrestationInstanceDomainService", "validateTreatmentAllowedForType"}, LogLevel.ERROR);
+        }
+    }
 
     /**
      * El nivel de la ubicación efectiva tiene que ser uno de los que admite el tipo (D-07). Una prestación con
