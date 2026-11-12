@@ -15,18 +15,14 @@ import java.util.Set;
 public class DentistSpecialtyDomainService {
 
     /**
-     * Rechaza (403) si el catálogo restringe por especialidad y la del odontólogo no está entre las permitidas.
-     * Un catálogo sin especialidades cargadas no restringe a nadie; un odontólogo sin especialidad con un catálogo
-     * restrictivo tampoco pasa.
+     * Rechaza (403) si la especialidad del odontólogo no está entre las permitidas. Un catálogo sin especialidades
+     * cargadas (vacío o nulo) tampoco deja pasar a nadie (D-12), y un odontólogo sin especialidad no pasa.
      *
      * @param label texto visible del tratamiento o la prestación, para el mensaje al usuario
      */
     public void validateAllowed(Dentist dentist, Set<DentistSpecialty> allowedSpecialties, String label) {
-        if (allowedSpecialties == null || allowedSpecialties.isEmpty()) {
-            return;
-        }
         DentistSpecialty specialty = dentist.getDentistSpecialty();
-        if (specialty == null || !allowedSpecialties.contains(specialty)) {
+        if (allowedSpecialties == null || allowedSpecialties.isEmpty() || specialty == null || !allowedSpecialties.contains(specialty)) {
             throw new ForbiddenException("exception.dentistSpecialtyDomainService.validateAllowed.user", new Object[]{label}, "exception.dentistSpecialtyDomainService.validateAllowed.log", new Object[]{specialty != null ? specialty.getId() : null, label, "DentistSpecialtyDomainService", "validateAllowed"}, LogLevel.ERROR);
         }
     }

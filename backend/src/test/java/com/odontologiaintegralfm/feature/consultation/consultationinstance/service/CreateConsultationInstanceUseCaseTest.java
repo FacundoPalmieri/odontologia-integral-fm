@@ -130,6 +130,7 @@ class CreateConsultationInstanceUseCaseTest {
     private static final Long STEP_2 = 32L;
 
     @Mock private AuthenticatedUserService authenticatedUserService;
+    @Mock private ConsultationInstanceDomainService consultationInstanceDomainService;
     @Mock private ConsultationQueryService consultationQueryService;
     @Mock private IConsultationInstanceRepository consultationInstanceRepository;
     @Mock private ITreatmentInstanceRepository treatmentInstanceRepository;
@@ -182,6 +183,7 @@ class CreateConsultationInstanceUseCaseTest {
     private Patient patient;
     private Person dentistPerson;
     private Person authPerson;
+    private UserSec authUser;
     private PrestationType type;
     private Treatment treatment;
 
@@ -194,7 +196,7 @@ class CreateConsultationInstanceUseCaseTest {
         lenient().when(authPerson.getId()).thenReturn(DENTIST_PERSON_ID);
         Dentist dentist = mock(Dentist.class);
         lenient().when(dentist.getPerson()).thenReturn(dentistPerson);
-        UserSec authUser = mock(UserSec.class);
+        authUser = mock(UserSec.class);
         lenient().when(authUser.getPerson()).thenReturn(authPerson);
         lenient().when(authenticatedUserService.getAuthenticatedUser()).thenReturn(authUser);
 
@@ -206,6 +208,8 @@ class CreateConsultationInstanceUseCaseTest {
         lenient().when(consultation.getPatient()).thenReturn(patient);
         lenient().when(consultation.getStatus()).thenReturn(ConsultationStatusType.IN_CONSULTATION);
         lenient().when(consultationQueryService.findById(CONSULTATION_ID)).thenReturn(consultation);
+        // El control de dueño vive en ConsultationInstanceDomainService (REQ-039, T-03): por defecto el usuario es el dueño.
+        lenient().when(consultationInstanceDomainService.isAssignedDentist(consultation, authUser)).thenReturn(true);
         lenient().when(consultationInstanceRepository.findByConsultationId(CONSULTATION_ID)).thenReturn(null);
         lenient().when(consultationInstanceRepository.save(any(ConsultationInstance.class))).thenAnswer(inv -> {
             ConsultationInstance saved = inv.getArgument(0);
@@ -263,20 +267,23 @@ class CreateConsultationInstanceUseCaseTest {
     // ─── Ownership y precondiciones (D-62, D-20) ──────────────────────────────
 
     /**
-     * CASO: El odontólogo de la consulta (persona 7) no es el usuario autenticado (persona 9), y además la consulta
-     * está en WAITING_ROOM.
+     * CASO: ConsultationInstanceDomainService.isAssignedDentist(consulta, usuario autenticado) responde false (el usuario
+     * no es el odontólogo de la consulta), y además la consulta está en WAITING_ROOM.
      * Regla: D-62 corre antes que D-20; una consulta ajena se ve igual que una inexistente.
-     * Validación: NotFoundException (no ConflictException), sin ningún acceso a los repositorios de escritura.
+     * Validación: NotFoundException (no ConflictException) con la clave de usuario consultationNotOwned.user, sin ningún
+     * acceso a los repositorios de escritura.
      */
     @Test
     void execute_consultationOfAnotherDentist_throwsNotFoundException() {
-        when(authPerson.getId()).thenReturn(9L);
+        when(consultationInstanceDomainService.isAssignedDentist(consultation, authUser)).thenReturn(false);
         lenient().when(consultation.getStatus()).thenReturn(ConsultationStatusType.WAITING_ROOM);
         ConsultationInstanceCreateRequestDTO dto = request(List.of(newTreatment("tmp-1", scope(Tooth.T16), 5L, null)), List.of());
 
         assertThatThrownBy(() -> useCase.execute(dto))
                 .isInstanceOf(NotFoundException.class)
-                .isNotInstanceOf(ConflictException.class);
+                .isNotInstanceOf(ConflictException.class)
+                .satisfies(ex -> assertThat(((NotFoundException) ex).getUserMessageKey())
+                        .isEqualTo("exception.createConsultationInstanceUseCase.consultationNotOwned.user"));
 
         verifyNoInteractions(consultationInstanceRepository, treatmentInstanceRepository, treatmentInstanceHistoryRepository,
                 prestationInstanceRepository, prestationStepInstanceRepository, prestationStepInstanceHistoryRepository);

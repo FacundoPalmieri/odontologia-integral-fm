@@ -38,17 +38,36 @@ class DentistSpecialtyDomainServiceTest {
     }
 
     /**
-     * CASO: El catálogo del ítem no tiene especialidades cargadas.
-     * Regla: D-61 — un conjunto vacío no restringe a nadie.
-     * Validación: no lanza, ni con odontólogo endodoncista ni con odontólogo sin especialidad.
+      * CASO: El catálogo del ítem "Restauración" no tiene especialidades cargadas.
+     * Regla: D-12 — un catálogo sin especialidades se rechaza con 403, no deja pasar a cualquier odontólogo.
+     * Validación: ForbiddenException con "Restauración" entre los userArgs, tanto con odontólogo endodoncista como
+     * con odontólogo sin especialidad.
      */
     @Test
-    void validateAllowed_emptyAllowedSpecialties_doesNotRestrict() {
+    void validateAllowed_emptyAllowedSpecialties_throwsForbidden() {
         Dentist endodontist = dentistWith(specialty(1L));
         Dentist withoutSpecialty = dentistWith(null);
 
-        assertThatCode(() -> service.validateAllowed(endodontist, Set.of(), "Restauración")).doesNotThrowAnyException();
-        assertThatCode(() -> service.validateAllowed(withoutSpecialty, Set.of(), "Restauración")).doesNotThrowAnyException();
+        assertThatThrownBy(() -> service.validateAllowed(endodontist, Set.of(), "Restauración"))
+                .isInstanceOf(ForbiddenException.class)
+                .satisfies(e -> assertThat(((AppException) e).getUserArgs()).contains("Restauración"));
+        assertThatThrownBy(() -> service.validateAllowed(withoutSpecialty, Set.of(), "Restauración"))
+                .isInstanceOf(ForbiddenException.class)
+                .satisfies(e -> assertThat(((AppException) e).getUserArgs()).contains("Restauración"));
+    }
+
+    /**
+     * CASO: El catálogo del ítem "Restauración" llega con las especialidades en null.
+     * Regla: D-12 — un conjunto null se rechaza igual que uno vacío.
+     * Validación: ForbiddenException con "Restauración" entre los userArgs; no NullPointerException.
+     */
+    @Test
+    void validateAllowed_nullAllowedSpecialties_throwsForbidden() {
+        Dentist endodontist = dentistWith(specialty(1L));
+
+        assertThatThrownBy(() -> service.validateAllowed(endodontist, null, "Restauración"))
+                .isInstanceOf(ForbiddenException.class)
+                .satisfies(e -> assertThat(((AppException) e).getUserArgs()).contains("Restauración"));
     }
 
     /**

@@ -65,7 +65,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -78,6 +77,7 @@ import java.util.Set;
 public class CreateConsultationInstanceUseCase {
 
     private final AuthenticatedUserService authenticatedUserService;
+    private final ConsultationInstanceDomainService consultationInstanceDomainService;
     private final ConsultationQueryService consultationQueryService;
     private final IConsultationInstanceRepository consultationInstanceRepository;
     private final ITreatmentInstanceRepository treatmentInstanceRepository;
@@ -102,6 +102,7 @@ public class CreateConsultationInstanceUseCase {
     private final MessageSource messageSource;
 
     public CreateConsultationInstanceUseCase(AuthenticatedUserService authenticatedUserService,
+                                             ConsultationInstanceDomainService consultationInstanceDomainService,
                                              ConsultationQueryService consultationQueryService,
                                              IConsultationInstanceRepository consultationInstanceRepository,
                                              ITreatmentInstanceRepository treatmentInstanceRepository,
@@ -125,6 +126,7 @@ public class CreateConsultationInstanceUseCase {
                                              ChangeConsultationStatusUseCase changeConsultationStatusUseCase,
                                              MessageSource messageSource) {
         this.authenticatedUserService = authenticatedUserService;
+        this.consultationInstanceDomainService = consultationInstanceDomainService;
         this.consultationQueryService = consultationQueryService;
         this.consultationInstanceRepository = consultationInstanceRepository;
         this.treatmentInstanceRepository = treatmentInstanceRepository;
@@ -335,9 +337,8 @@ public class CreateConsultationInstanceUseCase {
      * ajena se ve igual que una inexistente (404, ADR-0027).
      */
     private void validateOwnership(Consultation consultation, UserSec authenticatedUser) {
-        Long dentistPersonId = consultation.getDentist().getPerson().getId();
-        Long authenticatedPersonId = authenticatedUser.getPerson().getId();
-        if (!Objects.equals(dentistPersonId, authenticatedPersonId)) {
+        if (!consultationInstanceDomainService.isAssignedDentist(consultation, authenticatedUser)) {
+            Long authenticatedPersonId = authenticatedUser.getPerson().getId();
             throw new NotFoundException("exception.createConsultationInstanceUseCase.consultationNotOwned.user", null, "exception.createConsultationInstanceUseCase.consultationNotOwned.log", new Object[]{consultation.getId(), authenticatedPersonId, "createConsultationInstanceUseCase", "validateOwnership"}, LogLevel.WARN);
         }
     }

@@ -35,4 +35,19 @@ public interface IPrestationTypePriceRepository extends JpaRepository<Prestation
             """)
     List<PrestationTypePrice> findAllActive(@Param("today") LocalDate today);
 
+    /**
+     * Precios vigentes a {@code date} de todas las prestaciones habilitadas (REQ-039, D-04, T-06). Sin {@code JOIN FETCH}
+     * de {@code allowedScopes}: una prestación sin scopes también sale. El {@code endDate} no se incluye: es el día en que empieza el precio siguiente. Si una prestación trae dos filas, el use case lo rechaza (D-11).
+     */
+    @Query("""
+            SELECT ptp
+            FROM PrestationTypePrice ptp
+            JOIN FETCH ptp.prestationType pt
+            WHERE ptp.startDate <= :date
+            AND (ptp.endDate IS NULL OR ptp.endDate > :date)
+            AND ptp.enabled = true
+            AND pt.enabled = true
+            """)
+    List<PrestationTypePrice> findAllPricesAtDate(@Param("date") LocalDate date);
+
 }

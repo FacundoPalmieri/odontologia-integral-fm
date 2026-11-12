@@ -2,10 +2,13 @@ package com.odontologiaintegralfm.feature.consultation.consultationinstance.cont
 
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationInstanceCreate;
 import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationInstanceRead;
+import com.odontologiaintegralfm.configuration.securityconfig.annotations.OnlyAccessConsultationInstanceUpdate;
+import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.CatalogTreeResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ClinicalContextResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ConsultationInstanceCreateRequestDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.dto.ProsthesisResponseDTO;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.service.CreateConsultationInstanceUseCase;
+import com.odontologiaintegralfm.feature.consultation.consultationinstance.service.GetCatalogTreeUseCase;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.service.GetClinicalContextByPatientUseCase;
 import com.odontologiaintegralfm.feature.consultation.consultationinstance.service.GetProsthesesByPatientUseCase;
 //import com.odontologiaintegralfm.feature.consultation.core.consultationinstance.service.GetConsultationInstanceUseCase;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
@@ -35,18 +39,21 @@ public class ConsultationInstanceController {
     private final CreateConsultationInstanceUseCase createConsultationInstanceUseCase;
     private final GetProsthesesByPatientUseCase getProsthesesByPatientUseCase;
     private final GetClinicalContextByPatientUseCase getClinicalContextByPatientUseCase;
+    private final GetCatalogTreeUseCase getCatalogTreeUseCase;
 //    private final GetConsultationInstanceUseCase getConsultationInstanceUseCase;
 //    private final UpdateConsultationInstanceUseCase updateConsultationInstanceUseCase;
 
     ConsultationInstanceController(CreateConsultationInstanceUseCase createConsultationInstanceUseCase,
                                    GetProsthesesByPatientUseCase getProsthesesByPatientUseCase,
-                                   GetClinicalContextByPatientUseCase getClinicalContextByPatientUseCase
+                                   GetClinicalContextByPatientUseCase getClinicalContextByPatientUseCase,
+                                   GetCatalogTreeUseCase getCatalogTreeUseCase
 //                                   , GetConsultationInstanceUseCase getConsultationInstanceUseCase,
 //                                   UpdateConsultationInstanceUseCase updateConsultationInstanceUseCase
     ) {
         this.createConsultationInstanceUseCase = createConsultationInstanceUseCase;
         this.getProsthesesByPatientUseCase = getProsthesesByPatientUseCase;
         this.getClinicalContextByPatientUseCase = getClinicalContextByPatientUseCase;
+        this.getCatalogTreeUseCase = getCatalogTreeUseCase;
 //        this.getConsultationInstanceUseCase = getConsultationInstanceUseCase;
 //        this.updateConsultationInstanceUseCase = updateConsultationInstanceUseCase;
     }
@@ -90,6 +97,21 @@ public class ConsultationInstanceController {
     @OnlyAccessConsultationInstanceRead
     public ResponseEntity<Response<ClinicalContextResponseDTO>> getClinicalContextByPatientId(@PathVariable Long patientId) {
         Response<ClinicalContextResponseDTO> response = getClinicalContextByPatientUseCase.execute(patientId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Obtener el catálogo clínico del odontólogo en árbol", description = "Devuelve los tratamientos de la especialidad del odontólogo con sus prestaciones, y las prestaciones sin tratamiento, con steps y precio. Sin parámetro es un alta (usuario autenticado, precios de hoy); con consultationInstanceId es la corrección de esa instancia (odontólogo de la consulta, prestaciones y precios a la fecha de la instancia).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Árbol clínico del odontólogo"),
+            @ApiResponse(responseCode = "401", description = "No autenticado."),
+            @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso."),
+            @ApiResponse(responseCode = "404", description = "Instancia de consulta inexistente o ajena para un DENTIST."),
+            @ApiResponse(responseCode = "409", description = "El usuario no tiene Dentist, o una prestación no tiene precio o tiene más de uno para la fecha."),
+    })
+    @GetMapping("/catalog-tree")
+    @OnlyAccessConsultationInstanceUpdate
+    public ResponseEntity<Response<CatalogTreeResponseDTO>> getCatalogTree(@RequestParam(required = false) Long consultationInstanceId) {
+        Response<CatalogTreeResponseDTO> response = getCatalogTreeUseCase.execute(consultationInstanceId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

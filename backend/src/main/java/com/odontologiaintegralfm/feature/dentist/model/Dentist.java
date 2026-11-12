@@ -33,6 +33,6 @@ public class Dentist extends Auditable {
     private String licenseNumber;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = DentistSpecialty.class)
-    @JoinColumn(name = "dentist_specialty_id")
+    @JoinColumn(name = "dentist_specialty_id", nullable = false)
     private DentistSpecialty dentistSpecialty;
 }
